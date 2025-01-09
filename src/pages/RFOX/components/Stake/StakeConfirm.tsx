@@ -28,7 +28,7 @@ import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { getRfoxProxyContract, selectStakingBalance } from 'pages/RFOX/helpers'
+import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
@@ -151,7 +151,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery<string>({
     stakingAssetId: confirmedQuote.stakingAssetId,
-    stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote.stakingAssetId),
+    stakingAssetAccountAddress: getStakingContract(confirmedQuote.stakingAssetId),
     select: data =>
       bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
   })
@@ -225,7 +225,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           stakingAsset?.assetId,
-          getRfoxProxyContract(confirmedQuote.stakingAssetId),
+          getStakingContract(confirmedQuote.stakingAssetId),
           stakingAssetAccountAddress,
         ),
       )

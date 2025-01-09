@@ -10,7 +10,7 @@ type StatItemProps = {
   description: string
   amountUserCurrency?: string
   percentChangeDecimal?: string
-  helperTranslation?: string
+  helperDescription?: string
   isLoading: boolean
 }
 
@@ -20,7 +20,7 @@ const helperToolTipFlexProps = {
 }
 
 export const StatItem = ({
-  helperTranslation,
+  helperDescription,
   description,
   amountUserCurrency,
   percentChangeDecimal,
@@ -29,8 +29,8 @@ export const StatItem = ({
   const translate = useTranslate()
 
   const helperIconProps = useMemo(() => {
-    return { boxSize: !helperTranslation ? 0 : undefined }
-  }, [helperTranslation])
+    return { boxSize: !helperDescription ? 0 : undefined }
+  }, [helperDescription])
 
   const valueChangeTag: JSX.Element | null = useMemo(() => {
     if (!percentChangeDecimal) return null
@@ -42,7 +42,7 @@ export const StatItem = ({
     <Stack spacing={0} flex={1} flexDir={'column'}>
       <Skeleton isLoaded={!isLoading}>
         <HelperTooltip
-          label={translate(helperTranslation)}
+          label={translate(helperDescription)}
           flexProps={helperToolTipFlexProps}
           iconProps={helperIconProps}
         >

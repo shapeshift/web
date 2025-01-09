@@ -6,14 +6,14 @@ import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 
 import { getRfoxContract } from '../constants'
-import { getRfoxProxyContract } from '../helpers'
+import { getStakingContract } from '../helpers'
 import type { AbiStakingInfo } from '../types'
 
 export type StakingInfoQueryKey = [
   'stakingInfo',
   {
     chainId: number
-    contractAddress: Address
+    contractAddress?: Address
     stakingAssetAccountAddress?: string
     stakingAssetId?: AssetId
   },
@@ -21,7 +21,7 @@ export type StakingInfoQueryKey = [
 
 type UseStakingInfoQueryProps<SelectData = AbiStakingInfo> = {
   stakingAssetAccountAddress: string | undefined
-  stakingAssetId?: AssetId
+  stakingAssetId: AssetId | undefined
   select?: (stakingInfo: AbiStakingInfo) => SelectData
 }
 
@@ -33,7 +33,7 @@ export const getStakingInfoQueryKey = (
     'stakingInfo',
     {
       chainId: arbitrum.id,
-      contractAddress: getRfoxProxyContract(stakingAssetId),
+      contractAddress: stakingAssetId ? getStakingContract(stakingAssetId) : undefined,
       stakingAssetAccountAddress,
       stakingAssetId,
     },
@@ -42,7 +42,7 @@ export const getStakingInfoQueryKey = (
 
 export const getStakingInfoQueryFn = (
   stakingAssetAccountAddress: string,
-  stakingAssetId?: AssetId,
+  stakingAssetId: AssetId,
 ) => {
   return () =>
     getRfoxContract(stakingAssetId).read.stakingInfo([getAddress(stakingAssetAccountAddress)])
@@ -59,7 +59,7 @@ export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
   )
 
   const queryFn = useMemo(() => {
-    return stakingAssetAccountAddress
+    return stakingAssetAccountAddress && stakingAssetId
       ? getStakingInfoQueryFn(stakingAssetAccountAddress, stakingAssetId)
       : skipToken
   }, [stakingAssetAccountAddress, stakingAssetId])

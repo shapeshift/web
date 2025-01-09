@@ -13,7 +13,7 @@ const client = viemClientByNetworkId[arbitrum.id]
 
 type UseTimeInPoolQueryProps<SelectData = bigint> = {
   stakingAssetAccountAddress: string | undefined
-  stakingAssetId?: AssetId
+  stakingAssetId: AssetId
   select?: (timeInPoolSeconds: bigint) => SelectData
 }
 

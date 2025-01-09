@@ -1,4 +1,4 @@
-import { Flex, Heading, Stack } from '@chakra-ui/react'
+import { Flex, Heading } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -14,13 +14,16 @@ import { useAppSelector } from 'state/store'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
 
+// TODO: Handle multi account detection across staking assets
+
 export const RFOXHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
+  const { stakingAssetId, stakingAssetAccountId, setStakingAssetAccountId } = useRFOXContext()
+
   const handleBack = useCallback(() => {
     history.push('/explore')
   }, [history])
-  const { stakingAssetId, setStakingAssetAccountId, stakingAssetAccountId } = useRFOXContext()
 
   const accountIdsFilter = useMemo(() => ({ assetId: stakingAssetId }), [stakingAssetId])
   const accountIds = useAppSelector(state =>
@@ -29,9 +32,7 @@ export const RFOXHeader = () => {
 
   useEffect(() => {
     if (!accountIds.length) setStakingAssetAccountId(undefined)
-    if (accountIds.length === 1) {
-      setStakingAssetAccountId(accountIds[0])
-    }
+    if (accountIds.length === 1) setStakingAssetAccountId(accountIds[0])
   }, [accountIds, setStakingAssetAccountId])
 
   const activeAccountDropdown = useMemo(() => {
@@ -72,10 +73,7 @@ export const RFOXHeader = () => {
         </Display.Mobile>
         <Display.Desktop>
           <PageHeader.Left>
-            <Stack pb={4}>
-              <Heading>{translate('RFOX.staking')}</Heading>
-              <Text translation='explore.rfox.body' color='text.subtle' />
-            </Stack>
+            <Heading mb={4}>{translate('RFOX.staking')}</Heading>
           </PageHeader.Left>
           <PageHeader.Right>{activeAccountDropdown}</PageHeader.Right>
         </Display.Desktop>

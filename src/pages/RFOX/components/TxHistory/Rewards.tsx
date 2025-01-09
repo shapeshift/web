@@ -1,5 +1,5 @@
 import { Box, CardBody } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
@@ -17,6 +17,7 @@ import { useAppSelector } from 'state/store'
 import { RewardTransactionList } from './RewardTransactionList'
 
 type RewardsContentProps = {
+  stakingAssetId: AssetId
   stakingAssetAccountId: AccountId
 }
 
@@ -24,7 +25,7 @@ type RewardsProps = {
   headerComponent: JSX.Element
 }
 
-const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
+const RewardsContent = ({ stakingAssetId, stakingAssetAccountId }: RewardsContentProps) => {
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const stakingAssetAccountAddresses = useMemo(() => {
@@ -32,6 +33,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   }, [stakingAssetAccountId])
 
   const lifetimeRewardDistributionsResult = useLifetimeRewardDistributionsQuery({
+    stakingAssetId,
     stakingAssetAccountAddresses,
   })
 
@@ -127,7 +129,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
 }
 
 export const Rewards = ({ headerComponent }: RewardsProps) => {
-  const { stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
 
   if (!stakingAssetAccountId) return null
 
@@ -135,7 +137,10 @@ export const Rewards = ({ headerComponent }: RewardsProps) => {
     <CardBody>
       {headerComponent}
       <Box>
-        <RewardsContent stakingAssetAccountId={stakingAssetAccountId} />
+        <RewardsContent
+          stakingAssetId={stakingAssetId}
+          stakingAssetAccountId={stakingAssetAccountId}
+        />
       </Box>
     </CardBody>
   )

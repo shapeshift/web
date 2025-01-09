@@ -1,11 +1,15 @@
-import { foxEthLpArbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import {
+  foxEthLpArbitrumAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+} from '@shapeshiftoss/caip'
 import { RFOX_LP_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getRfoxProxyContract } from 'pages/RFOX/helpers'
+import { getStakingContract } from 'pages/RFOX/helpers'
 import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
@@ -72,6 +76,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
+    stakingAssetId: foxOnArbitrumOneAssetId,
   })
 
   const { queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
@@ -83,12 +88,16 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
     stakingAssetId: confirmedQuote ? confirmedQuote.stakingAssetId : undefined,
-    stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote?.stakingAssetId),
+    stakingAssetAccountAddress: confirmedQuote
+      ? getStakingContract(confirmedQuote.stakingAssetId)
+      : undefined,
   })
 
   const { queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
     stakingAssetId: foxEthLpArbitrumAssetId,
-    stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote?.stakingAssetId),
+    stakingAssetAccountAddress: confirmedQuote
+      ? getStakingContract(confirmedQuote.stakingAssetId)
+      : undefined,
   })
 
   const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({

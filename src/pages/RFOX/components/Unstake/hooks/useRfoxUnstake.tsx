@@ -17,7 +17,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { getRfoxProxyContract, selectStakingBalance } from 'pages/RFOX/helpers'
+import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
@@ -109,7 +109,7 @@ export const useRfoxUnstake = ({
 
   const unstakeFeesQueryInput = useMemo(
     () => ({
-      to: getRfoxProxyContract(stakingAssetId),
+      to: getStakingContract(stakingAssetId),
       from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
@@ -138,7 +138,7 @@ export const useRfoxUnstake = ({
         adapter,
         data: callData,
         value: '0',
-        to: getRfoxProxyContract(stakingAssetId),
+        to: getStakingContract(stakingAssetId),
         wallet,
       })
 
@@ -195,7 +195,7 @@ export const useRfoxUnstake = ({
   const { data: userStakingBalanceOfCryptoBaseUnit } = userStakingBalanceOfQuery
 
   const newContractBalanceOfQuery = useStakingBalanceOfQuery({
-    stakingAssetAccountAddress: getRfoxProxyContract(stakingAssetId),
+    stakingAssetAccountAddress: getStakingContract(stakingAssetId),
     stakingAssetId,
     select: data => data.toString(),
   })

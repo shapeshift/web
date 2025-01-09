@@ -1,7 +1,13 @@
-import { RFOX_REWARD_RATE } from '@shapeshiftoss/contracts'
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import {
+  RFOX_LP_PROXY_CONTRACT,
+  RFOX_PROXY_CONTRACT,
+  RFOX_REWARD_RATE,
+} from '@shapeshiftoss/contracts'
 import { bn } from 'lib/bignumber/bignumber'
 
-import type { AbiStakingInfo, CurrentEpochMetadata, StakingInfo } from '../types'
+import { getStakingContract } from '../helpers'
+import type { CurrentEpochMetadata } from '../types'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.
@@ -18,9 +24,13 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
   // Calculate the total reward units for the current epoch thus far
   const secondsInCurrentEpoch = (Date.now() - currentEpochMetadata.epochStartTimestamp) / 1000
   const totalRewardUnits = RFOX_REWARD_RATE * BigInt(Math.floor(secondsInCurrentEpoch))
+  const distributionRate =
+    currentEpochMetadata.distributionRateByStakingContract[
+      getStakingContract(foxOnArbitrumOneAssetId)
+    ]
 
   const distributionAmountRuneBaseUnit = bn(affiliateRevenue.toString())
-    .times(currentEpochMetadata.distributionRate)
+    .times(distributionRate)
     .toFixed(0)
 
   const epochRewardRuneBaseUnit = bn(rewardUnits.toString())
@@ -33,23 +43,11 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
 
 export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {
   switch (contractAddress) {
-    case '0x1094c4a99fce60e69ffe75849309408f1262d304':
-      return 222952418n
-    case '0xac2a4fd70bcd8bab0662960455c363735f0e2b56':
+    case RFOX_PROXY_CONTRACT:
       return 222913582n
+    case RFOX_LP_PROXY_CONTRACT:
+      return 291163572n
     default:
       throw new Error(`Invalid RFOX proxy contract address`)
-  }
-}
-
-export const parseAbiStakingInfo = (abiStakingInfo: AbiStakingInfo): StakingInfo => {
-  const [stakingBalance, unstakingBalance, earnedRewards, rewardPerTokenStored, runeAddress] =
-    abiStakingInfo
-  return {
-    stakingBalance,
-    unstakingBalance,
-    earnedRewards,
-    rewardPerTokenStored,
-    runeAddress,
   }
 }

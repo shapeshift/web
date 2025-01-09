@@ -25,7 +25,7 @@ import {
   createBuildCustomTxInput,
   isGetFeesWithWalletEIP1559SupportArgs,
 } from 'lib/utils/evm'
-import { getRfoxProxyContract } from 'pages/RFOX/helpers'
+import { getStakingContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -130,13 +130,13 @@ export const useRfoxStake = ({
     return encodeFunctionData({
       abi: erc20Abi,
       functionName: 'approve',
-      args: [getRfoxProxyContract(stakingAssetId), BigInt(amountCryptoBaseUnit)],
+      args: [getStakingContract(stakingAssetId), BigInt(amountCryptoBaseUnit)],
     })
   }, [amountCryptoBaseUnit, stakingAssetId, stakingAsset])
 
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
-    spender: getRfoxProxyContract(stakingAssetId),
+    spender: getStakingContract(stakingAssetId),
     from: stakingAssetAccountAddress,
   })
 
@@ -219,7 +219,7 @@ export const useRfoxStake = ({
         adapter,
         data: stakeCallData,
         value: '0',
-        to: getRfoxProxyContract(stakingAssetId),
+        to: getStakingContract(stakingAssetId),
         wallet,
       })
 
@@ -240,7 +240,7 @@ export const useRfoxStake = ({
 
   const stakeFeesQueryInput = useMemo(
     () => ({
-      to: getRfoxProxyContract(stakingAssetId),
+      to: getStakingContract(stakingAssetId),
       accountNumber: stakingAssetAccountNumber,
       from: stakingAssetAccountAddress,
       data: stakeCallData,
@@ -329,7 +329,7 @@ export const useRfoxStake = ({
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
-      spender: getRfoxProxyContract(stakingAssetId),
+      spender: getStakingContract(stakingAssetId),
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
       from: stakingAssetAccountAddress,

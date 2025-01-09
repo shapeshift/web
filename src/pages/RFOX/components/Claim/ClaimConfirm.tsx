@@ -35,7 +35,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { getRfoxProxyContract } from 'pages/RFOX/helpers'
+import { getStakingContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -133,7 +133,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         adapter,
         data: callData,
         value: '0',
-        to: getRfoxProxyContract(stakingAsset.assetId),
+        to: getStakingContract(stakingAsset.assetId),
         wallet,
       })
 
@@ -156,7 +156,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const claimFeesQueryInput = useMemo(
     () => ({
-      to: getRfoxProxyContract(claimQuote.stakingAssetId),
+      to: getStakingContract(claimQuote.stakingAssetId),
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,

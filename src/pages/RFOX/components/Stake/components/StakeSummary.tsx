@@ -8,7 +8,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { getRfoxProxyContract, selectStakingBalance } from 'pages/RFOX/helpers'
+import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -54,7 +54,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     data: newContractBalanceOfCryptoBaseUnit,
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery<string>({
-    stakingAssetAccountAddress: getRfoxProxyContract(stakingAssetId),
+    stakingAssetAccountAddress: getStakingContract(stakingAssetId),
     stakingAssetId,
     select: data => bnOrZero(data.toString()).plus(stakingAmountCryptoBaseUnit).toFixed(),
   })

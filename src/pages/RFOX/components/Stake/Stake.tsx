@@ -93,6 +93,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
+    stakingAssetId: confirmedQuote?.stakingAssetId,
   })
 
   const { queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({

@@ -1,12 +1,15 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
+import { getStakingContract } from '../helpers'
 import type { RewardDistribution } from '../types'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardDistributionsQueryProps = {
+  stakingAssetId: AssetId
   stakingAssetAccountAddresses: string[]
 }
 
@@ -21,6 +24,7 @@ export type RewardDistributionWithMetadata = RewardDistribution & {
  * Supports multiple staking asset account addresses.
  */
 export const useLifetimeRewardDistributionsQuery = ({
+  stakingAssetId,
   stakingAssetAccountAddresses,
 }: UseLifetimeRewardDistributionsQueryProps) => {
   const select = useCallback(
@@ -32,7 +36,9 @@ export const useLifetimeRewardDistributionsQuery = ({
         .flatMap(epoch =>
           stakingAssetAccountAddresses.map(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)
-            const distribution = epoch.distributionsByStakingAddress[stakingAddress]
+            const distribution =
+              epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
+                .distributionsByStakingAddress[stakingAddress]
 
             if (!distribution) return null
 
@@ -46,7 +52,7 @@ export const useLifetimeRewardDistributionsQuery = ({
         )
         .filter(isSome)
     },
-    [stakingAssetAccountAddresses],
+    [stakingAssetAccountAddresses, stakingAssetId],
   )
 
   const query = useEpochHistoryQuery({ select, enabled: stakingAssetAccountAddresses.length > 0 })

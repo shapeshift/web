@@ -6,7 +6,7 @@ import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 
 import { getRfoxContract } from '../constants'
-import { getRfoxProxyContract } from '../helpers'
+import { getStakingContract } from '../helpers'
 
 type EarnedQueryKey = [
   'earned',
@@ -14,13 +14,13 @@ type EarnedQueryKey = [
     chainId: number
     contractAddress: Address
     stakingAssetAccountAddress?: string
-    stakingAssetId?: AssetId
+    stakingAssetId: AssetId
   },
 ]
 
 type UseEarnedQueryProps = {
   stakingAssetAccountAddress: string | undefined
-  stakingAssetId?: AssetId
+  stakingAssetId: AssetId
 }
 
 export const getEarnedQueryKey = ({
@@ -30,7 +30,7 @@ export const getEarnedQueryKey = ({
   'earned',
   {
     chainId: arbitrum.id,
-    contractAddress: getRfoxProxyContract(stakingAssetId),
+    contractAddress: getStakingContract(stakingAssetId),
     stakingAssetAccountAddress,
     stakingAssetId,
   },
@@ -40,6 +40,7 @@ export const getEarnedQueryFn = ({
   stakingAssetAccountAddress,
   stakingAssetId,
 }: UseEarnedQueryProps) => {
+  if (!stakingAssetId) return skipToken
   if (!stakingAssetAccountAddress) return skipToken
 
   return async () => {

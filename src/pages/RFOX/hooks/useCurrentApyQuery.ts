@@ -8,6 +8,7 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectPriceHistoryByAssetTimeframe } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { getStakingContract } from '../helpers'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
@@ -33,6 +34,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const totalStakedCryptoCurrencyResult = useTotalStakedQuery<string>({
+    stakingAssetId,
     select: (totalStaked: bigint) => {
       return totalStaked.toString()
     },
@@ -60,10 +62,14 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
           runePriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
       )
 
+      const previousDistributionRate =
+        previousEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
+          .distributionRate
+
       const totalRuneUsdValue = bnOrZero(
         fromBaseUnit(previousEpoch.totalRevenue, runeAsset.precision),
       )
-        .times(previousEpoch.distributionRate)
+        .times(previousDistributionRate)
         .times(closestRunePrice?.price ?? 0)
 
       const totalFoxUsdValue = bnOrZero(

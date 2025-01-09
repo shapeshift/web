@@ -6,13 +6,13 @@ import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 
 import { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from '../constants'
-import { getRfoxProxyContract } from '../helpers'
+import { getStakingContract } from '../helpers'
 import type { RFOXAccountLog } from '../types'
 import { getRfoxContractCreationBlockNumber } from './helpers'
 
 type UseAccountLogsProps<SelectData> = {
   stakingAssetAccountAddress: string | undefined
-  stakingAssetId?: AssetId
+  stakingAssetId: AssetId
   select?: (sortedAccountLogs: RFOXAccountLog[]) => SelectData
 }
 
@@ -25,10 +25,10 @@ const client = viemClientByNetworkId[arbitrum.id]
  */
 const fetchAccountLogs = async (
   stakingAssetAccountAddress: string,
-  stakingAssetId?: AssetId,
+  stakingAssetId: AssetId,
 ): Promise<RFOXAccountLog[]> => {
   const rfoxCreationBlockNumber = getRfoxContractCreationBlockNumber(
-    getRfoxProxyContract(stakingAssetId),
+    getStakingContract(stakingAssetId),
   )
 
   try {
@@ -61,12 +61,12 @@ const fetchAccountLogs = async (
 
 export const getAccountLogsQueryKey = (
   stakingAssetAccountAddress: string | undefined,
-  stakingAssetId?: AssetId,
+  stakingAssetId: AssetId,
 ) => ['accountLogs', stakingAssetAccountAddress, stakingAssetId]
 
 export const getAccountLogsQueryFn = (
   stakingAssetAccountAddress: string | undefined,
-  stakingAssetId?: AssetId,
+  stakingAssetId: AssetId,
 ) =>
   stakingAssetAccountAddress
     ? () => fetchAccountLogs(stakingAssetAccountAddress, stakingAssetId)

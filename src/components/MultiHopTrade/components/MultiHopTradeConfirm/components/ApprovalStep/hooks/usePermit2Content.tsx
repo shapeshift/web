@@ -3,7 +3,10 @@ import { isSome } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveSwapperName,
+  selectHopExecutionMetadata,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
@@ -37,12 +40,14 @@ export const usePermit2Content = ({
     allowanceApproval,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
+  const swapperName = useAppSelector(selectActiveSwapperName)
+
   const { signPermit2 } = useSignPermit2(tradeQuoteStep, hopIndex, activeTradeId)
 
   const { isLoading: isTradeQuotesLoading } = useGetTradeQuotes()
 
   const isButtonDisabled = useMemo(() => {
-    const isAwaitingPermit2 = hopExecutionState === HopExecutionState.AwaitingPermit2
+    const isAwaitingPermit2 = hopExecutionState === HopExecutionState.AwaitingPermit2Eip712Sign
     const isError = permit2.state === TransactionExecutionState.Failed
     const isAwaitingConfirmation = permit2.state === TransactionExecutionState.AwaitingConfirmation
     const isDisabled =
@@ -52,22 +57,26 @@ export const usePermit2Content = ({
   }, [hopExecutionState, permit2.state, isTradeQuotesLoading])
 
   const subHeadingTranslation: [string, InterpolationOptions] = useMemo(() => {
-    return ['trade.permit2.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
+    return ['trade.permit2Eip712.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
   }, [tradeQuoteStep])
 
+  const tooltipTranslation: [string, InterpolationOptions] = useMemo(() => {
+    return ['trade.permit2Eip712.tooltip', { swapperName }]
+  }, [swapperName])
+
   const content = useMemo(() => {
-    if (hopExecutionState !== HopExecutionState.AwaitingPermit2) return
+    if (hopExecutionState !== HopExecutionState.AwaitingPermit2Eip712Sign) return
     return (
       <ApprovalContent
-        buttonTranslation='trade.permit2.signMessage'
+        buttonTranslation='trade.permit2Eip712.signMessage'
         isDisabled={isButtonDisabled}
         isLoading={
           /* NOTE: No loading state when signature in progress because it's instant */
           isTradeQuotesLoading
         }
         subHeadingTranslation={subHeadingTranslation}
-        titleTranslation='trade.permit2.title'
-        tooltipTranslation='trade.permit2.tooltip'
+        titleTranslation='trade.permit2Eip712.title'
+        tooltipTranslation={tooltipTranslation}
         transactionExecutionState={permit2.state}
         onSubmit={signPermit2}
       />
@@ -79,6 +88,7 @@ export const usePermit2Content = ({
     permit2.state,
     signPermit2,
     subHeadingTranslation,
+    tooltipTranslation,
   ])
 
   const description = useMemo(() => {
@@ -98,7 +108,7 @@ export const usePermit2Content = ({
         tradeQuoteStep={tradeQuoteStep}
         txLines={txLines}
         isError={permit2.state === TransactionExecutionState.Failed}
-        errorTranslation='trade.permit2.error'
+        errorTranslation='trade.permit2Eip712.error'
       />
     )
   }, [allowanceApproval.txHash, allowanceReset.txHash, permit2.state, tradeQuoteStep])

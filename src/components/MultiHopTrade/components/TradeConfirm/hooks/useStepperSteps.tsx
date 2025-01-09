@@ -29,7 +29,7 @@ export const useStepperSteps = () => {
   const {
     state: firstHopExecutionState,
     allowanceApproval: firstHopAllowanceApproval,
-    permit2: firstHopPermit2,
+    permit2: firstHopPermit2Eip712,
     allowanceReset: firstHopAllowanceReset,
   } = useAppSelector(state => selectHopExecutionMetadata(state, firstHopExecutionMetadataFilter))
 
@@ -51,7 +51,7 @@ export const useStepperSteps = () => {
   const params = useMemo(
     () => ({
       firstHopAllowanceApproval,
-      firstHopPermit2,
+      firstHopPermit2Eip712,
       firstHopAllowanceReset,
       lastHopAllowanceApproval,
       lastHopPermit2,
@@ -60,7 +60,7 @@ export const useStepperSteps = () => {
     }),
     [
       firstHopAllowanceApproval,
-      firstHopPermit2,
+      firstHopPermit2Eip712,
       firstHopAllowanceReset,
       lastHopAllowanceApproval,
       lastHopPermit2,

@@ -923,12 +923,16 @@
         "cta": "Ok, got it"
       }
     },
-    "permit2": {
-      "title": "Permit token transfer:",
+    "permit2Allowance": {
+      "title": "Permit2 contract allowance",
+      "tooltip": "This trade uses Permit2, which requires a one-time approval to grant unlimited allowance to the Permit2 contract. After this initial setup, you can authorize trades on any Permit2-supported protocol by signing gas-free messages that grant temporary 5-minute allowances."
+    },
+    "permit2Eip712": {
+      "title": "Permit token transfer",
       "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
-      "tooltip": "This trade has an added security feature called 'Permit2' which requires you to grant permission for the application to complete the trade on your behalf.",
       "error": "A problem occurred signing Permit2 message",
-      "signMessage": "Sign message"
+      "signMessage": "Sign message",
+      "tooltip": "This will grant %{swapperName} a 5-minute allowance to complete the trade on your behalf."
     },
     "errors": {
       "title": "Something went wrong",
@@ -1013,7 +1017,6 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
-    "permit2Title": "Permit token transfer",
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {

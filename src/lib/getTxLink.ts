@@ -33,6 +33,7 @@ type GetTxLink = GetTxBaseUrl &
   ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never }) & {
     accountId: AccountId | undefined
     maybeSafeTx: SafeTxInfo | undefined
+    maybeChainflipSwapId?: string | undefined
   }
 
 export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBaseUrl): string => {
@@ -46,6 +47,8 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBas
     case THORCHAIN_LONGTAIL_SWAP_SOURCE:
     case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
       return 'https://viewblock.io/thorchain/tx/'
+    case SwapperName.Chainflip:
+      return 'https://scan.chainflip.io/swaps/'
     default:
       return defaultExplorerBaseUrl
   }
@@ -58,6 +61,7 @@ export const getTxLink = ({
   tradeId,
   maybeSafeTx,
   accountId,
+  maybeChainflipSwapId,
 }: GetTxLink): string => {
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
@@ -72,6 +76,10 @@ export const getTxLink = ({
       case THORCHAIN_LONGTAIL_SWAP_SOURCE:
       case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
         return `${baseUrl}${id.replace(/^0x/, '')}`
+      case SwapperName.Chainflip:
+        return maybeChainflipSwapId
+          ? `${baseUrl}${maybeChainflipSwapId}`
+          : `${defaultExplorerBaseUrl}${id}`
       default:
         return `${baseUrl}${id}`
     }

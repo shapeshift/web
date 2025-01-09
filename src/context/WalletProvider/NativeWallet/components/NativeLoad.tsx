@@ -41,7 +41,7 @@ const walletButtonLeftIcon = (
 )
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
-  const { getAdapter, dispatch, state } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
@@ -81,9 +81,6 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
-        // // not calling disconnect from useWallet because we don't want to modify state
-        // await state.wallet?.disconnect?.()
-
         // Set a pending device ID so the event handler doesn't redirect the user to password input
         // for the previous wallet
         dispatch({

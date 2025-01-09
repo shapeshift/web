@@ -296,7 +296,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
-      const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
+      const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal'])
       // reset wallet meta in redux store
       store.dispatch(localWalletSlice.actions.clearLocalWallet())
       store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
@@ -438,7 +438,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      */
     state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
-    store.dispatch(localWalletSlice.actions.clearLocalWallet())
   }, [state.wallet])
 
   const load = useCallback(() => {

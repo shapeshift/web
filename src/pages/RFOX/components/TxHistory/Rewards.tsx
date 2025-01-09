@@ -1,5 +1,5 @@
 import { Box, CardBody } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
@@ -17,7 +17,6 @@ import { useAppSelector } from 'state/store'
 import { RewardTransactionList } from './RewardTransactionList'
 
 type RewardsContentProps = {
-  stakingAssetId: AssetId
   stakingAssetAccountId: AccountId
 }
 
@@ -25,7 +24,7 @@ type RewardsProps = {
   headerComponent: JSX.Element
 }
 
-const RewardsContent = ({ stakingAssetId, stakingAssetAccountId }: RewardsContentProps) => {
+const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const stakingAssetAccountAddresses = useMemo(() => {
@@ -33,7 +32,6 @@ const RewardsContent = ({ stakingAssetId, stakingAssetAccountId }: RewardsConten
   }, [stakingAssetAccountId])
 
   const lifetimeRewardDistributionsResult = useLifetimeRewardDistributionsQuery({
-    stakingAssetId,
     stakingAssetAccountAddresses,
   })
 
@@ -94,6 +92,7 @@ const RewardsContent = ({ stakingAssetId, stakingAssetAccountId }: RewardsConten
           epoch: distribution.epoch,
           ipfsHash: distribution.ipfsHash,
           stakingAddress: distribution.stakingAddress,
+          stakingContract: distribution.stakingContract,
         },
       }
 
@@ -129,7 +128,7 @@ const RewardsContent = ({ stakingAssetId, stakingAssetAccountId }: RewardsConten
 }
 
 export const Rewards = ({ headerComponent }: RewardsProps) => {
-  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetAccountId } = useRFOXContext()
 
   if (!stakingAssetAccountId) return null
 
@@ -137,10 +136,7 @@ export const Rewards = ({ headerComponent }: RewardsProps) => {
     <CardBody>
       {headerComponent}
       <Box>
-        <RewardsContent
-          stakingAssetId={stakingAssetId}
-          stakingAssetAccountId={stakingAssetAccountId}
-        />
+        <RewardsContent stakingAssetAccountId={stakingAssetAccountId} />
       </Box>
     </CardBody>
   )

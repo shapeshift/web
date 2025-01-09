@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxEthLpArbitrumAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { RFOX_LP_PROXY_CONTRACT, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { invert } from 'lodash'
 
 import type { EpochWithIpfsHash } from './hooks/useEpochHistoryQuery'
 import type { AbiStakingInfo, StakingInfo } from './types'
@@ -34,13 +35,21 @@ export const selectLastEpoch = (data: EpochWithIpfsHash[]): EpochWithIpfsHash | 
   return data[data.length - 1]
 }
 
+const stakingContractByAssetId = {
+  [foxOnArbitrumOneAssetId]: RFOX_PROXY_CONTRACT,
+  [uniV2EthFoxArbitrumAssetId]: RFOX_LP_PROXY_CONTRACT,
+}
+
+const stakingAssetIdByContract = invert(stakingContractByAssetId)
+
 export const getStakingContract = (stakingAssetId: AssetId) => {
-  switch (stakingAssetId) {
-    case foxOnArbitrumOneAssetId:
-      return RFOX_PROXY_CONTRACT
-    case foxEthLpArbitrumAssetId:
-      return RFOX_LP_PROXY_CONTRACT
-    default:
-      throw new Error(`No rFOX staking contract for ${stakingAssetId}`)
-  }
+  const stakingContract = stakingContractByAssetId[stakingAssetId]
+  if (!stakingContract) throw new Error(`No rFOX staking contract for ${stakingAssetId}`)
+  return stakingContract
+}
+
+export const getStakingAssetId = (stakingContract: string) => {
+  const stakingAssetId = stakingAssetIdByContract[stakingContract]
+  if (!stakingAssetId) throw new Error(`No rFOX staking assetId for ${stakingContract}`)
+  return stakingAssetId
 }

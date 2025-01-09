@@ -22,15 +22,18 @@ export const useLifetimeRewardsQuery = ({
     (data: Epoch[]): bigint => {
       if (!stakingAssetAccountAddress) return 0n
 
-      return data
-        .filter(epoch => epoch.number >= 0)
-        .reduce((acc, epoch) => {
-          const distribution =
-            epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-              .distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]?.amount
-          if (!distribution) return acc
-          return acc + BigInt(distribution)
-        }, 0n)
+      return data.reduce((acc, epoch) => {
+        const distribution =
+          epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
+            .distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
+
+        if (!distribution) return acc
+
+        // filter out genesis "distributions"
+        if (epoch.distributionStatus === 'complete' && !distribution.txId) return acc
+
+        return acc + BigInt(distribution.amount)
+      }, 0n)
     },
     [stakingAssetId, stakingAssetAccountAddress],
   )

@@ -1,21 +1,19 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
-import { getStakingContract } from '../helpers'
 import type { RewardDistribution } from '../types'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardDistributionsQueryProps = {
-  stakingAssetId: AssetId
   stakingAssetAccountAddresses: string[]
 }
 
 export type RewardDistributionWithMetadata = RewardDistribution & {
   epoch: number
   stakingAddress: string
+  stakingContract: string
   ipfsHash: string
 }
 
@@ -24,35 +22,40 @@ export type RewardDistributionWithMetadata = RewardDistribution & {
  * Supports multiple staking asset account addresses.
  */
 export const useLifetimeRewardDistributionsQuery = ({
-  stakingAssetId,
   stakingAssetAccountAddresses,
 }: UseLifetimeRewardDistributionsQueryProps) => {
   const select = useCallback(
     (data: EpochWithIpfsHash[]): RewardDistributionWithMetadata[] => {
       if (!stakingAssetAccountAddresses) return []
       return data
-        .filter(epoch => epoch.number >= 0)
         .sort((a, b) => b.number - a.number)
         .flatMap(epoch =>
-          stakingAssetAccountAddresses.map(stakingAssetAccountAddress => {
+          stakingAssetAccountAddresses.flatMap(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)
-            const distribution =
-              epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-                .distributionsByStakingAddress[stakingAddress]
 
-            if (!distribution) return null
+            return Object.entries(epoch.detailsByStakingContract).map(
+              ([stakingContract, details]) => {
+                const distribution = details.distributionsByStakingAddress[stakingAddress]
 
-            return {
-              epoch: epoch.number,
-              stakingAddress,
-              ipfsHash: epoch.ipfsHash,
-              ...distribution,
-            }
+                if (!distribution) return null
+
+                // filter out genesis "distributions"
+                if (epoch.distributionStatus === 'complete' && !distribution.txId) return null
+
+                return {
+                  epoch: epoch.number,
+                  stakingAddress,
+                  stakingContract,
+                  ipfsHash: epoch.ipfsHash,
+                  ...distribution,
+                }
+              },
+            )
           }),
         )
         .filter(isSome)
     },
-    [stakingAssetAccountAddresses, stakingAssetId],
+    [stakingAssetAccountAddresses],
   )
 
   const query = useEpochHistoryQuery({ select, enabled: stakingAssetAccountAddresses.length > 0 })

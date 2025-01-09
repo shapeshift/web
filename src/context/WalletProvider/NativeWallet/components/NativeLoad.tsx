@@ -41,7 +41,7 @@ const walletButtonLeftIcon = (
 )
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
-  const { getAdapter, dispatch } = useWallet()
+  const { getAdapter, dispatch, state } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
@@ -81,6 +81,16 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
+        // // not calling disconnect from useWallet because we don't want to modify state
+        // await state.wallet?.disconnect?.()
+
+        // Set a pending device ID so the event handler doesn't redirect the user to password input
+        // for the previous wallet
+        dispatch({
+          type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
+          payload: deviceId,
+        })
+
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
@@ -103,6 +113,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
             type: WalletActions.SET_IS_CONNECTED,
             payload: true,
           })
+          dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
           // The wallet is already initialized so we can close the modal
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }

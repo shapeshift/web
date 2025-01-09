@@ -43,9 +43,12 @@ export const EnterPassword = () => {
   const translate = useTranslate()
   const { state, dispatch, disconnect } = useWallet()
   const localWallet = useLocalWallet()
-  const { deviceId, keyring } = state
+  const { nativeWalletPendingDeviceId: deviceId, keyring } = state
 
   const [showPw, setShowPw] = useState<boolean>(false)
+
+  // TODO: this is always null
+  console.log('EnterPassword', deviceId)
 
   const {
     setError,
@@ -83,6 +86,7 @@ export const EnterPassword = () => {
           type: WalletActions.SET_IS_CONNECTED,
           payload: true,
         })
+        dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
         dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {

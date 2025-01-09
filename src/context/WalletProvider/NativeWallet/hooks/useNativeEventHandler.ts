@@ -6,6 +6,7 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { isMobile as isMobileApp } from 'lib/globals'
+import { assertUnreachable } from 'lib/utils'
 
 export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
   const { keyring, modal, modalType } = state
@@ -13,13 +14,25 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const deviceId = e[0]
-      switch (e[1].message_type) {
+      const messageType = e[1].message_type as NativeEvents
+      switch (messageType) {
         case NativeEvents.MNEMONIC_REQUIRED:
           if (!deviceId) break
+
+          // Don't show password input for previous wallet when switching
+          if (deviceId !== state.nativeWalletPendingDeviceId) {
+            break
+          }
+
+          console.log({
+            nativeWalletPendingDeviceId: state.nativeWalletPendingDeviceId,
+            deviceId: state.deviceId,
+          })
+
           // If we're on the native mobile app we don't need to handle the MNEMONIC_REQUIRED event as we use the device's native authentication instead
           // Reacting to this event will incorrectly open the native password modal after authentication completes when on the mobile app
           if (isMobileApp) break
-          dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true, deviceId } })
+          dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true } })
 
           break
         case NativeEvents.READY:
@@ -28,8 +41,7 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
           }
           break
         default:
-          // If there wasn't an enum value, then we'll check the message type
-          break
+          assertUnreachable(messageType)
       }
     }
 
@@ -48,5 +60,5 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
       keyring.off(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.off(['Native', '*', NativeEvents.READY], handleEvent)
     }
-  }, [modalType, dispatch, keyring, modal])
+  }, [modalType, dispatch, keyring, modal, state.nativeWalletPendingDeviceId, state.deviceId])
 }

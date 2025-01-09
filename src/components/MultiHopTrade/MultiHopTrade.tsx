@@ -1,10 +1,13 @@
+import { Box, Card, Stepper } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from '@shapeshiftoss/utils'
+import { assertUnreachable, ethereum } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
+import { noop } from 'lodash'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
+import { fox } from 'test/mocks/assets'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -14,9 +17,11 @@ import { LimitOrder } from './components/LimitOrder/LimitOrder'
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
+import { ExpandableStepperSteps } from './components/TradeConfirm/ExpandableStepperSteps'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
 import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
+import { TradeSuccess } from './components/TradeSuccess/TradeSuccess'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import { TradeInputTab, TradeRoutePaths } from './types'
@@ -131,7 +136,18 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
 
   return (
     <>
-      <AnimatePresence mode='wait' initial={false}>
+      <Card flex={1} width='full' maxWidth='500px'>
+        <TradeSuccess
+          handleBack={noop}
+          sellAsset={ethereum}
+          buyAsset={fox}
+          sellAmountCryptoPrecision={'1.23412043345245230005234345'}
+          buyAmountCryptoPrecision={'634000.5634562345764578567352020032000'}
+        >
+          <Box>1234</Box>
+        </TradeSuccess>
+      </Card>
+      {/* <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
           <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
             <TradeInput
@@ -165,7 +181,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
             />
           </Route>
         </Switch>
-      </AnimatePresence>
+      </AnimatePresence> */}
       {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
       {/* corrupted from state being mutated during trade execution. */}
       {/* TODO: move the hook into a react-query or similar and pass a flag  */}

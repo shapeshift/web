@@ -5,6 +5,7 @@ import {
   CardBody,
   CardFooter,
   Collapse,
+  Divider,
   Flex,
   HStack,
   Icon,
@@ -24,6 +25,7 @@ import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
+import { YouSaved } from './components/YouSaved'
 
 export type TradeSuccessProps = {
   handleBack: () => void
@@ -50,7 +52,8 @@ export const TradeSuccess = ({
     defaultIsOpen: false,
   })
 
-  const lastHop = useAppSelector(selectLastHop)
+  // TEMP: Revert me!
+  const lastHop = true // useAppSelector(selectLastHop)
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -92,13 +95,17 @@ export const TradeSuccess = ({
             </Stack>
             <AmountsLine />
           </Flex>
+          <Stack gap={4} px={8}>
+            <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
+              {translate('trade.doAnotherTrade')}
+            </Button>
+            <YouSaved />
+          </Stack>
         </SlideTransition>
       </CardBody>
-      <CardFooter flexDir='column' gap={2} px={4}>
+      <Divider />
+      <CardFooter flexDir='column' gap={2} px={8}>
         <SlideTransition>
-          <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-            {translate('trade.doAnotherTrade')}
-          </Button>
           <HStack width='full' justifyContent='space-between' mt={4}>
             <Button variant='link' onClick={handleToggle} px={2}>
               {translate('trade.summary')}

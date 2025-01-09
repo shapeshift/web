@@ -1027,7 +1027,13 @@
     "awaitingSwap": "Awaiting swap via %{swapperName}",
     "awaitingBridge": "Awaiting bridge via %{bridgeName}",
     "awaitingApproval": "Awaiting approval",
-    "awaitingAllowanceReset": "Awaiting allowance reset"
+    "awaitingAllowanceReset": "Awaiting allowance reset",
+    "foxSavings": {
+      "youSaved": "You saved %{feeSaving} on your trade with FOX Savings",
+      "youCouldHaveSaved": "You saved %{feeSaving} on your trade with FOX Savings",
+      "buyFox": "Buy FOX",
+      "share": "Share"
+    }
   },
   "limitOrder": {
     "heading": "Limit",

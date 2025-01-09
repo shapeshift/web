@@ -452,7 +452,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
-      {tradeSteps[StepperStep.FirstHopPermit2Sign] ? (
+      {tradeSteps[StepperStep.FirstHopPermit2Eip712Sign] ? (
         <StepperStepComponent
           title={firstHopPermit2SignTitle}
           stepIndicator={stepIndicator}

@@ -138,10 +138,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     return isPermit2Hop(tradeQuoteStep)
   }, [tradeQuoteStep])
 
-  const isApprovalButtonDisabled = useMemo(() => {
-    return isAllowanceApprovalLoading
-  }, [isAllowanceApprovalLoading])
-
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} width='full'>
@@ -180,7 +176,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
                 size='sm'
                 mx={2}
                 isChecked={isExactAllowance}
-                disabled={isApprovalButtonDisabled}
+                disabled={isAllowanceApprovalLoading}
                 onChange={toggleIsExactAllowance}
               />
               <Text
@@ -200,7 +196,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     approvalNetworkFeeUserCurrency,
     isPermit2,
     isExactAllowance,
-    isApprovalButtonDisabled,
     toggleIsExactAllowance,
   ])
 

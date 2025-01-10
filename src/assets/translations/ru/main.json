@@ -40,6 +40,7 @@
     "noResultsFound": "Результатов не найдено.",
     "noResultsBody": "Для %{searchQuery} нет результатов. Попробуйте выполнить новый поиск.",
     "insufficientFunds": "Недостаточно средств",
+    "insufficientFundsForTrade": "Недостаточно средств для торговли",
     "insufficientAllowance": "Недостаточное разрешение",
     "estimatedGas": "Предполагаемая плата за газ",
     "relayerGasFee": "Плата за газ для релейщиков",
@@ -129,6 +130,7 @@
     "best": "Лучшая",
     "gasFee": "Плата за газ",
     "approvalFee": "Плата за разрешение",
+    "allowanceResetFee": "Плата за сброс",
     "consolidationFee": "Комиссия за консолидацию",
     "fees": "Комиссия",
     "alternative": "Альтернатива",
@@ -147,6 +149,7 @@
     "learnMore": "Подробнее",
     "showAll": "Показать больше",
     "showLess": "Показать меньше",
+    "showMore": "Показать еще",
     "yourBalance": "Ваш баланс",
     "signTransaction": "Подписать транзакцию",
     "active": "Активный",
@@ -298,21 +301,8 @@
     "notSupported": "%{asset} не поддерживается %{wallet}"
   },
   "connectWalletPage": {
-    "title": "Оригинальная мультичейн биржа",
-    "primaryTitle": "Добро пожаловать в Multichain DeFi.",
-    "secondaryTitle": "Личный. Децентрализованный. Не подлежащий лишению свободы.",
-    "primaryDescription": "Торгуйте, осуществляйте мосты и получайте вознаграждения без особых усилий. Опыт работы с нативными Bitcoin, Dogecoin и другими. Управляйте ликвидностью и позициями DeFi в один клик.",
-    "snapDescription": "Скачайте ShapeShift Multichain Snap и разблокируйте Bitcoin, Dogecoin и другие криптовалюты для вашего MetaMask.",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Исследуйте",
-    "defiUniverse": "Вселенную DeFi",
-    "body": "Торговля, бридж и заработок. Частный. В собственности общества. Децентрализованная.",
-    "header": "Пожалуйста, подключите кошелек, чтобы начать",
-    "cta": "Подключите или создайте кошелек",
-    "viewADemo": "Посмотреть демо-версию",
-    "dontHaveWallet": "У вас нет кошелька?",
     "welcomeBack": "С возвращением!",
-    "welcomeBody": "Подключение кошелька аналогично \"входу в систему\". Выберите свой кошелек из предложенных вариантов, чтобы начать работу.",
     "welcomeToShapeShift": "Добро пожаловать в ShapeShift",
     "mobileWelcomeBody": "Создайте новый кошелек или добавьте существующий, чтобы легко начать работу.",
     "mobileSelectBody": "Выберите любой из сохраненных ниже кошельков, а также создайте или импортируйте новый кошелек.",
@@ -865,6 +855,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Комиссия за газ превышает %{percentage}% от суммы сделки",
     "confirmDetails": "Подтвердить условия",
     "confirmAndTrade": "Подтвердить и торговать",
+    "signAndSwap": "Подписать и обменять",
     "tradeAnyway": "Всё равно обменять",
     "pending": "Торговля на стадии рассмотрения",
     "complete": "Выполнено",
@@ -886,6 +877,8 @@
     "beforeFees": "До уплаты комиссии",
     "minAmountAfterSlippage": "Мин. ожидаемое время после проскальзывания ( %{slippage}%)",
     "free": "Бесплатно",
+    "shapeShiftFee": "Комиссия ShapeShift",
+    "transactionFee": "Комиссия за транзакцию",
     "slowSwapTitle": "%{protocol} торговля",
     "slowSwapBody": "Этот обмен может занять несколько минут.",
     "thorSmartContractWalletUnsupported": "В настоящее время сеть THORChain не поддерживает кошельки смарт-контрактов.",
@@ -925,7 +918,7 @@
         "negativeRatio": "Недостаточная сумма продажи"
       },
       "rateExpired": {
-        "title": "Срок действия тарифа истек",
+        "title": "Новый тариф",
         "body": "Срок действия предыдущей ставки обмена истек. Мы нашли новый курс и обновили ваши котировки. Пожалуйста, просмотрите последние данные, прежде чем подтверждать своп.",
         "cta": "Хорошо, понял."
       }
@@ -966,7 +959,12 @@
       "noQuotesAvailable": "Нет доступных котировок для данной сделки",
       "smartContractWalletNotSupported": "Кошелек смарт-контрактов не поддерживается",
       "unsafeQuote": "Эта сумма ниже рекомендуемого минимума для данной пары (%{recommendedMin} %{symbol}). Это может привести к неудачной сделке или потере средств.",
-      "rateLimitExceeded": "Превышен лимит скорости, повторите попытку позже"
+      "rateLimitExceeded": "Превышен лимит скорости, повторите попытку позже",
+      "maxSlippageExceededWithExpectedSlippage": "Максимально допустимое проскальзывание для этой сделки было превышено во время моделирования. Ожидаемое проскальзывание: %{expectedSlippage}%. Повторите попытку с более высоким допуском на проскальзывание.",
+      "executionRevertedWithExpectedSlippage": "Во время выполнения произошел откат исполнения. Это может быть связано с недостаточной устойчивостью к проскальзыванию. Ожидаемое проскальзывание: %{expectedSlippage}%. Повторите попытку с более высоким допуском на проскальзывание.",
+      "slippageToleranceExceeded": "Превышен допустимый уровень проскальзывания.",
+      "underMinimumAmount": "Один или несколько активов в этой сделке ниже минимальной суммы, необходимой для этой сделки.",
+      "consumedMoreFees": "Транзакция была возвращена, поскольку комиссии, затраченные на эту сделку, оказались выше, чем ожидалось."
     },
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
     "recentTrades": "Последние сделки",
@@ -1003,23 +1001,30 @@
     },
     "hopTitle": {
       "bridge": "Бридж через %{swapperName}",
-      "swap": "Обмен через %{swapperName}"
+      "swap": "Обмен через %{swapperName}",
+      "swapEta": "Обмен через %{swapperName} в ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "Возникла проблема при выполнении моста",
       "swap": "Возникла проблема при выполнении обмена"
     },
     "transactionTitle": {
-      "bridge": "Бридж с %{sellChainName} на %{buyChainName} через %{swapperName}",
+      "bridge": "Обмен с %{sellChainName} на %{buyChainName} через %{swapperName}",
       "swap": "Обмен на %{sellChainName} через %{swapperName}"
     },
     "approvalTitle": "Согласие на использование токенов",
+    "permit2Title": "Разрешить передачу токенов",
     "resetTitle": "Сброс ограничений на токены",
     "fiatAmountOnChain": "%{amountFiatFormatted} на %{chainName}",
     "quote": {
       "cantSetSlippage": "Мы не можем установить пользовательское проскальзывание (%{userSlippageFormatted}) для %{swapperName}",
       "slippage": "Проскальзывание: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Ожидание передачи токена",
+    "awaitingSwap": "Ожидание обмена через %{имя обменщика}",
+    "awaitingBridge": "Ожидание моста через %{bridgeName}",
+    "awaitingApproval": "Ожидает одобрения",
+    "awaitingAllowanceReset": "Ожидание сброса разрешений"
   },
   "limitOrder": {
     "heading": "Ограничение",
@@ -1039,17 +1044,19 @@
     "yourOrderHasBeenPlaced": "Ваш заказ оформлен.",
     "yourCancellationHasBeenSubmitted": "Ваша отмена была отправлена.",
     "limitPrice": "Предельная цена",
+    "executionPrice": "Цена исполнения",
     "provider": "Поставщик",
     "expiration": "Срок действия",
     "networkFee": "Комиссия за сеть",
     "confirmInfo": "Лимитный ордер может не исполниться именно тогда, когда цены на цепи достигнут лимитной цены.",
     "learnMore": "Узнать больше",
     "previewOrder": "Предварительный заказ",
-    "youGet": "Вы получаете",
+    "youGet": "Вы получите как минимум",
     "whenPriceReaches": "Когда цена достигает",
     "expiry": "Срок действия",
     "noOpenOrders": "Открытых ордеров пока нет.",
     "noHistoricalOrders": "Исторических ордеров пока нет.",
+    "limitPriceIsPercentLowerThanMarket": "Лимитная цена на %{percent}% ниже рыночной цены",
     "expiryOption": {
       "oneHour": "1 час",
       "oneDay": "1 день",
@@ -1062,9 +1069,18 @@
       "nativeSellAssetNotSupported": "Родные активы для продажи не поддерживаются",
       "insufficientValidTo": "Слишком раннее истечение срока действия ордера",
       "excessiveValidTo": "Срок действия ордера слишком далеко в будущем",
-      "insufficientLiquidity": "Недостаточная ликвидность"
+      "insufficientLiquidity": "Недостаточная ликвидность",
+      "zeroFunds": "Необходим ненулевой баланс активов на продажу",
+      "insufficientFundsForGas": "Недостаточно средств на оплату газа",
+      "allowanceResetRequired": "Требуется сброс разрешений"
     },
-    "expiresIn": "Срок действия истекает",
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Цена на %{percent} % ниже рыночной.\n\nХотя CoW всегда стремится предложить вам наилучшую доступную цену, это может привести к продаже вашего %{sellAssetSymbol} в убыток. Подумайте о том, чтобы вместо этого нажать «Рынок»."
+    },
+    "usdtAllowanceReset": {
+      "title": "Невозможно одобрить разрешение на использование USDT",
+      "description": "Ваш текущий запас USDT на Ethereum должен быть сброшен до 0, прежде чем его можно будет установить на достаточное значение. Пожалуйста, отмените текущий запас токенов USDT и повторите попытку."
+    },
     "openOrders": "Открытые ордера",
     "orderHistory": "История ордеров",
     "status": {
@@ -1075,7 +1091,13 @@
     },
     "orders": "Ордеры",
     "viewOrders": "Просмотр ордеров",
-    "loadingOrderList": "Загрузка лимитных ордеров..."
+    "loadingOrderList": "Загрузка лимитных ордеров...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "В настоящее время в вашем кошельке недостаточно %{symbol} баланса на %{chainName} для выполнения этого ордера. Ордер все еще открыт и будет исполнен, когда вы пополните свой баланс %{символ} на %{chainName}.",
+        "insufficientAllowance": "Для исполнения этого ордера требуется дополнительная надбавка в размере %{symbol} на %{chainName}, которая должна быть одобрена для CoW Swap. Ордер все еще открыт и станет исполняемым, когда вы завершите утверждение надбавки."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

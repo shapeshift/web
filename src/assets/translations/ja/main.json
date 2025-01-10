@@ -40,6 +40,7 @@
     "noResultsFound": "結果が見つかりません。",
     "noResultsBody": "%{searchQuery} の検索結果はありませんでした。もう一度試してください。",
     "insufficientFunds": "残高不足",
+    "insufficientFundsForTrade": "交換のための資金が不足しています",
     "insufficientAllowance": "手当不足",
     "estimatedGas": "ガス代の目安",
     "relayerGasFee": "リレイヤーのガス代",
@@ -129,6 +130,7 @@
     "best": "ベスト",
     "gasFee": "ガス料金",
     "approvalFee": "手数料の承認",
+    "allowanceResetFee": "承認リセットのための手数料",
     "consolidationFee": "統合手数料",
     "fees": "手数料",
     "alternative": "代替",
@@ -147,6 +149,7 @@
     "learnMore": "詳細",
     "showAll": "すべて表示",
     "showLess": "表示を減らす",
+    "showMore": "もっと見る",
     "yourBalance": "バランス",
     "signTransaction": "トランザクションに署名する",
     "active": "アクティブ",
@@ -298,21 +301,8 @@
     "notSupported": "%{asset} は %{wallet} でサポートされていません"
   },
   "connectWalletPage": {
-    "title": "オリジナルのマルチチェーン取引所",
-    "primaryTitle": "マルチチェーン DeFi へようこそ。",
-    "secondaryTitle": "プライベート。分散型。非管理型。",
-    "primaryDescription": "簡単に取引、ブリッジ、報酬を獲得できます。ネイティブビットコイン、ドージコインなどを体験してください。ワンクリックで流動性と DeFi ポジションを管理します。",
-    "snapDescription": "ShapeShift Multichain Snap をダウンロードして、MetaMask で Bitcoin、Dogecoin などをアンロックしましょう。",
     "shapeshift": "ShapeShift",
-    "exploreThe": "をエクスプローラーしてください",
-    "defiUniverse": "DeFi空間",
-    "body": "取引し、ブリッジし、獲得しましょう。プライベートであり、コミュニティが所有した、ノンカストディアルな分散型の取引所です。",
-    "header": "始めるにはウォレットを接続してください",
-    "cta": "ウォレットを接続または作成する",
-    "viewADemo": "デモを見る",
-    "dontHaveWallet": "ウォレットをお持ちではありませんか？",
     "welcomeBack": "おかえりなさい！",
-    "welcomeBody": "ウォレットの接続はログインのようなものです。開始するには、オプションからウォレットを選択してください。",
     "welcomeToShapeShift": "ShapeShiftへようこそ",
     "mobileWelcomeBody": "新しいウォレットを作成するか、既存のウォレットを追加して簡単に開始できます。",
     "mobileSelectBody": "以下の保存済みウォレットからいずれかを選択するか、新しいウォレットを作成またはインポートします。",
@@ -865,6 +855,7 @@
     "gasFeeExceedsTradeAmountThreshold": "ガス代が取引額の %{percentage}% を超えています",
     "confirmDetails": "詳細を確認する",
     "confirmAndTrade": "確認して取引する",
+    "signAndSwap": "サイン＆スワップ",
     "tradeAnyway": "取引する",
     "pending": "取引保留中",
     "complete": "取引完了",
@@ -886,6 +877,8 @@
     "beforeFees": "料金前",
     "minAmountAfterSlippage": "分。スリッページ後に予想される (%{slippage}%)",
     "free": "無料",
+    "shapeShiftFee": "ShapeShift料金",
+    "transactionFee": "取引手数料",
     "slowSwapTitle": "%{protocol} 取引",
     "slowSwapBody": "このスワップが完了するまでに数分かかる場合があります。",
     "thorSmartContractWalletUnsupported": "THORChainネットワークは現在、スマートコントラクト ウォレットをサポートしていません。",
@@ -925,6 +918,7 @@
         "negativeRatio": "売却額が足りません"
       },
       "rateExpired": {
+        "title": "新しいレート",
         "body": "以前のスワップ レートは期限切れです。新しいレートを取得し、見積額を更新しました。スワップを確認する前に、最新の詳細を確認してください。",
         "cta": "分かりました"
       }
@@ -965,7 +959,12 @@
       "noQuotesAvailable": "この取引には利用可能な見積もりがありません",
       "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません",
       "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。",
-      "rateLimitExceeded": "レート制限を超えました。しばらくしてからもう一度お試しください"
+      "rateLimitExceeded": "レート制限を超えました。しばらくしてからもう一度お試しください",
+      "maxSlippageExceededWithExpectedSlippage": "シミュレーション中に、この取引の最大許容スリッページを超えました。 予想されるスリッページ: %{expectedSlippage}%。 より高いスリッページ許容値でもう一度お試しください。",
+      "executionRevertedWithExpectedSlippage": "実行中が中断されました。これは、スリップ許容度が不十分なことが原因である可能性があります。予想されるスリップ: %{expectedSlippage}%。より高いスリップ許容度で再試行してください。",
+      "slippageToleranceExceeded": "スリッページ許容値を超えました。",
+      "underMinimumAmount": "この取引の資産の 1 つ以上が、この取引に必要な最小額を下回ってしまっています。",
+      "consumedMoreFees": "この取引で発生した手数料が予想よりも高かったため、取引は元に戻りました。"
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
@@ -1002,22 +1001,30 @@
     },
     "hopTitle": {
       "bridge": "%{swapperName} 経由でブリッジします",
-      "swap": "%{swapperName} 経由で交換"
+      "swap": "%{swapperName} 経由で交換",
+      "swapEta": "~%{eta} の %{swapperName} 経由でスワップ"
     },
     "transactionFailed": {
       "bridge": "ブリッジ中に問題が発生しました",
       "swap": "スワップ中に問題が発生しました"
     },
     "transactionTitle": {
+      "bridge": "%{swapperName} 経由で %{sellChainName} から %{buyChainName} にスワップ",
       "swap": "%{swapperName} 経由で %{sellChainName} でスワップします"
     },
     "approvalTitle": "トークン割り当ての承認",
+    "permit2Title": "トークンの転送を許可する",
     "resetTitle": "トークン許容量のリセット",
     "fiatAmountOnChain": "%{chainName} の %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
       "slippage": "スリッページ: %{ SlippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "トークン転送を待機中",
+    "awaitingSwap": "%{swapperName} 経由でのスワップを待機中",
+    "awaitingBridge": "%{bridgeName} 経由のブリッジを待機中",
+    "awaitingApproval": "承認待ち",
+    "awaitingAllowanceReset": "手当のリセットを待機中"
   },
   "limitOrder": {
     "heading": "制限",
@@ -1037,16 +1044,19 @@
     "yourOrderHasBeenPlaced": "ご注文が完了しました。",
     "yourCancellationHasBeenSubmitted": "キャンセルが送信されました。",
     "limitPrice": "制限価格",
+    "executionPrice": "執行価格",
     "provider": "プロバイダー",
     "expiration": "有効期限",
     "networkFee": "ネットワーク料金",
     "confirmInfo": "オンチェーン価格が制限価格に達したときに、指値注文が正確に約定されない場合があります。",
     "learnMore": "もっと詳しく知る",
     "previewOrder": "注文のプレビュー",
+    "youGet": "少なくとも",
     "whenPriceReaches": "価格が達したとき",
     "expiry": "有効期限",
-    "noOpenOrders": "まだオープン注文はありません。",
-    "noHistoricalOrders": "履歴注文はまだありません。",
+    "noOpenOrders": "未約定の注文はありません",
+    "noHistoricalOrders": "注文履歴はまだありません。",
+    "limitPriceIsPercentLowerThanMarket": "指値は市場価格より %{percent}% 低いです",
     "expiryOption": {
       "oneHour": "1時間",
       "oneDay": "1日",
@@ -1056,13 +1066,22 @@
       "custom": "カスタム"
     },
     "errors": {
-      "nativeSellAssetNotSupported": "ネイティブ販売資産はサポートされていません",
-      "insufficientValidTo": "注文の有効期限が早すぎます",
-      "excessiveValidTo": "注文の有効期限が長すぎる",
-      "insufficientLiquidity": "流動性不足"
+      "nativeSellAssetNotSupported": "ネイティブトークンの売却はサポートされていません",
+      "insufficientValidTo": "注文の有効期限が近すぎます",
+      "excessiveValidTo": "注文の有効期限が長すぎます",
+      "insufficientLiquidity": "流動性不足",
+      "zeroFunds": "売却トークン残高がゼロでない必要があります",
+      "insufficientFundsForGas": "ガソリン代が足りない",
+      "allowanceResetRequired": "承認のリセットが必要"
     },
-    "expiresIn": "有効期限",
-    "openOrders": "オープン注文",
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "\"指値が市場価格より %{percent}% 低くなっています。CoWは常に最良価格での取引を目指していますが、この価格では %{sellAssetSymbol} が損失となる可能性があります。「成行注文」の使用を検討してください。\""
+    },
+    "usdtAllowanceReset": {
+      "title": "USDTのアローワンス承認をできません",
+      "description": "Ethereumの現在のUSDTアローワンスを一度0にリセットする必要があります。現在のUSDTのアローワンスを取り消してから、再度お試しください。"
+    },
+    "openOrders": "未約定の注文",
     "orderHistory": "注文履歴",
     "status": {
       "open": "開ける",
@@ -1072,7 +1091,13 @@
     },
     "orders": "注文",
     "viewOrders": "注文を表示",
-    "loadingOrderList": "指値注文を読み込んでいます..."
+    "loadingOrderList": "指値注文を読み込んでいます...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "この注文の実行には %{chainName} 上の %{symbol} の残高が不足しています。注文は有効な状態で維持され、%{chainName} の %{symbol} 残高を追加すると実行可能になります。",
+        "insufficientAllowance": "この注文の実行には、CoW Swapへの %{chainName} の %{symbol} の追加アローワンスが必要です。注文は有効な状態で維持され、アローワンスの承認後に実行可能となります。"
+      }
+    }
   },
   "modals": {
     "assetSearch": {

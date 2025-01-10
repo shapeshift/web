@@ -21,6 +21,18 @@ type SwapIdResponse = {
   }
 }
 
+const nativeSwapIdQuery = `
+  query GetStringSearchResults($searchString: String!) {
+    txRefs: allTransactionRefs(filter: {ref: {equalTo: $searchString}}) {
+      nodes {
+        swap: swapRequestBySwapRequestId {
+          nativeId
+        }
+      }
+    }
+  }
+`
+
 export const useChainflipSwapIdQuery = ({
   txHash,
   swapperName,
@@ -34,17 +46,7 @@ export const useChainflipSwapIdQuery = ({
             // Note, this is undocumented but is actually the exact same query fragment CF UI uses to go from Tx hash to swap ID (though only a fragment of it,
             // actually stripped out to the bare minimum here vs. cf UI)
             axios.post<SwapIdResponse>('https://explorer-service-processor.chainflip.io/graphql', {
-              query: `
-          query GetStringSearchResults($searchString: String!) {
-            txRefs: allTransactionRefs(filter: {ref: {equalTo: $searchString}}) {
-              nodes {
-                swap: swapRequestBySwapRequestId {
-                  nativeId
-                }
-              }
-            }
-          }
-      `,
+              query: nativeSwapIdQuery,
               variables: {
                 searchString: txHash,
               },

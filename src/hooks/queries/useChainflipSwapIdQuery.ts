@@ -40,7 +40,7 @@ export const useChainflipSwapIdQuery = ({
   return useQuery({
     queryKey: ['chainflipSwapId', { txHash }],
     queryFn:
-      txHash && swapperName === SwapperName.Chainflip
+      txHash && swapperName?.includes(SwapperName.Chainflip)
         ? () =>
             // Yes, this is ugly, just another day in "we're doing inline raw GraphQL queries with http"
             // Note, this is undocumented but is actually the exact same query fragment CF UI uses to go from Tx hash to swap ID (though only a fragment of it,

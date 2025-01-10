@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -32,7 +32,7 @@ export type LimitOrderBuyAssetProps = {
   asset: Asset
   accountId?: AccountId
   isInputtingFiatSellAmount: boolean
-  assetFilterPredicate: (asset: Asset) => boolean
+  assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
   onAccountIdChange: AccountDropdownProps['onChange']
   onSetBuyAsset: (asset: Asset) => void
@@ -73,9 +73,17 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
           onAssetClick={handleAssetClick}
           onAssetChange={onSetBuyAsset}
           onlyConnectedChains={false}
+          assetFilterPredicate={assetFilterPredicate}
+          chainIdFilterPredicate={chainIdFilterPredicate}
         />
       ),
-      [asset.assetId, handleAssetClick, onSetBuyAsset],
+      [
+        asset.assetId,
+        handleAssetClick,
+        onSetBuyAsset,
+        assetFilterPredicate,
+        chainIdFilterPredicate,
+      ],
     )
 
     return (

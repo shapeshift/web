@@ -1,5 +1,5 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -41,7 +41,6 @@ export const useTradeButtonProps = ({
   activeTradeId,
   isExactAllowance,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
-  const [isSignTxLoading, setIsSignTxLoading] = useState(false)
   const dispatch = useAppDispatch()
   const history = useHistory()
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
@@ -83,8 +82,6 @@ export const useTradeButtonProps = ({
       return
     }
 
-    setIsSignTxLoading(true)
-
     executeTrade()
   }, [executeTrade, swapTxState])
 
@@ -120,7 +117,7 @@ export const useTradeButtonProps = ({
         isLoading: isAllowanceApprovalPending,
         isDisabled: isAllowanceApprovalLoading,
       }
-    case HopExecutionState.AwaitingPermit2:
+    case HopExecutionState.AwaitingPermit2Eip712Sign:
       return {
         onSubmit: signPermit2,
         buttonText,
@@ -131,7 +128,7 @@ export const useTradeButtonProps = ({
       return {
         onSubmit: handleSignTx,
         buttonText,
-        isLoading: isSignTxLoading || isFetching,
+        isLoading: isFetching,
         isDisabled: !tradeQuoteQueryData,
       }
     case HopExecutionState.Complete:

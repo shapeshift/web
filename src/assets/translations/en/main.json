@@ -923,12 +923,16 @@
         "cta": "Ok, got it"
       }
     },
-    "permit2": {
-      "title": "Permit token transfer:",
+    "permit2Allowance": {
+      "title": "Permit2 contract allowance",
+      "tooltip": "This trade uses Permit2, which requires a one-time approval to grant unlimited allowance to the Permit2 contract. After this initial setup, you can authorize trades on any Permit2-supported protocol by signing gas-free messages that grant temporary 5-minute allowances."
+    },
+    "permit2Eip712": {
+      "title": "Permit token transfer",
       "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
-      "tooltip": "This trade has an added security feature called 'Permit2' which requires you to grant permission for the application to complete the trade on your behalf.",
       "error": "A problem occurred signing Permit2 message",
-      "signMessage": "Sign message"
+      "signMessage": "Sign message",
+      "tooltip": "This will grant %{swapperName} a 5-minute allowance to complete the trade on your behalf."
     },
     "errors": {
       "title": "Something went wrong",
@@ -1013,7 +1017,6 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
-    "permit2Title": "Permit token transfer",
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
@@ -1744,11 +1747,16 @@
       },
       "import": {
         "header": "Import your wallet",
+        "keystoreHeader": "Import your keystore wallet",
         "body": "Type or paste your Secret Recovery Phrase in all lower case with no commas or numbers and a single space between each word.",
         "button": "Next",
         "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
         "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",
-        "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
+        "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short",
+        "dragAndDrop": "Drag & Drop or Choose File",
+        "keystoreImportBody": "Upload file by clicking browse or by dragging and dropping below.",
+        "importKeystore": "Import Keystore",
+        "invalidKeystorePassword": "Invalid keystore password"
       },
       "password": {
         "header": "Create a New Password",
@@ -1766,10 +1774,17 @@
       },
       "start": {
         "header": "ShapeShift Wallet",
+        "selectHeader": "Import Wallet",
+        "keystoreHeader": "Keystore Wallet",
         "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a Secret Recovery Phrase, or create a new wallet.",
+        "selectBody": "Import wallet using your Secret Recovery Phrase or by uploading your keystore file.",
         "import": "Import a wallet",
+        "secretRecoveryPhrase": "Secret Recovery Phrase",
+        "twelveWordSeedPhrase": "12 word seed phrase",
+        "keystore": "Keystore",
         "create": "Create a new wallet",
-        "load": "Saved wallets"
+        "load": "Saved wallets",
+        "uploadKeystore": "Upload Keystore File"
       },
       "success": {
         "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
@@ -2219,7 +2234,8 @@
           "connectionError": "Can't connect to provided URI.",
           "invalidUri": "Invalid URI",
           "v1UriUnsupported": "WalletConnect V1 URI not enabled",
-          "v2UriUnsupported": "WalletConnect V2 URI not enabled"
+          "v2UriUnsupported": "WalletConnect V2 URI not enabled",
+          "disclaimerBody": "Shapeshift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved."
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",

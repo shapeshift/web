@@ -34,6 +34,8 @@ export type CoinGeckoSortKey =
   | 'volume_desc'
   | 'id_asc'
   | 'id_desc'
+  | 'price_change_percentage_24h_desc'
+  | 'price_change_percentage_24h_asc'
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 

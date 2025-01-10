@@ -1,4 +1,13 @@
-import { Box, Button, Card, CircularProgress, Icon, Tooltip, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Icon,
+  Text as CText,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -12,7 +21,7 @@ export type ApprovalContentProps = {
   isLoading: boolean
   subHeadingTranslation?: string | [string, InterpolationOptions]
   titleTranslation: string
-  tooltipTranslation: string
+  tooltipTranslation: string | [string, InterpolationOptions]
   topRightContent?: JSX.Element
   transactionExecutionState: TransactionExecutionState
   onSubmit: () => void
@@ -39,7 +48,13 @@ export const ApprovalContent = ({
         <Row px={2}>
           <Row.Label display='flex' alignItems='center'>
             <Text color='text.subtle' translation={titleTranslation} fontWeight='bold' />
-            <Tooltip label={translate(tooltipTranslation)}>
+            <Tooltip
+              label={
+                typeof tooltipTranslation === 'string'
+                  ? translate(tooltipTranslation)
+                  : translate(...tooltipTranslation)
+              }
+            >
               <Box ml={1}>
                 <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
               </Box>
@@ -54,7 +69,11 @@ export const ApprovalContent = ({
         {subHeadingTranslation && (
           <Row px={2}>
             <Row.Label textAlign='left' display='flex'>
-              <Text color='text.subtle' translation={subHeadingTranslation} />
+              <CText color='text.subtle'>
+                {typeof subHeadingTranslation === 'string'
+                  ? translate(subHeadingTranslation)
+                  : translate(...subHeadingTranslation)}
+              </CText>
             </Row.Label>
           </Row>
         )}

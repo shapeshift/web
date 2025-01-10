@@ -1,4 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
@@ -11,11 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import {
-  ArbitrumBridgeAcknowledgement,
-  StreamingAcknowledgement,
-  WarningAcknowledgement,
-} from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
@@ -62,8 +59,10 @@ import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { TradeAssetInput } from '../TradeAssetInput'
+import { ArbitrumBridgeAcknowledgement } from './components/ArbitrumBridgeAcknowledgement'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
+import { StreamingAcknowledgement } from './components/StreamingAcknowledgement'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
@@ -326,8 +325,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
   const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
   const assetFilterPredicate = useCallback(
-    (asset: Asset) => {
-      if (asset.chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+    (assetId: AssetId) => {
+      const { chainId } = fromAssetId(assetId)
+      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
 
       return true
     },
@@ -359,10 +359,17 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
         onlyConnectedChains={false}
+        assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset, chainIdFilterPredicate],
+    [
+      buyAsset.assetId,
+      handleBuyAssetClick,
+      setBuyAsset,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
+    ],
   )
 
   const bodyContent = useMemo(() => {

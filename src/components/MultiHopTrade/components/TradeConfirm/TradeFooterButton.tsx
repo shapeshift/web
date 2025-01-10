@@ -13,7 +13,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { RawText, Text } from 'components/Text'
@@ -44,6 +44,7 @@ type TradeFooterButtonProps = {
   isExactAllowance: boolean
   hasClickedButton: boolean
   setHasClickedButton: (hasClickedButton: boolean) => void
+  isLoading?: boolean
 }
 
 export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
@@ -53,6 +54,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   isExactAllowance,
   hasClickedButton,
   setHasClickedButton,
+  isLoading = false,
 }) => {
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const tradeButtonProps = useTradeButtonProps({
@@ -251,7 +253,8 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
           isLoading={
             confirmedTradeExecutionState === TradeExecutionState.Initializing ||
             hasClickedButton ||
-            tradeButtonProps.isLoading
+            tradeButtonProps.isLoading ||
+            isLoading
           }
           isDisabled={tradeButtonProps.isDisabled || !!activeQuoteError}
         >

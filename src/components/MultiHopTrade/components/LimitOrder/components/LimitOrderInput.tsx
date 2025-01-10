@@ -1,17 +1,17 @@
 import { Button, Divider, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS, getCowNetwork, SwapperName } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import type { Asset, CowSwapError } from '@shapeshiftoss/types'
+import type { CowSwapError } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import type { Address } from 'viem'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
@@ -163,15 +163,17 @@ export const LimitOrderInput = ({
   }, [])
 
   const sellAssetFilterPredicate = useCallback(
-    (asset: Asset) => {
-      return chainIdFilterPredicate(asset.chainId) && !isNativeEvmAsset(asset.assetId)
+    (assetId: AssetId) => {
+      const { chainId } = fromAssetId(assetId)
+      return chainIdFilterPredicate(chainId) && !isNativeEvmAsset(assetId)
     },
     [chainIdFilterPredicate],
   )
 
   const buyAssetFilterPredicate = useCallback(
-    (asset: Asset) => {
-      return chainIdFilterPredicate(asset.chainId)
+    (assetId: AssetId) => {
+      const { chainId } = fromAssetId(assetId)
+      return chainIdFilterPredicate(chainId)
     },
     [chainIdFilterPredicate],
   )

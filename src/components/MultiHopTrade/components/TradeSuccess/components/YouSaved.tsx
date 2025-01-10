@@ -1,12 +1,13 @@
 import { Button, Card, HStack } from '@chakra-ui/react'
 import type { Options } from 'canvas-confetti'
 import type { CSSProperties } from 'react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 const foxIcon = <FoxIcon w='full' h='full' />
 
@@ -19,9 +20,15 @@ const confettiStyle: CSSProperties = {
   left: 0,
 }
 
-export const YouSaved = () => {
+type YouSavedProps = { feeSavingUserCurrency: string }
+
+export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
   const translate = useTranslate()
   const cardRef = useRef<HTMLDivElement>(null)
+
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
 
   const refAnimationInstance = useRef<TCanvasConfettiInstance | null>(null)
   const getInstance = useCallback(({ confetti }: { confetti: TCanvasConfettiInstance }) => {
@@ -63,6 +70,10 @@ export const YouSaved = () => {
     // Redirect to trade page
   }, [])
 
+  const feeSavingUserCurrencyFormatted = useMemo(() => {
+    return toFiat(feeSavingUserCurrency)
+  }, [toFiat, feeSavingUserCurrency])
+
   return (
     <>
       <Card
@@ -89,7 +100,7 @@ export const YouSaved = () => {
             borderWidth={2}
             px={4}
           >
-            {translate('trade.foxSavings.buyFox')}
+            {translate('trade.foxSavings.buyFox', { feeSaving: feeSavingUserCurrencyFormatted })}
           </Button>
         </HStack>
       </Card>

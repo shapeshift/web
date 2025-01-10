@@ -40,6 +40,7 @@
     "noResultsFound": "Нічого не знайдено.",
     "noResultsBody": "За запитом  %{searchQuery} нічого не знайдено. Спробуйте новий пошук.",
     "insufficientFunds": "Недостатньо коштів",
+    "insufficientFundsForTrade": "Недостатньо коштів для торгівлі",
     "insufficientAllowance": "Недостатня сума дозволу",
     "estimatedGas": "Розрахункова оплата за Gas ",
     "relayerGasFee": "Комісія за передачу ",
@@ -129,6 +130,7 @@
     "best": "Найкраща",
     "gasFee": "Плата за газ",
     "approvalFee": "Плата за затвердження",
+    "allowanceResetFee": "Встановлення плати за скидання газу",
     "consolidationFee": "Комісія за консолідацію",
     "fees": "Комісії",
     "alternative": "Альтернатива",
@@ -147,6 +149,7 @@
     "learnMore": "Дізнатись більше",
     "showAll": "Показати більше",
     "showLess": "Показати менше",
+    "showMore": "Показати більше",
     "yourBalance": "Ваш баланс",
     "signTransaction": "Підписати транзакцію",
     "active": "Активні",
@@ -298,21 +301,8 @@
     "notSupported": "%{asset} не підтримується %{wallet}"
   },
   "connectWalletPage": {
-    "title": "Оригінальна мультимережева біржа",
-    "primaryTitle": "Ласкаво просимо до Multichain DeFi.",
-    "secondaryTitle": "Приватний. Децентралізована. Без обмеження свободи.",
-    "primaryDescription": "Торгуйте, обмінюйте та заробляйте без зайвих зусиль. Працюйте з нативним Bitcoin, Dogecoin та іншими криптовалютами. Керуйте ліквідністю та DeFi-позиціями в один клік.",
-    "snapDescription": "Завантажте ShapeShift Multichain Snap і розблокуйте Bitcoin, Dogecoin та інші біткоїни для свого MetaMask.",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Ознайомтеся з",
-    "defiUniverse": "Всесвітом DeFi",
-    "body": "Торгуй, бріджи та заробляй. Приватна. У власності громади. Необмежена. Децентралізована.",
-    "header": "Для початку роботи під'єднайте гаманець",
-    "cta": "Підключити або створити гаманець",
-    "viewADemo": "Переглянути демо-версію",
-    "dontHaveWallet": "У вас немає гаманця?",
     "welcomeBack": "З поверненням!",
-    "welcomeBody": "Підключення гаманця схоже на \"вхід в систему\". Виберіть свій гаманець із запропонованих варіантів, щоб почати роботу.",
     "welcomeToShapeShift": "Вітаємо у ShapeShift",
     "mobileWelcomeBody": "Створіть новий гаманець або додайте існуючий, щоб легко розпочати роботу.",
     "mobileSelectBody": "Виберіть будь-який з ваших збережених гаманців нижче або створіть чи імпортуйте новий гаманець.",
@@ -865,6 +855,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Комісія за газ перевищує %{percentage}% від суми торгівлі",
     "confirmDetails": "Підтвердити дані",
     "confirmAndTrade": "Підтвердити та обміняти",
+    "signAndSwap": "Підписати та обміняти",
     "tradeAnyway": "Все одно обміняти",
     "pending": "Торгівля в очікуванні",
     "complete": "Угода завершена",
@@ -886,6 +877,8 @@
     "beforeFees": "До сплати комісій",
     "minAmountAfterSlippage": "Мін. очікуване після прослизання (%{slippage}%)",
     "free": "Безплатно",
+    "shapeShiftFee": "Комісія ShapeShift",
+    "transactionFee": "Комісія за транзакцію",
     "slowSwapTitle": "%{protocol} торгівля",
     "slowSwapBody": "Цей обмін може зайняти кілька хвилин.",
     "thorSmartContractWalletUnsupported": "Наразі мережа THORchain не підтримує гаманці смарт-контрактів.",
@@ -925,7 +918,7 @@
         "negativeRatio": "Недостатня сума продажу"
       },
       "rateExpired": {
-        "title": "Термін дії тарифу закінчився",
+        "title": "Новий курс",
         "body": "Термін дії вашого попереднього своп-курсу закінчився. Ми отримали новий курс і оновили ваші котирування. Будь ласка, ознайомтеся з останніми даними, перш ніж підтверджувати своп.",
         "cta": "Гаразд, зрозумів."
       }
@@ -966,7 +959,12 @@
       "noQuotesAvailable": "Для цієї угоди немає котирувань",
       "smartContractWalletNotSupported": "Гаманець смарт-контракту не підтримується",
       "unsafeQuote": "Ця сума нижче рекомендованого мінімуму для цієї пари(%{recommendedMin} %{symbol}). Це може призвести до невдалої торгівлі або втрати коштів.",
-      "rateLimitExceeded": "Перевищено ліміт швидкості, спробуйте пізніше"
+      "rateLimitExceeded": "Перевищено ліміт швидкості, спробуйте пізніше",
+      "maxSlippageExceededWithExpectedSlippage": "Під час моделювання було перевищено максимально допустимий допуск на прослизання для цієї торгівлі. Очікуване прослизання: %{expectedSlippage}%. Спробуйте ще раз з вищим допуском на прослизання.",
+      "executionRevertedWithExpectedSlippage": "Виконання відмінено під час виконання.Це може бути пов'язано з недостатньою толерантністю до прослизання. ",
+      "slippageToleranceExceeded": "Перевищено допуск на прослизання.",
+      "underMinimumAmount": "Один або більше активів у цій угоді є меншими за мінімальну суму, необхідну для цієї угоди.",
+      "consumedMoreFees": "Транзакцію було скасовано, оскільки комісійні, понесені цією торгівлею, виявилися вищими, ніж очікувалося."
     },
     "swappingComingSoonForWallet": "Зміна на %{walletName} незабаром",
     "recentTrades": "Нещодавні угоди",
@@ -1003,23 +1001,30 @@
     },
     "hopTitle": {
       "bridge": "Міст через %{swapperName}",
-      "swap": "Обміняти через %{swapperName}"
+      "swap": "Обміняти через %{swapperName}",
+      "swapEta": "Обмін через %{swapperName} в ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "Виникла проблема при виконанні моста",
       "swap": "Виникла проблема при виконанні обміну"
     },
     "transactionTitle": {
-      "bridge": "Міст з %{sellChainName} до %{buyChainName} через %{swapperName}",
+      "bridge": "Обмін з %{sellChainName} на %{buyChainName} через %{swapperName}.",
       "swap": "Обмін на %{sellChainName} через %{swapperName}"
     },
     "approvalTitle": "Затвердження дозволу на використання токенів",
+    "permit2Title": "Дозвольте передачу токенів",
     "resetTitle": "Скидання ліміту токенів",
     "fiatAmountOnChain": "%{amountFiatFormatted} на %{chainName}",
     "quote": {
       "cantSetSlippage": "Ми не можемо встановити користувацьке прослизання (%{userSlippageFormatted}) для %{swapperName}",
       "slippage": "Прослизання: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Очікуємо на передачу токенів",
+    "awaitingSwap": "Очікування обміну через %{swapperName}",
+    "awaitingBridge": "Очікування мосту через %{bridgeName}",
+    "awaitingApproval": "Очікує на затвердження",
+    "awaitingAllowanceReset": "Очікування скидання дозволу"
   },
   "limitOrder": {
     "heading": "Ліміт",
@@ -1039,17 +1044,19 @@
     "yourOrderHasBeenPlaced": "Ваше замовлення відправлено.",
     "yourCancellationHasBeenSubmitted": "Ваше скасування було відправлено.",
     "limitPrice": "Лімітна ціна",
+    "executionPrice": "Ціна виконання",
     "provider": "Провайдер",
     "expiration": "Закінчення терміну дії",
     "networkFee": "Мережева комісія",
     "confirmInfo": "Лімітний ордер може не виконатися саме тоді, коли ціни в мережі досягнуть лімітної ціни.",
     "learnMore": "Дізнатися більше",
     "previewOrder": "Попередній перегляд замовлення",
-    "youGet": "Ви отримаєте",
+    "youGet": "Ви отримаєте принаймні",
     "whenPriceReaches": "Коли ціна сягне",
     "expiry": "Закінчення терміну дії",
     "noOpenOrders": "Відкритих ордерів поки що немає.",
     "noHistoricalOrders": "Історичних замовлень поки що немає.",
+    "limitPriceIsPercentLowerThanMarket": "Гранична ціна на %{percent}% нижча за ринкову",
     "expiryOption": {
       "oneHour": "1 година",
       "oneDay": "1 день",
@@ -1062,9 +1069,18 @@
       "nativeSellAssetNotSupported": "Власний актив продажу не підтримується",
       "insufficientValidTo": "Занадто рано закінчився термін дії замовлення",
       "excessiveValidTo": "Термін дії замовлення занадто віддалений у часі",
-      "insufficientLiquidity": "Недостатня ліквідність"
+      "insufficientLiquidity": "Недостатня ліквідність",
+      "zeroFunds": "Потрібен ненульовий баланс активів для продажу",
+      "insufficientFundsForGas": "Недостатньо коштів на оплату газу",
+      "allowanceResetRequired": "Потрібне скидання дозволу"
     },
-    "expiresIn": "Закінчується в",
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Ціна на %{percent}% нижче ринкової.\n\nХоча CoW завжди прагне отримати найкращу доступну ціну, це може призвести до того, що ви продасте свій %{sellAssetSymbol} зі збитками. Подумайте про те, щоб замість цього натиснути кнопку «Ринок»."
+    },
+    "usdtAllowanceReset": {
+      "title": "Неможливо затвердити дозвіл на USDT",
+      "description": "Ваш поточний резерв USDT в Ethereum має бути скинутий до 0, перш ніж його можна буде встановити на достатнє значення. Будь ласка, відмініть поточний ліміт токенів USDT і спробуйте ще раз."
+    },
     "openOrders": "Відкриті замовлення",
     "orderHistory": "Історія замовлень",
     "status": {
@@ -1075,7 +1091,13 @@
     },
     "orders": "Замовлення.",
     "viewOrders": "Переглянути замовлення",
-    "loadingOrderList": "Завантаження лімітних ордерів..."
+    "loadingOrderList": "Завантаження лімітних ордерів...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": " Наразі у вашому гаманці недостатньо %{symbol} балансу на %{chainName} для виконання цього ордера. Ордер все ще відкритий і буде виконаний, коли ви поповните баланс %{symbol} на %{chainName}.",
+        "insufficientAllowance": "Для виконання цього ордера потрібно затвердити додатковий запас у розмірі %{symbol} на %{chainName}, щоб CoW Swap зміг його виконати. Ордер все ще відкритий і стане виконуваним, коли ви завершите затвердження ліміту."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

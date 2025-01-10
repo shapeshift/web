@@ -1,6 +1,7 @@
 import { Button, Card, HStack } from '@chakra-ui/react'
 import type { Options } from 'canvas-confetti'
-import { useCallback, useRef } from 'react'
+import type { CSSProperties } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 import { useTranslate } from 'react-polyglot'
@@ -9,8 +10,18 @@ import { Text } from 'components/Text'
 
 const foxIcon = <FoxIcon w='full' h='full' />
 
+const confettiStyle: CSSProperties = {
+  position: 'fixed',
+  pointerEvents: 'none',
+  width: '100%',
+  height: '100%',
+  top: 0,
+  left: 0,
+}
+
 export const YouSaved = () => {
   const translate = useTranslate()
+  const cardRef = useRef<HTMLDivElement>(null)
 
   const refAnimationInstance = useRef<TCanvasConfettiInstance | null>(null)
   const getInstance = useCallback(({ confetti }: { confetti: TCanvasConfettiInstance }) => {
@@ -18,56 +29,44 @@ export const YouSaved = () => {
   }, [])
 
   const makeShot = useCallback((particleRatio: number, opts: Partial<Options>) => {
-    if (refAnimationInstance.current) {
+    if (refAnimationInstance.current && cardRef.current) {
+      const windowHeight = window.innerHeight
+      const windowWidth = window.innerWidth
+
+      const cardRect = cardRef.current.getBoundingClientRect()
+
+      const originY = (cardRect.top + cardRect.height / 2) / windowHeight
+      const originX = (cardRect.left + cardRect.width / 2) / windowWidth
+
       refAnimationInstance.current({
         ...opts,
-        origin: { y: 0.7 },
+        origin: { y: originY, x: originX },
         particleCount: Math.floor(200 * particleRatio),
       })
     }
   }, [])
 
-  const fire = useCallback(() => {
-    makeShot(0.25, {
-      spread: 26,
-      startVelocity: 55,
-    })
-
-    makeShot(0.2, {
-      spread: 60,
-    })
-
-    makeShot(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8,
-    })
-
-    makeShot(0.1, {
-      spread: 120,
-      startVelocity: 25,
+  useEffect(() => {
+    // Fire confetti on mount
+    makeShot(1.0, {
+      spread: 80,
+      startVelocity: 35,
       decay: 0.92,
       scalar: 1.2,
-    })
-
-    makeShot(0.1, {
-      spread: 120,
-      startVelocity: 45,
+      drift: 0.2,
     })
   }, [makeShot])
 
   const handleClick = useCallback(() => {
-    // TEMP: Test out confetti
-    fire()
-
     // TODO:
     // Set fox as the buy asset
     // Redirect to trade page
-  }, [fire])
+  }, [])
 
   return (
     <>
       <Card
+        ref={cardRef}
         width='full'
         bg='background.surface.overlay.base'
         borderBottomRadius='lg'
@@ -94,17 +93,7 @@ export const YouSaved = () => {
           </Button>
         </HStack>
       </Card>
-      <ReactCanvasConfetti
-        onInit={getInstance}
-        style={{
-          position: 'fixed',
-          pointerEvents: 'none',
-          width: '100%',
-          height: '100%',
-          top: 0,
-          left: 0,
-        }}
-      />
+      <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
     </>
   )
 }

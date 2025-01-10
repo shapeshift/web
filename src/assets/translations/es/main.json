@@ -40,6 +40,7 @@
     "noResultsFound": "No se han encontrado resultados.",
     "noResultsBody": "No resultados para %{searchQuery}. Intente de nuevo.",
     "insufficientFunds": "Fondos Insuficientes",
+    "insufficientFundsForTrade": "Fondos insuficientes para el intercambio",
     "insufficientAllowance": "Subsidio Insuficiente",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
@@ -129,6 +130,7 @@
     "best": "Mejor",
     "gasFee": "Tarifa de gas",
     "approvalFee": "Tarifa de Aprobación",
+    "allowanceResetFee": "Cuota para Reestablecer Asignación",
     "consolidationFee": "Tarifa de consolidación",
     "fees": "Tarifas",
     "alternative": "Alternativa",
@@ -147,6 +149,7 @@
     "learnMore": "Aprende más",
     "showAll": "Mostrar todo",
     "showLess": "Muestra menos",
+    "showMore": "Mostrar Más",
     "yourBalance": "Tu balance",
     "signTransaction": "Firmar transacción",
     "active": "Activo",
@@ -298,21 +301,8 @@
     "notSupported": "%{asset} no es compatible con %{wallet}"
   },
   "connectWalletPage": {
-    "title": "El Intercambio Multicadena Original",
-    "primaryTitle": "Bienvenido a DeFi Multicadena.",
-    "secondaryTitle": "Privado. Descentralizado. Sin custodia.",
-    "primaryDescription": "Intercambie, bridge y gane recompensas sin esfuerzo. Experimente Bitcoin Nativo, Dogecoin y más. Gestione posiciones de liquidez y DeFi con un solo clic.",
-    "snapDescription": "Descarga el Snap Multicadena ShapeShift y desbloquea Bitcoin, Dogecoin y más para tu MetaMask.",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explora El",
-    "defiUniverse": "Universo DeFi",
-    "body": "Intercambie, bridge y gane. Privado. Propiedad comunitaria. Sin custodia. Descentralizado.",
-    "header": "Conecte una billetera para comenzar",
-    "cta": "Conectar o Crear Billetera",
-    "viewADemo": "Ver una Demo",
-    "dontHaveWallet": "¿No tienes billetera?",
     "welcomeBack": "¡Bienvenido de nuevo!",
-    "welcomeBody": "Conectar su billetera es como \"iniciar sesión\". Seleccione su billetera para comenzar.",
     "welcomeToShapeShift": "Bienvenido a ShapeShift",
     "mobileWelcomeBody": "Crea una billetera nueva o agregue una existente para comenzar fácilmente.",
     "mobileSelectBody": "Seleccione de sus billeteras guardadas, cree o importe una nueva billetera.",
@@ -865,6 +855,7 @@
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
     "confirmAndTrade": "Confirmar e Intercambiar",
+    "signAndSwap": "Firmar e Intercambiar",
     "tradeAnyway": "Comerciar de todos modos",
     "pending": "Intercambio Pendiente",
     "complete": "Intercambio Completado",
@@ -886,6 +877,8 @@
     "beforeFees": "Antes de las tarifas",
     "minAmountAfterSlippage": "mín. cantidad esperada después del deslizamiento (%{slippage}%)",
     "free": "Gratis",
+    "shapeShiftFee": "Tarifa de ShapeShift",
+    "transactionFee": "Tarifa de Transacción",
     "slowSwapTitle": "%{protocol} intercambiar",
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "thorSmartContractWalletUnsupported": "Actualmente, la red THORChain no admite carteras de contratos inteligentes.",
@@ -925,6 +918,7 @@
         "negativeRatio": "Monto de venta insuficiente"
       },
       "rateExpired": {
+        "title": "Nueva Tarifa",
         "body": "Su tasa de intercambio ha expirado. Hemos obtenido nueva tasa y actualizado montos de cotización. Revise los detalles más recientes antes de confirmar su intercambio.",
         "cta": "Ok, lo entiendo"
       }
@@ -965,7 +959,12 @@
       "noQuotesAvailable": "No hay cotizaciones disponibles para operar",
       "smartContractWalletNotSupported": "Billetera no soporta contrato inteligente",
       "unsafeQuote": "Cantidad debajo del mínimo recomendado para este par (%{recommendedMin} %{symbol}). Esto podría provocar fracaso o pérdida de fondos.",
-      "rateLimitExceeded": "Se superó el límite de tarifa, intente más tarde"
+      "rateLimitExceeded": "Se superó el límite de tarifa, intente más tarde",
+      "maxSlippageExceededWithExpectedSlippage": "Durante la simulación se excedió la tolerancia máxima de deslizamiento permitida. Deslizamiento esperado: %{expectedSlippage}%. Inténtelo nuevamente con una tolerancia mayor.",
+      "executionRevertedWithExpectedSlippage": "Ejecución revertida durante ejecución. Puede deberse a una tolerancia de deslizamiento insuficiente. Deslizamiento esperado: %{expectedSlippage}%. Inténtelo nuevamente con tolerancia mayor.",
+      "slippageToleranceExceeded": "Tolerancia para deslizamiento excedida.",
+      "underMinimumAmount": "Uno o más activos en esta operación están por debajo del monto mínimo requerido para la operación.",
+      "consumedMoreFees": "Transacción revertida porque las tarifas consumidas fueron más altas de lo esperado."
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
@@ -1002,22 +1001,30 @@
     },
     "hopTitle": {
       "bridge": "Bridge usando %{swapperName}",
-      "swap": "Intercambie via %{swapperName}"
+      "swap": "Intercambie via %{swapperName}",
+      "swapEta": "Intercambio via %{swapperName} en ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "Ocurrió un problema al ejecutar el bridge.",
       "swap": "Ocurrió un problema al ejecutar el intercambio."
     },
     "transactionTitle": {
+      "bridge": "Intercambio de %{sellChainName} a %{buyChainName} via %{swapperName}",
       "swap": "Intercambie en %{sellChainName} utilizando %{swapperName}"
     },
     "approvalTitle": "Aprobar asignación de Token",
+    "permit2Title": "Permitir transferencia de token",
     "resetTitle": "Restablecimiento Asignación de Tokens",
     "fiatAmountOnChain": "%{amountFiatFormatted} en %{chainName}",
     "quote": {
       "cantSetSlippage": "No podemos establecer un deslizamiento personalizado (%{userslippageFormatted}) para %{swapperName}",
       "slippage": "Deslizamiento: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Esperando transferencia de token",
+    "awaitingSwap": "Esperando intercambio via %{swapperName}",
+    "awaitingBridge": "Esperando bridge vía %{bridgeName}",
+    "awaitingApproval": "Esperando aprobación",
+    "awaitingAllowanceReset": "Esperando restablecimiento de asignación"
   },
   "limitOrder": {
     "heading": "Límite",
@@ -1037,16 +1044,19 @@
     "yourOrderHasBeenPlaced": "Su orden ha sido realizado.",
     "yourCancellationHasBeenSubmitted": "Su cancelación ha sido enviada.",
     "limitPrice": "Precio Límite",
+    "executionPrice": "Precio de Ejecución",
     "provider": "Proveedor",
     "expiration": "Vencimiento",
     "networkFee": "Tarifa de Red",
     "confirmInfo": "Es posible que la orden límite no se complete exactamente cuando los precios alcancen el precio límite.",
     "learnMore": "Más información",
     "previewOrder": "Vista previa del pedido",
+    "youGet": "Obtendrás al menos",
     "whenPriceReaches": "Cuando el precio alcance",
     "expiry": "Expiración",
     "noOpenOrders": "No hay órdenes abiertas todavía",
     "noHistoricalOrders": "Aún no hay pedidos históricos.",
+    "limitPriceIsPercentLowerThanMarket": "Precio límite es %{percent}% más bajo que precio de mercado",
     "expiryOption": {
       "oneHour": "1 hora",
       "oneDay": "1 día",
@@ -1059,9 +1069,18 @@
       "nativeSellAssetNotSupported": "No se admite venta de activos nativos",
       "insufficientValidTo": "Orden vence demasiado pronto",
       "excessiveValidTo": "Vencimiento de orden demasiado lejano en el tiempo",
-      "insufficientLiquidity": "Liquidez Insuficiente"
+      "insufficientLiquidity": "Liquidez Insuficiente",
+      "zeroFunds": "Se necesita un saldo en activos de venta distinto a cero",
+      "insufficientFundsForGas": "Fondos insuficientes para gas",
+      "allowanceResetRequired": "Se requiere Reinicio de Asignación"
     },
-    "expiresIn": "Caduca en",
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "El precio es %{percent}% inferior al del mercado.\n\nSi bien CoW intenta siempre conseguir el mejor precio, esto podría resultar en la venta de su %{sellAssetSymbol} con pérdidas. Considere hacer clic en \"Mercado\" en su lugar."
+    },
+    "usdtAllowanceReset": {
+      "title": "No se puede aprobar la asignación para USDT",
+      "description": "Tu asignación actual de USDT en Ethereum debe restablecerse a 0 antes de que se pueda establecer en un valor suficiente. Revoca la asignación actual de tokens USDT e inténtalo de nuevo."
+    },
     "openOrders": "Órdenes Abiertas",
     "orderHistory": "Historial de Órdenes",
     "status": {
@@ -1072,7 +1091,13 @@
     },
     "orders": "Órdenes",
     "viewOrders": "Ver Órdenes",
-    "loadingOrderList": "Cargando sus órdenes límite..."
+    "loadingOrderList": "Cargando sus órdenes límite...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "Actualmente, su billetera no tiene saldo suficiente de %{symbol} en %{chainName} para ejecutar esta orden. La orden aún está abierta y se podrá ejecutar cuando recargue su saldo de %{symbol} en %{chainName}.",
+        "insufficientAllowance": "Esta orden requiere una asignación adicional de %{symbol} en %{chainName} para que CoW Swap apruebe y ejecute. La orden aún está abierta y se podrá ejecutar cuando complete la aprobación de la asignación."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

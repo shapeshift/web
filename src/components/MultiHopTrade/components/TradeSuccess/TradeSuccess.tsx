@@ -55,6 +55,9 @@ export const TradeSuccess = ({
   // TEMP: Revert me!
   const lastHop = true // useAppSelector(selectLastHop)
 
+  // TODO: Implement me
+  const feeSavingUserCurrency = '1.234'
+
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
     if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
@@ -95,13 +98,13 @@ export const TradeSuccess = ({
             </Stack>
             <AmountsLine />
           </Flex>
-          <Stack gap={4} px={8}>
-            <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-              {translate('trade.doAnotherTrade')}
-            </Button>
-            <YouSaved />
-          </Stack>
         </SlideTransition>
+        <Stack gap={4} px={8}>
+          <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
+            {translate('trade.doAnotherTrade')}
+          </Button>
+          <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
+        </Stack>
       </CardBody>
       <Divider />
       <CardFooter flexDir='column' gap={2} px={8}>

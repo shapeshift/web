@@ -7,6 +7,7 @@ import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 const foxIcon = <FoxIcon w='full' h='full' />
@@ -74,6 +75,13 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
     return toFiat(feeSavingUserCurrency)
   }, [toFiat, feeSavingUserCurrency])
 
+  const youSavedTranslationProps = useMemo(() => {
+    return [
+      'trade.foxSavings.youSaved',
+      { feeSaving: feeSavingUserCurrencyFormatted },
+    ] as TextPropTypes['translation']
+  }, [feeSavingUserCurrencyFormatted])
+
   return (
     <>
       <Card
@@ -86,7 +94,7 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
         borderWidth={2}
       >
         <HStack width='full' justifyContent='space-between'>
-          <Text translation='trade.foxSavings.youSaved' fontSize='sm' fontWeight='bold' />
+          <Text translation={youSavedTranslationProps} fontSize='sm' fontWeight='bold' />
           <Button
             leftIcon={foxIcon}
             colorScheme='gray'
@@ -100,7 +108,7 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
             borderWidth={2}
             px={4}
           >
-            {translate('trade.foxSavings.buyFox', { feeSaving: feeSavingUserCurrencyFormatted })}
+            {translate('trade.foxSavings.buyFox')}
           </Button>
         </HStack>
       </Card>

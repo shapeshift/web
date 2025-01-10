@@ -1,14 +1,20 @@
 import { Button, Card, HStack } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import type { Options } from 'canvas-confetti'
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectAssetById } from 'state/slices/selectors'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useSelectorWithArgs } from 'state/store'
 
 const foxIcon = <FoxIcon w='full' h='full' />
 
@@ -24,8 +30,12 @@ const confettiStyle: CSSProperties = {
 type YouSavedProps = { feeSavingUserCurrency: string }
 
 export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
+  const history = useHistory()
   const translate = useTranslate()
   const cardRef = useRef<HTMLDivElement>(null)
+  const dispatch = useAppDispatch()
+
+  const fox = useSelectorWithArgs(selectAssetById, foxAssetId)
 
   const {
     number: { toFiat },
@@ -66,10 +76,14 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
   }, [makeShot])
 
   const handleClick = useCallback(() => {
-    // TODO:
+    if (!fox) return
+
     // Set fox as the buy asset
-    // Redirect to trade page
-  }, [])
+    dispatch(tradeInput.actions.setBuyAsset(fox))
+
+    // Redirect to trade input page
+    history.push(TradeRoutePaths.Input)
+  }, [dispatch, fox, history])
 
   const feeSavingUserCurrencyFormatted = useMemo(() => {
     return toFiat(feeSavingUserCurrency)

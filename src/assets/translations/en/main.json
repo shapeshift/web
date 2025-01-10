@@ -1029,7 +1029,7 @@
     "awaitingApproval": "Awaiting approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "foxSavings": {
-      "youSaved": "You saved %{feeSaving} on your trade with FOX Savings",
+      "youSaved": "You saved %{feeSaving} on your trade with FOX Savings!",
       "youCouldHaveSaved": "You saved %{feeSaving} on your trade with FOX Savings",
       "buyFox": "Buy FOX",
       "share": "Share"

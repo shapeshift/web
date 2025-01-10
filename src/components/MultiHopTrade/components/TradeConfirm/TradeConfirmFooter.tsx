@@ -1,7 +1,7 @@
 import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text/Text'
@@ -33,7 +33,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   activeTradeId,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
-  const [hasClickedButton, setHasClickedButton] = useState(false)
   const { currentTradeStep } = useStepperSteps()
   const currentHopIndex = useCurrentHopIndex()
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
@@ -140,8 +139,8 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   }, [tradeQuoteStep])
 
   const isApprovalButtonDisabled = useMemo(() => {
-    return isAllowanceApprovalLoading || hasClickedButton
-  }, [isAllowanceApprovalLoading, hasClickedButton])
+    return isAllowanceApprovalLoading
+  }, [isAllowanceApprovalLoading])
 
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
@@ -276,8 +275,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         currentHopIndex={currentHopIndex}
         activeTradeId={activeTradeId}
         isExactAllowance={isExactAllowance}
-        hasClickedButton={hasClickedButton}
-        setHasClickedButton={setHasClickedButton}
         isLoading={isNetworkFeeCryptoBaseUnitLoading || isNetworkFeeCryptoBaseUnitRefetching}
       />
     )
@@ -286,7 +283,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     currentHopIndex,
     activeTradeId,
     isExactAllowance,
-    hasClickedButton,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
   ])

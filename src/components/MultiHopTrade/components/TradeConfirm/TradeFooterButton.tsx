@@ -42,8 +42,6 @@ type TradeFooterButtonProps = {
   currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
   isExactAllowance: boolean
-  hasClickedButton: boolean
-  setHasClickedButton: (hasClickedButton: boolean) => void
   isLoading?: boolean
 }
 

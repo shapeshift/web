@@ -9,21 +9,16 @@ import { useAppSelector } from 'state/store'
 
 type RFOXContextType = {
   selectedAssetAccountId: AccountId | undefined
-  selectedAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
-  setSelectedAssetId: (assetId: AssetId) => void
+  stakingAssetAccountId: AccountId | undefined
+  setStakingAssetId: (assetId: AssetId) => void
   setStakingAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
 
 const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 
-export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: AssetId }>> = ({
-  stakingAssetId = foxOnArbitrumOneAssetId,
-  children,
-}) => {
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
-
+export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(foxOnArbitrumOneAssetId)
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(
@@ -42,26 +37,24 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
   const selectedAssetAccountId = useMemo(() => {
     if (!(filter && stakingAssetAccountNumber !== undefined)) return
     const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]
-    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(selectedAssetId).chainId]
+    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
     return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, filter, selectedAssetId, stakingAssetAccountNumber])
+  }, [accountIdsByAccountNumberAndChainId, filter, stakingAssetId, stakingAssetAccountNumber])
 
   const value: RFOXContextType = useMemo(
     () => ({
       selectedAssetAccountId,
       setStakingAssetAccountId,
-      setSelectedAssetId,
-      selectedAssetId,
-      stakingAssetAccountId,
+      setStakingAssetId,
       stakingAssetId,
+      stakingAssetAccountId,
     }),
     [
       selectedAssetAccountId,
-      selectedAssetId,
-      stakingAssetAccountId,
       stakingAssetId,
+      stakingAssetAccountId,
       setStakingAssetAccountId,
-      setSelectedAssetId,
+      setStakingAssetId,
     ],
   )
 

@@ -5,7 +5,6 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
-import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
@@ -45,8 +44,6 @@ const manager = createLocalStorageManager('ss-theme')
 
 const splashScreen = <SplashScreen />
 
-const rfoxStakingAssetId = foxOnArbitrumOneAssetId
-
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback(
@@ -85,7 +82,7 @@ export function AppProviders({ children }: ProvidersProps) {
                                     <AppProvider>
                                       <FoxEthProvider>
                                         <DefiManagerProvider>
-                                          <RFOXProvider stakingAssetId={rfoxStakingAssetId}>
+                                          <RFOXProvider>
                                             <FoxPageProvider>{children}</FoxPageProvider>
                                           </RFOXProvider>
                                         </DefiManagerProvider>

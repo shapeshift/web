@@ -1,11 +1,9 @@
-import {
-  RFOX_ABI,
-  RFOX_LP_PROXY_CONTRACT,
-  RFOX_PROXY_CONTRACT,
-  viemClientByNetworkId,
-} from '@shapeshiftoss/contracts'
-import { skipToken, useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
+import { mergeQueryOutputs } from 'react-queries/helpers'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { multicall } from 'viem/actions'
@@ -13,33 +11,37 @@ import { arbitrum } from 'viem/chains'
 import { serialize } from 'wagmi'
 import { isSome } from 'lib/utils'
 
-import { useGetUnstakingRequestCountQuery } from './useGetUnstakingRequestCountQuery'
+import { RFOX_STAKING_ASSET_IDS } from '../constants'
+import { getStakingAssetId, getStakingContract } from '../helpers'
+import {
+  getUnstakingRequestCountQueryFn,
+  getUnstakingRequestCountQueryKey,
+} from './useGetUnstakingRequestCountQuery'
 
-const getContracts = (
+const getContractFnParams = (
   stakingAssetAccountAddress: string | undefined,
   count: bigint,
-  contractAddress: Address = RFOX_PROXY_CONTRACT,
-) =>
-  stakingAssetAccountAddress
-    ? Array.from(
-        { length: Number(count) },
-        (_, index) =>
-          ({
-            abi: RFOX_ABI,
-            address: contractAddress,
-            functionName: 'getUnstakingRequest',
-            args: [getAddress(stakingAssetAccountAddress), BigInt(index)],
-            chainId: arbitrum.id,
-          }) as const,
-      )
-    : []
+  contractAddress: Address,
+) => {
+  if (!stakingAssetAccountAddress) return []
 
-type GetUnstakingRequestsQueryKey = [string, { contracts: string }]
+  return Array.from({ length: Number(count) }, (_, index) => {
+    return {
+      abi: RFOX_ABI,
+      address: contractAddress,
+      functionName: 'getUnstakingRequest',
+      args: [getAddress(stakingAssetAccountAddress), BigInt(index)],
+      chainId: arbitrum.id,
+    } as const
+  })
+}
+
+type GetUnstakingRequestsQueryKey = [string, { fnParams: string }]
 
 type UnstakingRequests = {
   unstakingBalance: bigint
   cooldownExpiry: bigint
-  contractAddress: Address
+  stakingAssetId: AssetId
   index: number
 }[]
 
@@ -54,112 +56,87 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   stakingAssetAccountAddress,
   select,
 }: UseGetUnstakingRequestsQueryProps<SelectData>) => {
-  const {
-    data: unstakingRequestCountResponse,
-    isError: isUnstakingRequestCountError,
-    isLoading: isUnstakingRequestCountLoading,
-    isPending: isUnstakingRequestCountPending,
-    error: unstakingRequestCountError,
-  } = useGetUnstakingRequestCountQuery({
-    stakingAssetAccountAddress,
-  })
-
-  const {
-    data: lpUnstakingRequestCountResponse,
-    isError: isLpUnstakingRequestCountError,
-    isLoading: isLpUnstakingRequestCountLoading,
-    isPending: isLpUnstakingRequestCountPending,
-    error: lpUnstakingRequestCountError,
-  } = useGetUnstakingRequestCountQuery({
-    stakingAssetAccountAddress,
-    contractAddress: RFOX_LP_PROXY_CONTRACT,
-  })
-
-  const contracts = useMemo(() => {
-    const foxContracts = getContracts(
-      stakingAssetAccountAddress,
-      unstakingRequestCountResponse ?? 0n,
-    )
-    const lpContracts = getContracts(
-      stakingAssetAccountAddress,
-      lpUnstakingRequestCountResponse ?? 0n,
-      RFOX_LP_PROXY_CONTRACT,
-    )
-    return [...foxContracts, ...lpContracts]
-  }, [stakingAssetAccountAddress, unstakingRequestCountResponse, lpUnstakingRequestCountResponse])
-
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey: GetUnstakingRequestsQueryKey = useMemo(
-    () => [
-      'readContracts',
-      {
-        // avoids throws on unserializable BigInts, this is the same wagmi useQuery() is doing in their internal useQuery flavor
-        // but we can't use it because they're still stuck on v4 of react-query, whereas skipToken support is only available starting from v5.25
-        // https://wagmi.sh/react/api/utilities/serialize
-        contracts: serialize(contracts),
-      },
-    ],
-    [contracts],
+  const unstakingRequestCountQueries = RFOX_STAKING_ASSET_IDS.map(
+    stakingAssetId =>
+      ({
+        queryKey: getUnstakingRequestCountQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
+        queryFn: getUnstakingRequestCountQueryFn({ stakingAssetAccountAddress, stakingAssetId }),
+      }) as const,
   )
 
-  const getUnstakingRequestsQueryFn = useMemo(() => {
-    // Unstaking request count is actually loading/pending, fine not to fire a *query* for unstaking request here just yet and skipToken
-    // this query will be in pending state, which is correct.
-    if (
-      isUnstakingRequestCountLoading ||
-      isUnstakingRequestCountPending ||
-      isLpUnstakingRequestCountLoading ||
-      isLpUnstakingRequestCountPending
-    )
+  const combine = useCallback(
+    (queries: UseQueryResult<bigint, Error>[]) => {
+      const combineResults = (results: (bigint | undefined)[]) => {
+        return results.flatMap((result, i) => {
+          return getContractFnParams(
+            stakingAssetAccountAddress,
+            result ?? 0n,
+            getStakingContract(RFOX_STAKING_ASSET_IDS[i]),
+          )
+        })
+      }
+
+      return mergeQueryOutputs(queries, combineResults)
+    },
+    [stakingAssetAccountAddress],
+  )
+
+  const unstakingRequestCountResult = useQueries({
+    queries: unstakingRequestCountQueries,
+    combine,
+  })
+
+  const queryKey: GetUnstakingRequestsQueryKey = useMemo(
+    () => [
+      'unstakingRequests',
+      {
+        fnParams: serialize(unstakingRequestCountResult.data),
+      },
+    ],
+    [unstakingRequestCountResult],
+  )
+
+  const queryFn = useMemo(() => {
+    if (unstakingRequestCountResult.isPending || unstakingRequestCountResult.isLoading)
       return skipToken
+
     // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
     // until staleTime/gcTime elapses on the dependant query. Propagates the error instead.
-    if (isUnstakingRequestCountError) return () => Promise.reject(unstakingRequestCountError)
-    if (isLpUnstakingRequestCountError) return () => Promise.reject(lpUnstakingRequestCountError)
-    // We have a successful response for unstaking request count, but it's a 0-count.
+    if (unstakingRequestCountResult.isError)
+      return () => Promise.reject(unstakingRequestCountResult.error)
+
+    // We have a successful response for unstaking request count, but there are no unstaking requests
     // We don't need to fire an *XHR* as we already know what the response would be (an empty array), but still need to fire a *query*, resolving immediately with said known response.
-    if (unstakingRequestCountResponse === 0n) return () => Promise.resolve([])
-    if (lpUnstakingRequestCountResponse === 0n) return () => Promise.resolve([])
-    return () =>
-      multicall(client, {
-        contracts,
-      }).then(r =>
-        r
-          .map((response, globalIndex) => {
-            if (!response.result) return null
+    if (!unstakingRequestCountResult.data.length) return () => Promise.resolve([])
 
-            const contractAddress = contracts[globalIndex].address
+    return async () => {
+      const contracts = unstakingRequestCountResult.data
 
-            // As we have two contracts, we need to calculate the relative index of the unstaking request
-            // as the index on chain are relative to the particular contract
-            const localIndex = globalIndex - contracts.findIndex(c => c.address === contractAddress)
+      const responses = await multicall(client, { contracts })
 
-            return {
-              unstakingBalance: response.result.unstakingBalance,
-              cooldownExpiry: response.result.cooldownExpiry,
-              contractAddress,
-              index: localIndex,
-            }
-          })
-          .filter(isSome),
-      )
-  }, [
-    contracts,
-    isUnstakingRequestCountError,
-    isUnstakingRequestCountLoading,
-    isUnstakingRequestCountPending,
-    isLpUnstakingRequestCountError,
-    isLpUnstakingRequestCountLoading,
-    isLpUnstakingRequestCountPending,
-    unstakingRequestCountError,
-    unstakingRequestCountResponse,
-    lpUnstakingRequestCountError,
-    lpUnstakingRequestCountResponse,
-  ])
+      return responses
+        .map(({ result }, i) => {
+          if (!result) return null
+
+          const contractAddress = contracts[i].address
+
+          // getUnstakingRequest(account address, index uint256)
+          const index = Number(contracts[i].args[1])
+
+          return {
+            unstakingBalance: result.unstakingBalance,
+            cooldownExpiry: result.cooldownExpiry,
+            stakingAssetId: getStakingAssetId(contractAddress),
+            index,
+          }
+        })
+        .filter(isSome)
+    }
+  }, [unstakingRequestCountResult])
 
   const unstakingRequestsQuery = useQuery({
     queryKey,
-    queryFn: getUnstakingRequestsQueryFn,
+    queryFn,
     select,
     retry: false,
   })

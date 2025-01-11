@@ -40,9 +40,7 @@ export const useCurrentEpochRewardsQuery = ({
         UseQueryResult<bigint, Error>,
       ],
     ) => {
-      const combineResults = (
-        _results: (Epoch[] | bigint | CurrentEpochMetadata | undefined)[],
-      ) => {
+      const combineResults = (_results: (Epoch[] | bigint | undefined)[]) => {
         if (!stakingAssetAccountAddress) return 0n
 
         const results = _results as EpochRewardsResultTuple
@@ -52,10 +50,13 @@ export const useCurrentEpochRewardsQuery = ({
         if (!epochHistory || !currentEpochRewardUnits || !affiliateRevenue || !currentEpochMetadata)
           return 0n
 
-        const previousEpoch = epochHistory[epochHistory.length - 1]
+        const orderedEpochHistory = epochHistory.sort((a, b) => a.number - b.number)
+        const previousEpoch = orderedEpochHistory[epochHistory.length - 1]
+
         const previousDistribution =
           previousEpoch?.detailsByStakingContract[getStakingContract(stakingAssetId)]
             ?.distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
+
         const previousEpochRewardUnits = BigInt(previousDistribution?.totalRewardUnits ?? '0')
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 

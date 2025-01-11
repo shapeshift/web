@@ -71,10 +71,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     history.push(ClaimRoutePaths.Select)
   }, [history])
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
+  const stakingAssetId = useMemo(() => claimQuote.stakingAssetId, [claimQuote])
+
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const claimAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
 
   const stakingAmountCryptoPrecision = useMemo(
@@ -107,14 +109,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   )
 
   const callData = useMemo(() => {
-    if (!stakingAsset) return
-
     return encodeFunctionData({
       abi: RFOX_ABI,
       functionName: 'withdraw',
       args: [BigInt(claimQuote.index)],
     })
-  }, [stakingAsset, claimQuote.index])
+  }, [claimQuote.index])
 
   const {
     mutateAsync: handleClaim,
@@ -123,9 +123,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     isSuccess: isClaimMutationSuccess,
   } = useMutation({
     mutationFn: async () => {
-      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
+      if (!wallet || stakingAssetAccountNumber === undefined) return
 
-      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+      const adapter = assertGetEvmChainAdapter(fromAssetId(claimQuote.stakingAssetId).chainId)
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
@@ -133,7 +133,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         adapter,
         data: callData,
         value: '0',
-        to: getStakingContract(stakingAsset.assetId),
+        to: getStakingContract(claimQuote.stakingAssetId),
         wallet,
       })
 
@@ -209,13 +209,13 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   }, [stakingAsset, stakingAmountCryptoPrecision, claimAmountUserCurrency])
 
   const handleSubmit = useCallback(async () => {
-    if (!stakingAsset) return
-
-    await handleClaim()
+    const txHash = await handleClaim()
+    if (!txHash) return
     history.push(ClaimRoutePaths.Status)
-  }, [handleClaim, history, stakingAsset])
+  }, [handleClaim, history])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
+
   const isClaimTxPending = useMemo(
     () => isClaimMutationPending || (isClaimMutationSuccess && !claimTx),
     [claimTx, isClaimMutationPending, isClaimMutationSuccess],

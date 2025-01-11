@@ -1,6 +1,5 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { foxAssetId, fromAccountId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { arbitrumChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -11,12 +10,9 @@ import { ClaimStatus } from 'components/ClaimRow/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { RfoxTabIndex } from 'pages/RFOX/Widget'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
@@ -64,63 +60,53 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const {
-    state: { isConnected },
-  } = useWallet()
-
-  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const history = useHistory()
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const lpStakingAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
+  const { isConnected } = useWallet().state
+  const { stakingAssetAccountId } = useRFOXContext()
+
+  console.log({ stakingAssetAccountId })
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
 
-  const {
-    data: unstakingRequestResponse,
-    isLoading: isUnstakingRequestLoading,
-    isPending: isUnstakingRequestPending,
-    isPaused: isUnstakingRequestPaused,
-    isError: isUnstakingRequestError,
-    isRefetching: isUnstakingRequestRefetching,
-  } = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsResult = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
-    if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
+    if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={arbitrumChainId} />
+
     if (
-      isUnstakingRequestLoading ||
-      isUnstakingRequestPending ||
-      isUnstakingRequestPaused ||
-      isUnstakingRequestRefetching
-    )
+      unstakingRequestsResult.isLoading ||
+      unstakingRequestsResult.isPending ||
+      unstakingRequestsResult.isPaused ||
+      unstakingRequestsResult.isFetching
+    ) {
       return new Array(2).fill(null).map((_, index) => <Skeleton key={index} height={16} my={2} />)
-    if (isUnstakingRequestError || !unstakingRequestResponse.length)
-      return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
+    }
 
-    return unstakingRequestResponse.map(unstakingRequest => {
-      const selectedAsset =
-        unstakingRequest.contractAddress === RFOX_PROXY_CONTRACT ? stakingAsset : lpStakingAsset
-
-      const amountCryptoPrecision = fromBaseUnit(
-        unstakingRequest.unstakingBalance.toString() ?? '',
-        selectedAsset?.precision ?? 0,
+    if (unstakingRequestsResult.isError || !unstakingRequestsResult.data.length) {
+      return (
+        <NoClaimsAvailable isError={unstakingRequestsResult.isError} setStepIndex={setStepIndex} />
       )
+    }
+
+    return unstakingRequestsResult.data.map(unstakingRequest => {
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
       const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
+
       return (
         <ClaimRow
-          stakingAssetId={selectedAsset?.assetId ?? stakingAssetId}
+          stakingAssetId={unstakingRequest.stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
-          amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
+          amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
           status={status}
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
@@ -130,20 +116,12 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       )
     })
   }, [
-    isConnected,
-    stakingAssetAccountAddress,
-    isUnstakingRequestLoading,
-    isUnstakingRequestPending,
-    isUnstakingRequestPaused,
-    isUnstakingRequestRefetching,
-    isUnstakingRequestError,
-    unstakingRequestResponse,
-    lpStakingAsset,
-    stakingAsset,
-    setStepIndex,
-    stakingAssetId,
-    setConfirmedQuote,
     handleClaimClick,
+    isConnected,
+    setConfirmedQuote,
+    setStepIndex,
+    stakingAssetAccountAddress,
+    unstakingRequestsResult,
   ])
 
   return (

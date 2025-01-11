@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
@@ -60,7 +60,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
-  const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
+  const unstakingRequestCountQueryKey = getUnstakingRequestCountQueryKey({
+    stakingAssetId: confirmedQuote?.stakingAssetId,
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,

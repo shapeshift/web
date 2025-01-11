@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +30,7 @@ import { useCurrentEpochRewardsQuery } from 'pages/RFOX/hooks/useCurrentEpochRew
 import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingInfoItem } from './StakingInfoItem'
@@ -53,9 +54,14 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
   const translate = useTranslate()
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const currentApyResult = useCurrentApyQuery({ stakingAssetId })
+
   const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
 
   const stakingBalanceCryptoBaseUnitResult = useStakingInfoQuery({
@@ -74,6 +80,18 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     stakingAssetAccountAddress,
     currentEpochMetadata: currentEpochMetadataResult.data,
   })
+
+  const currentEpochRewardsUserCurrency = useMemo(() => {
+    if (!runeAsset) return
+    if (!currentEpochRewardsCryptoBaseUnitResult.data) return
+
+    const currentEpochRewardsCryptoBaseUnit =
+      currentEpochRewardsCryptoBaseUnitResult.data.toString()
+
+    return bnOrZero(fromBaseUnit(currentEpochRewardsCryptoBaseUnit, runeAsset.precision))
+      .times(runeMarketData.price)
+      .toFixed(2)
+  }, [currentEpochRewardsCryptoBaseUnitResult, runeAsset, runeMarketData])
 
   const lifetimeRewardsCryptoBaseUnitResult = useLifetimeRewardsQuery({
     stakingAssetId,
@@ -156,6 +174,11 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
                     symbol={runeAsset?.symbol ?? ''}
                     fontSize='xl'
                     fontWeight='medium'
+                  />
+                  <Amount.Fiat
+                    fontSize='xs'
+                    value={currentEpochRewardsUserCurrency}
+                    color='text.subtle'
                   />
                 </Skeleton>
               </Box>

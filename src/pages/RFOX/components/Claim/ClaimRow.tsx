@@ -1,13 +1,14 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ClaimRow as ReusableClaimRow } from 'components/ClaimRow/ClaimRow'
 import { ClaimStatus } from 'components/ClaimRow/types'
-import { toBaseUnit } from 'lib/math'
-import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -15,7 +16,7 @@ import type { RfoxClaimQuote } from './types'
 
 type ClaimRowProps = {
   stakingAssetId: AssetId
-  amountCryptoPrecision: string
+  amountCryptoBaseUnit: string
   status: ClaimStatus
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
@@ -25,7 +26,7 @@ type ClaimRowProps = {
 
 export const ClaimRow: FC<ClaimRowProps> = ({
   stakingAssetId,
-  amountCryptoPrecision,
+  amountCryptoBaseUnit,
   status,
   setConfirmedQuote,
   cooldownPeriodHuman,
@@ -33,37 +34,37 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   onClaimClick,
 }) => {
   const translate = useTranslate()
+  const { stakingAssetAccountId } = useRFOXContext()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const stakingAssetSymbol = stakingAsset?.symbol
-  const stakingAmountCryptoBaseUnit = toBaseUnit(
-    bnOrZero(amountCryptoPrecision),
-    stakingAsset?.precision ?? 0,
-  )
+  console.log('ClaimRow', { stakingAssetAccountId })
 
-  // TODO(apotheosis): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
+  const amountCryptoPrecision = fromBaseUnit(
+    bnOrZero(amountCryptoBaseUnit),
+    stakingAsset?.precision ?? 0,
   )
 
   const handleClaimClick = useMemo(() => {
     if (!stakingAssetAccountId || onClaimClick === undefined) return
+
     return () => {
       const claimQuote: RfoxClaimQuote = {
         stakingAssetAccountId,
         stakingAssetId,
-        stakingAmountCryptoBaseUnit,
+        stakingAmountCryptoBaseUnit: amountCryptoBaseUnit,
         index,
       }
+
       setConfirmedQuote(claimQuote)
       onClaimClick()
     }
   }, [
+    amountCryptoBaseUnit,
     index,
     onClaimClick,
     setConfirmedQuote,
-    stakingAmountCryptoBaseUnit,
     stakingAssetAccountId,
     stakingAssetId,
   ])
@@ -71,16 +72,18 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const statusText = useMemo(() => {
     if (!isLargerThanMd) return cooldownPeriodHuman
 
-    if (status === ClaimStatus.Pending)
+    if (status === ClaimStatus.Pending) {
       return translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
+    }
+
     return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
   }, [cooldownPeriodHuman, isLargerThanMd, status, translate])
 
   const actionText = useMemo(() => {
-    if (!stakingAssetSymbol) return
+    if (!stakingAsset?.symbol) return
 
-    return translate('RFOX.claim', { stakingAssetSymbol })
-  }, [stakingAssetSymbol, translate])
+    return translate('RFOX.claim', { stakingAssetSymbol: stakingAsset.symbol })
+  }, [stakingAsset, translate])
 
   if (!stakingAsset) return null
 

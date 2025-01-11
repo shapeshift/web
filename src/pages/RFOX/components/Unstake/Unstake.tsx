@@ -3,14 +3,13 @@ import {
   fromAccountId,
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
-import { RFOX_LP_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { getStakingContract } from 'pages/RFOX/helpers'
-import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -100,17 +99,11 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       : undefined,
   })
 
-  const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
+  const unstakingRequestCountQueryKey = getUnstakingRequestCountQueryKey({
+    stakingAssetId: confirmedQuote?.stakingAssetId,
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
-  })
-
-  const { queryKey: lpUnstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-    contractAddress: RFOX_LP_PROXY_CONTRACT,
   })
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
@@ -125,7 +118,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
-    await queryClient.invalidateQueries({ queryKey: lpUnstakingRequestCountQueryKey })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
   }, [
     lpNewContractBalanceOfCryptoBaseUnitQueryKey,
@@ -135,7 +127,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     unstakingRequestQueryKey,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
     lpUserStakingBalanceOfCryptoBaseUnitQueryKey,
-    lpUnstakingRequestCountQueryKey,
   ])
 
   const renderUnstakeInput = useCallback(() => {

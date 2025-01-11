@@ -38,13 +38,13 @@ export const Stats: React.FC = () => {
   }, [affiliateRevenueResult, runeAsset, runeAssetMarketData])
 
   const foxBurnAmountUserCurrency = useMemo(() => {
-    if (!affiliateRevenueResult.data) return
     if (!currentEpochMetadataResult.data) return
+    if (!totalFeesCollectedUserCurrency) return
 
-    return bn(affiliateRevenueResult.data)
+    return bn(totalFeesCollectedUserCurrency)
       .times(currentEpochMetadataResult.data.burnRate)
       .toFixed(2)
-  }, [affiliateRevenueResult, currentEpochMetadataResult])
+  }, [currentEpochMetadataResult, totalFeesCollectedUserCurrency])
 
   return (
     <Box>

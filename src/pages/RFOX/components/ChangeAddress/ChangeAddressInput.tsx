@@ -33,6 +33,7 @@ import type {
   MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'
 import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
+import { RFOX_STAKING_ASSET_IDS } from 'pages/RFOX/constants'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -61,8 +62,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   headerComponent,
   setConfirmedQuote,
 }) => {
-  const { stakingAssetId, stakingAssetAccountId, setSelectedAssetId, selectedAssetId } =
-    useRFOXContext()
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
   const { wallet, isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
@@ -73,8 +73,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')
-
-  const assetIds = useMemo(() => [stakingAssetId, uniV2EthFoxArbitrumAssetId], [stakingAssetId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
@@ -129,7 +127,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     isSuccess: isCurrentRuneAddressSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    stakingAssetId: selectedAssetId,
+    stakingAssetId,
     select: selectRuneAddress,
   })
 
@@ -194,7 +192,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
     setConfirmedQuote({
       stakingAssetAccountId,
-      stakingAssetId: selectedAssetId,
+      stakingAssetId,
       currentRuneAddress,
       newRuneAddress,
     })
@@ -204,7 +202,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     newRuneAddress,
     stakingAssetAccountId,
     setConfirmedQuote,
-    selectedAssetId,
+    stakingAssetId,
     currentRuneAddress,
     history,
   ])
@@ -234,22 +232,22 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   const handleAssetChange = useCallback(
     (asset: Asset) => {
-      setSelectedAssetId(asset.assetId)
+      setStakingAssetId(asset.assetId)
       // Reset address field when changing assets
       setValue('newRuneAddress', '', { shouldValidate: true })
     },
-    [setValue, setSelectedAssetId],
+    [setValue, setStakingAssetId],
   )
 
   const handleStakingAssetClick = useCallback(() => {
     if (!(stakingAsset && foxEthLpArbitrumAsset)) return
 
     buyAssetSearch.open({
-      onAssetClick: asset => setSelectedAssetId(asset.assetId),
+      onAssetClick: asset => setStakingAssetId(asset.assetId),
       title: 'common.selectAsset',
       assets: [stakingAsset, foxEthLpArbitrumAsset],
     })
-  }, [stakingAsset, foxEthLpArbitrumAsset, buyAssetSearch, setSelectedAssetId])
+  }, [stakingAsset, foxEthLpArbitrumAsset, buyAssetSearch, setStakingAssetId])
 
   if (!isConnected)
     return (
@@ -280,10 +278,10 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
           <Stack spacing={4}>
             <Text translation='common.selectAsset' fontWeight='bold' px={6} />
             <TradeAssetSelect
-              assetId={selectedAssetId}
+              assetId={stakingAssetId}
               onAssetClick={handleStakingAssetClick}
               onAssetChange={handleAssetChange}
-              assetIds={assetIds}
+              assetIds={RFOX_STAKING_ASSET_IDS}
               onlyConnectedChains={true}
             />
           </Stack>

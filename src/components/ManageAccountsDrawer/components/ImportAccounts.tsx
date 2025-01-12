@@ -305,6 +305,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [])
 
   const handleDone = useCallback(async () => {
+    if (!walletDeviceId) {
+      console.error('Missing walletDeviceId')
+      return
+    }
+
     if (isDemoWallet) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       accountManagementPopover.close()
@@ -314,11 +319,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
     if (!accounts) {
       console.error('Missing accounts data')
-      return
-    }
-
-    if (!walletDeviceId) {
-      console.error('Missing walletDeviceId')
       return
     }
 

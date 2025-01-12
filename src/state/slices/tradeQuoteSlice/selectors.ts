@@ -572,12 +572,36 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
   },
 )
 
+export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
+  (state: ReduxState) =>
+    selectCalculatedFees(state, {
+      feeModel: 'SWAPPER',
+      inputAmountUsd: selectQuoteSellAmountUsd(state),
+    }),
+  selectActiveQuoteAffiliateBps,
+  (calculatedFees, affiliateBps) => {
+    if (!affiliateBps) return
+    if (affiliateBps === '0') return bn(0)
+
+    return calculatedFees.foxDiscountUsd
+  },
+)
+
 export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelector(
   selectTradeQuoteAffiliateFeeAfterDiscountUsd,
   selectUserCurrencyToUsdRate,
   (tradeAffiliateFeeAfterDiscountUsd, sellUserCurrencyRate) => {
     if (!tradeAffiliateFeeAfterDiscountUsd || !sellUserCurrencyRate) return
     return bn(tradeAffiliateFeeAfterDiscountUsd).times(sellUserCurrencyRate).toFixed()
+  },
+)
+
+export const selectTradeQuoteAffiliateFeeDiscountUserCurrency = createSelector(
+  selectTradeQuoteAffiliateFeeDiscountUsd,
+  selectUserCurrencyToUsdRate,
+  (tradeAffiliateFeeDiscountUsd, sellUserCurrencyRate) => {
+    if (!tradeAffiliateFeeDiscountUsd || !sellUserCurrencyRate) return
+    return bn(tradeAffiliateFeeDiscountUsd).times(sellUserCurrencyRate).toFixed()
   },
 )
 

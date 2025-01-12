@@ -14,9 +14,9 @@ import { useAppDispatch, useSelectorWithArgs } from 'state/store'
 
 const foxIcon = <FoxIcon w='full' h='full' />
 
-type YouSavedProps = { feeUserCurrency: string }
+type YouSavedProps = { affiliateFeeUserCurrency: string }
 
-export const YouCouldHaveSaved = ({ feeUserCurrency }: YouSavedProps) => {
+export const YouCouldHaveSaved = ({ affiliateFeeUserCurrency }: YouSavedProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const cardRef = useRef<HTMLDivElement>(null)
@@ -38,16 +38,16 @@ export const YouCouldHaveSaved = ({ feeUserCurrency }: YouSavedProps) => {
     history.push(TradeRoutePaths.Input)
   }, [dispatch, foxAsset, history])
 
-  const feeUserCurrencyFormatted = useMemo(() => {
-    return toFiat(feeUserCurrency)
-  }, [toFiat, feeUserCurrency])
+  const affiliateFeeUserCurrencyFormatted = useMemo(() => {
+    return toFiat(affiliateFeeUserCurrency)
+  }, [toFiat, affiliateFeeUserCurrency])
 
   const youSavedTranslationProps = useMemo(() => {
     return [
       'trade.foxSavings.youCouldHaveSaved',
-      { fee: feeUserCurrencyFormatted },
+      { fee: affiliateFeeUserCurrencyFormatted },
     ] as TextPropTypes['translation']
-  }, [feeUserCurrencyFormatted])
+  }, [affiliateFeeUserCurrencyFormatted])
 
   return (
     <>

@@ -13,6 +13,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +22,11 @@ import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectLastHop,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  selectTradeQuoteAffiliateFeeDiscountUserCurrency,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
@@ -56,9 +61,14 @@ export const TradeSuccess = ({
   // TEMP: Revert me!
   const lastHop = true // useAppSelector(selectLastHop)
 
-  // TODO: Implement me
-  const feeSavingUserCurrency = '1.234'
-  const feeUserCurrency = '1.234'
+  const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
+
+  const affiliateFeeUserCurrency = useAppSelector(
+    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  )
+
+  const hasFeeSaving = !bnOrZero(feeSavingUserCurrency).isZero()
+  const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -105,8 +115,10 @@ export const TradeSuccess = ({
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate('trade.doAnotherTrade')}
           </Button>
-          <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
-          <YouCouldHaveSaved feeUserCurrency={feeUserCurrency} />
+          {hasFeeSaving && <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />}
+          {couldHaveReducedFee && (
+            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
+          )}
         </Stack>
       </CardBody>
       <Divider />

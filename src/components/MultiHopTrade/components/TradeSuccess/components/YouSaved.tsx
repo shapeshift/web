@@ -5,9 +5,9 @@ import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
+import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -16,7 +16,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useSelectorWithArgs } from 'state/store'
 
-const foxIcon = <FoxIcon w='full' h='full' />
+const faTwitterIcon = <FaTwitter />
 
 const confettiStyle: CSSProperties = {
   position: 'fixed',
@@ -102,7 +102,7 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
         ref={cardRef}
         width='full'
         bg='background.surface.overlay.base'
-        borderBottomRadius='lg'
+        borderRadius='xl'
         p={4}
         borderColor='border.base'
         borderWidth={2}
@@ -110,7 +110,7 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
         <HStack width='full' justifyContent='space-between'>
           <Text translation={youSavedTranslationProps} fontSize='sm' fontWeight='bold' />
           <Button
-            leftIcon={foxIcon}
+            leftIcon={faTwitterIcon}
             colorScheme='gray'
             size='sm'
             fontSize='sm'
@@ -120,9 +120,9 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
             borderRadius='full'
             borderColor='border.base'
             borderWidth={2}
-            px={4}
+            px={3}
           >
-            {translate('trade.foxSavings.buyFox')}
+            {translate('trade.foxSavings.share')}
           </Button>
         </HStack>
       </Card>

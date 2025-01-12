@@ -25,6 +25,7 @@ import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
+import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
 import { YouSaved } from './components/YouSaved'
 
 export type TradeSuccessProps = {
@@ -57,6 +58,7 @@ export const TradeSuccess = ({
 
   // TODO: Implement me
   const feeSavingUserCurrency = '1.234'
+  const feeUserCurrency = '1.234'
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -104,6 +106,7 @@ export const TradeSuccess = ({
             {translate('trade.doAnotherTrade')}
           </Button>
           <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
+          <YouCouldHaveSaved feeUserCurrency={feeUserCurrency} />
         </Stack>
       </CardBody>
       <Divider />

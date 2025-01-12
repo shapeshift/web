@@ -1,0 +1,84 @@
+import { Button, Card, HStack } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
+import { FoxIcon } from 'components/Icons/FoxIcon'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectAssetById } from 'state/slices/selectors'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useSelectorWithArgs } from 'state/store'
+
+const foxIcon = <FoxIcon w='full' h='full' />
+
+type YouSavedProps = { feeUserCurrency: string }
+
+export const YouCouldHaveSaved = ({ feeUserCurrency }: YouSavedProps) => {
+  const history = useHistory()
+  const translate = useTranslate()
+  const cardRef = useRef<HTMLDivElement>(null)
+  const dispatch = useAppDispatch()
+
+  const foxAsset = useSelectorWithArgs(selectAssetById, foxAssetId)
+
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
+
+  const handleClick = useCallback(() => {
+    if (!foxAsset) return
+
+    // Set fox as the buy asset
+    dispatch(tradeInput.actions.setBuyAsset(foxAsset))
+
+    // Redirect to trade input page
+    history.push(TradeRoutePaths.Input)
+  }, [dispatch, foxAsset, history])
+
+  const feeUserCurrencyFormatted = useMemo(() => {
+    return toFiat(feeUserCurrency)
+  }, [toFiat, feeUserCurrency])
+
+  const youSavedTranslationProps = useMemo(() => {
+    return [
+      'trade.foxSavings.youCouldHaveSaved',
+      { fee: feeUserCurrencyFormatted },
+    ] as TextPropTypes['translation']
+  }, [feeUserCurrencyFormatted])
+
+  return (
+    <>
+      <Card
+        ref={cardRef}
+        width='full'
+        bg='background.surface.overlay.base'
+        borderRadius='xl'
+        p={4}
+        borderColor='border.base'
+        borderWidth={2}
+      >
+        <HStack width='full' justifyContent='space-between'>
+          <Text translation={youSavedTranslationProps} fontSize='sm' fontWeight='bold' />
+          <Button
+            leftIcon={foxIcon}
+            colorScheme='gray'
+            size='sm'
+            fontSize='sm'
+            fontWeight='bold'
+            aria-label='Copy value'
+            onClick={handleClick}
+            borderRadius='full'
+            borderColor='border.base'
+            borderWidth={2}
+            px={5}
+          >
+            {translate('trade.foxSavings.buyFox')}
+          </Button>
+        </HStack>
+      </Card>
+    </>
+  )
+}

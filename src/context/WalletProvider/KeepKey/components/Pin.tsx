@@ -142,10 +142,10 @@ export const KeepKeyPin = ({
       }
     }
 
-    keyring.on(['KeepKey', deviceId ?? '', String(MessageType.FAILURE)], handleError)
+    deviceId && keyring.on(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
 
     return () => {
-      keyring.off(['KeepKey', deviceId ?? '', String(MessageType.FAILURE)], handleError)
+      deviceId && keyring.off(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
     }
   }, [deviceId, keyring])
 

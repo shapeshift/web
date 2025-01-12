@@ -58,8 +58,7 @@ export const TradeSuccess = ({
     defaultIsOpen: false,
   })
 
-  // TEMP: Revert me!
-  const lastHop = true // useAppSelector(selectLastHop)
+  const lastHop = useAppSelector(selectLastHop)
 
   const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
 
@@ -115,7 +114,7 @@ export const TradeSuccess = ({
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate('trade.doAnotherTrade')}
           </Button>
-          {hasFeeSaving && <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />}
+          {hasFeeSaving && <YouSaved feeSavingUserCurrency={feeSavingUserCurrency!} />}
           {couldHaveReducedFee && (
             <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
           )}

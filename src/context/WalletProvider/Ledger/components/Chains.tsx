@@ -52,7 +52,8 @@ export const LedgerChains = () => {
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
-      const { wallet, deviceId } = walletState ?? {}
+      const { wallet, deviceId } = walletState
+
       if (!wallet || !deviceId) {
         console.error('No wallet found')
         return

@@ -1,5 +1,4 @@
-import { Button, Card, HStack } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { Button, Card, HStack, Link } from '@chakra-ui/react'
 import type { Options } from 'canvas-confetti'
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -7,14 +6,9 @@ import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectAssetById } from 'state/slices/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useSelectorWithArgs } from 'state/store'
 
 const faTwitterIcon = <FaTwitter />
 
@@ -30,12 +24,8 @@ const confettiStyle: CSSProperties = {
 type YouSavedProps = { feeSavingUserCurrency: string }
 
 export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
-  const history = useHistory()
   const translate = useTranslate()
   const cardRef = useRef<HTMLDivElement>(null)
-  const dispatch = useAppDispatch()
-
-  const fox = useSelectorWithArgs(selectAssetById, foxAssetId)
 
   const {
     number: { toFiat },
@@ -75,16 +65,6 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
     })
   }, [makeShot])
 
-  const handleClick = useCallback(() => {
-    if (!fox) return
-
-    // Set fox as the buy asset
-    dispatch(tradeInput.actions.setBuyAsset(fox))
-
-    // Redirect to trade input page
-    history.push(TradeRoutePaths.Input)
-  }, [dispatch, fox, history])
-
   const feeSavingUserCurrencyFormatted = useMemo(() => {
     return toFiat(feeSavingUserCurrency)
   }, [toFiat, feeSavingUserCurrency])
@@ -110,13 +90,17 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
         <HStack width='full' justifyContent='space-between'>
           <Text translation={youSavedTranslationProps} fontSize='sm' fontWeight='bold' />
           <Button
+            as={Link}
+            href={`https://x.com/intent/tweet?text=${encodeURIComponent(
+              translate('trade.foxSavings.postBody', { fee: feeSavingUserCurrencyFormatted }),
+            )}`}
+            isExternal
             leftIcon={faTwitterIcon}
             colorScheme='gray'
             size='sm'
             fontSize='sm'
             fontWeight='bold'
             aria-label='Copy value'
-            onClick={handleClick}
             borderRadius='full'
             borderColor='border.base'
             borderWidth={2}

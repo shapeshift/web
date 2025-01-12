@@ -1032,7 +1032,8 @@
       "youSaved": "You saved %{feeSaving} on your trade with FOX Savings!",
       "youCouldHaveSaved": "You could have saved %{fee} on your trade with FOX Savings.",
       "buyFox": "Buy FOX",
-      "share": "Share"
+      "share": "Share",
+      "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!"
     }
   },
   "limitOrder": {

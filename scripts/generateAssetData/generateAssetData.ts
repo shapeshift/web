@@ -1,5 +1,6 @@
 import 'dotenv/config'
 
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   ethAssetId,
@@ -221,74 +222,59 @@ const generateAssetData = async () => {
   return { sortedAssetIds, assetData: assetsWithOverridesApplied }
 }
 
+const readRelatedAssetIndex = () => {
+  const encodedAssetData = JSON.parse(fs.readFileSync(ASSET_DATA_PATH, 'utf8'))
+  const encodedRelatedAssetIndex = JSON.parse(fs.readFileSync(RELATED_ASSET_INDEX_PATH, 'utf8'))
+
+  const { sortedAssetIds: originalSortedAssetIds } = decodeAssetData(encodedAssetData)
+  const relatedAssetIndex = decodeRelatedAssetIndex(
+    encodedRelatedAssetIndex,
+    originalSortedAssetIds,
+  )
+
+  return relatedAssetIndex
+}
+
+const reEncodeAndWriteRelatedAssetIndex = (
+  originalRelatedAssetIndex: Record<AssetId, AssetId[]>,
+  updatedSortedAssetIds: AssetId[],
+) => {
+  const updatedEncodedRelatedAssetIndex = encodeRelatedAssetIndex(
+    originalRelatedAssetIndex,
+    updatedSortedAssetIds,
+  )
+
+  // Remove any undefined values from the updated encoded related asset index
+  const filteredUpdatedEncodedRelatedAssetIndex = Object.fromEntries(
+    Object.entries(updatedEncodedRelatedAssetIndex).filter(([_, value]) => value !== undefined),
+  )
+
+  fs.writeFileSync(
+    RELATED_ASSET_INDEX_PATH,
+    JSON.stringify(filteredUpdatedEncodedRelatedAssetIndex),
+  )
+}
+
 const main = async () => {
   try {
-    // Read the original asset data so we can re-index the related asset index based on the new asset data
-    const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
-    const encodedRelatedAssetIndex = JSON.parse(
-      await fs.promises.readFile(RELATED_ASSET_INDEX_PATH, 'utf8'),
-    )
+    // Read the original related asset index
+    const originalRelatedAssetIndex = readRelatedAssetIndex()
 
-    // Read the original related asset index, using the original sorted asset ids to decode correctly
-    const { sortedAssetIds: originalSortedAssetIds } = decodeAssetData(encodedAssetData)
-    const originalRelatedAssetIndex = decodeRelatedAssetIndex(
-      encodedRelatedAssetIndex,
-      originalSortedAssetIds,
-    )
-
-    // Generate the new asset data
+    // Generate the new assetData and sortedAssetIds
     const { sortedAssetIds: updatedSortedAssetIds } = await generateAssetData()
 
-    const updatedEncodedRelatedAssetIndex = encodeRelatedAssetIndex(
-      originalRelatedAssetIndex,
-      updatedSortedAssetIds,
-    )
+    // We need to update the relatedAssetIndex to match the new asset ordering:
+    // - The original relatedAssetIndex references assets by their index in the original
+    //   sortedAssetIds array
+    // - After regenerating assetData, the positions in the sortedAssetIds may have changed, which
+    //   means a given index in the relatedAssetIndex will point to a different asset in the new
+    //   sortedAssetIds
+    // - To prevent corruption, we rewrite the relatedAssetIndex using the new positions, resulting
+    //   in a new relatedAssetIndex that references assets by their index in the updated
+    //   sortedAssetIds
+    reEncodeAndWriteRelatedAssetIndex(originalRelatedAssetIndex, updatedSortedAssetIds)
 
-    // Remove any undefined values from the updated encoded related asset index
-    const filteredUpdatedEncodedRelatedAssetIndex = Object.fromEntries(
-      Object.entries(updatedEncodedRelatedAssetIndex).filter(([_, value]) => value !== undefined),
-    )
-
-    await fs.promises.writeFile(
-      RELATED_ASSET_INDEX_PATH,
-      JSON.stringify(filteredUpdatedEncodedRelatedAssetIndex),
-    )
-
-    // const originalAssetIdxLookup = originalSortedAssetIds.reduce<Record<AssetId, number>>(
-    //   (acc, assetId, index) => {
-    //     acc[assetId] = index
-    //     return acc
-    //   },
-    //   {},
-    // )
-
-    // const updatedAssetIdxLookup = updatedSortedAssetIds.reduce<Record<AssetId, number>>(
-    //   (acc, assetId, index) => {
-    //     acc[assetId] = index
-    //     return acc
-    //   },
-    //   {},
-    // )
-
-    // // Create lookups of the asset idx's
-    // const originalAssetIdxToUpdatedAssetIdx = originalSortedAssetIds.map(assetId => {
-    //   return updatedAssetIdxLookup[assetId] ?? null
-    // })
-    // const updatedAssetIdxToOriginalAssetIdx = updatedSortedAssetIds.map(assetId => {
-    //   return originalAssetIdxLookup[assetId] ?? null
-    // })
-
-    // // Re-index the related asset index based on the new asset data
-    // const updatedEncodedRelatedAssetIndex = originalSortedAssetIds.reduce(
-    //   (acc, assetId, originalAssetIdx) => {
-    //     const updatedAssetIdx = originalAssetIdxToUpdatedAssetIdx[originalAssetIdx]
-    //     if (updatedAssetIdx === null) return acc
-    //     acc[updatedAssetIdx] = originalRelatedAssetIndex[originalAssetIdx]
-    //     return acc
-    //   },
-    //   {},
-    // )
-
+    // Generate the new related asset index
     await generateRelatedAssetIndex()
 
     console.info('Assets and related assets data generated.')

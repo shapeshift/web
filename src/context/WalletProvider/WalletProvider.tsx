@@ -882,7 +882,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       payload: { modalType: type, isMipdProvider: false },
     })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('import'),
+      String(path).endsWith('import-select'),
     )
     if (routeIndex > -1) {
       dispatch({

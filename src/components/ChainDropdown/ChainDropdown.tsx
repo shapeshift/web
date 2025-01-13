@@ -18,7 +18,7 @@ import { GridIcon } from 'components/Icons/GridIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectPortfolioTotalBalanceByChainIdIncludeStaking,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -47,7 +47,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   ...menuProps
 }) => {
   const totalPortfolioUserCurrencyBalance = useAppSelector(
-    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+    selectTotalPortfolioBalanceIncludeStakingUserCurrency,
   )
   const fiatBalanceByChainId = useAppSelector(selectPortfolioTotalBalanceByChainIdIncludeStaking)
 

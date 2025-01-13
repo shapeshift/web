@@ -271,22 +271,19 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             <Thead position='sticky' top={0} bg='background.surface' zIndex={1}>
               {table.getHeaderGroups().map(headerGroup => (
                 <Tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <Th
-                      key={header.id}
-                      color='text.subtle'
-                      textAlign={
-                        // TODO(gomes): rm ternary
-                        header.column.id === 'assetId'
-                          ? 'left'
-                          : header.column.id === 'sparkline'
-                          ? 'center'
-                          : 'right'
-                      }
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </Th>
-                  ))}
+                  {headerGroup.headers.map(header => {
+                    const textAlign = (() => {
+                      if (cell.column.id === 'assetId') return 'left'
+                      if (cell.column.id === 'sparkline') return 'center'
+                      return 'right'
+                    })()
+
+                    return (
+                      <Th key={header.id} color='text.subtle' textAlign={textAlign}>
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                      </Th>
+                    )
+                  })}
                 </Tr>
               ))}
             </Thead>

@@ -126,8 +126,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             const colorScheme = change.isPositive() ? 'green' : 'red'
             const icon = change.isPositive() ? arrowUp : arrowDown
             return (
-              // Already memoized
-              // eslint-disable-next-line react-memo/require-usememo
               <Stack alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                 <Amount.Fiat
                   fontWeight='semibold'
@@ -208,62 +206,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
 
     const { rows: tableRows } = table.getRowModel()
 
-    const body = useMemo(
-      () =>
-        rowVirtualizer.getVirtualItems().map(virtualRow => {
-          const row = tableRows[virtualRow.index]
-          return (
-            <Button
-              variant='ghost'
-              key={row.id}
-              my={2}
-              // Already memoized
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => onRowClick(row)}
-              position='absolute'
-              top={0}
-              left={0}
-              right={0}
-              display='grid'
-              alignItems='center'
-              height={`${ROW_HEIGHT}px`}
-              py={2}
-              // Already memoized
-              // eslint-disable-next-line react-memo/require-usememo
-              sx={{
-                transform: `translateY(${virtualRow.start}px)`,
-                gridTemplateColumns: {
-                  base: '1fr auto',
-                  md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
-                },
-                gap: '4px',
-              }}
-            >
-              {row.getVisibleCells().map(cell => {
-                const textAlign = (() => {
-                  if (cell.column.id === 'assetId') return 'left'
-                  if (cell.column.id === 'sparkline') return 'center'
-                  return 'right'
-                })()
-                return (
-                  <Td
-                    key={cell.id}
-                    px={4}
-                    whiteSpace='nowrap'
-                    overflow='hidden'
-                    textOverflow='ellipsis'
-                    textAlign={textAlign}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Td>
-                )
-              })}
-            </Button>
-          )
-        }),
-      [onRowClick, rowVirtualizer, tableRows],
-    )
-
     return (
       <Box ref={parentRef} style={tableContainerSx}>
         <Table variant='unstyled' size={tableSize}>
@@ -273,8 +215,8 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                 <Tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => {
                     const textAlign = (() => {
-                      if (cell.column.id === 'assetId') return 'left'
-                      if (cell.column.id === 'sparkline') return 'center'
+                      if (header.column.id === 'assetId') return 'left'
+                      if (header.column.id === 'sparkline') return 'center'
                       return 'right'
                     })()
 
@@ -291,7 +233,53 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           <Tbody>
             <tr style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
               <td colSpan={columns.length} style={{ padding: 0, position: 'relative' }}>
-                {body}
+                {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                  const row = tableRows[virtualRow.index]
+                  return (
+                    <Button
+                      variant='ghost'
+                      key={row.id}
+                      my={2}
+                      onClick={() => onRowClick(row)}
+                      position='absolute'
+                      top={0}
+                      left={0}
+                      right={0}
+                      display='grid'
+                      alignItems='center'
+                      height={`${ROW_HEIGHT}px`}
+                      py={2}
+                      sx={{
+                        transform: `translateY(${virtualRow.start}px)`,
+                        gridTemplateColumns: {
+                          base: '1fr auto',
+                          md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
+                        },
+                        gap: '4px',
+                      }}
+                    >
+                      {row.getVisibleCells().map(cell => {
+                        const textAlign = (() => {
+                          if (cell.column.id === 'assetId') return 'left'
+                          if (cell.column.id === 'sparkline') return 'center'
+                          return 'right'
+                        })()
+                        return (
+                          <Td
+                            key={cell.id}
+                            px={4}
+                            whiteSpace='nowrap'
+                            overflow='hidden'
+                            textOverflow='ellipsis'
+                            textAlign={textAlign}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </Td>
+                        )
+                      })}
+                    </Button>
+                  )
+                })}
               </td>
             </tr>
           </Tbody>

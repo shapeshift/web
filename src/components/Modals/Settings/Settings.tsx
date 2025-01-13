@@ -35,7 +35,7 @@ const Settings = () => {
   }, [appHistory, close, isOpen])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
+    <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>

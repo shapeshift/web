@@ -982,6 +982,7 @@
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
     "disableThorNativeSmartContractReceive": "We've detected that you're sending to a smart contract address on %{chainName}. Due to THORChain limitations, receiving %{nativeAssetSymbol} to a smart contract address is not supported. Please enter another address",
     "disableThorTaprootReceive": "We've detected that you're sending to a taproot Bitcoin address. Due to THORChain limitations, receiving BTC to a taproot address is not currently supported. Please enter another address.",
+    "disableChainflipKeepKeyTaprootReceive": "Due to KeepKey limitations, selling BTC on ChainFlip is not available yet. Please choose another pair, or connect a different wallet.",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",

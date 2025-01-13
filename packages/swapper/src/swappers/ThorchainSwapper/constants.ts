@@ -18,6 +18,7 @@ export const sellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
   [KnownChainIds.BnbSmartChainMainnet]: true,
+  [KnownChainIds.BaseMainnet]: true,
 }
 
 export const buySupportedChainIds: Record<ChainId, boolean> = {
@@ -30,6 +31,7 @@ export const buySupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
   [KnownChainIds.BnbSmartChainMainnet]: true,
+  [KnownChainIds.BaseMainnet]: true,
 }
 
 export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

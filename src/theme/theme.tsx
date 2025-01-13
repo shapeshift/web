@@ -152,7 +152,7 @@ const styles = {
         '.chakra-alert': {
           justifyContent: 'space-between',
         },
-        '.chakra-alert > div:nth-child(2)': {
+        '.chakra-alert > div:nth-of-type(2)': {
           width: '100%',
           justifyContent: 'space-between',
           button: {

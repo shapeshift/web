@@ -110,6 +110,6 @@ export type ActionTypes =
   | { type: WalletActions.OPEN_KEEPKEY_DISCONNECT }
   | {
       type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID
-      payload: string | null
+      payload: string
     }
   | { type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID }

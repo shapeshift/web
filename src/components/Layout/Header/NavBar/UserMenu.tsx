@@ -13,13 +13,13 @@ import {
   MenuList,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
-import type { Address } from 'viem'
+import { getAddress } from 'viem'
+import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
@@ -92,7 +92,10 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.200', 'gray.800')
-  const [ensName, setEnsName] = useState<string | null>('')
+
+  const { data: ensName } = useEnsName({
+    address: walletInfo?.meta?.address ? getAddress(walletInfo.meta.address) : undefined,
+  })
 
   const maybeRdns = useAppSelector(selectWalletRdns)
 
@@ -101,13 +104,6 @@ const WalletButton: FC<WalletButtonProps> = ({
     () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
     [mipdProviders, maybeRdns],
   )
-
-  useEffect(() => {
-    if (!walletInfo?.meta?.address) return
-    viemEthMainnetClient
-      .getEnsName({ address: walletInfo.meta.address as Address })
-      .then(setEnsName)
-  }, [walletInfo?.meta?.address])
 
   useEffect(() => {
     setWalletLabel('')

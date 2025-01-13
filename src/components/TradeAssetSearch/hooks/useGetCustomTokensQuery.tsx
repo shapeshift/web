@@ -30,7 +30,7 @@ const getCustomTokenQueryKey = (contractAddress: string, chainId: ChainId): Cust
 export const useGetCustomTokensQuery = ({
   contractAddress,
   chainIds,
-}: UseGetCustomTokensQueryProps): UseQueryResult<(TokenMetadata | null)[], Error[]> => {
+}: UseGetCustomTokensQueryProps): UseQueryResult<(TokenMetadata | undefined)[], Error[]> => {
   const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
 
   const getTokenMetadata = useCallback(

@@ -40,7 +40,7 @@ export const useGetLimitOrdersQuery = () => {
     [],
   )
 
-  const customTokenQueries = useQueries({
+  const limitOrdersQueries = useQueries({
     queries: evmAccountIds
       .filter(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -57,5 +57,5 @@ export const useGetLimitOrdersQuery = () => {
       ),
   })
 
-  return customTokenQueries
+  return limitOrdersQueries
 }

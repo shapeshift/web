@@ -2,11 +2,13 @@ import type { FlexProps, StackProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   Divider,
   Flex,
   Heading,
+  HStack,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -18,8 +20,9 @@ import {
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
+  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -48,7 +51,16 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
+import type { Filter } from './FoxTokenFilterButton'
+import { FoxTokenFilterButton } from './FoxTokenFilterButton'
 import { RFOXSimulator } from './RFOXSimulator'
+
+const hstackProps: StackProps = {
+  flexWrap: {
+    base: 'wrap',
+    md: 'nowrap',
+  },
+}
 
 const containerPaddingX = { base: 4, xl: 0 }
 const columnsProps = {
@@ -85,8 +97,8 @@ export const RFOXSection = () => {
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId } = useRFOXContext()
-  const stakingAssetId = foxOnArbitrumOneAssetId
   const appDispatch = useAppDispatch()
+  const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
@@ -112,6 +124,26 @@ export const RFOXSection = () => {
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
+
+  const foxOnArbAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
+  const foxLpAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
+
+  const filters = useMemo<Filter[]>(() => {
+    return [
+      {
+        label: foxOnArbAsset?.symbol ?? '',
+        chainId: foxOnArbAsset?.chainId,
+        assetId: foxOnArbitrumOneAssetId,
+        asset: foxOnArbAsset,
+      },
+      {
+        label: foxLpAsset?.symbol ?? '',
+        chainId: foxLpAsset?.chainId,
+        assetId: uniV2EthFoxArbitrumAssetId,
+        asset: foxLpAsset,
+      },
+    ]
+  }, [foxLpAsset, foxOnArbAsset])
 
   const stakingAssetAccountId = useMemo(() => {
     const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
@@ -200,6 +232,10 @@ export const RFOXSection = () => {
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
+  const handleSelectAssetId = useCallback((filter: Filter) => {
+    setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
+  }, [])
+
   const isTimeInPoolLoading = useMemo(() => {
     return isTimeInPoolQueryLoading || isTimeInPoolFetching
   }, [isTimeInPoolQueryLoading, isTimeInPoolFetching])
@@ -242,7 +278,19 @@ export const RFOXSection = () => {
                 </Tag>
               </Skeleton>
             </Heading>
-            <Text fontSize='md' color='text.subtle' mt={2} translation='foxPage.rfox.whatIs' />
+            <ButtonGroup variant='transparent' mb={4} spacing={0} mt={2}>
+              <HStack spacing={1} p={1} borderRadius='md' {...hstackProps}>
+                {filters.map(filter => (
+                  <FoxTokenFilterButton
+                    key={filter.label}
+                    onFilterClick={handleSelectAssetId}
+                    filter={filter}
+                    isSelected={stakingAssetId === filter.assetId}
+                    asset={filter.asset}
+                  />
+                ))}
+              </HStack>
+            </ButtonGroup>
           </Box>
 
           <Card width='100%' maxWidth='400px'>
@@ -317,7 +365,14 @@ export const RFOXSection = () => {
               fontSize='md'
               color='text.subtle'
               fontWeight='medium'
-              translation='foxPage.rfox.totalFoxBurn'
+              // we need to pass a local scope arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
+              translation={[
+                'foxPage.rfox.totalSymbolBurn',
+                {
+                  symbol: stakingAsset.symbol,
+                },
+              ]}
               mb={1}
             />
             <Skeleton isLoaded={Boolean(burn)}>

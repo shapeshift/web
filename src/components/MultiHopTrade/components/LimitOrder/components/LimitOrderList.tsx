@@ -24,7 +24,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Text } from 'components/Text'
 
 import { WithBackButton } from '../../WithBackButton'
-import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
+import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersQuery'
 import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'

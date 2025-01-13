@@ -40,6 +40,7 @@
     "noResultsFound": "Sonuç bulunamadı.",
     "noResultsBody": "%{searchQuery} için sonuç bulunamadı. Yeni bir arama yapmayı deneyin.",
     "insufficientFunds": "Yetersiz bakiye",
+    "insufficientFundsForTrade": "Takas için yetersiz fon",
     "insufficientAllowance": "Yetersiz Ödenek",
     "estimatedGas": "Tahmini Gaz Ücreti",
     "relayerGasFee": "Tekrarlanan Gaz Ücreti",
@@ -129,6 +130,7 @@
     "best": "En iyi",
     "gasFee": "Gaz Ücreti",
     "approvalFee": "Onay Ücreti",
+    "allowanceResetFee": "Ödenek Sıfırlama Ücreti",
     "consolidationFee": "Konsolidasyon Ücreti",
     "fees": "Ücretler",
     "alternative": "Alternatif",
@@ -147,6 +149,7 @@
     "learnMore": "Daha fazla bilgi edin",
     "showAll": "Hepsini Göster",
     "showLess": "Daha Az",
+    "showMore": "Daha Fazla Göster",
     "yourBalance": "Bakiyeniz",
     "signTransaction": "İşlemi imzala",
     "active": "Aktif",
@@ -298,21 +301,8 @@
     "notSupported": "%{asset}, %{wallet} tarafından desteklenmiyor"
   },
   "connectWalletPage": {
-    "title": "Orijinal Çoklu Zincir Değişimi",
-    "primaryTitle": "Multichain DeFi'ye hoş geldiniz.",
-    "secondaryTitle": "Özel. Merkeziyetsiz. Gözetimsiz.",
-    "primaryDescription": "Zahmetsizce ticaret yapın, köprü kurun ve ödüller kazanın. Yerel Bitcoin, Dogecoin ve daha fazlasını deneyimleyin. Likidite ve DeFi Pozisyonlarını Tek Tıkla Yönetin.",
-    "snapDescription": "ShapeShift Multichain Snap'i indirin ve MetaMask'iniz için Bitcoin, Dogecoin ve daha fazlasının kilidini açın.",
     "shapeshift": "ShapeShift",
-    "exploreThe": "DeFi Dünyası'nı",
-    "defiUniverse": "Keşfedin",
-    "body": "Ticaret yapın, köprü kurun ve kazanın. Özel. Topluluk sahibi. Gözetimsiz. Merkezi olmayan.",
-    "header": "Başlamak için lütfen bir cüzdan bağlayın",
-    "cta": "Cüzdanı Bağla veya Oluştur",
-    "viewADemo": "Demo Görüntüle",
-    "dontHaveWallet": "Cüzdanın yok mu?",
     "welcomeBack": "Tekrar hoşgeldiniz!",
-    "welcomeBody": "Cüzdanınızı bağlamak \"giriş yapmak\" gibidir. Başlamak için seçeneklerden cüzdanınızı seçin.",
     "welcomeToShapeShift": "ShapeShift'e Hoş Geldiniz",
     "mobileWelcomeBody": "Kolayca başlamak için yepyeni bir cüzdan oluşturun veya mevcut bir cüzdanı ekleyin.",
     "mobileSelectBody": "Aşağıdaki kayıtlı cüzdanlarınızdan herhangi birini seçin veya yeni bir cüzdan oluşturun veya içe aktarın.",
@@ -865,6 +855,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gaz ücreti, ticaret tutarının %{percentage}%'sini aşıyor",
     "confirmDetails": "Ayrıntıları Onaylayın",
     "confirmAndTrade": "Onaylayın ve Takas Yapın",
+    "signAndSwap": "İmzala ve Takas",
     "tradeAnyway": "Yine de Takasla",
     "pending": "İşlem Beklemede",
     "complete": "Takas Tamamlandı",
@@ -886,6 +877,8 @@
     "beforeFees": "Ücretlerden Önce",
     "minAmountAfterSlippage": "Minimum kaymadan sonra bekleniyor (%{slippage}%)",
     "free": "Ücretsiz",
+    "shapeShiftFee": "ShapeShift Ücreti",
+    "transactionFee": "İşlem Ücreti",
     "slowSwapTitle": "%{protocol} Takas",
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "thorSmartContractWalletUnsupported": "THORChain ağı şu anda akıllı sözleşme cüzdanlarını desteklemiyor.",
@@ -925,7 +918,7 @@
         "negativeRatio": "Yetersiz satış tutarı"
       },
       "rateExpired": {
-        "title": "Oran süresi doldu",
+        "title": "Yeni Oran",
         "body": "Önceki takas oranınız sona erdi. Yeni bir oran aldık ve teklif tutarlarınızı güncelledik. Lütfen takasınızı onaylamadan önce en son ayrıntıları inceleyin.",
         "cta": "Tamam, anladım"
       }
@@ -966,7 +959,12 @@
       "noQuotesAvailable": "Bu işlem için teklif yok",
       "smartContractWalletNotSupported": "Akıllı sözleşme cüzdanı desteklenmiyor",
       "unsafeQuote": "Bu miktar, bu çift için önerilen minimum tutarın altındadır (%{recommendedMin} %{symbol}). Bu, işleminizin başarısız olmasına veya fon kaybına neden olabilir.",
-      "rateLimitExceeded": "Limit aşıldı, daha sonra tekrar deneyin"
+      "rateLimitExceeded": "Limit aşıldı, daha sonra tekrar deneyin",
+      "maxSlippageExceededWithExpectedSlippage": "Bu işlem için izin verilen maksimum kayma toleransı simülasyon sırasında aşıldı. Beklenen kayma: %{expectedSlippage}%. Daha yüksek bir kayma toleransıyla tekrar deneyin.",
+      "executionRevertedWithExpectedSlippage": "Yürütme sırasında geri döndürüldü. Bu, yetersiz kayma toleransından kaynaklanıyor olabilir. Beklenen kayma: %{expectedSlippage}%. Daha yüksek bir kayma toleransıyla tekrar deneyin.",
+      "slippageToleranceExceeded": "Kayma toleransı aşıldı.",
+      "underMinimumAmount": "Bu işlemdeki varlıklardan bir veya daha fazlası, bu işlem için gereken asgari tutarın altındadır.",
+      "consumedMoreFees": "İşlem, bu işlem için tüketilen ücretlerin beklenenden yüksek olması nedeniyle geri döndü."
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -1003,23 +1001,30 @@
     },
     "hopTitle": {
       "bridge": "%{swapperName} aracılığıyla köprüle",
-      "swap": "%{swapperName} ile değiştir"
+      "swap": "%{swapperName} ile değiştir",
+      "swapEta": "~%{eta} içinde %{swapperName} aracılığıyla takas"
     },
     "transactionFailed": {
       "bridge": "Köprü yürütülürken bir sorun oluştu",
       "swap": "Takas yürütülürken bir sorun oluştu"
     },
     "transactionTitle": {
-      "bridge": "%{swapperName} aracılığıyla %{sellChainName} ile %{buyChainName} arasında köprü kurun",
+      "bridge": "%{sellChainName}'den %{buyChainName}'e %{swapperName} aracılığıyla takas yapın",
       "swap": "%{sellChainName} üzerinde %{swapperName} aracılığıyla takas yapın"
     },
     "approvalTitle": "Token ödeneği onayı",
+    "permit2Title": "Token transferi izni",
     "resetTitle": "Token ödeneği sıfırlama",
     "fiatAmountOnChain": "%{chainName} üzerinde %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz",
       "slippage": "Kayma: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Token transferini bekliyor",
+    "awaitingSwap": "%{swapperName} üzerinden takas bekleniyor",
+    "awaitingBridge": "%{bridgeName} üzerinden köprü bekleniyor",
+    "awaitingApproval": "Onay bekleniyor",
+    "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1039,17 +1044,19 @@
     "yourOrderHasBeenPlaced": "Emir verildi.",
     "yourCancellationHasBeenSubmitted": "İptal talebi iletildi.",
     "limitPrice": "Limit Fiyatı",
+    "executionPrice": "Uygulama Fiyatı",
     "provider": "Sağlayıcı",
     "expiration": "Sona erme",
     "networkFee": "Ağ Ücreti",
     "confirmInfo": "Limit emri, zincir üstü fiyatlar limit fiyatına ulaştığında tam olarak doldurulamayabilir.",
     "learnMore": "Daha fazla bilgi edin",
     "previewOrder": "Siparişi Önizleme ",
-    "youGet": "Alırsın",
+    "youGet": "En az elde edeceğin",
     "whenPriceReaches": "Fiyat ulaştığında",
     "expiry": "Sona erme",
     "noOpenOrders": "Henüz açık emir yok.",
     "noHistoricalOrders": "Henüz tarihi bir emir yok.",
+    "limitPriceIsPercentLowerThanMarket": "Limit fiyatı piyasa fiyatından %{percent}% daha düşüktür",
     "expiryOption": {
       "oneHour": "1 saat",
       "oneDay": "1 gün",
@@ -1062,9 +1069,18 @@
       "nativeSellAssetNotSupported": "Yerel satış varlığı desteklenmiyor",
       "insufficientValidTo": "Emrin son kullanma tarihi çok erken",
       "excessiveValidTo": "emrin son kullanma tarihi çok ileride",
-      "insufficientLiquidity": "Yetersiz likidite"
+      "insufficientLiquidity": "Yetersiz likidite",
+      "zeroFunds": "Sıfır olmayan satış varlığı bakiyesine ihtiyaç var",
+      "insufficientFundsForGas": "Gaz için yeterli fon yok",
+      "allowanceResetRequired": "Ödenek Sıfırlama Gerekli"
     },
-    "expiresIn": "Sona Eriyor",
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Fiyat piyasanın %{percent}% altındadır.\n\nCoW her zaman size en iyi mevcut fiyatı sağlamayı hedeflerken, bu %{sellAssetSymbol}'unuzu zararla satmanıza neden olabilir. Bunun yerine 'Piyasa'ya tıklamayı düşünün."
+    },
+    "usdtAllowanceReset": {
+      "title": "USDT için ödenek onaylanamıyor",
+      "description": "Ethereum'daki mevcut USDT ödeneğinizin yeterli bir değere ayarlanabilmesi için 0'a sıfırlanması gerekiyor. Lütfen mevcut USDT token ödeneğini iptal edin ve tekrar deneyin."
+    },
     "openOrders": "Açık Emirler",
     "orderHistory": "Emir Geçmişi",
     "status": {
@@ -1075,7 +1091,13 @@
     },
     "orders": "Emirler",
     "viewOrders": "Emirleri Görüntüle",
-    "loadingOrderList": "Limit emirleriniz yükleniyor..."
+    "loadingOrderList": "Limit emirleriniz yükleniyor...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "Cüzdanınız şu anda bu emri yürütmek için %{chainName} üzerinde yeterli %{symbol} bakiyesine sahip değil. Emir hala açık ve %{chainName} üzerinde %{symbol} bakiyenizi yüklediğinizde yürütülebilir hale gelecek.",
+        "insufficientAllowance": "Bu emir, CoW Swap'ın bu emri yürütmesi için onaylanması için %{chainName} üzerinde ek bir %{symbol} ödeneği gerektirir. Emir hala açıktır ve ödenek onayını tamamladığınızda yürütülebilir hale gelecektir."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

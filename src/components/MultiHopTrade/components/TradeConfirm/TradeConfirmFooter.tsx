@@ -1,7 +1,7 @@
 import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text/Text'
@@ -33,7 +33,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   activeTradeId,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
-  const [hasClickedButton, setHasClickedButton] = useState(false)
   const { currentTradeStep } = useStepperSteps()
   const currentHopIndex = useCurrentHopIndex()
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
@@ -139,10 +138,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     return isPermit2Hop(tradeQuoteStep)
   }, [tradeQuoteStep])
 
-  const isApprovalButtonDisabled = useMemo(() => {
-    return isAllowanceApprovalLoading || hasClickedButton
-  }, [isAllowanceApprovalLoading, hasClickedButton])
-
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} width='full'>
@@ -181,7 +176,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
                 size='sm'
                 mx={2}
                 isChecked={isExactAllowance}
-                disabled={isApprovalButtonDisabled}
+                disabled={isAllowanceApprovalLoading}
                 onChange={toggleIsExactAllowance}
               />
               <Text
@@ -201,7 +196,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     approvalNetworkFeeUserCurrency,
     isPermit2,
     isExactAllowance,
-    isApprovalButtonDisabled,
     toggleIsExactAllowance,
   ])
 
@@ -276,8 +270,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         currentHopIndex={currentHopIndex}
         activeTradeId={activeTradeId}
         isExactAllowance={isExactAllowance}
-        hasClickedButton={hasClickedButton}
-        setHasClickedButton={setHasClickedButton}
         isLoading={isNetworkFeeCryptoBaseUnitLoading || isNetworkFeeCryptoBaseUnitRefetching}
       />
     )
@@ -286,7 +278,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     currentHopIndex,
     activeTradeId,
     isExactAllowance,
-    hasClickedButton,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
   ])

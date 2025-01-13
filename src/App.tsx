@@ -11,13 +11,7 @@ import { IconCircle } from 'components/IconCircle'
 import { useBridgeClaimNotification } from 'hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  selectShowConsentBanner,
-  selectShowWelcomeModal,
-  selectWalletId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -74,19 +68,6 @@ export const App = () => {
       openNativeOnboard({})
     }
   }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
-
-  const portfolioWalletId = useAppSelector(selectWalletId)
-
-  const {
-    state: { deviceId: contextDeviceId },
-  } = useWallet()
-
-  useEffect(() => {
-    console.log({
-      portfolioWalletId,
-      contextDeviceId,
-    })
-  }, [contextDeviceId, portfolioWalletId])
 
   return (
     <>

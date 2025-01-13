@@ -1,15 +1,15 @@
 import { Flex } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import type { Row } from '@tanstack/react-table'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import type { Row } from 'react-table'
 import { Display } from 'components/Display'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { MarketsTable } from 'components/MarketsTable'
+import { MarketsTableVirtualized } from 'components/MarketsTableVirtualized'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText } from 'components/Text'
 import { selectAssetsSortedByMarketCap } from 'state/slices/selectors'
@@ -62,7 +62,7 @@ export const Assets = () => {
           </Flex>
         </PageHeader>
       </Display.Mobile>
-      <MarketsTable rows={rows} onRowClick={handleRowClick} />
+      <MarketsTableVirtualized rows={rows} onRowClick={handleRowClick} />
     </Main>
   )
 }

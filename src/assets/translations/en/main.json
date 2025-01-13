@@ -2707,7 +2707,8 @@
     "emissionsPool": "Emissions Pool (This Epoch)",
     "emissionsPoolHelper": "Emissions Pool (This Epoch)",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
-    "pendingDistribution": "Pending Distribution"
+    "pendingDistribution": "Pending Distribution",
+    "selectRuneAddress": "Select a RUNE address"
   },
   "markets": {
     "recommended": "Recommended",

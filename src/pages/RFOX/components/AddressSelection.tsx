@@ -18,9 +18,14 @@ import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { validateAddress } from 'lib/address/address'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectAccountIdsByAssetId,
+  selectAccountIdsByChainId,
   selectAccountNumberByAccountId,
   selectPortfolioAccountIdsByAssetIdFilter,
 } from 'state/slices/selectors'
@@ -66,6 +71,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   validateIsNewAddress,
   setStepIndex,
 }) => {
+  const [isManualAddress, setIsManualAddress] = useState(false)
   const translate = useTranslate()
 
   // Local controller in case consumers don't have a form context
@@ -84,16 +90,33 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     select: selectRuneAddress,
   })
 
+  // Wallet RUNE support detection logic - assume if RUNE isn't supported (i.e no RUNE wallet feature detection nor runtime support) then we should default to manual input
+  const { isSnapInstalled } = useIsSnapInstalled()
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const { wallet } = useWallet().state
+  const runeAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
+
+  const walletSupportsRune = useMemo(() => {
+    const chainId = thorchainChainId
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
+    return walletSupport && runeAccountIds.length > 0
+  }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
+
   useEffect(() => {
-    handleRuneAddressChange(undefined)
-    setIsManualAddress(false)
-  }, [stakingAssetAccountId, handleRuneAddressChange])
+    setIsManualAddress(!currentRuneAddress && !walletSupportsRune)
+  }, [currentRuneAddress, walletSupportsRune])
 
   const shouldDisableAccountDropdown = useMemo(() => {
     return Boolean(currentRuneAddress && setStepIndex)
   }, [currentRuneAddress, setStepIndex])
-
-  const [isManualAddress, setIsManualAddress] = useState(false)
 
   const handleAccountIdChange = useCallback(
     (accountId: string) => {
@@ -116,7 +139,8 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return (
       <Input
         {...register('manualRuneAddress', {
-          minLength: 1,
+          // Only required if user doesn't have a rewards address yet
+          required: !currentRuneAddress,
           validate: {
             ...(validateIsNewAddress
               ? {
@@ -163,6 +187,11 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               handleRuneAddressChange(address)
             },
           },
+          onChange: e => {
+            if (!e.target.value) {
+              handleRuneAddressChange(undefined)
+            }
+          },
         })}
         placeholder={translate('common.enterAddress')}
         autoFocus
@@ -170,7 +199,14 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         autoComplete='off'
       />
     )
-  }, [handleRuneAddressChange, isManualAddress, register, translate, validateIsNewAddress])
+  }, [
+    currentRuneAddress,
+    handleRuneAddressChange,
+    isManualAddress,
+    register,
+    translate,
+    validateIsNewAddress,
+  ])
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdByAccountNumberAndChainId,

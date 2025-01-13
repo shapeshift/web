@@ -110,7 +110,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const methods = useForm<StakeInputValues>({
     defaultValues: defaultFormValues,
-    mode: 'onChange',
+    mode: 'all',
     shouldUnregister: true,
   })
 
@@ -436,6 +436,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const submitButtonText = useMemo(() => {
     if (isAccountsMetadataLoading) return translate('common.accountsLoading')
 
+    if (errors.manualRuneAddress?.type === 'required') return translate('RFOX.selectRuneAddress')
+
     return (
       errors.amountFieldInput?.message ||
       errors.manualRuneAddress?.message ||
@@ -577,8 +579,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             onClick={handleWarning}
             isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
             colorScheme={
-              Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
-              !isAccountsMetadataLoading
+              Boolean(
+                errors.amountFieldInput ||
+                  // Required rewards input isn't an error per se
+                  (errors.manualRuneAddress && errors.manualRuneAddress.type !== 'required'),
+              ) && !isAccountsMetadataLoading
                 ? 'red'
                 : 'blue'
             }

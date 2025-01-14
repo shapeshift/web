@@ -15,8 +15,6 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
-import { store } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -63,14 +61,11 @@ export const WalletViewsSwitch = () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
       await wallet?.cancel()
       disconnect()
-      store.dispatch(localWalletSlice.actions.clearLocalWallet())
       dispatch({ type: WalletActions.OPEN_KEEPKEY_DISCONNECT })
     } else {
       history.replace(INITIAL_WALLET_MODAL_ROUTE)
       if (disconnectOnCloseModal) {
         disconnect()
-        dispatch({ type: WalletActions.RESET_STATE })
-        store.dispatch(localWalletSlice.actions.clearLocalWallet())
       } else {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       }

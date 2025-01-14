@@ -5,6 +5,7 @@ import {
   CardBody,
   CardFooter,
   Collapse,
+  Divider,
   Flex,
   HStack,
   Icon,
@@ -12,6 +13,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,10 +22,16 @@ import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectLastHop,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  selectTradeQuoteAffiliateFeeDiscountUserCurrency,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
+import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
+import { YouSaved } from './components/YouSaved'
 
 export type TradeSuccessProps = {
   handleBack: () => void
@@ -51,6 +59,15 @@ export const TradeSuccess = ({
   })
 
   const lastHop = useAppSelector(selectLastHop)
+
+  const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
+
+  const affiliateFeeUserCurrency = useAppSelector(
+    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  )
+
+  const hasFeeSaving = !bnOrZero(feeSavingUserCurrency).isZero()
+  const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -93,12 +110,19 @@ export const TradeSuccess = ({
             <AmountsLine />
           </Flex>
         </SlideTransition>
-      </CardBody>
-      <CardFooter flexDir='column' gap={2} px={4}>
-        <SlideTransition>
+        <Stack gap={4} px={8}>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate('trade.doAnotherTrade')}
           </Button>
+          {hasFeeSaving && <YouSaved feeSavingUserCurrency={feeSavingUserCurrency!} />}
+          {couldHaveReducedFee && (
+            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
+          )}
+        </Stack>
+      </CardBody>
+      <Divider />
+      <CardFooter flexDir='column' gap={2} px={8}>
+        <SlideTransition>
           <HStack width='full' justifyContent='space-between' mt={4}>
             <Button variant='link' onClick={handleToggle} px={2}>
               {translate('trade.summary')}

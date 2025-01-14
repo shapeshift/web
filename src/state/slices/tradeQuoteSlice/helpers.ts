@@ -10,6 +10,7 @@ import type {
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
+import partition from 'lodash/partition'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -135,12 +136,19 @@ export const getTotalProtocolFeeByAsset = (
     {},
   )
 
+const isKnownNetworkFees = (quote: ApiQuote): boolean => {
+  return Boolean(quote?.quote?.steps?.every(step => Boolean(step.feeData.networkFeeCryptoBaseUnit)))
+}
+
 const sortApiQuotes = (unorderedQuotes: ApiQuote[]): ApiQuote[] => {
-  return orderBy(
+  const orderedQuotes = orderBy(
     unorderedQuotes,
     ['inputOutputRatio', 'quote.rate', 'swapperName'],
     ['desc', 'desc', 'asc'],
   )
+  const [quotesWithKnownFees, quotesWithUnknownFees] = partition(orderedQuotes, isKnownNetworkFees)
+
+  return [...quotesWithKnownFees, ...quotesWithUnknownFees]
 }
 
 export const sortTradeQuotes = (

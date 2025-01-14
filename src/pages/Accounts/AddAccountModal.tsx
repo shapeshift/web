@@ -98,6 +98,7 @@ export const AddAccountModal = () => {
     if (!wallet) return
     if (!selectedChainId) return
     if (!nextAccountNumber) return
+    if (!walletDeviceId) return
     ;(async () => {
       const accountNumber = nextAccountNumber
       const chainIds = [selectedChainId]

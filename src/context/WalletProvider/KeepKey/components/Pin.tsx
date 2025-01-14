@@ -2,7 +2,7 @@ import type { ButtonProps, SimpleGridProps } from '@chakra-ui/react'
 import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -38,7 +38,11 @@ export const KeepKeyPin = ({
     },
     dispatch,
   } = useWallet()
-  const wallet = keyring.get(deviceId)
+
+  const wallet = useMemo(() => {
+    if (!deviceId) return null
+    return keyring.get(deviceId)
+  }, [deviceId, keyring])
 
   const pinFieldRef = useRef<HTMLInputElement | null>(null)
 
@@ -138,10 +142,10 @@ export const KeepKeyPin = ({
       }
     }
 
-    keyring.on(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
+    deviceId && keyring.on(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
 
     return () => {
-      keyring.off(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
+      deviceId && keyring.off(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
     }
   }, [deviceId, keyring])
 

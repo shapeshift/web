@@ -21,8 +21,7 @@ export const useWalletConnectV2EventHandler = (
      */
     state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
-    localWallet.clearLocalWallet()
-  }, [dispatch, localWallet, state.wallet])
+  }, [dispatch, state.wallet])
 
   useEffect(() => {
     // This effect should never run for wallets other than WalletConnectV2 since we explicitly tap into @walletconnect/ethereum-provider provider

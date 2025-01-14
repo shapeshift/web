@@ -24,7 +24,7 @@ import {
   selectChartTimeframe,
   selectIsPortfolioLoading,
   selectPortfolioAssetIds,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalance,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -63,9 +63,7 @@ export const DashboardChart = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const portfolioTotalUserCurrencyBalance = useAppSelector(
-    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-  )
+  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
   const loading = useAppSelector(selectIsPortfolioLoading)
   const isLoaded = !loading
 

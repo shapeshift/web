@@ -63,9 +63,9 @@ export const useAccountsFetchQuery = () => {
         })
       }),
     )
-    if (!chainIds.size) return
+    if (!chainIds.size) return null
 
-    if (!wallet || isLedger(wallet)) return
+    if (!wallet || isLedger(wallet)) return null
 
     const walletId = await wallet.getDeviceID()
 

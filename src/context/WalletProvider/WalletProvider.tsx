@@ -25,7 +25,7 @@ import {
   selectWalletRdns,
   selectWalletType,
 } from 'state/slices/localWalletSlice/selectors'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
 import type { ActionTypes } from './actions'
@@ -93,11 +93,12 @@ export type InitialState = {
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
-  deviceId: string
+  deviceId: string | null
   showBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
   deviceState: DeviceState
   disconnectOnCloseModal: boolean
+  nativeWalletPendingDeviceId: string | null
 } & (
   | {
       modalType: KeyManager | null
@@ -124,11 +125,12 @@ const initialState: InitialState = {
   isLocked: false,
   modal: false,
   isLoadingLocalWallet: false,
-  deviceId: '',
+  deviceId: null,
   showBackButton: true,
   keepKeyPinRequestType: null,
   deviceState: initialDeviceState,
   disconnectOnCloseModal: false,
+  nativeWalletPendingDeviceId: null,
 }
 
 const reducer = (state: InitialState, action: ActionTypes): InitialState => {
@@ -140,6 +142,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       if (currentConnectedType === 'walletconnectv2') {
         state.wallet?.disconnect?.()
         store.dispatch(localWalletSlice.actions.clearLocalWallet())
+        store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       }
       const { deviceId, name, wallet, icon, meta, isDemoWallet, connectedType } = action.payload
       // set wallet metadata in redux store
@@ -147,7 +150,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         walletId: deviceId,
         walletName: name,
       }
-      store.dispatch(portfolio.actions.setWalletMeta(walletMeta))
+      store.dispatch(portfolioSlice.actions.setWalletMeta(walletMeta))
       return {
         ...state,
         deviceId,
@@ -221,7 +224,8 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         modal: action.payload.modal,
         modalType: KeyManager.Native,
         showBackButton: !state.isLoadingLocalWallet,
-        deviceId: action.payload.deviceId,
+        deviceId: null,
+        walletInfo: null,
         initialRoute: NativeWalletRoutes.EnterPassword,
       }
     case WalletActions.OPEN_KEEPKEY_PIN: {
@@ -290,9 +294,10 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
-      const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
+      const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal'])
       // reset wallet meta in redux store
-      store.dispatch(portfolio.actions.setWalletMeta(undefined))
+      store.dispatch(localWalletSlice.actions.clearLocalWallet())
+      store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       return { ...state, ...resetProperties }
     // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
     case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {
@@ -320,6 +325,21 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         modalType: KeyManager.KeepKey,
         initialRoute: KeepKeyRoutes.Disconnect,
       }
+    case WalletActions.SET_NATIVE_PENDING_DEVICE_ID:
+      store.dispatch(localWalletSlice.actions.clearLocalWallet())
+      store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
+      return {
+        ...state,
+        isConnected: false,
+        deviceId: null,
+        walletInfo: null,
+        nativeWalletPendingDeviceId: action.payload,
+      }
+    case WalletActions.RESET_NATIVE_PENDING_DEVICE_ID:
+      return {
+        ...state,
+        nativeWalletPendingDeviceId: null,
+      }
     default:
       return state
   }
@@ -334,6 +354,7 @@ const getInitialState = () => {
      */
     return {
       ...initialState,
+      nativeWalletPendingDeviceId: localWalletDeviceId,
       isLoadingLocalWallet: true,
     }
   }
@@ -413,7 +434,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      */
     state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
-    store.dispatch(localWalletSlice.actions.clearLocalWallet())
   }, [state.wallet])
 
   const load = useCallback(() => {
@@ -882,7 +902,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       payload: { modalType: type, isMipdProvider: false },
     })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('import'),
+      String(path).endsWith('import-select'),
     )
     if (routeIndex > -1) {
       dispatch({

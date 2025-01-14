@@ -40,8 +40,9 @@ const arrowDown = <RiArrowRightDownFill />
 const tableSizeSx = { base: 'sm', md: 'md' }
 const gridTemplateColumnsSx = {
   base: '1fr auto',
-  md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
+  md: '2fr 1fr 1fr 1fr 1fr 80px',
 }
+
 // Hide virtual list container scrollbar across all major browsers
 const tableContainerSx = {
   '&::-webkit-scrollbar': {
@@ -49,6 +50,35 @@ const tableContainerSx = {
   },
   '-ms-overflow-style': 'none',
   scrollbarWidth: 'none',
+}
+
+const headerGridSx = {
+  display: 'grid',
+  gridTemplateColumns: gridTemplateColumnsSx,
+  width: 'full',
+  gap: '4px',
+}
+
+const gridSx = {
+  display: 'grid',
+  gridTemplateColumns: gridTemplateColumnsSx,
+  width: '100%',
+  gap: 4,
+  alignItems: 'center',
+  '& td': {
+    base: {
+      paddingRight: 4,
+      paddingLeft: 4,
+      paddingEnd: 4,
+      paddingStart: 4,
+    },
+    sm: {
+      paddingRight: '0!important',
+      paddingLeft: '0!important',
+      paddingEnd: '0!important',
+      paddingStart: '0!important',
+    },
+  },
 }
 
 type MarketsTableVirtualizedProps = {
@@ -208,28 +238,22 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       (virtualRow: VirtualItem) => {
         const row = tableRows[virtualRow.index]
         return (
-          <Button
-            variant='ghost'
+          <Tr
+            as={Button}
             key={row.id}
-            px={0}
-            my={2}
-            width={'full'}
-            maxW='100%'
-            // Already memoized
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => onRowClick(row)}
-            // Need to absolute position rows to make dem work with react-table
+            height={`${ROW_HEIGHT}px`}
+            transform={`translateY(${virtualRow.start}px)`}
             position='absolute'
             top={0}
             left={0}
             right={0}
-            display='grid'
-            alignItems='center'
-            height={`${ROW_HEIGHT}px`}
-            gridTemplateColumns={gridTemplateColumnsSx}
-            py={2}
-            gap={'4px'}
-            transform={`translateY(${virtualRow.start}px)`}
+            width='100%'
+            my={2}
+            variant='ghost'
+            px={2}
+            // eslint-disable-next-line react-memo/require-usememo
+            onClick={() => onRowClick(row)}
+            sx={gridSx}
           >
             {row.getVisibleCells().map(cell => {
               const textAlign = (() => {
@@ -239,12 +263,12 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                 return 'right'
               })()
               return (
-                <Td key={cell.id} whiteSpace='nowrap' overflow='hidden' textAlign={textAlign}>
+                <Td key={cell.id} textAlign={textAlign}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Td>
               )
             })}
-          </Button>
+          </Tr>
         )
       },
       [onRowClick, tableRows],
@@ -255,9 +279,9 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         <Table variant='unstyled' size={tableSizeSx}>
           {isLargerThanMd && (
             <Thead position='sticky' top={0} bg='background.surface' zIndex={1}>
-              {table.getHeaderGroups().map(headerGroup => (
-                <Tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => {
+              <Tr sx={headerGridSx}>
+                {table.getHeaderGroups().map(headerGroup =>
+                  headerGroup.headers.map(header => {
                     const textAlign = (() => {
                       if (header.column.id === 'assetId') return 'left'
                       if (header.column.id === 'sparkline') return 'center'
@@ -269,17 +293,13 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                         {flexRender(header.column.columnDef.header, header.getContext())}
                       </Th>
                     )
-                  })}
-                </Tr>
-              ))}
+                  }),
+                )}
+              </Tr>
             </Thead>
           )}
-          <Tbody>
-            <Tr height={`${rowVirtualizer.getTotalSize()}px`}>
-              <Td colSpan={columns.length} p={0} position='relative'>
-                {rowVirtualizer.getVirtualItems().map(virtualRow => renderRow(virtualRow))}
-              </Td>
-            </Tr>
+          <Tbody height={`${rowVirtualizer.getTotalSize()}px`} position='relative'>
+            {rowVirtualizer.getVirtualItems().map(virtualRow => renderRow(virtualRow))}
           </Tbody>
         </Table>
       </Box>

@@ -20,6 +20,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useChainflipSwapIdQuery } from 'hooks/queries/useChainflipSwapIdQuery'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -118,6 +119,11 @@ export const HopTransactionStep = ({
     accountId: sellAssetAccountId,
   })
 
+  const { data: maybeChainflipSwapId } = useChainflipSwapIdQuery({
+    txHash: sellTxHash,
+    swapperName,
+  })
+
   const txLinks = useMemo(() => {
     const txLinks = []
     if (buyTxHash) {
@@ -141,6 +147,7 @@ export const HopTransactionStep = ({
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           accountId: sellAssetAccountId,
           maybeSafeTx,
+          maybeChainflipSwapId,
           ...(tradeQuoteStep.source === SwapperName.CowSwap
             ? {
                 tradeId: sellTxHash,
@@ -156,6 +163,7 @@ export const HopTransactionStep = ({
     return txLinks
   }, [
     buyTxHash,
+    maybeChainflipSwapId,
     maybeSafeTx,
     sellAssetAccountId,
     sellTxHash,

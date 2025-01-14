@@ -151,7 +151,7 @@ describe('WalletProvider', () => {
       })
 
       expect(result.current.state.modalType).toBe(type)
-      expect(result.current.state.initialRoute).toBe(SUPPORTED_WALLETS[type].routes[5].path)
+      expect(result.current.state.initialRoute).toBe('/native/create')
     })
   })
 

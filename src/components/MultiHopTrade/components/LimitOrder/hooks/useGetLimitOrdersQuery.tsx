@@ -2,9 +2,11 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetCowNetwork, getCowNetwork } from '@shapeshiftoss/swapper'
 import type { Order } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
+import orderBy from 'lodash/orderBy'
 import { useCallback } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'
 import { selectEvmAccountIds } from 'state/slices/common-selectors'
@@ -38,7 +40,7 @@ export const useGetLimitOrdersQuery = () => {
     [],
   )
 
-  const customTokenQueries = useQueries({
+  const limitOrdersQueries = useQueries({
     queries: evmAccountIds
       .filter(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -49,8 +51,11 @@ export const useGetLimitOrdersQuery = () => {
         queryFn: getQueryFn(accountId),
         refetchInterval: 15_000,
       })),
-    combine: queries => mergeQueryOutputs(queries, results => results.flat()),
+    combine: queries =>
+      mergeQueryOutputs(queries, results =>
+        orderBy(results.flat().filter(isSome), ({ order }) => order.creationDate, 'desc'),
+      ),
   })
 
-  return customTokenQueries
+  return limitOrdersQueries
 }

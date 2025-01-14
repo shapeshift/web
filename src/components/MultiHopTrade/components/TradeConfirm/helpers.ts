@@ -11,8 +11,8 @@ export const getHopExecutionStateButtonTranslation = (hopExecutionState: HopExec
       return 'common.reset'
     case HopExecutionState.AwaitingAllowanceApproval:
       return 'common.approve'
-    case HopExecutionState.AwaitingPermit2:
-      return 'trade.permit2.signMessage'
+    case HopExecutionState.AwaitingPermit2Eip712Sign:
+      return 'trade.permit2Eip712.signMessage'
     case HopExecutionState.AwaitingSwap:
       return 'trade.signAndSwap'
     case HopExecutionState.Complete:
@@ -33,7 +33,7 @@ export const getHopExecutionStateSummaryStepTranslation = (
       return 'trade.awaitingAllowanceReset'
     case HopExecutionState.AwaitingAllowanceApproval:
       return 'trade.awaitingApproval'
-    case HopExecutionState.AwaitingPermit2:
+    case HopExecutionState.AwaitingPermit2Eip712Sign:
       return 'trade.awaitingPermit2Approval'
     case HopExecutionState.AwaitingSwap:
       return ['trade.awaitingSwap', { swapperName }]
@@ -46,7 +46,7 @@ export const getHopExecutionStateSummaryStepTranslation = (
 
 type StepperStepParams = {
   firstHopAllowanceApproval: ApprovalExecutionMetadata
-  firstHopPermit2: Omit<ApprovalExecutionMetadata, 'txHash' | 'isInitiallyRequired'> & {
+  firstHopPermit2Eip712: Omit<ApprovalExecutionMetadata, 'txHash' | 'isInitiallyRequired'> & {
     permit2Signature?: string | undefined
   }
   firstHopAllowanceReset: ApprovalExecutionMetadata
@@ -60,6 +60,7 @@ type StepperStepParams = {
 
 export enum StepperStep {
   FirstHopReset = 'firstHopReset',
+  FirstHopPermit2Eip712Sign = 'firstHopPermit2Eip712Sign',
   FirstHopApproval = 'firstHopApproval',
   FirstHopSwap = 'firstHopSwap',
   LastHopReset = 'lastHopReset',
@@ -72,7 +73,7 @@ export const getStepperSteps = (params: StepperStepParams): Record<StepperStep, 
   const {
     firstHopAllowanceReset,
     firstHopAllowanceApproval,
-    firstHopPermit2,
+    firstHopPermit2Eip712,
     lastHopAllowanceReset,
     lastHopAllowanceApproval,
     lastHopPermit2,
@@ -83,9 +84,8 @@ export const getStepperSteps = (params: StepperStepParams): Record<StepperStep, 
       firstHopAllowanceReset.isRequired === true || firstHopAllowanceReset.txHash !== undefined,
     [StepperStep.FirstHopApproval]:
       firstHopAllowanceApproval.isInitiallyRequired === true ||
-      firstHopPermit2.isRequired === true ||
-      firstHopAllowanceApproval.txHash !== undefined ||
-      firstHopPermit2.permit2Signature !== undefined,
+      firstHopAllowanceApproval.txHash !== undefined,
+    [StepperStep.FirstHopPermit2Eip712Sign]: firstHopPermit2Eip712.isRequired === true,
     [StepperStep.FirstHopSwap]: true,
     [StepperStep.LastHopReset]:
       isMultiHopTrade === true &&
@@ -106,9 +106,11 @@ export const countStepperSteps = (params: StepperStepParams): number => {
 }
 
 const isInApprovalState = (state: HopExecutionState): boolean => {
-  return [HopExecutionState.AwaitingAllowanceApproval, HopExecutionState.AwaitingPermit2].includes(
-    state,
-  )
+  return state === HopExecutionState.AwaitingAllowanceApproval
+}
+
+const isInPermit2SignState = (state: HopExecutionState): boolean => {
+  return state === HopExecutionState.AwaitingPermit2Eip712Sign
 }
 
 export const getCurrentStepperStep = (
@@ -122,6 +124,7 @@ export const getCurrentStepperStep = (
     if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)
       return StepperStep.FirstHopReset
     if (isInApprovalState(hopExecutionState)) return StepperStep.FirstHopApproval
+    if (isInPermit2SignState(hopExecutionState)) return StepperStep.FirstHopPermit2Eip712Sign
     if (hopExecutionState === HopExecutionState.AwaitingSwap) return StepperStep.FirstHopSwap
   } else if (currentHopIndex === 1) {
     if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)

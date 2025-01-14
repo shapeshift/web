@@ -87,7 +87,7 @@ export const TradeConfirm = () => {
             isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
           }
           sellAsset={activeQuote?.steps[0].sellAsset}
-          buyAsset={activeQuote?.steps[0].buyAsset}
+          buyAsset={tradeQuoteLastHop.buyAsset}
           sellAmountCryptoPrecision={fromBaseUnit(
             activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
             activeQuote.steps[0].sellAsset.precision,

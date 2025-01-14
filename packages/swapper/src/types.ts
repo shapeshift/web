@@ -47,6 +47,7 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: string
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_BASE_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
   REACT_APP_ZRX_BASE_URL: string
@@ -309,6 +310,7 @@ type TradeQuoteBase = {
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
+  priceImpactPercentageDecimal?: string
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
   quoteOrRate: 'quote' | 'rate'

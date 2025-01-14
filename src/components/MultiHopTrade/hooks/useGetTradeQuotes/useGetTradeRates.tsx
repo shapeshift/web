@@ -216,7 +216,7 @@ export const useGetTradeRates = () => {
       // Early exit on any invalid state
       if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
         dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-        return
+        return null
       }
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 

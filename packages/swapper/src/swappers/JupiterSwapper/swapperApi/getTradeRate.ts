@@ -223,6 +223,7 @@ export const getTradeRate = async (
     receiveAddress,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
+    priceImpactPercentageDecimal: priceResponse.priceImpactPct,
     slippageTolerancePercentageDecimal,
     steps: [
       {

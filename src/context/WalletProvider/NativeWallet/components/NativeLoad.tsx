@@ -81,6 +81,13 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
+        // Set a pending device ID so the event handler doesn't redirect the user to password input
+        // for the previous wallet
+        dispatch({
+          type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
+          payload: deviceId,
+        })
+
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
@@ -103,6 +110,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
             type: WalletActions.SET_IS_CONNECTED,
             payload: true,
           })
+          dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
           // The wallet is already initialized so we can close the modal
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }

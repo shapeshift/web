@@ -254,6 +254,7 @@ export enum ThorchainChain {
   GAIA = 'GAIA',
   THOR = 'THOR',
   BSC = 'BSC',
+  BASE = 'BASE',
 }
 
 export type ThorEvmTradeQuote = TradeQuote &

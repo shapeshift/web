@@ -52,7 +52,7 @@ export const useReceiveAddress = ({
     return false
   }, [buyAsset, wallet])
 
-  const { data: walletReceiveAddress, isLoading } = useQuery({
+  const { data: walletReceiveAddress, isLoading } = useQuery<string | null>({
     queryKey: [
       'receiveAddress',
       buyAsset?.assetId,
@@ -67,7 +67,7 @@ export const useReceiveAddress = ({
         ? async () => {
             // Already partially covered in isInitializing, but TypeScript lyfe mang.
             if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata || !deviceId) {
-              return undefined
+              return null
             }
 
             const buyAssetChainId = buyAsset.chainId
@@ -80,7 +80,7 @@ export const useReceiveAddress = ({
              * super dangerous - don't use the wrong bip44 params to generate receive addresses
              */
             if (buyAssetChainId !== buyAssetAccountChainId) {
-              return undefined
+              return null
             }
 
             if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
@@ -95,11 +95,14 @@ export const useReceiveAddress = ({
               pubKey: shouldFetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
             })
 
-            return walletReceiveAddress
+            return walletReceiveAddress ?? null
           }
         : skipToken,
     staleTime: Infinity,
   })
 
-  return { walletReceiveAddress, isLoading: isInitializing || isLoading }
+  return {
+    walletReceiveAddress: walletReceiveAddress ?? undefined,
+    isLoading: isInitializing || isLoading,
+  }
 }

@@ -39,8 +39,12 @@ const arrowDown = <RiArrowRightDownFill />
 
 const tableSizeSx = { base: 'sm', md: 'md' }
 const gridTemplateColumnsSx = {
-  base: '1fr auto',
+  base: '70% 30%',
   md: '2fr 1fr 1fr 1fr 1fr 80px',
+}
+
+const assetCellSx = {
+  maxWidth: '350px',
 }
 
 // Hide virtual list container scrollbar across all major browsers
@@ -129,10 +133,12 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           accessorKey: 'assetId',
           header: () => <Text translation='dashboard.portfolio.asset' />,
           cell: ({ row }) => (
-            <AssetCell
-              assetId={row.original.assetId}
-              subText={truncate(row.original.symbol, { length: 6 })}
-            />
+            <Box sx={assetCellSx}>
+              <AssetCell
+                assetId={row.original.assetId}
+                subText={truncate(row.original.symbol, { length: 6 })}
+              />
+            </Box>
           ),
         },
         ...(isLargerThanMd
@@ -163,7 +169,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             return (
               // Already memoized
               // eslint-disable-next-line react-memo/require-usememo
-              <Stack alignItems={{ base: 'flex-start', md: 'flex-end' }}>
+              <Stack alignItems='flex-end'>
                 <Amount.Fiat
                   fontWeight='semibold'
                   value={marketDataUserCurrencyById[row.original.assetId]?.price ?? '0'}

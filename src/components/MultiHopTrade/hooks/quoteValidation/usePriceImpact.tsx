@@ -41,6 +41,10 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
   const priceImpactPercentage = useMemo(() => {
     if (!tradeQuote || !buyAsset || !buyAssetUsdRate || !sellAmountBeforeFeesUsd) return
 
+    if (tradeQuote.priceImpactPercentageDecimal) {
+      return bnOrZero(tradeQuote.priceImpactPercentageDecimal).times(100).abs()
+    }
+
     // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
     // the pool rather than a rate of input versus output
 

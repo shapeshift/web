@@ -239,6 +239,7 @@ export const getTradeQuote = async (
     affiliateBps,
     receiveAddress,
     slippageTolerancePercentageDecimal,
+    priceImpactPercentageDecimal: priceResponse.priceImpactPct,
     steps: [
       {
         accountNumber,

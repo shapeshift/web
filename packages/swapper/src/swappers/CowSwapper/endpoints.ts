@@ -25,15 +25,10 @@ import type {
   TradeRate,
 } from '../../types'
 import { SwapperName } from '../../types'
-import {
-  checkSafeTransactionStatus,
-  createDefaultStatusResponse,
-  getHopByIndex,
-  isExecutableTradeQuote,
-} from '../../utils'
+import { checkSafeTransactionStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
-import type { CowSwapGetTradesResponse, CowSwapGetTransactionsResponse } from './types'
+import type { CowSwapGetTradesResponse } from './types'
 import { cowService } from './utils/cowService'
 import { deductAffiliateFeesFromAmount, deductSlippageFromAmount } from './utils/helpers/helpers'
 
@@ -184,38 +179,18 @@ export const cowApi: SwapperApi = {
     const { data: trades } = maybeTradesResponse.unwrap()
     const buyTxHash = trades[0]?.txHash
 
-    if (!buyTxHash) return createDefaultStatusResponse(undefined)
-
-    const maybeGetOrdersResponse = await cowService.get<CowSwapGetTransactionsResponse>(
-      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/transactions/${buyTxHash}/orders`,
-    )
-
-    if (maybeGetOrdersResponse.isErr()) throw maybeGetOrdersResponse.unwrapErr()
-
-    const {
-      data: [{ status: rawStatus }],
-    } = maybeGetOrdersResponse.unwrap()
-
-    // https://api.cow.fi/docs/#/default/get_api_v1_orders__UID_
-    const status = (() => {
-      switch (rawStatus) {
-        case 'fulfilled':
-          return TxStatus.Confirmed
-        case 'presignaturePending':
-        case 'open':
-          return TxStatus.Pending
-        case 'cancelled':
-        case 'expired':
-          return TxStatus.Failed
-        default:
-          return TxStatus.Unknown
+    if (buyTxHash) {
+      return {
+        status: TxStatus.Confirmed,
+        buyTxHash,
+        message: 'fulfilled',
       }
-    })()
+    }
 
     return {
-      status,
-      buyTxHash,
-      message: rawStatus,
+      status: TxStatus.Pending,
+      buyTxHash: undefined,
+      message: 'open',
     }
   },
 }

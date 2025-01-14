@@ -52,7 +52,7 @@ export const useReceiveAddress = ({
     return false
   }, [buyAsset, wallet])
 
-  const { data: walletReceiveAddress, isLoading } = useQuery({
+  const { data: walletReceiveAddress, isLoading } = useQuery<string | null>({
     queryKey: [
       'receiveAddress',
       buyAsset?.assetId,
@@ -62,43 +62,47 @@ export const useReceiveAddress = ({
       sellAccountId,
       buyAccountId,
     ],
-    queryFn: isInitializing
-      ? skipToken
-      : async () => {
-          // Already partially covered in isInitializing, but TypeScript lyfe mang.
-          if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
-            return undefined
+    queryFn:
+      !isInitializing && buyAsset && wallet && buyAccountId && buyAccountMetadata && deviceId
+        ? async () => {
+            // Already partially covered in isInitializing, but TypeScript lyfe mang.
+            if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata || !deviceId) {
+              return null
+            }
+
+            const buyAssetChainId = buyAsset.chainId
+            const buyAssetAccountChainId = buyAccountId
+              ? fromAccountId(buyAccountId).chainId
+              : undefined
+
+            /**
+             * do NOT remove
+             * super dangerous - don't use the wrong bip44 params to generate receive addresses
+             */
+            if (buyAssetChainId !== buyAssetAccountChainId) {
+              return null
+            }
+
+            if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
+              throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
+
+            const shouldFetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+            const walletReceiveAddress = await getReceiveAddress({
+              asset: buyAsset,
+              wallet,
+              accountMetadata: buyAccountMetadata,
+              deviceId,
+              pubKey: shouldFetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
+            })
+
+            return walletReceiveAddress ?? null
           }
-
-          const buyAssetChainId = buyAsset.chainId
-          const buyAssetAccountChainId = buyAccountId
-            ? fromAccountId(buyAccountId).chainId
-            : undefined
-
-          /**
-           * do NOT remove
-           * super dangerous - don't use the wrong bip44 params to generate receive addresses
-           */
-          if (buyAssetChainId !== buyAssetAccountChainId) {
-            return undefined
-          }
-
-          if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
-            throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
-
-          const shouldFetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
-          const walletReceiveAddress = await getReceiveAddress({
-            asset: buyAsset,
-            wallet,
-            accountMetadata: buyAccountMetadata,
-            deviceId,
-            pubKey: shouldFetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
-          })
-
-          return walletReceiveAddress
-        },
+        : skipToken,
     staleTime: Infinity,
   })
 
-  return { walletReceiveAddress, isLoading: isInitializing || isLoading }
+  return {
+    walletReceiveAddress: walletReceiveAddress ?? undefined,
+    isLoading: isInitializing || isLoading,
+  }
 }

@@ -1,5 +1,6 @@
 import 'dotenv/config'
 
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   ethAssetId,
@@ -15,8 +16,10 @@ import {
   bitcoin,
   bitcoincash,
   decodeAssetData,
+  decodeRelatedAssetIndex,
   dogecoin,
   encodeAssetData,
+  encodeRelatedAssetIndex,
   litecoin,
   thorchain,
   unfreeze,
@@ -30,7 +33,7 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
-import { ASSET_DATA_PATH } from './constants'
+import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
@@ -215,11 +218,63 @@ const generateAssetData = async () => {
   // Encode the assets for minimal size while preserving ordering
   const reEncodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
   await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
+
+  return { sortedAssetIds, assetData: assetsWithOverridesApplied }
+}
+
+const readRelatedAssetIndex = () => {
+  const encodedAssetData = JSON.parse(fs.readFileSync(ASSET_DATA_PATH, 'utf8'))
+  const encodedRelatedAssetIndex = JSON.parse(fs.readFileSync(RELATED_ASSET_INDEX_PATH, 'utf8'))
+
+  const { sortedAssetIds: originalSortedAssetIds } = decodeAssetData(encodedAssetData)
+  const relatedAssetIndex = decodeRelatedAssetIndex(
+    encodedRelatedAssetIndex,
+    originalSortedAssetIds,
+  )
+
+  return relatedAssetIndex
+}
+
+const reEncodeAndWriteRelatedAssetIndex = (
+  originalRelatedAssetIndex: Record<AssetId, AssetId[]>,
+  updatedSortedAssetIds: AssetId[],
+) => {
+  const updatedEncodedRelatedAssetIndex = encodeRelatedAssetIndex(
+    originalRelatedAssetIndex,
+    updatedSortedAssetIds,
+  )
+
+  // Remove any undefined values from the updated encoded related asset index
+  const filteredUpdatedEncodedRelatedAssetIndex = Object.fromEntries(
+    Object.entries(updatedEncodedRelatedAssetIndex).filter(([_, value]) => value !== undefined),
+  )
+
+  fs.writeFileSync(
+    RELATED_ASSET_INDEX_PATH,
+    JSON.stringify(filteredUpdatedEncodedRelatedAssetIndex),
+  )
 }
 
 const main = async () => {
   try {
-    await generateAssetData()
+    // Read the original related asset index
+    const originalRelatedAssetIndex = readRelatedAssetIndex()
+
+    // Generate the new assetData and sortedAssetIds
+    const { sortedAssetIds: updatedSortedAssetIds } = await generateAssetData()
+
+    // We need to update the relatedAssetIndex to match the new asset ordering:
+    // - The original relatedAssetIndex references assets by their index in the original
+    //   sortedAssetIds array
+    // - After regenerating assetData, the positions in the sortedAssetIds may have changed, which
+    //   means a given index in the relatedAssetIndex will point to a different asset in the new
+    //   sortedAssetIds
+    // - To prevent corruption, we rewrite the relatedAssetIndex using the new positions, resulting
+    //   in a new relatedAssetIndex that references assets by their index in the updated
+    //   sortedAssetIds
+    reEncodeAndWriteRelatedAssetIndex(originalRelatedAssetIndex, updatedSortedAssetIds)
+
+    // Generate the new related asset index
     await generateRelatedAssetIndex()
 
     console.info('Assets and related assets data generated.')

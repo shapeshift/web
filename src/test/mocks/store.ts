@@ -121,6 +121,7 @@ export const mockStore: ReduxState = {
       AccountManagement: false,
       AccountManagementLedger: false,
       RFOX: false,
+      RFOX_LP: false,
       CustomTokenImport: false,
       ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,

@@ -26,11 +26,11 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const affiliateRevenueResult = useAffiliateRevenueQuery<string>({
-    startTimestamp: currentEpochMetadataResult.data?.epochStartTimestamp,
-    endTimestamp: currentEpochMetadataResult.data?.epochEndTimestamp,
+  const affiliateRevenueQuery = useAffiliateRevenueQuery<string>({
+    startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
+    endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
     select: (totalRevenue: bigint) => {
       return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
         .times(runeAssetMarketData.price)
@@ -39,23 +39,23 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
   })
 
   const emissionsPoolUserCurrency = useMemo(() => {
-    if (!affiliateRevenueResult.data) return
-    if (!currentEpochMetadataResult.data) return
+    if (!affiliateRevenueQuery.data) return
+    if (!currentEpochMetadataQuery.data) return
 
     const distributionRate =
-      currentEpochMetadataResult.data.distributionRateByStakingContract[
+      currentEpochMetadataQuery.data.distributionRateByStakingContract[
         getStakingContract(stakingAssetId)
       ]
 
-    return bn(affiliateRevenueResult.data).times(distributionRate).toFixed(2)
-  }, [affiliateRevenueResult, currentEpochMetadataResult, stakingAssetId])
+    return bn(affiliateRevenueQuery.data).times(distributionRate).toFixed(2)
+  }, [affiliateRevenueQuery, currentEpochMetadataQuery, stakingAssetId])
 
   return (
     <StatItem
       description={translate('RFOX.emissionsPool', { symbol: stakingAsset?.symbol })}
       helperDescription={translate('RFOX.emissionsPoolHelper', { symbol: stakingAsset?.symbol })}
       amountUserCurrency={emissionsPoolUserCurrency}
-      isLoading={affiliateRevenueResult.isLoading || currentEpochMetadataResult.isLoading}
+      isLoading={affiliateRevenueQuery.isLoading || currentEpochMetadataQuery.isLoading}
     />
   )
 }

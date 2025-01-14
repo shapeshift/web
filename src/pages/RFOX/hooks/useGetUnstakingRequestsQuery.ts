@@ -11,12 +11,12 @@ import { arbitrum } from 'viem/chains'
 import { serialize } from 'wagmi'
 import { isSome } from 'lib/utils'
 
-import { RFOX_STAKING_ASSET_IDS } from '../constants'
 import { getStakingAssetId, getStakingContract } from '../helpers'
 import {
   getUnstakingRequestCountQueryFn,
   getUnstakingRequestCountQueryKey,
 } from './useGetUnstakingRequestCountQuery'
+import { useRFOXContext } from './useRfoxContext'
 
 const getContractFnParams = (
   stakingAssetAccountAddress: string | undefined,
@@ -56,13 +56,20 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   stakingAssetAccountAddress,
   select,
 }: UseGetUnstakingRequestsQueryProps<SelectData>) => {
-  const unstakingRequestCountQueries = RFOX_STAKING_ASSET_IDS.map(
-    stakingAssetId =>
-      ({
-        queryKey: getUnstakingRequestCountQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
-        queryFn: getUnstakingRequestCountQueryFn({ stakingAssetAccountAddress, stakingAssetId }),
-      }) as const,
-  )
+  const { supportedStakingAssetIds } = useRFOXContext()
+
+  const unstakingRequestCountQueries = useMemo(() => {
+    return supportedStakingAssetIds.map(
+      stakingAssetId =>
+        ({
+          queryKey: getUnstakingRequestCountQueryKey({
+            stakingAssetAccountAddress,
+            stakingAssetId,
+          }),
+          queryFn: getUnstakingRequestCountQueryFn({ stakingAssetAccountAddress, stakingAssetId }),
+        }) as const,
+    )
+  }, [supportedStakingAssetIds, stakingAssetAccountAddress])
 
   const combine = useCallback(
     (queries: UseQueryResult<bigint, Error>[]) => {
@@ -71,17 +78,17 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
           return getContractFnParams(
             stakingAssetAccountAddress,
             result ?? 0n,
-            getStakingContract(RFOX_STAKING_ASSET_IDS[i]),
+            getStakingContract(supportedStakingAssetIds[i]),
           )
         })
       }
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [stakingAssetAccountAddress],
+    [stakingAssetAccountAddress, supportedStakingAssetIds],
   )
 
-  const unstakingRequestCountResult = useQueries({
+  const fnParamsQuery = useQueries({
     queries: unstakingRequestCountQueries,
     combine,
   })
@@ -90,27 +97,25 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
     () => [
       'unstakingRequests',
       {
-        fnParams: serialize(unstakingRequestCountResult.data),
+        fnParams: serialize(fnParamsQuery.data),
       },
     ],
-    [unstakingRequestCountResult],
+    [fnParamsQuery],
   )
 
   const queryFn = useMemo(() => {
-    if (unstakingRequestCountResult.isPending || unstakingRequestCountResult.isLoading)
-      return skipToken
+    if (fnParamsQuery.isPending || fnParamsQuery.isLoading) return skipToken
 
     // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
     // until staleTime/gcTime elapses on the dependant query. Propagates the error instead.
-    if (unstakingRequestCountResult.isError)
-      return () => Promise.reject(unstakingRequestCountResult.error)
+    if (fnParamsQuery.isError) return () => Promise.reject(fnParamsQuery.error)
 
     // We have a successful response for unstaking request count, but there are no unstaking requests
     // We don't need to fire an *XHR* as we already know what the response would be (an empty array), but still need to fire a *query*, resolving immediately with said known response.
-    if (!unstakingRequestCountResult.data.length) return () => Promise.resolve([])
+    if (!fnParamsQuery.data.length) return () => Promise.resolve([])
 
     return async () => {
-      const contracts = unstakingRequestCountResult.data
+      const contracts = fnParamsQuery.data
 
       const responses = await multicall(client, { contracts })
 
@@ -132,7 +137,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
         })
         .filter(isSome)
     }
-  }, [unstakingRequestCountResult])
+  }, [fnParamsQuery])
 
   const unstakingRequestsQuery = useQuery({
     queryKey,

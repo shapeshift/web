@@ -47,7 +47,9 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useCooldownPeriodQuery()
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } =
+    useCooldownPeriodQuery(stakingAssetId)
+
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],

@@ -1,4 +1,4 @@
-import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   RFOX_LP_PROXY_CONTRACT,
   RFOX_PROXY_CONTRACT,
@@ -20,14 +20,13 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
   rewardUnits: bigint,
   affiliateRevenue: bigint,
   currentEpochMetadata: CurrentEpochMetadata,
+  stakingAssetId: AssetId,
 ) => {
   // Calculate the total reward units for the current epoch thus far
   const secondsInCurrentEpoch = (Date.now() - currentEpochMetadata.epochStartTimestamp) / 1000
   const totalRewardUnits = RFOX_REWARD_RATE * BigInt(Math.floor(secondsInCurrentEpoch))
   const distributionRate =
-    currentEpochMetadata.distributionRateByStakingContract[
-      getStakingContract(foxOnArbitrumOneAssetId)
-    ]
+    currentEpochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
   const distributionAmountRuneBaseUnit = bn(affiliateRevenue.toString())
     .times(distributionRate)

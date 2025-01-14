@@ -71,12 +71,10 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     history.push(ClaimRoutePaths.Select)
   }, [history])
 
-  const stakingAssetId = useMemo(() => claimQuote.stakingAssetId, [claimQuote])
-
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
 
   const claimAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, claimQuote.stakingAssetId),
   )
 
   const stakingAmountCryptoPrecision = useMemo(

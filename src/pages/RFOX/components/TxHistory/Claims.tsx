@@ -23,20 +23,20 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
     [stakingAssetAccountId],
   )
 
-  const unstakingRequestsResult = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
     if (!stakingAssetAccountId) return null
 
-    if (!unstakingRequestsResult.isSuccess) {
+    if (!unstakingRequestsQuery.isSuccess) {
       return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />
     }
 
-    if (!unstakingRequestsResult.data.length) {
+    if (!unstakingRequestsQuery.data.length) {
       return <Text color='text.subtle' translation='RFOX.noClaimsAvailable' />
     }
 
-    return unstakingRequestsResult.data.map(unstakingRequest => {
+    return unstakingRequestsQuery.data.map(unstakingRequest => {
       const currentTimestampMs = Date.now()
       const unstakingTimestampMs = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
@@ -59,8 +59,8 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
   }, [
     setConfirmedQuote,
     stakingAssetAccountId,
-    unstakingRequestsResult.data,
-    unstakingRequestsResult.isSuccess,
+    unstakingRequestsQuery.data,
+    unstakingRequestsQuery.isSuccess,
   ])
 
   return (
@@ -68,10 +68,10 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
       {headerComponent}
       <Skeleton
         isLoaded={
-          !unstakingRequestsResult.isLoading &&
-          !unstakingRequestsResult.isPending &&
-          !unstakingRequestsResult.isPaused &&
-          !unstakingRequestsResult.isRefetching
+          !unstakingRequestsQuery.isLoading &&
+          !unstakingRequestsQuery.isPending &&
+          !unstakingRequestsQuery.isPaused &&
+          !unstakingRequestsQuery.isRefetching
         }
       >
         {claims}

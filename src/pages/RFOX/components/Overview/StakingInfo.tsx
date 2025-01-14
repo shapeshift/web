@@ -60,45 +60,43 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
 
-  const currentApyResult = useCurrentApyQuery({ stakingAssetId })
+  const currentApyQuery = useCurrentApyQuery({ stakingAssetId })
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
-
-  const stakingBalanceCryptoBaseUnitResult = useStakingInfoQuery({
+  const stakingBalanceCryptoBaseUnitQuery = useStakingInfoQuery({
     stakingAssetId,
     stakingAssetAccountAddress,
     select: selectStakingBalance,
   })
 
   const stakingBalanceCryptoPrecision = useMemo(() => {
-    if (!stakingBalanceCryptoBaseUnitResult.data) return
-    return fromBaseUnit(stakingBalanceCryptoBaseUnitResult.data, stakingAsset?.precision ?? 0)
-  }, [stakingAsset, stakingBalanceCryptoBaseUnitResult])
+    if (!stakingBalanceCryptoBaseUnitQuery.data) return
+    return fromBaseUnit(stakingBalanceCryptoBaseUnitQuery.data, stakingAsset?.precision ?? 0)
+  }, [stakingAsset, stakingBalanceCryptoBaseUnitQuery])
 
-  const currentEpochRewardsCryptoBaseUnitResult = useCurrentEpochRewardsQuery({
+  const currentEpochRewardsCryptoBaseUnitQuery = useCurrentEpochRewardsQuery({
     stakingAssetId,
     stakingAssetAccountAddress,
-    currentEpochMetadata: currentEpochMetadataResult.data,
+    currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
   const currentEpochRewardsUserCurrency = useMemo(() => {
     if (!runeAsset) return
-    if (!currentEpochRewardsCryptoBaseUnitResult.data) return
+    if (!currentEpochRewardsCryptoBaseUnitQuery.data) return
 
-    const currentEpochRewardsCryptoBaseUnit =
-      currentEpochRewardsCryptoBaseUnitResult.data.toString()
+    const currentEpochRewardsCryptoBaseUnit = currentEpochRewardsCryptoBaseUnitQuery.data.toString()
 
     return bnOrZero(fromBaseUnit(currentEpochRewardsCryptoBaseUnit, runeAsset.precision))
       .times(runeMarketData.price)
       .toFixed(2)
-  }, [currentEpochRewardsCryptoBaseUnitResult, runeAsset, runeMarketData])
+  }, [currentEpochRewardsCryptoBaseUnitQuery, runeAsset, runeMarketData])
 
-  const lifetimeRewardsCryptoBaseUnitResult = useLifetimeRewardsQuery({
+  const lifetimeRewardsCryptoBaseUnitQuery = useLifetimeRewardsQuery({
     stakingAssetId,
     stakingAssetAccountAddress,
   })
 
-  const timeInPoolHumanResult = useTimeInPoolQuery({
+  const timeInPoolHumanQuery = useTimeInPoolQuery({
     stakingAssetId,
     stakingAssetAccountAddress,
     select: timeInPoolSeconds =>
@@ -127,7 +125,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
             <CText fontSize='sm'>
               {translate('RFOX.mySymbolPosition', { symbol: stakingAsset?.symbol ?? '' })}
             </CText>
-            <Skeleton isLoaded={!stakingBalanceCryptoBaseUnitResult.isLoading}>
+            <Skeleton isLoaded={!stakingBalanceCryptoBaseUnitQuery.isLoading}>
               {stakingBalanceCryptoPrecision === '0' ? (
                 <Button
                   onClick={handleGetAssetClick(stakingAssetId)}
@@ -165,10 +163,10 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
                     translation='RFOX.pendingRewardsBalance'
                   />
                 </HelperTooltip>
-                <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitResult.isLoading}>
+                <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitQuery.isLoading}>
                   <Amount.Crypto
                     value={fromBaseUnit(
-                      currentEpochRewardsCryptoBaseUnitResult.data?.toString() ?? '0',
+                      currentEpochRewardsCryptoBaseUnitQuery.data?.toString() ?? '0',
                       runeAsset?.precision ?? 0,
                     )}
                     symbol={runeAsset?.symbol ?? ''}
@@ -182,12 +180,12 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
                   />
                 </Skeleton>
               </Box>
-              <Skeleton isLoaded={!currentApyResult.isLoading} ml={2}>
+              <Skeleton isLoaded={!currentApyQuery.isLoading} ml={2}>
                 <Tag colorScheme='green' verticalAlign='middle'>
                   <Amount.Percent
                     width='max-content'
                     prefix='~'
-                    value={currentApyResult.data ?? 0}
+                    value={currentApyQuery.data ?? 0}
                     suffix='APY'
                   />
                 </Tag>
@@ -205,8 +203,8 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
             symbol: stakingAsset?.symbol,
           })}
           assetId={stakingAssetId}
-          amountCryptoBaseUnit={stakingBalanceCryptoBaseUnitResult.data}
-          isLoading={stakingBalanceCryptoBaseUnitResult.isLoading}
+          amountCryptoBaseUnit={stakingBalanceCryptoBaseUnitQuery.data}
+          isLoading={stakingBalanceCryptoBaseUnitQuery.isLoading}
         />
         <StakingInfoItem
           informationDescription={translate('RFOX.lifetimeRewards')}
@@ -214,14 +212,14 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
             symbol: stakingAsset?.symbol,
           })}
           assetId={thorchainAssetId}
-          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnitResult.data?.toString()}
-          isLoading={lifetimeRewardsCryptoBaseUnitResult.isLoading}
+          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnitQuery.data?.toString()}
+          isLoading={lifetimeRewardsCryptoBaseUnitQuery.isLoading}
         />
         <StakingInfoItem
           informationDescription='RFOX.timeInPool'
           helperDescription='RFOX.timeInPoolHelper'
-          value={timeInPoolHumanResult.data ?? 'N/A'}
-          isLoading={timeInPoolHumanResult.isLoading}
+          value={timeInPoolHumanQuery.data ?? 'N/A'}
+          isLoading={timeInPoolHumanQuery.isLoading}
         />
       </SimpleGrid>
     </Box>

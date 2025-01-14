@@ -29,7 +29,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { RFOX_STAKING_ASSET_IDS } from 'pages/RFOX/constants'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
@@ -93,20 +92,23 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     state: { isConnected, wallet },
   } = useWallet()
 
-  const stakingAssetIds = useMemo(() => RFOX_STAKING_ASSET_IDS.concat(l1AssetId), [l1AssetId])
+  const {
+    stakingAssetId: selectedStakingAssetId,
+    setStakingAssetId: setSelectedStakingAssetId,
+    selectedAssetAccountId,
+    stakingAssetAccountId,
+    supportedStakingAssetIds,
+  } = useRFOXContext()
+
+  const stakingAssetIds = useMemo(() => {
+    return supportedStakingAssetIds.concat(l1AssetId)
+  }, [supportedStakingAssetIds, l1AssetId])
 
   const assets = useAppSelector(selectAssets)
 
   const stakingAssets = useMemo(() => {
     return stakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
   }, [assets, stakingAssetIds])
-
-  const {
-    stakingAssetId: selectedStakingAssetId,
-    setStakingAssetId: setSelectedStakingAssetId,
-    selectedAssetAccountId,
-    stakingAssetAccountId,
-  } = useRFOXContext()
 
   const stakingAssetId = useMemo(() => {
     if (selectedStakingAssetId === foxAssetId) return foxOnArbitrumOneAssetId
@@ -266,7 +268,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     methods,
   })
 
-  const { data: cooldownPeriod } = useCooldownPeriodQuery()
+  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -371,22 +373,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const fees = approvalFees || stakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        toBaseUnit(
-          stakingAssetFeeAssetBalanceCryptoPrecision,
-          stakingAssetFeeAsset.precision,
-        ),
+        toBaseUnit(stakingAssetFeeAssetBalanceCryptoPrecision, stakingAssetFeeAsset.precision),
       )
 
       if (!hasEnoughFeeBalance) return false
 
       return true
     },
-    [
-      stakingAssetFeeAsset,
-      stakingAssetFeeAssetBalanceCryptoPrecision,
-      approvalFees,
-      stakeFees,
-    ],
+    [stakingAssetFeeAsset, stakingAssetFeeAssetBalanceCryptoPrecision, approvalFees, stakeFees],
   )
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
   useEffect(() => {
@@ -435,7 +429,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       destinationNetwork: stakingAssetFeeAsset?.networkName,
     })
   }, [
-    selectedStakingAsset?.symbol,
     cooldownPeriod,
     isBridgeRequired,
     stakingAssetFeeAsset,

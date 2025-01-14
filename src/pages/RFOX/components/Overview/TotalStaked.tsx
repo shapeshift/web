@@ -20,7 +20,7 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
 
-  const totalStakedUserCurrencyResult = useTotalStakedQuery<string>({
+  const totalStakedUserCurrencyQuery = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
       return bn(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0))
@@ -33,8 +33,8 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
     <StatItem
       description={translate('RFOX.totalStaked', { symbol: stakingAsset?.symbol })}
       helperDescription={translate('RFOX.totalStakedHelper', { symbol: stakingAsset?.symbol })}
-      amountUserCurrency={totalStakedUserCurrencyResult.data}
-      isLoading={totalStakedUserCurrencyResult.isLoading}
+      amountUserCurrency={totalStakedUserCurrencyQuery.data}
+      isLoading={totalStakedUserCurrencyQuery.isLoading}
     />
   )
 }

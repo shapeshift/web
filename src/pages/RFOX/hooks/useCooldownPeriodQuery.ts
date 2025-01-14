@@ -1,12 +1,15 @@
-import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 import { formatSecondsToDuration } from 'lib/utils/time'
 
-export const useCooldownPeriodQuery = () => {
+import { getStakingContract } from '../helpers'
+
+export const useCooldownPeriodQuery = (stakingAssetId: AssetId) => {
   const cooldownPeriodQuery = useReadContract({
     abi: RFOX_ABI,
-    address: RFOX_PROXY_CONTRACT,
+    address: getStakingContract(stakingAssetId),
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     query: {

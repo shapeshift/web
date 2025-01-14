@@ -64,6 +64,7 @@ export const useCurrentEpochRewardsQuery = ({
           rewardUnits,
           affiliateRevenue,
           currentEpochMetadata,
+          stakingAssetId,
         )
       }
 

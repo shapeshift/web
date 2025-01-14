@@ -35,7 +35,9 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     [stakingAmountCryptoPrecision, stakingAsset?.precision],
   )
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useCooldownPeriodQuery()
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } =
+    useCooldownPeriodQuery(stakingAssetId)
+
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],

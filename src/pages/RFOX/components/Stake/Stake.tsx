@@ -1,9 +1,10 @@
-import { foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { getStakingBalanceOfQueryKey } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
@@ -13,8 +14,6 @@ import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
-
-const stakingAssetId = foxOnArbitrumOneAssetId
 
 const defaultBoxSpinnerStyle = {
   height: '500px',
@@ -84,25 +83,26 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const [stakeTxid, setStakeTxid] = useState<string | undefined>()
 
   const queryClient = useQueryClient()
+  const { stakingAssetId } = useRFOXContext()
+
+  const stakingAssetAccountAddress = useMemo(() => {
+    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
+  }, [confirmedQuote])
 
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
-          ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-          : undefined,
+        stakingAssetAccountAddress,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
-          ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-          : undefined,
+        stakingAssetAccountAddress,
       }),
     })
-  }, [confirmedQuote, queryClient])
+  }, [confirmedQuote, queryClient, stakingAssetAccountAddress])
 
   const renderStakeInput = useCallback(() => {
     return (
@@ -115,7 +115,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
         setConfirmedQuote={setConfirmedQuote}
       />
     )
-  }, [headerComponent, runeAddress, setStepIndex])
+  }, [headerComponent, runeAddress, setStepIndex, stakingAssetId])
 
   const renderStakeConfirm = useCallback(() => {
     if (!confirmedQuote) return null

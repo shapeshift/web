@@ -9,9 +9,10 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -33,14 +34,13 @@ import type {
   MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'
 import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
-import { RFOX_STAKING_ASSET_IDS } from 'pages/RFOX/constants'
-import { selectRuneAddress } from 'pages/RFOX/helpers'
+import { getStakingContract, selectRuneAddress } from 'pages/RFOX/helpers'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectFeeAssetByChainId,
+  selectAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -62,26 +62,25 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   headerComponent,
   setConfirmedQuote,
 }) => {
-  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
   const { wallet, isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-
-  const foxEthLpArbitrumAsset = useAppSelector(state =>
-    selectAssetById(state, uniV2EthFoxArbitrumAssetId),
-  )
-
   const buyAssetSearch = useModal('buyAssetSearch')
 
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
+    useRFOXContext()
 
-  const adapter = useMemo(
-    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
-    [feeAsset],
-  )
+  const assets = useAppSelector(selectAssets)
+
+  const stakingAssets = useMemo(() => {
+    return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
+  }, [assets, supportedStakingAssetIds])
+
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
+  const adapter = useMemo(() => {
+    return assertGetEvmChainAdapter(fromAssetId(stakingAssetId).chainId)
+  }, [stakingAssetId])
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
@@ -154,7 +153,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   const changeAddressFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT,
+      to: getStakingContract(stakingAssetId),
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
@@ -240,14 +239,12 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   )
 
   const handleStakingAssetClick = useCallback(() => {
-    if (!(stakingAsset && foxEthLpArbitrumAsset)) return
-
     buyAssetSearch.open({
       onAssetClick: asset => setStakingAssetId(asset.assetId),
       title: 'common.selectAsset',
-      assets: [stakingAsset, foxEthLpArbitrumAsset],
+      assets: stakingAssets,
     })
-  }, [stakingAsset, foxEthLpArbitrumAsset, buyAssetSearch, setStakingAssetId])
+  }, [stakingAssets, buyAssetSearch, setStakingAssetId])
 
   if (!isConnected)
     return (
@@ -281,7 +278,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
               assetId={stakingAssetId}
               onAssetClick={handleStakingAssetClick}
               onAssetChange={handleAssetChange}
-              assetIds={RFOX_STAKING_ASSET_IDS}
+              assetIds={supportedStakingAssetIds}
               onlyConnectedChains={true}
             />
           </Stack>

@@ -1,16 +1,25 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxOnArbitrumOneAssetId,
+  fromAssetId,
+  uniV2EthFoxArbitrumAssetId,
+} from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
 } from 'state/slices/portfolioSlice/selectors'
+import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { RFOX_STAKING_ASSET_IDS } from '../constants'
 
 type RFOXContextType = {
   selectedAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
+  supportedStakingAssetIds: AssetId[]
   setStakingAssetId: (assetId: AssetId) => void
   setStakingAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
@@ -18,8 +27,17 @@ type RFOXContextType = {
 const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 
 export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const featureFlags = useSelector(selectFeatureFlags)
+
   const [stakingAssetId, setStakingAssetId] = useState<AssetId>(foxOnArbitrumOneAssetId)
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
+
+  const supportedStakingAssetIds = useMemo(() => {
+    return RFOX_STAKING_ASSET_IDS.filter(stakingAssetId => {
+      if (!featureFlags.RFOX_LP && stakingAssetId === uniV2EthFoxArbitrumAssetId) return false
+      return true
+    })
+  }, [featureFlags])
 
   const filter = useMemo(
     () => (stakingAssetAccountId ? { accountId: stakingAssetAccountId } : undefined),
@@ -48,6 +66,7 @@ export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       setStakingAssetId,
       stakingAssetId,
       stakingAssetAccountId,
+      supportedStakingAssetIds,
     }),
     [
       selectedAssetAccountId,
@@ -55,6 +74,7 @@ export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       stakingAssetAccountId,
       setStakingAssetAccountId,
       setStakingAssetId,
+      supportedStakingAssetIds,
     ],
   )
 

@@ -69,7 +69,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     [stakingAssetAccountId],
   )
 
-  const unstakingRequestsResult = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 
@@ -78,21 +78,20 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={arbitrumChainId} />
 
     if (
-      unstakingRequestsResult.isLoading ||
-      unstakingRequestsResult.isPending ||
-      unstakingRequestsResult.isPaused ||
-      unstakingRequestsResult.isFetching
+      unstakingRequestsQuery.isPending ||
+      unstakingRequestsQuery.isPaused ||
+      unstakingRequestsQuery.isFetching
     ) {
       return new Array(2).fill(null).map((_, index) => <Skeleton key={index} height={16} my={2} />)
     }
 
-    if (unstakingRequestsResult.isError || !unstakingRequestsResult.data.length) {
+    if (unstakingRequestsQuery.isError || !unstakingRequestsQuery.data.length) {
       return (
-        <NoClaimsAvailable isError={unstakingRequestsResult.isError} setStepIndex={setStepIndex} />
+        <NoClaimsAvailable isError={unstakingRequestsQuery.isError} setStepIndex={setStepIndex} />
       )
     }
 
-    return unstakingRequestsResult.data.map(unstakingRequest => {
+    return unstakingRequestsQuery.data.map(unstakingRequest => {
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
@@ -119,7 +118,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     setConfirmedQuote,
     setStepIndex,
     stakingAssetAccountAddress,
-    unstakingRequestsResult,
+    unstakingRequestsQuery,
   ])
 
   return (

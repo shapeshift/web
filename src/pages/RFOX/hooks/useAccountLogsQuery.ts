@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { getAddress } from 'viem'
@@ -36,7 +36,7 @@ const fetchAccountLogs = async (
       [setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent].map(
         (event): Promise<RFOXAccountLog[]> =>
           client.getLogs({
-            address: RFOX_PROXY_CONTRACT,
+            address: getStakingContract(stakingAssetId),
             event,
             fromBlock: rfoxCreationBlockNumber,
             args: {

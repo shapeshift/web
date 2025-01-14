@@ -1,5 +1,9 @@
-import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT, ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import {
+  RFOX_LP_PROXY_CONTRACT,
+  RFOX_PROXY_CONTRACT,
+  ZRX_ETHEREUM_PROXY_CONTRACT,
+} from '@shapeshiftoss/contracts'
 
 import type { Tx } from '../../../generated/arbitrum'
 import type { BaseTransactionParserArgs } from '../../parser'
@@ -25,6 +29,10 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new rfox.Parser({
         proxyContract: RFOX_PROXY_CONTRACT,
         stakingAssetId: foxOnArbitrumOneAssetId,
+      }),
+      new rfox.Parser({
+        proxyContract: RFOX_LP_PROXY_CONTRACT,
+        stakingAssetId: uniV2EthFoxArbitrumAssetId,
       }),
       new arbitrumBridge.Parser({
         chainId: this.chainId,

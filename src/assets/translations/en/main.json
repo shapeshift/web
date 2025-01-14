@@ -2606,7 +2606,7 @@
     "useCustomAddress": "Use custom address",
     "stakeWarning": "When you stake your %{symbol} please be aware that the lock-up period is %{cooldownPeriod}. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
     "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your funds to %{destinationNetwork}. Would you like us to guide you through the process?",
-    "unstakeWarning": "Before you can claim your FOX the cool-down period is %{cooldownPeriod}. After that time has elapsed you will be able to claim your unstaked amount.",
+    "unstakeWarning": "Before you can claim your %{symbol} the cool-down period is %{cooldownPeriod}. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
       "unstakeAmount": "This is amount of FOX you will unstake",

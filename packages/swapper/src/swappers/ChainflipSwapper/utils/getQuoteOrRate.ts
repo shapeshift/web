@@ -297,6 +297,8 @@ export const getQuoteOrRate = async (
         singleQuoteResponse.boostQuote.egressAmountNative!,
       )
 
+      // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
+      // prorated to the buy asset price to determine price impact
       const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
         bnOrZero(singleQuoteResponse.boostQuote.ingressAmount!).times(
           singleQuoteResponse.estimatedPrice!,
@@ -356,6 +358,8 @@ export const getQuoteOrRate = async (
       singleQuoteResponse.egressAmountNative!,
     )
 
+    // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
+    // prorated to the buy asset price to determine price impact
     const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
       bnOrZero(singleQuoteResponse.ingressAmount!).times(singleQuoteResponse.estimatedPrice!),
       buyAsset.precision,

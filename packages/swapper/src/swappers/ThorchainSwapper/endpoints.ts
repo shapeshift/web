@@ -652,9 +652,12 @@ export const thorchainApi: SwapperApi = {
 
       const buyTxHash = parseThorBuyTxHash(txHash, lastOutTx)
 
-      // If thornode says the tx is done, its done ;)
-      // We discard txData errors because we can derive the status before it returns a success response.
-      if (!('error' in txData) && txData.observed_tx?.status === 'done') {
+      const hasOutboundTx = lastOutTx !== undefined && lastOutTx.chain !== 'THOR'
+
+      // We consider the transaction confirmed as soon as we have a buyTxHash
+      // For UTXOs, this means that the swap will be confirmed as soon as Txs hit the mempool
+      // Which is actually correct, as we update UTXO balances optimistically
+      if (!('error' in txData) && buyTxHash && hasOutboundTx) {
         return {
           buyTxHash,
           status: TxStatus.Confirmed,
@@ -662,8 +665,8 @@ export const thorchainApi: SwapperApi = {
         }
       }
 
-      const hasOutboundTx = lastOutTx !== undefined && lastOutTx.chain !== 'THOR'
       const message = getLatestThorTxStatusMessage(txStatusData, hasOutboundTx)
+
       return {
         buyTxHash,
         status: TxStatus.Pending,

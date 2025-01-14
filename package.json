@@ -112,6 +112,8 @@
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
     "@tanstack/react-query": "^5.52.0",
+    "@tanstack/react-table": "^8.20.6",
+    "@tanstack/react-virtual": "^3.11.2",
     "@uniswap/sdk": "^3.0.3",
     "@uniswap/sdk-core": "^5.3.1",
     "@uniswap/v3-sdk": "^3.13.1",

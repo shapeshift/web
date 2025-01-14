@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import difference from 'lodash/difference'
+import { isSome } from '@shapeshiftoss/utils'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -9,7 +9,6 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 
-import { selectMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
 export const selectAssetById = createCachedSelector(
@@ -39,20 +38,18 @@ export const selectAssets = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.byId,
   byId => byId,
 )
-export const selectAssetIds = (state: ReduxState) => state.assets.ids
+
+export const selectAssetIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.assets.ids,
+  ids => ids,
+)
 
 export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
-  selectMarketDataIdsSortedByMarketCapUsd,
   selectAssetIds,
   selectAssets,
-  (marketDataAssetIds, assetIds, assets): Asset[] => {
-    const nonMarketDataAssetIds = difference(assetIds, marketDataAssetIds)
-
-    return marketDataAssetIds.concat(nonMarketDataAssetIds).reduce<Asset[]>((acc, assetId) => {
-      const asset = assets[assetId]
-      if (asset) acc.push(asset)
-      return acc
-    }, [])
+  (assetIds, assets): Asset[] => {
+    // The asset data is already maintained in order by market cap, so map the IDs into assets
+    return assetIds.map(assetId => assets[assetId]).filter(isSome)
   },
 )
 

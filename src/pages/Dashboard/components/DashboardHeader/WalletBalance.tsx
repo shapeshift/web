@@ -11,7 +11,7 @@ import {
   selectClaimableRewards,
   selectEarnBalancesUserCurrencyAmountFull,
   selectIsPortfolioLoading,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalance,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,7 +41,7 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
       selectEarnBalancesUserCurrencyAmountFull,
     ).toFixed()
     const portfolioTotalUserCurrencyBalance = useAppSelector(
-      selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+      selectPortfolioTotalUserCurrencyBalance,
     )
     const netWorth = useMemo(
       () =>

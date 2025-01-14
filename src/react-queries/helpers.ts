@@ -9,7 +9,7 @@ import type { UseQueryResult } from '@tanstack/react-query'
  */
 export const mergeQueryOutputs = <QueryOutputType, QueryErrorType, MergedOutputType>(
   queryOutputs: UseQueryResult<QueryOutputType, QueryErrorType>[],
-  combineResults: (results: QueryOutputType[]) => MergedOutputType,
+  combineResults: (results: (QueryOutputType | undefined)[]) => MergedOutputType,
 ): UseQueryResult<MergedOutputType, QueryErrorType[]> => {
   const isLoading = queryOutputs.some(result => result.isLoading)
   const isPending = queryOutputs.some(result => result.isPending)
@@ -49,7 +49,7 @@ export const mergeQueryOutputs = <QueryOutputType, QueryErrorType, MergedOutputT
   }
 
   return {
-    data: combineResults(queryOutputs.map(result => result.data as QueryOutputType)),
+    data: combineResults(queryOutputs.map(result => result.data)),
     error,
     isLoading,
     isPending,

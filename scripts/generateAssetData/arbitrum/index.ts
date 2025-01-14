@@ -1,10 +1,10 @@
 import { arbitrumChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { arbitrum, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'
 
-import { arbitrum } from '../baseAssets'
 import * as coingecko from '../coingecko'
 
 export const getAssets = async (): Promise<Asset[]> => {
@@ -23,7 +23,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([arbitrum]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(arbitrum)]),
     'assetId',
   )
 

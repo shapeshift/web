@@ -36,7 +36,14 @@
   "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "scripts/generateAssetData",
     "scripts/generateTradableThorAssetMap"
   ],
-  "exclude": ["dist", "node_modules", "**/__mocks__", "**/*.js", "src/lib/asset-service/service/generatedAssetData.json"],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "**/__mocks__",
+    "**/*.js",
+    "src/lib/asset-service/service/encodedAssetData.json",
+    "src/lib/asset-service/service/encodedRelatedAssetIndex.json",
+  ],
   "references": [
     { "path": "./packages/caip" },
     { "path": "./packages/chain-adapters" },

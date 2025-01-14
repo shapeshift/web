@@ -1,4 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
@@ -324,8 +325,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
   const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
   const assetFilterPredicate = useCallback(
-    (asset: Asset) => {
-      if (asset.chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+    (assetId: AssetId) => {
+      const { chainId } = fromAssetId(assetId)
+      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
 
       return true
     },
@@ -357,10 +359,17 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
         onlyConnectedChains={false}
+        assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset, chainIdFilterPredicate],
+    [
+      buyAsset.assetId,
+      handleBuyAssetClick,
+      setBuyAsset,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
+    ],
   )
 
   const bodyContent = useMemo(() => {

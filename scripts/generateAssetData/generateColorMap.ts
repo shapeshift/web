@@ -2,6 +2,15 @@ import 'dotenv/config'
 
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import {
+  atom,
+  bitcoin,
+  bitcoincash,
+  dogecoin,
+  litecoin,
+  thorchain,
+  unfreeze,
+} from '@shapeshiftoss/utils'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 
@@ -9,7 +18,6 @@ import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
-import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
@@ -35,12 +43,12 @@ const generateColorMap = async () => {
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
-    bitcoin,
-    bitcoincash,
-    dogecoin,
-    litecoin,
-    atom,
-    thorchain,
+    unfreeze(bitcoin),
+    unfreeze(bitcoincash),
+    unfreeze(dogecoin),
+    unfreeze(litecoin),
+    unfreeze(atom),
+    unfreeze(thorchain),
     ...ethAssets,
     ...cosmosAssets,
     ...avalancheAssets,

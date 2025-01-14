@@ -23,13 +23,7 @@ export const SharedConfirm = ({
 }: SharedConfirmProps) => {
   return (
     <TradeSlideTransition>
-      <Card
-        flex={1}
-        borderRadius={cardBorderRadius}
-        width='full'
-        variant='dashboard'
-        maxWidth='500px'
-      >
+      <Card flex={1} borderRadius={cardBorderRadius} width='full' maxWidth='500px'>
         <CardHeader px={6} pt={4}>
           <WithBackButton onBack={onBack}>
             <Heading textAlign='center' fontSize='md'>

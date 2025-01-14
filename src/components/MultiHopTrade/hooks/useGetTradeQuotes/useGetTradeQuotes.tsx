@@ -231,9 +231,16 @@ export const useGetTradeQuotes = () => {
           permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
         (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
-
-    return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap
-  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state, swapperName])
+    return (
+      hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
+      hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation
+    )
+  }, [
+    hopExecutionMetadata?.permit2,
+    hopExecutionMetadata?.state,
+    hopExecutionMetadata?.swap?.state,
+    swapperName,
+  ])
 
   const shouldFetchTradeQuotes = useMemo(() => {
     return Boolean(

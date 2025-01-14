@@ -3,6 +3,11 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { SafeTxInfo, SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
+  CHAINFLIP_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_SWAP_SOURCE,
+} from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
+import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
@@ -33,6 +38,7 @@ type GetTxLink = GetTxBaseUrl &
   ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never }) & {
     accountId: AccountId | undefined
     maybeSafeTx: SafeTxInfo | undefined
+    maybeChainflipSwapId?: string | undefined
   }
 
 export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBaseUrl): string => {
@@ -46,6 +52,11 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBas
     case THORCHAIN_LONGTAIL_SWAP_SOURCE:
     case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
       return 'https://viewblock.io/thorchain/tx/'
+    case SwapperName.Chainflip:
+    case CHAINFLIP_BOOST_SWAP_SOURCE:
+    case CHAINFLIP_DCA_SWAP_SOURCE:
+    case CHAINFLIP_DCA_BOOST_SWAP_SOURCE:
+      return 'https://scan.chainflip.io/swaps/'
     default:
       return defaultExplorerBaseUrl
   }
@@ -58,6 +69,7 @@ export const getTxLink = ({
   tradeId,
   maybeSafeTx,
   accountId,
+  maybeChainflipSwapId,
 }: GetTxLink): string => {
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
@@ -72,6 +84,13 @@ export const getTxLink = ({
       case THORCHAIN_LONGTAIL_SWAP_SOURCE:
       case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
         return `${baseUrl}${id.replace(/^0x/, '')}`
+      case SwapperName.Chainflip:
+      case CHAINFLIP_BOOST_SWAP_SOURCE:
+      case CHAINFLIP_DCA_SWAP_SOURCE:
+      case CHAINFLIP_DCA_BOOST_SWAP_SOURCE:
+        return maybeChainflipSwapId
+          ? `${baseUrl}${maybeChainflipSwapId}`
+          : `${defaultExplorerBaseUrl}${id}`
       default:
         return `${baseUrl}${id}`
     }

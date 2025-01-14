@@ -254,6 +254,7 @@ export enum ThorchainChain {
   GAIA = 'GAIA',
   THOR = 'THOR',
   BSC = 'BSC',
+  BASE = 'BASE',
 }
 
 export type ThorEvmTradeQuote = TradeQuote &
@@ -276,8 +277,8 @@ type ThorTradeQuoteSpecificMetadata = {
   tradeType: TradeType
   expiry: number
   longtailData?: {
-    longtailToL1ExpectedAmountOut?: bigint
-    L1ToLongtailExpectedAmountOut?: bigint
+    longtailToL1ExpectedAmountOut?: string
+    L1ToLongtailExpectedAmountOut?: string
   }
 }
 

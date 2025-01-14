@@ -2,24 +2,13 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  arbitrumNovaChainId,
-  baseChainId,
-  bscChainId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-  solanaChainId,
-} from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
-import { AssetService } from 'lib/asset-service'
+import { getAssetService } from 'lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const service = new AssetService()
+const service = getAssetService()
 
 export type AssetsState = {
   byId: AssetsByIdPartial
@@ -27,29 +16,9 @@ export type AssetsState = {
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
-// This looks weird because it is - we want to hydrate the initial state synchronously with as
-// little overhead as possible.
-const config = getConfig()
-const byId = Object.entries(service.assetsById).reduce<AssetsByIdPartial>(
-  (prev, [assetId, asset]) => {
-    if (!config.REACT_APP_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return prev
-    if (!config.REACT_APP_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return prev
-    if (!config.REACT_APP_FEATURE_POLYGON && asset.chainId === polygonChainId) return prev
-    if (!config.REACT_APP_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return prev
-    if (!config.REACT_APP_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return prev
-    if (!config.REACT_APP_FEATURE_ARBITRUM_NOVA && asset.chainId === arbitrumNovaChainId)
-      return prev
-    if (!config.REACT_APP_FEATURE_BASE && asset.chainId === baseChainId) return prev
-    if (!config.REACT_APP_FEATURE_SOLANA && asset.chainId === solanaChainId) return prev
-    prev[assetId] = asset
-    return prev
-  },
-  {},
-)
-
 export const initialState: AssetsState = {
-  byId,
-  ids: Object.keys(byId), // TODO: Use pre-sorted array to maintain pre-sorting of assets
+  byId: service.assetsById,
+  ids: service.assetIds,
   relatedAssetIndex: service.relatedAssetIndex,
 }
 
@@ -76,12 +45,14 @@ export const assets = createSlice({
     clear: () => initialState,
     upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
-      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids))) // TODO: Preserve sorting here
+      // Note this preserves the original sorting while removing duplicates.
+      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     },
     upsertAsset: (state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
-      state.ids = Array.from(new Set(state.ids.concat(assetId))) // TODO: Preserve sorting here
+      // Note this preserves the original sorting while removing duplicates.
+      state.ids = Array.from(new Set(state.ids.concat(assetId)))
     },
   },
 })

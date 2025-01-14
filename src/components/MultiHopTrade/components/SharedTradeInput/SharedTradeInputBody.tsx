@@ -7,7 +7,7 @@ import {
   IconButton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -36,7 +36,7 @@ type SharedTradeInputBodyProps = {
   sellAmountUserCurrency: string | undefined
   sellAsset: Asset
   sellAccountId: AccountId | undefined
-  assetFilterPredicate: (asset: Asset) => boolean
+  assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
   onSwitchAssets: () => void
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
@@ -125,10 +125,17 @@ export const SharedTradeInputBody = ({
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
         onlyConnectedChains={true}
+        assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [handleSellAssetClick, sellAsset.assetId, setSellAsset, chainIdFilterPredicate],
+    [
+      sellAsset.assetId,
+      handleSellAssetClick,
+      setSellAsset,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
+    ],
   )
 
   return (

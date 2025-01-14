@@ -925,7 +925,6 @@
         "negativeRatio": "卖出数量不足"
       },
       "rateExpired": {
-        "title": "费率已过期",
         "body": "你之前的掉期利率已过期。我们已获取新利率并更新了你的报价金额。请在确认掉期前查看最新详细信息。",
         "cta": "好的，明白了"
       }
@@ -1010,7 +1009,6 @@
       "swap": "执行兑换时出现问题"
     },
     "transactionTitle": {
-      "bridge": "通过 %{swapperName} 从 %{sellChainName} 桥接到 %{buyChainName}",
       "swap": "通过 %{swapperName} 在 %{sellChainName} 上进行兑换"
     },
     "approvalTitle": "代币津贴批准",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "当链上价格达到限价时，限价订单可能无法准确成交。",
     "learnMore": "了解更多",
     "previewOrder": "预览顺序",
-    "youGet": "您获得",
     "whenPriceReaches": "当价格达到",
     "expiry": "到期",
     "noOpenOrders": "尚无未结订单。",

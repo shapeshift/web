@@ -157,9 +157,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                     autoColor
                   />
                 ),
-                meta: {
-                  textAlign: 'right',
-                },
               },
             ]
           : []),
@@ -174,9 +171,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                     value={marketDataUserCurrencyById[row.original.assetId]?.volume ?? '0'}
                   />
                 ),
-                meta: {
-                  textAlign: 'right',
-                },
               },
             ]
           : []),
@@ -189,9 +183,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                     {translate('assets.assetCards.assetActions.trade')}
                   </Button>
                 ),
-                meta: {
-                  textAlign: 'right',
-                },
               },
             ]
           : []),
@@ -231,8 +222,8 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             </Thead>
           )}
           <Tbody>
-            <tr style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-              <td colSpan={columns.length} style={{ padding: 0, position: 'relative' }}>
+            <Tr style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+              <Td colSpan={columns.length} style={{ padding: 0, position: 'relative' }}>
                 {rowVirtualizer.getVirtualItems().map(virtualRow => {
                   const row = tableRows[virtualRow.index]
                   return (
@@ -240,6 +231,8 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                       variant='ghost'
                       key={row.id}
                       my={2}
+                      width={'full'}
+                      maxW='100%'
                       onClick={() => onRowClick(row)}
                       position='absolute'
                       top={0}
@@ -248,13 +241,13 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                       display='grid'
                       alignItems='center'
                       height={`${ROW_HEIGHT}px`}
+                      gridTemplateColumns={{
+                        base: '1fr auto',
+                        md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
+                      }}
                       py={2}
                       sx={{
                         transform: `translateY(${virtualRow.start}px)`,
-                        gridTemplateColumns: {
-                          base: '1fr auto',
-                          md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
-                        },
                         gap: '4px',
                       }}
                     >
@@ -280,8 +273,8 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                     </Button>
                   )
                 })}
-              </td>
-            </tr>
+              </Td>
+            </Tr>
           </Tbody>
         </Table>
       </Box>

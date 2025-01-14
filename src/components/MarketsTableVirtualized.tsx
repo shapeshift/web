@@ -275,7 +275,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             </Thead>
           )}
           <Tbody>
-            {/* eslint-disable-next-line react-memo/require-usememo */}
             <Tr height={`${rowVirtualizer.getTotalSize()}px`}>
               <Td colSpan={columns.length} p={0} position='relative'>
                 {rowVirtualizer.getVirtualItems().map(virtualRow => renderRow(virtualRow))}

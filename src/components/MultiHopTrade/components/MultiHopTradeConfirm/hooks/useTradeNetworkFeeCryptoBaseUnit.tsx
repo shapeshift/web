@@ -21,11 +21,9 @@ import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectConfirmedTradeExecution,
-  selectHopExecutionMetadata,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 export const useTradeNetworkFeeCryptoBaseUnit = ({
@@ -62,24 +60,6 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
   const hop = useMemo(() => getHopByIndex(tradeQuote, hopIndex), [tradeQuote, hopIndex])
   const swapper = useMemo(() => (swapperName ? swappers[swapperName] : undefined), [swapperName])
 
-  const activeTrade = useAppSelector(selectActiveQuote)
-  const activeTradeId = activeTrade?.id
-
-  const hopExecutionMetadataFilter = useMemo(() => {
-    if (!activeTradeId) return undefined
-
-    return {
-      tradeId: activeTradeId,
-      hopIndex,
-    }
-  }, [activeTradeId, hopIndex])
-
-  const hopExecutionMetadata = useAppSelector(state =>
-    hopExecutionMetadataFilter
-      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
-      : undefined,
-  )
-
   const quoteNetworkFeesCryptoBaseUnitQuery = useQuery({
     queryKey: ['quoteNetworkFeesCryptoBaseUnit', tradeQuote],
     refetchInterval: 15_000,
@@ -92,10 +72,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
       sellAssetAccountId &&
       swapper &&
       hop &&
-      isExecutableTradeQuote(tradeQuote) &&
-      // Stop fetching once the Tx is executed for this step
-      hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
-      hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation
+      isExecutableTradeQuote(tradeQuote)
         ? async () => {
             const { accountType, bip44Params } = accountMetadata
             const accountNumber = bip44Params.accountNumber

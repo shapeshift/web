@@ -15,8 +15,8 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import type { Range } from '@tanstack/react-virtual'
-import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual'
+import type { VirtualItem } from '@tanstack/react-virtual'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { truncate } from 'lodash'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
@@ -33,15 +33,22 @@ import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 const ROW_HEIGHT = 70
-const ROW_VERTICAL_PADDING = 8
 
 const arrowUp = <RiArrowRightUpFill />
 const arrowDown = <RiArrowRightDownFill />
 
-const tableSize = { base: 'sm', md: 'md' }
+const tableSizeSx = { base: 'sm', md: 'md' }
+const gridTemplateColumnsSx = {
+  base: '1fr auto',
+  md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
+}
+// Hide virtual list container scrollbar across all major browsers
 const tableContainerSx = {
-  height: '100vh',
-  overflow: 'auto',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+  '-ms-overflow-style': 'none',
+  scrollbarWidth: 'none',
 }
 
 type MarketsTableVirtualizedProps = {
@@ -57,24 +64,22 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
 
     const parentRef = useRef<HTMLDivElement>(null)
-    const rangeRef = useRef({ startIndex: 0, endIndex: 0 })
 
     const rowVirtualizer = useVirtualizer({
-      count: rows.length,
+      // Magic number, but realistically, Ttat's already quite the scroll and API spew
+      // No point to virtualize the whole current ~20k assets list
+      count: Math.min(rows.length, 3000),
       getScrollElement: () => parentRef.current,
-      estimateSize: () => ROW_HEIGHT + ROW_VERTICAL_PADDING,
-      overscan: 5,
-      rangeExtractor: useCallback((range: Range) => {
-        rangeRef.current = range
-        return defaultRangeExtractor(range)
-      }, []),
+      estimateSize: () => ROW_HEIGHT,
+      // Render approximately 1vh (or more if on mobile) of items in advance to avoid blank page flickers when scrolling
+      overscan: 13,
     })
 
     // Only fetch market data for visible rows
-    // Do *NOT* memoize me, as it relies on a ref.
-    const visibleAssetIds = rows
-      .slice(rangeRef.current.startIndex, rangeRef.current.endIndex)
-      .map(row => row.assetId)
+    // Do *NOT* memoize me, as it relies on stable rowVirtualizer
+    const visibleAssetIds = rowVirtualizer
+      .getVirtualItems()
+      .map(virtualItem => rows[virtualItem.index].assetId)
 
     // Only fetch market data for visible rows
     useFetchFiatAssetMarketData(visibleAssetIds)
@@ -126,6 +131,8 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             const colorScheme = change.isPositive() ? 'green' : 'red'
             const icon = change.isPositive() ? arrowUp : arrowDown
             return (
+              // Already memoized
+              // eslint-disable-next-line react-memo/require-usememo
               <Stack alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                 <Amount.Fiat
                   fontWeight='semibold'
@@ -197,9 +204,55 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
 
     const { rows: tableRows } = table.getRowModel()
 
+    const renderRow = useCallback(
+      (virtualRow: VirtualItem) => {
+        const row = tableRows[virtualRow.index]
+        return (
+          <Button
+            variant='ghost'
+            key={row.id}
+            px={0}
+            my={2}
+            width={'full'}
+            maxW='100%'
+            // Already memoized
+            // eslint-disable-next-line react-memo/require-usememo
+            onClick={() => onRowClick(row)}
+            // Need to absolute position rows to make dem work with react-table
+            position='absolute'
+            top={0}
+            left={0}
+            right={0}
+            display='grid'
+            alignItems='center'
+            height={`${ROW_HEIGHT}px`}
+            gridTemplateColumns={gridTemplateColumnsSx}
+            py={2}
+            gap={'4px'}
+            transform={`translateY(${virtualRow.start}px)`}
+          >
+            {row.getVisibleCells().map(cell => {
+              const textAlign = (() => {
+                if (cell.column.id === 'assetId') return 'left'
+                if (cell.column.id === 'price') return 'left'
+                if (cell.column.id === 'sparkline') return 'center'
+                return 'right'
+              })()
+              return (
+                <Td key={cell.id} whiteSpace='nowrap' overflow='hidden' textAlign={textAlign}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Td>
+              )
+            })}
+          </Button>
+        )
+      },
+      [onRowClick, tableRows],
+    )
+
     return (
-      <Box ref={parentRef} style={tableContainerSx}>
-        <Table variant='unstyled' size={tableSize}>
+      <Box ref={parentRef} height='100vh' overflow='auto' sx={tableContainerSx}>
+        <Table variant='unstyled' size={tableSizeSx}>
           {isLargerThanMd && (
             <Thead position='sticky' top={0} bg='background.surface' zIndex={1}>
               {table.getHeaderGroups().map(headerGroup => (
@@ -222,57 +275,10 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             </Thead>
           )}
           <Tbody>
-            <Tr style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-              <Td colSpan={columns.length} style={{ padding: 0, position: 'relative' }}>
-                {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                  const row = tableRows[virtualRow.index]
-                  return (
-                    <Button
-                      variant='ghost'
-                      key={row.id}
-                      my={2}
-                      width={'full'}
-                      maxW='100%'
-                      onClick={() => onRowClick(row)}
-                      position='absolute'
-                      top={0}
-                      left={0}
-                      right={0}
-                      display='grid'
-                      alignItems='center'
-                      height={`${ROW_HEIGHT}px`}
-                      gridTemplateColumns={{
-                        base: '1fr auto',
-                        md: '300px 140px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) 100px',
-                      }}
-                      py={2}
-                      sx={{
-                        transform: `translateY(${virtualRow.start}px)`,
-                        gap: '4px',
-                      }}
-                    >
-                      {row.getVisibleCells().map(cell => {
-                        const textAlign = (() => {
-                          if (cell.column.id === 'assetId') return 'left'
-                          if (cell.column.id === 'sparkline') return 'center'
-                          return 'right'
-                        })()
-                        return (
-                          <Td
-                            key={cell.id}
-                            px={4}
-                            whiteSpace='nowrap'
-                            overflow='hidden'
-                            textOverflow='ellipsis'
-                            textAlign={textAlign}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </Td>
-                        )
-                      })}
-                    </Button>
-                  )
-                })}
+            {/* eslint-disable-next-line react-memo/require-usememo */}
+            <Tr height={`${rowVirtualizer.getTotalSize()}px`}>
+              <Td colSpan={columns.length} p={0} position='relative'>
+                {rowVirtualizer.getVirtualItems().map(virtualRow => renderRow(virtualRow))}
               </Td>
             </Tr>
           </Tbody>

@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from '@shapeshiftoss/utils'
+import { assertUnreachable, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -297,6 +297,15 @@ export const getQuoteOrRate = async (
         singleQuoteResponse.boostQuote.egressAmountNative!,
       )
 
+      // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
+      // prorated to the buy asset price to determine price impact
+      const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
+        bnOrZero(singleQuoteResponse.boostQuote.ingressAmount!).times(
+          singleQuoteResponse.estimatedPrice!,
+        ),
+        buyAsset.precision,
+      )
+
       const boostTradeRateOrQuote = {
         id: uuid(),
         rate: boostRate,
@@ -310,7 +319,7 @@ export const getQuoteOrRate = async (
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
         steps: [
           {
-            buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+            buyAmountBeforeFeesCryptoBaseUnit,
             buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
             sellAmountIncludingProtocolFeesCryptoBaseUnit:
               singleQuoteResponse.boostQuote.ingressAmountNative!,
@@ -349,6 +358,13 @@ export const getQuoteOrRate = async (
       singleQuoteResponse.egressAmountNative!,
     )
 
+    // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
+    // prorated to the buy asset price to determine price impact
+    const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
+      bnOrZero(singleQuoteResponse.ingressAmount!).times(singleQuoteResponse.estimatedPrice!),
+      buyAsset.precision,
+    )
+
     const tradeRateOrQuote = {
       id: uuid(),
       rate,
@@ -362,7 +378,7 @@ export const getQuoteOrRate = async (
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
       steps: [
         {
-          buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
+          buyAmountBeforeFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
           feeData: {

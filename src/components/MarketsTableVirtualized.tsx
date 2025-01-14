@@ -278,7 +278,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       <Box ref={parentRef} height='100vh' overflow='auto' sx={tableContainerSx}>
         <Table variant='unstyled' size={tableSizeSx}>
           {isLargerThanMd && (
-            <Thead position='sticky' top={0} bg='background.surface' zIndex={1}>
+            <Thead position='sticky' top={0} bg='background.surface.base' zIndex={1}>
               <Tr sx={headerGridSx}>
                 {table.getHeaderGroups().map(headerGroup =>
                   headerGroup.headers.map(header => {

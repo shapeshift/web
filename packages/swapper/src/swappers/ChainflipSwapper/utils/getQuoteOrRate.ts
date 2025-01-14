@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, bnOrZero, convertPrecision } from '@shapeshiftoss/utils'
+import { assertUnreachable, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -297,6 +297,13 @@ export const getQuoteOrRate = async (
         singleQuoteResponse.boostQuote.egressAmountNative!,
       )
 
+      const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
+        bnOrZero(singleQuoteResponse.boostQuote.ingressAmount!).times(
+          singleQuoteResponse.estimatedPrice!,
+        ),
+        buyAsset.precision,
+      )
+
       const boostTradeRateOrQuote = {
         id: uuid(),
         rate: boostRate,
@@ -310,7 +317,7 @@ export const getQuoteOrRate = async (
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
         steps: [
           {
-            buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+            buyAmountBeforeFeesCryptoBaseUnit,
             buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
             sellAmountIncludingProtocolFeesCryptoBaseUnit:
               singleQuoteResponse.boostQuote.ingressAmountNative!,
@@ -349,30 +356,10 @@ export const getQuoteOrRate = async (
       singleQuoteResponse.egressAmountNative!,
     )
 
-    const buyAmountBeforeFeesCryptoBaseUnit = (() => {
-      let amount = bnOrZero(singleQuoteResponse.egressAmountNative!)
-
-      // Add back ALL protocol fees since they all affect the final buy amount
-      const protocolFees = getProtocolFees(singleQuoteResponse)
-      Object.values(protocolFees).forEach(fee => {
-        if (!fee) return
-
-        const feeInBuyAsset =
-          fee.asset.assetId === buyAsset.assetId
-            ? fee.amountCryptoBaseUnit
-            : convertPrecision({
-                value: fee.amountCryptoBaseUnit,
-                inputExponent: fee.asset.precision,
-                outputExponent: buyAsset.precision,
-              }).toFixed()
-
-        amount = amount.plus(feeInBuyAsset)
-      })
-
-      return amount.toFixed()
-    })()
-
-    console.log({ singleQuoteResponse, buyAmountBeforeFeesCryptoBaseUnit })
+    const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
+      bnOrZero(singleQuoteResponse.ingressAmount!).times(singleQuoteResponse.estimatedPrice!),
+      buyAsset.precision,
+    )
 
     const tradeRateOrQuote = {
       id: uuid(),

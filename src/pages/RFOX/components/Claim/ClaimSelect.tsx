@@ -64,8 +64,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
 
-  console.log({ stakingAssetAccountId })
-
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],

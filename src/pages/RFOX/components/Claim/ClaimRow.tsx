@@ -37,8 +37,6 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const { stakingAssetAccountId } = useRFOXContext()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
-  console.log('ClaimRow', { stakingAssetAccountId })
-
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const amountCryptoPrecision = fromBaseUnit(

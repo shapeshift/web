@@ -95,10 +95,10 @@ export const rFOXStakingUserDataResolver = async ({
   const stakingAssetAccountAddress = getAddress(fromAccountId(accountId).account)
   const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-  const rfoxStakingInfo = await getStakingInfoQueryFn(
+  const rfoxStakingInfo = await getStakingInfoQueryFn({
     stakingAssetAccountAddress,
-    foxOnArbitrumOneAssetId,
-  )()
+    stakingAssetId: foxOnArbitrumOneAssetId,
+  })
 
   const stakedAmountCryptoBaseUnit = selectStakingBalance(rfoxStakingInfo)
 

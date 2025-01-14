@@ -25,10 +25,13 @@ type UseStakingInfoQueryProps<SelectData = AbiStakingInfo> = {
   select?: (stakingInfo: AbiStakingInfo) => SelectData
 }
 
-export const getStakingInfoQueryKey = (
-  stakingAssetAccountAddress: string | undefined,
-  stakingAssetId: AssetId | undefined,
-): StakingInfoQueryKey => {
+export const getStakingInfoQueryKey = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}: {
+  stakingAssetAccountAddress: string | undefined
+  stakingAssetId: AssetId | undefined
+}): StakingInfoQueryKey => {
   return [
     'stakingInfo',
     {
@@ -40,12 +43,14 @@ export const getStakingInfoQueryKey = (
   ]
 }
 
-export const getStakingInfoQueryFn = (
-  stakingAssetAccountAddress: string,
-  stakingAssetId: AssetId,
-) => {
-  return () =>
-    getRfoxContract(stakingAssetId).read.stakingInfo([getAddress(stakingAssetAccountAddress)])
+export const getStakingInfoQueryFn = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}: {
+  stakingAssetAccountAddress: string
+  stakingAssetId: AssetId
+}) => {
+  return getRfoxContract(stakingAssetId).read.stakingInfo([getAddress(stakingAssetAccountAddress)])
 }
 
 export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
@@ -54,21 +59,19 @@ export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
   select,
 }: UseStakingInfoQueryProps<SelectData>) => {
   const queryKey: StakingInfoQueryKey = useMemo(
-    () => getStakingInfoQueryKey(stakingAssetAccountAddress, stakingAssetId),
+    () => getStakingInfoQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
     [stakingAssetAccountAddress, stakingAssetId],
   )
 
   const queryFn = useMemo(() => {
     return stakingAssetAccountAddress && stakingAssetId
-      ? getStakingInfoQueryFn(stakingAssetAccountAddress, stakingAssetId)
+      ? () => getStakingInfoQueryFn({ stakingAssetAccountAddress, stakingAssetId })
       : skipToken
   }, [stakingAssetAccountAddress, stakingAssetId])
 
-  const stakingInfoQuery = useQuery({
+  return useQuery({
     queryKey,
     queryFn,
     select,
   })
-
-  return { ...stakingInfoQuery, queryKey }
 }

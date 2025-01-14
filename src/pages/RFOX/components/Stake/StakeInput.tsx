@@ -5,9 +5,9 @@ import {
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
-  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -29,6 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { RFOX_STAKING_ASSET_IDS } from 'pages/RFOX/constants'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
@@ -36,6 +37,7 @@ import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
+  selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
@@ -77,7 +79,6 @@ const defaultFormValues = {
 }
 
 export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
-  stakingAssetId = foxOnArbitrumOneAssetId,
   l1AssetId = foxAssetId,
   headerComponent,
   onRuneAddressChange,
@@ -85,38 +86,50 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const assetIds = useMemo(
-    () => [stakingAssetId, l1AssetId, uniV2EthFoxArbitrumAssetId],
-    [l1AssetId, stakingAssetId],
-  )
-  const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
-    useRFOXContext()
-
-  const stakingAssetIdOrLpAssetId = useMemo(() => {
-    if (selectedAssetId === uniV2EthFoxArbitrumAssetId) return uniV2EthFoxArbitrumAssetId
-
-    return selectedAssetId
-  }, [selectedAssetId])
-
-  const { data: currentRuneAddress } = useStakingInfoQuery({
-    stakingAssetAccountAddress: stakingAssetAccountId
-      ? fromAccountId(stakingAssetAccountId).account
-      : undefined,
-    stakingAssetId: stakingAssetIdOrLpAssetId,
-    select: selectRuneAddress,
-  })
-
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
-  const isBridgeRequired =
-    stakingAssetId !== selectedAssetId && uniV2EthFoxArbitrumAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
   const {
     state: { isConnected, wallet },
   } = useWallet()
+
+  const stakingAssetIds = useMemo(() => RFOX_STAKING_ASSET_IDS.concat(l1AssetId), [l1AssetId])
+
+  const assets = useAppSelector(selectAssets)
+
+  const stakingAssets = useMemo(() => {
+    return stakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
+  }, [assets, stakingAssetIds])
+
+  const {
+    stakingAssetId: selectedStakingAssetId,
+    setStakingAssetId: setSelectedStakingAssetId,
+    selectedAssetAccountId,
+    stakingAssetAccountId,
+  } = useRFOXContext()
+
+  const stakingAssetId = useMemo(() => {
+    if (selectedStakingAssetId === foxAssetId) return foxOnArbitrumOneAssetId
+    return selectedStakingAssetId
+  }, [selectedStakingAssetId])
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
+
+  const { data: currentRuneAddress } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    stakingAssetId,
+    select: selectRuneAddress,
+  })
+
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+
+  const isBridgeRequired = selectedStakingAssetId === l1AssetId
+
   const isChainSupportedByWallet = useWalletSupportsChain(
-    fromAssetId(selectedAssetId).chainId,
+    fromAssetId(selectedStakingAssetId).chainId,
     wallet,
   )
 
@@ -133,26 +146,40 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setValue,
   } = methods
 
-  const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const stakingAssetOrLpAsset = useAppSelector(state =>
-    selectAssetById(state, stakingAssetIdOrLpAssetId),
+  const selectedStakingAsset = useAppSelector(state =>
+    selectAssetById(state, selectedStakingAssetId),
+  )
+  const selectedStakingAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, selectedStakingAssetId),
+  )
+  const selectedStakingAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: selectedAssetAccountId ?? '',
+      assetId: selectedStakingAssetId,
+    }),
+    [selectedAssetAccountId, selectedStakingAssetId],
+  )
+  const selectedStakingAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, selectedStakingAssetBalanceFilter),
+  )
+  const selectedStakingAssetFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(selectedStakingAssetId).chainId),
   )
 
-  const l1Asset = useAppSelector(state => selectAssetById(state, l1AssetId))
-  const foxEthLpArbitrumAsset = useAppSelector(state =>
-    selectAssetById(state, uniV2EthFoxArbitrumAssetId),
-  )
-  const selectedAssetFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(selectedAssetId).chainId),
-  )
   const stakingAssetFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(stakingAssetIdOrLpAssetId).chainId),
+    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
+  )
+  const stakingAssetFeeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: stakingAssetFeeAsset?.assetId,
+    }),
+    [stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
+  )
+  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
-  const selectedAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, selectedAsset?.assetId ?? ''),
-  )
   const [showWarning, setShowWarning] = useState(false)
   const [collapseIn, setCollapseIn] = useState(false)
   const percentOptions = useMemo(() => [1], [])
@@ -167,8 +194,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, stakingAssetOrLpAsset?.precision ?? 0),
-    [amountCryptoPrecision, stakingAssetOrLpAsset?.precision],
+    () => toBaseUnit(amountCryptoPrecision, selectedStakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, selectedStakingAsset?.precision],
   )
 
   const [isFiat, handleToggleIsFiat] = useToggle(false)
@@ -179,42 +206,35 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   useEffect(() => {
-    // hydrate FOX.ARB market data in case the user doesn't hold it
-    dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetIdOrLpAssetId))
-    dispatch(marketApi.endpoints.findByAssetId.initiate(uniV2EthFoxArbitrumAssetId))
-  }, [dispatch, selectedAssetId, stakingAssetIdOrLpAssetId])
+    // hydrate market data in case the user doesn't hold it
+    stakingAssetIds.forEach(stakingAssetId => {
+      dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
+    })
+  }, [dispatch, stakingAssetIds])
+
   useEffect(() => {
     // Only set this once, never collapse out
     if (collapseIn) return
     if (isValidStakingAmount) setCollapseIn(true)
   }, [collapseIn, isValidStakingAmount])
 
-  const selectedAssetBalanceFilter = useMemo(
-    () => ({
-      accountId: selectedAssetAccountId ?? '',
-      assetId: selectedAssetId,
-    }),
-    [selectedAssetAccountId, selectedAssetId],
-  )
-  const selectedAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, selectedAssetBalanceFilter),
-  )
-
-  const selectedAssetFiatBalance = bnOrZero(selectedAssetBalanceCryptoPrecision)
-    .times(selectedAssetMarketData.price)
-    .toString()
-
   const validateHasEnoughBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).lte(0)) return true
 
+      const selectedStakingAssetFiatBalance = bnOrZero(selectedStakingAssetBalanceCryptoPrecision)
+        .times(selectedStakingAssetMarketData.price)
+        .toString()
+
       const hasEnoughBalance = bnOrZero(input).lte(
-        bnOrZero(isFiat ? selectedAssetFiatBalance : selectedAssetBalanceCryptoPrecision),
+        bnOrZero(
+          isFiat ? selectedStakingAssetFiatBalance : selectedStakingAssetBalanceCryptoPrecision,
+        ),
       )
 
       return hasEnoughBalance
     },
-    [isFiat, selectedAssetBalanceCryptoPrecision, selectedAssetFiatBalance],
+    [isFiat, selectedStakingAssetBalanceCryptoPrecision, selectedStakingAssetMarketData],
   )
 
   const hasEnoughBalance = useMemo(
@@ -238,18 +258,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   } = useRfoxStake({
     amountCryptoBaseUnit,
     runeAddress: currentRuneAddress || runeAddress,
-    stakingAssetId: stakingAssetIdOrLpAssetId,
+    stakingAssetId,
     stakingAssetAccountId,
     hasEnoughBalance,
     // Not required at this stage just yet, we're only estimating fees
     setStakeTxid: undefined,
     methods,
   })
-
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
 
   const { data: cooldownPeriod } = useCooldownPeriodQuery()
 
@@ -270,8 +285,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         selectedAssetAccountId &&
         stakingAssetAccountId &&
         (runeAddress || currentRuneAddress) &&
-        selectedAsset &&
-        stakingAssetOrLpAsset &&
+        selectedStakingAsset &&
         isValidStakingAmount
       )
     )
@@ -279,10 +293,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
     const _confirmedQuote = {
       stakingAssetAccountId,
-      stakingAssetId: stakingAssetIdOrLpAssetId,
+      stakingAssetId,
       stakingAmountCryptoBaseUnit: toBaseUnit(
         amountCryptoPrecision,
-        stakingAssetOrLpAsset.precision,
+        selectedStakingAsset.precision,
       ),
       // typescript is borked, one of them is defined because of the early return
       runeAddress: currentRuneAddress || runeAddress || '',
@@ -292,9 +306,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
     if (isBridgeRequired) {
       const bridgeQuote: RfoxBridgeQuote = {
-        sellAssetId: selectedAssetId,
-        buyAssetId: stakingAssetIdOrLpAssetId,
-        bridgeAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedAsset.precision ?? 0),
+        sellAssetId: selectedStakingAssetId,
+        buyAssetId: stakingAssetId,
+        bridgeAmountCryptoBaseUnit: toBaseUnit(
+          amountCryptoPrecision,
+          selectedStakingAsset.precision,
+        ),
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
@@ -306,56 +323,43 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectedAssetAccountId,
     stakingAssetAccountId,
     runeAddress,
-    selectedAsset,
-    stakingAssetOrLpAsset,
+    selectedStakingAsset,
+    stakingAssetId,
+    selectedStakingAssetId,
     isValidStakingAmount,
-    stakingAssetIdOrLpAssetId,
     amountCryptoPrecision,
     setConfirmedQuote,
     isBridgeRequired,
     history,
-    selectedAssetId,
     currentRuneAddress,
   ])
+
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleStakingAssetClick = useCallback(() => {
-    if (!(stakingAsset && l1Asset && foxEthLpArbitrumAsset)) return
-
     buyAssetSearch.open({
-      onAssetClick: asset => setSelectedAssetId(asset.assetId),
+      onAssetClick: asset => setSelectedStakingAssetId(asset.assetId),
       title: 'common.selectAsset',
-      assets: [stakingAsset, l1Asset, foxEthLpArbitrumAsset],
+      assets: stakingAssets,
     })
-  }, [stakingAsset, l1Asset, foxEthLpArbitrumAsset, buyAssetSearch, setSelectedAssetId])
+  }, [stakingAssets, buyAssetSearch, setSelectedStakingAssetId])
 
   const handleAssetChange = useCallback(
-    (asset: Asset) => setSelectedAssetId(asset.assetId),
-    [setSelectedAssetId],
+    (asset: Asset) => setSelectedStakingAssetId(asset.assetId),
+    [setSelectedStakingAssetId],
   )
 
   const assetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        assetId={selectedAsset?.assetId}
+        assetId={selectedStakingAsset?.assetId}
         onAssetClick={handleStakingAssetClick}
         onAssetChange={handleAssetChange}
-        assetIds={assetIds}
+        assetIds={stakingAssetIds}
         onlyConnectedChains={true}
       />
     )
-  }, [selectedAsset?.assetId, handleStakingAssetClick, handleAssetChange, assetIds])
-
-  const stakingAssetFeeAssetBalanceFilter = useMemo(
-    () => ({
-      accountId: stakingAssetAccountId ?? '',
-      assetId: stakingAssetFeeAsset?.assetId,
-    }),
-    [stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
-  )
-  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
-  )
+  }, [selectedStakingAsset?.assetId, handleStakingAssetClick, handleAssetChange, stakingAssetIds])
 
   const validateHasEnoughStakingAssetFeeBalance = useCallback(
     (input: string) => {
@@ -367,22 +371,29 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const fees = approvalFees || stakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        toBaseUnit(stakingAssetFeeAssetBalanceCryptoPrecision, stakingAssetFeeAsset.precision),
+        toBaseUnit(
+          stakingAssetFeeAssetBalanceCryptoPrecision,
+          stakingAssetFeeAsset.precision,
+        ),
       )
 
       if (!hasEnoughFeeBalance) return false
 
       return true
     },
-    [stakingAssetFeeAsset, stakingAssetFeeAssetBalanceCryptoPrecision, approvalFees, stakeFees],
+    [
+      stakingAssetFeeAsset,
+      stakingAssetFeeAssetBalanceCryptoPrecision,
+      approvalFees,
+      stakeFees,
+    ],
   )
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
   useEffect(() => {
     trigger('amountFieldInput')
   }, [
     approvalFees,
-    selectedAssetFeeAsset?.precision,
-    selectedAssetFeeAsset?.symbol,
+    stakingAssetFeeAsset,
     stakingAssetFeeAssetBalanceCryptoPrecision,
     amountCryptoPrecision,
     amountUserCurrency,
@@ -405,8 +416,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       },
     }
   }, [
-    stakingAssetFeeAsset?.chainId,
-    stakingAssetFeeAsset?.symbol,
+    stakingAssetFeeAsset,
     translate,
     validateHasEnoughBalance,
     validateHasEnoughStakingAssetFeeBalance,
@@ -415,25 +425,27 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const warningAcknowledgementMessage = useMemo(() => {
     if (!isBridgeRequired)
       return translate('RFOX.stakeWarning', {
+        symbol: selectedStakingAsset?.symbol,
         cooldownPeriod,
       })
 
     return translate('RFOX.bridgeCta', {
-      assetSymbol: selectedAsset?.symbol,
-      originNetwork: selectedAssetFeeAsset?.networkName,
+      assetSymbol: selectedStakingAsset?.symbol,
+      originNetwork: selectedStakingAssetFeeAsset?.networkName,
       destinationNetwork: stakingAssetFeeAsset?.networkName,
     })
   }, [
-    selectedAsset?.symbol,
+    selectedStakingAsset?.symbol,
     cooldownPeriod,
-    selectedAssetFeeAsset?.networkName,
     isBridgeRequired,
-    stakingAssetFeeAsset?.networkName,
+    stakingAssetFeeAsset,
+    selectedStakingAsset,
+    selectedStakingAssetFeeAsset,
     translate,
   ])
 
   const { price: assetUserCurrencyRate } = useAppSelector(state =>
-    selectMarketDataByFilter(state, { assetId: stakingAssetIdOrLpAssetId }),
+    selectMarketDataByFilter(state, { assetId: selectedStakingAssetId }),
   )
 
   // Consumed by onMaxClick
@@ -473,7 +485,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     isAccountsMetadataLoading,
   ])
 
-  if (!selectedAsset) return null
+  if (!selectedStakingAsset) return null
 
   if (!isConnected)
     return (
@@ -490,7 +502,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       <SlideTransition>
         <Stack>{headerComponent}</Stack>
         <CardBody py={12}>
-          <ChainNotSupported chainId={stakingAsset?.chainId} />
+          <ChainNotSupported chainId={selectedStakingAsset?.chainId} />
         </CardBody>
       </SlideTransition>
     )
@@ -509,10 +521,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           {headerComponent}
           <TradeAssetInput
             amountFieldInputRules={amountFieldInputRules}
-            assetId={selectedAsset?.assetId}
+            assetId={selectedStakingAsset?.assetId}
             accountId={selectedAssetAccountId}
-            assetSymbol={selectedAsset?.symbol ?? ''}
-            assetIcon={selectedAsset?.icon ?? ''}
+            assetSymbol={selectedStakingAsset?.symbol ?? ''}
+            assetIcon={selectedStakingAsset?.icon ?? ''}
             percentOptions={percentOptions}
             isAccountSelectionDisabled
             // Since we disable AccountId selection at asset-selection in profit of top-level page account dropdown,
@@ -539,7 +551,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           <Collapse in={collapseIn}>
             {stakingAssetAccountId && (
               <StakeSummary
-                stakingAssetId={stakingAssetIdOrLpAssetId}
+                stakingAssetId={stakingAssetId}
                 stakingAssetAccountId={stakingAssetAccountId}
                 stakingAmountCryptoPrecision={amountCryptoPrecision}
               />

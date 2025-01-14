@@ -1,15 +1,11 @@
-import {
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-  uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { getStakingBalanceOfQueryKey } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { getStakingInfoQueryKey } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
@@ -89,46 +85,24 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   const queryClient = useQueryClient()
 
-  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
-    stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-    stakingAssetId: confirmedQuote?.stakingAssetId,
-  })
-
-  const { queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
-    stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-    stakingAssetId: uniV2EthFoxArbitrumAssetId,
-  })
-
-  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-    stakingAssetId,
-  })
-
-  const { queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-    stakingAssetId: uniV2EthFoxArbitrumAssetId,
-  })
-
   const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey })
-  }, [
-    lpNewContractBalanceOfCryptoBaseUnitQueryKey,
-    newContractBalanceOfCryptoBaseUnitQueryKey,
-    queryClient,
-    userStakingBalanceOfCryptoBaseUnitQueryKey,
-    lpUserStakingBalanceOfCryptoBaseUnitQueryKey,
-  ])
+    await queryClient.invalidateQueries({
+      queryKey: getStakingInfoQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
+          ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+          : undefined,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getStakingBalanceOfQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
+          ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+          : undefined,
+      }),
+    })
+  }, [confirmedQuote, queryClient])
 
   const renderStakeInput = useCallback(() => {
     return (

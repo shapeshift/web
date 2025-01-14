@@ -42,6 +42,9 @@ export const checkOutputTxConfirmations = async (
       case ThorchainChain.GAIA: {
         return config.REACT_APP_UNCHAINED_COSMOS_HTTP_URL
       }
+      case ThorchainChain.BASE: {
+        return config.REACT_APP_UNCHAINED_BASE_HTTP_URL
+      }
       case ThorchainChain.BSC:
         throw Error(`${latestOutTx.chain} not supported`)
       default:

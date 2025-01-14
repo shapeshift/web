@@ -31,10 +31,8 @@ export const YouCouldHaveSaved = ({ affiliateFeeUserCurrency }: YouSavedProps) =
   const handleClick = useCallback(() => {
     if (!foxAsset) return
 
-    // Set fox as the buy asset
     dispatch(tradeInput.actions.setBuyAsset(foxAsset))
 
-    // Redirect to trade input page
     history.push(TradeRoutePaths.Input)
   }, [dispatch, foxAsset, history])
 

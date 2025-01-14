@@ -666,7 +666,6 @@ export const thorchainApi: SwapperApi = {
       }
 
       const message = getLatestThorTxStatusMessage(txStatusData, hasOutboundTx)
-
       return {
         buyTxHash,
         status: TxStatus.Pending,

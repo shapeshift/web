@@ -1,6 +1,8 @@
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
+  IconButton,
   Modal,
   ModalCloseButton,
   ModalContent,
@@ -17,6 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
+import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
 
@@ -25,6 +28,8 @@ const containerWidth = {
   base: 'full',
   md: '900px',
 }
+
+const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
@@ -114,6 +119,17 @@ export const NewWalletViewsSwitch = () => {
       })
     })
   }, [toast, translate, wallet])
+
+  const handleBack = useCallback(async () => {
+    history.goBack()
+    // If we're back at the select wallet modal, remove the initial route
+    // otherwise clicking the button for the same wallet doesn't do anything
+    const { pathname } = history.location
+    if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
+      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+    }
+    await cancelWalletRequests()
+  }, [cancelWalletRequests, dispatch, history])
 
   const onClose = useCallback(async () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
@@ -210,9 +226,33 @@ export const NewWalletViewsSwitch = () => {
                 <Route path='*'>{!isMobile ? sections : null}</Route>
               </Switch>
               <Switch>
-                {/* Only display side panel after a wallet has been selected on mobile */}
+                {/* Only display side panel after a wallet has been selected on mobile 
+                    Else, display a back button instead
+                */}
                 <Route exact path='/'>
-                  {!isMobile ? body : null}
+                  {!isMobile ? (
+                    body
+                  ) : (
+                    <Box
+                      position='absolute'
+                      left={3}
+                      top={3}
+                      zIndex={1}
+                      bg='whiteAlpha.100'
+                      borderRadius='full'
+                    >
+                      <IconButton
+                        icon={arrowBackIcon}
+                        aria-label={translate('common.back')}
+                        variant='ghost'
+                        fontSize='xl'
+                        size='sm'
+                        isRound
+                        position='static'
+                        onClick={handleBack}
+                      />
+                    </Box>
+                  )}
                 </Route>
                 {/* And for all non-root routes, no matter the viewport */}
                 <Route path='*'>{body}</Route>

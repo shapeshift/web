@@ -141,6 +141,7 @@ export const mockStore: ReduxState = {
       ThorFreeFees: false,
       JupiterSwap: false,
       NewTradeFlow: false,
+      NewWalletFlow: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

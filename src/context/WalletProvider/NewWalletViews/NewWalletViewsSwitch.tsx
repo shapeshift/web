@@ -165,10 +165,6 @@ export const NewWalletViewsSwitch = () => {
 
   const renderSelectModal = useCallback(() => <SelectModal />, [])
 
-  const handleProviderClick = useCallback((provider: string) => {
-    setSelectedProvider(provider)
-  }, [])
-
   return (
     <>
       <Modal
@@ -196,7 +192,7 @@ export const NewWalletViewsSwitch = () => {
               <Box w='300px' p={6}>
                 <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
                 <InstalledWalletsSection
-                  selectedWallet={selectedProvider}
+                  selectedWallet={modalType}
                   onSelectWallet={handleProviderClick}
                 />
                 {/* TODO(gomes): more section */}

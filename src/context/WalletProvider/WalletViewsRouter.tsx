@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { NewWalletViewsSwitch } from './NewWalletViewsSwitch'
+import { NewWalletViewsSwitch } from './NewWalletViews/NewWalletViewsSwitch'
 import { WalletViewsSwitch } from './WalletViewsSwitch'
 
 export const WalletViewsRouter = () => {

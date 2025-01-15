@@ -1,89 +1,35 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Flex,
-  IconButton,
-  Image,
   Modal,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
-  Stack,
-  Text as CText,
   useToast,
 } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
-import uniqBy from 'lodash/uniqBy'
-import { useCallback, useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile as isMobileApp } from 'lib/globals'
-import { staticMipdProviders, useMipdProviders } from 'lib/mipd'
 
-import { SUPPORTED_WALLETS } from './config'
-import { KeyManager } from './KeyManager'
-import { SelectModal } from './SelectModal'
-import { NativeWalletRoutes } from './types'
+import { SUPPORTED_WALLETS } from '../config'
+import { KeyManager } from '../KeyManager'
+import { SelectModal } from '../SelectModal'
+import { NativeWalletRoutes } from '../types'
+import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { MipdBody } from './wallets/mipd/MipdBody'
 
 const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
-const InstalledWalletsSection = () => {
-  const detectedMipdProviders = useMipdProviders()
-
-  const supportedStaticProviders = useMemo(() => {
-    if (isMobileApp || isMobile) return []
-    return staticMipdProviders
-  }, [])
-
-  const mipdProviders = useMemo(
-    () => uniqBy(detectedMipdProviders.concat(supportedStaticProviders), 'info.rdns'),
-    [detectedMipdProviders, supportedStaticProviders],
-  )
-
-  const filteredProviders = useMemo(
-    () =>
-      mipdProviders.filter(
-        provider =>
-          provider.info.rdns !== 'app.keplr' &&
-          provider.info.rdns !== 'app.phantom' &&
-          provider.info.rdns !== 'com.coinbase.wallet',
-      ),
-    [mipdProviders],
-  )
-
-  return (
-    <Stack spacing={2} my={6}>
-      <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='Installed' />
-      {filteredProviders.map(provider => (
-        <Box
-          as={Button}
-          key={provider.info.rdns}
-          variant='ghost'
-          px={2}
-          ml={-2}
-          py={6}
-          borderRadius='md'
-          width='full'
-        >
-          <Flex alignItems='center' width='full'>
-            <Image src={provider.info.icon} boxSize='24px' mr={3} />
-            <CText>{provider.info.name}</CText>
-          </Flex>
-        </Box>
-      ))}
-    </Stack>
-  )
-}
-
 export const NewWalletViewsSwitch = () => {
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const history = useHistory()
   const location = useLocation()
   const toast = useToast()
@@ -96,6 +42,7 @@ export const NewWalletViewsSwitch = () => {
       showBackButton,
       initialRoute,
       modalType,
+      isMipdProvider,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },
@@ -183,6 +130,10 @@ export const NewWalletViewsSwitch = () => {
 
   const renderSelectModal = useCallback(() => <SelectModal />, [])
 
+  const handleProviderClick = useCallback((provider: string) => {
+    setSelectedProvider(provider)
+  }, [])
+
   return (
     <>
       <Modal
@@ -207,15 +158,25 @@ export const NewWalletViewsSwitch = () => {
             </Box>
 
             <Flex minH='600px' w='900px'>
-              {/* Left container with wallet selection etc - todo extract me into component */}
-
               <Box w='300px' p={6}>
                 <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-                <InstalledWalletsSection />
+                <InstalledWalletsSection
+                  selectedWallet={selectedProvider}
+                  onSelectWallet={handleProviderClick}
+                />
                 {/* TODO(gomes): more section */}
               </Box>
-              {/* Right container with actual functionality - todo implement me */}
-              <Box flex={1} bg='whiteAlpha.50' p={6}></Box>
+              <Box flex={1} bg='whiteAlpha.50' p={6}>
+                {selectedProvider && isMipdProvider && (
+                  <MipdBody
+                    rdns={selectedProvider}
+                    setLoading={setLoading}
+                    setError={setError}
+                    loading={loading}
+                    error={error}
+                  />
+                )}
+              </Box>
             </Flex>
           </Box>
         </ModalContent>

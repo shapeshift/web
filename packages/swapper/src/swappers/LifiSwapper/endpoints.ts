@@ -287,6 +287,8 @@ export const lifiApi: SwapperApi = {
 
     const statusResponse = await response.json()
 
+    const receiving: ExtendedTransactionInfo | undefined = statusResponse.receiving
+
     const status = (() => {
       switch (statusResponse.status) {
         case 'DONE':
@@ -301,8 +303,9 @@ export const lifiApi: SwapperApi = {
     })()
 
     return {
-      status,
-      buyTxHash: (statusResponse.receiving as ExtendedTransactionInfo)?.txHash,
+      // We have an out Tx hash (either same or cross-chain) for this step, so we consider the Tx (effectively, the step) confirmed
+      status: receiving?.txHash ? TxStatus.Confirmed : status,
+      buyTxHash: receiving?.txHash,
       message: statusResponse.substatusMessage,
     }
   },

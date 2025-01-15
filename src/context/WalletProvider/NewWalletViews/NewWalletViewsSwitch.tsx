@@ -191,10 +191,7 @@ export const NewWalletViewsSwitch = () => {
             <Flex minH='600px' w='900px'>
               <Box w='300px' p={6}>
                 <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-                <InstalledWalletsSection
-                  selectedWallet={modalType}
-                  onSelectWallet={handleProviderClick}
-                />
+                <InstalledWalletsSection selectedWallet={modalType} />
                 {/* TODO(gomes): more section */}
               </Box>
               <Box flex={1} bg='whiteAlpha.50' p={6}>

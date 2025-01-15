@@ -7,7 +7,7 @@ import { Text } from 'components/Text'
 import type { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { staticMipdProviders, useMipdProviders } from 'lib/mipd'
+import { useMipdProviders } from 'lib/mipd'
 
 const MipdProviderSelectItem = ({
   provider,
@@ -50,7 +50,9 @@ export const InstalledWalletsSection = ({ selectedWallet }: { selectedWallet: st
 
   const supportedStaticProviders = useMemo(() => {
     if (isMobileApp || isMobile) return []
-    return staticMipdProviders
+    // TODO(gomes): This says installed, so we only display... installed. Static ones (MM, Rabby, XDEFI) will either be displayed as their own section (EVM wallets/others), or
+    // not at all, TBD with product
+    return []
   }, [])
 
   const mipdProviders = useMemo(

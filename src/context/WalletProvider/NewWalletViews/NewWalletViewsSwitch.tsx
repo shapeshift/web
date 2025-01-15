@@ -23,6 +23,7 @@ import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
 import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
+import { NativeStart } from './wallets/native/NativeStart'
 
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
@@ -49,6 +50,8 @@ const RightPanelContent = ({
   const {
     state: { modalType, isMipdProvider },
   } = useWallet()
+
+  if (!modalType) return <NativeStart />
 
   if (isMipdProvider && modalType) {
     return (

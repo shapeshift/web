@@ -1,5 +1,5 @@
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import { FoxIcon } from 'components/Icons/FoxIcon' // Ensure the import path is correct
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 type NativeConfigType = Omit<SupportedWalletInfo<typeof NativeAdapter>, 'routes'>

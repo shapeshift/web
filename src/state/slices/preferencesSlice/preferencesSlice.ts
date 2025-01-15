@@ -74,6 +74,7 @@ export type FeatureFlags = {
   ThorFreeFees: boolean
   JupiterSwap: boolean
   NewTradeFlow: boolean
+  NewWalletFlow: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -171,6 +172,7 @@ const initialState: Preferences = {
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
     NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
+    NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

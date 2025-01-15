@@ -103,7 +103,7 @@ export const AssetCell = ({
           {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' {...pairProps} />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='md' pairProps={pairProps} />
+            <AssetIcon assetId={asset.assetId} size='md' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1} width='50%'>

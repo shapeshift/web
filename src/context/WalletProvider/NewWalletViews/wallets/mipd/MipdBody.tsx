@@ -1,13 +1,4 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  Flex,
-  Image,
-  Spinner,
-  Text as CText,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Flex, Image, Spinner } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'

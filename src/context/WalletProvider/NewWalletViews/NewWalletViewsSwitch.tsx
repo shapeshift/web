@@ -193,6 +193,39 @@ export const NewWalletViewsSwitch = () => {
     [error, isLoading],
   )
 
+  const maybeMobileBackButton = useMemo(() => {
+    if (!isMobile) return
+    return (
+      <Switch>
+        <Route exact path='/' />
+        <Route path='*'>
+          {/* Precisely what it says on the var name - adds a back button for mobile only, and for non-root paths only
+           *  (i.e, can't go back when in root path)
+           */}
+          <Box
+            position='absolute'
+            left={3}
+            top={3}
+            zIndex={1}
+            bg='whiteAlpha.100'
+            borderRadius='full'
+          >
+            <IconButton
+              icon={arrowBackIcon}
+              aria-label={translate('common.back')}
+              variant='ghost'
+              fontSize='xl'
+              size='sm'
+              isRound
+              position='static'
+              onClick={handleBack}
+            />
+          </Box>
+        </Route>
+      </Switch>
+    )
+  }, [handleBack, translate])
+
   return (
     <>
       <Modal
@@ -216,6 +249,7 @@ export const NewWalletViewsSwitch = () => {
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
 
+            {maybeMobileBackButton}
             <Flex minH='600px' w={containerWidth}>
               <Switch>
                 {/* Always display sections for the root route, no matter the viewport */}
@@ -226,33 +260,9 @@ export const NewWalletViewsSwitch = () => {
                 <Route path='*'>{!isMobile ? sections : null}</Route>
               </Switch>
               <Switch>
-                {/* Only display side panel after a wallet has been selected on mobile 
-                    Else, display a back button instead
-                */}
+                {/* Only display side panel after a wallet has been selected on mobile */}
                 <Route exact path='/'>
-                  {!isMobile ? (
-                    body
-                  ) : (
-                    <Box
-                      position='absolute'
-                      left={3}
-                      top={3}
-                      zIndex={1}
-                      bg='whiteAlpha.100'
-                      borderRadius='full'
-                    >
-                      <IconButton
-                        icon={arrowBackIcon}
-                        aria-label={translate('common.back')}
-                        variant='ghost'
-                        fontSize='xl'
-                        size='sm'
-                        isRound
-                        position='static'
-                        onClick={handleBack}
-                      />
-                    </Box>
-                  )}
+                  {!isMobile ? body : null}
                 </Route>
                 {/* And for all non-root routes, no matter the viewport */}
                 <Route path='*'>{body}</Route>

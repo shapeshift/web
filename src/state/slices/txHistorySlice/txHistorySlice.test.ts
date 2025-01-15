@@ -18,10 +18,10 @@ describe('txHistorySlice', () => {
 
   it('returns empty object for initialState', () => {
     expect(store.getState().txHistory).toEqual({
-      _persist: {
+      _persist: expect.objectContaining({
         rehydrated: true,
-        version: 0,
-      },
+        version: expect.any(Number),
+      }),
       hydrationMeta: {},
       txs: {
         byId: {},

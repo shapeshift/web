@@ -33,7 +33,6 @@ const RightPanelContent = ({ selectedProvider }: { selectedProvider: string | nu
   const [error, setError] = useState<string | null>(null)
 
   const location = useLocation()
-  console.log({ location })
   const isMipdRoute = location.pathname.startsWith('/metamask')
 
   if (isMipdRoute && selectedProvider) {
@@ -49,10 +48,14 @@ const RightPanelContent = ({ selectedProvider }: { selectedProvider: string | nu
           />
         </Route>
         <Route path='/metamask/snap/install'>
-          <SnapInstall />
+          <Flex direction='column' alignItems='center' justifyContent='center' height='full'>
+            <SnapInstall />
+          </Flex>
         </Route>
         <Route path='/metamask/snap/update'>
-          <SnapUpdate />
+          <Flex direction='column' alignItems='center' justifyContent='center' height='full'>
+            <SnapUpdate />
+          </Flex>
         </Route>
       </Switch>
     )

@@ -26,7 +26,6 @@ import { MipdBody } from './wallets/mipd/MipdBody'
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
   base: 'full',
-  md: '900px',
 }
 
 const arrowBackIcon = <ArrowBackIcon />

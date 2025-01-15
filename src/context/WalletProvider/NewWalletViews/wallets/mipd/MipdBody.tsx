@@ -155,6 +155,14 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     [maybeMipdProvider],
   )
 
+  const headerTranslation: [string, InterpolationOptions] = useMemo(
+    () => [
+      'walletProvider.mipd.connect.header',
+      { name: maybeMipdProvider?.info.name ?? 'MetaMask' },
+    ],
+    [maybeMipdProvider?.info.name],
+  )
+
   if (!maybeMipdProvider) return null
 
   if (isMobile && !isMetaMaskMobileWebView && rdns === METAMASK_RDNS) {
@@ -192,7 +200,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
       <Image src={maybeMipdProvider.info.icon} boxSize='64px' />
-      <CText fontSize='xl'>Pair {maybeMipdProvider.info.name}</CText>
+      <Text fontSize='xl' translation={headerTranslation} />
       <Text color='gray.500' translation={connectBodyTranslation} textAlign='center' />
 
       {error && (

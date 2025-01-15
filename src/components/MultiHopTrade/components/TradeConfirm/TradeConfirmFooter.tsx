@@ -10,7 +10,11 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectIsActiveSwapperQuoteLoading } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectHopExecutionMetadata,
+  selectIsActiveSwapperQuoteLoading,
+} from 'state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
@@ -62,6 +66,21 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     activeTradeId,
   })
 
+  const hopExecutionMetadataFilter = useMemo(() => {
+    if (!activeTradeId) return undefined
+
+    return {
+      tradeId: activeTradeId,
+      hopIndex: currentHopIndex,
+    }
+  }, [activeTradeId, currentHopIndex])
+
+  const hopExecutionMetadata = useAppSelector(state =>
+    hopExecutionMetadataFilter
+      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
+      : undefined,
+  )
+
   const {
     isLoading: isNetworkFeeCryptoBaseUnitLoading,
     isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
@@ -69,7 +88,11 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   } = useTradeNetworkFeeCryptoBaseUnit({
     hopIndex: currentHopIndex,
     enabled:
-      currentTradeStep === StepperStep.FirstHopSwap || currentTradeStep === StepperStep.LastHopSwap,
+      (currentTradeStep === StepperStep.FirstHopSwap ||
+        currentTradeStep === StepperStep.LastHopSwap) &&
+      // Stop fetching once the Tx is executed for this step
+      hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
+      hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation,
   })
 
   const networkFeeCryptoPrecision = useMemo(() => {

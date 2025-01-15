@@ -17,6 +17,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from '../config'
 import { KeyManager } from '../KeyManager'
+import { SnapInstall } from '../MetaMask/components/SnapInstall'
+import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
 import { SelectModal } from '../SelectModal'
 import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
@@ -26,12 +28,42 @@ const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
-export const NewWalletViewsSwitch = () => {
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+const RightPanelContent = ({ selectedProvider }: { selectedProvider: string | null }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const history = useHistory()
+
   const location = useLocation()
+  console.log({ location })
+  const isMipdRoute = location.pathname.startsWith('/metamask')
+
+  if (isMipdRoute && selectedProvider) {
+    return (
+      <Switch>
+        <Route exact path='/metamask/connect'>
+          <MipdBody
+            rdns={selectedProvider}
+            loading={loading}
+            error={error}
+            setLoading={setLoading}
+            setError={setError}
+          />
+        </Route>
+        <Route path='/metamask/snap/install'>
+          <SnapInstall />
+        </Route>
+        <Route path='/metamask/snap/update'>
+          <SnapUpdate />
+        </Route>
+      </Switch>
+    )
+  }
+
+  return null
+}
+
+export const NewWalletViewsSwitch = () => {
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+  const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
   const match = useRouteMatch('/')
@@ -167,15 +199,7 @@ export const NewWalletViewsSwitch = () => {
                 {/* TODO(gomes): more section */}
               </Box>
               <Box flex={1} bg='whiteAlpha.50' p={6}>
-                {selectedProvider && isMipdProvider && (
-                  <MipdBody
-                    rdns={selectedProvider}
-                    setLoading={setLoading}
-                    setError={setError}
-                    loading={loading}
-                    error={error}
-                  />
-                )}
+                <RightPanelContent selectedProvider={selectedProvider} />
               </Box>
             </Flex>
           </Box>

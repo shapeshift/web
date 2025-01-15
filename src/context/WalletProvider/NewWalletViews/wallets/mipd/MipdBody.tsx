@@ -11,6 +11,7 @@ import {
 import { getConfig } from 'config'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { getSnapVersion } from 'utils/snaps'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -36,16 +37,13 @@ type MipdBodyProps = {
 export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBodyProps) => {
   const translate = useTranslate()
   const mipdProviders = useMipdProviders()
+  const history = useHistory()
   const maybeMipdProvider = useMemo(
     () => mipdProviders.find(provider => provider.info.rdns === rdns),
     [mipdProviders, rdns],
   )
 
-  const {
-    dispatch,
-    getAdapter,
-    state: { modalType },
-  } = useWallet()
+  const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
 
   const pairDevice = useCallback(async () => {
@@ -102,14 +100,10 @@ export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBod
         const isCorrectVersion = snapVersion === getConfig().REACT_APP_SNAP_VERSION
 
         if (isSnapInstalled && !isCorrectVersion) {
-          // TODO(gomes): handle snap update routing
-          // history.push('/metamask/snap/update')
-          console.log('TODO: implement me')
+          return history.push('/metamask/snap/update')
         }
         if (!isSnapInstalled) {
-          // TODO(gomes): handle snap install routing
-          // history.push('/metamask/snap/install')
-          console.log('TODO: implement me')
+          return history.push('/metamask/snap/install')
         }
 
         return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
@@ -124,12 +118,21 @@ export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBod
             name: maybeMipdProvider?.info.name ?? 'MetaMask',
           }),
         )
-        // TODO(gomes): handle failure route
-        // history.push('/metamask/failure')
+        history.push('/metamask/failure')
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, localWallet, maybeMipdProvider, setError, setLoading, translate])
+  }, [
+    dispatch,
+    getAdapter,
+    history,
+    localWallet,
+    maybeMipdProvider?.info.name,
+    maybeMipdProvider?.info.rdns,
+    setError,
+    setLoading,
+    translate,
+  ])
 
   if (!maybeMipdProvider) return null
 

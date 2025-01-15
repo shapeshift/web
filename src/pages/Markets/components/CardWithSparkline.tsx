@@ -18,8 +18,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const assetPairProps = { showFirst: true }
-
 export const CardWithSparkline: React.FC<{
   assetId: AssetId
   onClick: (assetId: AssetId) => void
@@ -47,7 +45,7 @@ export const CardWithSparkline: React.FC<{
         <Box>
           <Flex width='100%' align='center' justify='space-between' mb={4}>
             <Flex width='100%'>
-              <AssetIcon pairProps={assetPairProps} assetId={assetId} size='md' mr={3} />
+              <AssetIcon assetId={assetId} size='md' mr={3} />
               <Box textAlign='left'>
                 <Text fontWeight='bold' fontSize='lg' mb={1}>
                   {asset.name}

@@ -26,7 +26,6 @@ type AccountBalanceProps = {
 
 const arrowBackIcon = <ArrowBackIcon />
 const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const pairProps = { showFirst: true }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   assetId,
@@ -59,7 +58,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>
-          <AssetIcon assetId={asset.assetId} height='30px' width='auto' pairProps={pairProps} />
+          <AssetIcon assetId={asset.assetId} height='30px' width='auto' />
           <RawText fontWeight='bold'>{asset.name}</RawText>
         </Flex>
       </CardHeader>

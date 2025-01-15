@@ -120,6 +120,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
 }) => {
   const { transfers, isNft } = useTransferData(transfersByType)
   const webIcon = <LuGlobe />
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const renderContent = () => {
     if (assetId && secondaryAssetId) {
@@ -160,7 +161,9 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
         <AssetIcon
           showNetworkIcon={false}
           assetId={assetId}
-          clipPath={defaultClipPath}
+          clipPath={
+            asset?.icons && asset.icons.length > 1 ? pairIconsBadgeClipPath : defaultClipPath
+          }
           size={size}
         />
       )

@@ -1,4 +1,3 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
@@ -8,30 +7,33 @@ import {
   ModalOverlay,
   useToast,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
+import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { SUPPORTED_WALLETS } from '../config'
-import { KeyManager } from '../KeyManager'
 import { SnapInstall } from '../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
-import { SelectModal } from '../SelectModal'
-import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
 
-const arrowBackIcon = <ArrowBackIcon />
-
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
-const RightPanelContent = () => {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+type RightPanelContentProps = {
+  isLoading: boolean
+  setIsLoading: (loading: boolean) => void
+  error: string | null
+  setError: (error: string | null) => void
+}
 
+const RightPanelContent = ({
+  isLoading,
+  setIsLoading,
+  error,
+  setError,
+}: RightPanelContentProps) => {
   const {
     state: { modalType, isMipdProvider },
   } = useWallet()
@@ -42,9 +44,9 @@ const RightPanelContent = () => {
         <Route exact path='/metamask/connect'>
           <MipdBody
             rdns={modalType}
-            loading={loading}
+            isLoading={isLoading}
             error={error}
-            setLoading={setLoading}
+            setIsLoading={setIsLoading}
             setError={setError}
           />
         </Route>
@@ -61,9 +63,9 @@ const RightPanelContent = () => {
         <Route path='/'>
           <MipdBody
             rdns={modalType}
-            loading={loading}
+            isLoading={isLoading}
             error={error}
-            setLoading={setLoading}
+            setIsLoading={setIsLoading}
             setError={setError}
           />
         </Route>
@@ -75,18 +77,18 @@ const RightPanelContent = () => {
 }
 
 export const NewWalletViewsSwitch = () => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
-  const match = useRouteMatch('/')
   const {
     state: {
       wallet,
       modal,
-      showBackButton,
       initialRoute,
       modalType,
-      isMipdProvider,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },
@@ -130,49 +132,14 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
-  const handleBack = useCallback(async () => {
-    history.goBack()
-    // If we're back at the select wallet modal, remove the initial route
-    // otherwise clicking the button for the same wallet doesn't do anything
-    const { pathname } = history.location
-    if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
-      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
-    }
-    await cancelWalletRequests()
-  }, [cancelWalletRequests, dispatch, history])
-
   useEffect(() => {
-    if (initialRoute) {
-      history.push(initialRoute)
-    }
+    if (initialRoute) history.push(initialRoute)
   }, [history, initialRoute])
 
-  /**
-   * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
-   */
-  const supportedWallet =
-    SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
-  const walletRoutesList = useMemo(
-    () =>
-      modalType
-        ? supportedWallet.routes.map(route => {
-            const Component = route.component
-            return !Component ? null : (
-              <Route
-                exact
-                key={'route'}
-                path={route.path}
-                // we need to pass an arg here, so we need an anonymous function wrapper
-                // eslint-disable-next-line react-memo/require-usememo
-                render={routeProps => <Component {...routeProps} />}
-              />
-            )
-          })
-        : [],
-    [modalType, supportedWallet.routes],
-  )
-
-  const renderSelectModal = useCallback(() => <SelectModal />, [])
+  // Reset initial route on connect to handle e.g switching from MM with snap install route to another mipd provider
+  const handleConnect = useCallback(() => {
+    if (initialRoute) history.push(initialRoute)
+  }, [history, initialRoute])
 
   return (
     <>
@@ -200,11 +167,20 @@ export const NewWalletViewsSwitch = () => {
             <Flex minH='600px' w='900px'>
               <Box w='300px' p={6}>
                 <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-                <InstalledWalletsSection modalType={modalType} />
+                <InstalledWalletsSection
+                  modalType={modalType}
+                  isLoading={isLoading}
+                  onConnect={handleConnect}
+                />
                 {/* TODO(gomes): more sections */}
               </Box>
               <Box flex={1} bg='whiteAlpha.50' p={6}>
-                <RightPanelContent modalType={modalType} />
+                <RightPanelContent
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                  error={error}
+                  setError={setError}
+                />
               </Box>
             </Flex>
           </Box>

@@ -28,13 +28,13 @@ import { useMipdProviders } from 'lib/mipd'
 
 type MipdBodyProps = {
   rdns: string
-  loading: boolean
+  isLoading: boolean
   error: string | null
-  setLoading: (loading: boolean) => void
+  setIsLoading: (loading: boolean) => void
   setError: (error: string | null) => void
 }
 
-export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBodyProps) => {
+export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: MipdBodyProps) => {
   const translate = useTranslate()
   const mipdProviders = useMipdProviders()
   const history = useHistory()
@@ -48,11 +48,11 @@ export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBod
 
   const pairDevice = useCallback(async () => {
     setError(null)
-    setLoading(true)
+    setIsLoading(true)
 
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (!adapter) {
-      setLoading(false)
+      setIsLoading(false)
       return
     }
 
@@ -121,7 +121,7 @@ export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBod
         history.push('/metamask/failure')
       }
     }
-    setLoading(false)
+    setIsLoading(false)
   }, [
     dispatch,
     getAdapter,
@@ -130,7 +130,7 @@ export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBod
     maybeMipdProvider?.info.name,
     maybeMipdProvider?.info.rdns,
     setError,
-    setLoading,
+    setIsLoading,
     translate,
   ])
 
@@ -158,7 +158,7 @@ export const MipdBody = ({ rdns, loading, error, setLoading, setError }: MipdBod
       <Button
         width='200px'
         colorScheme='blue'
-        isLoading={loading}
+        isLoading={isLoading}
         loadingText='Pairing'
         spinner={<Spinner color='white' />}
         onClick={pairDevice}

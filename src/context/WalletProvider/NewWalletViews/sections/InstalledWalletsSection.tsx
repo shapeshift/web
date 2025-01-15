@@ -13,10 +13,12 @@ const MipdProviderSelectItem = ({
   provider,
   connect,
   isSelected,
+  isDisabled,
 }: {
   provider: EIP6963ProviderDetail
   connect: (adapter: string) => void
   isSelected: boolean
+  isDisabled: boolean
 }) => {
   const handleConnect = useCallback(
     () => connect(provider.info.rdns),
@@ -35,6 +37,7 @@ const MipdProviderSelectItem = ({
       width='full'
       onClick={handleConnect}
       bg={isSelected ? 'whiteAlpha.100' : undefined}
+      isDisabled={isDisabled}
     >
       <Flex alignItems='center' width='full'>
         <Image src={provider.info.icon} boxSize='24px' mr={3} />
@@ -44,7 +47,15 @@ const MipdProviderSelectItem = ({
   )
 }
 
-export const InstalledWalletsSection = ({ modalType }: { modalType: string | null }) => {
+export const InstalledWalletsSection = ({
+  modalType,
+  isLoading,
+  onConnect,
+}: {
+  modalType: string | null
+  isLoading: boolean
+  onConnect: () => void
+}) => {
   const { connect } = useWallet()
   const detectedMipdProviders = useMipdProviders()
 
@@ -72,8 +83,11 @@ export const InstalledWalletsSection = ({ modalType }: { modalType: string | nul
   )
 
   const handleConnectMipd = useCallback(
-    (rdns: string) => connect(rdns as KeyManager, true),
-    [connect],
+    (rdns: string) => {
+      connect(rdns as KeyManager, true)
+      onConnect()
+    },
+    [connect, onConnect],
   )
 
   return (
@@ -87,6 +101,8 @@ export const InstalledWalletsSection = ({ modalType }: { modalType: string | nul
             provider={provider}
             connect={handleConnectMipd}
             isSelected={isSelected}
+            // Disable other options when pairing is in progress, to avoid race conditions
+            isDisabled={isLoading && !isSelected}
           />
         )
       })}

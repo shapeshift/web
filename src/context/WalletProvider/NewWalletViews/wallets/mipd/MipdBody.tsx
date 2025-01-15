@@ -169,7 +169,8 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
           mb={6}
         />
         <Button
-          width='200px'
+          maxW='200px'
+          width='100%'
           colorScheme='blue'
           onClick={handleMetamaskRedirect}
           isDisabled={isLoading}
@@ -204,7 +205,8 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
       )}
 
       <Button
-        width='200px'
+        maxW='200px'
+        width='100%'
         colorScheme='blue'
         isLoading={isLoading}
         loadingText='Pairing'

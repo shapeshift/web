@@ -98,7 +98,7 @@ export const AssetCell = ({
           {showPopover && <AssetTeaser assetId={assetId} />}
         </Popover>
       )}
-      <HStack flex={1}>
+      <HStack flex={1} width='100%'>
         <SkeletonCircle isLoaded={!!asset} mr={2} width='auto' height='auto'>
           {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' {...pairProps} />
@@ -106,7 +106,7 @@ export const AssetCell = ({
             <AssetIcon assetId={asset.assetId} size='md' pairProps={pairProps} />
           )}
         </SkeletonCircle>
-        <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
+        <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1} width='50%'>
           <Stack spacing={0} flex={1} alignItems='flex-start' width='full'>
             <HStack alignItems='center' width='full'>
               <Box

@@ -11,6 +11,7 @@ import {
   gnosisAssetId,
   ltcAssetId,
   polygonAssetId,
+  solAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 
@@ -28,4 +29,5 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   [adapters.CoingeckoAssetPlatform.Base]: baseAssetId,
   // This isn't a mistake - the network and id are different in the case of BSC
   binanceCoin: bscAssetId,
+  solana: solAssetId,
 }

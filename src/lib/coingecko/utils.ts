@@ -5,12 +5,16 @@ import {
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
+  bchChainId,
   bscChainId,
+  btcChainId,
   cosmosChainId,
   ethChainId,
   gnosisChainId,
+  ltcChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
@@ -53,7 +57,8 @@ const getCoinDetails = async (
 
     const address = data.platforms?.[asset_platform_id]
 
-    if (!address) return
+    // No token address, and not present in our native assets mapping - this is most likely a native asset we don't support
+    if (!address && !COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]) return
 
     const assetId = (() => {
       // Handles native assets, which *may* not contain a platform_id
@@ -189,6 +194,10 @@ export const getCoingeckoSupportedChainIds = () => {
     baseChainId,
     cosmosChainId,
     thorchainChainId,
+    btcChainId,
+    bchChainId,
+    ltcChainId,
+    solanaChainId,
     ...(getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
   ]
 }

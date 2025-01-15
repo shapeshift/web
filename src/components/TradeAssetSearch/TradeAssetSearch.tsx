@@ -40,7 +40,7 @@ const assetButtonProps = {
   height: 'auto',
 }
 
-const NUM_QUICK_ACCESS_ASSETS = 5
+const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
@@ -128,7 +128,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const quickAccessAssets = useMemo(() => {
     if (activeChainId !== 'All') {
-      return popularAssets.slice(0, 5)
+      return popularAssets.slice(0, 6)
     }
 
     // if we selected 'All' chains, we'll dedupe EVM assets in favor of ethereum mainnet

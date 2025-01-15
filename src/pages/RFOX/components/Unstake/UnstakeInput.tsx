@@ -70,6 +70,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
     useRFOXContext()
 
+  useEffect(() => {
+    if (supportedStakingAssetIds.includes(stakingAssetId)) return
+    setStakingAssetId(supportedStakingAssetIds[0])
+  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+
   const assets = useAppSelector(selectAssets)
 
   const stakingAssets = useMemo(() => {

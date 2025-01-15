@@ -4,7 +4,7 @@ import {
   foxOnArbitrumOneAssetId,
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
-import { RFOX_LP_PROXY_CONTRACT, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT, RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { invert } from 'lodash'
 
 import type { EpochWithIpfsHash } from './hooks/useEpochHistoryQuery'
@@ -42,7 +42,7 @@ export const selectLastEpoch = (data: EpochWithIpfsHash[]): EpochWithIpfsHash | 
 const stakingContractByAssetId = {
   [foxAssetId]: RFOX_PROXY_CONTRACT,
   [foxOnArbitrumOneAssetId]: RFOX_PROXY_CONTRACT,
-  [uniV2EthFoxArbitrumAssetId]: RFOX_LP_PROXY_CONTRACT,
+  [uniV2EthFoxArbitrumAssetId]: RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
 }
 
 const stakingAssetIdByContract = invert(stakingContractByAssetId)

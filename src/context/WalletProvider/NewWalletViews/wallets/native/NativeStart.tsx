@@ -1,22 +1,28 @@
 import { Box, Button, Flex, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 
 export const NativeStart = () => {
   const translate = useTranslate()
+  const history = useHistory()
 
   const headingColor = useColorModeValue('gray.800', 'whiteAlpha.800')
   const bodyColor = useColorModeValue('gray.600', 'whiteAlpha.600')
   const keystoreBgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const mainTextColor = useColorModeValue('gray.700', 'whiteAlpha.800')
 
-  const handleCreateClick = useCallback(() => console.log('TODO: handle create wallet'), [])
-  const handleImportClick = useCallback(() => console.log('TODO: handle import wallet'), [])
+  const handleCreateClick = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
+  const handleImportClick = useCallback(
+    () => history.push(NativeWalletRoutes.ImportSelect),
+    [history],
+  )
   const handleImportKeystoreClick = useCallback(
-    () => console.log('TODO: handle import from keystore'),
-    [],
+    () => history.push(NativeWalletRoutes.ImportKeystore),
+    [history],
   )
 
   return (

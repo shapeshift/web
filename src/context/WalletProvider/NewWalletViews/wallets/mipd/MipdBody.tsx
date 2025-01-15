@@ -9,7 +9,9 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import { getConfig } from 'config'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { getSnapVersion } from 'utils/snaps'
@@ -24,7 +26,9 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useMipdProviders } from 'lib/mipd'
+import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
+
+const spinner = <Spinner color='white' />
 
 type MipdBodyProps = {
   rdns: string
@@ -38,6 +42,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
   const translate = useTranslate()
   const mipdProviders = useMipdProviders()
   const history = useHistory()
+  const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   const maybeMipdProvider = useMemo(
     () => mipdProviders.find(provider => provider.info.rdns === rdns),
     [mipdProviders, rdns],
@@ -89,7 +94,6 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
 
       await (async () => {
         const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
-        const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
 
         // Wallets other than MM desktop don't support MM snaps
         if (!isMetaMaskDesktop || isMetaMaskMobileWebView)
@@ -126,6 +130,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     dispatch,
     getAdapter,
     history,
+    isMetaMaskMobileWebView,
     localWallet,
     maybeMipdProvider?.info.name,
     maybeMipdProvider?.info.rdns,
@@ -134,17 +139,60 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     translate,
   ])
 
+  const handleMetamaskRedirect = useCallback(() => {
+    const METAMASK_DEEP_LINK_BASE_URL = 'https://metamask.app.link'
+    // This constructs the MetaMask deep-linking target from the currently-loaded
+    // window.location. The port will be blank if not specified, in which case it
+    // should be omitted.
+    const mmDeeplinkTarget = [window.location.hostname, window.location.port]
+      .filter(x => !!x)
+      .join(':')
+    return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
+  }, [])
+
+  const connectBodyTranslation: [string, InterpolationOptions] = useMemo(
+    () => ['walletProvider.mipd.connect.body', { name: maybeMipdProvider?.info.name }],
+    [maybeMipdProvider],
+  )
+
   if (!maybeMipdProvider) return null
+
+  if (isMobile && !isMetaMaskMobileWebView && rdns === METAMASK_RDNS) {
+    return (
+      <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
+        <Image src={maybeMipdProvider.info.icon} boxSize='64px' />
+        <Text fontSize='xl' translation='walletProvider.metaMask.redirect.header' mb={4} />
+        <Text
+          color='gray.500'
+          translation='walletProvider.metaMask.redirect.body'
+          textAlign='center'
+          mb={6}
+        />
+        <Button
+          width='200px'
+          colorScheme='blue'
+          onClick={handleMetamaskRedirect}
+          isDisabled={isLoading}
+        >
+          <Text translation='walletProvider.metaMask.redirect.button' />
+        </Button>
+        {error && (
+          <Alert status='info' mt={4}>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation={error} />
+            </AlertDescription>
+          </Alert>
+        )}
+      </Flex>
+    )
+  }
 
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
       <Image src={maybeMipdProvider.info.icon} boxSize='64px' />
       <CText fontSize='xl'>Pair {maybeMipdProvider.info.name}</CText>
-      <Text
-        color='gray.500'
-        translation={['walletProvider.mipd.connect.body', { name: maybeMipdProvider.info.name }]}
-        textAlign='center'
-      />
+      <Text color='gray.500' translation={connectBodyTranslation} textAlign='center' />
 
       {error && (
         <Alert status='info'>
@@ -160,7 +208,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
         colorScheme='blue'
         isLoading={isLoading}
         loadingText='Pairing'
-        spinner={<Spinner color='white' />}
+        spinner={spinner}
         onClick={pairDevice}
         data-test='wallet-pair-button'
       >

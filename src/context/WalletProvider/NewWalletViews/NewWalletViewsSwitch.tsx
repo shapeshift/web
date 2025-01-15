@@ -7,7 +7,8 @@ import {
   ModalOverlay,
   useToast,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
@@ -18,6 +19,12 @@ import { SnapInstall } from '../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
+
+const sectionsWidth = { base: 'full', md: '300px' }
+const containerWidth = {
+  base: 'full',
+  md: '900px',
+}
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
@@ -141,6 +148,35 @@ export const NewWalletViewsSwitch = () => {
     if (initialRoute) history.push(initialRoute)
   }, [history, initialRoute])
 
+  const sections = useMemo(
+    () => (
+      <Box w={sectionsWidth} p={6}>
+        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
+        <InstalledWalletsSection
+          modalType={modalType}
+          isLoading={isLoading}
+          onConnect={handleConnect}
+        />
+        {/* TODO(gomes): more sections */}
+      </Box>
+    ),
+    [handleConnect, isLoading, modalType],
+  )
+
+  const body = useMemo(
+    () => (
+      <Box flex={1} bg='whiteAlpha.50' p={6}>
+        <RightPanelContent
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          error={error}
+          setError={setError}
+        />
+      </Box>
+    ),
+    [error, isLoading],
+  )
+
   return (
     <>
       <Modal
@@ -164,24 +200,23 @@ export const NewWalletViewsSwitch = () => {
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
 
-            <Flex minH='600px' w='900px'>
-              <Box w='300px' p={6}>
-                <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-                <InstalledWalletsSection
-                  modalType={modalType}
-                  isLoading={isLoading}
-                  onConnect={handleConnect}
-                />
-                {/* TODO(gomes): more sections */}
-              </Box>
-              <Box flex={1} bg='whiteAlpha.50' p={6}>
-                <RightPanelContent
-                  isLoading={isLoading}
-                  setIsLoading={setIsLoading}
-                  error={error}
-                  setError={setError}
-                />
-              </Box>
+            <Flex minH='600px' w={containerWidth}>
+              <Switch>
+                {/* Always display sections for the root route, no matter the viewport */}
+                <Route exact path='/'>
+                  {sections}
+                </Route>
+                {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
+                <Route path='*'>{!isMobile ? sections : null}</Route>
+              </Switch>
+              <Switch>
+                {/* Only display side panel after a wallet has been selected on mobile */}
+                <Route exact path='/'>
+                  {!isMobile ? body : null}
+                </Route>
+                {/* And for all non-root routes, no matter the viewport */}
+                <Route path='*'>{body}</Route>
+              </Switch>
             </Flex>
           </Box>
         </ModalContent>

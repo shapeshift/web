@@ -71,6 +71,12 @@ export const InstalledWalletsSection = ({
     [detectedMipdProviders, supportedStaticProviders],
   )
 
+  // TODO(gomes): wat do with these? two options here
+  // 1. keep filtering out and add as explicit options in the list (not under installed)
+  // 2. don't filter out, but still explicitly handle those 3 as they are not pure EVM wallets / rdns providers
+  // - keplr is an EVM/Cosmos SDK wallet, but we only support the latter (and if we were to use it as rdns provider, we'd only support the former)
+  // - Phantom is Solana + BTC + ETH, and we support it all (we'd only support the ETH part if we were to handle it as rdns provider)
+  // - Coinbase *is* an EVM-only wallet, but has some magic-QR pairing flow we support explicitly in hdwallet
   const filteredProviders = useMemo(
     () =>
       mipdProviders.filter(

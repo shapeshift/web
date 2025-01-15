@@ -7,6 +7,7 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
+  useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -182,9 +183,10 @@ export const NewWalletViewsSwitch = () => {
     [handleConnect, isLoading, modalType],
   )
 
-  const body = useMemo(
-    () => (
-      <Box flex={1} bg='whiteAlpha.50' p={6}>
+  const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const body = useMemo(() => {
+    return (
+      <Box flex={1} bg={bodyBgColor} p={6}>
         <RightPanelContent
           isLoading={isLoading}
           setIsLoading={setIsLoading}
@@ -192,9 +194,8 @@ export const NewWalletViewsSwitch = () => {
           setError={setError}
         />
       </Box>
-    ),
-    [error, isLoading],
-  )
+    )
+  }, [bodyBgColor, error, isLoading])
 
   const maybeMobileBackButton = useMemo(() => {
     if (!isMobile) return

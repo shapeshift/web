@@ -184,6 +184,7 @@ export const NewWalletViewsSwitch = () => {
   )
 
   const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
   const body = useMemo(() => {
     return (
       <Box flex={1} bg={bodyBgColor} p={6}>
@@ -211,7 +212,7 @@ export const NewWalletViewsSwitch = () => {
             left={3}
             top={3}
             zIndex={1}
-            bg='whiteAlpha.100'
+            bg={buttonContainerBgColor}
             borderRadius='full'
           >
             <IconButton
@@ -228,7 +229,7 @@ export const NewWalletViewsSwitch = () => {
         </Route>
       </Switch>
     )
-  }, [handleBack, translate])
+  }, [buttonContainerBgColor, handleBack, translate])
 
   return (
     <>
@@ -247,7 +248,7 @@ export const NewWalletViewsSwitch = () => {
               right={3}
               top={3}
               zIndex={1}
-              bg='whiteAlpha.100'
+              bg={buttonContainerBgColor}
               borderRadius='full'
             >
               <ModalCloseButton position='static' borderRadius='full' size='sm' />

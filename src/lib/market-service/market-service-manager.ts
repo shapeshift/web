@@ -171,4 +171,11 @@ export class MarketServiceManager {
     const result = await coinGeckoMarketService.findAll({ count }, 'volume_desc')
     return Object.keys(result)
   }
+
+  async findAllSortedByMarketCapDesc(count: number): Promise<AssetId[]> {
+    // coingecko is the only provider that allows us to specify the sorting of assets, so we don't bother with other services
+    const coinGeckoMarketService = new CoinGeckoMarketService()
+    const result = await coinGeckoMarketService.findAll({ count }, 'market_cap_desc')
+    return Object.keys(result)
+  }
 }

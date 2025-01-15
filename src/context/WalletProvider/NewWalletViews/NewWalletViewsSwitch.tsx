@@ -63,13 +63,17 @@ const RightPanelContent = ({
           />
         </Route>
         <Route path='/metamask/snap/install'>
-          <Flex direction='column' alignItems='center' justifyContent='center' height='full'>
-            <SnapInstall />
+          <Flex height='full' alignItems='center'>
+            <Box width='full'>
+              <SnapInstall />
+            </Box>
           </Flex>
         </Route>
         <Route path='/metamask/snap/update'>
-          <Flex direction='column' alignItems='center' justifyContent='center' height='full'>
-            <SnapUpdate />
+          <Flex height='full' alignItems='center'>
+            <Box width='full'>
+              <SnapUpdate />
+            </Box>
           </Flex>
         </Route>
         <Route path='/'>

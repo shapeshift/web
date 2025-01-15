@@ -28,19 +28,20 @@ const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
-const RightPanelContent = ({ selectedProvider }: { selectedProvider: string | null }) => {
+const RightPanelContent = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const location = useLocation()
-  const isMipdRoute = location.pathname.startsWith('/metamask')
+  const {
+    state: { modalType, isMipdProvider },
+  } = useWallet()
 
-  if (isMipdRoute && selectedProvider) {
+  if (isMipdProvider && modalType) {
     return (
       <Switch>
         <Route exact path='/metamask/connect'>
           <MipdBody
-            rdns={selectedProvider}
+            rdns={modalType}
             loading={loading}
             error={error}
             setLoading={setLoading}
@@ -57,6 +58,15 @@ const RightPanelContent = ({ selectedProvider }: { selectedProvider: string | nu
             <SnapUpdate />
           </Flex>
         </Route>
+        <Route path='/'>
+          <MipdBody
+            rdns={modalType}
+            loading={loading}
+            error={error}
+            setLoading={setLoading}
+            setError={setError}
+          />
+        </Route>
       </Switch>
     )
   }
@@ -65,7 +75,6 @@ const RightPanelContent = ({ selectedProvider }: { selectedProvider: string | nu
 }
 
 export const NewWalletViewsSwitch = () => {
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
@@ -191,11 +200,11 @@ export const NewWalletViewsSwitch = () => {
             <Flex minH='600px' w='900px'>
               <Box w='300px' p={6}>
                 <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-                <InstalledWalletsSection selectedWallet={modalType} />
-                {/* TODO(gomes): more section */}
+                <InstalledWalletsSection modalType={modalType} />
+                {/* TODO(gomes): more sections */}
               </Box>
               <Box flex={1} bg='whiteAlpha.50' p={6}>
-                <RightPanelContent selectedProvider={selectedProvider} />
+                <RightPanelContent modalType={modalType} />
               </Box>
             </Flex>
           </Box>

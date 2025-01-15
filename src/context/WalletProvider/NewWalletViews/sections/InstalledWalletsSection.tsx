@@ -44,7 +44,7 @@ const MipdProviderSelectItem = ({
   )
 }
 
-export const InstalledWalletsSection = ({ selectedWallet }: { selectedWallet: string | null }) => {
+export const InstalledWalletsSection = ({ modalType }: { modalType: string | null }) => {
   const { connect } = useWallet()
   const detectedMipdProviders = useMipdProviders()
 
@@ -80,7 +80,7 @@ export const InstalledWalletsSection = ({ selectedWallet }: { selectedWallet: st
     <Stack spacing={2} my={6}>
       <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='Installed' />
       {filteredProviders.map(provider => {
-        const isSelected = selectedWallet === provider.info.rdns
+        const isSelected = modalType === provider.info.rdns
         return (
           <MipdProviderSelectItem
             key={provider.info.rdns}

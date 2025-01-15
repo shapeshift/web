@@ -1,5 +1,6 @@
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
@@ -87,6 +88,8 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
             const { chainNamespace: stepSellAssetChainNamespace } =
               fromChainId(stepSellAssetChainId)
 
+            const pubKey = fromAccountId(sellAssetAccountId).account
+
             switch (stepSellAssetChainNamespace) {
               case CHAIN_NAMESPACE.Evm: {
                 if (!swapper.getEvmTransactionFees) throw Error('missing getEvmTransactionFees')
@@ -118,6 +121,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   accountNumber,
                   accountType,
                   wallet,
+                  ...(isLedger(wallet) ? { pubKey } : {}),
                 })
                 const senderAddress =
                   stepSellAssetAssetId === bchAssetId
@@ -142,7 +146,11 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   throw Error('missing getCosmosSdkTransactionFees')
 
                 const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
-                const from = await adapter.getAddress({ accountNumber, wallet })
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(isLedger(wallet) ? { pubKey } : {}),
+                })
 
                 const output = await swapper.getCosmosSdkTransactionFees({
                   stepIndex: hopIndex,
@@ -160,7 +168,11 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   throw Error('missing getSolanaTransactionFees')
 
                 const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
-                const from = await adapter.getAddress({ accountNumber, wallet })
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(isLedger(wallet) ? { pubKey } : {}),
+                })
 
                 const output = await swapper.getSolanaTransactionFees({
                   tradeQuote,

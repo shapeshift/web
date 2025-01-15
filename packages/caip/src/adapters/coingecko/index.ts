@@ -17,6 +17,7 @@ import {
   gnosisChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   thorchainChainId,
 } from '../../constants'
 import * as adapters from './generated'
@@ -141,6 +142,8 @@ export const coingeckoAssetPlatformToChainId = (
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:
       return thorchainChainId
+    case CoingeckoAssetPlatform.Solana:
+      return solanaChainId
     default:
       return undefined
   }

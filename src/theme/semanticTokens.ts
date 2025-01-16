@@ -65,11 +65,11 @@ export const semanticTokens = {
           _dark: 'darkNeutral.900',
         },
         hover: {
-          default: 'gray.150',
+          default: 'gray.50',
           _dark: 'darkNeutral.800',
         },
         pressed: {
-          default: 'gray.250',
+          default: 'gray.150',
           _dark: 'darkNeutral.900',
         },
       },

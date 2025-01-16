@@ -7,10 +7,9 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { RawText, Text } from 'components/Text'
 
-import type { LocationState } from '../types'
+import type { NativeSetupProps } from '../types'
 
 const Revocable = Default.Revocable
 const revocable = Default.revocable
@@ -27,10 +26,7 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-export const NativeTestPhrase = ({
-  history,
-  location,
-}: RouteComponentProps<{}, any, LocationState>) => {
+export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [hasAlreadySaved, setHasAlreadySaved] = useState(false)

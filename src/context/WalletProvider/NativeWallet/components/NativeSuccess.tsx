@@ -1,11 +1,10 @@
 import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 import { useNativeSuccess } from '../hooks/useNativeSuccess'
-import type { LocationState } from '../types'
+import type { NativeSetupProps } from '../types'
 
-export const NativeSuccess = ({ location }: RouteComponentProps<{}, any, LocationState>) => {
+export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const { isSuccessful } = useNativeSuccess({ vault: location.state.vault })
 
   return (

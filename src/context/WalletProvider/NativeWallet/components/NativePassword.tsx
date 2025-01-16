@@ -17,16 +17,12 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
 
-import type { LocationState, NativeWalletValues } from '../types'
+import type { NativeSetupProps, NativeWalletValues } from '../types'
 
-export const NativePassword = ({
-  history,
-  location,
-}: RouteComponentProps<{}, any, LocationState>) => {
+export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
   const [showConfirmPw, setShowConfirmPw] = useState<boolean>(false)

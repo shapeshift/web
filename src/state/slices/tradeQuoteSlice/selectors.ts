@@ -16,8 +16,8 @@ import type { Asset } from '@shapeshiftoss/types'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { CalculateFeeBpsReturn } from 'lib/fees/model'
 import { fromBaseUnit } from 'lib/math'
-import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper/types'
@@ -203,6 +203,11 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 export const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
+  })
+
+export const selectConfirmedFees: Selector<ReduxState, CalculateFeeBpsReturn | undefined> =
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
+    return tradeQuoteState.confirmedFees
   })
 
 export const selectActiveQuoteMetaOrDefault: Selector<
@@ -564,14 +569,10 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
   })
 
 export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
-  (state: ReduxState) =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER',
-      inputAmountUsd: selectQuoteSellAmountUsd(state),
-    }),
+  selectConfirmedFees,
   selectActiveQuoteAffiliateBps,
   (calculatedFees, affiliateBps) => {
-    if (!affiliateBps) return
+    if (!affiliateBps || !calculatedFees) return
     if (affiliateBps === '0') return bn(0)
 
     return calculatedFees.feeUsd
@@ -579,17 +580,10 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
 )
 
 export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
-  (state: ReduxState) =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER',
-      inputAmountUsd: selectQuoteSellAmountUsd(state),
-    }),
-  selectActiveQuoteAffiliateBps,
-  (calculatedFees, affiliateBps) => {
-    if (!affiliateBps) return
-    if (affiliateBps === '0') return bn(0)
-
-    return calculatedFees.foxDiscountUsd
+  selectConfirmedFees,
+  confirmedFees => {
+    if (!confirmedFees) return
+    return confirmedFees.foxDiscountUsd
   },
 )
 

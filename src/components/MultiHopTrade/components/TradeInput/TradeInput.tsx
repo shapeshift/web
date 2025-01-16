@@ -25,7 +25,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
+import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
@@ -49,11 +49,12 @@ import {
   selectFirstHop,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
+  selectQuoteSellAmountUsd,
   selectShouldShowTradeQuoteOrAwaitInput,
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -107,6 +108,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
+  const sellAmountUsd = useAppSelector(selectQuoteSellAmountUsd)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
@@ -126,6 +128,14 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
   const walletId = useAppSelector(selectWalletId)
+  const calculatedFeesParams = useMemo(
+    () => ({
+      feeModel: 'SWAPPER',
+      inputAmountUsd: sellAmountUsd,
+    }),
+    [sellAmountUsd],
+  )
+  const calculatedFees = useSelectorWithArgs(selectCalculatedFees, calculatedFeesParams)
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
@@ -257,7 +267,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
       // Set the confirmed quote for execution, with a snapshot of the affiliate fees for display after the trade is executed.
       // This is done to handle the fox power calculation changing due to FOX balance changes after the trade is executed.
-      dispatch(tradeQuoteSlice.actions.setConfirmedQuote({ quote: activeQuote }))
+      dispatch(tradeQuoteSlice.actions.setConfirmedQuote({ quote: activeQuote, calculatedFees }))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
@@ -275,6 +285,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   }, [
     activeQuote,
     activeQuoteMeta,
+    calculatedFees,
     dispatch,
     handleConnect,
     history,

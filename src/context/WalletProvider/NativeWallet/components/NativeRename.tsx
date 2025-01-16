@@ -14,11 +14,12 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import type { NativeSetupProps, NativeWalletValues } from '../types'
+import type { NativeWalletValues } from '../types'
 
-export const NativeRename = ({ history, location }: NativeSetupProps) => {
+export const NativeRename = ({ history, location }: RouteComponentProps) => {
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
 

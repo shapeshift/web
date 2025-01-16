@@ -93,6 +93,11 @@ export const WalletViewsSwitch = () => {
   }, [cancelWalletRequests, dispatch, history])
 
   useEffect(() => {
+    // Reset on mount
+    dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+  }, [dispatch])
+
+  useEffect(() => {
     if (initialRoute) {
       history.push(initialRoute)
     }

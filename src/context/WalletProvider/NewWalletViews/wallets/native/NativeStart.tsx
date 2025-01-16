@@ -69,7 +69,7 @@ export const NativeStart = () => {
       </Box>
 
       <Button colorScheme='blue' px={4} onClick={handleCreateClick}>
-        {translate('walletProvider.shapeShift.onboarding.createANewWallet')}
+        {translate('walletProvider.shapeShift.onboarding.createNewWallet')}
       </Button>
 
       <Button variant='link' color={bodyColor} mt={4} onClick={handleImportClick}>

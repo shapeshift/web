@@ -1,7 +1,4 @@
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import type React from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
-import type { ActionTypes } from 'context/WalletProvider/actions'
 
 export type NativeWalletValues = {
   name: string
@@ -20,14 +17,4 @@ export interface LocationState {
   error?: {
     message: string
   }
-}
-
-export interface NativeSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
-  vault: Vault
-  dispatch: React.Dispatch<ActionTypes>
 }

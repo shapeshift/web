@@ -13,15 +13,23 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useHistory } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
+import { EnterPassword } from '../NativeWallet/components/EnterPassword'
+import { NativeCreate } from '../NativeWallet/components/NativeCreate'
+import { NativeImportKeystore } from '../NativeWallet/components/NativeImportKeystore'
+import { NativePassword } from '../NativeWallet/components/NativePassword'
+import { NativeSuccess } from '../NativeWallet/components/NativeSuccess'
+import type { LocationState } from '../NativeWallet/types'
 import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
 import { NativeStart } from './wallets/native/NativeStart'
 
@@ -51,6 +59,54 @@ const RightPanelContent = ({
     state: { modalType, isMipdProvider },
   } = useWallet()
 
+  const location = useLocation()
+
+  if (location.pathname.startsWith('/native')) {
+    return (
+      <Switch>
+        <Route
+          exact
+          path={NativeWalletRoutes.ImportKeystore}
+          // we need to pass an arg here, so we need an anonymous function wrapper
+          // eslint-disable-next-line react-memo/require-usememo
+          render={routeProps => <NativeImportKeystore {...routeProps} />}
+        />
+        <Route exact path={NativeWalletRoutes.Create}>
+          <NativeCreate />
+        </Route>
+        <Route
+          exact
+          path={NativeWalletRoutes.Password}
+          // TODO(gomes): add NativePassowrdNew with new design
+          // we need to pass an arg here, so we need an anonymous function wrapper
+          // eslint-disable-next-line react-memo/require-usememo
+          render={routeProps => (
+            <NativePassword {...(routeProps as RouteComponentProps<{}, any, LocationState>)} />
+          )}
+        />
+        <Route
+          exact
+          path={NativeWalletRoutes.EnterPassword}
+          // TODO(gomes): add EnterPasswordNew with new design
+        >
+          <EnterPassword />
+        </Route>
+
+        <Route
+          exact
+          path={NativeWalletRoutes.Success}
+          // TODO(gomes): add NativeSuccessNew with new design
+          // we need to pass an arg here, so we need an anonymous function wrapper
+          // eslint-disable-next-line react-memo/require-usememo
+          render={routeProps => (
+            <NativeSuccess {...(routeProps as RouteComponentProps<{}, any, LocationState>)} />
+          )}
+        />
+      </Switch>
+    )
+  }
+
+  // No modal type, and no in-flight native routes - assume enpty state
   if (!modalType) return <NativeStart />
 
   if (isMipdProvider && modalType) {
@@ -175,6 +231,7 @@ export const NewWalletViewsSwitch = () => {
     () => (
       <Box w={sectionsWidth} p={6}>
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
+        <SavedWalletsSection />
         <InstalledWalletsSection
           modalType={modalType}
           isLoading={isLoading}

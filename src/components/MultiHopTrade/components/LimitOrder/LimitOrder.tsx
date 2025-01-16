@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
+import { LimitOrderConfirm as LimitOrderShared } from '../LImitOrderShared/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { AllowanceApproval } from './components/AllowanceApproval'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
@@ -44,6 +45,10 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
     return <LimitOrderConfirm />
   }, [])
 
+  const renderLimitOrderShared = useCallback(() => {
+    return <LimitOrderShared />
+  }, [])
+
   const renderAllowanceApproval = useCallback(() => {
     return <AllowanceApproval />
   }, [])
@@ -64,7 +69,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
           <Route
             key={LimitOrderRoutePaths.Confirm}
             path={LimitOrderRoutePaths.Confirm}
-            render={isNewLimitFlowEnabled ? renderLimitOrderConfirm : renderLimitOrderConfirm} // TODO: add new flow here
+            render={isNewLimitFlowEnabled ? renderLimitOrderShared : renderLimitOrderConfirm}
           />
           <Route
             key={LimitOrderRoutePaths.AllowanceApproval}

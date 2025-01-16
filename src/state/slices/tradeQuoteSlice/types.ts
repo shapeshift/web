@@ -3,7 +3,10 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
-export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
+export type ActiveQuoteMeta = {
+  swapperName: SwapperName
+  identifier: string
+}
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet

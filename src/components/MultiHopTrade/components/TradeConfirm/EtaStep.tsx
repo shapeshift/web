@@ -2,7 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectConfirmedQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
@@ -11,15 +11,15 @@ const etaStepProps = { py: 0 }
 
 export const EtaStep = () => {
   const translate = useTranslate()
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const totalEstimatedExecutionTimeMs = useMemo(
     () =>
-      activeQuote?.steps.reduce((acc, step) => {
+      confirmedQuote?.steps.reduce((acc, step) => {
         return acc + (step.estimatedExecutionTimeMs ?? 0)
       }, 0),
-    [activeQuote?.steps],
+    [confirmedQuote?.steps],
   )
-  const swapperName = activeQuote?.steps[0].source
+  const swapperName = confirmedQuote?.steps[0].source
 
   const stepIndicator = useMemo(() => {
     return <ArrowDownIcon color='gray.500' boxSize={5} />

@@ -255,7 +255,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
       }
 
-      dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
+      // Set the confirmed quote for execution, with a snapshot of the affiliate fees for display after the trade is executed.
+      // This is done to handle the fox power calculation changing due to FOX balance changes after the trade is executed.
+      dispatch(tradeQuoteSlice.actions.setConfirmedQuote({ quote: activeQuote }))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {

@@ -1,6 +1,9 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveSwapperName,
+  selectConfirmedQuote,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useChainflipStreamingProgress } from '../../MultiHopTradeConfirm/hooks/useChainflipStreamingProgress'
@@ -12,11 +15,11 @@ type UseStreamingProgressProps = {
 }
 
 export const useStreamingProgress = ({ hopIndex, tradeQuoteStep }: UseStreamingProgressProps) => {
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const currentSwapperName = useAppSelector(selectActiveSwapperName)
-  const isStreamingSwap = activeQuote?.isStreaming || false
+  const isStreamingSwap = confirmedQuote?.isStreaming || false
   const isThorchainSwap = currentSwapperName === SwapperName.Thorchain
-  const confirmedTradeId = activeQuote?.id
+  const confirmedTradeId = confirmedQuote?.id
 
   const streamingProgressArgs = {
     tradeQuoteStep,

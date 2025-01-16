@@ -41,8 +41,8 @@ import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
-  selectActiveQuote,
   selectActiveSwapperName,
+  selectConfirmedQuote,
   selectHopExecutionMetadata,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
@@ -101,7 +101,7 @@ export const useTradeExecution = (
     selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
   )
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const tradeQuote = useAppSelector(selectActiveQuote)
+  const tradeQuote = useAppSelector(selectConfirmedQuote)
 
   // This is ugly, but we need to use refs to get around the fact that the
   // poll fn effectively creates a closure and will hold stale variables forever
@@ -277,7 +277,7 @@ export const useTradeExecution = (
 
         const output = await execution.execEvmMessage({
           swapperName,
-          tradeQuote,
+          tradeQuote: tradeQuote as TradeQuote,
           stepIndex: hopIndex,
           slippageTolerancePercentageDecimal,
           from,
@@ -307,8 +307,8 @@ export const useTradeExecution = (
 
       const receiverAddress =
         stepBuyAssetAssetId === bchAssetId
-          ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
-          : tradeQuote.receiveAddress
+          ? (tradeQuote as TradeQuote).receiveAddress?.replace('bitcoincash:', '')
+          : (tradeQuote as TradeQuote).receiveAddress
 
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
@@ -318,7 +318,7 @@ export const useTradeExecution = (
 
           const output = await execution.execEvmTransaction({
             swapperName,
-            tradeQuote,
+            tradeQuote: tradeQuote as TradeQuote,
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
@@ -359,7 +359,7 @@ export const useTradeExecution = (
 
           const output = await execution.execUtxoTransaction({
             swapperName,
-            tradeQuote,
+            tradeQuote: tradeQuote as TradeQuote,
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             xpub,
@@ -389,7 +389,7 @@ export const useTradeExecution = (
           const from = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execCosmosSdkTransaction({
             swapperName,
-            tradeQuote,
+            tradeQuote: tradeQuote as TradeQuote,
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
@@ -415,7 +415,7 @@ export const useTradeExecution = (
               })
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
-                receiverAddress: tradeQuote.receiveAddress,
+                receiverAddress: (tradeQuote as TradeQuote).receiveAddress,
                 hex: signedTx,
               })
 
@@ -431,7 +431,7 @@ export const useTradeExecution = (
           const from = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execSolanaTransaction({
             swapperName,
-            tradeQuote,
+            tradeQuote: tradeQuote as TradeQuote,
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
@@ -442,7 +442,7 @@ export const useTradeExecution = (
               })
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
-                receiverAddress: tradeQuote.receiveAddress,
+                receiverAddress: (tradeQuote as TradeQuote).receiveAddress,
                 hex: signedTx,
               })
 

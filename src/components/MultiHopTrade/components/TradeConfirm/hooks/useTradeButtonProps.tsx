@@ -5,7 +5,7 @@ import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuo
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { assertUnreachable } from 'lib/utils'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -44,7 +44,7 @@ export const useTradeButtonProps = ({
   const dispatch = useAppDispatch()
   const history = useHistory()
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
   const {
     handleSignAllowanceApproval,
@@ -61,9 +61,9 @@ export const useTradeButtonProps = ({
   })
 
   const handleTradeConfirm = useCallback(() => {
-    if (!activeQuote) return
-    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [dispatch, activeQuote])
+    if (!confirmedQuote) return
+    dispatch(tradeQuoteSlice.actions.confirmTrade(confirmedQuote.id))
+  }, [dispatch, confirmedQuote])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {

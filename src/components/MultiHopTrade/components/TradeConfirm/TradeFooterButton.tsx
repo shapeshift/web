@@ -21,9 +21,9 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import {
-  selectActiveQuote,
   selectActiveQuoteErrors,
   selectActiveSwapperName,
+  selectConfirmedQuote,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
   selectLastHopBuyAsset,
@@ -64,15 +64,15 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(confirmedQuote)
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
-    tradeId: activeQuote?.id ?? '',
+    tradeId: confirmedQuote?.id ?? '',
     hopIndex: 0,
   })
 
   const secondHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
-    tradeId: activeQuote?.id ?? '',
+    tradeId: confirmedQuote?.id ?? '',
     hopIndex: 1,
   })
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)

@@ -1,7 +1,7 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
@@ -19,8 +19,8 @@ import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
-  selectActiveQuote,
   selectActiveSwapperName,
+  selectConfirmedQuote,
   selectConfirmedTradeExecution,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
@@ -56,7 +56,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
     selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
   )
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const tradeQuote = useAppSelector(selectActiveQuote)
+  const tradeQuote = useAppSelector(selectConfirmedQuote)
 
   const hop = useMemo(() => getHopByIndex(tradeQuote, hopIndex), [tradeQuote, hopIndex])
   const swapper = useMemo(() => (swapperName ? swappers[swapperName] : undefined), [swapperName])
@@ -99,7 +99,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
 
                 const output = await swapper.getEvmTransactionFees({
                   chainId: hop.sellAsset.chainId,
-                  tradeQuote,
+                  tradeQuote: tradeQuote as TradeQuote,
                   stepIndex: hopIndex,
                   slippageTolerancePercentageDecimal,
                   // permit2Signature is zrx-specific and always on the first hop
@@ -129,7 +129,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                     : _senderAddress
 
                 const output = await swapper.getUtxoTransactionFees({
-                  tradeQuote,
+                  tradeQuote: tradeQuote as TradeQuote,
                   xpub,
                   accountType,
                   stepIndex: hopIndex,
@@ -154,7 +154,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
 
                 const output = await swapper.getCosmosSdkTransactionFees({
                   stepIndex: hopIndex,
-                  tradeQuote,
+                  tradeQuote: tradeQuote as TradeQuote,
                   chainId: hop.sellAsset.chainId,
                   from,
                   config: getConfig(),
@@ -175,7 +175,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
 
                 const output = await swapper.getSolanaTransactionFees({
-                  tradeQuote,
+                  tradeQuote: tradeQuote as TradeQuote,
                   from,
                   stepIndex: hopIndex,
                   slippageTolerancePercentageDecimal,

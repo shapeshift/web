@@ -1,6 +1,6 @@
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectHopExecutionMetadata,
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -12,11 +12,11 @@ import { useAppSelector, useSelectorWithArgs } from 'state/store'
  * A hop is considered "current" if it's in an active state (awaiting user action or executing)
  */
 export const useCurrentHopIndex: () => SupportedTradeQuoteStepIndex = () => {
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const isMultiHop = useAppSelector(selectIsActiveQuoteMultiHop)
 
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
-    tradeId: activeQuote?.id ?? '',
+    tradeId: confirmedQuote?.id ?? '',
     hopIndex: 0,
   })
 

@@ -200,7 +200,7 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
   tradeQuote => tradeQuote.activeStep ?? 0,
 )
 
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
+export const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
   })
@@ -252,7 +252,7 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | un
   )
 
 const selectQuoteSlippageTolerancePercentageDecimal: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, activeQuote => {
+  createSelector(selectConfirmedQuote, activeQuote => {
     return activeQuote?.slippageTolerancePercentageDecimal
   })
 
@@ -283,7 +283,7 @@ export const selectActiveQuoteWarnings: Selector<
 
 export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
-    selectActiveQuote,
+    selectConfirmedQuote,
     selectUserCurrencyToUsdRate,
     selectMarketDataUsd,
     (_state: ReduxState, stepIndex: SupportedTradeQuoteStepIndex) => stepIndex,
@@ -296,35 +296,41 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
   )
 
 export const selectBuyAmountAfterFeesCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, selectActiveSwapperName, quote =>
-    quote ? getBuyAmountAfterFeesCryptoPrecision({ quote }) : undefined,
+  createSelector(selectConfirmedQuote, selectActiveSwapperName, confirmedQuote =>
+    confirmedQuote ? getBuyAmountAfterFeesCryptoPrecision({ quote: confirmedQuote }) : undefined,
   )
 
 export const selectTotalProtocolFeeByAsset: Selector<
   ReduxState,
   Record<AssetId, ProtocolFee> | undefined
-> = createDeepEqualOutputSelector(selectActiveQuote, quote =>
-  quote ? getTotalProtocolFeeByAsset(quote) : undefined,
+> = createDeepEqualOutputSelector(selectConfirmedQuote, confirmedQuote =>
+  confirmedQuote ? getTotalProtocolFeeByAsset(confirmedQuote) : undefined,
 )
 
 export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
-  createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
+  createSelector(selectConfirmedQuote, confirmedQuote =>
+    confirmedQuote ? confirmedQuote.steps.length > 1 : undefined,
+  )
 
 export const selectFirstHop: Selector<ReduxState, TradeQuote['steps'][0] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => getHopByIndex(quote, 0))
+  createDeepEqualOutputSelector(selectConfirmedQuote, confirmedQuote =>
+    confirmedQuote ? getHopByIndex(confirmedQuote, 0) : undefined,
+  )
 
 export const selectLastHop: Selector<
   ReduxState,
   TradeQuote['steps'][SupportedTradeQuoteStepIndex] | undefined
-> = createDeepEqualOutputSelector(selectActiveQuote, quote => {
-  if (!quote) return
-  const stepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
-  return getHopByIndex(quote, stepIndex)
+> = createDeepEqualOutputSelector(selectConfirmedQuote, confirmedQuote => {
+  if (!confirmedQuote) return
+  const stepIndex = (confirmedQuote?.steps.length - 1) as SupportedTradeQuoteStepIndex
+  return getHopByIndex(confirmedQuote, stepIndex)
 })
 
 // selects the second hop if it exists. This is different to "last hop"
 export const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][1] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => getHopByIndex(quote, 1))
+  createDeepEqualOutputSelector(selectConfirmedQuote, confirmedQuote =>
+    confirmedQuote ? getHopByIndex(confirmedQuote, 1) : undefined,
+  )
 
 export const selectFirstHopSellAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectFirstHop, firstHop =>
@@ -552,9 +558,9 @@ export const selectQuoteSellAmountUserCurrency = createSelector(
 )
 
 export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, activeQuote => {
-    if (!activeQuote) return
-    return activeQuote.affiliateBps
+  createSelector(selectConfirmedQuote, confirmedQuote => {
+    if (!confirmedQuote) return
+    return confirmedQuote.affiliateBps
   })
 
 export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(

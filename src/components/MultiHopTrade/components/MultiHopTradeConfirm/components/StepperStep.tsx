@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectConfirmedQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 const stepStyle = {
@@ -54,8 +54,8 @@ export type StepperStepProps = {
 }
 
 const LastStepTag = () => {
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const receiveAddress = activeQuote?.receiveAddress
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
+  const receiveAddress = confirmedQuote?.receiveAddress
 
   if (!receiveAddress) return null
 

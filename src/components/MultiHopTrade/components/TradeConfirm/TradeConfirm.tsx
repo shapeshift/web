@@ -6,7 +6,7 @@ import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import type { TextPropTypes } from 'components/Text/Text'
 import { fromBaseUnit } from 'lib/math'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectConfirmedTradeExecutionState,
   selectFirstHop,
   selectLastHop,
@@ -27,8 +27,8 @@ export const TradeConfirm = () => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const history = useHistory()
   const dispatch = useAppDispatch()
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const activeTradeId = activeQuote?.id
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
+  const activeTradeId = confirmedQuote?.id
   const currentHopIndex = useCurrentHopIndex()
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
@@ -61,36 +61,38 @@ export const TradeConfirm = () => {
   }, [confirmedTradeExecutionState])
 
   useEffect(() => {
-    if (isLoading || !activeQuote) return
+    if (isLoading || !confirmedQuote) return
     // Only set the trade to initialized if it was actually initializing previously. Now that we shove quotes in at confirm time, we can't rely on this effect only running once.
     if (confirmedTradeExecutionState !== TradeExecutionState.Initializing) return
 
-    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
-  }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
+    dispatch(tradeQuoteSlice.actions.setTradeInitialized(confirmedQuote.id))
+  }, [dispatch, isLoading, confirmedQuote, confirmedTradeExecutionState])
 
   const footer = useMemo(() => {
-    if (isTradeComplete && activeQuote && tradeQuoteLastHop) return null
+    if (isTradeComplete && confirmedQuote && tradeQuoteLastHop) return null
     if (!tradeQuoteStep || !activeTradeId) return null
     return <TradeConfirmFooter tradeQuoteStep={tradeQuoteStep} activeTradeId={activeTradeId} />
-  }, [isTradeComplete, activeQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId])
+  }, [isTradeComplete, confirmedQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId])
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
-    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
-  }, [activeQuote])
+    return (
+      isArbitrumBridgeTradeQuoteOrRate(confirmedQuote) && confirmedQuote?.direction === 'withdrawal'
+    )
+  }, [confirmedQuote])
 
   const body = useMemo(() => {
-    if (isTradeComplete && activeQuote && tradeQuoteLastHop)
+    if (isTradeComplete && confirmedQuote && tradeQuoteLastHop)
       return (
         <TradeSuccess
           handleBack={handleBack}
           titleTranslation={
             isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
           }
-          sellAsset={activeQuote?.steps[0].sellAsset}
+          sellAsset={confirmedQuote?.steps[0].sellAsset}
           buyAsset={tradeQuoteLastHop.buyAsset}
           sellAmountCryptoPrecision={fromBaseUnit(
-            activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            activeQuote.steps[0].sellAsset.precision,
+            confirmedQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            confirmedQuote.steps[0].sellAsset.precision,
           )}
           buyAmountCryptoPrecision={fromBaseUnit(
             tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
@@ -104,7 +106,7 @@ export const TradeConfirm = () => {
       )
 
     return <TradeConfirmBody />
-  }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
+  }, [confirmedQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
 
   if (!headerTranslation) return null
 

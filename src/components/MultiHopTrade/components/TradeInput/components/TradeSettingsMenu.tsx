@@ -2,7 +2,10 @@ import { useMediaQuery } from '@chakra-ui/react'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveSwapperName,
+  selectConfirmedQuote,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -16,7 +19,7 @@ type TradeSettingsMenuProps = {
 
 export const TradeSettingsMenu = ({ isCompact, isLoading }: TradeSettingsMenuProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
 
@@ -32,7 +35,7 @@ export const TradeSettingsMenu = ({ isCompact, isLoading }: TradeSettingsMenuPro
 
   return (
     <>
-      {activeQuote && (isCompact || isSmallerThanXl) && (
+      {confirmedQuote && (isCompact || isSmallerThanXl) && (
         <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
       )}
       <SlippagePopover />

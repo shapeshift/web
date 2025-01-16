@@ -52,8 +52,13 @@ export const tradeQuoteSlice = createSlice({
         }
       }
     },
-    setConfirmedQuote: (state, action: PayloadAction<TradeQuote | TradeRate>) => {
-      state.confirmedQuote = action.payload
+    setConfirmedQuote: (
+      state,
+      action: PayloadAction<{
+        quote: TradeQuote | TradeRate
+      }>,
+    ) => {
+      state.confirmedQuote = action.payload.quote
     },
     clearQuoteExecutionState: (state, action: PayloadAction<TradeQuote['id']>) => {
       state.tradeExecution[action.payload] = initialTradeExecutionState

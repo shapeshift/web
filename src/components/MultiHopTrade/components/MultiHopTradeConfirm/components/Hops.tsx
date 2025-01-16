@@ -1,8 +1,8 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import {
-  selectActiveQuote,
   selectActiveSwapperName,
+  selectConfirmedQuote,
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectLastHop,
@@ -30,7 +30,7 @@ export const Hops = memo((props: HopsProps) => {
   const swapperName = useAppSelector(selectActiveSwapperName)
   const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
   const divider = useMemo(
@@ -38,9 +38,9 @@ export const Hops = memo((props: HopsProps) => {
     [],
   )
 
-  if (!activeQuote || !firstHop || !swapperName) return null
+  if (!confirmedQuote || !firstHop || !swapperName) return null
 
-  const activeTradeId = activeQuote.id
+  const activeTradeId = confirmedQuote.id
 
   return (
     <Stack spacing={0} divider={divider} borderColor='border.base'>
@@ -50,7 +50,7 @@ export const Hops = memo((props: HopsProps) => {
         hopIndex={0}
         isOpen={isFirstHopOpen}
         onToggleIsOpen={onToggleFirstHop}
-        slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
+        slippageTolerancePercentageDecimal={confirmedQuote.slippageTolerancePercentageDecimal}
         activeTradeId={activeTradeId}
         initialActiveTradeId={initialActiveTradeId}
       />
@@ -61,7 +61,7 @@ export const Hops = memo((props: HopsProps) => {
           hopIndex={1}
           isOpen={isSecondHopOpen}
           onToggleIsOpen={onToggleSecondHop}
-          slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
+          slippageTolerancePercentageDecimal={confirmedQuote.slippageTolerancePercentageDecimal}
           activeTradeId={activeTradeId}
           initialActiveTradeId={initialActiveTradeId}
         />

@@ -35,9 +35,9 @@ import {
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
-  selectActiveQuote,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
+  selectConfirmedQuote,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoBaseUnit,
   selectFirstHopNetworkFeeUserCurrency,
@@ -89,14 +89,14 @@ const ShowMoreButton = (props: ButtonProps) => (
 
 export const TradeConfirmSummary = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const firstHopFeeAsset = useSelectorWithArgs(selectFeeAssetById, sellAsset.assetId)
-  const secondHop = getHopByIndex(activeQuote, 1)
+  const secondHop = getHopByIndex(confirmedQuote, 1)
   const secondHopFeeAsset = useSelectorWithArgs(
     selectFeeAssetById,
     secondHop?.sellAsset.assetId ?? '',
@@ -113,12 +113,12 @@ export const TradeConfirmSummary = () => {
   const secondHopNetworkFeeCryptoBaseUnit = useAppSelector(selectSecondHopNetworkFeeCryptoBaseUnit)
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const translate = useTranslate()
-  const { priceImpactPercentage } = usePriceImpact(activeQuote)
+  const { priceImpactPercentage } = usePriceImpact(confirmedQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const [showFeeModal, setShowFeeModal] = useState(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
-  const receiveAddress = activeQuote?.receiveAddress
+  const receiveAddress = confirmedQuote?.receiveAddress
   const swapSource = tradeQuoteFirstHop?.source
   const rate = tradeQuoteFirstHop?.rate
   const sellAssetSymbol = sellAsset.symbol

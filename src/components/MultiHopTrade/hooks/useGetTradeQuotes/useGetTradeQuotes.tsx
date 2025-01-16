@@ -48,8 +48,8 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
-  selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
+  selectConfirmedQuote,
   selectConfirmedTradeExecution,
   selectHopExecutionMetadata,
   selectIsAnyTradeQuoteLoading,
@@ -137,7 +137,7 @@ export const useGetTradeQuotes = () => {
   } = useWallet()
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeTrade = useAppSelector(selectActiveQuote)
+  const activeTrade = useAppSelector(selectConfirmedQuote)
   const activeTradeId = activeTrade?.id
   const activeRateRef = useRef<TradeQuote | TradeRate | undefined>()
   const activeTradeIdRef = useRef<string | undefined>()
@@ -390,9 +390,8 @@ export const useGetTradeQuotes = () => {
         executionMetadata: confirmedTradeExecution,
       }),
     )
-    // Set as both confirmed *and* active
+    // Set as active
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
-    dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
   }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
 
   // TODO: move to separate hook so we don't need to pull quote data into here

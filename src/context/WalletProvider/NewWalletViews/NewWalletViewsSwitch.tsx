@@ -161,6 +161,9 @@ const RightPanelContent = ({
 export const NewWalletViewsSwitch = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:
+  // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
+  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
 
   const history = useHistory()
   const toast = useToast()
@@ -170,7 +173,6 @@ export const NewWalletViewsSwitch = () => {
       wallet,
       modal,
       initialRoute,
-      modalType,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },
@@ -225,11 +227,13 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
-  // Push to history on initialRoute change
-  useEffect(() => {
-    if (initialRoute) history.push(initialRoute)
-    return
-  }, [history, initialRoute])
+  const handleWalletSelect = useCallback(
+    (walletId: string, _initialRoute: string) => {
+      setSelectedWalletId(walletId)
+      if (initialRoute) history.push(_initialRoute)
+    },
+    [history, initialRoute],
+  )
   // Reset history on modal open/unmount
   useEffect(() => {
     history.replace('/')
@@ -245,12 +249,19 @@ export const NewWalletViewsSwitch = () => {
     () => (
       <Box w={sectionsWidth} p={6}>
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-        <SavedWalletsSection />
-        <InstalledWalletsSection modalType={modalType} isLoading={isLoading} />
+        <SavedWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+        <InstalledWalletsSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
         {/* TODO(gomes): more sections */}
       </Box>
     ),
-    [isLoading, modalType],
+    [handleWalletSelect, isLoading, selectedWalletId],
   )
 
   const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Stack, Text as CText } from '@chakra-ui/react'
+import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -17,10 +17,13 @@ type VaultInfo = {
 type WalletCardProps = {
   wallet: VaultInfo
   onClick: (wallet: VaultInfo) => void
+  isSelected: boolean
 }
 
-const WalletCard = ({ wallet, onClick }: WalletCardProps) => {
+const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
   const handleClick = useCallback(() => onClick(wallet), [onClick, wallet])
+  const bgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+
   return (
     <Box
       as={Button}
@@ -32,6 +35,7 @@ const WalletCard = ({ wallet, onClick }: WalletCardProps) => {
       borderRadius='md'
       width='full'
       onClick={handleClick}
+      bg={isSelected ? bgColor : undefined}
     >
       <Flex alignItems='center' width='full'>
         <FoxIcon boxSize='24px' mr={3}>
@@ -45,7 +49,13 @@ const WalletCard = ({ wallet, onClick }: WalletCardProps) => {
   )
 }
 
-export const SavedWalletsSection = () => {
+export const SavedWalletsSection = ({
+  selectedWalletId,
+  onWalletSelect,
+}: {
+  selectedWalletId: string | null
+  onWalletSelect: (id: string, initialRoute: string) => void
+}) => {
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
@@ -73,7 +83,10 @@ export const SavedWalletsSection = () => {
 
   const handleWalletSelect = useCallback(
     async (wallet: VaultInfo) => {
+      // Ensure we're at the correct route when selecting a saved wallet
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '/native/enter-password' })
+      // Ensure the wallet is visually selected in the left wallets list
+      onWalletSelect(wallet.id, '/native/enter-password')
 
       const adapter = await getAdapter(KeyManager.Native)
       const deviceId = wallet.id
@@ -115,7 +128,7 @@ export const SavedWalletsSection = () => {
         }
       }
     },
-    [dispatch, getAdapter, localWallet],
+    [dispatch, getAdapter, localWallet, onWalletSelect],
   )
 
   if (!wallets.length) return null
@@ -129,7 +142,11 @@ export const SavedWalletsSection = () => {
         translation={'walletProvider.shapeShift.load.header'}
       />
       {wallets.map(wallet => (
-        <WalletCard wallet={wallet} onClick={handleWalletSelect} />
+        <WalletCard
+          wallet={wallet}
+          onClick={handleWalletSelect}
+          isSelected={selectedWalletId === wallet.id}
+        />
       ))}
     </Stack>
   )

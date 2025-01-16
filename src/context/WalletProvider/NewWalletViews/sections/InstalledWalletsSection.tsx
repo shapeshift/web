@@ -49,13 +49,15 @@ const MipdProviderSelectItem = ({
 }
 
 export const InstalledWalletsSection = ({
-  modalType,
   isLoading,
+  selectedWalletId,
+  onWalletSelect,
 }: {
-  modalType: string | null
   isLoading: boolean
+  selectedWalletId: string | null
+  onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const { dispatch, connect } = useWallet()
+  const { connect } = useWallet()
   const detectedMipdProviders = useMipdProviders()
 
   const supportedStaticProviders = useMemo(() => {
@@ -89,17 +91,17 @@ export const InstalledWalletsSection = ({
 
   const handleConnectMipd = useCallback(
     (rdns: string) => {
+      onWalletSelect(rdns, '/metamask/connect')
       connect(rdns as KeyManager, true)
-      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '/metamask/connect' })
     },
-    [connect, dispatch],
+    [connect, onWalletSelect],
   )
 
   return (
     <Stack spacing={2} my={6}>
       <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='Installed' />
       {filteredProviders.map(provider => {
-        const isSelected = modalType === provider.info.rdns
+        const isSelected = selectedWalletId === provider.info.rdns
         return (
           <MipdProviderSelectItem
             key={provider.info.rdns}

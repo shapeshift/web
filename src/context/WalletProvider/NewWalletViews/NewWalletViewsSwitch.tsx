@@ -10,10 +10,13 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
+import type { Location } from 'history'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import type { StaticContext } from 'react-router'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -47,6 +50,7 @@ type RightPanelContentProps = {
   setIsLoading: (loading: boolean) => void
   error: string | null
   setError: (error: string | null) => void
+  location: Location
 }
 
 const nativeRoutes = (
@@ -100,17 +104,16 @@ const RightPanelContent = ({
   setIsLoading,
   error,
   setError,
+  location,
 }: RightPanelContentProps) => {
   const {
     state: { modalType, isMipdProvider },
   } = useWallet()
 
-  const location = useLocation()
-
   if (location.pathname.startsWith('/native')) return nativeRoutes
 
   // No modal type, and no in-flight native routes - assume enpty state
-  if (!modalType || modalType === 'native') return <NativeStart />
+  if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeStart />
 
   if (isMipdProvider && modalType) {
     return (
@@ -137,15 +140,6 @@ const RightPanelContent = ({
               <SnapUpdate />
             </Box>
           </Flex>
-        </Route>
-        <Route path='/'>
-          <MipdBody
-            rdns={modalType}
-            isLoading={isLoading}
-            error={error}
-            setIsLoading={setIsLoading}
-            setError={setError}
-          />
         </Route>
       </Switch>
     )
@@ -221,45 +215,60 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
+  // Push to history on initialRoute change
   useEffect(() => {
     if (initialRoute) history.push(initialRoute)
+    return
   }, [history, initialRoute])
+  // Reset history on modal open/unmount
+  useEffect(() => {
+    history.replace('/')
 
-  // Reset initial route on connect to handle e.g switching from MM with snap install route to another mipd provider
-  const handleConnect = useCallback(() => {
-    if (initialRoute) history.push(initialRoute)
-  }, [history, initialRoute])
+    return () => {
+      history.replace('/')
+    }
+    // Only run this on initial render, and unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const sections = useMemo(
     () => (
       <Box w={sectionsWidth} p={6}>
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <SavedWalletsSection />
-        <InstalledWalletsSection
-          modalType={modalType}
-          isLoading={isLoading}
-          onConnect={handleConnect}
-        />
+        <InstalledWalletsSection modalType={modalType} isLoading={isLoading} />
         {/* TODO(gomes): more sections */}
       </Box>
     ),
-    [handleConnect, isLoading, modalType],
+    [isLoading, modalType],
   )
 
   const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
-  const body = useMemo(() => {
-    return (
+
+  const body = useCallback(
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
       <Box flex={1} bg={bodyBgColor} p={6}>
         <RightPanelContent
+          location={routeProps.history.location}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           error={error}
           setError={setError}
         />
       </Box>
-    )
-  }, [bodyBgColor, error, isLoading])
+    ),
+    [bodyBgColor, error, isLoading],
+  )
+
+  const bodyDesktopOnly = useCallback(
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
+      if (isMobile) return null
+
+      return body(routeProps)
+    },
+    [body],
+  )
 
   const maybeBackButton = useMemo(() => {
     return (
@@ -328,11 +337,9 @@ export const NewWalletViewsSwitch = () => {
               </Switch>
               <Switch>
                 {/* Only display side panel after a wallet has been selected on mobile */}
-                <Route exact path='/'>
-                  {!isMobile ? body : null}
-                </Route>
+                <Route exact path='/' render={bodyDesktopOnly} />
                 {/* And for all non-root routes, no matter the viewport */}
-                <Route path='*'>{body}</Route>
+                <Route path='*' render={body} />
               </Switch>
             </Flex>
           </Box>

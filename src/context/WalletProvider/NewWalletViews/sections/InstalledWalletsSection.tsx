@@ -4,6 +4,7 @@ import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import type { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
@@ -50,13 +51,11 @@ const MipdProviderSelectItem = ({
 export const InstalledWalletsSection = ({
   modalType,
   isLoading,
-  onConnect,
 }: {
   modalType: string | null
   isLoading: boolean
-  onConnect: () => void
 }) => {
-  const { connect } = useWallet()
+  const { dispatch, connect } = useWallet()
   const detectedMipdProviders = useMipdProviders()
 
   const supportedStaticProviders = useMemo(() => {
@@ -91,9 +90,9 @@ export const InstalledWalletsSection = ({
   const handleConnectMipd = useCallback(
     (rdns: string) => {
       connect(rdns as KeyManager, true)
-      onConnect()
+      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '/metamask/connect' })
     },
-    [connect, onConnect],
+    [connect, dispatch],
   )
 
   return (

@@ -73,6 +73,8 @@ export const SavedWalletsSection = () => {
 
   const handleWalletSelect = useCallback(
     async (wallet: VaultInfo) => {
+      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '/native/enter-password' })
+
       const adapter = await getAdapter(KeyManager.Native)
       const deviceId = wallet.id
       if (adapter) {

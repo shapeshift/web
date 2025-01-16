@@ -43,7 +43,9 @@ const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
           <FaWallet />
         </FoxIcon>
         <Box textAlign='left'>
-          <CText>{wallet.name}</CText>
+          <CText isTruncated maxW='200px'>
+            {wallet.name}
+          </CText>
         </Box>
       </Flex>
     </Box>

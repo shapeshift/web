@@ -77,7 +77,9 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   const { errors } = formState
 
   const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
+
   const { data: currentRuneAddress } = useStakingInfoQuery({
+    stakingAssetId,
     stakingAssetAccountAddress: stakingAssetAccountId
       ? fromAccountId(stakingAssetAccountId).account
       : undefined,

@@ -247,7 +247,7 @@ export const NewWalletViewsSwitch = () => {
 
   const sections = useMemo(
     () => (
-      <Box w={sectionsWidth} p={6}>
+      <Box w={sectionsWidth} p={6} maxH='600px' overflowY='auto'>
         <SavedWalletsSection
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}

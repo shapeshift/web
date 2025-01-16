@@ -172,7 +172,6 @@ export const NewWalletViewsSwitch = () => {
     state: {
       wallet,
       modal,
-      initialRoute,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },

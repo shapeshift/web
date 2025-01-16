@@ -12,6 +12,7 @@ import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/selectors
 import { useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
+import { FoxWifHat } from './FoxWifHat'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const containerPaddingTop = { base: 0, md: 8 }
@@ -60,8 +61,10 @@ export const FoxHeader = () => {
             <PageHeader.Title>{translate('foxPage.title')}</PageHeader.Title>
           </PageHeader.Middle>
         </PageHeader>
+        <FoxWifHat />
       </Display.Mobile>
       <Stack mb={4}>
+        <FoxWifHat />
         <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>

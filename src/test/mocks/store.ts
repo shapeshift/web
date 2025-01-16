@@ -141,6 +141,7 @@ export const mockStore: ReduxState = {
       JupiterSwap: false,
       NewTradeFlow: false,
       NewWalletFlow: false,
+      FoxPageFoxWifHatSection: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

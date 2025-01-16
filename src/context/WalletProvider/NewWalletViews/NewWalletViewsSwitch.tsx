@@ -13,7 +13,6 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -26,7 +25,8 @@ import { NativeCreate } from '../NativeWallet/components/NativeCreate'
 import { NativeImportKeystore } from '../NativeWallet/components/NativeImportKeystore'
 import { NativePassword } from '../NativeWallet/components/NativePassword'
 import { NativeSuccess } from '../NativeWallet/components/NativeSuccess'
-import type { LocationState } from '../NativeWallet/types'
+import { NativeTestPhrase } from '../NativeWallet/components/NativeTestPhrase'
+import type { NativeSetupProps } from '../NativeWallet/types'
 import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
@@ -49,6 +49,52 @@ type RightPanelContentProps = {
   setError: (error: string | null) => void
 }
 
+const nativeRoutes = (
+  <Switch>
+    <Route
+      exact
+      path={NativeWalletRoutes.ImportKeystore}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeImportKeystore {...routeProps} />}
+    />
+    <Route exact path={NativeWalletRoutes.Create}>
+      <NativeCreate />
+    </Route>
+    <Route
+      exact
+      path={NativeWalletRoutes.Password}
+      // TODO(gomes): add NativePassowrdNew with new design
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.EnterPassword}
+      // TODO(gomes): add EnterPasswordNew with new design
+    >
+      <EnterPassword />
+    </Route>
+    <Route
+      exact
+      path={NativeWalletRoutes.Success}
+      // TODO(gomes): add NativeSuccessNew with new design
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeSuccess {...(routeProps as NativeSetupProps)} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.CreateTest}
+      // TODO(gomes): add NativeTestPhraseNew with new design
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeTestPhrase {...(routeProps as NativeSetupProps)} />}
+    />
+  </Switch>
+)
+
 const RightPanelContent = ({
   isLoading,
   setIsLoading,
@@ -61,53 +107,10 @@ const RightPanelContent = ({
 
   const location = useLocation()
 
-  if (location.pathname.startsWith('/native')) {
-    return (
-      <Switch>
-        <Route
-          exact
-          path={NativeWalletRoutes.ImportKeystore}
-          // we need to pass an arg here, so we need an anonymous function wrapper
-          // eslint-disable-next-line react-memo/require-usememo
-          render={routeProps => <NativeImportKeystore {...routeProps} />}
-        />
-        <Route exact path={NativeWalletRoutes.Create}>
-          <NativeCreate />
-        </Route>
-        <Route
-          exact
-          path={NativeWalletRoutes.Password}
-          // TODO(gomes): add NativePassowrdNew with new design
-          // we need to pass an arg here, so we need an anonymous function wrapper
-          // eslint-disable-next-line react-memo/require-usememo
-          render={routeProps => (
-            <NativePassword {...(routeProps as RouteComponentProps<{}, any, LocationState>)} />
-          )}
-        />
-        <Route
-          exact
-          path={NativeWalletRoutes.EnterPassword}
-          // TODO(gomes): add EnterPasswordNew with new design
-        >
-          <EnterPassword />
-        </Route>
-
-        <Route
-          exact
-          path={NativeWalletRoutes.Success}
-          // TODO(gomes): add NativeSuccessNew with new design
-          // we need to pass an arg here, so we need an anonymous function wrapper
-          // eslint-disable-next-line react-memo/require-usememo
-          render={routeProps => (
-            <NativeSuccess {...(routeProps as RouteComponentProps<{}, any, LocationState>)} />
-          )}
-        />
-      </Switch>
-    )
-  }
+  if (location.pathname.startsWith('/native')) return nativeRoutes
 
   // No modal type, and no in-flight native routes - assume enpty state
-  if (!modalType) return <NativeStart />
+  if (!modalType || modalType === 'native') return <NativeStart />
 
   if (isMipdProvider && modalType) {
     return (
@@ -258,13 +261,12 @@ export const NewWalletViewsSwitch = () => {
     )
   }, [bodyBgColor, error, isLoading])
 
-  const maybeMobileBackButton = useMemo(() => {
-    if (!isMobile) return
+  const maybeBackButton = useMemo(() => {
     return (
       <Switch>
         <Route exact path='/' />
         <Route path='*'>
-          {/* Precisely what it says on the var name - adds a back button for mobile only, and for non-root paths only
+          {/* Precisely what it says on the var name - adds a back button for non-root paths only
            *  (i.e, can't go back when in root path)
            */}
           <Box
@@ -314,7 +316,7 @@ export const NewWalletViewsSwitch = () => {
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
 
-            {maybeMobileBackButton}
+            {maybeBackButton}
             <Flex minH='600px' w={containerWidth}>
               <Switch>
                 {/* Always display sections for the root route, no matter the viewport */}

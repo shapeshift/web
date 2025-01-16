@@ -15,11 +15,11 @@ type FoxWifHatHoldingLineProps = {
 }
 
 const actionsPaddingLeft = { base: 10, md: 0 }
-const columnsWidth = { base: '100%', md: '50%' }
-const columnsDirection: StackDirection = { base: 'column', md: 'row' }
-const columnsAlignItems = { md: 'center' }
-const columnsJustifyContent = { md: 'space-between' }
-const columnsSpacing = { base: 4, md: 48 }
+const columnWidth = { base: '100%', md: '50%' }
+const columnDirection: StackDirection = { base: 'column', md: 'row' }
+const columnAlignItems = { md: 'center' }
+const columnJustifyContent = { md: 'space-between' }
+const columnSpacing = { base: 4, md: 48 }
 
 export const FoxWifHatHoldingLine = ({
   accountId,
@@ -38,12 +38,12 @@ export const FoxWifHatHoldingLine = ({
       width='full'
       px={6}
       py={4}
-      spacing={columnsSpacing}
-      direction={columnsDirection}
-      alignItems={columnsAlignItems}
-      justifyContent={columnsJustifyContent}
+      spacing={columnSpacing}
+      direction={columnDirection}
+      alignItems={columnAlignItems}
+      justifyContent={columnJustifyContent}
     >
-      <Flex width={columnsWidth} alignItems='center' justifyContent='space-between'>
+      <Flex width={columnWidth} alignItems='center' justifyContent='space-between'>
         <HStack spacing={4}>
           <WalletIcon color={textColor} boxSize={6} />
           <Flex direction='column' alignItems='flex-start'>
@@ -62,7 +62,7 @@ export const FoxWifHatHoldingLine = ({
       </Flex>
 
       <Flex
-        width={columnsWidth}
+        width={columnWidth}
         alignItems='center'
         justifyContent='space-between'
         pl={actionsPaddingLeft}
@@ -75,6 +75,7 @@ export const FoxWifHatHoldingLine = ({
           colorScheme={isClaimed ? 'green' : 'gray'}
           size='sm'
           onClick={!isClaimed ? onClaim : undefined}
+          isDisabled={isClaimed}
         >
           {isClaimed
             ? translate('foxPage.foxWifHat.claimed')

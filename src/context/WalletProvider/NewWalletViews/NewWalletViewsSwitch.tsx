@@ -257,43 +257,48 @@ export const NewWalletViewsSwitch = () => {
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const body = useCallback(
-    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
-      <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
-        {routeProps.history.location.pathname !== '/' ? (
-          // Only show back button for non-root routes
-          <Box
-            position='absolute'
-            left={3}
-            top={3}
-            zIndex={1}
-            bg={buttonContainerBgColor}
-            borderRadius='full'
-          >
-            <IconButton
-              icon={arrowBackIcon}
-              aria-label={translate('common.back')}
-              variant='ghost'
-              fontSize='xl'
-              size='sm'
-              isRound
-              position='static'
-              onClick={handleBack}
-            />
-          </Box>
-        ) : null}
-        <Flex height='full' alignItems='center'>
-          <Box width='full'>
-            <RightPanelContent
-              location={routeProps.history.location}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-              error={error}
-              setError={setError}
-            />
-          </Box>
-        </Flex>
-      </Box>
-    ),
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
+      // These routes do not have a previous step, so don't display back button
+      const isRootRoute =
+        routeProps.history.location.pathname === '/' ||
+        routeProps.history.location.pathname === '/metamask/connect'
+      return (
+        <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
+          {!isRootRoute ? (
+            <Box
+              position='absolute'
+              left={3}
+              top={3}
+              zIndex={1}
+              bg={buttonContainerBgColor}
+              borderRadius='full'
+            >
+              <IconButton
+                icon={arrowBackIcon}
+                aria-label={translate('common.back')}
+                variant='ghost'
+                fontSize='xl'
+                size='sm'
+                isRound
+                position='static'
+                onClick={handleBack}
+              />
+            </Box>
+          ) : null}
+          <Flex height='full' alignItems='center'>
+            <Box width='full'>
+              <RightPanelContent
+                location={routeProps.history.location}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                error={error}
+                setError={setError}
+              />
+            </Box>
+          </Flex>
+        </Box>
+      )
+    },
     [bodyBgColor, buttonContainerBgColor, error, handleBack, isLoading, translate],
   )
 

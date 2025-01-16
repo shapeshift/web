@@ -4,7 +4,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
+import type { ShapeshiftFeeMetadata } from 'lib/fees/model'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
@@ -57,7 +57,7 @@ type AffiliateFeesProps = {
   inputAmountUsd: string | undefined
 }
 
-export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
+export const selectCalculatedFees: Selector<ReduxState, ShapeshiftFeeMetadata> =
   createCachedSelector(
     (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
     (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
@@ -65,7 +65,7 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
     selectThorVotingPower,
     selectIsSnapshotApiQueriesRejected,
     (feeModel, inputAmountUsd, votingPower, thorVotingPower, isSnapshotApiQueriesRejected) => {
-      const fees: CalculateFeeBpsReturn = calculateFees({
+      const fees: ShapeshiftFeeMetadata = calculateFees({
         tradeAmountUsd: bnOrZero(inputAmountUsd),
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),

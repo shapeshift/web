@@ -16,7 +16,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
+import type { ShapeshiftFeeMetadata } from 'lib/fees/model'
 import { fromBaseUnit } from 'lib/math'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
@@ -205,10 +205,12 @@ export const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate |
     return tradeQuoteState.confirmedQuote
   })
 
-export const selectConfirmedFees: Selector<ReduxState, CalculateFeeBpsReturn | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
-    return tradeQuoteState.confirmedFees
-  })
+export const selectConfirmedShapeshiftFeeMetadata: Selector<
+  ReduxState,
+  ShapeshiftFeeMetadata | undefined
+> = createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
+  return tradeQuoteState.confirmedShapeshiftFeeMetadata
+})
 
 export const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
@@ -569,21 +571,21 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
   })
 
 export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
-  selectConfirmedFees,
+  selectConfirmedShapeshiftFeeMetadata,
   selectActiveQuoteAffiliateBps,
-  (calculatedFees, affiliateBps) => {
-    if (!affiliateBps || !calculatedFees) return
+  (confirmedShapeshiftFeeMetadata, affiliateBps) => {
+    if (!affiliateBps || !confirmedShapeshiftFeeMetadata) return
     if (affiliateBps === '0') return bn(0)
 
-    return calculatedFees.feeUsd
+    return confirmedShapeshiftFeeMetadata.feeUsd
   },
 )
 
 export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
-  selectConfirmedFees,
-  confirmedFees => {
-    if (!confirmedFees) return
-    return confirmedFees.foxDiscountUsd
+  selectConfirmedShapeshiftFeeMetadata,
+  confirmedShapeshiftFeeMetadata => {
+    if (!confirmedShapeshiftFeeMetadata) return
+    return confirmedShapeshiftFeeMetadata.foxDiscountUsd
   },
 )
 

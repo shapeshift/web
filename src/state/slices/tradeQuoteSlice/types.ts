@@ -1,7 +1,7 @@
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
+import type { ShapeshiftFeeMetadata } from 'lib/fees/model'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 export type ActiveQuoteMeta = {
@@ -15,7 +15,7 @@ export type TradeQuoteSliceState = {
   confirmedQuote: TradeQuote | TradeRate | undefined // the quote being executed
   // Used to display the "You saved" message in the TradeSuccess component. This needs to be stored
   // here because trading fox will affect the calculation after the trade has been executed.
-  confirmedFees: CalculateFeeBpsReturn | undefined
+  confirmedShapeshiftFeeMetadata: ShapeshiftFeeMetadata | undefined
   tradeExecution: Record<TradeQuote['id'], TradeExecutionMetadata>
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
   tradeQuoteDisplayCache: ApiQuote[]

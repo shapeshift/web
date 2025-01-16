@@ -18,7 +18,7 @@ type CalculateFeeBpsArgs = {
 
 /**
  * Represents the return type for calculating fee basis points (bps).
- * @type {Object} CalculateFeeBpsReturn
+ * @type {Object} ShapeshiftFeeMetadata
  * @property {BigNumber} feeBps - The net fee bps (i.e., including the fox discount) used for actual trades.
  * @property {BigNumber} feeBpsFloat - `feeBps` as a floating point number, used for plotting the theoretical bps ignoring the realities of integer bps values.
  * @property {BigNumber} feeUsd - The net USD value of the fee (i.e., including the fox discount).
@@ -27,7 +27,7 @@ type CalculateFeeBpsArgs = {
  * @property {BigNumber} feeUsdBeforeDiscount - The gross USD value of the fee (i.e., excluding the fox discount).
  * @property {BigNumber} feeBpsBeforeDiscount - The gross fee bps (i.e., excluding the fox discount).
  */
-export type CalculateFeeBpsReturn = {
+export type ShapeshiftFeeMetadata = {
   feeBps: BigNumber
   feeBpsFloat: BigNumber
   feeUsd: BigNumber
@@ -36,7 +36,7 @@ export type CalculateFeeBpsReturn = {
   feeUsdBeforeDiscount: BigNumber
   feeBpsBeforeDiscount: BigNumber
 }
-type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
+type CalculateFeeBps = (args: CalculateFeeBpsArgs) => ShapeshiftFeeMetadata
 
 export const calculateFees: CalculateFeeBps = ({
   tradeAmountUsd,

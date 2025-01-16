@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
+import type { ShapeshiftFeeMetadata } from 'lib/fees/model'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
@@ -57,11 +57,11 @@ export const tradeQuoteSlice = createSlice({
       state,
       action: PayloadAction<{
         quote: TradeQuote | TradeRate
-        calculatedFees: CalculateFeeBpsReturn
+        shapeshiftFeeMetadata: ShapeshiftFeeMetadata
       }>,
     ) => {
       state.confirmedQuote = action.payload.quote
-      state.confirmedFees = action.payload.calculatedFees
+      state.confirmedShapeshiftFeeMetadata = action.payload.shapeshiftFeeMetadata
     },
     clearQuoteExecutionState: (state, action: PayloadAction<TradeQuote['id']>) => {
       state.tradeExecution[action.payload] = initialTradeExecutionState

@@ -267,7 +267,7 @@ export const mockStore: ReduxState = {
   tradeQuoteSlice: {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
-    confirmedFees: undefined,
+    confirmedShapeshiftFeeMetadata: undefined,
     activeStep: undefined,
     tradeExecution: {},
     tradeQuotes: {},

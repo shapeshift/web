@@ -258,40 +258,9 @@ export const NewWalletViewsSwitch = () => {
 
   const body = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
-      <Box flex={1} bg={bodyBgColor} p={6}>
-        <Flex height='full' alignItems='center'>
-          <Box width='full'>
-            <RightPanelContent
-              location={routeProps.history.location}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-              error={error}
-              setError={setError}
-            />
-          </Box>
-        </Flex>
-      </Box>
-    ),
-    [bodyBgColor, error, isLoading],
-  )
-
-  const bodyDesktopOnly = useCallback(
-    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
-      if (isMobile) return null
-
-      return body(routeProps)
-    },
-    [body],
-  )
-
-  const maybeBackButton = useMemo(() => {
-    return (
-      <Switch>
-        <Route exact path='/' />
-        <Route path='*'>
-          {/* Precisely what it says on the var name - adds a back button for non-root paths only
-           *  (i.e, can't go back when in root path)
-           */}
+      <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
+        {routeProps.history.location.pathname !== '/' ? (
+          // Only show back button for non-root routes
           <Box
             position='absolute'
             left={3}
@@ -311,10 +280,31 @@ export const NewWalletViewsSwitch = () => {
               onClick={handleBack}
             />
           </Box>
-        </Route>
-      </Switch>
-    )
-  }, [buttonContainerBgColor, handleBack, translate])
+        ) : null}
+        <Flex height='full' alignItems='center'>
+          <Box width='full'>
+            <RightPanelContent
+              location={routeProps.history.location}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              error={error}
+              setError={setError}
+            />
+          </Box>
+        </Flex>
+      </Box>
+    ),
+    [bodyBgColor, buttonContainerBgColor, error, handleBack, isLoading, translate],
+  )
+
+  const bodyDesktopOnly = useCallback(
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
+      if (isMobile) return null
+
+      return body(routeProps)
+    },
+    [body],
+  )
 
   return (
     <>
@@ -338,9 +328,6 @@ export const NewWalletViewsSwitch = () => {
             >
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
-
-            {maybeBackButton}
-
             <Flex minH='600px' w={containerWidth}>
               <Switch>
                 {/* Always display sections for the root route, no matter the viewport */}

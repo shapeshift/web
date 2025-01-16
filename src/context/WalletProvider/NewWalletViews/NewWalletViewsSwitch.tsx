@@ -26,6 +26,8 @@ import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
 import { EnterPassword } from '../NativeWallet/components/EnterPassword'
 import { NativeCreate } from '../NativeWallet/components/NativeCreate'
 import { NativeImportKeystore } from '../NativeWallet/components/NativeImportKeystore'
+import { NativeImportSeed } from '../NativeWallet/components/NativeImportSeed'
+import { NativeImportSelect } from '../NativeWallet/components/NativeImportSelect'
 import { NativePassword } from '../NativeWallet/components/NativePassword'
 import { NativeSuccess } from '../NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from '../NativeWallet/components/NativeTestPhrase'
@@ -61,6 +63,22 @@ const nativeRoutes = (
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativeImportKeystore {...routeProps} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.ImportSeed}
+      // TODO(gomes): add NativeImportSelectNew with new design
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeImportSeed {...routeProps} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.ImportSelect}
+      // TODO(gomes): add NativeImportSelectNew with new design
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeImportSelect {...routeProps} />}
     />
     <Route exact path={NativeWalletRoutes.Create}>
       <NativeCreate />

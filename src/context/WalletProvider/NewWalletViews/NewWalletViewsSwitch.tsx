@@ -230,9 +230,9 @@ export const NewWalletViewsSwitch = () => {
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
       setSelectedWalletId(walletId)
-      if (initialRoute) history.push(_initialRoute)
+      if (_initialRoute) history.push(_initialRoute)
     },
-    [history, initialRoute],
+    [history],
   )
   // Reset history on modal open/unmount
   useEffect(() => {
@@ -275,7 +275,7 @@ export const NewWalletViewsSwitch = () => {
         routeProps.history.location.pathname === '/metamask/connect'
       return (
         <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
-          {!isRootRoute ? (
+          {!isRootRoute || isMobile ? (
             <Box
               position='absolute'
               left={3}

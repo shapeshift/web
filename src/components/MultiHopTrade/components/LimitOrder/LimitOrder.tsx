@@ -2,6 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { AllowanceApproval } from './components/AllowanceApproval'
@@ -27,6 +28,7 @@ type LimitOrderProps = {
 
 export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrderProps) => {
   const location = useLocation()
+  const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
   const renderLimitOrderInput = useCallback(() => {
     return (
@@ -62,7 +64,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
           <Route
             key={LimitOrderRoutePaths.Confirm}
             path={LimitOrderRoutePaths.Confirm}
-            render={renderLimitOrderConfirm}
+            render={isNewLimitFlowEnabled ? renderLimitOrderConfirm : renderLimitOrderConfirm} // TODO: add new flow here
           />
           <Route
             key={LimitOrderRoutePaths.AllowanceApproval}

@@ -143,6 +143,7 @@ export const mockStore: ReduxState = {
       NewTradeFlow: false,
       NewWalletFlow: false,
       FoxPageFoxWifHatSection: false,
+      NewLimitFlow: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

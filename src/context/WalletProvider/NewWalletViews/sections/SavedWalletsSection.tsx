@@ -1,5 +1,6 @@
 import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
@@ -56,30 +57,28 @@ export const SavedWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const [wallets, setWallets] = useState<VaultInfo[]>([])
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
 
-  // TODO(gomes): let's use this PR as an opportunity to remove this digusting IIAFE from copypasta, yes it works but pls
-  useEffect(() => {
-    ;(async () => {
+  const nativeVaultsQuery = useQuery({
+    queryKey: ['hdwalletNativeVaultsList'],
+    queryFn: async () => {
       const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
-      try {
-        const vaultIds = await Vault.list()
-        const storedWallets: VaultInfo[] = await Promise.all(
+
+      const storedWallets: VaultInfo[] = await Vault.list().then(vaultIds =>
+        Promise.all(
           vaultIds.map(async id => {
             const meta = await Vault.meta(id)
             const name = String(meta?.get('name') ?? id)
             return { id, name }
           }),
-        )
-        setWallets(storedWallets)
-      } catch (e) {
-        console.error(e)
-        setWallets([])
-      }
-    })()
-  }, [])
+        ),
+      )
+
+      return storedWallets
+    },
+    refetchOnMount: true,
+  })
 
   const handleWalletSelect = useCallback(
     async (wallet: VaultInfo) => {
@@ -131,7 +130,7 @@ export const SavedWalletsSection = ({
     [dispatch, getAdapter, localWallet, onWalletSelect],
   )
 
-  if (!wallets.length) return null
+  if (!nativeVaultsQuery.data?.length) return null
 
   return (
     <Stack spacing={2} my={6}>
@@ -141,7 +140,7 @@ export const SavedWalletsSection = ({
         color='gray.500'
         translation={'walletProvider.shapeShift.load.header'}
       />
-      {wallets.map(wallet => (
+      {nativeVaultsQuery.data.map(wallet => (
         <WalletCard
           wallet={wallet}
           onClick={handleWalletSelect}

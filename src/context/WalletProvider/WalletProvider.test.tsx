@@ -34,6 +34,13 @@ vi.mock('@shapeshiftoss/hdwallet-metamask-multichain', () => ({
   },
 }))
 
+vi.mock('@shapeshiftoss/hdwallet-native-vault', () => ({
+  Vault: {
+    list: vi.fn().mockResolvedValue([]),
+    meta: vi.fn(),
+  },
+}))
+
 vi.mock('./useEip1993EventHandler', () => ({
   useEip1993EventHandler: vi.fn(),
 }))

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, Stack, Text as CText } from '@chakra-ui/react'
+import { Box, Button, Flex, Image, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { uniqBy } from 'lodash'
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
@@ -20,6 +20,7 @@ const MipdProviderSelectItem = ({
   isSelected: boolean
   isDisabled: boolean
 }) => {
+  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const handleConnect = useCallback(
     () => connect(provider.info.rdns),
     [connect, provider.info.rdns],
@@ -36,7 +37,7 @@ const MipdProviderSelectItem = ({
       borderRadius='md'
       width='full'
       onClick={handleConnect}
-      bg={isSelected ? 'whiteAlpha.100' : undefined}
+      bg={isSelected ? backgroundColor : undefined}
       isDisabled={isDisabled}
     >
       <Flex alignItems='center' width='full'>

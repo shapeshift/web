@@ -31,7 +31,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             justifyContent='space-between'
             rightIcon={arrowForwardIcon}
             onClick={handleCreate}
-            data-test='wallet-native-create-button'
           >
             <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
@@ -43,7 +42,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             justifyContent='space-between'
             rightIcon={arrowForwardIcon}
             onClick={handleImportClick}
-            data-test='wallet-native-import-button'
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>

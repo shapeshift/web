@@ -28,7 +28,7 @@ const hoverSx = { borderColor: 'blue.500' }
 
 // TODO(gomes): use https://www.chakra-ui.com/docs/components/file-upload if/when we migrate to chakra@3
 const FileUpload = ({ onFileSelect }: { onFileSelect: (file: File) => void }) => {
-  const bgColor = useColorModeValue('gray.50', 'gray.800')
+  const bgColor = useColorModeValue('gray.200', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const [isDragging, setIsDragging] = useState(false)
   const [filename, setFilename] = useState<string | null>(null)

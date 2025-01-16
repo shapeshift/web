@@ -1874,6 +1874,7 @@
         "shapeshiftWallet": "ShapeShift Wallet",
         "createNewWallet": "Create a new wallet",
         "shapeshiftNative": "ShapeShift Native",
+        "addNewWallet": "Add new wallet",
         "comingFromThorswap": "Coming from THORSwap?",
         "importExisting": "Import existing",
         "importFromKeystore": "Import from keystore",

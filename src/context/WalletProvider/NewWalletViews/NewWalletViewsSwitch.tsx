@@ -252,7 +252,7 @@ export const NewWalletViewsSwitch = () => {
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider />
+        <Divider mb={6} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
           isLoading={isLoading}

@@ -1,7 +1,7 @@
-import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import { FaWallet } from 'react-icons/fa'
+import { FaPlus, FaWallet } from 'react-icons/fa'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -59,6 +59,8 @@ export const SavedWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
+  const buttonBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
 
@@ -132,6 +134,10 @@ export const SavedWalletsSection = ({
     [dispatch, getAdapter, localWallet, onWalletSelect],
   )
 
+  const handleAddNewWalletClick = useCallback(() => {
+    console.log('TODO')
+  }, [])
+
   if (!nativeVaultsQuery.data?.length) return null
 
   return (
@@ -149,6 +155,24 @@ export const SavedWalletsSection = ({
             isSelected={selectedWalletId === wallet.id}
           />
         ))}
+        <Box
+          as={Button}
+          variant='ghost'
+          px={4}
+          ml={-4}
+          py={6}
+          borderRadius='md'
+          width='full'
+          onClick={handleAddNewWalletClick}
+          bg={buttonBgColor}
+        >
+          <Flex alignItems='center' width='full' color='gray.500'>
+            <Icon as={FaPlus} boxSize='12px' mr={3} />
+            <Box textAlign='left'>
+              <Text translation='walletProvider.shapeShift.onboarding.addNewWallet' />
+            </Box>
+          </Flex>
+        </Box>
       </Stack>
     </>
   )

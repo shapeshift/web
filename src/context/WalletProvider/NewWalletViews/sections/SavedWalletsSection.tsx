@@ -2,12 +2,14 @@ import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
+import { useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 type VaultInfo = {
@@ -61,6 +63,7 @@ export const SavedWalletsSection = ({
 }) => {
   const buttonBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
+  const history = useHistory()
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
 
@@ -135,8 +138,8 @@ export const SavedWalletsSection = ({
   )
 
   const handleAddNewWalletClick = useCallback(() => {
-    console.log('TODO')
-  }, [])
+    history.push(NativeWalletRoutes.Connect)
+  }, [history])
 
   if (!nativeVaultsQuery.data?.length) return null
 

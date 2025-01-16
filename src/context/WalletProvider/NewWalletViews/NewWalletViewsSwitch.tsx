@@ -37,6 +37,7 @@ import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
+import { NativeIntro } from './wallets/native/NativeIntro'
 import { NativeStart } from './wallets/native/NativeStart'
 
 const sectionsWidth = { base: 'full', md: '300px' }
@@ -60,6 +61,13 @@ const nativeRoutes = (
   <Switch>
     <Route
       exact
+      path={NativeWalletRoutes.Connect}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeStart {...routeProps} />}
+    />
+    <Route
+      exact
       path={NativeWalletRoutes.ImportKeystore}
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
@@ -68,7 +76,6 @@ const nativeRoutes = (
     <Route
       exact
       path={NativeWalletRoutes.ImportSeed}
-      // TODO(gomes): add NativeImportSelectNew with new design
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativeImportSeed {...routeProps} />}
@@ -76,7 +83,6 @@ const nativeRoutes = (
     <Route
       exact
       path={NativeWalletRoutes.ImportSelect}
-      // TODO(gomes): add NativeImportSelectNew with new design
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativeImportSelect {...routeProps} />}
@@ -87,22 +93,16 @@ const nativeRoutes = (
     <Route
       exact
       path={NativeWalletRoutes.Password}
-      // TODO(gomes): add NativePassowrdNew with new design
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
     />
-    <Route
-      exact
-      path={NativeWalletRoutes.EnterPassword}
-      // TODO(gomes): add EnterPasswordNew with new design
-    >
+    <Route exact path={NativeWalletRoutes.EnterPassword}>
       <EnterPassword />
     </Route>
     <Route
       exact
       path={NativeWalletRoutes.Success}
-      // TODO(gomes): add NativeSuccessNew with new design
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativeSuccess {...(routeProps as NativeSetupProps)} />}
@@ -110,7 +110,6 @@ const nativeRoutes = (
     <Route
       exact
       path={NativeWalletRoutes.CreateTest}
-      // TODO(gomes): add NativeTestPhraseNew with new design
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativeTestPhrase {...(routeProps as NativeSetupProps)} />}
@@ -132,7 +131,7 @@ const RightPanelContent = ({
   if (location.pathname.startsWith('/native')) return nativeRoutes
 
   // No modal type, and no in-flight native routes - assume enpty state
-  if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeStart />
+  if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
 
   if (isMipdProvider && modalType) {
     return (

@@ -146,18 +146,10 @@ const RightPanelContent = ({
           />
         </Route>
         <Route path='/metamask/snap/install'>
-          <Flex height='full' alignItems='center'>
-            <Box width='full'>
-              <SnapInstall />
-            </Box>
-          </Flex>
+          <SnapInstall />
         </Route>
         <Route path='/metamask/snap/update'>
-          <Flex height='full' alignItems='center'>
-            <Box width='full'>
-              <SnapUpdate />
-            </Box>
-          </Flex>
+          <SnapUpdate />
         </Route>
       </Switch>
     )
@@ -267,13 +259,17 @@ export const NewWalletViewsSwitch = () => {
   const body = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
       <Box flex={1} bg={bodyBgColor} p={6}>
-        <RightPanelContent
-          location={routeProps.history.location}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          error={error}
-          setError={setError}
-        />
+        <Flex height='full' alignItems='center'>
+          <Box width='full'>
+            <RightPanelContent
+              location={routeProps.history.location}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              error={error}
+              setError={setError}
+            />
+          </Box>
+        </Flex>
       </Box>
     ),
     [bodyBgColor, error, isLoading],
@@ -344,6 +340,7 @@ export const NewWalletViewsSwitch = () => {
             </Box>
 
             {maybeBackButton}
+
             <Flex minH='600px' w={containerWidth}>
               <Switch>
                 {/* Always display sections for the root route, no matter the viewport */}

@@ -15,7 +15,6 @@ export const TestProviders: React.FC<PropsWithChildren> = ({ children }) => (
   <QueryClientProvider client={queryClient}>
     <ReduxProvider store={store}>
       <I18n locale={locale} messages={messages}>
-        {/* @ts-ignore remove warning */}
         {children}
       </I18n>
     </ReduxProvider>

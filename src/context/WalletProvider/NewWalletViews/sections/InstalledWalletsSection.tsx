@@ -99,7 +99,12 @@ export const InstalledWalletsSection = ({
 
   return (
     <Stack spacing={2} my={6}>
-      <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='Installed' />
+      <Text
+        fontSize='sm'
+        fontWeight='medium'
+        color='gray.500'
+        translation='walletProvider.shapeShift.onboarding.shapeshiftNative'
+      />
       {filteredProviders.map(provider => {
         const isSelected = selectedWalletId === provider.info.rdns
         return (

@@ -61,7 +61,7 @@ export const NativeStart = () => {
 
       <Box bg={keystoreBgColor} rounded='md' width='100%' py={2} mb={4} textAlign='center'>
         <CText color={bodyColor}>
-          {translate('walletProvider.shapeShift.onboarding.haveAKeystore')}{' '}
+          {translate('walletProvider.shapeShift.onboarding.comingFromThorswap')}{' '}
           <Button variant='link' color='blue.500' onClick={handleImportKeystoreClick}>
             {translate('walletProvider.shapeShift.onboarding.importFromKeystore')}
           </Button>

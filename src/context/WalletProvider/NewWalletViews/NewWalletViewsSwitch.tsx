@@ -247,7 +247,7 @@ export const NewWalletViewsSwitch = () => {
 
   const sections = useMemo(
     () => (
-      <Box w={sectionsWidth} p={6} maxH='600px' overflowY='auto'>
+      <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
         <SavedWalletsSection
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
@@ -345,7 +345,7 @@ export const NewWalletViewsSwitch = () => {
             >
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
-            <Flex minH='600px' w={containerWidth}>
+            <Flex minH='800px' w={containerWidth}>
               <Switch>
                 {/* Always display sections for the root route, no matter the viewport */}
                 <Route exact path='/'>

@@ -111,6 +111,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             setDepositAmount={setDepositAmount}
             depositAmount={depositAmount}
             maxDepositAmount={totalStakedCryptoResult.data}
+            stakingAssetId={stakingAssetId}
           />
         </CardBody>
       </Card>

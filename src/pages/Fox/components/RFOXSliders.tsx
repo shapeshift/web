@@ -9,12 +9,15 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export type RFOXSlidersProps = {
   shapeShiftRevenue: number
@@ -22,6 +25,7 @@ export type RFOXSlidersProps = {
   depositAmount: number
   setDepositAmount: (val: number) => void
   maxDepositAmount: string | undefined
+  stakingAssetId: AssetId
 }
 
 const DEFAULT_DEPOSIT_AMOUNT = 10000
@@ -44,10 +48,12 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
   depositAmount,
   setDepositAmount,
   maxDepositAmount,
+  stakingAssetId,
 }) => {
   const {
     number: { localeParts },
   } = useLocaleFormatter()
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const handleShapeShiftRevenueChange = useCallback(
     (values: NumberFormatValues) => {
       setShapeShiftRevenue(bnOrZero(values.value).toNumber())
@@ -74,7 +80,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
               customInput={Input}
               isNumericString={true}
               inputMode='decimal'
-              suffix={' FOX'}
+              suffix={` ${stakingAsset?.symbol ?? ''}`}
               decimalSeparator={localeParts.decimal}
               thousandSeparator={localeParts.group}
               value={depositAmount.toString()}

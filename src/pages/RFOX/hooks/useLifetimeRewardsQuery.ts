@@ -25,7 +25,7 @@ export const useLifetimeRewardsQuery = ({
       return data.reduce((acc, epoch) => {
         const distribution =
           epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-            .distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
+            ?.distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
 
         if (!distribution) return acc
 
@@ -38,7 +38,10 @@ export const useLifetimeRewardsQuery = ({
     [stakingAssetId, stakingAssetAccountAddress],
   )
 
-  const query = useEpochHistoryQuery({ select, enabled: !!stakingAssetAccountAddress })
+  const query = useEpochHistoryQuery({
+    select,
+    enabled: !!stakingAssetAccountAddress,
+  })
 
   return query
 }

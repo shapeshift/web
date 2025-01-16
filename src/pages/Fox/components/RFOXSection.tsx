@@ -144,6 +144,7 @@ export const RFOXSection = () => {
     isLoading: isStakingBalanceCryptoPrecisionQueryLoading,
     isFetching: isStakingBalanceCryptoPrecisionFetching,
   } = useStakingInfoQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
     select: selectStakingBalanceCryptoPrecision,
   })
@@ -159,6 +160,7 @@ export const RFOXSection = () => {
     isLoading: isCurrentEpochRewardsCryptoBaseUnitQueryLoading,
     isFetching: isCurrentEpochRewardsCryptoBaseUnitFetching,
   } = useCurrentEpochRewardsQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
     currentEpochMetadata: currentEpochMetadataResult.data,
   })
@@ -179,6 +181,7 @@ export const RFOXSection = () => {
     isLoading: isLifetimeRewardsQueryLoading,
     isFetching: isLifetimeRewardsFetching,
   } = useLifetimeRewardsQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
   })
 
@@ -191,6 +194,7 @@ export const RFOXSection = () => {
     isLoading: isTimeInPoolQueryLoading,
     isFetching: isTimeInPoolFetching,
   } = useTimeInPoolQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),

@@ -1,5 +1,6 @@
-import { Flex, Heading, Stack } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { Flex, Heading } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -9,7 +10,7 @@ import { InlineCopyButton } from 'components/InlineCopyButton'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
-import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/portfolioSlice/selectors'
+import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
@@ -17,22 +18,34 @@ import { useRFOXContext } from '../hooks/useRfoxContext'
 export const RFOXHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
+
+  const {
+    stakingAssetId,
+    selectedAssetAccountId,
+    stakingAssetAccountId,
+    setStakingAssetAccountId,
+  } = useRFOXContext()
+
   const handleBack = useCallback(() => {
     history.push('/explore')
   }, [history])
-  const { stakingAssetId, setStakingAssetAccountId, stakingAssetAccountId } = useRFOXContext()
 
-  const accountIdsFilter = useMemo(() => ({ assetId: stakingAssetId }), [stakingAssetId])
   const accountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
+    selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
   )
 
   useEffect(() => {
     if (!accountIds.length) setStakingAssetAccountId(undefined)
-    if (accountIds.length === 1) {
-      setStakingAssetAccountId(accountIds[0])
-    }
+    if (accountIds.length === 1) setStakingAssetAccountId(accountIds[0])
   }, [accountIds, setStakingAssetAccountId])
+
+  const handleChange = useCallback(
+    (accountId: AccountId) => {
+      const { account } = fromAccountId(accountId)
+      setStakingAssetAccountId(toAccountId({ chainId: arbitrumChainId, account }))
+    },
+    [setStakingAssetAccountId],
+  )
 
   const activeAccountDropdown = useMemo(() => {
     if (accountIds.length <= 1) return null
@@ -46,9 +59,9 @@ export const RFOXHeader = () => {
           value={stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : ''}
         >
           <AccountDropdown
-            defaultAccountId={stakingAssetAccountId}
+            defaultAccountId={selectedAssetAccountId}
             assetId={stakingAssetId}
-            onChange={setStakingAssetAccountId}
+            onChange={handleChange}
             // dis already memoized
             // eslint-disable-next-line react-memo/require-usememo
             buttonProps={{ variant: 'solid', width: 'full' }}
@@ -56,7 +69,13 @@ export const RFOXHeader = () => {
         </InlineCopyButton>
       </Flex>
     )
-  }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
+  }, [
+    accountIds.length,
+    handleChange,
+    selectedAssetAccountId,
+    stakingAssetAccountId,
+    stakingAssetId,
+  ])
 
   return (
     <>
@@ -72,10 +91,7 @@ export const RFOXHeader = () => {
         </Display.Mobile>
         <Display.Desktop>
           <PageHeader.Left>
-            <Stack pb={4}>
-              <Heading>{translate('RFOX.staking')}</Heading>
-              <Text translation='explore.rfox.body' color='text.subtle' />
-            </Stack>
+            <Heading mb={4}>{translate('RFOX.staking')}</Heading>
           </PageHeader.Left>
           <PageHeader.Right>{activeAccountDropdown}</PageHeader.Right>
         </Display.Desktop>

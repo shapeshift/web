@@ -1,6 +1,27 @@
-import { parseAbiStakingInfo } from './hooks/helpers'
+import type { AssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  uniV2EthFoxArbitrumAssetId,
+} from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT, RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { invert } from 'lodash'
+
 import type { EpochWithIpfsHash } from './hooks/useEpochHistoryQuery'
 import type { AbiStakingInfo, StakingInfo } from './types'
+
+const parseAbiStakingInfo = (abiStakingInfo: AbiStakingInfo): StakingInfo => {
+  const [stakingBalance, unstakingBalance, earnedRewards, rewardPerTokenStored, runeAddress] =
+    abiStakingInfo
+
+  return {
+    stakingBalance,
+    unstakingBalance,
+    earnedRewards,
+    rewardPerTokenStored,
+    runeAddress,
+  }
+}
 
 export const selectFromStakingInfo = (key: keyof StakingInfo, abiStakingInfo: AbiStakingInfo) => {
   return parseAbiStakingInfo(abiStakingInfo)[key]?.toString()
@@ -15,7 +36,25 @@ export const selectStakingBalance = (abiStakingInfo: AbiStakingInfo) => {
 }
 
 export const selectLastEpoch = (data: EpochWithIpfsHash[]): EpochWithIpfsHash | undefined => {
-  const lastEpoch = data[data.length - 1]
+  return data[data.length - 1]
+}
 
-  return lastEpoch
+const stakingContractByAssetId = {
+  [foxAssetId]: RFOX_PROXY_CONTRACT,
+  [foxOnArbitrumOneAssetId]: RFOX_PROXY_CONTRACT,
+  [uniV2EthFoxArbitrumAssetId]: RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
+}
+
+const stakingAssetIdByContract = invert(stakingContractByAssetId)
+
+export const getStakingContract = (stakingAssetId: AssetId) => {
+  const stakingContract = stakingContractByAssetId[stakingAssetId]
+  if (!stakingContract) throw new Error(`No rFOX staking contract for ${stakingAssetId}`)
+  return stakingContract
+}
+
+export const getStakingAssetId = (stakingContract: string) => {
+  const stakingAssetId = stakingAssetIdByContract[stakingContract]
+  if (!stakingAssetId) throw new Error(`No rFOX staking assetId for ${stakingContract}`)
+  return stakingAssetId
 }

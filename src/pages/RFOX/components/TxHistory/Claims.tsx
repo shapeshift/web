@@ -4,11 +4,8 @@ import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { Text } from 'components/Text'
-import { fromBaseUnit } from 'lib/math'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from '../Claim/ClaimRow'
 
@@ -17,35 +14,29 @@ type ClaimsProps = {
 }
 
 export const Claims = ({ headerComponent }: ClaimsProps) => {
-  const { stakingAssetAccountId, stakingAssetId } = useRFOXContext()
-  const setConfirmedQuote = useCallback(() => {}, [])
+  const { stakingAssetAccountId } = useRFOXContext()
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
 
-  const unstakingRequestsResult = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
-    if (!stakingAsset || !stakingAssetAccountId) return null
+    if (!stakingAssetAccountId) return null
 
-    if (!unstakingRequestsResult.isSuccess) {
+    if (!unstakingRequestsQuery.isSuccess) {
       return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />
     }
 
-    if (!unstakingRequestsResult.data.length) {
+    if (!unstakingRequestsQuery.data.length) {
       return <Text color='text.subtle' translation='RFOX.noClaimsAvailable' />
     }
 
-    return unstakingRequestsResult.data.map((unstakingRequest, index) => {
-      const amountCryptoPrecision = fromBaseUnit(
-        unstakingRequest.unstakingBalance.toString(),
-        stakingAsset?.precision ?? 0,
-      )
-
+    return unstakingRequestsQuery.data.map(unstakingRequest => {
       const currentTimestampMs = Date.now()
       const unstakingTimestampMs = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
@@ -55,36 +46,32 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
 
       return (
         <ClaimRow
-          stakingAssetId={stakingAssetId}
+          stakingAssetId={unstakingRequest.stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
-          amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
+          amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
           status={status}
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
-          index={index}
+          index={unstakingRequest.index}
         />
       )
     })
   }, [
     setConfirmedQuote,
-    stakingAsset,
     stakingAssetAccountId,
-    stakingAssetId,
-    unstakingRequestsResult.data,
-    unstakingRequestsResult.isSuccess,
+    unstakingRequestsQuery.data,
+    unstakingRequestsQuery.isSuccess,
   ])
-
-  if (!stakingAsset) return null
 
   return (
     <CardBody>
       {headerComponent}
       <Skeleton
         isLoaded={
-          !unstakingRequestsResult.isLoading &&
-          !unstakingRequestsResult.isPending &&
-          !unstakingRequestsResult.isPaused &&
-          !unstakingRequestsResult.isRefetching
+          !unstakingRequestsQuery.isLoading &&
+          !unstakingRequestsQuery.isPending &&
+          !unstakingRequestsQuery.isPaused &&
+          !unstakingRequestsQuery.isRefetching
         }
       >
         {claims}

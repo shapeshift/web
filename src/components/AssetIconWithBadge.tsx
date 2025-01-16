@@ -1,6 +1,7 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Box, Center, Image } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { TransferType } from '@shapeshiftoss/unchained-client'
 import uniqBy from 'lodash/uniqBy'
 import type { PropsWithChildren } from 'react'
@@ -8,6 +9,8 @@ import { useMemo } from 'react'
 import { LuGlobe } from 'react-icons/lu'
 import FlipShadow from 'assets/flip-shadow.svg'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import {
   AssetIcon,
@@ -16,6 +19,9 @@ import {
   squareClipPath,
   topClipPath,
 } from './AssetIcon'
+
+export const pairIconsBadgeClipPath =
+  'polygon(83% 0%, 100% 0%, 100% 100%, 0% 112%, 0% 105%, 16% 100%, -8% 56%, 3% 33%, 2% 36%, 5% 37%, 6% 36%, 8% 37%, 11% 45%, 11% 34%, 17% 38%, 18% 37%, 31% 33%, 34% 17%, 34% 0%, 23% 0%, 26% 0%, 29% 0%, 32% 0%, 35% 0%, 37% 0%, 39% 0%, 40% 0%, 41% 0%, 42% 0%, 43% 0%, 43% 0%)'
 
 type AssetIconWithBadgeProps = {
   size?: AvatarProps['size']
@@ -47,9 +53,18 @@ const useTransferData = (transfersByType?: Record<TransferType, Transfer[]>) => 
   return { transfers, isNft }
 }
 
-const getClipPath = (index: number, totalTransfers: number, isNft: boolean) => {
+const getClipPath = (
+  index: number,
+  totalTransfers: number,
+  isNft: boolean,
+  asset: Asset | undefined,
+) => {
   if (isNft) return squareClipPath
-  if (totalTransfers === 1) return defaultClipPath
+  if (totalTransfers === 1) {
+    if (asset?.icons && asset.icons.length > 1) return pairIconsBadgeClipPath
+
+    return defaultClipPath
+  }
   if (index === 1) return bottomClipPath
   return topClipPath
 }
@@ -63,6 +78,7 @@ const TransferIcon: React.FC<{
 }> = ({ transfer, index, totalTransfers, isNft, size }) => {
   const isSecondTransfer = index === 1
   const shouldShowShadow = isSecondTransfer && totalTransfers > 1
+  const asset = useAppSelector(state => selectAssetById(state, transfer.assetId))
 
   if (totalTransfers > 2 && index === 2) return null // Skip third+ transfers
 
@@ -82,7 +98,7 @@ const TransferIcon: React.FC<{
       <AssetIcon
         showNetworkIcon={false}
         assetId={transfer.assetId}
-        clipPath={getClipPath(index, totalTransfers, isNft)}
+        clipPath={getClipPath(index, totalTransfers, isNft, asset)}
         name={transfer.asset.name}
         size={size}
         position={shouldShowShadow ? 'absolute' : 'static'}
@@ -104,6 +120,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
 }) => {
   const { transfers, isNft } = useTransferData(transfersByType)
   const webIcon = <LuGlobe />
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const renderContent = () => {
     if (assetId && secondaryAssetId) {
@@ -144,7 +161,9 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
         <AssetIcon
           showNetworkIcon={false}
           assetId={assetId}
-          clipPath={defaultClipPath}
+          clipPath={
+            asset?.icons && asset.icons.length > 1 ? pairIconsBadgeClipPath : defaultClipPath
+          }
           size={size}
         />
       )

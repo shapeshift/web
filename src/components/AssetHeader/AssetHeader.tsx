@@ -35,7 +35,6 @@ type AssetHeaderProps = {
 const externalLinkIcon = <ExternalLinkIcon />
 const displayMdFlex = { base: 'none', md: 'flex' }
 const fontSizeMd2xl = { base: 'xl', md: '2xl' }
-const pairProps = { showFirst: true }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
@@ -90,7 +89,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       <PageHeader.Left>
         <Display.Desktop>
           <Flex alignItems='center' mr='auto' flex={1}>
-            <AssetIcon assetId={asset.assetId} pairProps={pairProps} />
+            <AssetIcon assetId={asset.assetId} />
             <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
               <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
                 {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}

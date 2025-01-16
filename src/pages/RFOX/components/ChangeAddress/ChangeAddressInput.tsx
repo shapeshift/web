@@ -10,7 +10,9 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import type { Asset } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -18,11 +20,13 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
 import type {
@@ -30,13 +34,13 @@ import type {
   MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'
 import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
-import { selectRuneAddress } from 'pages/RFOX/helpers'
+import { getStakingContract, selectRuneAddress } from 'pages/RFOX/helpers'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectFeeAssetByChainId,
+  selectAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -58,20 +62,30 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   headerComponent,
   setConfirmedQuote,
 }) => {
-  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const { wallet, isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
+  const buyAssetSearch = useModal('buyAssetSearch')
+
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
+    useRFOXContext()
+
+  useEffect(() => {
+    if (supportedStakingAssetIds.includes(stakingAssetId)) return
+    setStakingAssetId(supportedStakingAssetIds[0])
+  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+
+  const assets = useAppSelector(selectAssets)
+
+  const stakingAssets = useMemo(() => {
+    return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
+  }, [assets, supportedStakingAssetIds])
+
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
-
-  const adapter = useMemo(
-    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
-    [feeAsset],
-  )
+  const adapter = useMemo(() => {
+    return assertGetEvmChainAdapter(fromAssetId(stakingAssetId).chainId)
+  }, [stakingAssetId])
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
@@ -117,6 +131,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     isSuccess: isCurrentRuneAddressSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId,
     select: selectRuneAddress,
   })
 
@@ -143,7 +158,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   const changeAddressFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT,
+      to: getStakingContract(stakingAssetId),
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
@@ -219,6 +234,23 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     trigger('newRuneAddress')
   }, [trigger, currentRuneAddress])
 
+  const handleAssetChange = useCallback(
+    (asset: Asset) => {
+      setStakingAssetId(asset.assetId)
+      // Reset address field when changing assets
+      setValue('newRuneAddress', '', { shouldValidate: true })
+    },
+    [setValue, setStakingAssetId],
+  )
+
+  const handleStakingAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onAssetClick: asset => setStakingAssetId(asset.assetId),
+      title: 'common.selectAsset',
+      assets: stakingAssets,
+    })
+  }, [stakingAssets, buyAssetSearch, setStakingAssetId])
+
   if (!isConnected)
     return (
       <SlideTransition>
@@ -245,6 +277,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
       <FormProvider {...methods}>
         <Stack>
           {headerComponent}
+          <Stack spacing={4}>
+            <Text translation='common.selectAsset' fontWeight='bold' px={6} />
+            <TradeAssetSelect
+              assetId={stakingAssetId}
+              onAssetClick={handleStakingAssetClick}
+              onAssetChange={handleAssetChange}
+              assetIds={supportedStakingAssetIds}
+              onlyConnectedChains={true}
+            />
+          </Stack>
           <Stack px={6} py={4}>
             <Flex justifyContent='space-between' mb={2} flexDir={'column'}>
               <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />

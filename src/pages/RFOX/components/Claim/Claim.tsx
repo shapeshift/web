@@ -1,10 +1,10 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense, useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
@@ -60,22 +60,23 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
-  const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-  })
+  const stakingAssetAccountAddress = useMemo(() => {
+    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
+  }, [confirmedQuote])
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
+    stakingAssetAccountAddress,
   })
 
   const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
+    await queryClient.invalidateQueries({
+      queryKey: getUnstakingRequestCountQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [queryClient, unstakingRequestCountQueryKey, unstakingRequestQueryKey])
+  }, [confirmedQuote, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
 
   const renderClaimSelect = useCallback(() => {
     return (

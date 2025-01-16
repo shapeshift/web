@@ -1,4 +1,5 @@
 import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Fee } from '../../../../types'
@@ -639,6 +640,7 @@ describe('parseTx', () => {
         epoch: 0,
         ipfsHash: 'QmYUiUq9UWK5NPF1h2BGdatw95psNtW8seGQpXZYoQYK1s',
         stakingAddress: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+        stakingContract: RFOX_PROXY_CONTRACT,
       },
     }
 

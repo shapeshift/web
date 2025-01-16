@@ -8,6 +8,7 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectPriceHistoryByAssetTimeframe } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { getStakingContract } from '../helpers'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
@@ -32,7 +33,8 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const totalStakedCryptoCurrencyResult = useTotalStakedQuery<string>({
+  const totalStakedCryptoCurrencyQuery = useTotalStakedQuery<string>({
+    stakingAssetId,
     select: (totalStaked: bigint) => {
       return totalStaked.toString()
     },
@@ -44,7 +46,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!stakingAssetPriceHistory) return
       if (!runeAsset) return
       if (!stakingAsset) return
-      if (!totalStakedCryptoCurrencyResult?.data) return
+      if (!totalStakedCryptoCurrencyQuery?.data) return
 
       const previousEpoch = epochs[epochs.length - 1]
 
@@ -60,14 +62,18 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
           runePriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
       )
 
+      const previousDistributionRate =
+        previousEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
+          .distributionRate
+
       const totalRuneUsdValue = bnOrZero(
         fromBaseUnit(previousEpoch.totalRevenue, runeAsset.precision),
       )
-        .times(previousEpoch.distributionRate)
+        .times(previousDistributionRate)
         .times(closestRunePrice?.price ?? 0)
 
       const totalFoxUsdValue = bnOrZero(
-        fromBaseUnit(totalStakedCryptoCurrencyResult.data, stakingAsset.precision),
+        fromBaseUnit(totalStakedCryptoCurrencyQuery.data, stakingAsset.precision),
       ).times(closestFoxPrice?.price ?? 0)
 
       const estimatedApy = totalRuneUsdValue.dividedBy(totalFoxUsdValue).times(12).toFixed(4)
@@ -79,7 +85,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       stakingAssetPriceHistory,
       runeAsset,
       stakingAsset,
-      totalStakedCryptoCurrencyResult,
+      totalStakedCryptoCurrencyQuery,
     ],
   )
 

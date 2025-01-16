@@ -133,20 +133,21 @@ export const SavedWalletsSection = ({
   if (!nativeVaultsQuery.data?.length) return null
 
   return (
-    <Stack spacing={2} my={6}>
+    <>
       <Text
-        fontSize='sm'
-        fontWeight='medium'
-        color='gray.500'
-        translation={'walletProvider.shapeShift.load.header'}
+        fontSize='xl'
+        fontWeight='semibold'
+        translation='walletProvider.shapeShift.onboarding.shapeshiftNative'
       />
-      {nativeVaultsQuery.data.map(wallet => (
-        <WalletCard
-          wallet={wallet}
-          onClick={handleWalletSelect}
-          isSelected={selectedWalletId === wallet.id}
-        />
-      ))}
-    </Stack>
+      <Stack spacing={2} my={6}>
+        {nativeVaultsQuery.data.map(wallet => (
+          <WalletCard
+            wallet={wallet}
+            onClick={handleWalletSelect}
+            isSelected={selectedWalletId === wallet.id}
+          />
+        ))}
+      </Stack>
+    </>
   )
 }

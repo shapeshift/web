@@ -247,11 +247,11 @@ export const NewWalletViewsSwitch = () => {
   const sections = useMemo(
     () => (
       <Box w={sectionsWidth} p={6}>
-        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <SavedWalletsSection
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
+        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}

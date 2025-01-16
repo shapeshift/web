@@ -188,7 +188,8 @@
     "activeAccount": "Active Account",
     "update": "Update",
     "apy": "APY",
-    "tbd": "TBD"
+    "tbd": "TBD",
+    "installed": "Installed"
   },
   "consentBanner": {
     "body": {

@@ -1,4 +1,5 @@
-import { Button, Flex, HStack, Text, useColorModeValue } from '@chakra-ui/react'
+import type { StackDirection } from '@chakra-ui/react'
+import { Button, Flex, HStack, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { middleEllipsis } from 'lib/utils'
@@ -13,6 +14,13 @@ type FoxWifHatHoldingLineProps = {
   onClaim?: () => void
 }
 
+const actionsPaddingLeft = { base: 10, md: 0 }
+const columnsWidth = { base: '100%', md: '50%' }
+const columnsDirection: StackDirection = { base: 'column', md: 'row' }
+const columnsAlignItems = { md: 'center' }
+const columnsJustifyContent = { md: 'space-between' }
+const columnsSpacing = { base: 4, md: 48 }
+
 export const FoxWifHatHoldingLine = ({
   accountId,
   accountNumber,
@@ -26,29 +34,43 @@ export const FoxWifHatHoldingLine = ({
   const translate = useTranslate()
 
   return (
-    <Flex width='full' alignItems='center' justifyContent='space-between' px={6} py={4}>
-      <HStack spacing={4}>
-        <WalletIcon color={textColor} boxSize={6} />
-        <Flex direction='column' alignItems='flex-start'>
-          <Text fontWeight='bold' fontSize='sm'>
-            {middleEllipsis(accountId)}
-          </Text>
-          <Text color={textColor} fontSize='xs'>
-            {translate('accounts.accountNumber', { accountNumber })}
-          </Text>
-        </Flex>
-      </HStack>
+    <Stack
+      width='full'
+      px={6}
+      py={4}
+      spacing={columnsSpacing}
+      direction={columnsDirection}
+      alignItems={columnsAlignItems}
+      justifyContent={columnsJustifyContent}
+    >
+      <Flex width={columnsWidth} alignItems='center' justifyContent='space-between'>
+        <HStack spacing={4}>
+          <WalletIcon color={textColor} boxSize={6} />
+          <Flex direction='column' alignItems='flex-start'>
+            <Text fontWeight='bold' fontSize='sm'>
+              {middleEllipsis(accountId)}
+            </Text>
+            <Text color={textColor} fontSize='xs'>
+              {translate('accounts.accountNumber', { accountNumber })}
+            </Text>
+          </Flex>
+        </HStack>
 
-      <Flex alignItems='center' gap={6} width='full' justifyContent='space-around'>
         <Text fontWeight='bold'>
           {amount} {symbol}
         </Text>
+      </Flex>
+
+      <Flex
+        width={columnsWidth}
+        alignItems='center'
+        justifyContent='space-between'
+        pl={actionsPaddingLeft}
+      >
         <Text color='green.500' fontSize='sm' fontWeight='bold'>
           {translate('foxPage.foxWifHat.discountText', { percent: discountPercent })}
         </Text>
-      </Flex>
 
-      <Flex alignItems='center' gap={6} width='100%' maxWidth='150px' justifyContent='flex-end'>
         <Button
           colorScheme={isClaimed ? 'green' : 'gray'}
           size='sm'
@@ -59,6 +81,6 @@ export const FoxWifHatHoldingLine = ({
             : translate('foxPage.foxWifHat.claim')}
         </Button>
       </Flex>
-    </Flex>
+    </Stack>
   )
 }

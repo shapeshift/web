@@ -61,7 +61,6 @@ export const FoxHeader = () => {
             <PageHeader.Title>{translate('foxPage.title')}</PageHeader.Title>
           </PageHeader.Middle>
         </PageHeader>
-        <FoxWifHat />
       </Display.Mobile>
       <Stack mb={4}>
         <FoxWifHat />

@@ -4,6 +4,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
+import { RDNS_TO_FIRST_CLASS } from '../constants'
 import type { RightPanelContentProps } from '../types'
 import { FirstClassBody } from '../wallets/mipd/FirstClassBody'
 import { MipdBody } from '../wallets/mipd/MipdBody'
@@ -22,15 +23,17 @@ export const MipdRoutes = ({
 
   return (
     <Switch>
-      <Route exact path='/phantom/connect'>
-        <FirstClassBody
-          keyManager={KeyManager.Phantom}
-          isLoading={isLoading}
-          error={error}
-          setIsLoading={setIsLoading}
-          setError={setError}
-        />
-      </Route>
+      {Object.values(RDNS_TO_FIRST_CLASS).map(keyManager => (
+        <Route exact path={`/${keyManager.toLowerCase()}/connect`}>
+          <FirstClassBody
+            keyManager={keyManager}
+            isLoading={isLoading}
+            error={error}
+            setIsLoading={setIsLoading}
+            setError={setError}
+          />
+        </Route>
+      ))}
       <Route exact path='/metamask/connect'>
         <MipdBody
           rdns={modalType}

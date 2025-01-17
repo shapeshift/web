@@ -6,8 +6,10 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { MetaMaskConfig } from 'context/WalletProvider/MetaMask/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useMipdProviders } from 'lib/mipd'
+
+import { FIRST_CLASS_TO_RDNS } from '../../constants'
 
 const spinner = <Spinner color='white' />
 
@@ -32,7 +34,16 @@ export const FirstClassBody = ({
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
 
+  const mipdProviders = useMipdProviders()
+  // While this component is for fist-class handling, we still want to leverage mipd data (name, icon) instead of our own, to ensure we get latest
+  // press kit data from those wallets
+  const maybeMipdProvider = mipdProviders.find(
+    provider => provider.info.rdns === FIRST_CLASS_TO_RDNS[keyManager],
+  )
+
   const pairDevice = useCallback(async () => {
+    if (!maybeMipdProvider) return
+
     setError(null)
     setIsLoading(true)
 
@@ -51,15 +62,24 @@ export const FirstClassBody = ({
         )
       }
 
-      const { name, icon } = MetaMaskConfig
       const deviceId = await wallet.getDeviceID()
-      const isLocked = await wallet.isLocked()
+      const isLocked = await wallet.isLocked().catch((e: unknown) => {
+        // Keplr isLocked method is currently borked, swallow the error
+        console.error(e)
+        return false
+      })
 
       await wallet.initialize()
 
       dispatch({
         type: WalletActions.SET_WALLET,
-        payload: { wallet, name, icon, deviceId, connectedType: keyManager },
+        payload: {
+          wallet,
+          name: maybeMipdProvider.info.name,
+          icon: maybeMipdProvider.info.icon,
+          deviceId,
+          connectedType: keyManager,
+        },
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
@@ -71,6 +91,8 @@ export const FirstClassBody = ({
         type: keyManager,
         deviceId,
       })
+
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e: any) {
       if (e?.message?.startsWith('walletProvider.')) {
         console.error(e)
@@ -83,11 +105,20 @@ export const FirstClassBody = ({
     } finally {
       setIsLoading(false)
     }
-  }, [dispatch, getAdapter, history, keyManager, localWallet, setError, setIsLoading])
+  }, [
+    dispatch,
+    getAdapter,
+    history,
+    keyManager,
+    localWallet,
+    maybeMipdProvider,
+    setError,
+    setIsLoading,
+  ])
 
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
-      <Image src={'TODO'} boxSize='64px' />
+      <Image src={maybeMipdProvider?.info?.icon} boxSize='64px' />
       <Text
         fontSize='xl'
         translation={`walletProvider.${keyManager.toLowerCase()}.connect.header`}

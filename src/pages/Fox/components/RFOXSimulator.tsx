@@ -8,7 +8,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectLastEpoch } from 'pages/RFOX/helpers'
+import { getStakingContract, selectLastEpoch } from 'pages/RFOX/helpers'
 import { useEpochHistoryQuery } from 'pages/RFOX/hooks/useEpochHistoryQuery'
 import { useTotalStakedQuery } from 'pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
@@ -44,6 +44,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
+    stakingAssetId,
     select: (totalStaked: bigint) => {
       return bnOrZero(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0)).toFixed(2)
     },
@@ -72,16 +73,19 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
 
   const estimatedRewards = useMemo(() => {
     if (!lastEpoch) return
-    if (!stakingAsset) return
     if (!poolShare) return
     if (!runeUsdPrice) return
 
+    // @TODO: we might not need this optional chain here if the data exists
+    const distributionRate =
+      lastEpoch.detailsByStakingContract[getStakingContract(stakingAssetId)]?.distributionRate ?? 0
+
     return bnOrZero(shapeShiftRevenue)
-      .times(lastEpoch.distributionRate)
+      .times(distributionRate)
       .times(poolShare)
       .div(runeUsdPrice)
       .toFixed(2)
-  }, [lastEpoch, shapeShiftRevenue, runeUsdPrice, stakingAsset, poolShare])
+  }, [lastEpoch, shapeShiftRevenue, runeUsdPrice, stakingAssetId, poolShare])
 
   if (!(runeAsset && stakingAsset)) return null
 
@@ -107,6 +111,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             setDepositAmount={setDepositAmount}
             depositAmount={depositAmount}
             maxDepositAmount={totalStakedCryptoResult.data}
+            stakingAssetId={stakingAssetId}
           />
         </CardBody>
       </Card>
@@ -140,7 +145,18 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             </Card>
             <Card>
               <CardBody py={4} px={4}>
-                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalFoxBurn' />
+                <Text
+                  fontSize='md'
+                  color='text.subtle'
+                  // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
+                  translation={[
+                    'foxPage.rfox.totalSymbolBurn',
+                    {
+                      symbol: stakingAsset.symbol,
+                    },
+                  ]}
+                />
 
                 <Skeleton isLoaded={Boolean(estimatedFoxBurn !== undefined)}>
                   <Amount.Crypto

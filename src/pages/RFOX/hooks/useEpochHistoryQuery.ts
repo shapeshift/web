@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
@@ -30,17 +29,8 @@ export const fetchEpochHistory = async (): Promise<EpochWithIpfsHash[]> => {
     queryFn: fetchCurrentEpochMetadata,
   })
 
-  const orderedEpochIpfsHashes = orderBy(
-    Object.entries(currentEpochMetadata.ipfsHashByEpoch).map(([epochNumber, ipfsHash]) => ({
-      epochNumber,
-      ipfsHash,
-    })),
-    'epochNumber',
-    'asc',
-  ).map(({ ipfsHash }) => ipfsHash)
-
   return Promise.all(
-    orderedEpochIpfsHashes.map(async hash => {
+    Object.values(currentEpochMetadata.ipfsHashByEpoch).map(async hash => {
       const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)
       return { ...data, ipfsHash: hash }
     }),

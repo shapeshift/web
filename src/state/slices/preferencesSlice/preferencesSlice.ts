@@ -76,6 +76,7 @@ export type FeatureFlags = {
   JupiterSwap: boolean
   NewTradeFlow: boolean
   NewWalletFlow: boolean
+  FoxPageFoxWifHatSection: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -175,6 +176,7 @@ const initialState: Preferences = {
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
     NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
     NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
+    FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

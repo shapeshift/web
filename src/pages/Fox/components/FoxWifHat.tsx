@@ -1,11 +1,15 @@
 import { Box, Container, Heading, Image, useColorModeValue } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { FoxWifHatHoldingLine } from './FoxWifHatHoldingLine'
+import { FoxWifHatClaimRow } from './FoxWifHatClaimRow'
+
+// @TODO: replace with proper foxwifhat asset id
+const foxWifHatAssetId = foxAssetId
 
 export const FoxWifHat = () => {
   const translate = useTranslate()
@@ -31,21 +35,19 @@ export const FoxWifHat = () => {
           <Text color='text.subtle' translation='foxPage.foxWifHat.description' />
 
           <Box bg={containerBackground} borderRadius='lg' mt={8} mb={4}>
-            <FoxWifHatHoldingLine
+            <FoxWifHatClaimRow
               accountId='0xD41Ba840554701F5f6BefaEbaa927f4474078DBA'
-              accountNumber={0}
-              amount='8000'
-              symbol='FOXWIFHAT'
-              discountPercent='72'
+              amountCryptoBaseUnit='800000000000000000000000'
+              assetId={foxWifHatAssetId}
+              discountPercentDecimal={0.72}
               isClaimed={true}
               onClaim={handleClaim}
             />
-            <FoxWifHatHoldingLine
+            <FoxWifHatClaimRow
               accountId='0xD41Ba840554701F5f6BefaEbaa927f4474078DBA'
-              accountNumber={1}
-              amount='8000'
-              symbol='FOXWIFHAT'
-              discountPercent='72'
+              amountCryptoBaseUnit='800000000000000000000000'
+              assetId={foxWifHatAssetId}
+              discountPercentDecimal={0.72}
               isClaimed={false}
               onClaim={handleClaim}
             />

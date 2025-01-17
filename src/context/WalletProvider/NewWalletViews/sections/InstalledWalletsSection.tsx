@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, Stack, Text as CText } from '@chakra-ui/react'
+import { Box, Button, Flex, Image, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { uniqBy } from 'lodash'
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
@@ -20,6 +20,7 @@ const MipdProviderSelectItem = ({
   isSelected: boolean
   isDisabled: boolean
 }) => {
+  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const handleConnect = useCallback(
     () => connect(provider.info.rdns),
     [connect, provider.info.rdns],
@@ -36,7 +37,7 @@ const MipdProviderSelectItem = ({
       borderRadius='md'
       width='full'
       onClick={handleConnect}
-      bg={isSelected ? 'whiteAlpha.100' : undefined}
+      bg={isSelected ? backgroundColor : undefined}
       isDisabled={isDisabled}
     >
       <Flex alignItems='center' width='full'>
@@ -48,13 +49,13 @@ const MipdProviderSelectItem = ({
 }
 
 export const InstalledWalletsSection = ({
-  modalType,
   isLoading,
-  onConnect,
+  selectedWalletId,
+  onWalletSelect,
 }: {
-  modalType: string | null
   isLoading: boolean
-  onConnect: () => void
+  selectedWalletId: string | null
+  onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
   const { connect } = useWallet()
   const detectedMipdProviders = useMipdProviders()
@@ -90,17 +91,17 @@ export const InstalledWalletsSection = ({
 
   const handleConnectMipd = useCallback(
     (rdns: string) => {
+      onWalletSelect(rdns, '/metamask/connect')
       connect(rdns as KeyManager, true)
-      onConnect()
     },
-    [connect, onConnect],
+    [connect, onWalletSelect],
   )
 
   return (
     <Stack spacing={2} my={6}>
-      <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='Installed' />
+      <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.installed' />
       {filteredProviders.map(provider => {
-        const isSelected = modalType === provider.info.rdns
+        const isSelected = selectedWalletId === provider.info.rdns
         return (
           <MipdProviderSelectItem
             key={provider.info.rdns}

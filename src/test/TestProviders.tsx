@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
 import { I18n } from 'react-polyglot'
@@ -8,11 +9,14 @@ import { store } from 'state/store'
 const locale: string = navigator?.language?.split('-')[0] ?? 'en'
 const messages = translations['en']
 
+const queryClient = new QueryClient()
+
 export const TestProviders: React.FC<PropsWithChildren> = ({ children }) => (
-  <ReduxProvider store={store}>
-    <I18n locale={locale} messages={messages}>
-      {/* @ts-ignore remove warning */}
-      {children}
-    </I18n>
-  </ReduxProvider>
+  <QueryClientProvider client={queryClient}>
+    <ReduxProvider store={store}>
+      <I18n locale={locale} messages={messages}>
+        {children}
+      </I18n>
+    </ReduxProvider>
+  </QueryClientProvider>
 )

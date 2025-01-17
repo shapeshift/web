@@ -188,7 +188,8 @@
     "activeAccount": "Active Account",
     "update": "Update",
     "apy": "APY",
-    "tbd": "TBD"
+    "tbd": "TBD",
+    "installed": "Installed"
   },
   "consentBanner": {
     "body": {
@@ -1871,6 +1872,15 @@
       "onboarding": {
         "skip": "Skip",
         "shapeshiftWallet": "ShapeShift Wallet",
+        "createNewWallet": "Create a new wallet",
+        "shapeshiftNative": "ShapeShift Native",
+        "addNewWallet": "Add new wallet",
+        "comingFromThorswap": "Coming from THORSwap?",
+        "importExisting": "Import existing",
+        "importFromKeystore": "Import from keystore",
+        "whatIsShapeshiftWallet": "What is ShapeShift Wallet?",
+        "yourDecentralizedGateway": "Your decentralization gateway. Trade and earn Bitcoin, Ethereum, Solana and more from a single, secure wallet.",
+        "crossChainFreedom": "Cross chain freedom. Access the best rates across multiple decentralized exchanges, no middleman required",
         "selfCustody": {
           "title": "Your ShapeShift Wallet is Self-Custody",
           "subTitle": "You hold the keys and you're the only one who can access it.",

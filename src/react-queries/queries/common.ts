@@ -101,4 +101,22 @@ export const common = createQueryKeys('common', {
   }) => ({
     queryKey: ['evmFees', to, chainId, data, value, from],
   }),
+  hdwalletNativeVaultsList: () => ({
+    queryKey: ['hdwalletNativeVaultsList'],
+    queryFn: async () => {
+      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
+
+      const storedWallets = await Vault.list().then(vaultIds =>
+        Promise.all(
+          vaultIds.map(async id => {
+            const meta = await Vault.meta(id)
+            const name = String(meta?.get('name') ?? id)
+            return { id, name }
+          }),
+        ),
+      )
+
+      return storedWallets
+    },
+  }),
 })

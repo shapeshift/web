@@ -11,7 +11,6 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import type { Location } from 'history'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
@@ -22,23 +21,13 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { SnapInstall } from '../MetaMask/components/SnapInstall'
-import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
-import { EnterPassword } from '../NativeWallet/components/EnterPassword'
-import { NativeCreate } from '../NativeWallet/components/NativeCreate'
-import { NativeImportKeystore } from '../NativeWallet/components/NativeImportKeystore'
-import { NativeImportSeed } from '../NativeWallet/components/NativeImportSeed'
-import { NativeImportSelect } from '../NativeWallet/components/NativeImportSelect'
-import { NativePassword } from '../NativeWallet/components/NativePassword'
-import { NativeSuccess } from '../NativeWallet/components/NativeSuccess'
-import { NativeTestPhrase } from '../NativeWallet/components/NativeTestPhrase'
-import type { NativeSetupProps } from '../NativeWallet/types'
 import { NativeWalletRoutes } from '../types'
+import { MipdRoutes } from './routes/MipdRoutes'
+import { NativeRoutes } from './routes/NativeRoutes'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
-import { MipdBody } from './wallets/mipd/MipdBody'
+import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
-import { NativeStart } from './wallets/native/NativeStart'
 
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
@@ -48,74 +37,6 @@ const containerWidth = {
 const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
-
-type RightPanelContentProps = {
-  isLoading: boolean
-  setIsLoading: (loading: boolean) => void
-  error: string | null
-  setError: (error: string | null) => void
-  location: Location
-}
-
-const nativeRoutes = (
-  <Switch>
-    <Route
-      exact
-      path={NativeWalletRoutes.Connect}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeStart {...routeProps} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.ImportKeystore}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportKeystore {...routeProps} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.ImportSeed}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportSeed {...routeProps} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.ImportSelect}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportSelect {...routeProps} />}
-    />
-    <Route exact path={NativeWalletRoutes.Create}>
-      <NativeCreate />
-    </Route>
-    <Route
-      exact
-      path={NativeWalletRoutes.Password}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
-    />
-    <Route exact path={NativeWalletRoutes.EnterPassword}>
-      <EnterPassword />
-    </Route>
-    <Route
-      exact
-      path={NativeWalletRoutes.Success}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeSuccess {...(routeProps as NativeSetupProps)} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.CreateTest}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeTestPhrase {...(routeProps as NativeSetupProps)} />}
-    />
-  </Switch>
-)
 
 const RightPanelContent = ({
   isLoading,
@@ -128,30 +49,19 @@ const RightPanelContent = ({
     state: { modalType, isMipdProvider },
   } = useWallet()
 
-  if (location.pathname.startsWith('/native')) return nativeRoutes
+  if (location.pathname.startsWith('/native')) return <NativeRoutes />
 
   // No modal type, and no in-flight native routes - assume enpty state
   if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
 
   if (isMipdProvider && modalType) {
     return (
-      <Switch>
-        <Route exact path='/metamask/connect'>
-          <MipdBody
-            rdns={modalType}
-            isLoading={isLoading}
-            error={error}
-            setIsLoading={setIsLoading}
-            setError={setError}
-          />
-        </Route>
-        <Route path='/metamask/snap/install'>
-          <SnapInstall />
-        </Route>
-        <Route path='/metamask/snap/update'>
-          <SnapUpdate />
-        </Route>
-      </Switch>
+      <MipdRoutes
+        isLoading={isLoading}
+        error={error}
+        setIsLoading={setIsLoading}
+        setError={setError}
+      />
     )
   }
 

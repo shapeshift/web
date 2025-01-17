@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Divider,
   Flex,
   IconButton,
   Modal,
@@ -10,9 +11,12 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
+import type { Location } from 'history'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
+import type { StaticContext } from 'react-router'
+import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -20,9 +24,21 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
+import { EnterPassword } from '../NativeWallet/components/EnterPassword'
+import { NativeCreate } from '../NativeWallet/components/NativeCreate'
+import { NativeImportKeystore } from '../NativeWallet/components/NativeImportKeystore'
+import { NativeImportSeed } from '../NativeWallet/components/NativeImportSeed'
+import { NativeImportSelect } from '../NativeWallet/components/NativeImportSelect'
+import { NativePassword } from '../NativeWallet/components/NativePassword'
+import { NativeSuccess } from '../NativeWallet/components/NativeSuccess'
+import { NativeTestPhrase } from '../NativeWallet/components/NativeTestPhrase'
+import type { NativeSetupProps } from '../NativeWallet/types'
 import { NativeWalletRoutes } from '../types'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import { MipdBody } from './wallets/mipd/MipdBody'
+import { NativeIntro } from './wallets/native/NativeIntro'
+import { NativeStart } from './wallets/native/NativeStart'
 
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
@@ -38,17 +54,84 @@ type RightPanelContentProps = {
   setIsLoading: (loading: boolean) => void
   error: string | null
   setError: (error: string | null) => void
+  location: Location
 }
+
+const nativeRoutes = (
+  <Switch>
+    <Route
+      exact
+      path={NativeWalletRoutes.Connect}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeStart {...routeProps} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.ImportKeystore}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeImportKeystore {...routeProps} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.ImportSeed}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeImportSeed {...routeProps} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.ImportSelect}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeImportSelect {...routeProps} />}
+    />
+    <Route exact path={NativeWalletRoutes.Create}>
+      <NativeCreate />
+    </Route>
+    <Route
+      exact
+      path={NativeWalletRoutes.Password}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
+    />
+    <Route exact path={NativeWalletRoutes.EnterPassword}>
+      <EnterPassword />
+    </Route>
+    <Route
+      exact
+      path={NativeWalletRoutes.Success}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeSuccess {...(routeProps as NativeSetupProps)} />}
+    />
+    <Route
+      exact
+      path={NativeWalletRoutes.CreateTest}
+      // we need to pass an arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
+      render={routeProps => <NativeTestPhrase {...(routeProps as NativeSetupProps)} />}
+    />
+  </Switch>
+)
 
 const RightPanelContent = ({
   isLoading,
   setIsLoading,
   error,
   setError,
+  location,
 }: RightPanelContentProps) => {
   const {
     state: { modalType, isMipdProvider },
   } = useWallet()
+
+  if (location.pathname.startsWith('/native')) return nativeRoutes
+
+  // No modal type, and no in-flight native routes - assume enpty state
+  if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
 
   if (isMipdProvider && modalType) {
     return (
@@ -63,27 +146,10 @@ const RightPanelContent = ({
           />
         </Route>
         <Route path='/metamask/snap/install'>
-          <Flex height='full' alignItems='center'>
-            <Box width='full'>
-              <SnapInstall />
-            </Box>
-          </Flex>
+          <SnapInstall />
         </Route>
         <Route path='/metamask/snap/update'>
-          <Flex height='full' alignItems='center'>
-            <Box width='full'>
-              <SnapUpdate />
-            </Box>
-          </Flex>
-        </Route>
-        <Route path='/'>
-          <MipdBody
-            rdns={modalType}
-            isLoading={isLoading}
-            error={error}
-            setIsLoading={setIsLoading}
-            setError={setError}
-          />
+          <SnapUpdate />
         </Route>
       </Switch>
     )
@@ -95,6 +161,9 @@ const RightPanelContent = ({
 export const NewWalletViewsSwitch = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:
+  // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
+  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
 
   const history = useHistory()
   const toast = useToast()
@@ -103,8 +172,6 @@ export const NewWalletViewsSwitch = () => {
     state: {
       wallet,
       modal,
-      initialRoute,
-      modalType,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },
@@ -159,77 +226,101 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
+  const handleWalletSelect = useCallback(
+    (walletId: string, _initialRoute: string) => {
+      setSelectedWalletId(walletId)
+      if (_initialRoute) history.push(_initialRoute)
+    },
+    [history],
+  )
+  // Reset history on modal open/unmount
   useEffect(() => {
-    if (initialRoute) history.push(initialRoute)
-  }, [history, initialRoute])
+    history.replace('/')
 
-  // Reset initial route on connect to handle e.g switching from MM with snap install route to another mipd provider
-  const handleConnect = useCallback(() => {
-    if (initialRoute) history.push(initialRoute)
-  }, [history, initialRoute])
+    return () => {
+      history.replace('/')
+    }
+    // Only run this on initial render, and unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const sections = useMemo(
     () => (
-      <Box w={sectionsWidth} p={6}>
+      <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
+        <SavedWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+        <Divider mb={6} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
-          modalType={modalType}
           isLoading={isLoading}
-          onConnect={handleConnect}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
         />
         {/* TODO(gomes): more sections */}
       </Box>
     ),
-    [handleConnect, isLoading, modalType],
+    [handleWalletSelect, isLoading, selectedWalletId],
   )
 
   const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
-  const body = useMemo(() => {
-    return (
-      <Box flex={1} bg={bodyBgColor} p={6}>
-        <RightPanelContent
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          error={error}
-          setError={setError}
-        />
-      </Box>
-    )
-  }, [bodyBgColor, error, isLoading])
 
-  const maybeMobileBackButton = useMemo(() => {
-    if (!isMobile) return
-    return (
-      <Switch>
-        <Route exact path='/' />
-        <Route path='*'>
-          {/* Precisely what it says on the var name - adds a back button for mobile only, and for non-root paths only
-           *  (i.e, can't go back when in root path)
-           */}
-          <Box
-            position='absolute'
-            left={3}
-            top={3}
-            zIndex={1}
-            bg={buttonContainerBgColor}
-            borderRadius='full'
-          >
-            <IconButton
-              icon={arrowBackIcon}
-              aria-label={translate('common.back')}
-              variant='ghost'
-              fontSize='xl'
-              size='sm'
-              isRound
-              position='static'
-              onClick={handleBack}
-            />
-          </Box>
-        </Route>
-      </Switch>
-    )
-  }, [buttonContainerBgColor, handleBack, translate])
+  const body = useCallback(
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
+      // These routes do not have a previous step, so don't display back button
+      const isRootRoute =
+        routeProps.history.location.pathname === '/' ||
+        routeProps.history.location.pathname === '/metamask/connect'
+      return (
+        <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
+          {!isRootRoute || isMobile ? (
+            <Box
+              position='absolute'
+              left={3}
+              top={3}
+              zIndex={1}
+              bg={buttonContainerBgColor}
+              borderRadius='full'
+            >
+              <IconButton
+                icon={arrowBackIcon}
+                aria-label={translate('common.back')}
+                variant='ghost'
+                fontSize='xl'
+                size='sm'
+                isRound
+                position='static'
+                onClick={handleBack}
+              />
+            </Box>
+          ) : null}
+          <Flex height='full' alignItems='center'>
+            <Box width='full'>
+              <RightPanelContent
+                location={routeProps.history.location}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                error={error}
+                setError={setError}
+              />
+            </Box>
+          </Flex>
+        </Box>
+      )
+    },
+    [bodyBgColor, buttonContainerBgColor, error, handleBack, isLoading, translate],
+  )
+
+  const bodyDesktopOnly = useCallback(
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
+      if (isMobile) return null
+
+      return body(routeProps)
+    },
+    [body],
+  )
 
   return (
     <>
@@ -253,9 +344,7 @@ export const NewWalletViewsSwitch = () => {
             >
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
-
-            {maybeMobileBackButton}
-            <Flex minH='600px' w={containerWidth}>
+            <Flex minH='800px' w={containerWidth}>
               <Switch>
                 {/* Always display sections for the root route, no matter the viewport */}
                 <Route exact path='/'>
@@ -266,11 +355,9 @@ export const NewWalletViewsSwitch = () => {
               </Switch>
               <Switch>
                 {/* Only display side panel after a wallet has been selected on mobile */}
-                <Route exact path='/'>
-                  {!isMobile ? body : null}
-                </Route>
+                <Route exact path='/' render={bodyDesktopOnly} />
                 {/* And for all non-root routes, no matter the viewport */}
-                <Route path='*'>{body}</Route>
+                <Route path='*' render={body} />
               </Switch>
             </Flex>
           </Box>

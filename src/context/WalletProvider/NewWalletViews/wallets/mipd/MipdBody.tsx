@@ -211,7 +211,6 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
         loadingText={translate('common.pairing')}
         spinner={spinner}
         onClick={pairDevice}
-        data-test='wallet-pair-button'
       >
         {translate('walletProvider.mipd.connect.button')}
       </Button>

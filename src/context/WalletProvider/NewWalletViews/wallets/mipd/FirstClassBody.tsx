@@ -2,7 +2,6 @@ import { Alert, AlertDescription, AlertIcon, Button, Flex, Image, Spinner } from
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -30,7 +29,6 @@ export const FirstClassBody = ({
   setError,
 }: FirstClassBodyProps) => {
   const translate = useTranslate()
-  const history = useHistory()
 
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()

@@ -44,7 +44,6 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         vault.seal()
         await vault.setPassword(values.password)
         vault.meta.set('name', values.name)
-
         history.push(NativeWalletRoutes.Success, { vault })
       } catch (e) {
         console.error(e)

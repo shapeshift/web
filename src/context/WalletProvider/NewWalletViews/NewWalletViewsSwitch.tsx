@@ -21,7 +21,9 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
+import { RDNS_TO_FIRST_CLASS } from './constants'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
@@ -54,7 +56,10 @@ const RightPanelContent = ({
   // No modal type, and no in-flight native routes - assume enpty state
   if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
 
-  if (isMipdProvider && modalType) {
+  const isFirstClass =
+    modalType && Object.values(RDNS_TO_FIRST_CLASS).includes(modalType as KeyManager)
+
+  if ((isMipdProvider || isFirstClass) && modalType) {
     return (
       <MipdRoutes
         isLoading={isLoading}

@@ -2,16 +2,11 @@ import { Box, Button, Flex, Image, Stack, Text as CText, useColorModeValue } fro
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
+import type { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useMipdProviders } from 'lib/mipd'
 
-// Map RDNSes to their first-class KeyManager implementation
-const RDNS_TO_FIRST_CLASS: Record<string, KeyManager> = {
-  'app.phantom': KeyManager.Phantom,
-  'app.keplr': KeyManager.Keplr,
-  'com.coinbase.wallet': KeyManager.Coinbase,
-} as const
+import { RDNS_TO_FIRST_CLASS } from '../constants'
 
 const MipdProviderSelectItem = ({
   provider,

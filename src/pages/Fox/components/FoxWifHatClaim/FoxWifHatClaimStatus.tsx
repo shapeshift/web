@@ -1,5 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useMemo } from 'react'
@@ -40,7 +41,7 @@ export const FoxWifHatClaimStatus: React.FC<FoxWifHatClaimStatusProps> = ({
   const getFoxWifHatClaimsQuery = useGetFoxWifHatClaims()
 
   const claimQuote = useMemo(() => {
-    const claim = getFoxWifHatClaimsQuery.data?.claims[accountId]
+    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
     if (!claim) return null
 
     return claim

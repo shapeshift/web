@@ -66,8 +66,10 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
   const foxWifHatAsset = useAppSelector(state => selectAssetById(state, foxWifHatAssetId))
   const getFoxWifHatClaimsQuery = useGetFoxWifHatClaims()
 
+  console.log({ getFoxWifHatClaimsQuery })
+
   const claimQuote = useMemo(() => {
-    const claim = getFoxWifHatClaimsQuery.data?.claims[accountId]
+    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
     if (!claim) return null
 
     return claim

@@ -28,6 +28,7 @@ const MipdProviderSelectItem = ({
   return (
     <Box
       as={Button}
+      key={provider.info.rdns}
       variant='ghost'
       px={4}
       ml={-4}

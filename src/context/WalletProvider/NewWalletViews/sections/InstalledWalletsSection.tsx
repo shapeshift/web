@@ -18,7 +18,6 @@ const MipdProviderSelectItem = ({
   connect: (adapter: string | KeyManager) => void
   isSelected: boolean
   isDisabled: boolean
-  isFirstClass?: boolean
 }) => {
   const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const handleConnect = useCallback(
@@ -102,7 +101,6 @@ export const InstalledWalletsSection = ({
           connect={handleConnectFirstClass}
           isSelected={selectedWalletId === provider.info.rdns}
           isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
-          isFirstClass={true}
         />
       ))}
       {/* MIPD providers */}

@@ -2,6 +2,7 @@ import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
@@ -68,22 +69,7 @@ export const SavedWalletsSection = ({
   const { getAdapter, dispatch } = useWallet()
 
   const nativeVaultsQuery = useQuery({
-    queryKey: ['hdwalletNativeVaultsList'],
-    queryFn: async () => {
-      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
-
-      const storedWallets: VaultInfo[] = await Vault.list().then(vaultIds =>
-        Promise.all(
-          vaultIds.map(async id => {
-            const meta = await Vault.meta(id)
-            const name = String(meta?.get('name') ?? id)
-            return { id, name }
-          }),
-        ),
-      )
-
-      return storedWallets
-    },
+    ...reactQueries.common.hdwalletNativeVaultsList(),
     refetchOnMount: true,
   })
 

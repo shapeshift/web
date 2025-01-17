@@ -51,10 +51,14 @@ const RightPanelContent = ({
     state: { modalType, isMipdProvider },
   } = useWallet()
 
+  const shouldDisplayIntro = useMemo(
+    () => !modalType || modalType === 'native' || location.pathname === '/',
+    [modalType, location.pathname],
+  )
+
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
 
-  // No modal type, and no in-flight native routes - assume enpty state
-  if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
+  if (shouldDisplayIntro) return <NativeIntro />
 
   const isFirstClass =
     modalType && Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(modalType as KeyManager)

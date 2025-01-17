@@ -4,7 +4,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
-import { RDNS_TO_FIRST_CLASS } from '../constants'
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 import type { RightPanelContentProps } from '../types'
 import { FirstClassBody } from '../wallets/mipd/FirstClassBody'
 import { MipdBody } from '../wallets/mipd/MipdBody'
@@ -23,7 +23,7 @@ export const MipdRoutes = ({
 
   return (
     <Switch>
-      {Object.values(RDNS_TO_FIRST_CLASS).map(keyManager => (
+      {Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
         <Route exact path={`/${keyManager.toLowerCase()}/connect`}>
           <FirstClassBody
             keyManager={keyManager}

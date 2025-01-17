@@ -23,7 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
-import { RDNS_TO_FIRST_CLASS } from './constants'
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
@@ -57,7 +57,7 @@ const RightPanelContent = ({
   if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
 
   const isFirstClass =
-    modalType && Object.values(RDNS_TO_FIRST_CLASS).includes(modalType as KeyManager)
+    modalType && Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(modalType as KeyManager)
 
   if ((isMipdProvider || isFirstClass) && modalType) {
     return (

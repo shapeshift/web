@@ -6,7 +6,7 @@ import type { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useMipdProviders } from 'lib/mipd'
 
-import { RDNS_TO_FIRST_CLASS } from '../constants'
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 
 const MipdProviderSelectItem = ({
   provider,
@@ -63,14 +63,14 @@ export const InstalledWalletsSection = ({
   const filteredProviders = useMemo(
     () =>
       mipdProviders.filter(
-        provider => !Object.keys(RDNS_TO_FIRST_CLASS).includes(provider.info.rdns),
+        provider => !Object.keys(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(provider.info.rdns),
       ),
     [mipdProviders],
   )
 
   // Get first-class providers that are installed
   const firstClassProviders = useMemo(
-    () => mipdProviders.filter(provider => provider.info.rdns in RDNS_TO_FIRST_CLASS),
+    () => mipdProviders.filter(provider => provider.info.rdns in RDNS_TO_FIRST_CLASS_KEYMANAGER),
     [mipdProviders],
   )
 
@@ -84,7 +84,7 @@ export const InstalledWalletsSection = ({
 
   const handleConnectFirstClass = useCallback(
     (rdns: string) => {
-      const keyManager = RDNS_TO_FIRST_CLASS[rdns]
+      const keyManager = RDNS_TO_FIRST_CLASS_KEYMANAGER[rdns]
       onWalletSelect(rdns, `/${keyManager.toLowerCase()}/connect`)
       connect(keyManager, false)
     },

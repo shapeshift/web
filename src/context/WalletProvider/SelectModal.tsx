@@ -29,7 +29,7 @@ import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
-import { RDNS_TO_FIRST_CLASS } from './NewWalletViews/constants'
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './NewWalletViews/constants'
 import type { WalletInfo } from './WalletProvider'
 
 const gridTemplateColumnsProp = { base: '1fr', md: '1fr 1fr' }
@@ -210,7 +210,7 @@ export const SelectModal = () => {
         {mipdProviders
           .filter(
             // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
-            provider => Object.keys(RDNS_TO_FIRST_CLASS).includes(provider.info.rdns),
+            provider => Object.keys(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(provider.info.rdns),
           )
           .map(provider => (
             <MipdProviderSelectItem

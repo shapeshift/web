@@ -9,7 +9,7 @@ import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useMipdProviders } from 'lib/mipd'
 
-import { FIRST_CLASS_TO_RDNS } from '../../constants'
+import { FIRST_CLASS_KEYMANAGER_TO_RDNS } from '../../constants'
 
 const spinner = <Spinner color='white' />
 
@@ -38,7 +38,7 @@ export const FirstClassBody = ({
   // While this component is for fist-class handling, we still want to leverage mipd data (name, icon) instead of our own, to ensure we get latest
   // press kit data from those wallets
   const maybeMipdProvider = mipdProviders.find(
-    provider => provider.info.rdns === FIRST_CLASS_TO_RDNS[keyManager],
+    provider => provider.info.rdns === FIRST_CLASS_KEYMANAGER_TO_RDNS[keyManager],
   )
 
   const pairDevice = useCallback(async () => {

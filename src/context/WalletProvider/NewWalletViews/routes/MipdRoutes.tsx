@@ -1,5 +1,4 @@
 import { Route, Switch } from 'react-router-dom'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'

@@ -23,10 +23,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
-import { WalletConnectV2Connect } from '../WalletConnectV2/components/Connect'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
+import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
@@ -59,18 +59,7 @@ const RightPanelContent = ({
   )
 
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
-  if (location.pathname.startsWith('/walletconnectv2')) {
-    return (
-      <Switch>
-        <Route
-          path='*'
-          render={(routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
-            <WalletConnectV2Connect {...routeProps} />
-          )}
-        />
-      </Switch>
-    )
-  }
+  if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 

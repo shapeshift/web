@@ -127,8 +127,6 @@ export const SavedWalletsSection = ({
     history.push(NativeWalletRoutes.Connect)
   }, [history])
 
-  if (!nativeVaultsQuery.data?.length) return null
-
   return (
     <>
       <Text
@@ -137,7 +135,7 @@ export const SavedWalletsSection = ({
         translation='walletProvider.shapeShift.onboarding.shapeshiftNative'
       />
       <Stack spacing={2} my={6}>
-        {nativeVaultsQuery.data.map(wallet => (
+        {(nativeVaultsQuery.data ?? []).map(wallet => (
           <WalletCard
             wallet={wallet}
             onClick={handleWalletSelect}

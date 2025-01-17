@@ -76,8 +76,9 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
     if (!poolShare) return
     if (!runeUsdPrice) return
 
+    // @TODO: we might not need this optional chain here if the data exists
     const distributionRate =
-      lastEpoch.detailsByStakingContract[getStakingContract(stakingAssetId)].distributionRate
+      lastEpoch.detailsByStakingContract[getStakingContract(stakingAssetId)]?.distributionRate ?? 0
 
     return bnOrZero(shapeShiftRevenue)
       .times(distributionRate)
@@ -110,6 +111,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             setDepositAmount={setDepositAmount}
             depositAmount={depositAmount}
             maxDepositAmount={totalStakedCryptoResult.data}
+            stakingAssetId={stakingAssetId}
           />
         </CardBody>
       </Card>
@@ -143,7 +145,18 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             </Card>
             <Card>
               <CardBody py={4} px={4}>
-                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalFoxBurn' />
+                <Text
+                  fontSize='md'
+                  color='text.subtle'
+                  // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
+                  translation={[
+                    'foxPage.rfox.totalSymbolBurn',
+                    {
+                      symbol: stakingAsset.symbol,
+                    },
+                  ]}
+                />
 
                 <Skeleton isLoaded={Boolean(estimatedFoxBurn !== undefined)}>
                   <Amount.Crypto

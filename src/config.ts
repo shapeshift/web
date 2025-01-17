@@ -185,6 +185,7 @@ const validators = {
   REACT_APP_JUPITER_API_URL: url({ default: JUPITER_API_URL }),
   REACT_APP_FEATURE_NEW_TRADE_FLOW: bool({ default: false }),
   REACT_APP_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
+  REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

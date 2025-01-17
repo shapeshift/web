@@ -1,4 +1,5 @@
 import { Alert, AlertDescription, AlertIcon, Button, Flex, Image, Spinner } from '@chakra-ui/react'
+import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -47,7 +48,8 @@ export const FirstClassBody = ({
     setError(null)
     setIsLoading(true)
 
-    const adapter = await getAdapter(keyManager)
+    // Just to narrow the types so that PairDevice is defined at type-level, this can currently be a Coinbase/Phantom/Keplr adapter
+    const adapter = (await getAdapter(keyManager)) as MetaMaskAdapter | null
     if (!adapter) {
       setIsLoading(false)
       return

@@ -102,21 +102,11 @@ export const FirstClassBody = ({
       } else {
         console.error(e, `${keyManager} Connect: There was an error initializing the wallet`)
         setError(e.message)
-        history.push('/phantom/failure')
       }
     } finally {
       setIsLoading(false)
     }
-  }, [
-    dispatch,
-    getAdapter,
-    history,
-    keyManager,
-    localWallet,
-    maybeMipdProvider,
-    setError,
-    setIsLoading,
-  ])
+  }, [dispatch, getAdapter, keyManager, localWallet, maybeMipdProvider, setError, setIsLoading])
 
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>

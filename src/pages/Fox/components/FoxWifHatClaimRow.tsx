@@ -1,7 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, HStack, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -55,7 +55,7 @@ export const FoxWifHatClaimRow = ({
     return accountIdsByChainId[fromAssetId(assetId).chainId]?.length ?? 0
   }, [accountIdsByChainId, assetId])
 
-  const amountCryptoHuman = useMemo(() => {
+  const amountCryptoPrecision = useMemo(() => {
     if (!foxWifHatAsset) return
 
     return fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset.precision)
@@ -76,7 +76,7 @@ export const FoxWifHatClaimRow = ({
           <WalletIcon color={textColor} boxSize={6} />
           <Flex direction='column' alignItems='flex-start'>
             <Text fontWeight='bold' fontSize='sm'>
-              {middleEllipsis(accountId)}
+              {middleEllipsis(fromAccountId(accountId).account)}
             </Text>
             {numberAccounts > 1 ? (
               <Text color={textColor} fontSize='xs'>
@@ -87,7 +87,7 @@ export const FoxWifHatClaimRow = ({
         </HStack>
 
         <Amount.Crypto
-          value={amountCryptoHuman}
+          value={amountCryptoPrecision}
           symbol={foxWifHatAsset?.symbol ?? ''}
           fontWeight='bold'
           maximumFractionDigits={2}

@@ -18,6 +18,7 @@ import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetc
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
 import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
@@ -123,6 +124,7 @@ export const LimitOrderInput = ({
   } = useActions(limitOrderInput.actions)
   const { setActiveQuote } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -277,6 +279,12 @@ export const LimitOrderInput = ({
 
     const { assetReference, chainId } = fromAssetId(limitOrderQuoteParams.sellAssetId)
 
+    // If the new limit flow is enabled, we don't need to check the allowance at this step
+    if (isNewLimitFlowEnabled) {
+      history.push(LimitOrderRoutePaths.Confirm)
+      return
+    }
+
     // Trigger loading state while we check the allowance
     setIsCheckingAllowance(true)
 
@@ -312,6 +320,7 @@ export const LimitOrderInput = ({
     setActiveQuote,
     expiry,
     buyAmountCryptoBaseUnit,
+    isNewLimitFlowEnabled,
     handleConnect,
     history,
     showErrorToast,

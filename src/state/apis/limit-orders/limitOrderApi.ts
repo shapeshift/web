@@ -134,7 +134,7 @@ export const limitOrderApi = createApi({
         const {
           unsignedOrderCreation,
           params: { sellAssetId, accountId },
-        } = selectConfirmedLimitOrder(state, quoteId)
+        } = selectConfirmedLimitOrder(state, { quoteId })
         const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 

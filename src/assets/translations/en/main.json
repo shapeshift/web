@@ -1074,6 +1074,8 @@
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
     "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
+    "awaitingOrderPlacement": "Awaiting order placement on %{swapperName}",
+    "orderPlacement": "Place order on %{swapperName}",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",

@@ -2,6 +2,8 @@ import type { QuoteId } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectQuoteIdParamFromRequiredFilter } from 'state/selectors'
 
 import { PriceDirection } from '../limitOrderInputSlice/constants'
 import {
@@ -18,6 +20,11 @@ const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
 export const selectActiveQuote = createSelector(
   selectLimitOrderSlice,
   limitOrderSlice => limitOrderSlice.activeQuote,
+)
+
+export const selectActiveQuoteId = createSelector(
+  selectActiveQuote,
+  activeQuote => activeQuote?.response.id,
 )
 
 export const selectActiveQuoteExpirationTimestamp = createSelector(
@@ -167,7 +174,15 @@ export const selectActiveQuoteLimitPrice = createSelector(
 
 export const selectConfirmedLimitOrder = createSelector(
   selectLimitOrderSlice,
-  (_state: ReduxState, quoteId: QuoteId) => quoteId,
+  selectQuoteIdParamFromRequiredFilter,
   (limitOrderSlice: LimitOrderState, quoteId: QuoteId) =>
     limitOrderSlice.confirmedLimitOrder[quoteId],
+)
+
+export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(
+  selectLimitOrderSlice,
+  selectQuoteIdParamFromRequiredFilter,
+  (limitOrders, quoteId) => {
+    return limitOrders.orderSubmission[quoteId]
+  },
 )

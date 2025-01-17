@@ -1,43 +1,34 @@
-import { InfoIcon } from '@chakra-ui/icons'
-import { Button, Card, HStack, Stack } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { Button } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text/Text'
-import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import { Text } from 'components/Text/Text'
 import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
+import {
+  selectBuyAmountCryptoBaseUnit,
+  selectInputSellAmountCryptoBaseUnit,
+} from 'state/slices/limitOrderInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAsset,
-  selectActiveQuoteExpirationTimestamp,
-  selectActiveQuoteFeeAsset,
-  selectActiveQuoteLimitPrice,
-  selectActiveQuoteNetworkFeeCryptoPrecision,
-  selectActiveQuoteNetworkFeeUserCurrency,
   selectActiveQuoteSellAsset,
 } from 'state/slices/limitOrderSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
+import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
-import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
+import { InnerSteps } from './InnerSteps'
+import { LimitOrderDetail } from './LimitOrderDetail'
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
-  const translate = useTranslate()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
-  const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
-  const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
-  const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
-  const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
-  const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
+  const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
+  const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
 
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
@@ -50,81 +41,21 @@ export const LimitOrderConfirm = () => {
   }, [])
 
   const body = useMemo(() => {
-    return <div>LimitOrderConfirm</div>
-  }, [])
+    if (!sellAsset || !buyAsset) return null
+    return (
+      <SharedConfirmBody
+        InnerSteps={InnerSteps}
+        sellAsset={sellAsset}
+        buyAsset={buyAsset}
+        sellAmountCryptoBaseUnit={sellAmountCryptoBaseUnit}
+        buyAmountCryptoBaseUnit={buyAmountCryptoBaseUnit}
+      />
+    )
+  }, [buyAmountCryptoBaseUnit, buyAsset, sellAmountCryptoBaseUnit, sellAsset])
 
   const detail = useMemo(() => {
-    return (
-      <Stack spacing={4} width='full'>
-        <Row>
-          <Row.Label>
-            <Text translation='limitOrder.limitPrice' />
-          </Row.Label>
-          <Row.Value textAlign='right'>
-            <HStack>
-              <Amount.Crypto value='1.0' symbol={sellAsset?.symbol ?? ''} />
-              <RawText>=</RawText>
-              <Amount.Crypto
-                value={limitPrice?.buyAssetDenomination}
-                symbol={buyAsset?.symbol ?? ''}
-              />
-            </HStack>
-          </Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='limitOrder.provider' />
-          </Row.Label>
-          <Row.Value textAlign='right'>
-            <HStack>
-              <SwapperIcon swapperName={SwapperName.CowSwap} />
-              <RawText>{SwapperName.CowSwap}</RawText>
-            </HStack>
-          </Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='limitOrder.expiration' />
-          </Row.Label>
-          <Row.Value>
-            <TransactionDate blockTime={quoteExpirationTimestamp ?? 0} />
-          </Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='limitOrder.networkFee' />
-          </Row.Label>
-          <Row.Value>
-            <HStack justifyContent='flex-end'>
-              <Amount.Crypto value={networkFeeCryptoPrecision} symbol={feeAsset?.symbol ?? ''} />
-              <Amount.Fiat
-                color={'text.subtle'}
-                prefix='('
-                suffix=')'
-                noSpace
-                value={networkFeeUserCurrency}
-              />
-            </HStack>
-          </Row.Value>
-        </Row>
-        <Card bg='background.surface.raised.pressed' borderRadius={6} p={4} mb={2}>
-          <HStack>
-            <InfoIcon boxSize='1.3em' color='text.info' />
-            <RawText>{translate('limitOrder.confirmInfo')}</RawText>
-          </HStack>
-        </Card>
-      </Stack>
-    )
-  }, [
-    buyAsset?.symbol,
-    feeAsset?.symbol,
-    limitPrice?.buyAssetDenomination,
-    networkFeeCryptoPrecision,
-    networkFeeUserCurrency,
-    quoteExpirationTimestamp,
-    sellAsset?.symbol,
-    translate,
-  ])
+    return <LimitOrderDetail />
+  }, [])
 
   const button = useMemo(() => {
     return (
@@ -145,6 +76,7 @@ export const LimitOrderConfirm = () => {
     return <SharedConfirmFooter detail={detail} button={button} />
   }, [detail, button])
 
+  if (!body) return null
   return (
     <SharedConfirm
       bodyContent={body}

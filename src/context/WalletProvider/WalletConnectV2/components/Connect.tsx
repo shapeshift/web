@@ -1,8 +1,8 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
+import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
-import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { ConnectModal } from 'context/WalletProvider/components/ConnectModal'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -12,11 +12,7 @@ import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Erro
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from 'lib/utils'
 
-import type { LocationState } from '../../NativeWallet/types'
-
-export interface WalletConnectSetupProps extends RouteComponentProps<{}, {}, LocationState> {
-  dispatch: React.Dispatch<ActionTypes>
-}
+export type WalletConnectSetupProps = RouteComponentProps<{}, StaticContext, unknown>
 
 export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => {
   // Sometimes the Web3Modal doesn't trigger if there is already wc things in local storage.

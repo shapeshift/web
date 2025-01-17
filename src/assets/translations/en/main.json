@@ -189,7 +189,8 @@
     "update": "Update",
     "apy": "APY",
     "tbd": "TBD",
-    "installed": "Installed"
+    "installed": "Installed",
+    "others": "Others"
   },
   "consentBanner": {
     "body": {

@@ -1,11 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_STAKING_EVERGREEN_CONTRACT,
   foxEthStakingContractAddresses,
 } from '@shapeshiftoss/contracts'
 import { getTypeGuardAssertion } from 'lib/utils'
+import { RFOX_STAKING_ASSET_IDS } from 'pages/RFOX/constants'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
 import { DefiProvider } from './types'
@@ -78,7 +79,7 @@ export const STAKING_ID_TO_VERSION = {
   [foxEthStakingAssetIdEvergreen]: 'Evergreen',
 }
 
-export const rFOXStakingIds = [foxOnArbitrumOneAssetId] as readonly StakingId[]
+export const rFOXStakingIds = RFOX_STAKING_ASSET_IDS as readonly StakingId[]
 
 export const STAKING_ID_DELIMITER = '*'
 

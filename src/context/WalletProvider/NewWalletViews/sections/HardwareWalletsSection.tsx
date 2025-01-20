@@ -1,27 +1,29 @@
+import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { Text } from 'components/Text'
+import { KeepKeyConfig } from 'context/WalletProvider/KeepKey/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { LedgerConfig } from 'context/WalletProvider/Ledger/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-const Icon = LedgerConfig.icon
+const LedgerIcon = LedgerConfig.icon
+const KeepKeyIcon = KeepKeyConfig.icon
 
-const LedgerOption = ({
-  connect,
-  isSelected,
-  isDisabled,
-}: {
+type WalletOptionProps = {
   connect: () => void
   isSelected: boolean
   isDisabled: boolean
-}) => {
+  icon: ComponentWithAs<'svg', IconProps>
+  name: string
+}
+
+const WalletOption = ({ connect, isSelected, isDisabled, icon: Icon, name }: WalletOptionProps) => {
   const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
 
   return (
     <Box
       as={Button}
-      key='ledger'
       variant='ghost'
       px={4}
       ml={-4}
@@ -37,7 +39,7 @@ const LedgerOption = ({
           <Icon />
         </Box>
         <CText fontSize='md' fontWeight='medium'>
-          {LedgerConfig.name}
+          {name}
         </CText>
       </Flex>
     </Box>
@@ -60,6 +62,11 @@ export const HardwareWalletsSection = ({
     connect(KeyManager.Ledger, false)
   }, [connect, onWalletSelect])
 
+  const handleConnectKeepKey = useCallback(() => {
+    onWalletSelect('keepkey', '/keepkey/connect')
+    connect(KeyManager.KeepKey, false)
+  }, [connect, onWalletSelect])
+
   return (
     <Stack spacing={2} my={6}>
       <Text
@@ -68,10 +75,19 @@ export const HardwareWalletsSection = ({
         color='gray.500'
         translation='common.hardwareWallets'
       />
-      <LedgerOption
+      <WalletOption
         connect={handleConnectLedger}
         isSelected={selectedWalletId === 'ledger'}
         isDisabled={isLoading && selectedWalletId !== 'ledger'}
+        icon={LedgerIcon}
+        name={LedgerConfig.name}
+      />
+      <WalletOption
+        connect={handleConnectKeepKey}
+        isSelected={selectedWalletId === 'keepkey'}
+        isDisabled={isLoading && selectedWalletId !== 'keepkey'}
+        icon={KeepKeyIcon}
+        name={KeepKeyConfig.name}
       />
     </Stack>
   )

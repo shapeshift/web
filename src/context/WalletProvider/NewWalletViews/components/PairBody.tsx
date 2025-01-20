@@ -15,7 +15,7 @@ type PairBodyProps = {
   error: string | null
   onPairDeviceClick: () => void
   isButtonDisabled?: boolean
-  secondaryButton?: ReactNode
+  secondaryContent?: ReactNode
 }
 
 export const PairBody = ({
@@ -27,7 +27,7 @@ export const PairBody = ({
   error,
   onPairDeviceClick,
   isButtonDisabled,
-  secondaryButton,
+  secondaryContent,
 }: PairBodyProps) => {
   const translate = useTranslate()
 
@@ -57,7 +57,7 @@ export const PairBody = ({
       >
         {translate(buttonText)}
       </Button>
-      {secondaryButton}
+      {secondaryContent}
     </Flex>
   )
 }

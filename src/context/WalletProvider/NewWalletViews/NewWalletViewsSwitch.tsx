@@ -24,6 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
+import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
 import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
@@ -63,6 +64,7 @@ const RightPanelContent = ({
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
   if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
   if (location.pathname.startsWith('/ledger')) return <LedgerRoutes />
+  if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -99,6 +101,7 @@ export const NewWalletViewsSwitch = () => {
       modal,
       disconnectOnCloseModal,
       deviceState: { disposition },
+      initialRoute,
     },
     dispatch,
     disconnect,
@@ -158,12 +161,17 @@ export const NewWalletViewsSwitch = () => {
     },
     [history],
   )
+
+  useEffect(() => {
+    if (initialRoute) history.push(initialRoute)
+  }, [history, initialRoute])
+
   // Reset history on modal open/unmount
   useEffect(() => {
-    history.replace('/')
+    if (!initialRoute) history.replace('/')
 
     return () => {
-      history.replace('/')
+      if (!initialRoute) history.replace('/')
     }
     // Only run this on initial render, and unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps

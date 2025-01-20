@@ -65,7 +65,10 @@ export const EIP155TransactionConfirmation: FC<
     state: { walletInfo },
   } = useWallet()
   const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
+  const walletIcon = useMemo(
+    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
+    [WalletIcon],
+  )
   const addressSummaryCardIcon = useMemo(
     () => <Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />,
     [feeAsset?.icon],

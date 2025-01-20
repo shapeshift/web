@@ -113,7 +113,6 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
             name: maybeMipdProvider?.info.name ?? 'MetaMask',
           }),
         )
-        history.push('/metamask/failure')
       }
     }
     setIsLoading(false)

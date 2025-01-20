@@ -190,7 +190,8 @@
     "apy": "APY",
     "tbd": "TBD",
     "installed": "Installed",
-    "others": "Others"
+    "others": "Others",
+    "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
     "body": {

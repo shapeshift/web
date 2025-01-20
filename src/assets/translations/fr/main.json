@@ -929,7 +929,7 @@
     },
     "permit2Allowance": {
       "title": "Allocation de contrat Permit2",
-      "tooltip": "Cette échange utilise Permit2, qui nécessite une approbation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
+      "tooltip": "Cet échange utilise Permit2, qui nécessite une approbation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
     },
     "permit2Eip712": {
       "title": "Autoriser le transfert de jetons",

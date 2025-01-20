@@ -2730,7 +2730,8 @@
     "emissionsPool": "%{symbol} Emissions Pool (This Epoch)",
     "emissionsPoolHelper": "The total amount of rewards to be distributed %{symbol} stakers",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
-    "pendingDistribution": "Pending Distribution"
+    "pendingDistribution": "Pending Distribution",
+    "selectRuneAddress": "Select a RUNE address"
   },
   "markets": {
     "recommended": "Recommended",

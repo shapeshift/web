@@ -54,6 +54,7 @@
     "overview": "Vue d'ensemble",
     "getStarted": "Commencer",
     "connectWallet": "Connecter un porte-monnaie",
+    "pairing": "Appairage",
     "connectWalletToGetStartedWith": "Connectez un porte-monnaie pour commencer à utiliser %{feature}",
     "connectedWallet": "Porte-monnaie connecté",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
@@ -187,7 +188,8 @@
     "activeAccount": "Compte actif",
     "update": "Mettre à jour",
     "apy": "APY",
-    "tbd": "À définir"
+    "tbd": "À définir",
+    "installed": "Installé"
   },
   "consentBanner": {
     "body": {
@@ -301,21 +303,8 @@
     "notSupported": "%{asset} n'est pas pris en charge par %{wallet}"
   },
   "connectWalletPage": {
-    "title": "L'échange multichaîne original",
-    "primaryTitle": "Bienvenue sur la DeFi multichaîne.",
-    "secondaryTitle": "Privée. Décentralisée. Non dépositaire.",
-    "primaryDescription": "Échangez, bridgez et gagnez des récompenses sans effort. Utilisez le Bitcoin natif, Dogecoin et plus encore. Gérez vos liquidités et positions DeFi en un seul clic.",
-    "snapDescription": "Téléchargez le Snap Multichain de ShapeShift et accédez à Bitcoin, Dogecoin et plus dans votre MetaMask.",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explorez",
-    "defiUniverse": "l'Univers DeFi",
-    "body": "Échangez, bridgez et gagnez. Privé. Propriété communautaire. Non‑dépositaire. Décentralisé.",
-    "header": "Veuillez connecter un porte-monnaie pour commencer.",
-    "cta": "Connecter ou Créer un porte‑monnaie",
-    "viewADemo": "Voir une démo",
-    "dontHaveWallet": "Vous n'avez pas de porte-monnaie ?",
     "welcomeBack": "Bon retour parmi nous !",
-    "welcomeBody": "Connecter votre porte-monnaie, c'est comme \"se loguer\". Sélectionnez votre porte-monnaie parmi les options pour commencer.",
     "welcomeToShapeShift": "Bienvenue sur ShapeShift",
     "mobileWelcomeBody": "Créez un nouveau porte-monnaie ou ajoutez-en un existant pour démarrer facilement.",
     "mobileSelectBody": "Sélectionnez un de vos porte-monnaie enregistrés ci-dessous ou créez/importez un nouveau porte-monnaie.",
@@ -924,7 +913,9 @@
       "gasFee": "Il s'agit des frais de carburant estimés pour finaliser cette transaction.",
       "slippageWithAmount": "Si le prix change de telle manière que vous recevrez moins de %{amount}, votre transaction sera annulée. Il s’agit du montant minimum garanti que vous recevrez.",
       "slippage": "Votre transaction sera annulée si le prix change défavorablement de plus de ce pourcentage.",
-      "noRelatedAssets": "Cet actif est uniquement disponible sur %{chainDisplayName}"
+      "noRelatedAssets": "Cet actif est uniquement disponible sur %{chainDisplayName}",
+      "chainNotSupportedByWallet": "Cette chaîne n'est pas prise en charge par votre porte-monnaie. Utilisez un autre porte-monnaie pour échanger cet actif.",
+      "chainNotConnected": "Cette chaîne n'est pas connectée à votre porte-monnaie. Connectez %{chainDisplayName} pour échanger cet actif."
     },
     "rates": {
       "tags": {
@@ -936,12 +927,16 @@
         "cta": "Ok, j'ai compris"
       }
     },
-    "permit2": {
-      "title": "Autoriser le transfert de jetons :",
+    "permit2Allowance": {
+      "title": "Allocation de contrat Permit2",
+      "tooltip": "Cette échange utilise Permit2, qui nécessite une approbation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
+    },
+    "permit2Eip712": {
+      "title": "Autoriser le transfert de jetons",
       "description": "Accordez au contrat intelligent l’autorisation d’utiliser des %{symbol} en votre nom.",
-      "tooltip": "Cette transaction dispose d'une fonctionnalité de sécurité supplémentaire appelée \"Permit2\" qui vous oblige à accorder la permission à l'application d'effectuer la transaction en votre nom.",
       "error": "Un problème est survenu lors de la signature du message Permit2",
-      "signMessage": "Signer le message"
+      "signMessage": "Signer le message",
+      "tooltip": "Cela accordera une allocation de 5 minutes  à %{swapperName} pour terminer la transaction en votre nom."
     },
     "errors": {
       "title": "Il y a eu un problème",
@@ -991,6 +986,7 @@
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse",
     "disableThorNativeSmartContractReceive": "Nous avons détecté que vous envoyez vers une adresse de contrat intelligent sur %{chainName}. En raison de limitations liées à THORChain, la réception en %{nativeAssetSymbol} vers une adresse de contrat intelligent n'est pas prise en charge. Veuillez saisir une autre adresse",
     "disableThorTaprootReceive": "Nous avons détecté que vous envoyez vers une adresse Bitcoin Taproot. En raison des limitations de THORChain, la réception de BTC vers une adresse Taproot n'est actuellement pas prise en charge. Veuillez saisir une autre adresse.",
+    "disableChainflipKeepKeyTaprootReceive": "En raison des limitations de KeepKey, la vente de BTC sur ChainFlip n'est pas encore disponible. Veuillez choisir une autre paire ou connecter un autre porte-monnaie.",
     "toContinue": "pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",
@@ -1026,7 +1022,6 @@
       "swap": "Échange sur %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Autorisation d'allocation de jetons",
-    "permit2Title": "Autoriser le transfert de jetons",
     "resetTitle": "Réinitialisation d'allocation de jetons",
     "fiatAmountOnChain": "%{amountFiatFormatted} sur %{chainName}",
     "quote": {
@@ -1037,7 +1032,14 @@
     "awaitingSwap": "En attente d'échange via %{swapperName}",
     "awaitingBridge": "En attente de transfert via %{bridgeName}",
     "awaitingApproval": "En attente d'autorisation",
-    "awaitingAllowanceReset": "En attente de réinitialisation d'allocation"
+    "awaitingAllowanceReset": "En attente de réinitialisation d'allocation",
+    "foxSavings": {
+      "youSaved": "Vous avez économisé %{feeSaving} sur votre échange avec FOX Savings !",
+      "youCouldHaveSaved": "Vous auriez pu économiser %{fee} sur votre échange avec FOX Savings.",
+      "buyFox": "Acheter des FOX",
+      "share": "Partager",
+      "postBody": "Je viens d'économiser %{fee} en échangeant sur @ShapeShift simplement en possédant des $FOX !"
+    }
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1757,11 +1759,16 @@
       },
       "import": {
         "header": "Importer votre porte-monnaie",
+        "keystoreHeader": "Importer votre porte-monnaie Keystore",
         "body": "Entrez ou collez votre phrase de récupération secrète en minuscules, sans virgule, ni chiffre et avec un seul espace entre chaque mot.",
         "button": "Suivant",
         "secretRecoveryPhraseError": "Saisissez votre phrase secrète de récupération en laissant un seul espace entre les mots. Omettez les virgules, les retours à la ligne ou tout autre caractère supplémentaire.",
         "secretRecoveryPhraseRequired": "La phrase secrète de récupération est requise",
-        "secretRecoveryPhraseTooShort": "La phrase secrète de récupération est trop courte"
+        "secretRecoveryPhraseTooShort": "La phrase secrète de récupération est trop courte",
+        "dragAndDrop": "Glisser-déposer ou Choisir un fichier",
+        "keystoreImportBody": "Téléchargez le fichier en cliquant sur Parcourir ou en le faisant glisser ci-dessous.",
+        "importKeystore": "Importer un Keystore",
+        "invalidKeystorePassword": "Mot de passe du Keystore invalide"
       },
       "password": {
         "header": "Créer un nouveau mot de passe",
@@ -1779,10 +1786,17 @@
       },
       "start": {
         "header": "Porte-monnaie ShapeShift",
+        "selectHeader": "Importer un porte-monnaie",
+        "keystoreHeader": "Porte-monnaie Keystore",
         "body": "Vous pouvez avoir plusieurs porte-monnaie ShapeShift. Vous pouvez charger un porte-monnaie, importer un porte-monnaie à partir d'une phrase de récupération secrète ou créer un nouveau porte-monnaie.",
+        "selectBody": "Importez votre porte-monnaie en utilisant votre phrase de récupération secrète ou en téléchargeant votre fichier Keystore.",
         "import": "Importer un porte-monnaie",
+        "secretRecoveryPhrase": "Phrase de récupération secrète",
+        "twelveWordSeedPhrase": "Phrase de récupération de 12 mots",
+        "keystore": "Keystore",
         "create": "Créer un nouveau porte-monnaie",
-        "load": "Porte-monnaie mémorisés"
+        "load": "Porte-monnaie mémorisés",
+        "uploadKeystore": "Télécharger un fichier Keystore"
       },
       "success": {
         "encryptingWallet": "Cryptage de votre porte-monnaie... si votre navigateur vous demande de stocker des données dans une mémoire persistante, veuillez cliquer sur 'Autoriser'.",
@@ -1858,6 +1872,15 @@
       "onboarding": {
         "skip": "Sauter",
         "shapeshiftWallet": "Porte-monnaie ShapeShift",
+        "createNewWallet": "Créer un nouveau porte-monnaie",
+        "shapeshiftNative": "ShapeShift Natif",
+        "addNewWallet": "Ajouter un nouveau porte-monnaie",
+        "comingFromThorswap": "Vous venez de THORSwap ?",
+        "importExisting": "Importer un existant",
+        "importFromKeystore": "Importer depuis un Keystore",
+        "whatIsShapeshiftWallet": "Qu'est-ce qu'un porte-monnaie ShapeShift ?",
+        "yourDecentralizedGateway": "Votre passerelle vers la décentralisation. Échangez et gagnez sur Bitcoin, Ethereum, Solana et plus encore à partir d'un seul porte-monnaie sécurisé.",
+        "crossChainFreedom": "Liberté entre les chaînes. Accédez aux meilleurs tarifs sur plusieurs plateformes d'échange décentralisées, sans intermédiaire",
         "selfCustody": {
           "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
           "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",
@@ -2232,7 +2255,8 @@
           "connectionError": "Impossible de se connecter à l'URI fourni.",
           "invalidUri": "URI invalide",
           "v1UriUnsupported": "URI WalletConnect V1 non activé",
-          "v2UriUnsupported": "URI WalletConnect V2 non activé"
+          "v2UriUnsupported": "URI WalletConnect V2 non activé",
+          "disclaimerBody": "Shapeshift ne peut pas garantir la sécurité des applications tierces. En utilisant WalletConnect, vous assumez l'entière responsabilité des risques encourus."
         },
         "sessionProposal": {
           "dAppInfo": "Info de la dApp",
@@ -2617,7 +2641,9 @@
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
+    "stakeWarning": "Lorsque vous misez vos jetons %{symbol}, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
     "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
+    "unstakeWarning": "Avant de pouvoir réclamer vos %{symbol}, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
@@ -2656,11 +2682,16 @@
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
     "confirmAndBridge": "Confirmer et bridger",
     "myStakedBalance": "Mon solde misé",
+    "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez misé",
+    "pendingRewardsBalance": "Solde des récompenses en attente",
     "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l’époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois.",
     "lifetimeRewards": "Récompenses cumulées",
+    "lifetimeRewardsHelper": "Le total des récompenses que vous avez gagnées en misant vos %{symbol} à ce jour",
     "timeInPool": "Temps dans le pool",
     "timeInPoolHelper": "Le temps dans le pool correspond au dépôt le plus ancien dans rFOX",
     "myPosition": "Ma position",
+    "positionDetails": "Détails de la position",
+    "mySymbolPosition": "Ma position %{symbol}",
     "faq": {
       "title": "FAQ",
       "what": {
@@ -2693,7 +2724,11 @@
       }
     },
     "totals": "Totaux rFOX",
+    "totalStaked": "Total des %{symbol} misés",
+    "totalStakedHelper": "Le montant total des %{symbol} misés",
     "totalFeesCollected": "Total des frais collectés (cette époque)",
+    "emissionsPool": "Pool d'émissions %{symbol} (cette époque)",
+    "emissionsPoolHelper": "Le montant total des récompenses à distribuer aux miseurs %{symbol}",
     "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
     "pendingDistribution": "Distribution en attente"
   },
@@ -2745,7 +2780,7 @@
     "24hrPriceChange": "Évolution du prix sur 24h",
     "rfox": {
       "whatIs": "Qu'est-ce que c'est miser avec rFOX ?",
-      "totalFoxBurn": "Total des FOX brûlés",
+      "totalSymbolBurn": "Total des %{symbol} brûlés",
       "simulateTitle": "Simulateur rFOX",
       "simulateSubtle": "Entrez le montant de dépôt désiré",
       "estimatedRewards": "Récompenses estimées",
@@ -2759,6 +2794,14 @@
       "totalClaimableRewards": "Total des récompenses réclamables",
       "totalStakingValue": "Valeur totale misée",
       "nextEpoch": "Prochaine époque"
+    },
+    "foxWifHat": {
+      "title": "FOX Wif Hat",
+      "description": "C'est juste FOX avec un chapeau, ne vous prenez pas la tête. Profitez d'un programme de remises sur la chaîne à durée limitée. Au fur et à mesure que votre remise diminue, découvrez FOX sur le reste de la page et échangez à tout moment contre des FOX pour conserver votre réduction sur les frais. Le montant le plus élevé vous fait économiser de l'argent sur la plateforme ShapeShift.",
+      "discount": "*La remise diminue de manière linéaire au fil du temps et expire le XX/XX/2025. Profitez de votre remise de XX% avant qu'elle ne diminue davantage !",
+      "claim": "Réclamer",
+      "claimed": "Réclamé",
+      "discountText": "*%{percent}% de réduction sur les frais d'échange"
     },
     "governance": {
       "title": "Gouvernance",

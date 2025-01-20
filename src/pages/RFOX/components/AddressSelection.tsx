@@ -218,6 +218,12 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return fromAccountId(maybeRuneAccountId).account
   }, [maybeRuneAccountId])
 
+  useEffect(() => {
+    if (maybeSelectedRuneAddress && !selectedAddress) {
+      handleRuneAddressChange(maybeSelectedRuneAddress)
+    }
+  }, [maybeSelectedRuneAddress, selectedAddress, handleRuneAddressChange])
+
   const filter = useMemo(() => ({ accountId: maybeRuneAccountId }), [maybeRuneAccountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
 

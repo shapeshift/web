@@ -55,7 +55,7 @@ export const SearchTermAssetList = ({
   const customTokenSupportedChainIds = useMemo(() => {
     // If it's a Solana address?
     if (isValidSolanaAddress(searchString)) {
-      return [solanaChainId]
+      return activeChainId === 'All' || activeChainId === solanaChainId ? [solanaChainId] : []
       // If it an EVM address?
     } else if (isAddress(searchString, { strict: false })) {
       return walletSupportedEvmChainIds.filter(chainId =>
@@ -64,7 +64,7 @@ export const SearchTermAssetList = ({
     } else {
       return []
     }
-  }, [searchString, walletSupportedEvmChainIds])
+  }, [searchString, walletSupportedEvmChainIds, activeChainId])
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
     chainIds: customTokenSupportedChainIds,

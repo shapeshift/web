@@ -31,26 +31,24 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     return [fromAccountId(stakingAssetAccountId).account]
   }, [stakingAssetAccountId])
 
-  const lifetimeRewardDistributionsResult = useLifetimeRewardDistributionsQuery({
+  const lifetimeRewardDistributionsQuery = useLifetimeRewardDistributionsQuery({
     stakingAssetAccountAddresses,
   })
 
   const isLoading = useMemo(() => {
-    return (
-      lifetimeRewardDistributionsResult.isLoading || lifetimeRewardDistributionsResult.isFetching
-    )
-  }, [lifetimeRewardDistributionsResult])
+    return lifetimeRewardDistributionsQuery.isLoading || lifetimeRewardDistributionsQuery.isFetching
+  }, [lifetimeRewardDistributionsQuery])
 
   const rewardDistributionsByTxId = useMemo(() => {
-    if (!lifetimeRewardDistributionsResult.data) return {}
+    if (!lifetimeRewardDistributionsQuery.data) return {}
 
-    return lifetimeRewardDistributionsResult.data.reduce<
+    return lifetimeRewardDistributionsQuery.data.reduce<
       Record<string, RewardDistributionWithMetadata>
     >((acc, rewardDistribution) => {
       acc[rewardDistribution.txId] = rewardDistribution
       return acc
     }, {})
-  }, [lifetimeRewardDistributionsResult])
+  }, [lifetimeRewardDistributionsQuery])
 
   const txIds = useMemo(() => {
     return Object.entries(rewardDistributionsByTxId).map(([txId, distribution]) =>
@@ -92,6 +90,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
           epoch: distribution.epoch,
           ipfsHash: distribution.ipfsHash,
           stakingAddress: distribution.stakingAddress,
+          stakingContract: distribution.stakingContract,
         },
       }
 

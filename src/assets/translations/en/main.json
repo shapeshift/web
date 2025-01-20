@@ -54,6 +54,7 @@
     "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
+    "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
     "connectedWalletSettings": "Wallet Settings",
@@ -187,7 +188,8 @@
     "activeAccount": "Active Account",
     "update": "Update",
     "apy": "APY",
-    "tbd": "TBD"
+    "tbd": "TBD",
+    "installed": "Installed"
   },
   "consentBanner": {
     "body": {
@@ -911,7 +913,9 @@
       "gasFee": "This is the estimated gas fee to complete this trade.",
       "slippageWithAmount": "If the price moves so that you will receive less than %{amount}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive.",
       "slippage": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
-      "noRelatedAssets": "This asset is only available on %{chainDisplayName}"
+      "noRelatedAssets": "This asset is only available on %{chainDisplayName}",
+      "chainNotSupportedByWallet": "This chain is not supported by your wallet. Switch to a different wallet to trade this asset.",
+      "chainNotConnected": "This chain is not connected to your wallet. Connect %{chainDisplayName} to trade this asset."
     },
     "rates": {
       "tags": {
@@ -1868,6 +1872,15 @@
       "onboarding": {
         "skip": "Skip",
         "shapeshiftWallet": "ShapeShift Wallet",
+        "createNewWallet": "Create a new wallet",
+        "shapeshiftNative": "ShapeShift Native",
+        "addNewWallet": "Add new wallet",
+        "comingFromThorswap": "Coming from THORSwap?",
+        "importExisting": "Import existing",
+        "importFromKeystore": "Import from keystore",
+        "whatIsShapeshiftWallet": "What is ShapeShift Wallet?",
+        "yourDecentralizedGateway": "Your decentralization gateway. Trade and earn Bitcoin, Ethereum, Solana and more from a single, secure wallet.",
+        "crossChainFreedom": "Cross chain freedom. Access the best rates across multiple decentralized exchanges, no middleman required",
         "selfCustody": {
           "title": "Your ShapeShift Wallet is Self-Custody",
           "subTitle": "You hold the keys and you're the only one who can access it.",
@@ -2628,9 +2641,9 @@
     "rewardAddressHelper": "This is where rewards will be sent",
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
-    "stakeWarning": "When you stake your FOX tokens please be aware that the lock-up period is %{cooldownPeriod}. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
+    "stakeWarning": "When you stake your %{symbol} please be aware that the lock-up period is %{cooldownPeriod}. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
     "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your funds to %{destinationNetwork}. Would you like us to guide you through the process?",
-    "unstakeWarning": "Before you can claim your FOX the cool-down period is %{cooldownPeriod}. After that time has elapsed you will be able to claim your unstaked amount.",
+    "unstakeWarning": "Before you can claim your %{symbol} the cool-down period is %{cooldownPeriod}. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
       "unstakeAmount": "This is amount of FOX you will unstake",
@@ -2669,14 +2682,16 @@
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge",
     "myStakedBalance": "My Staked Balance",
-    "myStakedBalanceHelper": "The amount of FOX you have staked",
-    "pendingRewardsBalance": "Current Estimated Rewards Balance",
+    "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
+    "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
     "lifetimeRewards": "Lifetime Rewards",
-    "lifetimeRewardsHelper": "Lifetime rewards is the cumulative rewards from staking your FOX",
+    "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
     "timeInPool": "Time in Pool",
     "timeInPoolHelper": "Time in pool is the longest living deposit into rFOX",
     "myPosition": "My Position",
+    "positionDetails": "Position Details",
+    "mySymbolPosition": "My %{symbol} Position",
     "faq": {
       "title": "FAQ",
       "what": {
@@ -2709,10 +2724,11 @@
       }
     },
     "totals": "rFOX Totals",
-    "totalStaked": "Total FOX Staked",
+    "totalStaked": "Total %{symbol} Staked",
+    "totalStakedHelper": "The total amount of %{symbol} staked",
     "totalFeesCollected": "Total Fees Collected (This Epoch)",
-    "emissionsPool": "Emissions Pool (This Epoch)",
-    "emissionsPoolHelper": "Emissions Pool (This Epoch)",
+    "emissionsPool": "%{symbol} Emissions Pool (This Epoch)",
+    "emissionsPoolHelper": "The total amount of rewards to be distributed %{symbol} stakers",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address"
@@ -2765,7 +2781,7 @@
     "24hrPriceChange": "24h Price Change",
     "rfox": {
       "whatIs": "What is rFOX Staking?",
-      "totalFoxBurn": "Total FOX Burn",
+      "totalSymbolBurn": "Total %{symbol} Burn",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Input number of deposit something",
       "estimatedRewards": "Estimated Rewards",
@@ -2779,6 +2795,14 @@
       "totalClaimableRewards": "Total Claimable Rewards",
       "totalStakingValue": "Total Staking Value",
       "nextEpoch": "Next Epoch"
+    },
+    "foxWifHat": {
+      "title": "FOX Wif Hat",
+      "description": "It's just FOX wif a hat, don't overthink it. Enjoy a limited time on-chain discount program. As your discount decays learn about FOX on the rest of the page and swap into FOX any time to preserve your fee discount. Whichever holding is higher saves you money on the ShapeShift platform.",
+      "discount": "*The discount decreases linearly over time, expiring on XX/XX/2025. Take advantage of your XX% discount before it decreases further!",
+      "claim": "Claim",
+      "claimed": "Claimed",
+      "discountText": "*%{percent}% off trade fees"
     },
     "governance": {
       "title": "Governance",

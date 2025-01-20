@@ -56,6 +56,7 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
+  RFOX_LP: boolean
   CustomTokenImport: boolean
   ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
@@ -74,6 +75,8 @@ export type FeatureFlags = {
   ThorFreeFees: boolean
   JupiterSwap: boolean
   NewTradeFlow: boolean
+  NewWalletFlow: boolean
+  FoxPageFoxWifHatSection: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -153,6 +156,7 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
+    RFOX_LP: getConfig().REACT_APP_FEATURE_RFOX_LP,
     CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
@@ -171,6 +175,8 @@ const initialState: Preferences = {
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
     NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
+    NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
+    FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -13,6 +13,7 @@ type UseLifetimeRewardDistributionsQueryProps = {
 export type RewardDistributionWithMetadata = RewardDistribution & {
   epoch: number
   stakingAddress: string
+  stakingContract: string
   ipfsHash: string
 }
 
@@ -27,21 +28,29 @@ export const useLifetimeRewardDistributionsQuery = ({
     (data: EpochWithIpfsHash[]): RewardDistributionWithMetadata[] => {
       if (!stakingAssetAccountAddresses) return []
       return data
-        .filter(epoch => epoch.number >= 0)
         .sort((a, b) => b.number - a.number)
         .flatMap(epoch =>
-          stakingAssetAccountAddresses.map(stakingAssetAccountAddress => {
+          stakingAssetAccountAddresses.flatMap(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)
-            const distribution = epoch.distributionsByStakingAddress[stakingAddress]
 
-            if (!distribution) return null
+            return Object.entries(epoch.detailsByStakingContract).map(
+              ([stakingContract, details]) => {
+                const distribution = details.distributionsByStakingAddress[stakingAddress]
 
-            return {
-              epoch: epoch.number,
-              stakingAddress,
-              ipfsHash: epoch.ipfsHash,
-              ...distribution,
-            }
+                if (!distribution) return null
+
+                // filter out genesis "distributions"
+                if (epoch.distributionStatus === 'complete' && !distribution.txId) return null
+
+                return {
+                  epoch: epoch.number,
+                  stakingAddress,
+                  stakingContract,
+                  ipfsHash: epoch.ipfsHash,
+                  ...distribution,
+                }
+              },
+            )
           }),
         )
         .filter(isSome)

@@ -12,7 +12,7 @@ import { useAppSelector } from 'state/store'
 
 type StakingInfoItemProps = {
   informationDescription: string
-  helperTranslation?: string
+  helperDescription?: string
   isLoading: boolean
 } & (
   | {
@@ -30,7 +30,7 @@ type StakingInfoItemProps = {
 export const StakingInfoItem = ({
   informationDescription,
   assetId,
-  helperTranslation,
+  helperDescription,
   value,
   amountCryptoBaseUnit,
   isLoading,
@@ -42,19 +42,18 @@ export const StakingInfoItem = ({
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
   )
 
-  const amountUserCurrency = useMemo(
-    () =>
-      amountCryptoBaseUnit && marketDataUserCurrency && asset
-        ? bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision))
-            .times(marketDataUserCurrency.price)
-            .toFixed(2)
-        : undefined,
-    [amountCryptoBaseUnit, marketDataUserCurrency, asset],
-  )
+  const amountUserCurrency = useMemo(() => {
+    if (!asset) return
+    if (!amountCryptoBaseUnit) return
+
+    return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision))
+      .times(marketDataUserCurrency.price)
+      .toFixed(2)
+  }, [amountCryptoBaseUnit, marketDataUserCurrency, asset])
 
   const helperIconProps = useMemo(() => {
-    return { boxSize: !helperTranslation ? 0 : undefined }
-  }, [helperTranslation])
+    return { boxSize: !helperDescription ? 0 : undefined }
+  }, [helperDescription])
 
   const maybeCryptoAmount = useMemo(() => {
     if (!asset) return null
@@ -76,7 +75,7 @@ export const StakingInfoItem = ({
 
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
-      <HelperTooltip label={translate(helperTranslation)} iconProps={helperIconProps}>
+      <HelperTooltip label={translate(helperDescription)} iconProps={helperIconProps}>
         <Text
           fontSize='sm'
           color='text.subtle'

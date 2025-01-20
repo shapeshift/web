@@ -2,11 +2,13 @@ import type { FlexProps, StackProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   Divider,
   Flex,
   Heading,
+  HStack,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -18,8 +20,9 @@ import {
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
+  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -29,7 +32,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useAffiliateRevenueQuery } from 'pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentApyQuery } from 'pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
@@ -48,7 +51,16 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
+import type { Filter } from './FoxTokenFilterButton'
+import { FoxTokenFilterButton } from './FoxTokenFilterButton'
 import { RFOXSimulator } from './RFOXSimulator'
+
+const hstackProps: StackProps = {
+  flexWrap: {
+    base: 'wrap',
+    md: 'nowrap',
+  },
+}
 
 const containerPaddingX = { base: 4, xl: 0 }
 const columnsProps = {
@@ -83,10 +95,11 @@ export const RFOXSection = () => {
   const translate = useTranslate()
   const history = useHistory()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
+  const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId } = useRFOXContext()
-  const stakingAssetId = foxOnArbitrumOneAssetId
   const appDispatch = useAppDispatch()
+  const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
@@ -94,15 +107,7 @@ export const RFOXSection = () => {
     appDispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
   }, [appDispatch, stakingAssetId])
 
-  const {
-    data: apy,
-    isLoading: isApyQueryLoading,
-    isFetching: isApyFetching,
-  } = useCurrentApyQuery({ stakingAssetId })
-
-  const isApyLoading = useMemo(() => {
-    return isApyQueryLoading || isApyFetching
-  }, [isApyQueryLoading, isApyFetching])
+  const currentApyQuery = useCurrentApyQuery({ stakingAssetId })
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdByAccountNumberAndChainId,
@@ -112,6 +117,26 @@ export const RFOXSection = () => {
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
+
+  const foxOnArbAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
+  const foxLpAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
+
+  const filters = useMemo<Filter[]>(() => {
+    return [
+      {
+        label: foxOnArbAsset?.symbol ?? '',
+        chainId: foxOnArbAsset?.chainId,
+        assetId: foxOnArbitrumOneAssetId,
+        asset: foxOnArbAsset,
+      },
+      {
+        label: foxLpAsset?.symbol ?? '',
+        chainId: foxLpAsset?.chainId,
+        assetId: uniV2EthFoxArbitrumAssetId,
+        asset: foxLpAsset,
+      },
+    ]
+  }, [foxLpAsset, foxOnArbAsset])
 
   const stakingAssetAccountId = useMemo(() => {
     const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
@@ -139,70 +164,52 @@ export const RFOXSection = () => {
     [stakingAsset],
   )
 
-  const {
-    data: stakingBalanceCryptoPrecision,
-    isLoading: isStakingBalanceCryptoPrecisionQueryLoading,
-    isFetching: isStakingBalanceCryptoPrecisionFetching,
-  } = useStakingInfoQuery({
+  const stakingBalanceCryptoPrecisionQuery = useStakingInfoQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
     select: selectStakingBalanceCryptoPrecision,
   })
 
-  const isStakingBalanceCryptoBaseUnitLoading = useMemo(() => {
-    return isStakingBalanceCryptoPrecisionQueryLoading || isStakingBalanceCryptoPrecisionFetching
-  }, [isStakingBalanceCryptoPrecisionQueryLoading, isStakingBalanceCryptoPrecisionFetching])
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
-
-  const {
-    data: currentEpochRewardsCryptoBaseUnit,
-    isLoading: isCurrentEpochRewardsCryptoBaseUnitQueryLoading,
-    isFetching: isCurrentEpochRewardsCryptoBaseUnitFetching,
-  } = useCurrentEpochRewardsQuery({
+  const currentEpochRewardsQuery = useCurrentEpochRewardsQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
-    currentEpochMetadata: currentEpochMetadataResult.data,
+    currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
   const currentEpochRewardsCryptoPrecision = useMemo(
-    () => fromBaseUnit(currentEpochRewardsCryptoBaseUnit?.toString(), runeAsset?.precision ?? 0),
-    [currentEpochRewardsCryptoBaseUnit, runeAsset?.precision],
+    () => fromBaseUnit(currentEpochRewardsQuery.data?.toString(), runeAsset?.precision ?? 0),
+    [currentEpochRewardsQuery.data, runeAsset?.precision],
   )
 
-  const isCurrentEpochRewardsCryptoBaseUnitLoading = useMemo(() => {
-    return (
-      isCurrentEpochRewardsCryptoBaseUnitQueryLoading || isCurrentEpochRewardsCryptoBaseUnitFetching
-    )
-  }, [isCurrentEpochRewardsCryptoBaseUnitQueryLoading, isCurrentEpochRewardsCryptoBaseUnitFetching])
-
-  const {
-    data: lifetimeRewards,
-    isLoading: isLifetimeRewardsQueryLoading,
-    isFetching: isLifetimeRewardsFetching,
-  } = useLifetimeRewardsQuery({
+  const lifetimeRewardsQuery = useLifetimeRewardsQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
   })
-
-  const isLifetimeRewardsLoading = useMemo(() => {
-    return isLifetimeRewardsQueryLoading || isLifetimeRewardsFetching
-  }, [isLifetimeRewardsQueryLoading, isLifetimeRewardsFetching])
 
   const {
     data: timeInPoolHuman,
     isLoading: isTimeInPoolQueryLoading,
     isFetching: isTimeInPoolFetching,
   } = useTimeInPoolQuery({
+    stakingAssetId,
     stakingAssetAccountAddress,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
+  const handleSelectAssetId = useCallback((filter: Filter) => {
+    setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
+  }, [])
+
   const isTimeInPoolLoading = useMemo(() => {
     return isTimeInPoolQueryLoading || isTimeInPoolFetching
   }, [isTimeInPoolQueryLoading, isTimeInPoolFetching])
 
-  const affiliateRevenueResult = useAffiliateRevenueQuery<string>({
-    startTimestamp: currentEpochMetadataResult.data?.epochStartTimestamp,
-    endTimestamp: currentEpochMetadataResult.data?.epochEndTimestamp,
+  const affiliateRevenueQuery = useAffiliateRevenueQuery<string>({
+    startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
+    endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
     select: (totalRevenue: bigint) => {
       return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
         .times(runeMarketData.price)
@@ -210,14 +217,17 @@ export const RFOXSection = () => {
     },
   })
 
-  const burn = useMemo(() => {
-    if (!affiliateRevenueResult.data) return
-    if (!currentEpochMetadataResult.data) return
+  const emissionsPoolUserCurrency = useMemo(() => {
+    if (!affiliateRevenueQuery.data) return
+    if (!currentEpochMetadataQuery.data) return
 
-    return bn(affiliateRevenueResult.data)
-      .times(currentEpochMetadataResult.data.burnRate)
-      .toFixed(2)
-  }, [affiliateRevenueResult.data, currentEpochMetadataResult.data])
+    const distributionRate =
+      currentEpochMetadataQuery.data.distributionRateByStakingContract[
+        getStakingContract(stakingAssetId)
+      ]
+
+    return bn(affiliateRevenueQuery.data).times(distributionRate).toFixed(2)
+  }, [affiliateRevenueQuery, currentEpochMetadataQuery, stakingAssetId])
 
   if (!(stakingAsset && runeAsset)) return null
 
@@ -232,20 +242,34 @@ export const RFOXSection = () => {
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
               <RFOXIcon me={2} boxSize='32px' sx={rfoxIconStyles} />
               {translate('RFOX.staking')}
-              <Skeleton isLoaded={!Boolean(isApyLoading)} ml={2}>
+              <Skeleton isLoaded={!currentApyQuery.isFetching} ml={2}>
                 <Tag colorScheme='green' verticalAlign='middle'>
-                  <Amount.Percent value={apy ?? 0} suffix='APY' />
+                  <Amount.Percent value={currentApyQuery.data ?? 0} suffix='APY' />
                 </Tag>
               </Skeleton>
             </Heading>
-            <Text fontSize='md' color='text.subtle' mt={2} translation='foxPage.rfox.whatIs' />
+            {isRFOXLPEnabled ? (
+              <ButtonGroup variant='transparent' mb={4} spacing={0} mt={2}>
+                <HStack spacing={1} p={1} borderRadius='md' {...hstackProps}>
+                  {filters.map(filter => (
+                    <FoxTokenFilterButton
+                      key={filter.label}
+                      onFilterClick={handleSelectAssetId}
+                      filter={filter}
+                      isSelected={stakingAssetId === filter.assetId}
+                      asset={filter.asset}
+                    />
+                  ))}
+                </HStack>
+              </ButtonGroup>
+            ) : null}
           </Box>
 
           <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
               <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
 
-              <Skeleton isLoaded={!Boolean(isCurrentEpochRewardsCryptoBaseUnitLoading)}>
+              <Skeleton isLoaded={!currentEpochRewardsQuery.isFetching}>
                 <Amount.Crypto
                   value={currentEpochRewardsCryptoPrecision}
                   symbol={runeAsset.symbol ?? ''}
@@ -265,10 +289,10 @@ export const RFOXSection = () => {
                 translation='defi.stakingBalance'
                 mb={1}
               />
-              <Skeleton isLoaded={!isStakingBalanceCryptoBaseUnitLoading}>
+              <Skeleton isLoaded={!stakingBalanceCryptoPrecisionQuery.isFetching}>
                 <Amount.Crypto
                   fontSize='2xl'
-                  value={stakingBalanceCryptoPrecision}
+                  value={stakingBalanceCryptoPrecisionQuery.data}
                   symbol={stakingAsset.symbol ?? ''}
                 />
               </Skeleton>
@@ -286,10 +310,13 @@ export const RFOXSection = () => {
               translation='RFOX.lifetimeRewards'
               mb={1}
             />
-            <Skeleton isLoaded={!Boolean(isLifetimeRewardsLoading)}>
+            <Skeleton isLoaded={!Boolean(lifetimeRewardsQuery.isFetching)}>
               <Amount.Crypto
                 fontSize='2xl'
-                value={fromBaseUnit(lifetimeRewards?.toString(), runeAsset.precision ?? 0)}
+                value={fromBaseUnit(
+                  lifetimeRewardsQuery.data?.toString(),
+                  runeAsset.precision ?? 0,
+                )}
                 symbol={runeAsset.symbol ?? ''}
               />
             </Skeleton>
@@ -313,11 +340,18 @@ export const RFOXSection = () => {
               fontSize='md'
               color='text.subtle'
               fontWeight='medium'
-              translation='foxPage.rfox.totalFoxBurn'
+              // we need to pass a local scope arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
+              translation={[
+                'foxPage.rfox.totalSymbolBurn',
+                {
+                  symbol: stakingAsset.symbol,
+                },
+              ]}
               mb={1}
             />
-            <Skeleton isLoaded={Boolean(burn)}>
-              <Amount.Fiat fontSize='2xl' value={burn} suffix='🔥 _ 🔥' />
+            <Skeleton isLoaded={Boolean(emissionsPoolUserCurrency)}>
+              <Amount.Fiat fontSize='2xl' value={emissionsPoolUserCurrency} suffix='🔥 _ 🔥' />
             </Skeleton>
           </Stack>
         </SimpleGrid>

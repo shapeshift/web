@@ -20,8 +20,6 @@ type LpCardProps = {
   onClick: (assetId: AssetId) => void
 }
 
-const pairProps = { showFirst: true }
-
 export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const translate = useTranslate()
@@ -39,13 +37,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
   if (!asset) return null
 
   return (
-    <CommonCard
-      title={asset.name}
-      subtitle={asset.symbol}
-      assetId={assetId}
-      onClick={handleClick}
-      pairProps={pairProps}
-    >
+    <CommonCard title={asset.name} subtitle={asset.symbol} assetId={assetId} onClick={handleClick}>
       <CommonStat value={apyValue} label={translate('common.apy')} />
       <CommonStat
         value={volume24HValue}

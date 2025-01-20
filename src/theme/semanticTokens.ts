@@ -61,15 +61,15 @@ export const semanticTokens = {
       },
       input: {
         base: {
-          default: 'gray.50',
+          default: 'gray.100',
           _dark: 'darkNeutral.900',
         },
         hover: {
-          default: 'gray.100',
+          default: 'gray.150',
           _dark: 'darkNeutral.800',
         },
         pressed: {
-          default: 'gray.200',
+          default: 'gray.250',
           _dark: 'darkNeutral.900',
         },
       },

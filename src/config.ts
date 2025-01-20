@@ -160,6 +160,7 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
+  REACT_APP_FEATURE_RFOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),
@@ -183,6 +184,8 @@ const validators = {
   REACT_APP_FEATURE_JUPITER_SWAP: bool({ default: false }),
   REACT_APP_JUPITER_API_URL: url({ default: JUPITER_API_URL }),
   REACT_APP_FEATURE_NEW_TRADE_FLOW: bool({ default: false }),
+  REACT_APP_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
+  REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -2604,9 +2604,7 @@
     "rewardAddressHelper": "Aquí se enviarán recompensas.",
     "useWalletAddress": "Usar dirección de billetera",
     "useCustomAddress": "Usar dirección personalizada",
-    "stakeWarning": "Cuando haces staking de tus tokens FOX, hay un período de bloqueo es %{cooldownPeriod}. Significa que si decide dejar de staking, deberá esperar %{cooldownPeriod} antes de poder reclamar sus fondos.",
     "bridgeCta": "Seleccionó %{assetSymbol} en %{originNetwork}, pero necesitará %{assetSymbol} en %{destinationNetwork} para staking. Podemos ayudar a transferir sus fondos a %{destinationNetwork}. ¿Quieres que te guiemos en el proceso?",
-    "unstakeWarning": "Antes de poder reclamar tus FOX, el período de recuperación es %{cooldownPeriod}. Una vez transcurrido, podrás reclamar el monto sin staking.",
     "tooltips": {
       "stakeAmount": "Esta es la cantidad de FOX que Stake",
       "unstakeAmount": "Cantidad de FOX a Unstake",
@@ -2645,11 +2643,8 @@
     "noSupportedChainsDescription": "Agregue %{chainLabel} o conecte billetera que la admita.",
     "confirmAndBridge": "Confirmar y Bridge",
     "myStakedBalance": "Mi Balance en Staking",
-    "myStakedBalanceHelper": "Cantidad de FOX en staking",
-    "pendingRewardsBalance": "Saldo de Recompensas Estimado Actual",
     "pendingRewardsBalanceHelper": "Esta es solo una estimación de recompensas pendientes según ingresos de la época hasta la fecha. La contabilidad se realiza al final de la época y no se puede calcular exactamente antes de fin de mes.",
     "lifetimeRewards": "Recompensas de por Vida",
-    "lifetimeRewardsHelper": "Las recompensas de por vida son las acumuladas por hacer staking de sus FOX",
     "timeInPool": "Tiempo en Pool",
     "timeInPoolHelper": "El tiempo en el pool es el depósito más duradero en rFOX",
     "myPosition": "Mi posición",
@@ -2685,10 +2680,7 @@
       }
     },
     "totals": "rFOX Totales",
-    "totalStaked": "Total FOX Staking",
     "totalFeesCollected": "Tarifas totales cobradas (esta época)",
-    "emissionsPool": "Fondo de Emisiones (esta época)",
-    "emissionsPoolHelper": "Fondo de Emisiones (esta época)",
     "foxBurnAmount": "Cantidad FOX quemados (esta época)",
     "pendingDistribution": "Distribución Pendiente"
   },

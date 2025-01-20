@@ -2604,9 +2604,7 @@
     "rewardAddressHelper": "É aqui que as recompensas serão enviadas",
     "useWalletAddress": "Usar endereço de carteira",
     "useCustomAddress": "Usar endereço personalizado",
-    "stakeWarning": "Ao fazer stake de seus tokens FOX, esteja ciente de que o período de lock-up é %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens do stake, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
     "bridgeCta": "Você selecionou %{assetSymbol} em %{originNetwork}, mas precisará de %{assetSymbol} em %{destinationNetwork} para fazer stake. Podemos ajudar você a fazer a ponte entre seus fundos e %{destinationNetwork}. Gostaria que o orientássemos durante o processo?",
-    "unstakeWarning": "Antes de poder resgatar seu FOX, o período de espera é %{cooldownPeriod}. Após esse tempo, você poderá pegar seu valor retirado do stake.",
     "tooltips": {
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
       "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
@@ -2645,11 +2643,8 @@
     "noSupportedChainsDescription": "Adicione %{chainLabel} ou conecte-se a uma carteira que suporte isso.",
     "confirmAndBridge": "Confirme & Faça a ponte",
     "myStakedBalance": "Meu saldo em stake",
-    "myStakedBalanceHelper": "A quantidade de FOX que você tem em stake",
-    "pendingRewardsBalance": "Saldo atual estimado de recompensas",
     "pendingRewardsBalanceHelper": "Esta é apenas uma estimativa de suas recompensas pendentes com base nas receitas de época até a data. Toda a contabilidade é feita no final da época e não pode ser calculada exatamente antes do final do mês",
     "lifetimeRewards": "Recompensas vitalícias",
-    "lifetimeRewardsHelper": "Recompensas vitalícias são as recompensas cumulativas de apostar seu FOX",
     "timeInPool": "Tempo na Pool",
     "timeInPoolHelper": "O tempo na pool é o depósito de vida mais longo no rFOX",
     "myPosition": "Minha posição",
@@ -2685,10 +2680,7 @@
       }
     },
     "totals": "Totais de rFOX",
-    "totalStaked": "FOX total em stake",
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
-    "emissionsPool": "Emissões da Pool (esta época)",
-    "emissionsPoolHelper": "Emissões da Pool (esta época)",
     "foxBurnAmount": "Quantidade de queima da FOX (nesta época)",
     "pendingDistribution": "Distribuição pendente"
   },

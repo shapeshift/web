@@ -2604,9 +2604,7 @@
     "rewardAddressHelper": "報酬はこちらに送られます",
     "useWalletAddress": "ウォレットアドレスを使用する",
     "useCustomAddress": "カスタムアドレスを使用する",
-    "stakeWarning": "FOX トークンをステークする際は、ロックアップ期間が %{cooldownPeriod} であることに注意してください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
     "bridgeCta": "%{originNetwork} で %{assetSymbol} を選択しましたが、ステークするには %{destinationNetwork} で %{assetSymbol} が必要になります。資金を %{destinationNetwork} にブリッジするお手伝いをいたします。手順についてのガイドを開始しますか?",
-    "unstakeWarning": "FOX を請求できるまでのクールダウン期間は %{cooldownPeriod} です。その時間が経過すると、ステークされていない金額を請求できるようになります。",
     "tooltips": {
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
       "unstakeAmount": "こちらがあなたがステークを解除するFOXの量です",
@@ -2645,11 +2643,8 @@
     "noSupportedChainsDescription": "%{chainLabel} を追加するか、それをサポートするウォレットに接続します。",
     "confirmAndBridge": "確認＆ブリッジ",
     "myStakedBalance": "私のステークした残高",
-    "myStakedBalanceHelper": "ステークしたFOXの量",
-    "pendingRewardsBalance": "現在の推定報酬残高",
     "pendingRewardsBalanceHelper": "これは、エポックの現在の収益に基づいた保留中の報酬の見積もりにすぎません。すべての計算はエポックの終了時に行われ、月末までは正確に計算することはできません。",
     "lifetimeRewards": "生涯報酬",
-    "lifetimeRewardsHelper": "生涯獲得報酬はFOXをステーキングすることで得られる累積報酬です",
     "timeInPool": "プール中の時間",
     "timeInPoolHelper": "プールの中での時間がrFOXへの最長の預け入れ期間です。",
     "myPosition": "自分のポジション",
@@ -2685,10 +2680,7 @@
       }
     },
     "totals": "rFOX の合計",
-    "totalStaked": "ステークしたFOXの総額",
     "totalFeesCollected": "徴収された合計手数料（このエポック中で）",
-    "emissionsPool": "発行プール（このエポック中で）",
-    "emissionsPoolHelper": "発行プール（このエポック中で）",
     "foxBurnAmount": "FOX バーン量 (このエポック中の)",
     "pendingDistribution": "配布保留中"
   },

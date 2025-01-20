@@ -2617,9 +2617,7 @@
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
-    "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
     "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
-    "unstakeWarning": "Avant de pouvoir réclamer vos FOX, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
@@ -2658,11 +2656,8 @@
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
     "confirmAndBridge": "Confirmer et bridger",
     "myStakedBalance": "Mon solde misé",
-    "myStakedBalanceHelper": "Mon solde misé",
-    "pendingRewardsBalance": "Solde actuel estimé des récompenses",
     "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l’époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois.",
     "lifetimeRewards": "Récompenses cumulées",
-    "lifetimeRewardsHelper": "Les récompenses cumulées sont le total de récompenses accumulées sur la mise de vos FOX",
     "timeInPool": "Temps dans le pool",
     "timeInPoolHelper": "Le temps dans le pool correspond au dépôt le plus ancien dans rFOX",
     "myPosition": "Ma position",
@@ -2698,10 +2693,7 @@
       }
     },
     "totals": "Totaux rFOX",
-    "totalStaked": "Total de FOX misés",
     "totalFeesCollected": "Total des frais collectés (cette époque)",
-    "emissionsPool": "Pool d’émissions (cette époque)",
-    "emissionsPoolHelper": "Pool d’émissions (cette époque)",
     "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
     "pendingDistribution": "Distribution en attente"
   },

@@ -2604,9 +2604,7 @@
     "rewardAddressHelper": "Ödüllerin gönderileceği yer burasıdır",
     "useWalletAddress": "Cüzdan adresini kullan",
     "useCustomAddress": "Özel adres kullan",
-    "stakeWarning": "FOX tokenlarınızı stake ettiğinizde lütfen kilitlenme süresinin %{cooldownPeriod} olduğunu unutmayın. Bu, tokenlarınızı geri almaya karar verirseniz, paranızı talep etmeden önce %{cooldownPeriod} beklemeniz gerekeceği anlamına gelir.",
     "bridgeCta": "%{originNetwork} üzerinde %{assetSymbol}'ı seçtiniz, ancak stake etmek için %{destinationNetwork} üzerinde %{assetSymbol}'a ihtiyacınız olacak. Paranızı %{destinationNetwork}'a bağlamanıza yardımcı olabiliriz. Süreç boyunca size rehberlik etmemizi ister misiniz?",
-    "unstakeWarning": "FOX'unuzu alabilmeniz için bekleme süresi %{cooldownPeriod}'dur. Bu süre geçtikten sonra, stake edilmemiş tutarınızı talep edebileceksiniz.",
     "tooltips": {
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
       "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
@@ -2645,11 +2643,8 @@
     "noSupportedChainsDescription": "%{chainLabel} ekleyin veya onu destekleyen bir cüzdana bağlanın.",
     "confirmAndBridge": "Onayla ve Köprüle",
     "myStakedBalance": "Stake Edilmiş Bakiyem",
-    "myStakedBalanceHelper": "Stake edilen FOX miktarı",
-    "pendingRewardsBalance": "Mevcut Tahmini Ödül Bakiyesi",
     "pendingRewardsBalanceHelper": "Bu yalnızca dönemden günümüze kadar olan gelirlere dayalı olarak bekleyen ödüllerinizin bir tahminidir. Tüm muhasebe dönem sonunda yapılır ve tam olarak ay sonundan önce hesaplanamaz",
     "lifetimeRewards": "Ömür Boyu Ödüller",
-    "lifetimeRewardsHelper": "Ömür boyu ödüller, FOX'unuzu stake etmenin kümülatif ödülleridir",
     "timeInPool": "Havuzda Kalma Süresi",
     "timeInPoolHelper": "Havuzda geçirilen süre, rFOX'taki en uzun ömürlü mevduattır",
     "myPosition": "Pozisyonum",
@@ -2685,10 +2680,7 @@
       }
     },
     "totals": "rFOX Toplamı",
-    "totalStaked": "Toplam Stake Edilmiş FOX ",
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
-    "emissionsPool": "Emisyon Havuzu (Bu Dönem)",
-    "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)",
     "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
     "pendingDistribution": "Bekleyen Dağıtım"
   },

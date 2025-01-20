@@ -2604,9 +2604,7 @@
     "rewardAddressHelper": "Hierhin werden die Belohnungen geschickt",
     "useWalletAddress": "Wallet Adresse verwenden",
     "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
-    "stakeWarning": "Beachten Sie beim Einsatz Ihrer FOX-Token, dass die Sperrfrist %{cooldownPeriod} beträgt. Dies bedeutet, dass Sie, wenn Sie sich entscheiden, Ihre Token nicht mehr einzusetzen, %{cooldownPeriod} warten müssen, bevor Sie Ihr Geld einfordern können.",
     "bridgeCta": "Sie haben %{assetSymbol} auf %{originNetwork} ausgewählt, aber Sie benötigen %{assetSymbol} auf %{destinationNetwork} zum Staking. Wir können Ihnen helfen, Ihre Mittel auf %{destinationNetwork} zu übertragen. Möchten Sie, dass wir Sie durch den Prozess führen?",
-    "unstakeWarning": "Bevor Sie Ihren FOX beanspruchen können, beträgt die Abkühlphase %{cooldownPeriod}. Nach Ablauf dieser Zeit können Sie Ihren nicht eingesetzten Betrag beanspruchen.",
     "tooltips": {
       "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
       "unstakeAmount": "Dies ist der Betrag an FOX, den Sie Unstaken werden",
@@ -2645,11 +2643,8 @@
     "noSupportedChainsDescription": "Fügen Sie %{chainLabel} hinzu oder stellen Sie eine Verbindung zu einer Wallet her, die dies unterstützt.",
     "confirmAndBridge": "Bestätigen & Bridge",
     "myStakedBalance": "Mein gestaktes Guthaben",
-    "myStakedBalanceHelper": "Die Menge an FOX, die Sie staken",
-    "pendingRewardsBalance": "Aktueller geschätzter Prämienbetrag",
     "pendingRewardsBalanceHelper": "Dies ist nur eine Schätzung Ihrer ausstehenden Belohnungen basierend auf den Einnahmen der Epoche bis heute. Die gesamte Abrechnung erfolgt am Ende der Epoche und kann nicht vor Monatsende genau berechnet werden.",
     "lifetimeRewards": "Lebenslange Belohnungen",
-    "lifetimeRewardsHelper": "Lebenslange Belohnungen sind die kumulierten Belohnungen aus dem Staken Ihres FOX",
     "timeInPool": "Zeit im Pool",
     "timeInPoolHelper": "Die Zeit im Pool ist die am längsten bestehende Einzahlung in rFOX",
     "myPosition": "Meine Position",
@@ -2685,10 +2680,7 @@
       }
     },
     "totals": "rFOX Summen",
-    "totalStaked": "Staking Summe an FOX",
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
-    "emissionsPool": "Emissionspool (diese Epoche)",
-    "emissionsPoolHelper": "Emissionspool (diese Epoche)",
     "foxBurnAmount": "FOX-Verbrennungsmenge (diese Epoche)",
     "pendingDistribution": "Ausstehende Verteilung"
   },

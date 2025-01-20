@@ -32,6 +32,7 @@ type AssetIconWithBadgeProps = {
 } & PropsWithChildren
 
 const sxProps = { svg: { transform: 'scale(0.8)' } }
+const assetIconPairProps = { showFirst: false }
 
 const useTransferData = (transfersByType?: Record<TransferType, Transfer[]>) => {
   const transfers = useMemo(
@@ -105,6 +106,7 @@ const TransferIcon: React.FC<{
         borderRadius={isNft ? 0 : 'full'}
         left={0}
         top={0}
+        pairProps={assetIconPairProps}
       />
     </Box>
   )
@@ -151,6 +153,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
             assetId={secondaryAssetId}
             clipPath={topClipPath}
             size={size}
+            pairProps={assetIconPairProps}
           />
         </>
       )

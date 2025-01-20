@@ -1,13 +1,12 @@
 import { Box, Button, Flex, Image, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { uniqBy } from 'lodash'
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Text } from 'components/Text'
 import type { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile as isMobileApp } from 'lib/globals'
 import { useMipdProviders } from 'lib/mipd'
+
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 
 const MipdProviderSelectItem = ({
   provider,
@@ -16,7 +15,7 @@ const MipdProviderSelectItem = ({
   isDisabled,
 }: {
   provider: EIP6963ProviderDetail
-  connect: (adapter: string) => void
+  connect: (adapter: string | KeyManager) => void
   isSelected: boolean
   isDisabled: boolean
 }) => {
@@ -58,34 +57,20 @@ export const InstalledWalletsSection = ({
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
   const { connect } = useWallet()
-  const detectedMipdProviders = useMipdProviders()
+  const mipdProviders = useMipdProviders()
 
-  const supportedStaticProviders = useMemo(() => {
-    if (isMobileApp || isMobile) return []
-    // TODO(gomes): This says installed, so we only display... installed. Static ones (MM, Rabby, XDEFI) will either be displayed as their own section (EVM wallets/others), or
-    // not at all, TBD with product
-    return []
-  }, [])
-
-  const mipdProviders = useMemo(
-    () => uniqBy(detectedMipdProviders.concat(supportedStaticProviders), 'info.rdns'),
-    [detectedMipdProviders, supportedStaticProviders],
-  )
-
-  // TODO(gomes): wat do with these? two options here
-  // 1. keep filtering out and add as explicit options in the list (not under installed)
-  // 2. don't filter out, but still explicitly handle those 3 as they are not pure EVM wallets / rdns providers
-  // - keplr is an EVM/Cosmos SDK wallet, but we only support the latter (and if we were to use it as rdns provider, we'd only support the former)
-  // - Phantom is Solana + BTC + ETH, and we support it all (we'd only support the ETH part if we were to handle it as rdns provider)
-  // - Coinbase *is* an EVM-only wallet, but has some magic-QR pairing flow we support explicitly in hdwallet
+  // Filter out providers that have first-class implementations
   const filteredProviders = useMemo(
     () =>
       mipdProviders.filter(
-        provider =>
-          provider.info.rdns !== 'app.keplr' &&
-          provider.info.rdns !== 'app.phantom' &&
-          provider.info.rdns !== 'com.coinbase.wallet',
+        provider => !Object.keys(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(provider.info.rdns),
       ),
+    [mipdProviders],
+  )
+
+  // Get first-class providers that are installed
+  const firstClassProviders = useMemo(
+    () => mipdProviders.filter(provider => provider.info.rdns in RDNS_TO_FIRST_CLASS_KEYMANAGER),
     [mipdProviders],
   )
 
@@ -97,22 +82,38 @@ export const InstalledWalletsSection = ({
     [connect, onWalletSelect],
   )
 
+  const handleConnectFirstClass = useCallback(
+    (rdns: string) => {
+      const keyManager = RDNS_TO_FIRST_CLASS_KEYMANAGER[rdns]
+      onWalletSelect(rdns, `/${keyManager.toLowerCase()}/connect`)
+      connect(keyManager, false)
+    },
+    [connect, onWalletSelect],
+  )
+
   return (
     <Stack spacing={2} my={6}>
       <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.installed' />
-      {filteredProviders.map(provider => {
-        const isSelected = selectedWalletId === provider.info.rdns
-        return (
-          <MipdProviderSelectItem
-            key={provider.info.rdns}
-            provider={provider}
-            connect={handleConnectMipd}
-            isSelected={isSelected}
-            // Disable other options when pairing is in progress, to avoid race conditions
-            isDisabled={isLoading && !isSelected}
-          />
-        )
-      })}
+      {/* First-class implementations always go first */}
+      {firstClassProviders.map(provider => (
+        <MipdProviderSelectItem
+          key={provider.info.rdns}
+          provider={provider}
+          connect={handleConnectFirstClass}
+          isSelected={selectedWalletId === provider.info.rdns}
+          isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
+        />
+      ))}
+      {/* MIPD providers */}
+      {filteredProviders.map(provider => (
+        <MipdProviderSelectItem
+          key={provider.info.rdns}
+          provider={provider}
+          connect={handleConnectMipd}
+          isSelected={selectedWalletId === provider.info.rdns}
+          isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
+        />
+      ))}
     </Stack>
   )
 }

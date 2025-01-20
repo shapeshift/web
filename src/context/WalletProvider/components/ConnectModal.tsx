@@ -66,7 +66,6 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             colorScheme='blue'
             onClick={handlePairDeviceClick}
             isDisabled={isButtonDisabled || loading}
-            data-test='wallet-pair-button'
           >
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />
           </Button>

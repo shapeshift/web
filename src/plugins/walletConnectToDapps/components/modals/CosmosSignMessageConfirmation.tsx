@@ -43,7 +43,10 @@ export const CosmosSignMessageConfirmationModal: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
+  const walletIcon = useMemo(
+    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
+    [WalletIcon],
+  )
   const cardBg = useColorModeValue('white', 'gray.850')
   const request = state.modalData.requestEvent?.params.request
 

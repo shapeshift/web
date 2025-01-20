@@ -18,6 +18,7 @@ type AccountCardProps = {
   onClick?: () => void
 } & ButtonProps
 
+const leftMultipleIconBoxSize = '70px'
 const leftIconBoxSize = '40px'
 const rightIconBoxSize = 6
 const chevronRightIcon = <ChevronRightIcon boxSize={rightIconBoxSize} />
@@ -34,11 +35,19 @@ export const AccountCard = ({
   const translate = useTranslate()
   const buttonLeftIcon = useMemo(
     () => (
-      <SkeletonCircle isLoaded={isLoaded} boxSize={leftIconBoxSize}>
-        <AssetIcon assetId={asset.assetId} boxSize={leftIconBoxSize} />
+      <SkeletonCircle
+        isLoaded={isLoaded}
+        boxSize={leftIconBoxSize}
+        width={asset.icons ? leftMultipleIconBoxSize : leftIconBoxSize}
+      >
+        <AssetIcon
+          assetId={asset.assetId}
+          boxSize={leftIconBoxSize}
+          width={asset.icons ? leftMultipleIconBoxSize : leftIconBoxSize}
+        />
       </SkeletonCircle>
     ),
-    [asset.assetId, isLoaded],
+    [asset.assetId, isLoaded, asset.icons],
   )
 
   const [willOverflow, setWillOverflow] = useState(false)
@@ -67,7 +76,9 @@ export const AccountCard = ({
         isLoaded={isLoaded}
         mr='auto'
         flexGrow={1}
-        width={`calc(100% - ${leftIconBoxSize} - var(--chakra-sizes-${rightIconBoxSize}))`}
+        width={`calc(100% - ${
+          asset.icons ? leftMultipleIconBoxSize : leftIconBoxSize
+        } - var(--chakra-sizes-${rightIconBoxSize}))`}
       >
         <Tooltip label={asset.name} isDisabled={!willOverflow}>
           <Box overflow='hidden'>

@@ -12,6 +12,8 @@ import { isAddress } from 'viem'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 
+import { isValidSolanaAddress } from '../helpers/customAssetSearch'
+
 type TokenMetadata = TokenMetadataResponse & {
   chainId: ChainId
   contractAddress: string
@@ -21,13 +23,6 @@ type TokenMetadata = TokenMetadataResponse & {
 type UseGetCustomTokensQueryProps = {
   contractAddress: string
   chainIds: ChainId[]
-}
-
-type SolanaUriJson = {
-  name: string
-  symbol: string
-  description: string
-  image: string
 }
 
 type CustomTokenQueryKey = ['customTokens', string, ChainId]
@@ -55,20 +50,12 @@ export const useGetCustomTokensQuery = ({
 
   const getSolanaTokenMetadata = useCallback(
     async (mintAddress: string): Promise<TokenMetadata> => {
-      const solanaRpcUrl = `https://solana-mainnet.g.alchemy.com/v2/${
+      const solanaRpcUrl = `${getConfig().REACT_APP_ALCHEMY_SOLANA_BASE_URL}/${
         getConfig().REACT_APP_ALCHEMY_API_KEY
       }`
       const connection = new Connection(solanaRpcUrl)
       const metaplex = Metaplex.make(connection)
       const metadata = await metaplex.nfts().findByMint({ mintAddress: new PublicKey(mintAddress) })
-      const uri = metadata.uri
-      let uriJson: SolanaUriJson | null = null
-      try {
-        const uriResponse = await fetch(uri)
-        uriJson = await uriResponse.json()
-      } catch (error) {
-        console.error('Error fetching Solana token metadata', error)
-      }
 
       return {
         name: metadata.name,
@@ -77,7 +64,7 @@ export const useGetCustomTokensQuery = ({
         chainId: solanaChainId,
         contractAddress: mintAddress,
         price: '0',
-        logo: uriJson?.image ?? '',
+        logo: metadata.json?.image ?? '',
       }
     },
     [],
@@ -88,37 +75,30 @@ export const useGetCustomTokensQuery = ({
     [contractAddress],
   )
 
-  const isValidSolanaAddress = useMemo(() => {
-    try {
-      const publicKey = new PublicKey(contractAddress)
-      return publicKey !== null
-    } catch (error) {
-      // If instantiation fails, it's not a valid Solana address
-      return false
-    }
-  }, [contractAddress])
-
   const getQueryFn = useCallback(
     (chainId: ChainId) => () => {
       if (chainId === solanaChainId) {
         return getSolanaTokenMetadata(contractAddress)
-      } else {
+      } else if (isValidEvmAddress) {
         return getEvmTokenMetadata(chainId)
+      } else {
+        return undefined
       }
     },
-    [contractAddress, getEvmTokenMetadata, getSolanaTokenMetadata],
+    [contractAddress, getEvmTokenMetadata, getSolanaTokenMetadata, isValidEvmAddress],
   )
 
+  const shouldQuery = isValidEvmAddress || isValidSolanaAddress(contractAddress)
+
   const customTokenQueries = useQueries({
-    queries:
-      isValidEvmAddress || isValidSolanaAddress
-        ? chainIds.map(chainId => ({
-            queryKey: getCustomTokenQueryKey(contractAddress, chainId),
-            queryFn: getQueryFn(chainId),
-            enabled: customTokenImportEnabled,
-            staleTime: Infinity,
-          }))
-        : [],
+    queries: shouldQuery
+      ? chainIds.map(chainId => ({
+          queryKey: getCustomTokenQueryKey(contractAddress, chainId),
+          queryFn: getQueryFn(chainId),
+          enabled: customTokenImportEnabled,
+          staleTime: Infinity,
+        }))
+      : [],
     combine: queries => mergeQueryOutputs(queries, results => results),
   })
 

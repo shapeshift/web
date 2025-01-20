@@ -1,10 +1,9 @@
-import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
-import { PublicKey } from '@solana/web3.js'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { isAddress } from 'viem'
@@ -18,6 +17,7 @@ import {
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { getAssetNamespaceFromChainId, isValidSolanaAddress } from '../helpers/customAssetSearch'
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
@@ -30,16 +30,6 @@ export type SearchTermAssetListProps = {
   assetFilterPredicate?: (assetId: AssetId) => boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
-}
-
-const isValidSolanaAddress = (contractAddress: string) => {
-  try {
-    const publicKey = new PublicKey(contractAddress)
-    return publicKey !== null
-  } catch (error) {
-    // If instantiation fails, it's not a valid Solana address
-    return false
-  }
 }
 
 export const SearchTermAssetList = ({
@@ -101,16 +91,6 @@ export const SearchTermAssetList = ({
     assetFilterPredicate,
   ])
 
-  const getAssetNamespace = (chainId: ChainId): AssetNamespace => {
-    switch (chainId) {
-      case bscChainId:
-        return ASSET_NAMESPACE.bep20
-      case solanaChainId:
-        return ASSET_NAMESPACE.splToken
-      default:
-        return ASSET_NAMESPACE.erc20
-    }
-  }
   const customAssets: Asset[] = useMemo(
     () =>
       (customTokens ?? [])
@@ -121,7 +101,7 @@ export const SearchTermAssetList = ({
           if (!name || !symbol || !decimals) return null
           const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetNamespace: getAssetNamespace(metaData.chainId),
+            assetNamespace: getAssetNamespaceFromChainId(metaData.chainId),
             assetReference: metaData.contractAddress,
           })
           const minimalAsset: MinimalAsset = {

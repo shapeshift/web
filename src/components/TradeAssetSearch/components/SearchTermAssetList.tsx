@@ -1,11 +1,13 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
+import { PublicKey } from '@solana/web3.js'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
+import { isAddress } from 'viem'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
@@ -30,6 +32,16 @@ export type SearchTermAssetListProps = {
   onImportClick: (asset: Asset) => void
 }
 
+const isValidSolanaAddress = (contractAddress: string) => {
+  try {
+    const publicKey = new PublicKey(contractAddress)
+    return publicKey !== null
+  } catch (error) {
+    // If instantiation fails, it's not a valid Solana address
+    return false
+  }
+}
+
 export const SearchTermAssetList = ({
   isLoading: isAssetListLoading,
   activeChainId,
@@ -50,11 +62,19 @@ export const SearchTermAssetList = ({
     [activeChainId, walletConnectedChainIds],
   )
   const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
-  const customTokenSupportedChainIds = useMemo(
-    () =>
-      walletSupportedEvmChainIds.filter(chainId => ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId)),
-    [walletSupportedEvmChainIds],
-  )
+  const customTokenSupportedChainIds = useMemo(() => {
+    // If it's a Solana address?
+    if (isValidSolanaAddress(searchString)) {
+      return [solanaChainId]
+      // If it an EVM address?
+    } else if (isAddress(searchString, { strict: false })) {
+      return walletSupportedEvmChainIds.filter(chainId =>
+        ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId),
+      )
+    } else {
+      return []
+    }
+  }, [searchString, walletSupportedEvmChainIds])
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
     chainIds: customTokenSupportedChainIds,
@@ -81,6 +101,16 @@ export const SearchTermAssetList = ({
     assetFilterPredicate,
   ])
 
+  const getAssetNamespace = (chainId: ChainId): AssetNamespace => {
+    switch (chainId) {
+      case bscChainId:
+        return ASSET_NAMESPACE.bep20
+      case solanaChainId:
+        return ASSET_NAMESPACE.splToken
+      default:
+        return ASSET_NAMESPACE.erc20
+    }
+  }
   const customAssets: Asset[] = useMemo(
     () =>
       (customTokens ?? [])
@@ -91,8 +121,7 @@ export const SearchTermAssetList = ({
           if (!name || !symbol || !decimals) return null
           const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetNamespace:
-              metaData.chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetNamespace: getAssetNamespace(metaData.chainId),
             assetReference: metaData.contractAddress,
           })
           const minimalAsset: MinimalAsset = {

@@ -35,7 +35,7 @@ import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/helpers'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { CountdownSpinner } from './components/CountdownSpinner'
@@ -171,11 +171,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const handleQuoteSelection = useCallback(() => {
       if (!isActive) {
-        dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+        dispatch(tradeQuote.actions.setActiveQuote(quoteData))
         onBack && onBack()
       } else if (!isBest) {
         // don't allow un-selecting of best quote as it gets re-selected in this case
-        dispatch(tradeQuoteSlice.actions.setActiveQuote(undefined))
+        dispatch(tradeQuote.actions.setActiveQuote(undefined))
       }
     }, [dispatch, isActive, isBest, onBack, quoteData])
 

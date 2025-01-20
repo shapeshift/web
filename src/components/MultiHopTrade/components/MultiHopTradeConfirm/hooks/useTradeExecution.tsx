@@ -47,7 +47,7 @@ import {
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useMixpanel } from './useMixpanel'
@@ -131,7 +131,7 @@ export const useTradeExecution = (
     if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
 
     return new Promise<void>(async resolve => {
-      dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
+      dispatch(tradeQuote.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
 
       const onFail = (e: unknown) => {
         const message = (() => {
@@ -145,10 +145,8 @@ export const useTradeExecution = (
           return (e as Error).message ?? undefined
         })()
 
-        dispatch(
-          tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
-        )
-        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex, id: confirmedTradeId }))
+        dispatch(tradeQuote.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }))
+        dispatch(tradeQuote.actions.setSwapTxFailed({ hopIndex, id: confirmedTradeId }))
         showErrorToast(e)
 
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
@@ -190,17 +188,15 @@ export const useTradeExecution = (
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         txHashReceived = true
         dispatch(
-          tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
+          tradeQuote.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
         )
       })
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
-        dispatch(
-          tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
-        )
+        dispatch(tradeQuote.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }))
         if (buyTxHash) {
           txHashReceived = true
           dispatch(
-            tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
+            tradeQuote.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
           )
         }
       })
@@ -208,7 +204,7 @@ export const useTradeExecution = (
         if (buyTxHash) {
           txHashReceived = true
           dispatch(
-            tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
+            tradeQuote.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
           )
         }
 
@@ -219,7 +215,7 @@ export const useTradeExecution = (
         }
 
         dispatch(
-          tradeQuoteSlice.actions.setSwapTxMessage({
+          tradeQuote.actions.setSwapTxMessage({
             hopIndex,
             message: translate('trade.transactionSuccessful'),
             id: confirmedTradeId,
@@ -239,13 +235,13 @@ export const useTradeExecution = (
           // issue in the interim.
           // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
-        dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex, id: confirmedTradeId }))
+        dispatch(tradeQuote.actions.setSwapTxComplete({ hopIndex, id: confirmedTradeId }))
 
         // If this is a streaming swap, we need to set the streaming progress to 100% because the
         // polling will dismount. This is ok because the tx will only ever complete after streaming
         // is 100% complete.
         dispatch(
-          tradeQuoteSlice.actions.setStreamingSwapMetaComplete({ hopIndex, id: confirmedTradeId }),
+          tradeQuote.actions.setStreamingSwapMetaComplete({ hopIndex, id: confirmedTradeId }),
         )
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1

@@ -16,7 +16,7 @@ import {
   selectConfirmedTradeExecutionState,
   selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -57,7 +57,7 @@ export const MultiHopTradeConfirm = memo(() => {
     // Only set the trade to initialized if it was actually initializing previously. Now that we shove quotes in at confirm time, we can't rely on this effect only running once.
     if (confirmedTradeExecutionState !== TradeExecutionState.Initializing) return
 
-    dispatch(tradeQuoteSlice.actions.setTradeInitialized(confirmedQuote.id))
+    dispatch(tradeQuote.actions.setTradeInitialized(confirmedQuote.id))
   }, [dispatch, isLoading, confirmedQuote, confirmedTradeExecutionState])
 
   const isTradeComplete = useMemo(
@@ -67,7 +67,7 @@ export const MultiHopTradeConfirm = memo(() => {
 
   const handleBack = useCallback(() => {
     if (isTradeComplete) {
-      dispatch(tradeQuoteSlice.actions.clear())
+      dispatch(tradeQuote.actions.clear())
     }
 
     history.push(TradeRoutePaths.Input)
@@ -96,7 +96,7 @@ export const MultiHopTradeConfirm = memo(() => {
 
   const handleTradeConfirm = useCallback(() => {
     if (!confirmedQuote) return
-    dispatch(tradeQuoteSlice.actions.confirmTrade(confirmedQuote.id))
+    dispatch(tradeQuote.actions.confirmTrade(confirmedQuote.id))
   }, [dispatch, confirmedQuote])
 
   const handleSubmit = useCallback(() => {

@@ -53,7 +53,7 @@ import {
   selectShouldShowTradeQuoteOrAwaitInput,
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
@@ -182,7 +182,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     if (entries.length > 1 && entries[previousHistoryIndex].pathname === TradeRoutePaths.QuoteList)
       return
 
-    dispatch(tradeQuoteSlice.actions.clearTradeQuotes())
+    dispatch(tradeQuote.actions.clearTradeQuotes())
   }, [dispatch, history])
 
   useEffect(() => {
@@ -262,18 +262,18 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
       // Set the best quote as activeQuoteMeta, unless user has already a custom quote selected, in which case don't override it
       if (!activeQuoteMeta && bestQuote?.quote !== undefined && !bestQuote.errors.length) {
-        dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
+        dispatch(tradeQuote.actions.setActiveQuote(bestQuote))
       }
 
       // Set the confirmed quote for execution, with a snapshot of the affiliate fees for display after the trade is executed.
       // This is done to handle the fox power calculation changing due to FOX balance changes after the trade is executed.
       dispatch(
-        tradeQuoteSlice.actions.setConfirmedQuote({
+        tradeQuote.actions.setConfirmedQuote({
           quote: activeQuote,
           shapeshiftFeeMetadata: calculatedFees,
         }),
       )
-      dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
+      dispatch(tradeQuote.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })

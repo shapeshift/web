@@ -39,6 +39,14 @@ import {
   selectUsdRateByAssetId,
 } from 'state/slices/selectors'
 import {
+  selectActiveQuoteMetaOrDefault,
+  selectConfirmedQuote,
+  selectConfirmedTradeExecution,
+  selectHopExecutionMetadata,
+  selectIsAnyTradeQuoteLoading,
+  selectSortedTradeQuotes,
+} from 'state/slices/tradeExecutionSlice/selectors'
+import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
@@ -47,14 +55,6 @@ import {
   selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
-import {
-  selectActiveQuoteMetaOrDefault,
-  selectConfirmedQuote,
-  selectConfirmedTradeExecution,
-  selectHopExecutionMetadata,
-  selectIsAnyTradeQuoteLoading,
-  selectSortedTradeQuotes,
-} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'

@@ -14,7 +14,7 @@ import {
   selectIsActiveQuoteMultiHop,
   selectSecondHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { isPermit2Hop } from './helpers'
@@ -160,7 +160,7 @@ export const useIsApprovalInitiallyNeeded = () => {
     if (!confirmedQuote?.id) return
 
     dispatch(
-      tradeQuoteSlice.actions.setInitialApprovalRequirements({
+      tradeQuote.actions.setInitialApprovalRequirements({
         id: confirmedQuote.id,
         firstHop: isApprovalInitiallyNeededForFirstHop ?? false,
         secondHop: isApprovalInitiallyNeededForSecondHop ?? false,
@@ -168,7 +168,7 @@ export const useIsApprovalInitiallyNeeded = () => {
     )
 
     dispatch(
-      tradeQuoteSlice.actions.setAllowanceResetRequirements({
+      tradeQuote.actions.setAllowanceResetRequirements({
         id: confirmedQuote.id,
         firstHop: isAllowanceResetNeededForFirstHop ?? false,
         secondHop: isAllowanceResetNeededForSecondHop ?? false,
@@ -176,7 +176,7 @@ export const useIsApprovalInitiallyNeeded = () => {
     )
 
     dispatch(
-      tradeQuoteSlice.actions.setPermit2Requirements({
+      tradeQuote.actions.setPermit2Requirements({
         id: confirmedQuote.id,
         firstHop: isPermit2RequiredForFirstHop,
         secondHop: isPermit2RequiredForSecondHop,

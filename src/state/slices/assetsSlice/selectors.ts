@@ -2,12 +2,11 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
-import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
+import { selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
@@ -67,15 +66,3 @@ export const selectFeeAssetById = createCachedSelector(
   state: ReduxState,
   assetId: AssetId,
 ) => ReturnType<typeof getFeeAssetByAssetId>
-
-export const selectAssetsBySearchQuery = createCachedSelector(
-  selectAssetsSortedByMarketCap,
-  selectSearchQueryFromFilter,
-  (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
-    if (!searchQuery) return sortedAssets
-    return matchSorter(sortedAssets, searchQuery ?? '', {
-      keys: ['name', 'symbol', 'assetId'],
-      threshold: matchSorter.rankings.CONTAINS,
-    })
-  },
-)((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')

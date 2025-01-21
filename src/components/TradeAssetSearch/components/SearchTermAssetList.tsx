@@ -46,6 +46,7 @@ export const SearchTermAssetList = ({
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const customTokenSupportedChainIds = useMemo(() => {
+    // Solana _is_ supported by Alchemy, but not by the SDK
     return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
   }, [])
   const chainIds = useMemo(() => {

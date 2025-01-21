@@ -56,7 +56,7 @@ export const OthersSection = ({
   const { connect } = useWallet()
 
   const handleConnectWalletConnect = useCallback(() => {
-    onWalletSelect('walletconnect', '/walletconnectv2/connect')
+    onWalletSelect(KeyManager.WalletConnectV2, '/walletconnectv2/connect')
     connect(KeyManager.WalletConnectV2, false)
   }, [connect, onWalletSelect])
 
@@ -65,8 +65,8 @@ export const OthersSection = ({
       <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.others' />
       <WalletConnectOption
         connect={handleConnectWalletConnect}
-        isSelected={selectedWalletId === 'walletconnect'}
-        isDisabled={isLoading && selectedWalletId !== 'walletconnect'}
+        isSelected={selectedWalletId === KeyManager.WalletConnectV2}
+        isDisabled={isLoading && selectedWalletId !== KeyManager.WalletConnectV2}
       />
     </Stack>
   )

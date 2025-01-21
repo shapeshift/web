@@ -12,7 +12,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { isMobile as isMobileBrowser } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -20,6 +20,7 @@ import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from 'lib/globals'
 
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
@@ -184,25 +185,29 @@ export const NewWalletViewsSwitch = () => {
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider mb={2} />
-        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-        <InstalledWalletsSection
-          isLoading={isLoading}
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
-        <Divider mb={2} />
-        <HardwareWalletsSection
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-          isLoading={isLoading}
-        />
-        <Divider mb={2} />
-        <OthersSection
-          isLoading={isLoading}
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
+        {!isMobileApp && (
+          <>
+            <Divider mb={2} />
+            <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
+            <InstalledWalletsSection
+              isLoading={isLoading}
+              selectedWalletId={selectedWalletId}
+              onWalletSelect={handleWalletSelect}
+            />
+            <Divider mb={2} />
+            <HardwareWalletsSection
+              selectedWalletId={selectedWalletId}
+              onWalletSelect={handleWalletSelect}
+              isLoading={isLoading}
+            />
+            <Divider mb={2} />
+            <OthersSection
+              isLoading={isLoading}
+              selectedWalletId={selectedWalletId}
+              onWalletSelect={handleWalletSelect}
+            />
+          </>
+        )}
       </Box>
     ),
     [handleWalletSelect, isLoading, selectedWalletId],
@@ -219,7 +224,7 @@ export const NewWalletViewsSwitch = () => {
         routeProps.history.location.pathname === '/metamask/connect'
       return (
         <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
-          {!isRootRoute || isMobile ? (
+          {!isRootRoute || isMobileBrowser ? (
             <Box
               position='absolute'
               left={3}
@@ -259,7 +264,7 @@ export const NewWalletViewsSwitch = () => {
 
   const bodyDesktopOnly = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
-      if (isMobile) return null
+      if (isMobileBrowser) return null
 
       return body(routeProps)
     },
@@ -295,7 +300,7 @@ export const NewWalletViewsSwitch = () => {
                   {sections}
                 </Route>
                 {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                <Route path='*'>{!isMobile ? sections : null}</Route>
+                <Route path='*'>{!isMobileBrowser ? sections : null}</Route>
               </Switch>
               <Switch>
                 {/* Only display side panel after a wallet has been selected on mobile */}

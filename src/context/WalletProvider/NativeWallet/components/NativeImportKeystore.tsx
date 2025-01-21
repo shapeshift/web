@@ -11,6 +11,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
+import { decryptFromKeystore } from '@shapeshiftoss/hdwallet-native-vault'
 import { useCallback, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -18,7 +19,9 @@ import { FaFile } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
+import { addWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
+import { isMobile as isMobileApp } from 'lib/globals'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
@@ -132,13 +135,25 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
 
   const onSubmit = useCallback(
     async (values: FieldValues) => {
-      const { Vault } = await import('@shapeshiftoss/hdwallet-native-vault')
-      const vault = await Vault.create()
-      vault.meta.set('createdAt', Date.now())
-
       if (!keystoreFile) {
         throw new Error('No keystore uploaded')
       }
+
+      if (isMobileApp) {
+        const mnemonic = await decryptFromKeystore(
+          JSON.parse(keystoreFile),
+          values.keystorePassword,
+        )
+        await addWallet({
+          mnemonic,
+          // This is just for devving purposes only to get an understanding of how things *should* look, will be reverted.
+          // Mobile app is a whole diff. flow, and this won't work, this should live in mobile app components
+          label: 'Keystore Wallet',
+        })
+      }
+      const { Vault } = await import('@shapeshiftoss/hdwallet-native-vault')
+      const vault = await Vault.create()
+      vault.meta.set('createdAt', Date.now())
 
       try {
         await vault.loadFromKeystore(keystoreFile, values.keystorePassword)

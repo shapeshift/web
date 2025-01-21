@@ -6,6 +6,8 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { isMobile } from 'lib/globals'
 import type { PartialFields } from 'lib/types'
 import { assertGetChainAdapter } from 'lib/utils'
 import type { GetFeesWithWalletEip1559SupportArgs } from 'lib/utils/evm'
@@ -104,6 +106,13 @@ export const common = createQueryKeys('common', {
   hdwalletNativeVaultsList: () => ({
     queryKey: ['hdwalletNativeVaultsList'],
     queryFn: async () => {
+      if (isMobile) {
+        const storedWallets = await listWallets()
+
+        return storedWallets
+          .filter(({ id, label }) => Boolean(id && label))
+          .map(({ id, label }) => ({ id: id!, name: label! }))
+      }
       const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
 
       const storedWallets = await Vault.list().then(vaultIds =>

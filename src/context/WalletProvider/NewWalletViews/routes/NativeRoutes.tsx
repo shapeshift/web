@@ -1,5 +1,7 @@
 import { Route, Switch } from 'react-router-dom'
+import { MobileCreate } from 'context/WalletProvider/MobileWallet/components/MobileCreate'
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
+import { isMobile as isMobileApp } from 'lib/globals'
 
 import { EnterPassword } from '../../NativeWallet/components/EnterPassword'
 import { NativeCreate } from '../../NativeWallet/components/NativeCreate'
@@ -43,7 +45,7 @@ export const NativeRoutes = () => (
       render={routeProps => <NativeImportSelect {...routeProps} />}
     />
     <Route exact path={NativeWalletRoutes.Create}>
-      <NativeCreate />
+      {isMobileApp ? <MobileCreate /> : <NativeCreate />}
     </Route>
     <Route
       exact

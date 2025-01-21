@@ -2,10 +2,10 @@ import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { PublicKey } from '@solana/web3.js'
 
-export const isValidSolanaAddress = (contractAddress: string) => {
+export const isSolanaAddress = (contractAddress: string) => {
   try {
-    const publicKey = new PublicKey(contractAddress)
-    return publicKey !== null
+    new PublicKey(contractAddress)
+    return true
   } catch (error) {
     // If instantiation fails, it's not a valid Solana address
     return false

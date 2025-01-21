@@ -17,7 +17,7 @@ import {
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { getAssetNamespaceFromChainId, isValidSolanaAddress } from '../helpers/customAssetSearch'
+import { getAssetNamespaceFromChainId, isSolanaAddress } from '../helpers/customAssetSearch'
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
@@ -54,7 +54,7 @@ export const SearchTermAssetList = ({
   const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
   const customTokenSupportedChainIds = useMemo(() => {
     // If it's a Solana address?
-    if (isValidSolanaAddress(searchString)) {
+    if (isSolanaAddress(searchString)) {
       return activeChainId === 'All' || activeChainId === solanaChainId ? [solanaChainId] : []
       // If it an EVM address?
     } else if (isAddress(searchString, { strict: false })) {

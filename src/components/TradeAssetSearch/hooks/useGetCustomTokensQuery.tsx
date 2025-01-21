@@ -12,7 +12,7 @@ import { isAddress } from 'viem'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 
-import { isValidSolanaAddress } from '../helpers/customAssetSearch'
+import { isSolanaAddress } from '../helpers/customAssetSearch'
 
 type TokenMetadata = TokenMetadataResponse & {
   chainId: ChainId
@@ -75,9 +75,11 @@ export const useGetCustomTokensQuery = ({
     [contractAddress],
   )
 
+  const isValidSolanaAddress = useMemo(() => isSolanaAddress(contractAddress), [contractAddress])
+
   const getQueryFn = useCallback(
     (chainId: ChainId) => () => {
-      if (isValidSolanaAddress(contractAddress)) {
+      if (isValidSolanaAddress) {
         return getSolanaTokenMetadata(contractAddress)
       } else if (isValidEvmAddress) {
         return getEvmTokenMetadata(chainId)
@@ -85,7 +87,13 @@ export const useGetCustomTokensQuery = ({
         return skipToken
       }
     },
-    [contractAddress, getEvmTokenMetadata, getSolanaTokenMetadata, isValidEvmAddress],
+    [
+      contractAddress,
+      getEvmTokenMetadata,
+      getSolanaTokenMetadata,
+      isValidEvmAddress,
+      isValidSolanaAddress,
+    ],
   )
 
   const isTokenMetadata = (

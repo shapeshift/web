@@ -195,9 +195,9 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
   return (
     <PairBody
       icon={icon}
-      headerText={headerTranslation}
-      bodyText={connectBodyTranslation}
-      buttonText='walletProvider.mipd.connect.button'
+      headerTranslation={headerTranslation}
+      bodyTranslation={connectBodyTranslation}
+      buttonTranslation='walletProvider.mipd.connect.button'
       isLoading={isLoading}
       error={error}
       onPairDeviceClick={pairDevice}

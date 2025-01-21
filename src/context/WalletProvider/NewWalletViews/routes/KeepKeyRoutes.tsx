@@ -151,9 +151,9 @@ export const KeepKeyRoutes = () => {
       <Route path='/keepkey/connect'>
         <PairBody
           icon={icon}
-          headerText='walletProvider.keepKey.connect.header'
-          bodyText='walletProvider.keepKey.connect.body'
-          buttonText='walletProvider.keepKey.connect.button'
+          headerTranslation='walletProvider.keepKey.connect.header'
+          bodyTranslation='walletProvider.keepKey.connect.body'
+          buttonTranslation='walletProvider.keepKey.connect.button'
           isLoading={loading}
           error={error}
           onPairDeviceClick={pairDevice}

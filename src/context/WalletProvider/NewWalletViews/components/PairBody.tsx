@@ -8,9 +8,9 @@ const spinner = <Spinner color='white' />
 
 type PairBodyProps = {
   icon: ReactNode
-  headerText: string | [string, InterpolationOptions]
-  bodyText: string | [string, InterpolationOptions]
-  buttonText: string
+  headerTranslation: string | [string, InterpolationOptions]
+  bodyTranslation: string | [string, InterpolationOptions]
+  buttonTranslation: string
   isLoading: boolean
   error: string | null
   onPairDeviceClick: () => void
@@ -20,9 +20,9 @@ type PairBodyProps = {
 
 export const PairBody = ({
   icon,
-  headerText,
-  bodyText,
-  buttonText,
+  headerTranslation,
+  bodyTranslation,
+  buttonTranslation,
   isLoading,
   error,
   onPairDeviceClick,
@@ -34,8 +34,8 @@ export const PairBody = ({
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
       {icon}
-      <Text fontSize='xl' translation={headerText} />
-      <Text color='gray.500' translation={bodyText} textAlign='center' />
+      <Text fontSize='xl' translation={headerTranslation} />
+      <Text color='gray.500' translation={bodyTranslation} textAlign='center' />
 
       {error && (
         <Alert status='info'>
@@ -55,7 +55,7 @@ export const PairBody = ({
         onClick={onPairDeviceClick}
         isDisabled={isButtonDisabled || isLoading}
       >
-        {translate(buttonText)}
+        {translate(buttonTranslation)}
       </Button>
       {secondaryContent}
     </Flex>

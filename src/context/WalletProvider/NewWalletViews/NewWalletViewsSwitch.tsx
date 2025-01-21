@@ -19,6 +19,7 @@ import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeepKeyRoutes as KeepKeyRoutesEnum } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { KeyManager } from '../KeyManager'
@@ -218,7 +219,9 @@ export const NewWalletViewsSwitch = () => {
   const body = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
       // These routes do not have a previous step, so don't display back button
-      const isRootRoute = ['/', '/keepkey/enter-pin'].includes(routeProps.history.location.pathname)
+      const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(
+        routeProps.history.location.pathname,
+      )
       // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
       const isConnectRoute =
         /^\/[^/]+\/connect$/.test(routeProps.history.location.pathname) ||

@@ -209,8 +209,14 @@ export const SelectModal = () => {
       <>
         {mipdProviders
           .filter(
+            // Filters out wallets which exist as first-class.
+            // Coinbase is a bit of a specific-case however, and is soon-to-be-removed as first-class per se (already is with new wallet flow)
+            // in profit of a dedicated option for Coinbase QR code modal (maybe), see https://github.com/shapeshift/web/issues/8615
             // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
-            provider => !Object.keys(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(provider.info.rdns),
+            provider =>
+              !Object.keys(RDNS_TO_FIRST_CLASS_KEYMANAGER)
+                .concat(['com.coinbase.wallet'])
+                .includes(provider.info.rdns),
           )
           .map(provider => (
             <MipdProviderSelectItem

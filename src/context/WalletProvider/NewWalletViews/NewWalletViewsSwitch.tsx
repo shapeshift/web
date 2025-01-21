@@ -26,7 +26,9 @@ import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
+import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { OthersSection } from './sections/OthersSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
@@ -57,6 +59,7 @@ const RightPanelContent = ({
   )
 
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
+  if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -173,6 +176,12 @@ export const NewWalletViewsSwitch = () => {
         <Divider mb={6} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+        <Divider mb={6} />
+        <OthersSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}

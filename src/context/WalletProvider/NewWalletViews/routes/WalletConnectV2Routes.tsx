@@ -3,8 +3,8 @@ import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/uti
 import { useCallback, useState } from 'react'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { ConnectModal } from 'context/WalletProvider/components/ConnectModal'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { WalletConnectV2Config } from 'context/WalletProvider/WalletConnectV2/config'
@@ -12,18 +12,22 @@ import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Erro
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from 'lib/utils'
 
+import { PairBody } from '../components/PairBody'
+
+const Icon = WalletConnectV2Config.icon
+const icon = <Icon boxSize='64px' />
+
 export type WalletConnectSetupProps = RouteComponentProps<{}, StaticContext, unknown>
 
-export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => {
-  // Sometimes the Web3Modal doesn't trigger if there is already wc things in local storage.
-  // This is a bit blunt, and we might want to consider a more targeted approach.
-  // https://github.com/orgs/WalletConnect/discussions/3010
-  clearWalletConnectLocalStorage()
+export const NewWalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => {
   const { dispatch, state, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const pairDevice = useCallback(async () => {
+    clearWalletConnectLocalStorage()
+    setError(null)
     setLoading(true)
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
@@ -32,8 +36,6 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     try {
       if (adapter) {
         if (!state.wallet || !isWalletConnectWallet(state.wallet)) {
-          setLoading(true)
-
           // trigger the web3 modal
           const wallet = await adapter.pairDevice()
 
@@ -63,20 +65,46 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     } catch (e: unknown) {
       if (e instanceof WalletNotFoundError) {
         console.error(e)
+        setError('walletProvider.errors.walletNotFound')
       } else {
+        setError('walletProvider.walletConnect.errors.unknown')
         history.push('/walletconnect/failure')
       }
+    } finally {
+      setLoading(false)
     }
   }, [dispatch, getAdapter, history, localWallet, state.wallet])
 
   return (
-    <ConnectModal
-      headerText={'walletProvider.walletConnect.connect.header'}
-      bodyText={'walletProvider.walletConnect.connect.body'}
-      buttonText={'walletProvider.walletConnect.connect.button'}
+    <PairBody
+      icon={icon}
+      headerTranslation='walletProvider.walletConnect.connect.header'
+      bodyTranslation='walletProvider.walletConnect.connect.body'
+      buttonTranslation='walletProvider.walletConnect.connect.button'
+      isLoading={loading}
+      error={error}
       onPairDeviceClick={pairDevice}
-      loading={loading}
-      error={null}
     />
+  )
+}
+
+export const WalletConnectV2Routes = () => {
+  const {
+    state: { modalType },
+  } = useWallet()
+
+  const render = useCallback(
+    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
+      <NewWalletConnectV2Connect {...routeProps} />
+    ),
+    [],
+  )
+
+  if (!modalType) return null
+
+  return (
+    <Switch>
+      <Route path='*' render={render} />
+    </Switch>
   )
 }

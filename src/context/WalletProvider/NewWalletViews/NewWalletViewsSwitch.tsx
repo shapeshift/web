@@ -11,9 +11,11 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory } from 'react-router-dom'
@@ -103,10 +105,16 @@ export const NewWalletViewsSwitch = () => {
       disconnectOnCloseModal,
       deviceState: { disposition },
       initialRoute,
+      nativeWalletPendingDeviceId,
     },
     dispatch,
     disconnect,
   } = useWallet()
+
+  const nativeVaultsQuery = useQuery({
+    ...reactQueries.common.hdwalletNativeVaultsList(),
+    refetchOnMount: true,
+  })
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
@@ -133,7 +141,9 @@ export const NewWalletViewsSwitch = () => {
 
   const handleRouteReset = useCallback(() => {
     history.replace(INITIAL_WALLET_MODAL_ROUTE)
+
     setSelectedWalletId(null)
+    setError(null)
   }, [history])
 
   const onClose = useCallback(async () => {
@@ -162,8 +172,10 @@ export const NewWalletViewsSwitch = () => {
 
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
-      setSelectedWalletId(walletId)
       if (_initialRoute) history.push(_initialRoute)
+
+      setSelectedWalletId(walletId)
+      setError(null)
     },
     [history],
   )
@@ -171,6 +183,13 @@ export const NewWalletViewsSwitch = () => {
   useEffect(() => {
     if (initialRoute) history.push(initialRoute)
   }, [history, initialRoute])
+
+  // Set the native wallet pending unlock as selected on refresh
+  useEffect(() => {
+    if (!(nativeWalletPendingDeviceId && nativeVaultsQuery.data)) return
+
+    setSelectedWalletId(nativeWalletPendingDeviceId)
+  }, [nativeVaultsQuery.data, nativeWalletPendingDeviceId])
 
   // Reset history on modal open/unmount
   useEffect(() => {

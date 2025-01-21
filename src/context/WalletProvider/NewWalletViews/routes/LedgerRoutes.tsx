@@ -147,13 +147,13 @@ export const LedgerRoutes = () => {
       <Route path='/ledger/connect'>
         <PairBody
           icon={icon}
-          headerText='walletProvider.ledger.connect.header'
-          bodyText={
+          headerTranslation='walletProvider.ledger.connect.header'
+          bodyTranslation={
             isPreviousLedgerDeviceDetected
               ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
               : 'walletProvider.ledger.connect.pairNewDeviceBody'
           }
-          buttonText={
+          buttonTranslation={
             isPreviousLedgerDeviceDetected
               ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
               : 'walletProvider.ledger.connect.pairNewDeviceButton'

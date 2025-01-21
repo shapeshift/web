@@ -3,7 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { solanaChainId } from '@shapeshiftoss/caip'
 import { Connection, PublicKey } from '@solana/web3.js'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useQueries } from '@tanstack/react-query'
+import { skipToken, useQueries } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
 import { getConfig } from 'config'
 import { useCallback, useMemo } from 'react'
@@ -77,29 +77,29 @@ export const useGetCustomTokensQuery = ({
 
   const getQueryFn = useCallback(
     (chainId: ChainId) => () => {
-      if (chainId === solanaChainId) {
+      if (isValidSolanaAddress(contractAddress)) {
         return getSolanaTokenMetadata(contractAddress)
       } else if (isValidEvmAddress) {
         return getEvmTokenMetadata(chainId)
       } else {
-        return undefined
+        return skipToken
       }
     },
     [contractAddress, getEvmTokenMetadata, getSolanaTokenMetadata, isValidEvmAddress],
   )
 
-  const shouldQuery = isValidEvmAddress || isValidSolanaAddress(contractAddress)
+  const isTokenMetadata = (
+    result: TokenMetadata | typeof skipToken | undefined,
+  ): result is TokenMetadata => result !== undefined && result !== skipToken
 
   const customTokenQueries = useQueries({
-    queries: shouldQuery
-      ? chainIds.map(chainId => ({
-          queryKey: getCustomTokenQueryKey(contractAddress, chainId),
-          queryFn: getQueryFn(chainId),
-          enabled: customTokenImportEnabled,
-          staleTime: Infinity,
-        }))
-      : [],
-    combine: queries => mergeQueryOutputs(queries, results => results),
+    queries: chainIds.map(chainId => ({
+      queryKey: getCustomTokenQueryKey(contractAddress, chainId),
+      queryFn: getQueryFn(chainId),
+      enabled: customTokenImportEnabled,
+      staleTime: Infinity,
+    })),
+    combine: queries => mergeQueryOutputs(queries, results => results.filter(isTokenMetadata)),
   })
 
   return customTokenQueries

@@ -133,6 +133,7 @@ export const NewWalletViewsSwitch = () => {
 
   const handleRouteReset = useCallback(() => {
     history.replace(INITIAL_WALLET_MODAL_ROUTE)
+    setSelectedWalletId(null)
   }, [history])
 
   const onClose = useCallback(async () => {
@@ -246,6 +247,7 @@ export const NewWalletViewsSwitch = () => {
                 size='sm'
                 isRound
                 position='static'
+                isDisabled={isLoading}
                 onClick={isConnectRoute ? handleRouteReset : handleBack}
               />
             </Box>

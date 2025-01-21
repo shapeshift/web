@@ -128,6 +128,7 @@ export const getThorchainSaversPosition = async ({
         units: runepoolInformation.units,
         asset_deposit_value: bnOrZero(runepoolInformation.deposit_amount)
           .minus(runepoolInformation.withdraw_amount)
+          .plus(runepoolInformation.pnl)
           .toFixed(),
         asset_redeem_value: runepoolInformation.value,
         growth_pct: undefined,

@@ -19,14 +19,20 @@ import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeepKeyRoutes as KeepKeyRoutesEnum } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
+import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
+import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
+import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
+import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { OthersSection } from './sections/OthersSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
@@ -57,6 +63,9 @@ const RightPanelContent = ({
   )
 
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
+  if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
+  if (location.pathname.startsWith('/ledger')) return <LedgerRoutes />
+  if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -93,6 +102,7 @@ export const NewWalletViewsSwitch = () => {
       modal,
       disconnectOnCloseModal,
       deviceState: { disposition },
+      initialRoute,
     },
     dispatch,
     disconnect,
@@ -120,6 +130,10 @@ export const NewWalletViewsSwitch = () => {
     }
     await cancelWalletRequests()
   }, [cancelWalletRequests, dispatch, history])
+
+  const handleRouteReset = useCallback(() => {
+    history.replace(INITIAL_WALLET_MODAL_ROUTE)
+  }, [history])
 
   const onClose = useCallback(async () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
@@ -152,12 +166,17 @@ export const NewWalletViewsSwitch = () => {
     },
     [history],
   )
+
+  useEffect(() => {
+    if (initialRoute) history.push(initialRoute)
+  }, [history, initialRoute])
+
   // Reset history on modal open/unmount
   useEffect(() => {
-    history.replace('/')
+    if (!initialRoute) history.replace('/')
 
     return () => {
-      history.replace('/')
+      if (!initialRoute) history.replace('/')
     }
     // Only run this on initial render, and unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,14 +189,25 @@ export const NewWalletViewsSwitch = () => {
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider mb={6} />
+        <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        {/* TODO(gomes): more sections */}
+        <Divider mb={2} />
+        <HardwareWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+          isLoading={isLoading}
+        />
+        <Divider mb={2} />
+        <OthersSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
       </Box>
     ),
     [handleWalletSelect, isLoading, selectedWalletId],
@@ -189,9 +219,14 @@ export const NewWalletViewsSwitch = () => {
   const body = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
       // These routes do not have a previous step, so don't display back button
-      const isRootRoute =
-        routeProps.history.location.pathname === '/' ||
-        routeProps.history.location.pathname === '/metamask/connect'
+      const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(
+        routeProps.history.location.pathname,
+      )
+      // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
+      const isConnectRoute =
+        /^\/[^/]+\/connect$/.test(routeProps.history.location.pathname) ||
+        routeProps.history.location.pathname === '/native/enter-password'
+
       return (
         <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
           {!isRootRoute || isMobile ? (
@@ -211,7 +246,7 @@ export const NewWalletViewsSwitch = () => {
                 size='sm'
                 isRound
                 position='static'
-                onClick={handleBack}
+                onClick={isConnectRoute ? handleRouteReset : handleBack}
               />
             </Box>
           ) : null}
@@ -229,7 +264,15 @@ export const NewWalletViewsSwitch = () => {
         </Box>
       )
     },
-    [bodyBgColor, buttonContainerBgColor, error, handleBack, isLoading, translate],
+    [
+      bodyBgColor,
+      buttonContainerBgColor,
+      error,
+      handleBack,
+      handleRouteReset,
+      isLoading,
+      translate,
+    ],
   )
 
   const bodyDesktopOnly = useCallback(

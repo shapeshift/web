@@ -69,7 +69,7 @@ export const NativeImportSelect = ({ history }: RouteComponentProps) => {
                 <Text
                   fontSize='sm'
                   color='gray.500'
-                  translation='walletProvider.shapeShift.start.uploadKeystore'
+                  translation='walletProvider.shapeShift.start.importKeystore'
                 />
               </VStack>
             </HStack>

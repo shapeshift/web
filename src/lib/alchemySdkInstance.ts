@@ -11,7 +11,7 @@ import { getConfig } from 'config'
 
 const alchemyInstanceMap: Map<ChainId, Alchemy> = new Map()
 
-export const ALCHEMY_SUPPORTED_CHAIN_IDS = [
+export const ALCHEMY_SDK_SUPPORTED_CHAIN_IDS = [
   ethChainId,
   polygonChainId,
   optimismChainId,

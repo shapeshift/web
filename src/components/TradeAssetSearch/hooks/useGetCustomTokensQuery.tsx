@@ -1,6 +1,7 @@
 import { Metaplex } from '@metaplex-foundation/js'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { solanaChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { Connection, PublicKey } from '@solana/web3.js'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries } from '@tanstack/react-query'
@@ -79,9 +80,9 @@ export const useGetCustomTokensQuery = ({
 
   const getQueryFn = useCallback(
     (chainId: ChainId) => () => {
-      if (isValidSolanaAddress) {
+      if (isValidSolanaAddress && chainId === solanaChainId) {
         return getSolanaTokenMetadata(contractAddress)
-      } else if (isValidEvmAddress) {
+      } else if (isValidEvmAddress && isEvmChainId(chainId)) {
         return getEvmTokenMetadata(chainId)
       } else {
         return skipToken

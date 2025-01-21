@@ -130,6 +130,10 @@ export const NewWalletViewsSwitch = () => {
     await cancelWalletRequests()
   }, [cancelWalletRequests, dispatch, history])
 
+  const handleRouteReset = useCallback(() => {
+    history.replace(INITIAL_WALLET_MODAL_ROUTE)
+  }, [history])
+
   const onClose = useCallback(async () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
       await wallet?.cancel()
@@ -214,9 +218,12 @@ export const NewWalletViewsSwitch = () => {
   const body = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
       // These routes do not have a previous step, so don't display back button
-      const isRootRoute =
-        routeProps.history.location.pathname === '/' ||
-        routeProps.history.location.pathname === '/metamask/connect'
+      const isRootRoute = ['/', '/keepkey/enter-pin'].includes(routeProps.history.location.pathname)
+      // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
+      const isConnectRoute =
+        /^\/[^/]+\/connect$/.test(routeProps.history.location.pathname) ||
+        routeProps.history.location.pathname === '/native/enter-password'
+
       return (
         <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
           {!isRootRoute || isMobile ? (
@@ -236,7 +243,7 @@ export const NewWalletViewsSwitch = () => {
                 size='sm'
                 isRound
                 position='static'
-                onClick={handleBack}
+                onClick={isConnectRoute ? handleRouteReset : handleBack}
               />
             </Box>
           ) : null}
@@ -254,7 +261,15 @@ export const NewWalletViewsSwitch = () => {
         </Box>
       )
     },
-    [bodyBgColor, buttonContainerBgColor, error, handleBack, isLoading, translate],
+    [
+      bodyBgColor,
+      buttonContainerBgColor,
+      error,
+      handleBack,
+      handleRouteReset,
+      isLoading,
+      translate,
+    ],
   )
 
   const bodyDesktopOnly = useCallback(

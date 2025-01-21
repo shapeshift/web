@@ -78,9 +78,9 @@ export const NewWalletConnectV2Connect = ({ history }: WalletConnectSetupProps) 
   return (
     <PairBody
       icon={icon}
-      headerText='walletProvider.walletConnect.connect.header'
-      bodyText='walletProvider.walletConnect.connect.body'
-      buttonText='walletProvider.walletConnect.connect.button'
+      headerTranslation='walletProvider.walletConnect.connect.header'
+      bodyTranslation='walletProvider.walletConnect.connect.body'
+      buttonTranslation='walletProvider.walletConnect.connect.button'
       isLoading={loading}
       error={error}
       onPairDeviceClick={pairDevice}

@@ -15,6 +15,7 @@ type PairBodyProps = {
   error: string | null
   onPairDeviceClick: () => void
   isButtonDisabled?: boolean
+  secondaryButton?: ReactNode
 }
 
 export const PairBody = ({
@@ -26,6 +27,7 @@ export const PairBody = ({
   error,
   onPairDeviceClick,
   isButtonDisabled,
+  secondaryButton,
 }: PairBodyProps) => {
   const translate = useTranslate()
 
@@ -34,7 +36,6 @@ export const PairBody = ({
       {icon}
       <Text fontSize='xl' translation={headerTranslation} />
       <Text color='gray.500' translation={bodyTranslation} textAlign='center' />
-
       {error && (
         <Alert status='info'>
           <AlertIcon />
@@ -43,7 +44,6 @@ export const PairBody = ({
           </AlertDescription>
         </Alert>
       )}
-
       <Button
         maxW='200px'
         width='100%'
@@ -56,6 +56,7 @@ export const PairBody = ({
       >
         {translate(buttonTranslation)}
       </Button>
+      {secondaryButton}
     </Flex>
   )
 }

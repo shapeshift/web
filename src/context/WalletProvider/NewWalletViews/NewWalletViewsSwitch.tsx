@@ -24,9 +24,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
+import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
+import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
@@ -60,6 +62,7 @@ const RightPanelContent = ({
 
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
   if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
+  if (location.pathname.startsWith('/ledger')) return <LedgerRoutes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -173,20 +176,25 @@ export const NewWalletViewsSwitch = () => {
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider mb={6} />
+        <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider mb={6} />
+        <Divider mb={2} />
+        <HardwareWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+          isLoading={isLoading}
+        />
+        <Divider mb={2} />
         <OthersSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        {/* TODO(gomes): more sections */}
       </Box>
     ),
     [handleWalletSelect, isLoading, selectedWalletId],

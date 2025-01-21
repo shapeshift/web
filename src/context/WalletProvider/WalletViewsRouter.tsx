@@ -1,6 +1,7 @@
 import { MemoryRouter } from 'react-router-dom'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from 'lib/globals'
 
 import { NewWalletViewsSwitch } from './NewWalletViews/NewWalletViewsSwitch'
 import { WalletViewsSwitch } from './WalletViewsSwitch'
@@ -17,7 +18,7 @@ export const WalletViewsRouter = () => {
 
   return (
     <MemoryRouter initialIndex={0}>
-      {isNewWalletFlowEnabled ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
+      {isNewWalletFlowEnabled && !isMobileApp ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
     </MemoryRouter>
   )
 }

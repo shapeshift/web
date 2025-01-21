@@ -1,12 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
-import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
+import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
@@ -16,6 +15,7 @@ import {
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { getAssetNamespaceFromChainId } from '../helpers/customAssetSearch'
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
@@ -45,19 +45,23 @@ export const SearchTermAssetList = ({
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const chainIds = useMemo(
-    () => (activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]),
-    [activeChainId, walletConnectedChainIds],
-  )
-  const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
-  const customTokenSupportedChainIds = useMemo(
-    () =>
-      walletSupportedEvmChainIds.filter(chainId => ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId)),
-    [walletSupportedEvmChainIds],
-  )
+  const customTokenSupportedChainIds = useMemo(() => {
+    // Solana _is_ supported by Alchemy, but not by the SDK
+    return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
+  }, [])
+  const chainIds = useMemo(() => {
+    if (activeChainId === 'All') {
+      return customTokenSupportedChainIds
+    } else if (customTokenSupportedChainIds.includes(activeChainId)) {
+      return [activeChainId]
+    } else {
+      return []
+    }
+  }, [activeChainId, customTokenSupportedChainIds])
+
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
-    chainIds: customTokenSupportedChainIds,
+    chainIds,
   })
 
   const assetsForChain = useMemo(() => {
@@ -91,8 +95,7 @@ export const SearchTermAssetList = ({
           if (!name || !symbol || !decimals) return null
           const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetNamespace:
-              metaData.chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetNamespace: getAssetNamespaceFromChainId(metaData.chainId),
             assetReference: metaData.contractAddress,
           })
           const minimalAsset: MinimalAsset = {

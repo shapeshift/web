@@ -58,12 +58,12 @@ export const HardwareWalletsSection = ({
   const { connect } = useWallet()
 
   const handleConnectLedger = useCallback(() => {
-    onWalletSelect('ledger', '/ledger/connect')
+    onWalletSelect(KeyManager.Ledger, '/ledger/connect')
     connect(KeyManager.Ledger, false)
   }, [connect, onWalletSelect])
 
   const handleConnectKeepKey = useCallback(() => {
-    onWalletSelect('keepkey', '/keepkey/connect')
+    onWalletSelect(KeyManager.KeepKey, '/keepkey/connect')
     connect(KeyManager.KeepKey, false)
   }, [connect, onWalletSelect])
 
@@ -77,15 +77,15 @@ export const HardwareWalletsSection = ({
       />
       <WalletOption
         connect={handleConnectLedger}
-        isSelected={selectedWalletId === 'ledger'}
-        isDisabled={isLoading && selectedWalletId !== 'ledger'}
+        isSelected={selectedWalletId === KeyManager.Ledger}
+        isDisabled={isLoading && selectedWalletId !== KeyManager.Ledger}
         icon={LedgerIcon}
         name={LedgerConfig.name}
       />
       <WalletOption
         connect={handleConnectKeepKey}
-        isSelected={selectedWalletId === 'keepkey'}
-        isDisabled={isLoading && selectedWalletId !== 'keepkey'}
+        isSelected={selectedWalletId === KeyManager.KeepKey}
+        isDisabled={isLoading && selectedWalletId !== KeyManager.KeepKey}
         icon={KeepKeyIcon}
         name={KeepKeyConfig.name}
       />

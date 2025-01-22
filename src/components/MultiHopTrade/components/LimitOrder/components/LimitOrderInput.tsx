@@ -122,9 +122,7 @@ export const LimitOrderInput = ({
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
   } = useActions(limitOrderInput.actions)
-  const { setActiveQuote, setLimitOrderInitialized, confirmSubmit } = useActions(
-    limitOrderSlice.actions,
-  )
+  const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
@@ -286,13 +284,8 @@ export const LimitOrderInput = ({
         console.error('Missing quoteId')
         return
       }
-      // FIXME: this is messy, but to re-use current slice
+
       setLimitOrderInitialized(quoteResponse.id)
-
-      // FIXME: Check allowances and update slice state here.
-      // It needs to be done before confirmSubmit, as it will be used to determine the set state
-      confirmSubmit(quoteResponse.id)
-
       history.push(LimitOrderRoutePaths.Confirm)
 
       // If the new limit flow is enabled, we don't need to check the allowance here, so we
@@ -338,7 +331,6 @@ export const LimitOrderInput = ({
     isNewLimitFlowEnabled,
     handleConnect,
     setLimitOrderInitialized,
-    confirmSubmit,
     history,
     showErrorToast,
   ])

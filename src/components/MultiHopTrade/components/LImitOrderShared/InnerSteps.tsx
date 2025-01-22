@@ -1,22 +1,14 @@
 import { ArrowUpDownIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Box, Center, Collapse, Flex, HStack, Skeleton, StepStatus } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS, SwapperName } from '@shapeshiftoss/swapper'
-import { bn } from '@shapeshiftoss/utils'
+import { Box, Center, Collapse, Flex, HStack, StepStatus } from '@chakra-ui/react'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type Polyglot from 'node-polyglot'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { Address } from 'viem'
 import { AnimatedCheck } from 'components/AnimatedCheck'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { getErc20Allowance } from 'lib/utils/evm'
 import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
-import {
-  selectInputSellAmountCryptoBaseUnit,
-  selectSellAccountId,
-} from 'state/slices/limitOrderInputSlice/selectors'
+import { selectSellAccountId } from 'state/slices/limitOrderInputSlice/selectors'
 import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
 import {
   selectActiveQuoteId,
@@ -36,16 +28,11 @@ const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
 export const InnerSteps = () => {
-  const { showErrorToast } = useErrorToast()
   const translate = useTranslate()
-
   const [isExpanded, setIsExpanded] = useState(false)
-  const [isLoadingAllowance, setIsLoadingAllowance] = useState(false)
-  const [isAllowanceApprovalRequired, setIsAllowanceApprovalRequired] = useState(false)
 
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const sellAccountId = useAppSelector(selectSellAccountId)
-  const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const quoteId = useAppSelector(selectActiveQuoteId)
 
   const [_, { data: orderData, error: orderError }] = usePlaceLimitOrderMutation()
@@ -59,44 +46,6 @@ export const InnerSteps = () => {
     allowanceReset,
     allowanceApproval,
   } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
-
-  // FIXME: replace this with a check against the slice state
-  useEffect(() => {
-    if (!sellAsset || !sellAccountId) return
-    const { assetReference, chainId } = fromAssetId(sellAsset.assetId)
-    const sellAccountAddress = fromAccountId(sellAccountId).account as Address
-
-    ;(async () => {
-      setIsLoadingAllowance(true)
-
-      try {
-        // Check the ERC20 token allowance
-        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-          address: assetReference,
-          spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-          from: sellAccountAddress as Address,
-          chainId,
-        })
-
-        // If approval is required
-        if (bn(allowanceOnChainCryptoBaseUnit).lt(sellAmountCryptoBaseUnit)) {
-          setIsAllowanceApprovalRequired(true)
-        }
-
-        return
-      } catch (e) {
-        showErrorToast(e)
-      } finally {
-        setIsLoadingAllowance(false)
-      }
-    })()
-  }, [
-    isAllowanceApprovalRequired,
-    sellAccountId,
-    sellAmountCryptoBaseUnit,
-    sellAsset,
-    showErrorToast,
-  ])
 
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
@@ -137,7 +86,7 @@ export const InnerSteps = () => {
         case LimitOrderSubmissionState.AwaitingAllowanceReset:
           return 'limitOrder.awaitingAllowanceReset'
         case LimitOrderSubmissionState.AwaitingAllowanceApproval:
-          return 'limitOrder.awaitingApproval'
+          return 'limitOrder.awaitingAllowanceApproval'
         case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
           return ['limitOrder.awaitingOrderPlacement', { swapperName: SwapperName.CowSwap }]
         default:
@@ -200,7 +149,7 @@ export const InnerSteps = () => {
   }, [allowanceApproval.txHash, sellAccountId, sellAsset])
 
   return (
-    <Skeleton isLoaded={!isLoadingAllowance} width='100%'>
+    <>
       <StepperStep
         title={titleElement}
         stepIndicator={summaryStepIndicator}
@@ -209,7 +158,7 @@ export const InnerSteps = () => {
       />
       <Collapse in={isExpanded} style={collapseStyle}>
         <Box pb={2} px={3}>
-          {allowanceReset.isRequired && (
+          {allowanceReset.isInitiallyRequired && (
             <StepperStep
               title={allowanceResetTitle}
               stepIndicator={stepIndicator}
@@ -219,7 +168,7 @@ export const InnerSteps = () => {
               stepIndicatorVariant='innerSteps'
             />
           )}
-          {isAllowanceApprovalRequired && (
+          {allowanceApproval.isInitiallyRequired && (
             <StepperStep
               title={allowanceApprovalTitle}
               stepIndicator={stepIndicator}
@@ -239,6 +188,6 @@ export const InnerSteps = () => {
           />
         </Box>
       </Collapse>
-    </Skeleton>
+    </>
   )
 }

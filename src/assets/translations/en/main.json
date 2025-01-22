@@ -1075,6 +1075,8 @@
     "noHistoricalOrders": "No historical orders yet.",
     "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
     "awaitingOrderPlacement": "Awaiting order placement on %{swapperName}",
+    "awaitingAllowanceApproval": "Awaiting allowance approval",
+    "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
     "expiryOption": {
       "oneHour": "1 hour",

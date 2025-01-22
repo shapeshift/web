@@ -1,13 +1,16 @@
 import { Button } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import type { InterpolationOptions } from 'node-polyglot'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text/Text'
+import { useActions } from 'hooks/useActions'
 import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import {
   selectBuyAmountCryptoBaseUnit,
   selectInputSellAmountCryptoBaseUnit,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
+import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAsset,
@@ -17,6 +20,7 @@ import {
 } from 'state/slices/limitOrderSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
+import { useSetIsApprovalInitiallyNeeded } from '../LimitOrder/hooks/useSetIsApprovalInitiallyNeeded'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
@@ -26,6 +30,7 @@ import { LimitOrderDetail } from './LimitOrderDetail'
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
+  const { confirmSubmit } = useActions(limitOrderSlice.actions)
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -33,6 +38,14 @@ export const LimitOrderConfirm = () => {
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const quoteId = useAppSelector(selectActiveQuoteId)
+
+  const { isLoading: isLoadingSetIsApprovalInitiallyNeeded } = useSetIsApprovalInitiallyNeeded()
+
+  useEffect(() => {
+    if (isLoadingSetIsApprovalInitiallyNeeded) return
+    if (!quoteId) return
+    confirmSubmit(quoteId)
+  }, [confirmSubmit, isLoadingSetIsApprovalInitiallyNeeded, quoteId])
 
   const orderSubmissionMetadataFilter = useMemo(() => {
     return { quoteId: quoteId ?? 0 }
@@ -67,18 +80,19 @@ export const LimitOrderConfirm = () => {
     return <LimitOrderDetail />
   }, [])
 
-  const buttonTranslation = useMemo(() => {
-    switch (orderSubmissionState) {
-      case LimitOrderSubmissionState.AwaitingAllowanceApproval:
-        return 'limitOrder.resetAllowance'
-      case LimitOrderSubmissionState.AwaitingAllowanceReset:
-        return 'limitOrder.approveAllowance'
-      case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
-        return 'limitOrder.placeOrder'
-      default:
-        return undefined
-    }
-  }, [orderSubmissionState])
+  const buttonTranslation: string | [string, number | InterpolationOptions] | undefined =
+    useMemo(() => {
+      switch (orderSubmissionState) {
+        case LimitOrderSubmissionState.AwaitingAllowanceApproval:
+          return ['trade.approveAsset', { symbol: sellAsset?.symbol }]
+        case LimitOrderSubmissionState.AwaitingAllowanceReset:
+          return 'trade.resetAllowance'
+        case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
+          return 'limitOrder.placeOrder'
+        default:
+          return undefined
+      }
+    }, [orderSubmissionState, sellAsset?.symbol])
 
   const handleConfirm = useCallback(() => {
     switch (orderSubmissionState) {
@@ -100,7 +114,6 @@ export const LimitOrderConfirm = () => {
   }, [orderSubmissionState])
 
   const button = useMemo(() => {
-    // FIXME: make dynamic base on state (reset, approve, place order)
     if (!buttonTranslation) return null
     return (
       <Button

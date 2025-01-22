@@ -9,13 +9,15 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { bnOrZero, CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI } from '@shapeshiftoss/contracts/src/abis/foxWifHatMerkleDistributor'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
@@ -24,7 +26,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
+import { toBaseUnit } from 'lib/math'
 import { firstFourLastFour } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -32,7 +34,7 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_CONTRACT } from 'pages/Fox/constant'
-import { useGetFoxWifHatClaims } from 'pages/Fox/hooks/useGetFoxWifHatClaims'
+import { useFoxWifHatMerkleTreeQuery } from 'pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -41,7 +43,6 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { foxWifHatAssetId } from '../FoxWifHat'
 import { FoxWifHatClaimRoutePaths } from './types'
 
 type FoxWifHatClaimConfirmProps = {
@@ -64,9 +65,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
     selectAccountNumberByAccountId(state, { accountId }),
   )
   const foxWifHatAsset = useAppSelector(state => selectAssetById(state, foxWifHatAssetId))
-  const getFoxWifHatClaimsQuery = useGetFoxWifHatClaims()
-
-  console.log({ getFoxWifHatClaimsQuery })
+  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
 
   const claimQuote = useMemo(() => {
     const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
@@ -76,11 +75,25 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
   }, [getFoxWifHatClaimsQuery.data, accountId])
 
   const amountCryptoPrecision = useMemo(() => {
-    if (!foxWifHatAsset) return
     if (!claimQuote) return
 
-    return fromBaseUnit(claimQuote.amount, foxWifHatAsset.precision)
-  }, [claimQuote, foxWifHatAsset])
+    return bnOrZero(claimQuote.amount).toFixed()
+  }, [claimQuote])
+
+  const callData = useMemo(() => {
+    if (!claimQuote) return '0x'
+
+    return encodeFunctionData({
+      abi: FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI,
+      functionName: 'claim',
+      args: [
+        BigInt(claimQuote.index),
+        fromAccountId(accountId).account,
+        toBaseUnit(claimQuote.amount, foxWifHatAsset?.precision ?? 0),
+        claimQuote.proof,
+      ],
+    })
+  }, [claimQuote, accountId, foxWifHatAsset])
 
   const {
     mutateAsync: handleClaim,
@@ -97,8 +110,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
         accountNumber,
         from: fromAccountId(accountId).account,
         adapter,
-        // @TODO: add proper data
-        data: '0x',
+        data: callData,
         value: '0',
         to: FOX_WIF_HAT_MERKLE_DISTRIBUTOR_CONTRACT,
         wallet,
@@ -127,10 +139,10 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
       from: fromAccountId(accountId).account,
       chainId: fromAccountId(accountId).chainId,
       accountNumber,
-      data: '0x',
+      data: callData,
       value: '0',
     }),
-    [accountNumber, accountId],
+    [accountNumber, accountId, callData],
   )
 
   const {

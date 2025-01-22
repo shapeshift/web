@@ -1,6 +1,7 @@
-import { Box, Container, Heading, Image, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, Heading, Image, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
@@ -9,13 +10,11 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAccountIdsByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useGetFoxWifHatClaims } from '../hooks/useGetFoxWifHatClaims'
+import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 import { FoxWifHatClaimModal } from './FoxWifHatClaimModal'
 import { FoxWifHatClaimRow } from './FoxWifHatClaimRow'
 
 // @TODO: replace with proper foxwifhat asset id
-export const foxWifHatAssetId = foxAssetId
-
 export const FoxWifHat = () => {
   const translate = useTranslate()
   const isFoxWifHatEnabled = useFeatureFlag('FoxPageFoxWifHatSection')
@@ -23,8 +22,7 @@ export const FoxWifHat = () => {
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const [isClaimModalOpened, setIsClaimModalOpened] = useState(false)
   const [claimAccountId, setClaimAccountId] = useState<AccountId | undefined>()
-
-  const getFoxWifHatClaimsQuery = useGetFoxWifHatClaims()
+  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
 
   const handleClaimModalClose = useCallback(() => {
     setClaimAccountId(undefined)
@@ -42,7 +40,8 @@ export const FoxWifHat = () => {
   const claimRows = useMemo(() => {
     const accountIds = accountIdsByChainId[fromAssetId(foxWifHatAssetId).chainId]
 
-    if (getFoxWifHatClaimsQuery.isLoading || !getFoxWifHatClaimsQuery.data) return null
+    if (getFoxWifHatClaimsQuery.isLoading || !getFoxWifHatClaimsQuery.data)
+      return <Skeleton height='64px' width='100%' />
 
     return Object.entries(getFoxWifHatClaimsQuery.data.claims).map(([address, claim]) => {
       const accountId = accountIds?.find(
@@ -55,7 +54,7 @@ export const FoxWifHat = () => {
         <FoxWifHatClaimRow
           key={accountId}
           accountId={accountId}
-          amountCryptoBaseUnit={claim.amount}
+          amountCryptoPrecision={bnOrZero(claim.amount).toFixed()}
           assetId={foxWifHatAssetId}
           discountPercentDecimal={0.72}
           // eslint-disable-next-line react-memo/require-usememo

@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useMemo } from 'react'
@@ -11,12 +11,10 @@ import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { useGetFoxWifHatClaims } from 'pages/Fox/hooks/useGetFoxWifHatClaims'
+import { useFoxWifHatMerkleTreeQuery } from 'pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
 import { SharedStatus } from 'pages/RFOX/components/Shared/SharedStatus'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { foxWifHatAssetId } from '../FoxWifHat'
 
 type BodyContent = {
   key: TxStatus
@@ -38,7 +36,7 @@ export const FoxWifHatClaimStatus: React.FC<FoxWifHatClaimStatusProps> = ({
   setClaimTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
-  const getFoxWifHatClaimsQuery = useGetFoxWifHatClaims()
+  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
 
   const claimQuote = useMemo(() => {
     const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]

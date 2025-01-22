@@ -7,7 +7,6 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 import {
   selectAccountIdsByChainId,
@@ -18,7 +17,7 @@ import { useAppSelector } from 'state/store'
 
 type FoxWifHatClaimRowProps = {
   accountId: string
-  amountCryptoBaseUnit: string
+  amountCryptoPrecision: string
   assetId: AssetId
   discountPercentDecimal: number
   isClaimed?: boolean
@@ -34,7 +33,7 @@ const columnSpacing = { base: 4, md: 12, lg: 24, xl: 48 }
 
 export const FoxWifHatClaimRow = ({
   accountId,
-  amountCryptoBaseUnit,
+  amountCryptoPrecision,
   assetId,
   discountPercentDecimal,
   isClaimed,
@@ -54,12 +53,6 @@ export const FoxWifHatClaimRow = ({
   const numberAccounts = useMemo(() => {
     return accountIdsByChainId[fromAssetId(assetId).chainId]?.length ?? 0
   }, [accountIdsByChainId, assetId])
-
-  const amountCryptoPrecision = useMemo(() => {
-    if (!foxWifHatAsset) return
-
-    return fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset.precision)
-  }, [amountCryptoBaseUnit, foxWifHatAsset])
 
   return (
     <Stack

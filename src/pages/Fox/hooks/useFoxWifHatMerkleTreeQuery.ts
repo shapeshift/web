@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useMemo } from 'react'
 import { IPFS_GATEWAY } from 'pages/RFOX/constants'
 
-export type FoxWifHatClaimQuote = { index: number; amount: string; proof: string[] }
+export type FoxWifHatClaimQuote = { index: bigint; amount: string; proof: `0x${string}`[] }
 
 type MerkleData = {
   merkleRoot: string

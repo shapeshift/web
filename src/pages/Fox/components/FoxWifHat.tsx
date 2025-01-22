@@ -14,7 +14,6 @@ import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuer
 import { FoxWifHatClaimModal } from './FoxWifHatClaimModal'
 import { FoxWifHatClaimRow } from './FoxWifHatClaimRow'
 
-// @TODO: replace with proper foxwifhat asset id
 export const FoxWifHat = () => {
   const translate = useTranslate()
   const isFoxWifHatEnabled = useFeatureFlag('FoxPageFoxWifHatSection')
@@ -54,7 +53,7 @@ export const FoxWifHat = () => {
         <FoxWifHatClaimRow
           key={accountId}
           accountId={accountId}
-          amountCryptoPrecision={bnOrZero(claim.amount).toFixed()}
+          amountCryptoBaseUnit={bnOrZero(claim.amount).toFixed()}
           assetId={foxWifHatAssetId}
           discountPercentDecimal={0.72}
           // eslint-disable-next-line react-memo/require-usememo

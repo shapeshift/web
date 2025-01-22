@@ -11,7 +11,7 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero, CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI } from '@shapeshiftoss/contracts/src/abis/foxWifHatMerkleDistributor'
+import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -26,7 +26,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { firstFourLastFour } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -76,20 +76,22 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
 
   const amountCryptoPrecision = useMemo(() => {
     if (!claimQuote) return
+    if (!foxWifHatAsset) return
 
-    return bnOrZero(claimQuote.amount).toFixed()
-  }, [claimQuote])
+    return fromBaseUnit(claimQuote.amount, foxWifHatAsset.precision)
+  }, [claimQuote, foxWifHatAsset])
 
   const callData = useMemo(() => {
     if (!claimQuote) return '0x'
+    if (!foxWifHatAsset) return '0x'
 
     return encodeFunctionData({
       abi: FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI,
       functionName: 'claim',
       args: [
-        BigInt(claimQuote.index),
-        fromAccountId(accountId).account,
-        toBaseUnit(claimQuote.amount, foxWifHatAsset?.precision ?? 0),
+        claimQuote.index,
+        fromAccountId(accountId).account as `0x${string}`,
+        BigInt(claimQuote.amount),
         claimQuote.proof,
       ],
     })

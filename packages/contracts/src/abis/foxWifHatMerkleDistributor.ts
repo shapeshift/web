@@ -89,4 +89,4 @@ export const FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI = [
     type: 'function',
   },
   { inputs: [], name: 'withdraw', outputs: [], stateMutability: 'nonpayable', type: 'function' },
-]
+] as const

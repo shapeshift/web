@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 import {
   selectAccountIdsByChainId,
@@ -15,12 +16,14 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useFoxWifHatClaimedQuery } from '../hooks/useFoxWifHatClaimed'
+import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
+
 type FoxWifHatClaimRowProps = {
   accountId: string
-  amountCryptoPrecision: string
+  amountCryptoBaseUnit: string
   assetId: AssetId
   discountPercentDecimal: number
-  isClaimed?: boolean
   onClaim?: () => void
 }
 
@@ -33,10 +36,9 @@ const columnSpacing = { base: 4, md: 12, lg: 24, xl: 48 }
 
 export const FoxWifHatClaimRow = ({
   accountId,
-  amountCryptoPrecision,
+  amountCryptoBaseUnit,
   assetId,
   discountPercentDecimal,
-  isClaimed,
   onClaim,
 }: FoxWifHatClaimRowProps) => {
   const textColor = useColorModeValue('gray.500', 'gray.400')
@@ -49,10 +51,20 @@ export const FoxWifHatClaimRow = ({
   const {
     number: { toPercent },
   } = useLocaleFormatter()
+  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
 
   const numberAccounts = useMemo(() => {
     return accountIdsByChainId[fromAssetId(assetId).chainId]?.length ?? 0
   }, [accountIdsByChainId, assetId])
+
+  const claimQuote = useMemo(() => {
+    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
+    if (!claim) return null
+
+    return claim
+  }, [getFoxWifHatClaimsQuery.data, accountId])
+
+  const { data: isClaimed } = useFoxWifHatClaimedQuery({ index: claimQuote?.index })
 
   return (
     <Stack
@@ -80,7 +92,7 @@ export const FoxWifHatClaimRow = ({
         </HStack>
 
         <Amount.Crypto
-          value={amountCryptoPrecision}
+          value={fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset?.precision ?? 0)}
           symbol={foxWifHatAsset?.symbol ?? ''}
           fontWeight='bold'
           maximumFractionDigits={2}

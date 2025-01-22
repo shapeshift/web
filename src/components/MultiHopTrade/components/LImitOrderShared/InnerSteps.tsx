@@ -19,7 +19,6 @@ import {
 } from 'state/slices/limitOrderInputSlice/selectors'
 import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
 import {
-  selectActiveQuote,
   selectActiveQuoteId,
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
@@ -27,7 +26,6 @@ import {
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { useAllowanceApproval } from '../LimitOrder/hooks/useAllowanceApproval'
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { TxLabel } from '../TradeConfirm/TxLabel'
 
@@ -48,20 +46,9 @@ export const InnerSteps = () => {
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const sellAccountId = useAppSelector(selectSellAccountId)
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
-  //   const activeQuote = useAppSelector(selectActiveQuote)
   const quoteId = useAppSelector(selectActiveQuoteId)
 
-  //   useAllowanceApproval({
-  //     activeQuote,
-  //     setTxHash,
-  //     feeQueryEnabled: true,
-  //     isInitiallyRequired: true,
-  //     onMutate,
-  //     onError,
-  //     onSuccess,
-  //   })
-
-  const [_, { data: approvalData, error: approvalError }] = usePlaceLimitOrderMutation()
+  const [_, { data: orderData, error: orderError }] = usePlaceLimitOrderMutation()
 
   const orderSubmissionMetadataFilter = useMemo(() => {
     return { quoteId: quoteId ?? 0 }
@@ -73,6 +60,7 @@ export const InnerSteps = () => {
     allowanceApproval,
   } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
 
+  // FIXME: replace this with a check against the slice state
   useEffect(() => {
     if (!sellAsset || !sellAccountId) return
     const { assetReference, chainId } = fromAssetId(sellAsset.assetId)
@@ -112,13 +100,13 @@ export const InnerSteps = () => {
 
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
-      case !!approvalData:
+      case !!orderData:
         return (
           <Center boxSize='32px' borderWidth='2px' borderColor='border.base' borderRadius='full'>
             <AnimatedCheck />
           </Center>
         )
-      case !!approvalError:
+      case !!orderError:
         return (
           <Center boxSize='32px' borderWidth='2px' borderColor='border.base' borderRadius='full'>
             <WarningIcon color='red.500' />
@@ -131,7 +119,7 @@ export const InnerSteps = () => {
           </Center>
         )
     }
-  }, [approvalData, approvalError])
+  }, [orderData, orderError])
 
   const summaryStepProps = useMemo(
     () => ({
@@ -173,10 +161,10 @@ export const InnerSteps = () => {
       <StepStatus
         complete={completedStepIndicator}
         incomplete={undefined}
-        active={approvalError ? erroredStepIndicator : undefined}
+        active={orderError ? erroredStepIndicator : undefined}
       />
     ),
-    [approvalError],
+    [orderError],
   )
 
   const allowanceResetTitle = useMemo(() => {
@@ -237,7 +225,7 @@ export const InnerSteps = () => {
               stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
-              isError={!!approvalError}
+              isError={allowanceApproval.state === TransactionExecutionState.Failed}
               stepIndicatorVariant='innerSteps'
             />
           )}
@@ -246,7 +234,7 @@ export const InnerSteps = () => {
             stepIndicator={stepIndicator}
             stepProps={stepProps}
             useSpacer={false}
-            isError={false} // FIXME: Get order placement error if it exists
+            isError={!!orderError}
             stepIndicatorVariant='innerSteps'
           />
         </Box>

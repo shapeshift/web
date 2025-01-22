@@ -7,12 +7,15 @@ import {
   selectBuyAmountCryptoBaseUnit,
   selectInputSellAmountCryptoBaseUnit,
 } from 'state/slices/limitOrderInputSlice/selectors'
+import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAsset,
+  selectActiveQuoteId,
   selectActiveQuoteSellAsset,
+  selectLimitOrderSubmissionMetadata,
 } from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
@@ -29,16 +32,23 @@ export const LimitOrderConfirm = () => {
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
+  const quoteId = useAppSelector(selectActiveQuoteId)
+
+  const orderSubmissionMetadataFilter = useMemo(() => {
+    return { quoteId: quoteId ?? 0 }
+  }, [quoteId])
+
+  const {
+    state: orderSubmissionState,
+    allowanceReset: _allowanceReset,
+    allowanceApproval: _allowanceApproval,
+  } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
 
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
 
   const [_placeLimitOrder, { data: _data, error: _error, isLoading }] = usePlaceLimitOrderMutation()
-
-  const handleConfirm = useCallback(() => {
-    console.log('handleConfirm')
-  }, [])
 
   const body = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
@@ -57,8 +67,41 @@ export const LimitOrderConfirm = () => {
     return <LimitOrderDetail />
   }, [])
 
+  const buttonTranslation = useMemo(() => {
+    switch (orderSubmissionState) {
+      case LimitOrderSubmissionState.AwaitingAllowanceApproval:
+        return 'limitOrder.resetAllowance'
+      case LimitOrderSubmissionState.AwaitingAllowanceReset:
+        return 'limitOrder.approveAllowance'
+      case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
+        return 'limitOrder.placeOrder'
+      default:
+        return undefined
+    }
+  }, [orderSubmissionState])
+
+  const handleConfirm = useCallback(() => {
+    switch (orderSubmissionState) {
+      case LimitOrderSubmissionState.AwaitingAllowanceApproval:
+        console.log('allowanceApproval')
+        // allowanceApproval()
+        break
+      case LimitOrderSubmissionState.AwaitingAllowanceReset:
+        console.log('allowanceReset')
+        // allowanceReset()
+        break
+      case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
+        console.log('placeLimitOrder')
+        // _placeLimitOrder({ quoteId: quoteId ?? 0 })
+        break
+      default:
+        break
+    }
+  }, [orderSubmissionState])
+
   const button = useMemo(() => {
     // FIXME: make dynamic base on state (reset, approve, place order)
+    if (!buttonTranslation) return null
     return (
       <Button
         colorScheme={'blue'}
@@ -68,10 +111,10 @@ export const LimitOrderConfirm = () => {
         isLoading={isLoading}
         isDisabled={isLoading || !activeQuote}
       >
-        <Text translation={'limitOrder.placeOrder'} />
+        <Text translation={buttonTranslation} />
       </Button>
     )
-  }, [activeQuote, handleConfirm, isLoading])
+  }, [activeQuote, handleConfirm, isLoading, buttonTranslation])
 
   const footer = useMemo(() => {
     return <SharedConfirmFooter detail={detail} button={button} />

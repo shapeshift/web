@@ -288,7 +288,11 @@ export const LimitOrderInput = ({
       }
       // FIXME: this is messy, but to re-use current slice
       setLimitOrderInitialized(quoteResponse.id)
+
+      // FIXME: Check allowances and update slice state here.
+      // It needs to be done before confirmSubmit, as it will be used to determine the set state
       confirmSubmit(quoteResponse.id)
+
       history.push(LimitOrderRoutePaths.Confirm)
 
       // If the new limit flow is enabled, we don't need to check the allowance here, so we

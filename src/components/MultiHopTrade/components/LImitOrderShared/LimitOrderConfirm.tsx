@@ -58,6 +58,7 @@ export const LimitOrderConfirm = () => {
   }, [])
 
   const button = useMemo(() => {
+    // FIXME: make dynamic base on state (reset, approve, place order)
     return (
       <Button
         colorScheme={'blue'}

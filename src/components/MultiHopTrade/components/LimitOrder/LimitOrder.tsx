@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderShared/LimitOrderConfirm'
+import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { AllowanceApproval } from './components/AllowanceApproval'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'

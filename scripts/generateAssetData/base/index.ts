@@ -14,7 +14,7 @@ const foxWifHatAsset: Readonly<Asset> = Object.freeze({
   precision: 18,
   symbol: 'FWH',
   color: '#FFFFFF',
-  icon: '/foxwifhat-logo.png',
+  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/base/icons/foxwifhat-logo.png',
   explorer: base.explorer,
   explorerAddressLink: base.explorerAddressLink,
   explorerTxLink: base.explorerTxLink,

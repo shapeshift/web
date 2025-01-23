@@ -1,12 +1,19 @@
+import { Metaplex } from '@metaplex-foundation/js'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { solanaChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { Connection, PublicKey } from '@solana/web3.js'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useQueries } from '@tanstack/react-query'
+import { skipToken, useQueries } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
+import { getConfig } from 'config'
 import { useCallback, useMemo } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'
 import { isAddress } from 'viem'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
+
+import { isSolanaAddress } from '../helpers/customAssetSearch'
 
 type TokenMetadata = TokenMetadataResponse & {
   chainId: ChainId
@@ -33,7 +40,7 @@ export const useGetCustomTokensQuery = ({
 }: UseGetCustomTokensQueryProps): UseQueryResult<(TokenMetadata | undefined)[], Error[]> => {
   const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
 
-  const getTokenMetadata = useCallback(
+  const getEvmTokenMetadata = useCallback(
     async (chainId: ChainId) => {
       const alchemy = getAlchemyInstanceByChainId(chainId)
       const tokenMetadataResponse = await alchemy.core.getTokenMetadata(contractAddress)
@@ -42,26 +49,66 @@ export const useGetCustomTokensQuery = ({
     [contractAddress],
   )
 
+  const getSolanaTokenMetadata = useCallback(
+    async (mintAddress: string): Promise<TokenMetadata> => {
+      const solanaRpcUrl = `${getConfig().REACT_APP_ALCHEMY_SOLANA_BASE_URL}/${
+        getConfig().REACT_APP_ALCHEMY_API_KEY
+      }`
+      const connection = new Connection(solanaRpcUrl)
+      const metaplex = Metaplex.make(connection)
+      const metadata = await metaplex.nfts().findByMint({ mintAddress: new PublicKey(mintAddress) })
+
+      return {
+        name: metadata.name,
+        symbol: metadata.symbol,
+        decimals: metadata.mint.currency.decimals,
+        chainId: solanaChainId,
+        contractAddress: mintAddress,
+        price: '0',
+        logo: metadata.json?.image ?? '',
+      }
+    },
+    [],
+  )
+
   const isValidEvmAddress = useMemo(
     () => isAddress(contractAddress, { strict: false }),
     [contractAddress],
   )
 
+  const isValidSolanaAddress = useMemo(() => isSolanaAddress(contractAddress), [contractAddress])
+
   const getQueryFn = useCallback(
-    (chainId: ChainId) => () => getTokenMetadata(chainId),
-    [getTokenMetadata],
+    (chainId: ChainId) => () => {
+      if (isValidSolanaAddress && chainId === solanaChainId) {
+        return getSolanaTokenMetadata(contractAddress)
+      } else if (isValidEvmAddress && isEvmChainId(chainId)) {
+        return getEvmTokenMetadata(chainId)
+      } else {
+        return skipToken
+      }
+    },
+    [
+      contractAddress,
+      getEvmTokenMetadata,
+      getSolanaTokenMetadata,
+      isValidEvmAddress,
+      isValidSolanaAddress,
+    ],
   )
 
+  const isTokenMetadata = (
+    result: TokenMetadata | typeof skipToken | undefined,
+  ): result is TokenMetadata => result !== undefined && result !== skipToken
+
   const customTokenQueries = useQueries({
-    queries: isValidEvmAddress
-      ? chainIds.map(chainId => ({
-          queryKey: getCustomTokenQueryKey(contractAddress, chainId),
-          queryFn: getQueryFn(chainId),
-          enabled: customTokenImportEnabled,
-          staleTime: Infinity,
-        }))
-      : [],
-    combine: queries => mergeQueryOutputs(queries, results => results),
+    queries: chainIds.map(chainId => ({
+      queryKey: getCustomTokenQueryKey(contractAddress, chainId),
+      queryFn: getQueryFn(chainId),
+      enabled: customTokenImportEnabled,
+      staleTime: Infinity,
+    })),
+    combine: queries => mergeQueryOutputs(queries, results => results.filter(isTokenMetadata)),
   })
 
   return customTokenQueries

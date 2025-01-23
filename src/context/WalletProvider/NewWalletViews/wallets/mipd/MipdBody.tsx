@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, Button, Flex, Image, Spinner } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Flex, Image } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
@@ -19,7 +19,7 @@ import {
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
 
-const spinner = <Spinner color='white' />
+import { PairBody } from '../../components/PairBody'
 
 type MipdBodyProps = {
   rdns: string
@@ -113,7 +113,6 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
             name: maybeMipdProvider?.info.name ?? 'MetaMask',
           }),
         )
-        history.push('/metamask/failure')
       }
     }
     setIsLoading(false)
@@ -154,6 +153,11 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     [maybeMipdProvider?.info.name],
   )
 
+  const icon = useMemo(
+    () => (maybeMipdProvider ? <Image src={maybeMipdProvider.info.icon} boxSize='64px' /> : null),
+    [maybeMipdProvider],
+  )
+
   if (!maybeMipdProvider) return null
 
   if (isMobile && !isMetaMaskMobileWebView && rdns === METAMASK_RDNS) {
@@ -189,31 +193,14 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
   }
 
   return (
-    <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
-      <Image src={maybeMipdProvider.info.icon} boxSize='64px' />
-      <Text fontSize='xl' translation={headerTranslation} />
-      <Text color='gray.500' translation={connectBodyTranslation} textAlign='center' />
-
-      {error && (
-        <Alert status='info'>
-          <AlertIcon />
-          <AlertDescription>
-            <Text translation={error} />
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <Button
-        maxW='200px'
-        width='100%'
-        colorScheme='blue'
-        isLoading={isLoading}
-        loadingText={translate('common.pairing')}
-        spinner={spinner}
-        onClick={pairDevice}
-      >
-        {translate('walletProvider.mipd.connect.button')}
-      </Button>
-    </Flex>
+    <PairBody
+      icon={icon}
+      headerTranslation={headerTranslation}
+      bodyTranslation={connectBodyTranslation}
+      buttonTranslation='walletProvider.mipd.connect.button'
+      isLoading={isLoading}
+      error={error}
+      onPairDeviceClick={pairDevice}
+    />
   )
 }

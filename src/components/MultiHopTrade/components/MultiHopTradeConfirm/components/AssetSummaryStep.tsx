@@ -82,7 +82,7 @@ export const AssetSummaryStep = ({
   }, [amountCryptoBaseUnit, isLastStep, prevAmountCryptoBaseUnit, rateChanged])
 
   const assetIcon = useMemo(() => {
-    return <AssetIcon assetId={asset.assetId} boxSize='32px' />
+    return <AssetIcon assetId={asset.assetId} />
   }, [asset.assetId])
   return (
     <StepperStep

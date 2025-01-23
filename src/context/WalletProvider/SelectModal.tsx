@@ -29,6 +29,7 @@ import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './NewWalletViews/constants'
 import type { WalletInfo } from './WalletProvider'
 
 const gridTemplateColumnsProp = { base: '1fr', md: '1fr 1fr' }
@@ -208,14 +209,14 @@ export const SelectModal = () => {
       <>
         {mipdProviders
           .filter(
-            // EIP-1193 provider for Keplr is for EVM, but our implementation is for Cosmos SDK
+            // Filters out wallets which exist as first-class.
+            // Coinbase is a bit of a specific-case however, and is soon-to-be-removed as first-class per se (already is with new wallet flow)
+            // in profit of a dedicated option for Coinbase QR code modal (maybe), see https://github.com/shapeshift/web/issues/8615
             // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
             provider =>
-              provider.info.rdns !== 'app.keplr' &&
-              // And similarly for Phantom, the EIP-1193 provider is only an EVM provider, but we have our own implementation with EVMs + Bitcoin + Solana
-              provider.info.rdns !== 'app.phantom' &&
-              // Ensure we leverage the first-class implementation
-              provider.info.rdns !== 'com.coinbase.wallet',
+              !Object.keys(RDNS_TO_FIRST_CLASS_KEYMANAGER)
+                .concat(['com.coinbase.wallet'])
+                .includes(provider.info.rdns),
           )
           .map(provider => (
             <MipdProviderSelectItem

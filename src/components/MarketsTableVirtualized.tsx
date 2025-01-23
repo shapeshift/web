@@ -26,6 +26,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Display } from 'components/Display'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
+import { isMobile as isMobileApp } from 'lib/globals'
 import { SparkLine } from 'pages/Buy/components/Sparkline'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectMarketDataUserCurrency } from 'state/slices/selectors'
@@ -54,6 +55,7 @@ const tableContainerSx = {
   },
   '-ms-overflow-style': 'none',
   scrollbarWidth: 'none',
+  height: isMobileApp ? 'calc(100vh - 72px)' : '100vh',
 }
 
 const headerGridSx = {
@@ -281,7 +283,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     )
 
     return (
-      <Box ref={parentRef} height='100vh' overflow='auto' sx={tableContainerSx}>
+      <Box ref={parentRef} overflow='auto' sx={tableContainerSx} position='relative'>
         <Table variant='unstyled' size={tableSizeSx}>
           {isLargerThanMd && (
             <Thead position='sticky' top={0} bg='background.surface.base' zIndex={1}>

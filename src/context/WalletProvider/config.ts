@@ -354,7 +354,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/mobile/connect', component: MobileStart },
       { path: '/mobile/load', component: MobileLoad },
       { path: '/mobile/rename', component: MobileRename },
-      { path: '/mobile/import', component: MobileImport },
+      { path: '/mobile/import-select', component: MobileImport },
       { path: '/mobile/create', component: MobileCreate },
       { path: '/mobile/create-test', component: MobileCreateTest },
       { path: '/mobile/success', component: MobileSuccess },

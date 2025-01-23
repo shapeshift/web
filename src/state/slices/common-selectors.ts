@@ -4,6 +4,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -11,9 +12,13 @@ import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectSearchQueryFromFilter,
+} from 'state/selectors'
 
-import { selectAssets } from './assetsSlice/selectors'
+import { selectAssets, selectAssetsSortedByMarketCap } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -281,3 +286,48 @@ export const selectIsAssetWithoutMarketData = createSelector(
     return !marketData || marketData.price === '0'
   },
 )
+
+export const selectAssetsBySearchQuery = createCachedSelector(
+  selectAssetsSortedByMarketCap,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioUserCurrencyBalances,
+  selectMarketDataUsd,
+  selectSearchQueryFromFilter,
+  (
+    sortedAssets: Asset[],
+    portfolioBalancesCryptoBaseUnit,
+    portfolioBalancesUserCurrency,
+    marketDataUsd,
+    searchQuery?: string,
+  ): Asset[] => {
+    if (!searchQuery) return sortedAssets
+
+    const matchedAssets = matchSorter(sortedAssets, searchQuery ?? '', {
+      keys: ['name', 'symbol', 'assetId'],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+
+    const getAssetBalanceCryptoPrecision = (asset: Asset) =>
+      fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
+
+    const getAssetUserCurrencyBalance = (asset: Asset) =>
+      bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
+
+    // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+    // but we actually can't - this would rug the quadruple-sorting
+    const getAssetMarketCap = (asset: Asset) =>
+      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+    const getAssetName = (asset: Asset) => asset.name
+
+    return orderBy(
+      Object.values(matchedAssets).filter(isSome),
+      [
+        getAssetUserCurrencyBalance,
+        getAssetMarketCap,
+        getAssetBalanceCryptoPrecision,
+        getAssetName,
+      ],
+      ['desc', 'desc', 'desc', 'asc'],
+    )
+  },
+)((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')

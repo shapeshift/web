@@ -1,7 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, HStack, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,12 +16,14 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useFoxWifHatClaimedQueryQuery } from '../hooks/useFoxWifHatClaimedQuery'
+import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
+
 type FoxWifHatClaimRowProps = {
   accountId: string
   amountCryptoBaseUnit: string
   assetId: AssetId
   discountPercentDecimal: number
-  isClaimed?: boolean
   onClaim?: () => void
 }
 
@@ -37,7 +39,6 @@ export const FoxWifHatClaimRow = ({
   amountCryptoBaseUnit,
   assetId,
   discountPercentDecimal,
-  isClaimed,
   onClaim,
 }: FoxWifHatClaimRowProps) => {
   const textColor = useColorModeValue('gray.500', 'gray.400')
@@ -50,16 +51,24 @@ export const FoxWifHatClaimRow = ({
   const {
     number: { toPercent },
   } = useLocaleFormatter()
+  const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 
   const numberAccounts = useMemo(() => {
     return accountIdsByChainId[fromAssetId(assetId).chainId]?.length ?? 0
   }, [accountIdsByChainId, assetId])
 
-  const amountCryptoHuman = useMemo(() => {
-    if (!foxWifHatAsset) return
+  const claim = useMemo(() => {
+    const claim = getFoxWifHatMerkleTreeQuery.data?.[accountId]
+    if (!claim) return null
 
-    return fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset.precision)
+    return claim
+  }, [getFoxWifHatMerkleTreeQuery.data, accountId])
+
+  const amountCryptoPrecision = useMemo(() => {
+    return fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset?.precision ?? 0)
   }, [amountCryptoBaseUnit, foxWifHatAsset])
+
+  const { data: isClaimed } = useFoxWifHatClaimedQueryQuery({ index: claim?.index })
 
   return (
     <Stack
@@ -76,7 +85,7 @@ export const FoxWifHatClaimRow = ({
           <WalletIcon color={textColor} boxSize={6} />
           <Flex direction='column' alignItems='flex-start'>
             <Text fontWeight='bold' fontSize='sm'>
-              {middleEllipsis(accountId)}
+              {middleEllipsis(fromAccountId(accountId).account)}
             </Text>
             {numberAccounts > 1 ? (
               <Text color={textColor} fontSize='xs'>
@@ -87,7 +96,7 @@ export const FoxWifHatClaimRow = ({
         </HStack>
 
         <Amount.Crypto
-          value={amountCryptoHuman}
+          value={amountCryptoPrecision}
           symbol={foxWifHatAsset?.symbol ?? ''}
           fontWeight='bold'
           maximumFractionDigits={2}

@@ -12,10 +12,11 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
+import { foxAssetId, foxOnArbitrumOneAssetId, foxOnGnosisAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AnimatedCheck } from 'components/AnimatedCheck'
@@ -23,6 +24,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import {
+  selectFirstHop,
   selectLastHop,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeQuoteAffiliateFeeDiscountUserCurrency,
@@ -58,6 +60,7 @@ export const TradeSuccess = ({
     defaultIsOpen: false,
   })
 
+  const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
 
   const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
@@ -96,7 +99,23 @@ export const TradeSuccess = ({
     )
   }, [sellAsset, buyAsset, sellAmountCryptoPrecision, buyAmountCryptoPrecision])
 
-  if (!lastHop) return null
+  // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
+  // trade FOX. If a user trades FOX, the discount calculations will have changed from the correct
+  // values because the amount of FOX held in the wallet will have changed.
+  // See https://github.com/shapeshift/web/issues/8028 for more details.
+  const enableFoxDiscountSummary = useMemo(() => {
+    const foxAssetIds = [foxAssetId, foxOnGnosisAssetId, foxOnArbitrumOneAssetId]
+    const didTradeFox = foxAssetIds.some(assetId => {
+      return (
+        firstHop?.buyAsset.assetId === assetId ||
+        firstHop?.sellAsset.assetId === assetId ||
+        lastHop?.buyAsset.assetId === assetId ||
+        lastHop?.sellAsset.assetId === assetId
+      )
+    })
+
+    return !didTradeFox
+  }, [firstHop, lastHop])
 
   return (
     <>
@@ -114,7 +133,9 @@ export const TradeSuccess = ({
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate('trade.doAnotherTrade')}
           </Button>
-          {hasFeeSaving && <YouSaved feeSavingUserCurrency={feeSavingUserCurrency!} />}
+          {enableFoxDiscountSummary && hasFeeSaving && (
+            <YouSaved feeSavingUserCurrency={enableFoxDiscountSummary && feeSavingUserCurrency!} />
+          )}
           {couldHaveReducedFee && (
             <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
           )}

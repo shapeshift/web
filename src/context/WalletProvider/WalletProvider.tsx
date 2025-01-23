@@ -47,7 +47,10 @@ import { WalletViewsRouter } from './WalletViewsRouter'
 
 export type WalletInfo = {
   name: string
-  icon: ComponentWithAs<'svg', IconProps>
+  icon:
+    | ComponentWithAs<'svg', IconProps>
+    // RFC-2397
+    | `data:image/${string}`
   deviceId: string
   meta?: { label?: string; address?: string }
 }

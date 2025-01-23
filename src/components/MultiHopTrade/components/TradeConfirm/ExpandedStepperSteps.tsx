@@ -255,10 +255,16 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [swapperName, translate])
 
   const firstHopActionTitle = useMemo(() => {
+    const firstHopMessage = firstHopSwap.message
+    const firstHopStatus = firstHopSwap.state
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
         <HStack>
-          <RawText>{firstHopActionTitleText}</RawText>
+          <RawText>
+            {firstHopStatus === TransactionExecutionState.Pending && firstHopMessage
+              ? translate(firstHopMessage)
+              : firstHopActionTitleText}
+          </RawText>
           {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
             <Tag
               minWidth='auto'
@@ -296,9 +302,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSellAccountId,
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
+    firstHopSwap.message,
     firstHopSwap.sellTxHash,
+    firstHopSwap.state,
     swapperName,
     tradeQuoteFirstHop,
+    translate,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -353,10 +362,16 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const lastHopActionTitle = useMemo(() => {
+    const lastHopMessage = lastHopSwap.message
+    const lastHopStatus = lastHopSwap.state
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
         <HStack>
-          <RawText>{lastHopActionTitleText}</RawText>
+          <RawText>
+            {lastHopStatus === TransactionExecutionState.Pending && lastHopMessage
+              ? translate(lastHopMessage)
+              : lastHopActionTitleText}
+          </RawText>
           {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
             <Tag
               minWidth='auto'
@@ -392,10 +407,13 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopActionTitleText,
     lastHopSellAccountId,
     lastHopSwap.buyTxHash,
+    lastHopSwap.message,
     lastHopSwap.sellTxHash,
+    lastHopSwap.state,
     secondHopStreamingProgress,
     swapperName,
     tradeQuoteSecondHop,
+    translate,
   ])
 
   const { tradeSteps, currentTradeStep } = useStepperSteps()

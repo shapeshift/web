@@ -31,7 +31,10 @@ export const EIP155SignTypedDataConfirmation: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
+  const walletIcon = useMemo(
+    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
+    [WalletIcon],
+  )
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)

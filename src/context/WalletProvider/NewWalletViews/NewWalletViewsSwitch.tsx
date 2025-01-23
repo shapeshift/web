@@ -11,34 +11,33 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import type { Location } from 'history'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeepKeyRoutes as KeepKeyRoutesEnum } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { SnapInstall } from '../MetaMask/components/SnapInstall'
-import { SnapUpdate } from '../MetaMask/components/SnapUpdate'
-import { EnterPassword } from '../NativeWallet/components/EnterPassword'
-import { NativeCreate } from '../NativeWallet/components/NativeCreate'
-import { NativeImportKeystore } from '../NativeWallet/components/NativeImportKeystore'
-import { NativeImportSeed } from '../NativeWallet/components/NativeImportSeed'
-import { NativeImportSelect } from '../NativeWallet/components/NativeImportSelect'
-import { NativePassword } from '../NativeWallet/components/NativePassword'
-import { NativeSuccess } from '../NativeWallet/components/NativeSuccess'
-import { NativeTestPhrase } from '../NativeWallet/components/NativeTestPhrase'
-import type { NativeSetupProps } from '../NativeWallet/types'
+import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
+import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
+import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
+import { LedgerRoutes } from './routes/LedgerRoutes'
+import { MipdRoutes } from './routes/MipdRoutes'
+import { NativeRoutes } from './routes/NativeRoutes'
+import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
+import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { OthersSection } from './sections/OthersSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
-import { MipdBody } from './wallets/mipd/MipdBody'
+import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
-import { NativeStart } from './wallets/native/NativeStart'
 
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
@@ -48,74 +47,6 @@ const containerWidth = {
 const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
-
-type RightPanelContentProps = {
-  isLoading: boolean
-  setIsLoading: (loading: boolean) => void
-  error: string | null
-  setError: (error: string | null) => void
-  location: Location
-}
-
-const nativeRoutes = (
-  <Switch>
-    <Route
-      exact
-      path={NativeWalletRoutes.Connect}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeStart {...routeProps} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.ImportKeystore}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportKeystore {...routeProps} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.ImportSeed}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportSeed {...routeProps} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.ImportSelect}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportSelect {...routeProps} />}
-    />
-    <Route exact path={NativeWalletRoutes.Create}>
-      <NativeCreate />
-    </Route>
-    <Route
-      exact
-      path={NativeWalletRoutes.Password}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
-    />
-    <Route exact path={NativeWalletRoutes.EnterPassword}>
-      <EnterPassword />
-    </Route>
-    <Route
-      exact
-      path={NativeWalletRoutes.Success}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeSuccess {...(routeProps as NativeSetupProps)} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.CreateTest}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeTestPhrase {...(routeProps as NativeSetupProps)} />}
-    />
-  </Switch>
-)
 
 const RightPanelContent = ({
   isLoading,
@@ -128,30 +59,29 @@ const RightPanelContent = ({
     state: { modalType, isMipdProvider },
   } = useWallet()
 
-  if (location.pathname.startsWith('/native')) return nativeRoutes
+  const shouldDisplayIntro = useMemo(
+    () => !modalType || modalType === 'native' || location.pathname === '/',
+    [modalType, location.pathname],
+  )
 
-  // No modal type, and no in-flight native routes - assume enpty state
-  if (!modalType || modalType === 'native' || location.pathname === '/') return <NativeIntro />
+  if (location.pathname.startsWith('/native')) return <NativeRoutes />
+  if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
+  if (location.pathname.startsWith('/ledger')) return <LedgerRoutes />
+  if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
 
-  if (isMipdProvider && modalType) {
+  if (shouldDisplayIntro) return <NativeIntro />
+
+  const isFirstClass =
+    modalType && Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).includes(modalType as KeyManager)
+
+  if ((isMipdProvider || isFirstClass) && modalType) {
     return (
-      <Switch>
-        <Route exact path='/metamask/connect'>
-          <MipdBody
-            rdns={modalType}
-            isLoading={isLoading}
-            error={error}
-            setIsLoading={setIsLoading}
-            setError={setError}
-          />
-        </Route>
-        <Route path='/metamask/snap/install'>
-          <SnapInstall />
-        </Route>
-        <Route path='/metamask/snap/update'>
-          <SnapUpdate />
-        </Route>
-      </Switch>
+      <MipdRoutes
+        isLoading={isLoading}
+        error={error}
+        setIsLoading={setIsLoading}
+        setError={setError}
+      />
     )
   }
 
@@ -174,10 +104,17 @@ export const NewWalletViewsSwitch = () => {
       modal,
       disconnectOnCloseModal,
       deviceState: { disposition },
+      initialRoute,
+      nativeWalletPendingDeviceId,
     },
     dispatch,
     disconnect,
   } = useWallet()
+
+  const nativeVaultsQuery = useQuery({
+    ...reactQueries.common.hdwalletNativeVaultsList(),
+    refetchOnMount: true,
+  })
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
@@ -201,6 +138,13 @@ export const NewWalletViewsSwitch = () => {
     }
     await cancelWalletRequests()
   }, [cancelWalletRequests, dispatch, history])
+
+  const handleRouteReset = useCallback(() => {
+    history.replace(INITIAL_WALLET_MODAL_ROUTE)
+
+    setSelectedWalletId(null)
+    setError(null)
+  }, [history])
 
   const onClose = useCallback(async () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
@@ -228,17 +172,31 @@ export const NewWalletViewsSwitch = () => {
 
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
-      setSelectedWalletId(walletId)
       if (_initialRoute) history.push(_initialRoute)
+
+      setSelectedWalletId(walletId)
+      setError(null)
     },
     [history],
   )
+
+  useEffect(() => {
+    if (initialRoute) history.push(initialRoute)
+  }, [history, initialRoute])
+
+  // Set the native wallet pending unlock as selected on refresh
+  useEffect(() => {
+    if (!(nativeWalletPendingDeviceId && nativeVaultsQuery.data)) return
+
+    setSelectedWalletId(nativeWalletPendingDeviceId)
+  }, [nativeVaultsQuery.data, nativeWalletPendingDeviceId])
+
   // Reset history on modal open/unmount
   useEffect(() => {
-    history.replace('/')
+    if (!initialRoute) history.replace('/')
 
     return () => {
-      history.replace('/')
+      if (!initialRoute) history.replace('/')
     }
     // Only run this on initial render, and unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -251,14 +209,25 @@ export const NewWalletViewsSwitch = () => {
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider mb={6} />
+        <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        {/* TODO(gomes): more sections */}
+        <Divider mb={2} />
+        <HardwareWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+          isLoading={isLoading}
+        />
+        <Divider mb={2} />
+        <OthersSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
       </Box>
     ),
     [handleWalletSelect, isLoading, selectedWalletId],
@@ -270,9 +239,14 @@ export const NewWalletViewsSwitch = () => {
   const body = useCallback(
     (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
       // These routes do not have a previous step, so don't display back button
-      const isRootRoute =
-        routeProps.history.location.pathname === '/' ||
-        routeProps.history.location.pathname === '/metamask/connect'
+      const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(
+        routeProps.history.location.pathname,
+      )
+      // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
+      const isConnectRoute =
+        /^\/[^/]+\/connect$/.test(routeProps.history.location.pathname) ||
+        routeProps.history.location.pathname === '/native/enter-password'
+
       return (
         <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
           {!isRootRoute || isMobile ? (
@@ -292,7 +266,8 @@ export const NewWalletViewsSwitch = () => {
                 size='sm'
                 isRound
                 position='static'
-                onClick={handleBack}
+                isDisabled={isLoading}
+                onClick={isConnectRoute ? handleRouteReset : handleBack}
               />
             </Box>
           ) : null}
@@ -310,7 +285,15 @@ export const NewWalletViewsSwitch = () => {
         </Box>
       )
     },
-    [bodyBgColor, buttonContainerBgColor, error, handleBack, isLoading, translate],
+    [
+      bodyBgColor,
+      buttonContainerBgColor,
+      error,
+      handleBack,
+      handleRouteReset,
+      isLoading,
+      translate,
+    ],
   )
 
   const bodyDesktopOnly = useCallback(

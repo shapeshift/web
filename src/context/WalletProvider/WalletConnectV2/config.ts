@@ -94,6 +94,7 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     'eth_accounts',
     'eth_sendTransaction',
     'eth_signTransaction',
+    'wallet_switchEthereumChain',
   ],
   showQrModal: true,
   qrModalOptions: {

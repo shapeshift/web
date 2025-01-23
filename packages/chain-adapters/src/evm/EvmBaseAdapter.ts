@@ -6,6 +6,7 @@ import type {
   ETHSignTypedData,
   ETHWallet,
   HDWallet,
+  SerializedEthereumRpcError,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -283,7 +284,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         rpcUrls: [this.getRpcUrl()],
         blockExplorerUrls: [targetNetwork.explorer],
       })
-    } catch (err) {
+    } catch (err: any) {
+      if (
+        'code' in err &&
+        (err as SerializedEthereumRpcError).code === 5000 &&
+        err.message.includes('MetaMetrics')
+      )
+        // Just another day in crypto... This ackschually succeeded.
+        // https://github.com/MetaMask/metamask-mobile/issues/12530
+        return
+
       throw new ChainAdapterError(err, {
         translation: 'chainAdapters.errors.switchChainFailed',
         options: { chain: this.getDisplayName() },

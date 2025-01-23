@@ -15,20 +15,20 @@ type FoxWifHatClaimedQueryKey = [
   },
 ]
 
-type UseFoxWifHatClaimedQueryProps = {
+type useFoxWifHatClaimedQueryQueryProps = {
   index: bigint | undefined
 }
 
 export const getFoxWifHatClaimedQueryKey = ({
   index,
-}: UseFoxWifHatClaimedQueryProps): FoxWifHatClaimedQueryKey => [
+}: useFoxWifHatClaimedQueryQueryProps): FoxWifHatClaimedQueryKey => [
   'foxWifHatClaimed',
   {
     index,
   },
 ]
 
-export const getFoxWifHatClaimedQueryFn = ({ index }: UseFoxWifHatClaimedQueryProps) => {
+export const getFoxWifHatClaimedQueryFn = ({ index }: useFoxWifHatClaimedQueryQueryProps) => {
   if (!index) return skipToken
 
   return async () => {
@@ -45,7 +45,7 @@ export const getFoxWifHatClaimedQueryFn = ({ index }: UseFoxWifHatClaimedQueryPr
   }
 }
 
-export const useFoxWifHatClaimedQuery = ({ index }: UseFoxWifHatClaimedQueryProps) => {
+export const useFoxWifHatClaimedQueryQuery = ({ index }: useFoxWifHatClaimedQueryQueryProps) => {
   const queryKey: FoxWifHatClaimedQueryKey = useMemo(() => {
     return getFoxWifHatClaimedQueryKey({ index })
   }, [index])
@@ -57,7 +57,7 @@ export const useFoxWifHatClaimedQuery = ({ index }: UseFoxWifHatClaimedQueryProp
   const query = useQuery({
     queryKey,
     queryFn,
-    enabled: !!index,
+    enabled: index !== undefined,
   })
 
   return query

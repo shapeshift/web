@@ -7,6 +7,7 @@ import {
   Flex,
   Skeleton,
   Stack,
+  useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
@@ -20,7 +21,6 @@ import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
@@ -51,8 +51,6 @@ type FoxWifHatClaimConfirmProps = {
   accountId: AccountId
 }
 
-const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
-
 export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
   accountId,
   claimTxid,
@@ -65,37 +63,38 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
     selectAccountNumberByAccountId(state, { accountId }),
   )
   const foxWifHatAsset = useAppSelector(state => selectAssetById(state, foxWifHatAssetId))
-  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
+  const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
+  const toast = useToast()
 
-  const claimQuote = useMemo(() => {
-    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
+  const claim = useMemo(() => {
+    const claim = getFoxWifHatMerkleTreeQuery.data?.[accountId]
     if (!claim) return null
 
     return claim
-  }, [getFoxWifHatClaimsQuery.data, accountId])
+  }, [getFoxWifHatMerkleTreeQuery.data, accountId])
 
   const amountCryptoPrecision = useMemo(() => {
-    if (!claimQuote) return
+    if (!claim) return
     if (!foxWifHatAsset) return
 
-    return fromBaseUnit(claimQuote.amount, foxWifHatAsset.precision)
-  }, [claimQuote, foxWifHatAsset])
+    return fromBaseUnit(claim.amount, foxWifHatAsset.precision)
+  }, [claim, foxWifHatAsset])
 
   const callData = useMemo(() => {
-    if (!claimQuote) return '0x'
+    if (!claim) return '0x'
     if (!foxWifHatAsset) return '0x'
 
     return encodeFunctionData({
       abi: FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI,
       functionName: 'claim',
       args: [
-        claimQuote.index,
+        claim.index,
         fromAccountId(accountId).account as `0x${string}`,
-        BigInt(claimQuote.amount),
-        claimQuote.proof,
+        BigInt(claim.amount),
+        claim.proof,
       ],
     })
-  }, [claimQuote, accountId, foxWifHatAsset])
+  }, [claim, accountId, foxWifHatAsset])
 
   const {
     mutateAsync: handleClaim,
@@ -166,6 +165,8 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
   }, [claimTxid, accountId])
 
   const claimCard = useMemo(() => {
+    if (!foxWifHatAsset) return null
+
     return (
       <Card
         display='flex'
@@ -180,17 +181,27 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
       >
         <AssetIcon size='sm' assetId={foxWifHatAssetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value={amountCryptoPrecision} symbol={foxWifHatAsset?.symbol ?? ''} />
+          <Amount.Crypto value={amountCryptoPrecision} symbol={foxWifHatAsset.symbol ?? ''} />
         </Stack>
       </Card>
     )
   }, [amountCryptoPrecision, foxWifHatAsset])
 
   const handleSubmit = useCallback(async () => {
-    const txHash = await handleClaim()
-    if (!txHash) return
-    history.push(FoxWifHatClaimRoutePaths.Status)
-  }, [handleClaim, history])
+    try {
+      const txHash = await handleClaim()
+      if (!txHash) return
+      history.push(FoxWifHatClaimRoutePaths.Status)
+    } catch (err) {
+      console.error(err)
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error',
+      })
+    }
+  }, [handleClaim, history, translate, toast])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 
@@ -210,13 +221,13 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
           {claimCard}
           <Timeline>
             <TimelineItem>
-              <CustomRow>
+              <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('RFOX.claimReceiveAddress')}</Row.Label>
                 <Row.Value>{firstFourLastFour(fromAccountId(accountId).account)}</Row.Value>
-              </CustomRow>
+              </Row>
             </TimelineItem>
             <TimelineItem>
-              <CustomRow>
+              <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={!isClaimFeesLoading}>
@@ -225,7 +236,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
                     </Row.Value>
                   </Skeleton>
                 </Row.Value>
-              </CustomRow>
+              </Row>
             </TimelineItem>
           </Timeline>
         </Stack>

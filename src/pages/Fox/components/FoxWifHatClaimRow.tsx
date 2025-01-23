@@ -16,7 +16,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useFoxWifHatClaimedQuery } from '../hooks/useFoxWifHatClaimed'
+import { useFoxWifHatClaimedQueryQuery } from '../hooks/useFoxWifHatClaimedQuery'
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 
 type FoxWifHatClaimRowProps = {
@@ -51,24 +51,24 @@ export const FoxWifHatClaimRow = ({
   const {
     number: { toPercent },
   } = useLocaleFormatter()
-  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
+  const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 
   const numberAccounts = useMemo(() => {
     return accountIdsByChainId[fromAssetId(assetId).chainId]?.length ?? 0
   }, [accountIdsByChainId, assetId])
 
-  const claimQuote = useMemo(() => {
-    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
+  const claim = useMemo(() => {
+    const claim = getFoxWifHatMerkleTreeQuery.data?.[accountId]
     if (!claim) return null
 
     return claim
-  }, [getFoxWifHatClaimsQuery.data, accountId])
+  }, [getFoxWifHatMerkleTreeQuery.data, accountId])
 
   const amountCryptoPrecision = useMemo(() => {
     return fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset?.precision ?? 0)
   }, [amountCryptoBaseUnit, foxWifHatAsset])
 
-  const { data: isClaimed } = useFoxWifHatClaimedQuery({ index: claimQuote?.index })
+  const { data: isClaimed } = useFoxWifHatClaimedQueryQuery({ index: claim?.index })
 
   return (
     <Stack

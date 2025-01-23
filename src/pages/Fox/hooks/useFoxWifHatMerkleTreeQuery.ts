@@ -1,14 +1,19 @@
+import type { AccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { IPFS_GATEWAY } from 'pages/RFOX/constants'
+import { selectAccountIdsByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-export type FoxWifHatClaimQuote = { index: bigint; amount: string; proof: `0x${string}`[] }
+export type FoxWifHatClaim = { index: bigint; amount: string; proof: `0x${string}`[] }
 
 type MerkleData = {
   merkleRoot: string
   tokenTotal: string
-  claims: Record<string, FoxWifHatClaimQuote>
+  claims: Record<string, FoxWifHatClaim>
 }
 
 type FoxWifHatMerkleTreeQueryKey = ['foxWifHatMerkleTree']
@@ -22,29 +27,42 @@ export const getFoxWifHatMerkleTreeQueryKey = (): FoxWifHatMerkleTreeQueryKey =>
 export const fetchFoxWifhatMerkleTree = async (): Promise<MerkleData> => {
   const { data } = await axios.get<MerkleData>(`${IPFS_GATEWAY}/${MERKLE_TREE_HASH}`)
 
-  const lowercasedClaims = Object.entries(data.claims).reduce(
-    (acc, [address, claim]) => {
-      acc[address.toLowerCase()] = claim
-      return acc
-    },
-    {} as typeof data.claims,
-  )
-
-  return {
-    ...data,
-    claims: lowercasedClaims,
-  }
+  return data
 }
 
 export const useFoxWifHatMerkleTreeQuery = () => {
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const queryKey = useMemo(() => getFoxWifHatMerkleTreeQueryKey(), [])
 
   const queryFn = useMemo(() => () => fetchFoxWifhatMerkleTree(), [])
+
+  const selectClaimByAccountId = useCallback(
+    (data: MerkleData) => {
+      return Object.entries(data.claims).reduce(
+        (acc, [address, claim]) => {
+          const accountId = accountIdsByChainId[fromAssetId(foxWifHatAssetId).chainId]?.find(
+            accountId => fromAccountId(accountId).account === address.toLowerCase(),
+          )
+          if (!accountId) return acc
+
+          acc[accountId] = {
+            ...claim,
+            amount: bnOrZero(claim.amount).toFixed(),
+          }
+
+          return acc
+        },
+        {} as Record<AccountId, FoxWifHatClaim>,
+      )
+    },
+    [accountIdsByChainId],
+  )
 
   return useQuery({
     queryKey,
     queryFn,
     staleTime: Infinity, // This merkle tree will never change
     gcTime: Infinity,
+    select: selectClaimByAccountId,
   })
 }

@@ -2804,7 +2804,8 @@
       "discount": "*The discount decreases linearly over time, expiring on XX/XX/2025. Take advantage of your XX% discount before it decreases further!",
       "claim": "Claim",
       "claimed": "Claimed",
-      "discountText": "*%{percent}% off trade fees"
+      "discountText": "*%{percent}% off trade fees",
+      "noClaims": "No claims available"
     },
     "governance": {
       "title": "Governance",

@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useMemo } from 'react'
@@ -36,19 +36,19 @@ export const FoxWifHatClaimStatus: React.FC<FoxWifHatClaimStatusProps> = ({
   setClaimTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
-  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
+  const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 
-  const claimQuote = useMemo(() => {
-    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
+  const claim = useMemo(() => {
+    const claim = getFoxWifHatMerkleTreeQuery.data?.[accountId]
     if (!claim) return null
 
     return claim
-  }, [getFoxWifHatClaimsQuery.data, accountId])
+  }, [getFoxWifHatMerkleTreeQuery.data, accountId])
 
   const claimAsset = useAppSelector(state => selectAssetById(state, foxWifHatAssetId))
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(claimQuote?.amount ?? '0', claimAsset?.precision ?? 0),
-    [claimQuote?.amount, claimAsset?.precision],
+    () => fromBaseUnit(claim?.amount ?? '0', claimAsset?.precision ?? 0),
+    [claim?.amount, claimAsset?.precision],
   )
 
   const txStatus = useTxStatus({
@@ -77,7 +77,7 @@ export const FoxWifHatClaimStatus: React.FC<FoxWifHatClaimStatusProps> = ({
         ],
         body: [
           'RFOX.claimPending',
-          { amount: bnOrZero(claimAmountCryptoPrecision).toFixed(8), symbol: claimAsset.symbol },
+          { amount: bnOrZero(claimAmountCryptoPrecision).toFixed(2), symbol: claimAsset.symbol },
         ],
         element: <CircularProgress size='75px' />,
       }
@@ -95,7 +95,7 @@ export const FoxWifHatClaimStatus: React.FC<FoxWifHatClaimStatusProps> = ({
           title: 'pools.waitingForConfirmation',
           body: [
             'RFOX.claimPending',
-            { amount: bnOrZero(claimAmountCryptoPrecision).toFixed(8), symbol: claimAsset.symbol },
+            { amount: bnOrZero(claimAmountCryptoPrecision).toFixed(2), symbol: claimAsset.symbol },
           ],
           element: <CircularProgress size='75px' />,
         }
@@ -106,7 +106,7 @@ export const FoxWifHatClaimStatus: React.FC<FoxWifHatClaimStatusProps> = ({
           body: [
             'RFOX.claimSuccess',
             {
-              amount: bnOrZero(claimAmountCryptoPrecision).toFixed(8),
+              amount: bnOrZero(claimAmountCryptoPrecision).toFixed(2),
               symbol: claimAsset.symbol,
             },
           ],

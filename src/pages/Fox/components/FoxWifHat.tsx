@@ -1,14 +1,12 @@
 import { Box, Container, Heading, Image, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectAccountIdsByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 import { FoxWifHatClaimModal } from './FoxWifHatClaimModal'
@@ -18,10 +16,9 @@ export const FoxWifHat = () => {
   const translate = useTranslate()
   const isFoxWifHatEnabled = useFeatureFlag('FoxPageFoxWifHatSection')
   const containerBackground = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
-  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const [isClaimModalOpened, setIsClaimModalOpened] = useState(false)
   const [claimAccountId, setClaimAccountId] = useState<AccountId | undefined>()
-  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
+  const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 
   const handleClaimModalClose = useCallback(() => {
     setClaimAccountId(undefined)
@@ -37,18 +34,12 @@ export const FoxWifHat = () => {
   )
 
   const claimRows = useMemo(() => {
-    const accountIds = accountIdsByChainId[fromAssetId(foxWifHatAssetId).chainId]
+    if (getFoxWifHatMerkleTreeQuery.isFetching) return <Skeleton height='64px' width='100%' />
 
-    if (getFoxWifHatClaimsQuery.isLoading || !getFoxWifHatClaimsQuery.data)
-      return <Skeleton height='64px' width='100%' />
+    if (!getFoxWifHatMerkleTreeQuery.data)
+      return <Text color='text.subtle' translation='foxPage.foxWifHat.noClaims' fontSize='md' />
 
-    return Object.entries(getFoxWifHatClaimsQuery.data.claims).map(([address, claim]) => {
-      const accountId = accountIds?.find(
-        accountId => fromAccountId(accountId).account === address.toLowerCase(),
-      )
-
-      if (!accountId) return null
-
+    return Object.entries(getFoxWifHatMerkleTreeQuery.data).map(([accountId, claim]) => {
       return (
         <FoxWifHatClaimRow
           key={accountId}
@@ -63,9 +54,8 @@ export const FoxWifHat = () => {
     })
   }, [
     handleClaimModalOpen,
-    accountIdsByChainId,
-    getFoxWifHatClaimsQuery.data,
-    getFoxWifHatClaimsQuery.isLoading,
+    getFoxWifHatMerkleTreeQuery.isFetching,
+    getFoxWifHatMerkleTreeQuery.data,
   ])
 
   if (!isFoxWifHatEnabled) return null

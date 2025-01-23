@@ -4580,7 +4580,11 @@
   "eip155:1/erc20:0xcaabcaa4ca42e1d86de1a201c818639def0ba7a7": "#20306A",
   "eip155:1/erc20:0xcab254f1a32343f11ab41fbde90ecb410cde348a": "#5A7F3F",
   "eip155:1/erc20:0xcac1277aa6ecb68b84fad070910d37029e810b79": "#145CF4",
+<<<<<<< HEAD
   "eip155:1/erc20:0xcac88fbd9b3fb2b018be2b68e3c55aa90628be6e": "#DBE2F4",
+=======
+  "eip155:1/erc20:0xcac88fbd9b3fb2b018be2b68e3c55aa90628be6e": "#05070C",
+>>>>>>> develop
   "eip155:1/erc20:0xcad0be6e135c3d2859ea0c872ccd510c962765b7": "#6575E9",
   "eip155:1/erc20:0xcae0dd4bda7ff3e700355c7629b24d5d728bd2ce": "#BEBEC0",
   "eip155:1/erc20:0xcae3faa4b6cf660aef18474074949ba0948bc025": "#D19341",

@@ -26,10 +26,10 @@ import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
+import { useAllowanceApproval } from './hooks/useAllowanceApproval'
+import { useAllowanceReset } from './hooks/useAllowanceReset'
 import { InnerSteps } from './InnerSteps'
 import { LimitOrderDetail } from './LimitOrderDetail'
-import { useAllowanceApproval } from './useAllowanceApproval'
-import { useAllowanceReset } from './useAllowanceReset'
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()

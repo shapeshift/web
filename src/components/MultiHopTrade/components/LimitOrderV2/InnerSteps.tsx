@@ -1,5 +1,5 @@
 import { ArrowUpDownIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Box, Center, Collapse, Flex, HStack, StepStatus } from '@chakra-ui/react'
+import { Box, Center, Collapse, Flex, HStack, Stepper, StepStatus } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type Polyglot from 'node-polyglot'
 import { useMemo, useState } from 'react'
@@ -20,6 +20,7 @@ import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { TxLabel } from '../TradeConfirm/TxLabel'
+import { useStepperSteps } from './hooks/useStepperSteps'
 
 const collapseStyle = { width: '100%' }
 const stepProps = { py: 0, pr: 2, pl: 0 }
@@ -34,6 +35,8 @@ export const InnerSteps = () => {
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const sellAccountId = useAppSelector(selectSellAccountId)
   const quoteId = useAppSelector(selectActiveQuoteId)
+
+  const { currentTradeStepIndex: currentStep } = useStepperSteps()
 
   const [_, { data: orderData, error: orderError }] = usePlaceLimitOrderMutation()
 
@@ -158,34 +161,36 @@ export const InnerSteps = () => {
       />
       <Collapse in={isExpanded} style={collapseStyle}>
         <Box pb={2} px={3}>
-          {allowanceReset.isInitiallyRequired && (
+          <Stepper variant='innerSteps' orientation='vertical' index={currentStep} gap={0}>
+            {allowanceReset.isInitiallyRequired && (
+              <StepperStep
+                title={allowanceResetTitle}
+                stepIndicator={stepIndicator}
+                stepProps={stepProps}
+                useSpacer={false}
+                isError={allowanceReset.state === TransactionExecutionState.Failed}
+                stepIndicatorVariant='innerSteps'
+              />
+            )}
+            {allowanceApproval.isInitiallyRequired && (
+              <StepperStep
+                title={allowanceApprovalTitle}
+                stepIndicator={stepIndicator}
+                stepProps={stepProps}
+                useSpacer={false}
+                isError={allowanceApproval.state === TransactionExecutionState.Failed}
+                stepIndicatorVariant='innerSteps'
+              />
+            )}
             <StepperStep
-              title={allowanceResetTitle}
+              title={translate('limitOrder.orderPlacement', { swapperName: SwapperName.CowSwap })}
               stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
-              isError={allowanceReset.state === TransactionExecutionState.Failed}
+              isError={!!orderError}
               stepIndicatorVariant='innerSteps'
             />
-          )}
-          {allowanceApproval.isInitiallyRequired && (
-            <StepperStep
-              title={allowanceApprovalTitle}
-              stepIndicator={stepIndicator}
-              stepProps={stepProps}
-              useSpacer={false}
-              isError={allowanceApproval.state === TransactionExecutionState.Failed}
-              stepIndicatorVariant='innerSteps'
-            />
-          )}
-          <StepperStep
-            title={translate('limitOrder.orderPlacement', { swapperName: SwapperName.CowSwap })}
-            stepIndicator={stepIndicator}
-            stepProps={stepProps}
-            useSpacer={false}
-            isError={!!orderError}
-            stepIndicatorVariant='innerSteps'
-          />
+          </Stepper>
         </Box>
       </Collapse>
     </>

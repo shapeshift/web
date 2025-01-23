@@ -1,5 +1,14 @@
 import { ArrowUpDownIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Box, Center, Collapse, Flex, HStack, Stepper, StepStatus } from '@chakra-ui/react'
+import {
+  Box,
+  Center,
+  Collapse,
+  Flex,
+  HStack,
+  Skeleton,
+  Stepper,
+  StepStatus,
+} from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type Polyglot from 'node-polyglot'
 import { useMemo, useState } from 'react'
@@ -36,7 +45,7 @@ export const InnerSteps = () => {
   const sellAccountId = useAppSelector(selectSellAccountId)
   const quoteId = useAppSelector(selectActiveQuoteId)
 
-  const { currentTradeStepIndex: currentStep } = useStepperSteps()
+  const { currentLimitOrderStepIndex: currentStep } = useStepperSteps()
 
   const [_, { data: orderData, error: orderError }] = usePlaceLimitOrderMutation()
 
@@ -152,7 +161,7 @@ export const InnerSteps = () => {
   }, [allowanceApproval.txHash, sellAccountId, sellAsset])
 
   return (
-    <>
+    <Skeleton isLoaded={!!orderSubmissionState} width='100%'>
       <StepperStep
         title={titleElement}
         stepIndicator={summaryStepIndicator}
@@ -193,6 +202,6 @@ export const InnerSteps = () => {
           </Stepper>
         </Box>
       </Collapse>
-    </>
+    </Skeleton>
   )
 }

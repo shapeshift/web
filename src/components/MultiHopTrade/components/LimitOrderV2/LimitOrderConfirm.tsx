@@ -3,8 +3,11 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text/Text'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import {
   selectBuyAmountCryptoBaseUnit,
@@ -14,13 +17,16 @@ import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constant
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
+  selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAsset,
   selectActiveQuoteId,
+  selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from 'state/slices/limitOrderSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
+import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { useSetIsApprovalInitiallyNeeded } from '../LimitOrder/hooks/useSetIsApprovalInitiallyNeeded'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
@@ -33,7 +39,7 @@ import { LimitOrderDetail } from './LimitOrderDetail'
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
-  const { confirmSubmit } = useActions(limitOrderSlice.actions)
+  const { confirmSubmit, setLimitOrderTxComplete } = useActions(limitOrderSlice.actions)
   const wallet = useWallet().state.wallet
 
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -42,6 +48,10 @@ export const LimitOrderConfirm = () => {
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const quoteId = useAppSelector(selectActiveQuoteId)
+  const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
+  const buyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
+
+  const mixpanel = getMixPanel()
 
   const { isLoading: isLoadingSetIsApprovalInitiallyNeeded } = useSetIsApprovalInitiallyNeeded()
 
@@ -113,7 +123,7 @@ export const LimitOrderConfirm = () => {
       }
     }, [orderSubmissionState, sellAsset?.symbol])
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     if (!quoteId) {
       console.error('Attempting to confirm with undefined quoteId')
       return
@@ -126,17 +136,47 @@ export const LimitOrderConfirm = () => {
         allowanceResetMutation.mutate()
         break
       case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
-        placeLimitOrder({ quoteId, wallet })
+        const result = await placeLimitOrder({ quoteId, wallet })
+
+        // Exit if the request failed.
+        if ((result as { error: unknown }).error) return
+
+        setLimitOrderTxComplete(quoteId)
+
+        // refetch the orders list for this account
+        const accountId = activeQuote?.params.accountId
+        queryClient.invalidateQueries({
+          queryKey: ['getLimitOrdersForAccount', accountId],
+          refetchType: 'all',
+        })
+
+        // Track event in mixpanel
+        const eventData = getMixpanelLimitOrderEventData({
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoPrecision,
+          buyAmountCryptoPrecision,
+        })
+        if (mixpanel && eventData) {
+          mixpanel.track(MixPanelEvent.LimitOrderPlaced, eventData)
+        }
         break
       default:
         break
     }
   }, [
+    activeQuote?.params.accountId,
     allowanceApprovalMutation,
     allowanceResetMutation,
+    buyAmountCryptoPrecision,
+    buyAsset,
+    mixpanel,
     orderSubmissionState,
     placeLimitOrder,
     quoteId,
+    sellAmountCryptoPrecision,
+    sellAsset,
+    setLimitOrderTxComplete,
     wallet,
   ])
 

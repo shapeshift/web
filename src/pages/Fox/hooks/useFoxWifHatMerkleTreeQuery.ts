@@ -38,7 +38,7 @@ export const useFoxWifHatMerkleTreeQuery = () => {
 
   const selectClaimByAccountId = useCallback(
     (data: MerkleData) => {
-      return Object.entries(data.claims).reduce(
+      const claimByAccountId = Object.entries(data.claims).reduce(
         (acc, [address, claim]) => {
           const accountId = accountIdsByChainId[fromAssetId(foxWifHatAssetId).chainId]?.find(
             accountId => fromAccountId(accountId).account === address.toLowerCase(),
@@ -54,6 +54,10 @@ export const useFoxWifHatMerkleTreeQuery = () => {
         },
         {} as Record<AccountId, FoxWifHatClaim>,
       )
+
+      if (Object.keys(claimByAccountId).length === 0) return null
+
+      return claimByAccountId
     },
     [accountIdsByChainId],
   )

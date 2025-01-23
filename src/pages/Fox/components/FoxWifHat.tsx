@@ -37,7 +37,9 @@ export const FoxWifHat = () => {
     if (getFoxWifHatMerkleTreeQuery.isFetching) return <Skeleton height='64px' width='100%' />
 
     if (!getFoxWifHatMerkleTreeQuery.data)
-      return <Text color='text.subtle' translation='foxPage.foxWifHat.noClaims' fontSize='md' />
+      return (
+        <Text color='text.subtle' translation='foxPage.foxWifHat.noClaims' fontSize='md' p={4} />
+      )
 
     return Object.entries(getFoxWifHatMerkleTreeQuery.data).map(([accountId, claim]) => {
       return (

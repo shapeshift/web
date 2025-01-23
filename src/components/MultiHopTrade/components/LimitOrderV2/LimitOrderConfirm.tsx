@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text/Text'
 import { useActions } from 'hooks/useActions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import {
   selectBuyAmountCryptoBaseUnit,
@@ -27,10 +28,13 @@ import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { InnerSteps } from './InnerSteps'
 import { LimitOrderDetail } from './LimitOrderDetail'
+import { useAllowanceApproval } from './useAllowanceApproval'
+import { useAllowanceReset } from './useAllowanceReset'
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const { confirmSubmit } = useActions(limitOrderSlice.actions)
+  const wallet = useWallet().state.wallet
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -53,15 +57,30 @@ export const LimitOrderConfirm = () => {
 
   const {
     state: orderSubmissionState,
-    allowanceReset: _allowanceReset,
-    allowanceApproval: _allowanceApproval,
+    allowanceReset,
+    allowanceApproval,
   } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
+
+  const { allowanceApprovalMutation, isLoading: isLoadingAllowanceApproval } = useAllowanceApproval(
+    {
+      activeQuote,
+      feeQueryEnabled: true,
+      isInitiallyRequired: !!allowanceApproval.isInitiallyRequired && !!activeQuote,
+    },
+  )
+
+  const { allowanceResetMutation, isLoading: isLoadingAllowanceReset } = useAllowanceReset({
+    activeQuote,
+    feeQueryEnabled: true,
+    isInitiallyRequired: !!allowanceReset.isInitiallyRequired && !!activeQuote,
+  })
 
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
 
-  const [_placeLimitOrder, { data: _data, error: _error, isLoading }] = usePlaceLimitOrderMutation()
+  const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
+    usePlaceLimitOrderMutation()
 
   const body = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
@@ -95,23 +114,31 @@ export const LimitOrderConfirm = () => {
     }, [orderSubmissionState, sellAsset?.symbol])
 
   const handleConfirm = useCallback(() => {
+    if (!quoteId) {
+      console.error('Attempting to confirm with undefined quoteId')
+      return
+    }
     switch (orderSubmissionState) {
       case LimitOrderSubmissionState.AwaitingAllowanceApproval:
-        console.log('allowanceApproval')
-        // allowanceApproval()
+        allowanceApprovalMutation.mutate()
         break
       case LimitOrderSubmissionState.AwaitingAllowanceReset:
-        console.log('allowanceReset')
-        // allowanceReset()
+        allowanceResetMutation.mutate()
         break
       case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
-        console.log('placeLimitOrder')
-        // _placeLimitOrder({ quoteId: quoteId ?? 0 })
+        placeLimitOrder({ quoteId, wallet })
         break
       default:
         break
     }
-  }, [orderSubmissionState])
+  }, [
+    allowanceApprovalMutation,
+    allowanceResetMutation,
+    orderSubmissionState,
+    placeLimitOrder,
+    quoteId,
+    wallet,
+  ])
 
   const button = useMemo(() => {
     if (!buttonTranslation) return null
@@ -121,13 +148,26 @@ export const LimitOrderConfirm = () => {
         size='lg'
         width='full'
         onClick={handleConfirm}
-        isLoading={isLoading}
-        isDisabled={isLoading || !activeQuote}
+        isLoading={
+          isLoadingLimitOrderPlacement ||
+          isLoadingSetIsApprovalInitiallyNeeded ||
+          isLoadingAllowanceApproval ||
+          isLoadingAllowanceReset
+        }
+        isDisabled={isLoadingLimitOrderPlacement || !activeQuote}
       >
         <Text translation={buttonTranslation} />
       </Button>
     )
-  }, [activeQuote, handleConfirm, isLoading, buttonTranslation])
+  }, [
+    buttonTranslation,
+    handleConfirm,
+    isLoadingLimitOrderPlacement,
+    isLoadingSetIsApprovalInitiallyNeeded,
+    isLoadingAllowanceApproval,
+    isLoadingAllowanceReset,
+    activeQuote,
+  ])
 
   const footer = useMemo(() => {
     return <SharedConfirmFooter detail={detail} button={button} />
@@ -138,7 +178,7 @@ export const LimitOrderConfirm = () => {
     <SharedConfirm
       bodyContent={body}
       footerContent={footer}
-      isLoading={isLoading}
+      isLoading={isLoadingLimitOrderPlacement}
       onBack={handleBack}
       headerTranslation={'limitOrder.confirm'}
     />

@@ -18,7 +18,7 @@ import { selectAccountNumberByAccountId } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type UseAllowanceApprovalProps = {
-  activeQuote: LimitOrderActiveQuote
+  activeQuote: LimitOrderActiveQuote | undefined
   feeQueryEnabled: boolean
   isInitiallyRequired: boolean
 }
@@ -34,8 +34,8 @@ export const useAllowanceApproval = ({
   const wallet = useWallet().state.wallet ?? undefined
 
   const accountNumberFilter = useMemo(
-    () => ({ accountId: activeQuote.params.accountId }),
-    [activeQuote.params.accountId],
+    () => ({ accountId: activeQuote?.params.accountId }),
+    [activeQuote?.params.accountId],
   )
   const accountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, accountNumberFilter),
@@ -43,72 +43,88 @@ export const useAllowanceApproval = ({
 
   const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
     useIsAllowanceApprovalRequired({
-      amountCryptoBaseUnit: activeQuote.params.sellAmountCryptoBaseUnit,
-      assetId: activeQuote.params.sellAssetId,
-      from: activeQuote.params.sellAccountAddress,
+      amountCryptoBaseUnit: activeQuote?.params.sellAmountCryptoBaseUnit,
+      assetId: activeQuote?.params.sellAssetId,
+      from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     })
 
   const { evmFeesResult } = useApprovalFees({
-    amountCryptoBaseUnit: activeQuote.params.sellAmountCryptoBaseUnit,
-    assetId: activeQuote.params.sellAssetId,
-    from: activeQuote.params.sellAccountAddress,
-    allowanceType: AllowanceType.Unlimited, // TODO: Maybe add an exact/unlimited toggle, or wait for full flow coming soon.
+    amountCryptoBaseUnit: activeQuote?.params.sellAmountCryptoBaseUnit ?? '',
+    assetId: activeQuote?.params.sellAssetId ?? '',
+    from: activeQuote?.params.sellAccountAddress,
+    allowanceType: AllowanceType.Unlimited, // All limit order approvals are unlimited
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     enabled: isInitiallyRequired && feeQueryEnabled,
   })
   useEffect(() => {
     if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceApprovalRequired !== false) return
+    if (!activeQuote?.response.id) {
+      console.error('Attempting to approve with undefined quoteId')
+      return
+    }
 
     // Mark the whole allowance approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    dispatch(limitOrderSlice.actions.setAllowanceApprovalStepComplete(activeQuote.response.id ?? 0))
+    dispatch(limitOrderSlice.actions.setAllowanceApprovalStepComplete(activeQuote.response.id))
   }, [
-    activeQuote.response.id,
+    activeQuote?.response.id,
     dispatch,
     feeQueryEnabled,
     isAllowanceApprovalRequired,
     isInitiallyRequired,
   ])
 
-  const approveMutation = useMutation({
+  const allowanceApprovalMutation = useMutation({
     ...reactQueries.mutations.approve({
       accountNumber,
       amountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
-        activeQuote.params.sellAmountCryptoBaseUnit,
-        AllowanceType.Unlimited, // TODO: Maybe add an exact/unlimited toggle, or wait for full flow
+        activeQuote?.params.sellAmountCryptoBaseUnit ?? '',
+        AllowanceType.Unlimited, // All limit order approvals are unlimited
       ),
-      assetId: activeQuote.params.sellAssetId,
+      assetId: activeQuote?.params.sellAssetId,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      from: activeQuote.params.sellAccountAddress,
+      from: activeQuote?.params.sellAccountAddress,
       wallet,
     }),
     onMutate() {
-      dispatch(limitOrderSlice.actions.setAllowanceResetTxPending(activeQuote.response.id ?? 0))
+      if (!activeQuote?.response.id) {
+        console.error('Attempting to approve with undefined quoteId')
+        return
+      }
+      dispatch(limitOrderSlice.actions.setAllowanceResetTxPending(activeQuote.response.id))
     },
     async onSuccess(txHash) {
+      if (!activeQuote?.response.id) {
+        console.error('Attempting to approve with undefined quoteId')
+        return
+      }
       dispatch(
         limitOrderSlice.actions.setAllowanceApprovalTxHash({
           txHash,
-          id: activeQuote.response.id ?? 0,
+          id: activeQuote.response.id,
         }),
       )
 
-      const publicClient = assertGetViemClient(activeQuote.params.chainId)
+      const publicClient = assertGetViemClient(activeQuote?.params.chainId ?? '')
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
-      dispatch(limitOrderSlice.actions.setAllowanceResetTxComplete(activeQuote.response.id ?? 0))
+      dispatch(limitOrderSlice.actions.setAllowanceResetTxComplete(activeQuote.response.id))
     },
     onError(err) {
-      dispatch(limitOrderSlice.actions.setAllowanceResetTxFailed(activeQuote.response.id ?? 0))
+      if (!activeQuote?.response.id) {
+        console.error('Attempting to approve with undefined quoteId')
+        return
+      }
+      dispatch(limitOrderSlice.actions.setAllowanceResetTxFailed(activeQuote.response.id))
       showErrorToast(err)
     },
   })
 
   return {
     isLoading: allowanceCryptoBaseUnitResult.isFetching || evmFeesResult.isFetching,
-    approveMutation,
+    allowanceApprovalMutation,
     approvalNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
     isAllowanceApprovalRequired,
   }

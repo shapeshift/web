@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { bnOrZero, CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'

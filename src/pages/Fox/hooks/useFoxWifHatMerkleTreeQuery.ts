@@ -13,7 +13,7 @@ type MerkleData = {
 
 type FoxWifHatMerkleTreeQueryKey = ['foxWifHatMerkleTree']
 
-const MERKLE_TREE_HASH = 'bafybeih6ij5lgdn55pva5ljx2ucjex7umx56glzurbx3mb5sxlik26ee4a'
+const MERKLE_TREE_HASH = 'bafybeifaysj3qdmwrjlkc7pebbutjj7qdtyfofxxqdgyar2xzyrqy3d2ui'
 
 export const getFoxWifHatMerkleTreeQueryKey = (): FoxWifHatMerkleTreeQueryKey => [
   'foxWifHatMerkleTree',

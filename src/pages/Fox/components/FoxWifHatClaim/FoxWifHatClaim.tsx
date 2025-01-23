@@ -1,7 +1,11 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense, useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { getFoxWifHatClaimedQueryKey } from 'pages/Fox/hooks/useFoxWifHatClaimed'
+import { useFoxWifHatMerkleTreeQuery } from 'pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
 
 import type { FoxWifHatClaimRouteProps } from './types'
 import { FoxWifHatClaimRoutePaths } from './types'
@@ -42,14 +46,23 @@ export const FoxWifHatClaim: React.FC<FoxWifHatClaimRouteProps> = ({ accountId }
 
 export const FoxWifHatClaimRoutes: React.FC<FoxWifHatClaimRouteProps> = ({ accountId }) => {
   const location = useLocation()
+  const queryClient = useQueryClient()
+  const getFoxWifHatClaimsQuery = useFoxWifHatMerkleTreeQuery()
+
+  const claimQuote = useMemo(() => {
+    const claim = getFoxWifHatClaimsQuery.data?.claims[fromAccountId(accountId).account]
+    if (!claim) return null
+
+    return claim
+  }, [getFoxWifHatClaimsQuery.data, accountId])
 
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
-  // @TODO: implement tx confirmed
   const handleTxConfirmed = useCallback(async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    console.log('tx confirmed')
-  }, [])
+    await queryClient.invalidateQueries({
+      queryKey: getFoxWifHatClaimedQueryKey({ index: claimQuote?.index }),
+    })
+  }, [claimQuote?.index, queryClient])
 
   const renderClaimConfirm = useCallback(() => {
     return (

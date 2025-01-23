@@ -39,7 +39,7 @@ export const usdcOnSolanaAssetId: AssetId =
 export const flipAssetId: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
 
 export const foxWifHatAssetId: AssetId =
-  'eip155:8453/erc20:0x0d0b60d12f0e5c16beb06afad764d0c3a0183cca'
+  'eip155:8453/erc20:0xd14Acd73aDe7F3c652F05365115f015e905A6Bf4'
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'

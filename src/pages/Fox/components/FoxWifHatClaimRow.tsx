@@ -64,6 +64,10 @@ export const FoxWifHatClaimRow = ({
     return claim
   }, [getFoxWifHatClaimsQuery.data, accountId])
 
+  const amountCryptoPrecision = useMemo(() => {
+    return fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset?.precision ?? 0)
+  }, [amountCryptoBaseUnit, foxWifHatAsset])
+
   const { data: isClaimed } = useFoxWifHatClaimedQuery({ index: claimQuote?.index })
 
   return (
@@ -92,7 +96,7 @@ export const FoxWifHatClaimRow = ({
         </HStack>
 
         <Amount.Crypto
-          value={fromBaseUnit(amountCryptoBaseUnit, foxWifHatAsset?.precision ?? 0)}
+          value={amountCryptoPrecision}
           symbol={foxWifHatAsset?.symbol ?? ''}
           fontWeight='bold'
           maximumFractionDigits={2}

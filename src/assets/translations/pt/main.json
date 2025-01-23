@@ -54,6 +54,7 @@
     "overview": "Visão Geral",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
+    "pairing": "Pareando",
     "connectWalletToGetStartedWith": "Conecte uma carteira para começar a usar %{feature}",
     "connectedWallet": "Carteira Conectada",
     "connectedWalletSettings": "Configurar Carteira",
@@ -187,7 +188,8 @@
     "activeAccount": "Conta ativa",
     "update": "Atualização",
     "apy": "APY",
-    "tbd": "TBD"
+    "tbd": "TBD",
+    "installed": "Instalado"
   },
   "consentBanner": {
     "body": {
@@ -911,7 +913,9 @@
       "gasFee": "Esta é a taxa de gás estimada para concluir esta negociação.",
       "slippageWithAmount": "Se o preço mudar de forma que você receba menos de %{amount}, sua transação será revertida. Este é o valor mínimo que você tem garantia de receber.",
       "slippage": "A sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta percentagem.",
-      "noRelatedAssets": "Este ativo está disponível apenas em %{chainDisplayName}"
+      "noRelatedAssets": "Este ativo está disponível apenas em %{chainDisplayName}",
+      "chainNotSupportedByWallet": "Esta rede não é suportada pela sua carteira. Mude para uma carteira diferente para negociar este ativo.",
+      "chainNotConnected": "Esta rede não está conectada à sua carteira. Conecte %{chainDisplayName} para negociar este ativo."
     },
     "rates": {
       "tags": {
@@ -923,12 +927,16 @@
         "cta": "Ok, entendi"
       }
     },
-    "permit2": {
-      "title": "Permitir transferência de token:",
+    "permit2Allowance": {
+      "title": "Permissão para o contrato Permit2",
+      "tooltip": "Esta negociação usa o Permit2, que requer uma aprovação única para conceder permissão ilimitada ao contrato Permit2. Após essa configuração inicial, você pode autorizar negociações em qualquer protocolo suportado pelo Permit2 assinando mensagens sem custo que concedem permissões temporárias de 5 minutos."
+    },
+    "permit2Eip712": {
+      "title": "Permitir transferência de token",
       "description": "Conceda ao contrato inteligente permissão para usar %{symbol} em seu nome.",
-      "tooltip": "Esta negociação tem um recurso de segurança adicional chamado 'Permit2', que exige que você conceda permissão para o aplicativo concluir a negociação em seu nome.",
       "error": "Ocorreu um problema ao assinar a mensagem Permit2",
-      "signMessage": "Assinar mensagem"
+      "signMessage": "Assinar mensagem",
+      "tooltip": "Isso dará a %{swapperName} 5 minutos para concluir a negociação em seu nome."
     },
     "errors": {
       "title": "Algo de errado aconteceu.",
@@ -978,6 +986,7 @@
     "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira um endereço manualmente",
     "disableThorNativeSmartContractReceive": "Detectamos que você está enviando para um endereço de contrato inteligente em %{chainName}. Devido às limitações do THORChain, não há suporte para receber %{nativeAssetSymbol} para um endereço de contrato inteligente. Insira outro endereço",
     "disableThorTaprootReceive": "Detectamos que você está enviando para um endereço taproot Bitcoin. Devido às limitações do THORChain, receber BTC para um endereço taproot não é suportado no momento. Insira outro endereço.",
+    "disableChainflipKeepKeyTaprootReceive": "Devido às limitações do KeepKey, vender BTC no ChainFlip ainda não está disponível. Por favor, escolha outro par ou conecte uma carteira diferente.",
     "toContinue": "para continuar.",
     "addressPlaceholder": "%{chainName} endereço",
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?",
@@ -1013,7 +1022,6 @@
       "swap": "Swap na %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Aprovação de permissão de token",
-    "permit2Title": "Permitir transferência de token",
     "resetTitle": "Redefinição da permissão de token",
     "fiatAmountOnChain": "%{amountFiatFormatted} em %{chainName}",
     "quote": {
@@ -1024,7 +1032,14 @@
     "awaitingSwap": "Aguardando troca via %{swapperName}",
     "awaitingBridge": "Aguardando ponte via %{bridgeName}",
     "awaitingApproval": "Aguardando aprovação",
-    "awaitingAllowanceReset": "Aguardando redefinição de permissão"
+    "awaitingAllowanceReset": "Aguardando redefinição de permissão",
+    "foxSavings": {
+      "youSaved": "Você economizou %{feeSaving} em sua negociação com a FOX Savings!",
+      "youCouldHaveSaved": "Você poderia ter economizado %{fee} em sua negociação com a FOX Savings.",
+      "buyFox": "Comprar FOX",
+      "share": "Compartilhar",
+      "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!"
+    }
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1744,11 +1759,16 @@
       },
       "import": {
         "header": "Importe sua carteira",
+        "keystoreHeader": "Importe sua carteira keystore",
         "body": "Digite ou cole sua Frase de Recuperação Secreta em letras minúsculas, sem vírgulas ou números e um único espaço entre cada palavra.",
         "button": "Avançar",
         "secretRecoveryPhraseError": "Digite sua Frase Secreta de Recuperação com um único espaço entre as palavras. Não utilize vírgulas ou caracteres adicionais.",
         "secretRecoveryPhraseRequired": "A Frase Secreta de Recuperação é obrigatória",
-        "secretRecoveryPhraseTooShort": "Frase Secreta de Recuperação é curta demais"
+        "secretRecoveryPhraseTooShort": "Frase Secreta de Recuperação é curta demais",
+        "dragAndDrop": "Arraste e solte ou escolha o arquivo",
+        "keystoreImportBody": "Faça upload do arquivo clicando em procurar ou arrastando e soltando abaixo.",
+        "importKeystore": "Importar Keystore",
+        "invalidKeystorePassword": "Senha do keystore inválida"
       },
       "password": {
         "header": "Insira sua senha",
@@ -1766,10 +1786,17 @@
       },
       "start": {
         "header": "Carteira ShapeShift",
+        "selectHeader": "Importar Carteira",
+        "keystoreHeader": "Carteira Keystore",
         "body": "Você pode ter várias carteiras ShapeShift. Crie, carregue ou importe uma nova carteira utilizando sua Frase de Recuperação Secreta.",
+        "selectBody": "Importe a carteira usando sua Frase Secreta de Recuperação ou enviando seu arquivo keystore.",
         "import": "Importar carteira",
+        "secretRecoveryPhrase": "Frase secreta de recuperação",
+        "twelveWordSeedPhrase": "Seed phrase de 12 palavras",
+        "keystore": "Keystore",
         "create": "Criar nova carteira",
-        "load": "Carteiras salvas"
+        "load": "Carteiras salvas",
+        "uploadKeystore": "Carregar arquivo Keystore"
       },
       "success": {
         "encryptingWallet": "Criptografando sua carteira... Caso seu navegador solicitar armazenamento persistente, clique em 'Permitir'.",
@@ -1845,6 +1872,15 @@
       "onboarding": {
         "skip": "Pular",
         "shapeshiftWallet": "Carteira ShapeShift",
+        "createNewWallet": "Criar uma nova carteira",
+        "shapeshiftNative": "Nativo ShapeShift",
+        "addNewWallet": "Adicionar nova carteira",
+        "comingFromThorswap": "Vindo do THORSwap?",
+        "importExisting": "Importar existente",
+        "importFromKeystore": "Importar do keystore",
+        "whatIsShapeshiftWallet": "O que é a ShapeShift Wallet?",
+        "yourDecentralizedGateway": "Seu gateway de descentralização. Negocie e ganhe Bitcoin, Ethereum, Solana e mais de uma carteira única e segura.",
+        "crossChainFreedom": "Liberdade entre redes. Acesse as melhores taxas em várias bolsas descentralizadas, sem intermediários necessários",
         "selfCustody": {
           "title": "Auto-custódia",
           "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
@@ -2219,7 +2255,8 @@
           "connectionError": "Não é possível conectar ao URI fornecido.",
           "invalidUri": "URL inválido",
           "v1UriUnsupported": "URL da WalletConnect V1não habilitado",
-          "v2UriUnsupported": "URL da WalletConnect V2 não habilitado"
+          "v2UriUnsupported": "URL da WalletConnect V2 não habilitado",
+          "disclaimerBody": "A Shapeshift não pode garantir a segurança ou proteção de aplicativos de terceiros. Ao usar o WalletConnect, você assume total responsabilidade por quaisquer riscos envolvidos."
         },
         "sessionProposal": {
           "dAppInfo": "Informação do dApp",
@@ -2604,7 +2641,9 @@
     "rewardAddressHelper": "É aqui que as recompensas serão enviadas",
     "useWalletAddress": "Usar endereço de carteira",
     "useCustomAddress": "Usar endereço personalizado",
+    "stakeWarning": "Ao fazer stake de seu %{symbol}, esteja ciente de que o período de lock-up é %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens do stake, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
     "bridgeCta": "Você selecionou %{assetSymbol} em %{originNetwork}, mas precisará de %{assetSymbol} em %{destinationNetwork} para fazer stake. Podemos ajudar você a fazer a ponte entre seus fundos e %{destinationNetwork}. Gostaria que o orientássemos durante o processo?",
+    "unstakeWarning": "Antes de poder reivindicar seu %{symbol}, o período de espera é %{cooldownPeriod}. Após esse tempo, você poderá reivindicar seu valor não apostado.",
     "tooltips": {
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
       "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
@@ -2643,11 +2682,16 @@
     "noSupportedChainsDescription": "Adicione %{chainLabel} ou conecte-se a uma carteira que suporte isso.",
     "confirmAndBridge": "Confirme & Faça a ponte",
     "myStakedBalance": "Meu saldo em stake",
+    "myStakedBalanceHelper": "A quantia de %{symbol} que você colocou em stake",
+    "pendingRewardsBalance": "Saldo de recompensas pendentes",
     "pendingRewardsBalanceHelper": "Esta é apenas uma estimativa de suas recompensas pendentes com base nas receitas de época até a data. Toda a contabilidade é feita no final da época e não pode ser calculada exatamente antes do final do mês",
     "lifetimeRewards": "Recompensas vitalícias",
+    "lifetimeRewardsHelper": "O total de recompensas que você ganhou ao fazer stake %{symbol} até o momento",
     "timeInPool": "Tempo na Pool",
     "timeInPoolHelper": "O tempo na pool é o depósito de vida mais longo no rFOX",
     "myPosition": "Minha posição",
+    "positionDetails": "Detalhes da posição",
+    "mySymbolPosition": "Minha posição %{symbol}",
     "faq": {
       "title": "Perguntas frequentes",
       "what": {
@@ -2680,7 +2724,11 @@
       }
     },
     "totals": "Totais de rFOX",
+    "totalStaked": "Total %{symbol} em stake",
+    "totalStakedHelper": "O valor total em %{symbol} está em stake",
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
+    "emissionsPool": "%{symbol} Emissões da Pool (Nesta Época)",
+    "emissionsPoolHelper": "O valor total de recompensas a serem distribuídas %{symbol} stakers",
     "foxBurnAmount": "Quantidade de queima da FOX (nesta época)",
     "pendingDistribution": "Distribuição pendente"
   },
@@ -2732,7 +2780,7 @@
     "24hrPriceChange": "Alteração de preço 24h",
     "rfox": {
       "whatIs": "O que é staking de rFOX?",
-      "totalFoxBurn": "Queima total de FOX",
+      "totalSymbolBurn": "Total de %{symbol} queimado",
       "simulateTitle": "Simulador rFOX",
       "simulateSubtle": "Insira o número do depósito de algo",
       "estimatedRewards": "Recompensas estimadas",
@@ -2746,6 +2794,14 @@
       "totalClaimableRewards": "Total de recompensas resgatáveis.",
       "totalStakingValue": "Valor total em staking",
       "nextEpoch": "Próxima Época"
+    },
+    "foxWifHat": {
+      "title": "FOX Wif Hat",
+      "description": "É só FOX com um chapéu, não pense demais. Aproveite um programa de desconto on-chain por tempo limitado. Conforme seu desconto diminui, aprenda sobre FOX no resto da página e troque para FOX a qualquer momento para preservar seu desconto de taxa. Qualquer holding que for maior economiza seu dinheiro na plataforma ShapeShift.",
+      "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em XX/XX/2025. Aproveite seu desconto de XX% antes que ele diminua ainda mais!",
+      "claim": "Resgate",
+      "claimed": "Resgatado",
+      "discountText": "*%{percent}% de desconto em taxas de trading"
     },
     "governance": {
       "title": "Governança",

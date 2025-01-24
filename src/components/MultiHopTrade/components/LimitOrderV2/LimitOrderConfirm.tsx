@@ -1,12 +1,13 @@
 import { Button, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text/Text'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -48,7 +49,10 @@ export const LimitOrderConfirm = () => {
   const history = useHistory()
   const dispatch = useAppDispatch()
   const { confirmSubmit, setLimitOrderTxComplete } = useActions(limitOrderSlice.actions)
-  const wallet = useWallet().state.wallet
+  const {
+    state: { isConnected, isDemoWallet, wallet },
+    dispatch: walletDispatch,
+  } = useWallet()
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
@@ -61,6 +65,7 @@ export const LimitOrderConfirm = () => {
   const feeAssetRateUserCurrency = useAppSelector(selectActiveQuoteFeeAssetRateUserCurrency)
 
   const mixpanel = getMixPanel()
+  const hasConfirmedRef = useRef(false)
 
   const { isLoading: isLoadingSetIsApprovalInitiallyNeeded } = useSetIsApprovalInitiallyNeeded()
 
@@ -78,6 +83,8 @@ export const LimitOrderConfirm = () => {
     if (isLoadingSetIsApprovalInitiallyNeeded) return
     if (!quoteId) return
     if (orderSubmissionState !== LimitOrderSubmissionState.Previewing) return
+    if (hasConfirmedRef.current) return
+    hasConfirmedRef.current = true
     confirmSubmit(quoteId)
   }, [confirmSubmit, isLoadingSetIsApprovalInitiallyNeeded, orderSubmissionState, quoteId])
 
@@ -248,6 +255,7 @@ export const LimitOrderConfirm = () => {
 
   const buttonTranslation: string | [string, number | InterpolationOptions] | undefined =
     useMemo(() => {
+      if (!isConnected || isDemoWallet) return 'common.connectWallet'
       switch (orderSubmissionState) {
         case LimitOrderSubmissionState.AwaitingAllowanceApproval:
           return ['trade.approveAsset', { symbol: sellAsset?.symbol }]
@@ -258,9 +266,13 @@ export const LimitOrderConfirm = () => {
         default:
           return undefined
       }
-    }, [orderSubmissionState, sellAsset?.symbol])
+    }, [isConnected, isDemoWallet, orderSubmissionState, sellAsset?.symbol])
 
   const handleConfirm = useCallback(async () => {
+    if (!isConnected || isDemoWallet) {
+      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
     if (!quoteId) {
       console.error('Attempting to confirm with undefined quoteId')
       return
@@ -307,6 +319,9 @@ export const LimitOrderConfirm = () => {
     allowanceResetMutation,
     buyAmountCryptoPrecision,
     buyAsset,
+    dispatch,
+    isConnected,
+    isDemoWallet,
     mixpanel,
     orderSubmissionState,
     placeLimitOrder,

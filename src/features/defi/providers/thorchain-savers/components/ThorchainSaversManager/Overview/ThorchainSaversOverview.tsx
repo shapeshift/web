@@ -339,9 +339,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingQueries,
       isHaltedDeposits: isTradingActive === false,
       isDisabledDeposits:
-        isThorchainSaversDepositEnabled === false || (isRunePool && !isRunePoolDepositEnabled),
+        (!isRunePool && isThorchainSaversDepositEnabled === false) ||
+        (isRunePool && !isRunePoolDepositEnabled),
       isDisabledWithdrawals:
-        isThorchainSaversWithdrawalsEnabled === false || (isRunePool && !isRunepoolWithdrawEnabled),
+        (!isRunePool && isThorchainSaversWithdrawalsEnabled === false) ||
+        (isRunePool && !isRunepoolWithdrawEnabled),
       remainingLockupTime,
     })
   }, [

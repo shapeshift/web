@@ -317,7 +317,6 @@ export const LimitOrderConfirm = () => {
     allowanceResetMutation,
     buyAmountCryptoPrecision,
     buyAsset,
-    dispatch,
     isConnected,
     isDemoWallet,
     mixpanel,
@@ -328,6 +327,7 @@ export const LimitOrderConfirm = () => {
     sellAsset,
     setLimitOrderTxComplete,
     wallet,
+    walletDispatch,
   ])
 
   const button = useMemo(() => {

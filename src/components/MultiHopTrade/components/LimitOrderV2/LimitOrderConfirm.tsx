@@ -48,7 +48,9 @@ import { LimitOrderDetail } from './LimitOrderDetail'
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const dispatch = useAppDispatch()
-  const { confirmSubmit, setLimitOrderTxComplete } = useActions(limitOrderSlice.actions)
+  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
+    limitOrderSlice.actions,
+  )
   const {
     state: { isConnected, isDemoWallet, wallet },
     dispatch: walletDispatch,
@@ -286,7 +288,10 @@ export const LimitOrderConfirm = () => {
         const result = await placeLimitOrder({ quoteId, wallet })
 
         // Exit if the request failed.
-        if ((result as { error: unknown }).error || !!result) return
+        if ((result as { error: unknown }).error || !!result) {
+          setLimitOrderTxFailed(quoteId)
+          return
+        }
 
         setLimitOrderTxComplete(quoteId)
 
@@ -326,6 +331,7 @@ export const LimitOrderConfirm = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     setLimitOrderTxComplete,
+    setLimitOrderTxFailed,
     wallet,
     walletDispatch,
   ])

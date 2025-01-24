@@ -61,6 +61,7 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
     state: orderSubmissionState,
     allowanceReset,
     allowanceApproval,
+    limitOrder,
   } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
 
   const summaryStepIndicator = useMemo(() => {
@@ -200,7 +201,7 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
               stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
-              isError={!!orderError}
+              isError={!!orderError || limitOrder.state === TransactionExecutionState.Failed}
               stepIndicatorVariant='innerSteps'
             />
           </Stepper>

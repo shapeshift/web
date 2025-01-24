@@ -60,7 +60,7 @@ export const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['LimitOrder'],
-  baseQuery: fakeBaseQuery<CowSwapError | undefined>(),
+  baseQuery: fakeBaseQuery<CowSwapError | null>(),
   endpoints: build => ({
     quoteLimitOrder: build.query<OrderQuoteResponse, LimitOrderQuoteParams>({
       queryFn: async (params: LimitOrderQuoteParams) => {
@@ -123,7 +123,7 @@ export const limitOrderApi = createApi({
         } catch (e) {
           const axiosError = e as AxiosError
           return {
-            error: axiosError.response?.data as CowSwapError | undefined,
+            error: (axiosError.response?.data ?? null) as CowSwapError | null,
           }
         }
       },
@@ -169,7 +169,7 @@ export const limitOrderApi = createApi({
         } catch (e) {
           const axiosError = e as AxiosError
           return {
-            error: axiosError.response?.data as CowSwapError | undefined,
+            error: (axiosError.response?.data ?? null) as CowSwapError | null,
           }
         }
       },

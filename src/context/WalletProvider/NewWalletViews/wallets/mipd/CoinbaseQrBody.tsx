@@ -49,12 +49,7 @@ export const CoinbaseQrBody = ({
       }
 
       const deviceId = await wallet.getDeviceID()
-      const isLocked = await wallet.isLocked().catch((e: unknown) => {
-        // Keplr isLocked method is currently borked, swallow the error
-        console.error(e)
-        return false
-      })
-
+      const isLocked = await wallet.isLocked()
       await wallet.initialize()
 
       const { name, icon } = CoinbaseConfig

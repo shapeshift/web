@@ -57,6 +57,7 @@ export const useAllowanceApproval = ({
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     enabled: isInitiallyRequired && feeQueryEnabled,
   })
+
   useEffect(() => {
     if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceApprovalRequired !== false) return
     if (!activeQuote?.response.id) {
@@ -93,7 +94,7 @@ export const useAllowanceApproval = ({
         console.error('Attempting to approve with undefined quoteId')
         return
       }
-      dispatch(limitOrderSlice.actions.setAllowanceResetTxPending(activeQuote.response.id))
+      dispatch(limitOrderSlice.actions.setAllowanceApprovalTxPending(activeQuote.response.id))
     },
     async onSuccess(txHash) {
       if (!activeQuote?.response.id) {
@@ -110,14 +111,14 @@ export const useAllowanceApproval = ({
       const publicClient = assertGetViemClient(activeQuote?.params.chainId ?? '')
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
-      dispatch(limitOrderSlice.actions.setAllowanceResetTxComplete(activeQuote.response.id))
+      dispatch(limitOrderSlice.actions.setAllowanceApprovalTxComplete(activeQuote.response.id))
     },
     onError(err) {
       if (!activeQuote?.response.id) {
         console.error('Attempting to approve with undefined quoteId')
         return
       }
-      dispatch(limitOrderSlice.actions.setAllowanceResetTxFailed(activeQuote.response.id))
+      dispatch(limitOrderSlice.actions.setAllowanceApprovalTxFailed(activeQuote.response.id))
       showErrorToast(err)
     },
   })

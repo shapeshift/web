@@ -54,6 +54,7 @@ export const useAllowanceReset = ({
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     enabled: isInitiallyRequired && feeQueryEnabled,
   })
+
   useEffect(() => {
     if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceResetRequired !== false) return
     if (!activeQuote?.response.id) {
@@ -64,7 +65,7 @@ export const useAllowanceReset = ({
     // Mark the whole allowance approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    dispatch(limitOrderSlice.actions.setAllowanceApprovalStepComplete(activeQuote.response.id))
+    dispatch(limitOrderSlice.actions.setAllowanceResetStepComplete(activeQuote.response.id))
   }, [
     activeQuote?.response.id,
     dispatch,
@@ -95,7 +96,7 @@ export const useAllowanceReset = ({
         return
       }
       dispatch(
-        limitOrderSlice.actions.setAllowanceApprovalTxHash({
+        limitOrderSlice.actions.setAllowanceResetTxHash({
           txHash,
           id: activeQuote.response.id,
         }),

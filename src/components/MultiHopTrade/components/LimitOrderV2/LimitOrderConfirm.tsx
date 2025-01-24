@@ -1,7 +1,10 @@
-import { Button } from '@chakra-ui/react'
+import { Button, HStack, Stack } from '@chakra-ui/react'
+import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
+import { Amount } from 'components/Amount/Amount'
+import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text/Text'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useActions } from 'hooks/useActions'
@@ -19,12 +22,14 @@ import {
   selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAsset,
+  selectActiveQuoteFeeAsset,
+  selectActiveQuoteFeeAssetRateUserCurrency,
   selectActiveQuoteId,
   selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
+import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { useSetIsApprovalInitiallyNeeded } from '../LimitOrder/hooks/useSetIsApprovalInitiallyNeeded'
@@ -32,6 +37,7 @@ import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
+import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { useAllowanceApproval } from './hooks/useAllowanceApproval'
 import { useAllowanceReset } from './hooks/useAllowanceReset'
 import { InnerSteps } from './InnerSteps'
@@ -39,9 +45,9 @@ import { LimitOrderDetail } from './LimitOrderDetail'
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
+  const dispatch = useAppDispatch()
   const { confirmSubmit, setLimitOrderTxComplete } = useActions(limitOrderSlice.actions)
   const wallet = useWallet().state.wallet
-
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
@@ -50,6 +56,8 @@ export const LimitOrderConfirm = () => {
   const quoteId = useAppSelector(selectActiveQuoteId)
   const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
   const buyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
+  const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
+  const feeAssetRateUserCurrency = useAppSelector(selectActiveQuoteFeeAssetRateUserCurrency)
 
   const mixpanel = getMixPanel()
 
@@ -71,29 +79,50 @@ export const LimitOrderConfirm = () => {
     allowanceApproval,
   } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
 
-  const { allowanceApprovalMutation, isLoading: isLoadingAllowanceApproval } = useAllowanceApproval(
-    {
-      activeQuote,
-      feeQueryEnabled: true,
-      isInitiallyRequired: !!allowanceApproval.isInitiallyRequired && !!activeQuote,
-    },
-  )
+  const {
+    allowanceApprovalMutation,
+    isLoading: isLoadingAllowanceApproval,
+    approvalNetworkFeeCryptoBaseUnit,
+  } = useAllowanceApproval({
+    activeQuote,
+    feeQueryEnabled: true,
+    isInitiallyRequired: !!allowanceApproval.isInitiallyRequired && !!activeQuote,
+  })
 
-  const { allowanceResetMutation, isLoading: isLoadingAllowanceReset } = useAllowanceReset({
+  const {
+    allowanceResetMutation,
+    isLoading: isLoadingAllowanceReset,
+    allowanceResetNetworkFeeCryptoBaseUnit,
+  } = useAllowanceReset({
     activeQuote,
     feeQueryEnabled: true,
     isInitiallyRequired: !!allowanceReset.isInitiallyRequired && !!activeQuote,
   })
 
   const handleBack = useCallback(() => {
+    dispatch(limitOrderSlice.actions.clear())
     history.push(LimitOrderRoutePaths.Input)
-  }, [history])
+  }, [dispatch, history])
 
   const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
     usePlaceLimitOrderMutation()
 
   const body = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
+    if (orderSubmissionState === LimitOrderSubmissionState.Complete) {
+      return (
+        <TradeSuccess
+          titleTranslation='limitOrder.success'
+          buttonTranslation={'limitOrder.placeAnotherOrder'}
+          summaryTranslation={'limitOrder.orderSummary'}
+          handleBack={handleBack}
+          sellAsset={sellAsset}
+          buyAsset={buyAsset}
+          sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+          buyAmountCryptoPrecision={buyAmountCryptoPrecision}
+        />
+      )
+    }
     return (
       <SharedConfirmBody
         InnerSteps={InnerSteps}
@@ -103,11 +132,98 @@ export const LimitOrderConfirm = () => {
         buyAmountCryptoBaseUnit={buyAmountCryptoBaseUnit}
       />
     )
-  }, [buyAmountCryptoBaseUnit, buyAsset, sellAmountCryptoBaseUnit, sellAsset])
+  }, [
+    buyAmountCryptoBaseUnit,
+    buyAmountCryptoPrecision,
+    buyAsset,
+    handleBack,
+    orderSubmissionState,
+    sellAmountCryptoBaseUnit,
+    sellAmountCryptoPrecision,
+    sellAsset,
+  ])
 
   const detail = useMemo(() => {
-    return <LimitOrderDetail />
-  }, [])
+    switch (orderSubmissionState) {
+      case LimitOrderSubmissionState.AwaitingAllowanceApproval:
+        const allowanceApprovalNetworkFeeCryptoPrecision = fromBaseUnit(
+          approvalNetworkFeeCryptoBaseUnit ?? '0',
+          feeAsset?.precision ?? 0,
+        )
+        const allowanceApprovalNetworkFeeUserCurrency = bn(
+          allowanceApprovalNetworkFeeCryptoPrecision,
+        )
+          .times(feeAssetRateUserCurrency)
+          .toFixed()
+        return (
+          <Stack spacing={4} width='full'>
+            <Row>
+              <Row.Label>
+                <Text translation='limitOrder.networkFee' />
+              </Row.Label>
+              <Row.Value>
+                <HStack justifyContent='flex-end'>
+                  <Amount.Crypto
+                    value={allowanceApprovalNetworkFeeCryptoPrecision}
+                    symbol={feeAsset?.symbol ?? ''}
+                  />
+                  <Amount.Fiat
+                    color={'text.subtle'}
+                    prefix='('
+                    suffix=')'
+                    noSpace
+                    value={allowanceApprovalNetworkFeeUserCurrency}
+                  />
+                </HStack>
+              </Row.Value>
+            </Row>
+          </Stack>
+        )
+      case LimitOrderSubmissionState.AwaitingAllowanceReset:
+        const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(
+          allowanceResetNetworkFeeCryptoBaseUnit ?? '0',
+          feeAsset?.precision ?? 0,
+        )
+        const allowanceResetNetworkFeeUserCurrency = bn(allowanceResetNetworkFeeCryptoPrecision)
+          .times(feeAssetRateUserCurrency)
+          .toFixed()
+        return (
+          <Stack spacing={4} width='full'>
+            <Row>
+              <Row.Label>
+                <Text translation='limitOrder.networkFee' />
+              </Row.Label>
+              <Row.Value>
+                <HStack justifyContent='flex-end'>
+                  <Amount.Crypto
+                    value={allowanceResetNetworkFeeCryptoPrecision}
+                    symbol={feeAsset?.symbol ?? ''}
+                  />
+                  <Amount.Fiat
+                    color={'text.subtle'}
+                    prefix='('
+                    suffix=')'
+                    noSpace
+                    value={allowanceResetNetworkFeeUserCurrency}
+                  />
+                </HStack>
+              </Row.Value>
+            </Row>
+          </Stack>
+        )
+      case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
+        return <LimitOrderDetail />
+      default:
+        return null
+    }
+  }, [
+    allowanceResetNetworkFeeCryptoBaseUnit,
+    approvalNetworkFeeCryptoBaseUnit,
+    feeAsset?.precision,
+    feeAsset?.symbol,
+    feeAssetRateUserCurrency,
+    orderSubmissionState,
+  ])
 
   const buttonTranslation: string | [string, number | InterpolationOptions] | undefined =
     useMemo(() => {
@@ -182,19 +298,36 @@ export const LimitOrderConfirm = () => {
 
   const button = useMemo(() => {
     if (!buttonTranslation) return null
+    const isLoading = (() => {
+      if (isLoadingSetIsApprovalInitiallyNeeded) return true
+
+      switch (orderSubmissionState) {
+        case LimitOrderSubmissionState.AwaitingAllowanceApproval:
+          return (
+            allowanceApprovalMutation.isPending ||
+            allowanceApprovalMutation.isSuccess ||
+            isLoadingAllowanceApproval
+          )
+        case LimitOrderSubmissionState.AwaitingAllowanceReset:
+          return (
+            allowanceResetMutation.isPending ||
+            allowanceResetMutation.isSuccess ||
+            isLoadingAllowanceReset
+          )
+        case LimitOrderSubmissionState.AwaitingLimitOrderSubmission:
+          return isLoadingLimitOrderPlacement
+        default:
+          return false
+      }
+    })()
     return (
       <Button
         colorScheme={'blue'}
         size='lg'
         width='full'
         onClick={handleConfirm}
-        isLoading={
-          isLoadingLimitOrderPlacement ||
-          isLoadingSetIsApprovalInitiallyNeeded ||
-          isLoadingAllowanceApproval ||
-          isLoadingAllowanceReset
-        }
-        isDisabled={isLoadingLimitOrderPlacement || !activeQuote}
+        isLoading={isLoading}
+        isDisabled={!activeQuote}
       >
         <Text translation={buttonTranslation} />
       </Button>
@@ -202,14 +335,20 @@ export const LimitOrderConfirm = () => {
   }, [
     buttonTranslation,
     handleConfirm,
-    isLoadingLimitOrderPlacement,
-    isLoadingSetIsApprovalInitiallyNeeded,
-    isLoadingAllowanceApproval,
-    isLoadingAllowanceReset,
     activeQuote,
+    isLoadingSetIsApprovalInitiallyNeeded,
+    orderSubmissionState,
+    allowanceApprovalMutation.isPending,
+    allowanceApprovalMutation.isSuccess,
+    isLoadingAllowanceApproval,
+    allowanceResetMutation.isPending,
+    allowanceResetMutation.isSuccess,
+    isLoadingAllowanceReset,
+    isLoadingLimitOrderPlacement,
   ])
 
   const footer = useMemo(() => {
+    if (!detail && !button) return null
     return <SharedConfirmFooter detail={detail} button={button} />
   }, [detail, button])
 

@@ -1050,6 +1050,9 @@
     "placeOrderSuccess": "Success!",
     "placeOrderFailed": "Something Went Wrong",
     "placeOrder": "Place Order",
+    "placeAnotherOrder": "Place Another Order",
+    "orderSummary": "Order Summary",
+    "success": "Limit order placed successfully",
     "cancel": {
       "cancelOrder": "Cancel Limit Order",
       "requestCancellation": "Yes, request cancellation",

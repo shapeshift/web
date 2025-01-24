@@ -1699,6 +1699,9 @@
       "dontAskAgain": "Don't ask again",
       "multiAccountUnsupported": "Multi-account is unsupported for this chain using the Multichain Snap on MetaMask"
     },
+    "coinbaseQR": {
+      "name": "Coinbase (QR Code)"
+    },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",
       "updateTitle": "Update Multichain Snap",

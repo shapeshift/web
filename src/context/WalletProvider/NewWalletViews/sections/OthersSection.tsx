@@ -1,9 +1,11 @@
 import { Box, Button, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { CoinbaseIcon } from 'components/Icons/CoinbaseIcon'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useMipdProviders } from 'lib/mipd'
 
 const WalletConnectOption = ({
   connect,
@@ -44,6 +46,41 @@ const WalletConnectOption = ({
   )
 }
 
+const CoinbaseQROption = ({
+  connect,
+  isSelected,
+  isDisabled,
+}: {
+  connect: () => void
+  isSelected: boolean
+  isDisabled: boolean
+}) => {
+  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+
+  return (
+    <Box
+      as={Button}
+      key='coinbaseqr'
+      variant='ghost'
+      px={4}
+      ml={-4}
+      py={6}
+      borderRadius='md'
+      width='full'
+      onClick={connect}
+      bg={isSelected ? backgroundColor : undefined}
+      isDisabled={isDisabled}
+    >
+      <Flex alignItems='center' width='full'>
+        <Box boxSize='24px' mr={3}>
+          <CoinbaseIcon />
+        </Box>
+        <Text translation='walletProvider.coinbaseQR.name' fontSize='md' fontWeight='medium' />
+      </Flex>
+    </Box>
+  )
+}
+
 export const OthersSection = ({
   isLoading,
   selectedWalletId,
@@ -55,9 +92,19 @@ export const OthersSection = ({
 }) => {
   const { connect } = useWallet()
 
+  const mipdProviders = useMipdProviders()
+  const isCoinbaseInstalled = mipdProviders.some(
+    provider => provider.info.rdns === 'com.coinbase.wallet',
+  )
+
   const handleConnectWalletConnect = useCallback(() => {
     onWalletSelect(KeyManager.WalletConnectV2, '/walletconnectv2/connect')
     connect(KeyManager.WalletConnectV2, false)
+  }, [connect, onWalletSelect])
+
+  const handleCoinbaseQRConnect = useCallback(() => {
+    onWalletSelect('coinbaseQR', '/coinbase/connect')
+    connect(KeyManager.Coinbase, false)
   }, [connect, onWalletSelect])
 
   return (
@@ -68,6 +115,18 @@ export const OthersSection = ({
         isSelected={selectedWalletId === KeyManager.WalletConnectV2}
         isDisabled={isLoading && selectedWalletId !== KeyManager.WalletConnectV2}
       />
+      {/* Only show the Coinbase magic QR option under "Others" if Coinbase isn't announced as a wallet in browser.
+          That's a limitation of coinbase SDK, where we cannot programmatically trigger the QR modal, it only 
+          automatically shows up *if* no Coinbase wallet is detected. 
+      */}
+      {!isCoinbaseInstalled && (
+        <CoinbaseQROption
+          connect={handleCoinbaseQRConnect}
+          // NOTE: This is different from the regular Coinbase option, do *not* use Keymanager.Coinbase here
+          isSelected={selectedWalletId === 'coinbaseQR'}
+          isDisabled={isLoading && selectedWalletId !== 'coinbaseQR'}
+        />
+      )}
     </Stack>
   )
 }

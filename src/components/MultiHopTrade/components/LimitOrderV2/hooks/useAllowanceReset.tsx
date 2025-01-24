@@ -15,16 +15,11 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 type UseAllowanceResetProps = {
   activeQuote: LimitOrderActiveQuote | undefined
-  feeQueryEnabled: boolean
-  isInitiallyRequired: boolean
+  isQueryEnabled: boolean
 }
 
 // handles allowance reset tx execution, fees, and state orchestration
-export const useAllowanceReset = ({
-  activeQuote,
-  feeQueryEnabled,
-  isInitiallyRequired,
-}: UseAllowanceResetProps) => {
+export const useAllowanceReset = ({ activeQuote, isQueryEnabled }: UseAllowanceResetProps) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
@@ -43,7 +38,7 @@ export const useAllowanceReset = ({
       assetId: activeQuote?.params.sellAssetId,
       from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      isDisabled: !(isInitiallyRequired && feeQueryEnabled),
+      isDisabled: !isQueryEnabled,
     })
 
   const { evmFeesResult } = useApprovalFees({
@@ -52,11 +47,11 @@ export const useAllowanceReset = ({
     from: activeQuote?.params.sellAccountAddress,
     allowanceType: AllowanceType.Reset,
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-    enabled: isInitiallyRequired && feeQueryEnabled,
+    enabled: isQueryEnabled,
   })
 
   useEffect(() => {
-    if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceResetRequired !== false) return
+    if (!isQueryEnabled || isAllowanceResetRequired !== false) return
     if (!activeQuote?.response.id) {
       console.error('Attempting to approve with undefined quoteId')
       return
@@ -66,13 +61,7 @@ export const useAllowanceReset = ({
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
     dispatch(limitOrderSlice.actions.setAllowanceResetStepComplete(activeQuote.response.id))
-  }, [
-    activeQuote?.response.id,
-    dispatch,
-    feeQueryEnabled,
-    isAllowanceResetRequired,
-    isInitiallyRequired,
-  ])
+  }, [activeQuote?.response.id, dispatch, isAllowanceResetRequired, isQueryEnabled])
 
   const allowanceResetMutation = useMutation({
     ...reactQueries.mutations.approve({

@@ -1,4 +1,4 @@
-import { Button, HStack, Stack } from '@chakra-ui/react'
+import { Button, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -86,8 +86,10 @@ export const LimitOrderConfirm = () => {
     approvalNetworkFeeCryptoBaseUnit,
   } = useAllowanceApproval({
     activeQuote,
-    feeQueryEnabled: true,
-    isInitiallyRequired: !!allowanceApproval.isInitiallyRequired && !!activeQuote,
+    isQueryEnabled:
+      !!allowanceApproval.isInitiallyRequired &&
+      !!activeQuote &&
+      orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceApproval,
   })
 
   const {
@@ -96,8 +98,10 @@ export const LimitOrderConfirm = () => {
     allowanceResetNetworkFeeCryptoBaseUnit,
   } = useAllowanceReset({
     activeQuote,
-    feeQueryEnabled: true,
-    isInitiallyRequired: !!allowanceReset.isInitiallyRequired && !!activeQuote,
+    isQueryEnabled:
+      !!allowanceReset.isInitiallyRequired &&
+      !!activeQuote &&
+      orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset,
   })
 
   const handleBack = useCallback(() => {
@@ -109,8 +113,8 @@ export const LimitOrderConfirm = () => {
     usePlaceLimitOrderMutation()
 
   const innerStepsRendered = useMemo(() => {
-    return () => <InnerSteps isLoading={isLoadingAllowanceApproval || isLoadingAllowanceReset} />
-  }, [isLoadingAllowanceApproval, isLoadingAllowanceReset])
+    return () => <InnerSteps isLoading={isLoadingSetIsApprovalInitiallyNeeded} />
+  }, [isLoadingSetIsApprovalInitiallyNeeded])
 
   const body = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
@@ -168,19 +172,21 @@ export const LimitOrderConfirm = () => {
                 <Text translation='limitOrder.networkFee' />
               </Row.Label>
               <Row.Value>
-                <HStack justifyContent='flex-end'>
-                  <Amount.Crypto
-                    value={allowanceApprovalNetworkFeeCryptoPrecision}
-                    symbol={feeAsset?.symbol ?? ''}
-                  />
-                  <Amount.Fiat
-                    color={'text.subtle'}
-                    prefix='('
-                    suffix=')'
-                    noSpace
-                    value={allowanceApprovalNetworkFeeUserCurrency}
-                  />
-                </HStack>
+                <Skeleton isLoaded={!isLoadingAllowanceApproval}>
+                  <HStack justifyContent='flex-end'>
+                    <Amount.Crypto
+                      value={allowanceApprovalNetworkFeeCryptoPrecision}
+                      symbol={feeAsset?.symbol ?? ''}
+                    />
+                    <Amount.Fiat
+                      color={'text.subtle'}
+                      prefix='('
+                      suffix=')'
+                      noSpace
+                      value={allowanceApprovalNetworkFeeUserCurrency}
+                    />
+                  </HStack>
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>
@@ -200,19 +206,21 @@ export const LimitOrderConfirm = () => {
                 <Text translation='limitOrder.networkFee' />
               </Row.Label>
               <Row.Value>
-                <HStack justifyContent='flex-end'>
-                  <Amount.Crypto
-                    value={allowanceResetNetworkFeeCryptoPrecision}
-                    symbol={feeAsset?.symbol ?? ''}
-                  />
-                  <Amount.Fiat
-                    color={'text.subtle'}
-                    prefix='('
-                    suffix=')'
-                    noSpace
-                    value={allowanceResetNetworkFeeUserCurrency}
-                  />
-                </HStack>
+                <Skeleton isLoaded={!isLoadingAllowanceReset}>
+                  <HStack justifyContent='flex-end'>
+                    <Amount.Crypto
+                      value={allowanceResetNetworkFeeCryptoPrecision}
+                      symbol={feeAsset?.symbol ?? ''}
+                    />
+                    <Amount.Fiat
+                      color={'text.subtle'}
+                      prefix='('
+                      suffix=')'
+                      noSpace
+                      value={allowanceResetNetworkFeeUserCurrency}
+                    />
+                  </HStack>
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>
@@ -228,6 +236,8 @@ export const LimitOrderConfirm = () => {
     feeAsset?.precision,
     feeAsset?.symbol,
     feeAssetRateUserCurrency,
+    isLoadingAllowanceApproval,
+    isLoadingAllowanceReset,
     orderSubmissionState,
   ])
 

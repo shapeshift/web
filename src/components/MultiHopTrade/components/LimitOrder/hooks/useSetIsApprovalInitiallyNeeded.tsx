@@ -28,6 +28,7 @@ export const useSetIsApprovalInitiallyNeeded = () => {
       assetId: activeQuote?.params.sellAssetId,
       from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+      isDisabled: allowanceApproval.isInitiallyRequired !== undefined,
     })
 
   const { isAllowanceResetRequired, isLoading: isAllowanceResetRequirementsLoading } =
@@ -36,6 +37,7 @@ export const useSetIsApprovalInitiallyNeeded = () => {
       assetId: activeQuote?.params.sellAssetId,
       from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+      isDisabled: allowanceReset.isInitiallyRequired !== undefined,
     })
 
   // Reset the approval requirements if the trade quote ID changes

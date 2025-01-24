@@ -19,15 +19,13 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 type UseAllowanceApprovalProps = {
   activeQuote: LimitOrderActiveQuote | undefined
-  feeQueryEnabled: boolean
-  isInitiallyRequired: boolean
+  isQueryEnabled: boolean
 }
 
 // handles allowance approval tx execution, fees, and state orchestration
 export const useAllowanceApproval = ({
   activeQuote,
-  feeQueryEnabled,
-  isInitiallyRequired,
+  isQueryEnabled,
 }: UseAllowanceApprovalProps) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorToast()
@@ -47,6 +45,7 @@ export const useAllowanceApproval = ({
       assetId: activeQuote?.params.sellAssetId,
       from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+      isDisabled: !isQueryEnabled,
     })
 
   const { evmFeesResult } = useApprovalFees({
@@ -55,11 +54,11 @@ export const useAllowanceApproval = ({
     from: activeQuote?.params.sellAccountAddress,
     allowanceType: AllowanceType.Unlimited, // All limit order approvals are unlimited
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-    enabled: isInitiallyRequired && feeQueryEnabled,
+    enabled: isQueryEnabled,
   })
 
   useEffect(() => {
-    if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceApprovalRequired !== false) return
+    if (!isQueryEnabled || isAllowanceApprovalRequired !== false) return
     if (!activeQuote?.response.id) {
       console.error('Attempting to approve with undefined quoteId')
       return
@@ -69,13 +68,7 @@ export const useAllowanceApproval = ({
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
     dispatch(limitOrderSlice.actions.setAllowanceApprovalStepComplete(activeQuote.response.id))
-  }, [
-    activeQuote?.response.id,
-    dispatch,
-    feeQueryEnabled,
-    isAllowanceApprovalRequired,
-    isInitiallyRequired,
-  ])
+  }, [activeQuote?.response.id, dispatch, isAllowanceApprovalRequired, isQueryEnabled])
 
   const allowanceApprovalMutation = useMutation({
     ...reactQueries.mutations.approve({

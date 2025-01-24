@@ -41,6 +41,8 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -54,6 +56,8 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -67,6 +71,8 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -80,6 +86,8 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -93,6 +101,8 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -106,6 +116,8 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -120,6 +132,8 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -136,6 +150,8 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeld: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -156,12 +172,14 @@ describe('calculateFees', () => {
       vi.setSystemTime(new Date(FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS))
       const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
       const foxHeld = bn(0)
+      const thorHeld = bn(0)
       const foxWifHatHeld = bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
       const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
 
       const { feeBps, foxDiscountPercent } = calculateFees({
         tradeAmountUsd,
         foxHeld,
+        thorHeld,
         foxWifHatHeld,
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
@@ -179,12 +197,14 @@ describe('calculateFees', () => {
       vi.setSystemTime(new Date(campaignMidpoint))
       const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
       const foxHeld = bn(0)
+      const thorHeld = bn(0)
       const foxWifHatHeld = bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
       const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
 
       const { feeBps, foxDiscountPercent } = calculateFees({
         tradeAmountUsd,
         foxHeld,
+        thorHeld,
         foxWifHatHeld,
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
@@ -198,12 +218,14 @@ describe('calculateFees', () => {
       vi.setSystemTime(new Date(FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS))
       const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
       const foxHeld = bn(0)
+      const thorHeld = bn(0)
       const foxWifHatHeld = bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
       const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
 
       const { feeBps, foxDiscountPercent } = calculateFees({
         tradeAmountUsd,
         foxHeld,
+        thorHeld,
         foxWifHatHeld,
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
@@ -217,12 +239,14 @@ describe('calculateFees', () => {
       vi.setSystemTime(new Date(FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS))
       const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
       const foxHeld = bn(0)
+      const thorHeld = bn(0)
       const foxWifHatHeld = bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT).minus(1)
       const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
 
       const { feeBps, foxDiscountPercent } = calculateFees({
         tradeAmountUsd,
         foxHeld,
+        thorHeld,
         foxWifHatHeld,
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
@@ -236,12 +260,14 @@ describe('calculateFees', () => {
       vi.setSystemTime(new Date(FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS + 1))
       const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
       const foxHeld = bn(0)
+      const thorHeld = bn(0)
       const foxWifHatHeld = bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
       const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
 
       const { feeBps, foxDiscountPercent } = calculateFees({
         tradeAmountUsd,
         foxHeld,
+        thorHeld,
         foxWifHatHeld,
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,

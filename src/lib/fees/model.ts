@@ -16,8 +16,8 @@ export const THORSWAP_MAXIMUM_YEAR_TRESHOLD = 2025
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
   foxHeld: BigNumber
-  thorHeld?: BigNumber
-  foxWifHatHeld?: BigNumber
+  thorHeld: BigNumber
+  foxWifHatHeld: BigNumber
   feeModel: ParameterModel
   isSnapshotApiQueriesRejected: boolean
 }
@@ -92,15 +92,11 @@ export const calculateFees: CalculateFeeBps = ({
 
   const isThorFree =
     isThorFreeEnabled &&
-    thorHeld?.gte(THORSWAP_UNIT_THRESHOLD) &&
+    thorHeld.gte(THORSWAP_UNIT_THRESHOLD) &&
     new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
 
   // failure to fetch fox discount results in free trades.
-  const isFallbackFees =
-    isSnapshotApiQueriesRejected &&
-    (!foxWifHatHeld ||
-      foxWifHatHeld?.lt(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT) ||
-      !isFoxWifHatCampaignActive)
+  const isFallbackFees = isSnapshotApiQueriesRejected
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
@@ -108,10 +104,9 @@ export const calculateFees: CalculateFeeBps = ({
     // THOR holder before TIP014 are trade free until 2025
     if (isThorFree) return bn(100)
 
-    const foxDiscountPercent = BigNumber.minimum(
-      bn(100),
-      bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
-    )
+    const foxDiscountPercent = isFoxWifHatCampaignActive
+      ? bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
+      : bn(0)
 
     // No discount if we cannot fetch FOX holdings
     if (isFallbackFees) return bn(0)

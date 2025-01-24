@@ -29,6 +29,7 @@ import {
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from 'state/slices/limitOrderSlice/selectors'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
@@ -89,7 +90,9 @@ export const LimitOrderConfirm = () => {
     isQueryEnabled:
       !!allowanceApproval.isInitiallyRequired &&
       !!activeQuote &&
-      orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceApproval,
+      orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceApproval &&
+      allowanceApproval.state !== TransactionExecutionState.Complete &&
+      allowanceApproval.state !== TransactionExecutionState.Pending,
   })
 
   const {
@@ -101,7 +104,9 @@ export const LimitOrderConfirm = () => {
     isQueryEnabled:
       !!allowanceReset.isInitiallyRequired &&
       !!activeQuote &&
-      orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset,
+      orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset &&
+      allowanceReset.state !== TransactionExecutionState.Complete &&
+      allowanceReset.state !== TransactionExecutionState.Pending,
   })
 
   const handleBack = useCallback(() => {

@@ -9,10 +9,7 @@ import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDa
 import {
   selectActiveQuoteBuyAsset,
   selectActiveQuoteExpirationTimestamp,
-  selectActiveQuoteFeeAsset,
   selectActiveQuoteLimitPrice,
-  selectActiveQuoteNetworkFeeCryptoPrecision,
-  selectActiveQuoteNetworkFeeUserCurrency,
   selectActiveQuoteSellAsset,
 } from 'state/slices/limitOrderSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,9 +21,6 @@ export const LimitOrderDetail = () => {
 
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
-  const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
-  const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
-  const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
@@ -64,23 +58,6 @@ export const LimitOrderDetail = () => {
         </Row.Label>
         <Row.Value>
           <TransactionDate blockTime={quoteExpirationTimestamp ?? 0} />
-        </Row.Value>
-      </Row>
-      <Row>
-        <Row.Label>
-          <Text translation='limitOrder.networkFee' />
-        </Row.Label>
-        <Row.Value>
-          <HStack justifyContent='flex-end'>
-            <Amount.Crypto value={networkFeeCryptoPrecision} symbol={feeAsset?.symbol ?? ''} />
-            <Amount.Fiat
-              color={'text.subtle'}
-              prefix='('
-              suffix=')'
-              noSpace
-              value={networkFeeUserCurrency}
-            />
-          </HStack>
         </Row.Value>
       </Row>
       <Card bg='background.surface.raised.pressed' borderRadius={6} p={4} mb={2}>

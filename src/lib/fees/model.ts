@@ -2,6 +2,11 @@ import BigNumber from 'bignumber.js'
 import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
+import {
+  FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
+  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
+  FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
+} from './constant'
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
 
@@ -12,6 +17,7 @@ type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
   foxHeld: BigNumber
   thorHeld?: BigNumber
+  foxWifHatHeld?: BigNumber
   feeModel: ParameterModel
   isSnapshotApiQueriesRejected: boolean
 }
@@ -43,6 +49,7 @@ export const calculateFees: CalculateFeeBps = ({
   foxHeld,
   feeModel,
   thorHeld,
+  foxWifHatHeld,
   isSnapshotApiQueriesRejected,
 }) => {
   const {
@@ -59,30 +66,58 @@ export const calculateFees: CalculateFeeBps = ({
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
   const isThorFreeEnabled = getConfig().REACT_APP_FEATURE_THOR_FREE_FEES
+  const isFoxWifHatCampaignActive =
+    new Date().getTime() >= FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS &&
+    new Date().getTime() <= FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS
+
+  const currentFoxWifHatDiscountPercent = (() => {
+    if (!foxWifHatHeld || foxWifHatHeld?.lt(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)) return bn(0)
+
+    const currentTime = new Date().getTime()
+    const totalCampaignDuration =
+      FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS - FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS
+    const timeElapsed = currentTime - FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS
+    const remainingPercentage = bn(100).times(
+      bn(1).minus(bn(timeElapsed).div(totalCampaignDuration)),
+    )
+
+    return BigNumber.maximum(BigNumber.minimum(remainingPercentage, bn(100)), bn(0))
+  })()
 
   // trades below the fee threshold are free.
   const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
 
   const isThorFree =
     isThorFreeEnabled &&
-    thorHeld?.isGreaterThanOrEqualTo(THORSWAP_UNIT_THRESHOLD) &&
+    thorHeld?.gte(THORSWAP_UNIT_THRESHOLD) &&
     new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
 
   // failure to fetch fox discount results in free trades.
-  const isFallbackFees = isSnapshotApiQueriesRejected
+  const isFallbackFees =
+    isSnapshotApiQueriesRejected &&
+    (!foxWifHatHeld ||
+      foxWifHatHeld?.lt(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT) ||
+      !isFoxWifHatCampaignActive)
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
     if (isFree) return bn(100)
     // THOR holder before TIP014 are trade free until 2025
     if (isThorFree) return bn(100)
-    // No discount if we cannot fetch FOX holdings
-    if (isFallbackFees) return bn(0)
 
-    return BigNumber.minimum(
+    const foxDiscountPercent = BigNumber.minimum(
       bn(100),
       bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
     )
+
+    // No discount if we cannot fetch FOX holdings
+    if (isFallbackFees) return bn(0)
+
+    if (currentFoxWifHatDiscountPercent.gt(foxDiscountPercent) && isFoxWifHatCampaignActive) {
+      return currentFoxWifHatDiscountPercent
+    }
+
+    return foxDiscountPercent
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number

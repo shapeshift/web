@@ -37,7 +37,11 @@ const stepProps = { py: 0, pr: 2, pl: 0 }
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
-export const InnerSteps = () => {
+type InnerStepsProps = {
+  isLoading: boolean
+}
+
+export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
   const translate = useTranslate()
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -161,7 +165,7 @@ export const InnerSteps = () => {
   }, [allowanceApproval.txHash, sellAccountId, sellAsset])
 
   return (
-    <Skeleton isLoaded={!!orderSubmissionState} width='100%'>
+    <Skeleton isLoaded={!!orderSubmissionState && !isLoading} width='100%'>
       <StepperStep
         title={titleElement}
         stepIndicator={summaryStepIndicator}

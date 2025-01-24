@@ -107,6 +107,10 @@ export const LimitOrderConfirm = () => {
   const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
     usePlaceLimitOrderMutation()
 
+  const innerStepsRendered = useMemo(() => {
+    return () => <InnerSteps isLoading={isLoadingAllowanceApproval || isLoadingAllowanceReset} />
+  }, [isLoadingAllowanceApproval, isLoadingAllowanceReset])
+
   const body = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
     if (orderSubmissionState === LimitOrderSubmissionState.Complete) {
@@ -125,7 +129,7 @@ export const LimitOrderConfirm = () => {
     }
     return (
       <SharedConfirmBody
-        InnerSteps={InnerSteps}
+        InnerSteps={innerStepsRendered}
         sellAsset={sellAsset}
         buyAsset={buyAsset}
         sellAmountCryptoBaseUnit={sellAmountCryptoBaseUnit}
@@ -137,6 +141,7 @@ export const LimitOrderConfirm = () => {
     buyAmountCryptoPrecision,
     buyAsset,
     handleBack,
+    innerStepsRendered,
     orderSubmissionState,
     sellAmountCryptoBaseUnit,
     sellAmountCryptoPrecision,

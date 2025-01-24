@@ -98,7 +98,6 @@ export const LimitOrderConfirm = () => {
       !!allowanceApproval.isInitiallyRequired &&
       !!activeQuote &&
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceApproval &&
-      allowanceApproval.state !== TransactionExecutionState.Complete &&
       allowanceApproval.state !== TransactionExecutionState.Pending,
   })
 
@@ -112,7 +111,6 @@ export const LimitOrderConfirm = () => {
       !!allowanceReset.isInitiallyRequired &&
       !!activeQuote &&
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset &&
-      allowanceReset.state !== TransactionExecutionState.Complete &&
       allowanceReset.state !== TransactionExecutionState.Pending,
   })
 

@@ -66,9 +66,12 @@ export const calculateFees: CalculateFeeBps = ({
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
   const isThorFreeEnabled = getConfig().REACT_APP_FEATURE_THOR_FREE_FEES
+  const isFoxWifHatEnabled = getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION
+
   const isFoxWifHatCampaignActive =
     new Date().getTime() >= FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS &&
-    new Date().getTime() <= FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS
+    new Date().getTime() <= FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS &&
+    isFoxWifHatEnabled
 
   const currentFoxWifHatDiscountPercent = (() => {
     if (!foxWifHatHeld || foxWifHatHeld?.lt(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)) return bn(0)
@@ -113,11 +116,7 @@ export const calculateFees: CalculateFeeBps = ({
     // No discount if we cannot fetch FOX holdings
     if (isFallbackFees) return bn(0)
 
-    if (currentFoxWifHatDiscountPercent.gt(foxDiscountPercent) && isFoxWifHatCampaignActive) {
-      return currentFoxWifHatDiscountPercent
-    }
-
-    return foxDiscountPercent
+    return BigNumber.maximum(foxDiscountPercent, currentFoxWifHatDiscountPercent)
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number

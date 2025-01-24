@@ -12,11 +12,11 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectConfirmedTradeExecutionState,
   selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -38,25 +38,27 @@ export const MultiHopTradeConfirm = memo(() => {
   const history = useHistory()
 
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(confirmedQuote)
   const lastHop = useAppSelector(selectLastHop)
 
-  const initialActiveTradeIdRef = useRef(activeQuote?.id ?? '')
+  const initialActiveTradeIdRef = useRef(confirmedQuote?.id ?? '')
 
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
-    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
-  }, [activeQuote])
+    return (
+      isArbitrumBridgeTradeQuoteOrRate(confirmedQuote) && confirmedQuote?.direction === 'withdrawal'
+    )
+  }, [confirmedQuote])
 
   useEffect(() => {
-    if (isLoading || !activeQuote) return
+    if (isLoading || !confirmedQuote) return
     // Only set the trade to initialized if it was actually initializing previously. Now that we shove quotes in at confirm time, we can't rely on this effect only running once.
     if (confirmedTradeExecutionState !== TradeExecutionState.Initializing) return
 
-    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
-  }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
+    dispatch(tradeQuote.actions.setTradeInitialized(confirmedQuote.id))
+  }, [dispatch, isLoading, confirmedQuote, confirmedTradeExecutionState])
 
   const isTradeComplete = useMemo(
     () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
@@ -65,7 +67,7 @@ export const MultiHopTradeConfirm = memo(() => {
 
   const handleBack = useCallback(() => {
     if (isTradeComplete) {
-      dispatch(tradeQuoteSlice.actions.clear())
+      dispatch(tradeQuote.actions.clear())
     }
 
     history.push(TradeRoutePaths.Input)
@@ -93,9 +95,9 @@ export const MultiHopTradeConfirm = memo(() => {
   ])
 
   const handleTradeConfirm = useCallback(() => {
-    if (!activeQuote) return
-    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [dispatch, activeQuote])
+    if (!confirmedQuote) return
+    dispatch(tradeQuote.actions.confirmTrade(confirmedQuote.id))
+  }, [dispatch, confirmedQuote])
 
   const handleSubmit = useCallback(() => {
     if (isModeratePriceImpact) {
@@ -139,17 +141,17 @@ export const MultiHopTradeConfirm = memo(() => {
             </Heading>
           </WithBackButton>
         </CardHeader>
-        {isTradeComplete && activeQuote && lastHop ? (
+        {isTradeComplete && confirmedQuote && lastHop ? (
           <TradeSuccess
             handleBack={handleBack}
             titleTranslation={
               isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
             }
-            sellAsset={activeQuote?.steps[0].sellAsset}
+            sellAsset={confirmedQuote?.steps[0].sellAsset}
             buyAsset={lastHop.buyAsset}
             sellAmountCryptoPrecision={fromBaseUnit(
-              activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              activeQuote.steps[0].sellAsset.precision,
+              confirmedQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              confirmedQuote.steps[0].sellAsset.precision,
             )}
             buyAmountCryptoPrecision={fromBaseUnit(
               lastHop.buyAmountAfterFeesCryptoBaseUnit,

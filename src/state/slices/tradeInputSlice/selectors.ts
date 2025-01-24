@@ -1,16 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
 import { bn } from '@shapeshiftoss/utils'
 import type { Selector } from 'react-redux'
-import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
 import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
-import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
-import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
 import type { TradeInputState } from './tradeInputSlice'
 
 // Shared selectors from the base trade input slice that handle common functionality like input
@@ -51,57 +48,23 @@ export const selectLastHopBuyAccountId = selectBuyAccountId
 // and allow selectSecondHopSellAccountId to keep a pwetty API
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
-const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
-)
-const selectTradeQuotes = createDeepEqualOutputSelector(
-  selectTradeQuoteSlice,
-  tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
-)
-const selectSortedTradeQuotes = createDeepEqualOutputSelector(selectTradeQuotes, tradeQuotes =>
-  sortTradeQuotes(tradeQuotes),
-)
 
-const selectActiveQuoteMetaOrDefault: Selector<
-  ReduxState,
-  { swapperName: SwapperName; identifier: string } | undefined
-> = createSelector(selectActiveQuoteMeta, selectSortedTradeQuotes, getActiveQuoteMetaOrDefault)
-
-const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
-  createDeepEqualOutputSelector(
-    selectTradeQuotes,
-    selectActiveQuoteMetaOrDefault,
-    (tradeQuotes, activeQuoteMetaOrDefault) => {
-      // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
-      if (activeQuoteMetaOrDefault === undefined) return undefined
-
-      return tradeQuotes[activeQuoteMetaOrDefault.swapperName]?.[
-        activeQuoteMetaOrDefault.identifier
-      ]
-    },
-  )
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
+// Return the confirmed quote for trading. If it doesn't exist, it's not safe to trade.
+// This mechanism prevents the quote changing during trade execution, but has implications on the UI
+// displaying stale data. To prevent displaying stale data, we must ensure to clear the
+// confirmedQuote when not executing a trade.
+export const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
-const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
-  createDeepEqualOutputSelector(
-    selectActiveSwapperApiResponse,
-    selectConfirmedQuote,
-    (response, confirmedQuote) => {
-      // Return the confirmed quote for trading, if it exists.
-      // This prevents the quote changing during trade execution, but has implications on the UI
-      // displaying stale data. To prevent displaying stale data, we must ensure to clear the
-      // confirmedQuote when not executing a trade.
-      if (confirmedQuote) return confirmedQuote
-      return response?.quote
-    },
-  )
 
 const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[1] : undefined))
+  createDeepEqualOutputSelector(selectConfirmedQuote, confirmedQuote =>
+    confirmedQuote ? confirmedQuote.steps[1] : undefined,
+  )
 
 export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
-  createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
+  createSelector(selectConfirmedQuote, confirmedQuote =>
+    confirmedQuote ? confirmedQuote.steps.length > 1 : undefined,
+  )
 
 export const selectUserSlippagePercentage = createSelector(
   selectBaseSlice,

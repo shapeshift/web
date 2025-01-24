@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { selectIsActiveQuoteMultiHop } from 'state/slices/tradeInputSlice/selectors'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -15,7 +15,7 @@ import {
 import { useCurrentHopIndex } from './useCurrentHopIndex'
 
 export const useStepperSteps = () => {
-  const activeTradeId = useAppSelector(selectActiveQuote)?.id
+  const activeTradeId = useAppSelector(selectConfirmedQuote)?.id
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
   const firstHopExecutionMetadataFilter = useMemo(

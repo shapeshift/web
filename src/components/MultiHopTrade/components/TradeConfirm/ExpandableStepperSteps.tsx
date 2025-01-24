@@ -5,8 +5,8 @@ import { AnimatedCheck } from 'components/AnimatedCheck'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import {
-  selectActiveQuote,
   selectActiveQuoteErrors,
+  selectConfirmedQuote,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -40,8 +40,8 @@ export const ExpandableStepperSteps = ({
     [isExpanded],
   )
   const currentHopIndex = useCurrentHopIndex()
-  const activeTradeQuote = useAppSelector(selectActiveQuote)
-  const activeTradeId = activeTradeQuote?.id
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
+  const activeTradeId = confirmedQuote?.id
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -50,7 +50,7 @@ export const ExpandableStepperSteps = ({
       hopIndex: currentHopIndex ?? 0,
     }
   }, [activeTradeId, currentHopIndex])
-  const swapperName = activeTradeQuote?.steps[0].source
+  const swapperName = confirmedQuote?.steps[0].source
   const {
     state: hopExecutionState,
     swap: { state: swapTxState },
@@ -121,7 +121,7 @@ export const ExpandableStepperSteps = ({
       />
       <Collapse in={isExpanded} style={collapseStyle}>
         <Box pb={2} px={3}>
-          {activeTradeQuote && <ExpandedStepperSteps activeTradeQuote={activeTradeQuote} />}
+          {confirmedQuote && <ExpandedStepperSteps activeTradeQuote={confirmedQuote} />}
         </Box>
       </Collapse>
     </>

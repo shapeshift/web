@@ -1,7 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { createMigrate, persistReducer } from 'redux-persist'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
@@ -39,6 +39,7 @@ import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from './slices/portfolioSlice/portfolioSliceCommon'
 import type { Preferences } from './slices/preferencesSlice/preferencesSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
+import { tradeExecution } from './slices/tradeExecutionSlice/tradeExecutionSlice'
 import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -52,8 +53,9 @@ export const slices = {
   opportunities,
   nft,
   tradeInput,
+  tradeQuote,
+  tradeExecution,
   limitOrderInput,
-  tradeQuoteSlice,
   limitOrderSlice,
   snapshot,
   localWalletSlice,
@@ -134,7 +136,8 @@ export const sliceReducers = {
     opportunities.reducer,
   ),
   nft: persistReducer<NftState>(nftPersistConfig, nft.reducer),
-  tradeQuoteSlice: tradeQuoteSlice.reducer,
+  tradeQuote: tradeQuote.reducer,
+  tradeExecution: tradeExecution.reducer,
   limitOrderSlice: limitOrderSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
   localWalletSlice: persistReducer<LocalWalletState>(

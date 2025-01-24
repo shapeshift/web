@@ -9,12 +9,12 @@ import {
   selectSecondHopSellAccountId,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectSecondHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { isPermit2Hop } from './helpers'
@@ -107,7 +107,7 @@ const useIsAllowanceResetInitiallyRequiredForHop = (
 
 export const useIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
   const firstHop = useAppSelector(selectFirstHop)
   const secondHop = useAppSelector(selectSecondHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
@@ -117,18 +117,18 @@ export const useIsApprovalInitiallyNeeded = () => {
   const {
     isLoading: isFirstHopAllowanceApprovalRequirementsLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForFirstHop,
-  } = useIsApprovalInitiallyNeededForHop(activeQuote?.id, firstHop, firstHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(confirmedQuote?.id, firstHop, firstHopSellAssetAccountId)
 
   const {
     isLoading: isSecondHopAllowanceApprovalRequirementsLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
-  } = useIsApprovalInitiallyNeededForHop(activeQuote?.id, secondHop, secondHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(confirmedQuote?.id, secondHop, secondHopSellAssetAccountId)
 
   const {
     isLoading: isFirstHopAllowanceResetRequirementsLoading,
     isAllowanceResetNeeded: isAllowanceResetNeededForFirstHop,
   } = useIsAllowanceResetInitiallyRequiredForHop(
-    activeQuote?.id,
+    confirmedQuote?.id,
     firstHop,
     firstHopSellAssetAccountId,
   )
@@ -137,7 +137,7 @@ export const useIsApprovalInitiallyNeeded = () => {
     isLoading: isSecondHopAllowanceResetRequirementsLoading,
     isAllowanceResetNeeded: isAllowanceResetNeededForSecondHop,
   } = useIsAllowanceResetInitiallyRequiredForHop(
-    activeQuote?.id,
+    confirmedQuote?.id,
     secondHop,
     secondHopSellAssetAccountId,
   )
@@ -157,33 +157,33 @@ export const useIsApprovalInitiallyNeeded = () => {
 
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
-    if (!activeQuote?.id) return
+    if (!confirmedQuote?.id) return
 
     dispatch(
-      tradeQuoteSlice.actions.setInitialApprovalRequirements({
-        id: activeQuote.id,
+      tradeQuote.actions.setInitialApprovalRequirements({
+        id: confirmedQuote.id,
         firstHop: isApprovalInitiallyNeededForFirstHop ?? false,
         secondHop: isApprovalInitiallyNeededForSecondHop ?? false,
       }),
     )
 
     dispatch(
-      tradeQuoteSlice.actions.setAllowanceResetRequirements({
-        id: activeQuote.id,
+      tradeQuote.actions.setAllowanceResetRequirements({
+        id: confirmedQuote.id,
         firstHop: isAllowanceResetNeededForFirstHop ?? false,
         secondHop: isAllowanceResetNeededForSecondHop ?? false,
       }),
     )
 
     dispatch(
-      tradeQuoteSlice.actions.setPermit2Requirements({
-        id: activeQuote.id,
+      tradeQuote.actions.setPermit2Requirements({
+        id: confirmedQuote.id,
         firstHop: isPermit2RequiredForFirstHop,
         secondHop: isPermit2RequiredForSecondHop,
       }),
     )
   }, [
-    activeQuote?.id,
+    confirmedQuote?.id,
     dispatch,
     isAllowanceResetNeededForFirstHop,
     isAllowanceResetNeededForSecondHop,

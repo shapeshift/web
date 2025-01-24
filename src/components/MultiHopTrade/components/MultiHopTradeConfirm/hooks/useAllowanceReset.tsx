@@ -10,7 +10,7 @@ import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRe
 import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 // handles allowance reset tx execution, fees, and state orchestration
@@ -60,9 +60,7 @@ export const useAllowanceReset = (
     // Mark the allowance reset step complete as required.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval reset externally and have the app respond to the updated allowance on chain.
-    dispatch(
-      tradeQuoteSlice.actions.setAllowanceResetStepComplete({ hopIndex, id: confirmedTradeId }),
-    )
+    dispatch(tradeQuote.actions.setAllowanceResetStepComplete({ hopIndex, id: confirmedTradeId }))
   }, [
     dispatch,
     hopIndex,
@@ -83,7 +81,7 @@ export const useAllowanceReset = (
     }),
     onMutate() {
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceResetTxPending({
+        tradeQuote.actions.setAllowanceResetTxPending({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -91,7 +89,7 @@ export const useAllowanceReset = (
     },
     async onSuccess(txHash) {
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceResetTxHash({
+        tradeQuote.actions.setAllowanceResetTxHash({
           hopIndex,
           txHash,
           id: confirmedTradeId,
@@ -102,7 +100,7 @@ export const useAllowanceReset = (
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceResetTxComplete({
+        tradeQuote.actions.setAllowanceResetTxComplete({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -110,7 +108,7 @@ export const useAllowanceReset = (
     },
     onError(err) {
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceResetTxFailed({
+        tradeQuote.actions.setAllowanceResetTxFailed({
           hopIndex,
           id: confirmedTradeId,
         }),

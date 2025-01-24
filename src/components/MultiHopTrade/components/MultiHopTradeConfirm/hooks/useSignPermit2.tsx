@@ -7,7 +7,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 // handles allowance approval tx execution, fees, and state orchestration
@@ -42,7 +42,7 @@ export const useSignPermit2 = (
     if (!wallet || !accountMetadata) return
 
     dispatch(
-      tradeQuoteSlice.actions.setPermit2SignaturePending({
+      tradeQuote.actions.setPermit2SignaturePending({
         hopIndex,
         id: confirmedTradeId,
       }),
@@ -61,7 +61,7 @@ export const useSignPermit2 = (
       const permit2Signature = await adapter.signTypedData({ typedDataToSign, wallet })
 
       dispatch(
-        tradeQuoteSlice.actions.setPermit2SignatureComplete({
+        tradeQuote.actions.setPermit2SignatureComplete({
           hopIndex,
           id: confirmedTradeId,
           permit2Signature,
@@ -69,7 +69,7 @@ export const useSignPermit2 = (
       )
     } catch (err) {
       dispatch(
-        tradeQuoteSlice.actions.setPermit2SignatureFailed({
+        tradeQuote.actions.setPermit2SignatureFailed({
           hopIndex,
           id: confirmedTradeId,
         }),

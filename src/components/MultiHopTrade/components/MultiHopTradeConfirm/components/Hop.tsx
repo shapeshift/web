@@ -32,7 +32,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import {
-  selectActiveQuote,
+  selectConfirmedQuote,
   selectHopExecutionMetadata,
   selectHopNetworkFeeUserCurrency,
   selectHopTotalProtocolFeesFiatPrecision,
@@ -91,11 +91,13 @@ export const Hop = ({
   const history = useHistory()
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
-    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
-  }, [activeQuote])
+    return (
+      isArbitrumBridgeTradeQuoteOrRate(confirmedQuote) && confirmedQuote.direction === 'withdrawal'
+    )
+  }, [confirmedQuote])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {

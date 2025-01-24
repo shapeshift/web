@@ -32,7 +32,7 @@ import {
   selectUserAvailableTradeQuotes,
   selectUserUnavailableTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
@@ -77,7 +77,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
 
   useEffect(() => {
     dispatch(
-      tradeQuoteSlice.actions.updateTradeQuoteDisplayCache({
+      tradeQuote.actions.updateTradeQuoteDisplayCache({
         isTradeQuoteApiQueryPending,
         sortedQuotes,
         isSwapperQuoteAvailable,

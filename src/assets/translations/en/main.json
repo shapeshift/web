@@ -1700,7 +1700,7 @@
       "multiAccountUnsupported": "Multi-account is unsupported for this chain using the Multichain Snap on MetaMask"
     },
     "coinbaseQR": {
-      "name": "Coinbase (QR Code)"
+      "name": "Coinbase Connect"
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",

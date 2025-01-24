@@ -63,12 +63,6 @@ export const LimitOrderConfirm = () => {
 
   const { isLoading: isLoadingSetIsApprovalInitiallyNeeded } = useSetIsApprovalInitiallyNeeded()
 
-  useEffect(() => {
-    if (isLoadingSetIsApprovalInitiallyNeeded) return
-    if (!quoteId) return
-    confirmSubmit(quoteId)
-  }, [confirmSubmit, isLoadingSetIsApprovalInitiallyNeeded, quoteId])
-
   const orderSubmissionMetadataFilter = useMemo(() => {
     return { quoteId: quoteId ?? 0 }
   }, [quoteId])
@@ -78,6 +72,13 @@ export const LimitOrderConfirm = () => {
     allowanceReset,
     allowanceApproval,
   } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
+
+  useEffect(() => {
+    if (isLoadingSetIsApprovalInitiallyNeeded) return
+    if (!quoteId) return
+    if (orderSubmissionState !== LimitOrderSubmissionState.Previewing) return
+    confirmSubmit(quoteId)
+  }, [confirmSubmit, isLoadingSetIsApprovalInitiallyNeeded, orderSubmissionState, quoteId])
 
   const {
     allowanceApprovalMutation,

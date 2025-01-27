@@ -69,7 +69,13 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
 
       dispatch({
         type: WalletActions.SET_WALLET,
-        payload: { wallet, name, icon, deviceId, connectedType: KeyManager.MetaMask },
+        payload: {
+          wallet,
+          name: maybeMipdProvider?.info.name ?? name,
+          icon: maybeMipdProvider?.info.icon ?? icon,
+          deviceId,
+          connectedType: KeyManager.MetaMask,
+        },
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
@@ -122,6 +128,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     history,
     isMetaMaskMobileWebView,
     localWallet,
+    maybeMipdProvider?.info.icon,
     maybeMipdProvider?.info.name,
     maybeMipdProvider?.info.rdns,
     setError,

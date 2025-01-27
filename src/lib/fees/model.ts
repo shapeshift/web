@@ -111,7 +111,7 @@ export const calculateFees: CalculateFeeBps = ({
     // No discount if we cannot fetch FOX holdings
     if (isFallbackFees) return bn(0)
 
-    return BigNumber.maximum(foxDiscountPercent, currentFoxWifHatDiscountPercent)
+    return BigNumber.minimum(foxDiscountPercent, currentFoxWifHatDiscountPercent)
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number

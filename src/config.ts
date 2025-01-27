@@ -165,6 +165,8 @@ const validators = {
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),
+  REACT_APP_FEATURE_RUNEPOOL_DEPOSIT: bool({ default: false }),
+  REACT_APP_FEATURE_RUNEPOOL_WITHDRAW: bool({ default: false }),
   REACT_APP_FEATURE_MARKETS: bool({ default: false }),
   REACT_APP_PORTALS_BASE_URL: url(),
   REACT_APP_ZERION_BASE_URL: url(),
@@ -187,6 +189,7 @@ const validators = {
   REACT_APP_FEATURE_NEW_TRADE_FLOW: bool({ default: false }),
   REACT_APP_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
+  REACT_APP_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

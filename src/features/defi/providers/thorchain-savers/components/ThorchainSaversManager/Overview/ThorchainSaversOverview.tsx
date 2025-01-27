@@ -145,6 +145,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const isThorchainSaversDepositEnabled = useFeatureFlag('SaversVaultsDeposit')
   const isThorchainSaversWithdrawalsEnabled = useFeatureFlag('SaversVaultsWithdraw')
 
+  const isRunePoolDepositEnabled = useFeatureFlag('RunePoolDeposit')
+  const isRunepoolWithdrawEnabled = useFeatureFlag('RunePoolWithdraw')
+
   useEffect(() => {
     if (!maybeAccountId) return
     handleAccountIdChange(maybeAccountId)
@@ -335,8 +338,12 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingTxs,
       hasPendingQueries,
       isHaltedDeposits: isTradingActive === false,
-      isDisabledDeposits: isThorchainSaversDepositEnabled === false,
-      isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
+      isDisabledDeposits:
+        (!isRunePool && isThorchainSaversDepositEnabled === false) ||
+        (isRunePool && !isRunePoolDepositEnabled),
+      isDisabledWithdrawals:
+        (!isRunePool && isThorchainSaversWithdrawalsEnabled === false) ||
+        (isRunePool && !isRunepoolWithdrawEnabled),
       remainingLockupTime,
     })
   }, [
@@ -344,6 +351,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     hasPendingQueries,
     hasPendingTxs,
     isHardCapReached,
+    isRunePool,
+    isRunePoolDepositEnabled,
+    isRunepoolWithdrawEnabled,
     isThorchainSaversDepositEnabled,
     isThorchainSaversWithdrawalsEnabled,
     isTradingActive,

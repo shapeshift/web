@@ -16,7 +16,7 @@ import {
 import { store } from 'state/store'
 
 export const isCowSwapError = (
-  maybeCowSwapError: CowSwapError | SerializedError | undefined,
+  maybeCowSwapError: CowSwapError | SerializedError | null | undefined,
 ): maybeCowSwapError is CowSwapError => {
   return (
     typeof maybeCowSwapError === 'object' &&

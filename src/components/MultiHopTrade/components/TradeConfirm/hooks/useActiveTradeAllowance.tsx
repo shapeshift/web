@@ -65,7 +65,7 @@ export const useActiveTradeAllowance = ({
     isExactAllowance && !permit2.isRequired ? AllowanceType.Exact : AllowanceType.Unlimited,
     isAllowanceApprovalEnabled,
     activeTradeId,
-    allowanceApproval.isInitiallyRequired,
+    allowanceApproval.isInitiallyRequired ?? false,
   )
 
   const isAllowanceResetEnabled = useMemo(() => {
@@ -87,7 +87,7 @@ export const useActiveTradeAllowance = ({
     AllowanceType.Reset,
     isAllowanceResetEnabled,
     activeTradeId,
-    allowanceReset.isInitiallyRequired,
+    allowanceReset.isInitiallyRequired ?? false,
   )
 
   return {

@@ -69,12 +69,19 @@ export const SellAssetInput = memo(
 
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {
+        const isRateZero = bnOrZero(sellAssetUserCurrencyRate).isZero()
+
+        // Avoid division by zero
         const sellAmountCryptoPrecision = isFiat
-          ? bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
+          ? isRateZero
+            ? '0'
+            : bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
           : value
+
         const sellAmountUserCurrency = !isFiat
           ? bnOrZero(value).times(sellAssetUserCurrencyRate).toFixed()
           : value
+
         setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)
         setRawSellAmountUserCurrency(sellAmountUserCurrency)
       },

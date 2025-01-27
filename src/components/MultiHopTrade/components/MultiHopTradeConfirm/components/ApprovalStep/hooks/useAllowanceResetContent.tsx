@@ -59,7 +59,7 @@ export const useAllowanceResetContent = ({
     AllowanceType.Reset,
     isEnabled,
     activeTradeId,
-    allowanceReset.isInitiallyRequired,
+    allowanceReset.isInitiallyRequired ?? false,
   )
 
   const handleSignAllowanceReset = useCallback(async () => {

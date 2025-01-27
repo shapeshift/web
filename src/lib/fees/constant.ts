@@ -1,5 +1,4 @@
 import { toBaseUnit } from "@shapeshiftoss/utils"
-import { foxWifHatAsset } from "../../../scripts/generateAssetData/base"
 
 // This timestamp is the 24th of January 2025
 export const FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS = 1737707777000

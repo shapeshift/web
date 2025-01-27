@@ -6,7 +6,7 @@ import { HopExecutionState, TradeExecutionState, TransactionExecutionState } fro
 
 export const initialApprovalExecutionState = {
   state: TransactionExecutionState.AwaitingConfirmation,
-  isInitiallyRequired: false,
+  isInitiallyRequired: undefined,
 }
 
 export const initialTransactionState = {

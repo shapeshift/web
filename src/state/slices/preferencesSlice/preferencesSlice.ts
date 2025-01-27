@@ -79,6 +79,7 @@ export type FeatureFlags = {
   NewTradeFlow: boolean
   NewWalletFlow: boolean
   FoxPageFoxWifHatSection: boolean
+  NewLimitFlow: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -181,6 +182,7 @@ const initialState: Preferences = {
     NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
     NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
     FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
+    NewLimitFlow: getConfig().REACT_APP_FEATURE_NEW_LIMIT_FLOW,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

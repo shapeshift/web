@@ -61,6 +61,8 @@ export type FeatureFlags = {
   ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
   RunePool: boolean
+  RunePoolDeposit: boolean
+  RunePoolWithdraw: boolean
   Markets: boolean
   PhantomWallet: boolean
   FoxPage: boolean
@@ -162,6 +164,8 @@ const initialState: Preferences = {
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
     RunePool: getConfig().REACT_APP_FEATURE_RUNEPOOL,
+    RunePoolDeposit: getConfig().REACT_APP_FEATURE_RUNEPOOL_DEPOSIT,
+    RunePoolWithdraw: getConfig().REACT_APP_FEATURE_RUNEPOOL_WITHDRAW,
     Markets: getConfig().REACT_APP_FEATURE_MARKETS,
     PhantomWallet: getConfig().REACT_APP_FEATURE_PHANTOM_WALLET,
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,

@@ -38,6 +38,9 @@ export const usdcOnSolanaAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 export const flipAssetId: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
 
+export const foxWifHatAssetId: AssetId =
+  'eip155:8453/erc20:0xd14acd73ade7f3c652f05365115f015e905a6bf4'
+
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'

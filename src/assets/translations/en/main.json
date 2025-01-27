@@ -2807,11 +2807,12 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "It's just FOX wif a hat, don't overthink it. Enjoy a limited time on-chain discount program. As your discount decays learn about FOX on the rest of the page and swap into FOX any time to preserve your fee discount. Whichever holding is higher saves you money on the ShapeShift platform.",
+      "description": "Claim your FOXwifhat. Act fast - discounts decay over time. The more FOX or FOXwifhat you hold, the more you save. Stack more FOX tokens for continuous savings plus revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
       "discount": "*The discount decreases linearly over time, expiring on XX/XX/2025. Take advantage of your XX% discount before it decreases further!",
       "claim": "Claim",
       "claimed": "Claimed",
-      "discountText": "*%{percent}% off trade fees"
+      "discountText": "*%{percent}% off trade fees",
+      "noClaims": "No claims available"
     },
     "governance": {
       "title": "Governance",
@@ -2837,7 +2838,7 @@
       "getAddress": "Failed to get address from wallet.",
       "getAccount": "Failed to get account for: %{pubkey}.",
       "switchChainUnsupported": "Wallet does not support switching chains.",
-      "switchChainFailed": "Failed to switch wallet chain to %{chain}.",
+      "switchChainFailed": "Failed to switch wallet chain. Try manually switching your wallet active chain to %{chain}.",
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",

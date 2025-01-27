@@ -288,7 +288,7 @@ export const LimitOrderConfirm = () => {
         const result = await placeLimitOrder({ quoteId, wallet })
 
         // Exit if the request failed.
-        if ((result as { error: unknown }).error || !!result) {
+        if ((result as { error: unknown }).error || !result) {
           setLimitOrderTxFailed(quoteId)
           return
         }

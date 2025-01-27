@@ -18,6 +18,7 @@ import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetc
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
 import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
@@ -121,8 +122,9 @@ export const LimitOrderInput = ({
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
   } = useActions(limitOrderInput.actions)
-  const { setActiveQuote } = useActions(limitOrderSlice.actions)
+  const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -277,31 +279,45 @@ export const LimitOrderInput = ({
 
     const { assetReference, chainId } = fromAssetId(limitOrderQuoteParams.sellAssetId)
 
-    // Trigger loading state while we check the allowance
-    setIsCheckingAllowance(true)
-
-    try {
-      // Check the ERC20 token allowance
-      const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-        address: assetReference,
-        spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-        from: limitOrderQuoteParams.sellAccountAddress as Address,
-        chainId,
-      })
-
-      // If approval is required, route there
-      if (bn(allowanceOnChainCryptoBaseUnit).lt(limitOrderQuoteParams.sellAmountCryptoBaseUnit)) {
-        history.push(LimitOrderRoutePaths.AllowanceApproval)
+    if (isNewLimitFlowEnabled) {
+      if (!quoteResponse.id) {
+        console.error('Missing quoteId')
         return
       }
 
-      // Otherwise, proceed with confirmation
+      setLimitOrderInitialized(quoteResponse.id)
       history.push(LimitOrderRoutePaths.Confirm)
+
+      // If the new limit flow is enabled, we don't need to check the allowance here, so we
+      // update the slice state immediately and return
       return
-    } catch (e) {
-      showErrorToast(e)
-    } finally {
-      setIsCheckingAllowance(false)
+    } else {
+      // Trigger loading state while we check the allowance
+      setIsCheckingAllowance(true)
+
+      try {
+        // Check the ERC20 token allowance
+        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
+          address: assetReference,
+          spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+          from: limitOrderQuoteParams.sellAccountAddress as Address,
+          chainId,
+        })
+
+        // If approval is required, route there
+        if (bn(allowanceOnChainCryptoBaseUnit).lt(limitOrderQuoteParams.sellAmountCryptoBaseUnit)) {
+          history.push(LimitOrderRoutePaths.AllowanceApproval)
+          return
+        }
+
+        // Otherwise, proceed with confirmation
+        history.push(LimitOrderRoutePaths.Confirm)
+        return
+      } catch (e) {
+        showErrorToast(e)
+      } finally {
+        setIsCheckingAllowance(false)
+      }
     }
   }, [
     isConnected,
@@ -312,7 +328,9 @@ export const LimitOrderInput = ({
     setActiveQuote,
     expiry,
     buyAmountCryptoBaseUnit,
+    isNewLimitFlowEnabled,
     handleConnect,
+    setLimitOrderInitialized,
     history,
     showErrorToast,
   ])

@@ -78,15 +78,6 @@ export const calculateFees: CalculateFeeBps = ({
     foxWifHatHeld &&
     foxWifHatHeld?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
 
-  console.log({
-    isFoxWifHatCampaignActive,
-    isFoxWifHatDiscountEligible,
-    foxWifHatHeld,
-    currentTime: new Date().getTime(),
-    FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
-    FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
-  })
-
   const currentFoxWifHatDiscountPercent = (() => {
     if (!isFoxWifHatCampaignActive) return bn(0)
     if (!isFoxWifHatDiscountEligible) return bn(0)
@@ -98,13 +89,6 @@ export const calculateFees: CalculateFeeBps = ({
     const remainingPercentage = bn(100).times(
       bn(1).minus(bn(timeElapsed).div(totalCampaignDuration)),
     )
-
-    console.log({
-      remainingPercentage,
-      currentTime,
-      totalCampaignDuration,
-      remaining: remainingPercentage.toFixed(),
-    })
 
     return BigNumber.maximum(BigNumber.minimum(remainingPercentage, bn(100)), bn(0))
   })()
@@ -173,6 +157,12 @@ export const calculateFees: CalculateFeeBps = ({
     .minus(feeBpsFloat)
     .div(feeBpsBeforeDiscountFloat)
     .times(100)
+
+  console.log({
+    foxDiscountPercent: foxDiscountPercent.toFixed(2),
+    feeBpsFloat: feeBpsFloat.toFixed(2),
+    feeBpsBeforeDiscountFloat: feeBpsBeforeDiscountFloat.toFixed(2),
+  })
 
   const feeBps = feeBpsAfterDiscount
   const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))

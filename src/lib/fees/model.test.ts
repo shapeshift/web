@@ -1,13 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 import { selectIsSnapshotApiQueriesRejected } from 'state/apis/snapshot/selectors'
 import { store } from 'state/store'
 
-import {
-  FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
-  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
-  FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
-} from './constant'
 import { calculateFees } from './model'
 import { swapperParameters } from './parameters/swapper'
 

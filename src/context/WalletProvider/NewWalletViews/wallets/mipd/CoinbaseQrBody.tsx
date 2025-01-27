@@ -42,10 +42,7 @@ export const CoinbaseQrBody = ({
     try {
       const wallet = await adapter.pairDevice()
       if (!wallet) {
-        setError('walletProvider.errors.walletNotFound')
-        throw new Error(
-          `Call to hdwallet-${KeyManager.Coinbase.toLowerCase()}::pairDevice returned null or undefined`,
-        )
+        throw new Error('walletProvider.errors.walletNotFound')
       }
 
       const deviceId = await wallet.getDeviceID()

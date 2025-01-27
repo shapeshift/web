@@ -55,7 +55,7 @@ const CoinbaseQROption = ({
   isSelected: boolean
   isDisabled: boolean
 }) => {
-  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  const selectedBackgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
 
   return (
     <Box
@@ -68,7 +68,7 @@ const CoinbaseQROption = ({
       borderRadius='md'
       width='full'
       onClick={connect}
-      bg={isSelected ? backgroundColor : undefined}
+      bg={isSelected ? selectedBackgroundColor : undefined}
       isDisabled={isDisabled}
     >
       <Flex alignItems='center' width='full'>

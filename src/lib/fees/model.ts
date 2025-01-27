@@ -78,7 +78,14 @@ export const calculateFees: CalculateFeeBps = ({
     foxWifHatHeld &&
     foxWifHatHeld?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
 
-  console.log({ isFoxWifHatDiscountEligible })
+  console.log({
+    isFoxWifHatCampaignActive,
+    isFoxWifHatDiscountEligible,
+    foxWifHatHeld,
+    currentTime: new Date().getTime(),
+    FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
+    FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
+  })
 
   const currentFoxWifHatDiscountPercent = (() => {
     if (!isFoxWifHatCampaignActive) return bn(0)
@@ -91,6 +98,13 @@ export const calculateFees: CalculateFeeBps = ({
     const remainingPercentage = bn(100).times(
       bn(1).minus(bn(timeElapsed).div(totalCampaignDuration)),
     )
+
+    console.log({
+      remainingPercentage,
+      currentTime,
+      totalCampaignDuration,
+      remaining: remainingPercentage.toFixed(),
+    })
 
     return BigNumber.maximum(BigNumber.minimum(remainingPercentage, bn(100)), bn(0))
   })()
@@ -115,6 +129,8 @@ export const calculateFees: CalculateFeeBps = ({
     const foxDiscountPercent = bnOrZero(foxHeld)
       .times(100)
       .div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
+
+    console.log({ foxDiscountPercent, currentFoxWifHatDiscountPercent })
 
     // No discount if we cannot fetch FOX holdings and we are not eligible for the WIF HAT campaign
     if (isFallbackFees && !isFoxWifHatDiscountEligible) return bn(0)

@@ -51,7 +51,9 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
 
   const { currentLimitOrderStepIndex: currentStep } = useStepperSteps()
 
-  const [_, { data: orderData, error: orderError }] = usePlaceLimitOrderMutation()
+  const [_, { data: orderData, error: orderError }] = usePlaceLimitOrderMutation({
+    fixedCacheKey: quoteId as string | undefined,
+  })
 
   const orderSubmissionMetadataFilter = useMemo(() => {
     return { quoteId: quoteId ?? 0 }

@@ -122,7 +122,7 @@ export const LimitOrderConfirm = () => {
   }, [dispatch, history])
 
   const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
-    usePlaceLimitOrderMutation()
+    usePlaceLimitOrderMutation({ fixedCacheKey: quoteId as string | undefined })
 
   const innerStepsRendered = useMemo(() => {
     return () => <InnerSteps isLoading={isLoadingSetIsApprovalInitiallyNeeded} />

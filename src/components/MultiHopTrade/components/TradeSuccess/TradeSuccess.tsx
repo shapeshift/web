@@ -20,15 +20,15 @@ import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
 
 export type TradeSuccessProps = {
   handleBack: () => void
-  children: JSX.Element
-  titleTranslation?: string | [string, InterpolationOptions]
+  children?: JSX.Element
+  titleTranslation: string | [string, InterpolationOptions]
+  buttonTranslation: string | [string, InterpolationOptions]
+  summaryTranslation?: string | [string, InterpolationOptions]
   sellAsset?: Asset
   buyAsset?: Asset
   sellAmountCryptoPrecision?: string
@@ -38,6 +38,8 @@ export type TradeSuccessProps = {
 export const TradeSuccess = ({
   handleBack,
   titleTranslation,
+  buttonTranslation,
+  summaryTranslation,
   children,
   sellAmountCryptoPrecision,
   sellAsset,
@@ -49,8 +51,6 @@ export const TradeSuccess = ({
   const { isOpen, onToggle: handleToggle } = useDisclosure({
     defaultIsOpen: false,
   })
-
-  const lastHop = useAppSelector(selectLastHop)
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -79,8 +79,6 @@ export const TradeSuccess = ({
     )
   }, [sellAsset, buyAsset, sellAmountCryptoPrecision, buyAmountCryptoPrecision])
 
-  if (!lastHop) return null
-
   return (
     <>
       <CardBody pb={0} px={0}>
@@ -88,30 +86,32 @@ export const TradeSuccess = ({
           <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
             <Stack alignItems='center'>
               <AnimatedCheck boxSize={12} />
-              <Text translation={titleTranslation ?? 'trade.temp.tradeSuccess'} fontWeight='bold' />
+              <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
           </Flex>
         </SlideTransition>
         <Stack gap={4} px={8}>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-            {translate('trade.doAnotherTrade')}
+            {translate(buttonTranslation)}
           </Button>
         </Stack>
       </CardBody>
-      <CardFooter flexDir='column' gap={2} px={8}>
-        <SlideTransition>
-          <HStack width='full' justifyContent='space-between' mt={4}>
-            <Button variant='link' onClick={handleToggle} px={2}>
-              {translate('trade.summary')}
-            </Button>
-            <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
-          </HStack>
-          <Box>
-            <Collapse in={isOpen}>{children}</Collapse>
-          </Box>
-        </SlideTransition>
-      </CardFooter>
+      {summaryTranslation && children && (
+        <CardFooter flexDir='column' gap={2} px={8}>
+          <SlideTransition>
+            <HStack width='full' justifyContent='space-between' mt={4}>
+              <Button variant='link' onClick={handleToggle} px={2}>
+                {translate(summaryTranslation)}
+              </Button>
+              <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
+            </HStack>
+            <Box>
+              <Collapse in={isOpen}>{children}</Collapse>
+            </Box>
+          </SlideTransition>
+        </CardFooter>
+      )}
     </>
   )
 }

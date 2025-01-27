@@ -78,6 +78,8 @@ export const calculateFees: CalculateFeeBps = ({
     foxWifHatHeld &&
     foxWifHatHeld?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
 
+  console.log({ isFoxWifHatDiscountEligible })
+
   const currentFoxWifHatDiscountPercent = (() => {
     if (!isFoxWifHatCampaignActive) return bn(0)
     if (!isFoxWifHatDiscountEligible) return bn(0)

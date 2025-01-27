@@ -1050,6 +1050,9 @@
     "placeOrderSuccess": "Success!",
     "placeOrderFailed": "Something Went Wrong",
     "placeOrder": "Place Order",
+    "placeAnotherOrder": "Place Another Order",
+    "orderSummary": "Order Summary",
+    "success": "Limit order placed successfully",
     "cancel": {
       "cancelOrder": "Cancel Limit Order",
       "requestCancellation": "Yes, request cancellation",
@@ -1074,6 +1077,10 @@
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
     "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
+    "awaitingOrderPlacement": "Awaiting order placement on %{swapperName}",
+    "awaitingAllowanceApproval": "Awaiting allowance approval",
+    "awaitingAllowanceReset": "Awaiting allowance reset",
+    "orderPlacement": "Place order on %{swapperName}",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",

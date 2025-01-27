@@ -2,7 +2,9 @@ import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
+import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { AllowanceApproval } from './components/AllowanceApproval'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
@@ -27,6 +29,7 @@ type LimitOrderProps = {
 
 export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrderProps) => {
   const location = useLocation()
+  const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
   const renderLimitOrderInput = useCallback(() => {
     return (
@@ -40,6 +43,10 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
 
   const renderLimitOrderConfirm = useCallback(() => {
     return <LimitOrderConfirm />
+  }, [])
+
+  const renderLimitOrderShared = useCallback(() => {
+    return <LimitOrderShared />
   }, [])
 
   const renderAllowanceApproval = useCallback(() => {
@@ -62,7 +69,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
           <Route
             key={LimitOrderRoutePaths.Confirm}
             path={LimitOrderRoutePaths.Confirm}
-            render={renderLimitOrderConfirm}
+            render={isNewLimitFlowEnabled ? renderLimitOrderShared : renderLimitOrderConfirm}
           />
           <Route
             key={LimitOrderRoutePaths.AllowanceApproval}

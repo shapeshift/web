@@ -4,7 +4,7 @@ import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
@@ -57,6 +57,7 @@ type ParamFilter = Partial<{
   parser: TxMetadata['parser']
   hopIndex: number
   tradeId: TradeQuote['id']
+  quoteId: QuoteId
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -103,3 +104,4 @@ export const selectParserParamFromFilter = selectParamFromFilter('parser')
 
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')
+export const selectQuoteIdParamFromRequiredFilter = selectRequiredParamFromFilter('quoteId')

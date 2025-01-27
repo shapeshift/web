@@ -75,7 +75,7 @@ export const useAllowanceApprovalContent = ({
     isExactAllowance && !isPermit2 ? AllowanceType.Exact : AllowanceType.Unlimited,
     isEnabled,
     activeTradeId,
-    allowanceApproval.isInitiallyRequired,
+    allowanceApproval.isInitiallyRequired ?? false,
   )
 
   const handleSignAllowanceApproval = useCallback(async () => {

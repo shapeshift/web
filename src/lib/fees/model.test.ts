@@ -37,7 +37,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -52,7 +52,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -67,7 +67,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -82,7 +82,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -97,7 +97,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -112,7 +112,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -128,7 +128,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
@@ -146,7 +146,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
       thorHeld: bn(0),
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })

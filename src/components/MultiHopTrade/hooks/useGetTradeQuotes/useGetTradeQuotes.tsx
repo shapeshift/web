@@ -277,7 +277,7 @@ export const useGetTradeQuotes = () => {
         tradeAmountUsd,
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
-        foxWifHatHeld: bnOrZero(foxWifHatHeld),
+        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
       })

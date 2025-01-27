@@ -1024,7 +1024,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: bnOrZero(votingPower),
-      foxWifHatHeld: bn(foxWifHatHeld),
+      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
       // @TODO: remove this when thor swap discount is removed
       thorHeld: bn(0),
       feeModel: 'THORCHAIN_LP',

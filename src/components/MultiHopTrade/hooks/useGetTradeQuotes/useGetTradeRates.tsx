@@ -232,7 +232,7 @@ export const useGetTradeRates = () => {
         tradeAmountUsd,
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
-        foxWifHatHeld: bnOrZero(foxWifHatHeld),
+        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
       })

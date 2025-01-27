@@ -74,7 +74,7 @@ export const FoxWifHatClaimRow = ({
       foxHeld: bn(0),
       feeModel: 'SWAPPER',
       thorHeld: bn(0),
-      foxWifHatHeld: bn(amountCryptoBaseUnit),
+      foxWifHatHeldCryptoBaseUnit: bn(amountCryptoBaseUnit),
       isSnapshotApiQueriesRejected: false,
     }).foxDiscountPercent.toFixed(2)
   }, [amountCryptoBaseUnit])

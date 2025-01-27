@@ -80,7 +80,7 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
         tradeAmountUsd: bnOrZero(inputAmountUsd),
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
-        foxWifHatHeld: bnOrZero(foxWifHatHeld),
+        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel,
         isSnapshotApiQueriesRejected,
       })

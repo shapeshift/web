@@ -17,7 +17,7 @@ type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
   foxHeld: BigNumber
   thorHeld: BigNumber
-  foxWifHatHeld: BigNumber
+  foxWifHatHeldCryptoBaseUnit: BigNumber
   feeModel: ParameterModel
   isSnapshotApiQueriesRejected: boolean
 }
@@ -49,7 +49,7 @@ export const calculateFees: CalculateFeeBps = ({
   foxHeld,
   feeModel,
   thorHeld,
-  foxWifHatHeld,
+  foxWifHatHeldCryptoBaseUnit,
   isSnapshotApiQueriesRejected,
 }) => {
   const {
@@ -75,8 +75,8 @@ export const calculateFees: CalculateFeeBps = ({
 
   const isFoxWifHatDiscountEligible =
     isFoxWifHatCampaignActive &&
-    foxWifHatHeld &&
-    foxWifHatHeld?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
+    foxWifHatHeldCryptoBaseUnit &&
+    foxWifHatHeldCryptoBaseUnit?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
 
   const currentFoxWifHatDiscountPercent = (() => {
     if (!isFoxWifHatCampaignActive) return bn(0)

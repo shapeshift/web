@@ -152,7 +152,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) 
           feeModel,
           isSnapshotApiQueriesRejected,
           // This is for feeExplainer which is not supporting anything else than FOX discount for now
-          foxWifHatHeld: bn(0),
+          foxWifHatHeldCryptoBaseUnit: bn(0),
           thorHeld: bn(0),
         }).feeBpsFloat.toNumber()
         return { x: trade, y: feeBps }
@@ -167,7 +167,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) 
       feeModel,
       isSnapshotApiQueriesRejected,
       // This is for feeExplainer which is not supporting anything else than FOX discount for now
-      foxWifHatHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       thorHeld: bn(0),
     }).feeBpsFloat.toNumber()
 
@@ -281,7 +281,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
       foxHeld: bn(foxHolding),
       feeModel,
       isSnapshotApiQueriesRejected,
-      foxWifHatHeld: bn(foxWifHatHeld),
+      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
       // @TODO: remove this when thor swap discount is removed
       thorHeld: bn(0),
     })

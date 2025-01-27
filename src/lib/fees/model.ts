@@ -73,8 +73,14 @@ export const calculateFees: CalculateFeeBps = ({
     new Date().getTime() <= FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS &&
     isFoxWifHatEnabled
 
+  const isFoxWifHatDiscountEligible =
+    isFoxWifHatCampaignActive &&
+    foxWifHatHeld &&
+    foxWifHatHeld?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
+
   const currentFoxWifHatDiscountPercent = (() => {
-    if (!foxWifHatHeld || foxWifHatHeld?.lt(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)) return bn(0)
+    if (!isFoxWifHatCampaignActive) return bn(0)
+    if (!isFoxWifHatDiscountEligible) return bn(0)
 
     const currentTime = new Date().getTime()
     const totalCampaignDuration =
@@ -104,19 +110,19 @@ export const calculateFees: CalculateFeeBps = ({
     // THOR holder before TIP014 are trade free until 2025
     if (isThorFree) return bn(100)
 
-    const foxDiscountPercent = isFoxWifHatCampaignActive
-      ? bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
-      : bn(0)
+    const foxDiscountPercent = bnOrZero(foxHeld)
+      .times(100)
+      .div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
 
-    // No discount if we cannot fetch FOX holdings
-    if (isFallbackFees) return bn(0)
+    // No discount if we cannot fetch FOX holdings and we are not eligible for the WIF HAT campaign
+    if (isFallbackFees && !isFoxWifHatDiscountEligible) return bn(0)
 
     return BigNumber.maximum(foxDiscountPercent, currentFoxWifHatDiscountPercent)
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number
   const feeBpsBeforeDiscountFloat =
-    isFallbackFees && !isFree && !isThorFree
+    isFallbackFees && !isFree && !isThorFree && !isFoxWifHatDiscountEligible
       ? bn(FEE_CURVE_MAX_FEE_BPS)
       : minFeeBps.plus(
           maxFeeBps
@@ -136,7 +142,7 @@ export const calculateFees: CalculateFeeBps = ({
         )
 
   const feeBpsFloat =
-    isFallbackFees && !isFree && !isThorFree
+    isFallbackFees && !isFree && !isThorFree && !isFoxWifHatDiscountEligible
       ? bn(FEE_CURVE_MAX_FEE_BPS)
       : BigNumber.maximum(
           feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),

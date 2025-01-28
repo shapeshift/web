@@ -8,8 +8,8 @@ import { useAppSelector } from 'state/store'
 
 import { useAllowanceApproval } from './useAllowanceApproval'
 import { useAllowanceReset } from './useAllowanceReset'
-import { useSignPermit2 } from './useSignPermit2'
 import { useCurrentHopIndex } from './useCurrentHopIndex'
+import { useSignPermit2 } from './useSignPermit2'
 
 type UseSignAllowanceApprovalProps = {
   tradeQuoteStep: TradeQuoteStep

@@ -29,10 +29,10 @@ import {
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { StepperStep as StepperStepComponent } from '../StepperStep'
 import { StepperStep } from '../helpers'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { useStreamingProgress } from '../hooks/useStreamingProgress'
+import { StepperStep as StepperStepComponent } from '../StepperStep'
 import { TxLabel } from '../TxLabel'
 
 const erroredStepIndicator = <WarningIcon color='red.500' />

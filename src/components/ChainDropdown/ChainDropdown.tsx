@@ -58,12 +58,14 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
     })
   }, [_chainIds, fiatBalanceByChainId, includeBalance])
 
-  // Sum the balances of all chains
-  const totalSupportedMarketsBalance = chainIds
-    .reduce((acc, chainId) => {
-      return acc.plus(bnOrZero(fiatBalanceByChainId[chainId]))
-    }, bn(0))
-    .toString()
+  // Sum the balances of all chains in the market chain dropdown
+  const totalSupportedMarketsBalance = useMemo(() => {
+    return chainIds
+      .reduce((acc, chainId) => {
+        return acc.plus(bnOrZero(fiatBalanceByChainId[chainId]))
+      }, bn(0))
+      .toString()
+  }, [chainIds, fiatBalanceByChainId])
 
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (

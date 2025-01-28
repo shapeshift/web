@@ -3,8 +3,8 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useChainflipStreamingProgress } from '../../MultiHopTradeConfirm/hooks/useChainflipStreamingProgress'
-import { useThorStreamingProgress } from '../../MultiHopTradeConfirm/hooks/useThorStreamingProgress'
+import { useChainflipStreamingProgress } from './useChainflipStreamingProgress'
+import { useThorStreamingProgress } from './useThorStreamingProgress'
 
 type UseStreamingProgressProps = {
   hopIndex: number

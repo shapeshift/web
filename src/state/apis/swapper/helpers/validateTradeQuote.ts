@@ -8,7 +8,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from 'components/MultiHopTrade/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'

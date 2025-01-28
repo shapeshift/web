@@ -11,7 +11,8 @@ import type {
 } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from './types'
+import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from '../types'
+
 const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {

@@ -1,5 +1,6 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from 'lib/utils'
+
+import { assertUnreachable } from './assertUnreachable'
 
 export const getChainShortName = (chainId: KnownChainIds) => {
   switch (chainId) {

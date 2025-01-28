@@ -1,6 +1,6 @@
 import { memo, useEffect } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useCountdown } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useCountdown'
+import { useCountdown } from 'components/MultiHopTrade/components/TradeConfirm/hooks/useCountdown'
 
 type CountdownSpinnerArgs = {
   isLoading: boolean

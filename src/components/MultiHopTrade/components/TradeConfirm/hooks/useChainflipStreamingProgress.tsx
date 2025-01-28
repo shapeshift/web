@@ -12,7 +12,7 @@ import type {
 } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import type { ChainflipStreamingSwapResponseSuccess } from './types'
+import type { ChainflipStreamingSwapResponseSuccess } from '../types'
 
 const POLL_INTERVAL_MILLISECONDS = 5_000 // 5 seconds
 

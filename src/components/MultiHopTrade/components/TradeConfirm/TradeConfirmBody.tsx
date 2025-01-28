@@ -7,8 +7,8 @@ import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
-import { EtaStep } from './EtaStep'
-import { ExpandableStepperSteps } from './ExpandableStepperSteps'
+import { EtaStep } from './components/EtaStep'
+import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
 
 const InnerSteps = () => {
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)

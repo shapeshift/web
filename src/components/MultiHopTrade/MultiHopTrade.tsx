@@ -5,13 +5,11 @@ import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LimitOrder } from './components/LimitOrder/LimitOrder'
-import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
@@ -99,7 +97,6 @@ type TradeRoutesProps = {
 const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
   const history = useHistory()
   const location = useLocation()
-  const isNewTradeFlowEnabled = useFeatureFlag('NewTradeFlow')
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
@@ -141,7 +138,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
             />
           </Route>
           <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-            {isNewTradeFlowEnabled ? <TradeConfirm /> : <MultiHopTradeConfirm />}
+            <TradeConfirm />
           </Route>
           <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
             <VerifyAddresses />

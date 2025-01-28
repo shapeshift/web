@@ -15,7 +15,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { StepperStep } from './StepperStep'
+import { StepperStep } from '../TradeConfirm/StepperStep'
 
 export type AssetSummaryStepProps = {
   asset: Asset

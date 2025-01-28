@@ -49,10 +49,10 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { useIsApprovalInitiallyNeeded } from '../../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { useIsApprovalInitiallyNeeded } from '../hooks/useIsApprovalInitiallyNeeded'
 
 const ProtocolFeeToolTip = () => {
   return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />

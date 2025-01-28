@@ -17,14 +17,13 @@ import {
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
-import { useTradeNetworkFeeCryptoBaseUnit } from '../MultiHopTradeConfirm/hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
-import { StepperStep } from './helpers'
+import { TradeConfirmSummary } from './components/TradeConfirmSummary'
+import { isPermit2Hop, StepperStep } from './helpers'
 import { useActiveTradeAllowance } from './hooks/useActiveTradeAllowance'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useStepperSteps } from './hooks/useStepperSteps'
-import { TradeConfirmSummary } from './TradeConfirmFooterContent/TradeConfirmSummary'
+import { useTradeNetworkFeeCryptoBaseUnit } from './hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { TradeFooterButton } from './TradeFooterButton'
 
 type TradeConfirmFooterProps = {

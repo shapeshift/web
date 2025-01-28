@@ -12,7 +12,7 @@ import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
+import { limitOrderApi, usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import {
   selectBuyAmountCryptoBaseUnit,
   selectInputSellAmountCryptoBaseUnit,
@@ -302,6 +302,16 @@ export const LimitOrderConfirm = () => {
           refetchType: 'all',
         })
 
+        // Clear the completed quote from the cache
+        dispatch(
+          limitOrderApi.util.invalidateTags([
+            {
+              type: 'limitOrderQuote',
+              id: quoteId,
+            },
+          ]),
+        )
+
         // Track event in mixpanel
         const eventData = getMixpanelLimitOrderEventData({
           sellAsset,
@@ -322,6 +332,7 @@ export const LimitOrderConfirm = () => {
     allowanceResetMutation,
     buyAmountCryptoPrecision,
     buyAsset,
+    dispatch,
     isConnected,
     isDemoWallet,
     mixpanel,

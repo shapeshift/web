@@ -5,6 +5,7 @@ import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 import type { RightPanelContentProps } from '../types'
+import { CoinbaseQrBody } from '../wallets/mipd/CoinbaseQrBody'
 import { FirstClassBody } from '../wallets/mipd/FirstClassBody'
 import { MipdBody } from '../wallets/mipd/MipdBody'
 
@@ -22,6 +23,14 @@ export const MipdRoutes = ({
 
   return (
     <Switch>
+      <Route exact path='/coinbase/connect'>
+        <CoinbaseQrBody
+          isLoading={isLoading}
+          error={error}
+          setIsLoading={setIsLoading}
+          setError={setError}
+        />
+      </Route>
       {Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
         <Route exact path={`/${keyManager.toLowerCase()}/connect`}>
           <FirstClassBody

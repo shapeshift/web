@@ -59,8 +59,8 @@ export const limitOrderApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
-  tagTypes: ['LimitOrder'],
-  baseQuery: fakeBaseQuery<CowSwapError | undefined>(),
+  tagTypes: ['LimitOrder', 'limitOrderQuote'] as const,
+  baseQuery: fakeBaseQuery<CowSwapError | null>(),
   endpoints: build => ({
     quoteLimitOrder: build.query<OrderQuoteResponse, LimitOrderQuoteParams>({
       queryFn: async (params: LimitOrderQuoteParams) => {
@@ -123,9 +123,12 @@ export const limitOrderApi = createApi({
         } catch (e) {
           const axiosError = e as AxiosError
           return {
-            error: axiosError.response?.data as CowSwapError | undefined,
+            error: (axiosError.response?.data ?? null) as CowSwapError | null,
           }
         }
+      },
+      providesTags: (result, _error, _params) => {
+        return [{ type: 'limitOrderQuote' as const, id: result?.id }]
       },
     }),
     placeLimitOrder: build.mutation<OrderId, { quoteId: QuoteId; wallet: HDWallet | null }>({
@@ -134,7 +137,7 @@ export const limitOrderApi = createApi({
         const {
           unsignedOrderCreation,
           params: { sellAssetId, accountId },
-        } = selectConfirmedLimitOrder(state, quoteId)
+        } = selectConfirmedLimitOrder(state, { quoteId })
         const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 
@@ -169,7 +172,7 @@ export const limitOrderApi = createApi({
         } catch (e) {
           const axiosError = e as AxiosError
           return {
-            error: axiosError.response?.data as CowSwapError | undefined,
+            error: (axiosError.response?.data ?? null) as CowSwapError | null,
           }
         }
       },

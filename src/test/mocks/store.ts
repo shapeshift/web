@@ -34,6 +34,7 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
 const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
   provided: {
     LimitOrder: {},
+    limitOrderQuote: {},
   },
 })
 
@@ -126,6 +127,8 @@ export const mockStore: ReduxState = {
       ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,
       RunePool: false,
+      RunePoolDeposit: false,
+      RunePoolWithdraw: false,
       PortalsSwap: false,
       Markets: false,
       PhantomWallet: false,
@@ -143,6 +146,7 @@ export const mockStore: ReduxState = {
       NewTradeFlow: false,
       NewWalletFlow: false,
       FoxPageFoxWifHatSection: false,
+      NewLimitFlow: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -170,7 +170,7 @@ export const limitOrderSlice = createSlice({
     },
     setInitialApprovalRequirements: (
       state,
-      action: PayloadAction<{ isAllowanceApprovalRequired: boolean; id: QuoteId }>,
+      action: PayloadAction<{ isAllowanceApprovalRequired: boolean | undefined; id: QuoteId }>,
     ) => {
       state.orderSubmission[action.payload.id].allowanceApproval.isRequired =
         action.payload?.isAllowanceApprovalRequired
@@ -179,7 +179,7 @@ export const limitOrderSlice = createSlice({
     },
     setAllowanceResetRequirements: (
       state,
-      action: PayloadAction<{ isAllowanceResetRequired: boolean; id: QuoteId }>,
+      action: PayloadAction<{ isAllowanceResetRequired: boolean | undefined; id: QuoteId }>,
     ) => {
       state.orderSubmission[action.payload.id].allowanceReset.isRequired =
         action.payload?.isAllowanceResetRequired

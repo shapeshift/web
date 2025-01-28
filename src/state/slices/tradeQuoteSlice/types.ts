@@ -63,7 +63,7 @@ export type StreamingSwapMetadata = {
 export type ApprovalExecutionMetadata = {
   state: TransactionExecutionState
   txHash?: string
-  isInitiallyRequired: boolean
+  isInitiallyRequired: boolean | undefined
   isRequired?: boolean
 }
 

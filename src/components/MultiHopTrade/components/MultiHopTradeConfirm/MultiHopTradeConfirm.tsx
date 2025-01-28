@@ -147,8 +147,8 @@ export const MultiHopTradeConfirm = memo(() => {
                 ? 'bridge.arbitrum.success.tradeSuccess'
                 : 'trade.temp.tradeSuccess'
             }
-            buttonTranslation={'trade.doAnotherTrade'}
-            summaryTranslation={'trade.summary'}
+            buttonTranslation='trade.doAnotherTrade'
+            summaryTranslation='trade.summary'
             sellAsset={activeQuote?.steps[0].sellAsset}
             buyAsset={lastHop.buyAsset}
             sellAmountCryptoPrecision={fromBaseUnit(

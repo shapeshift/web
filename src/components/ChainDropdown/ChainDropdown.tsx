@@ -10,16 +10,14 @@ import {
   MenuOptionGroup,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectPortfolioTotalBalanceByChainIdIncludeStaking,
-  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-} from 'state/slices/selectors'
+import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from './ChainRow'
@@ -46,9 +44,6 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   buttonProps,
   ...menuProps
 }) => {
-  const totalPortfolioUserCurrencyBalance = useAppSelector(
-    selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-  )
   const fiatBalanceByChainId = useAppSelector(selectPortfolioTotalBalanceByChainIdIncludeStaking)
 
   const translate = useTranslate()
@@ -62,6 +57,13 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
       return bBalance.minus(aBalance).toNumber()
     })
   }, [_chainIds, fiatBalanceByChainId, includeBalance])
+
+  // Sum the balances of all chains
+  const totalSupportedMarketsBalance = chainIds
+    .reduce((acc, chainId) => {
+      return acc.plus(bnOrZero(fiatBalanceByChainId[chainId]))
+    }, bn(0))
+    .toString()
 
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (
@@ -87,7 +89,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
                   <GridIcon />
                 </IconCircle>
                 {translate('common.allChains')}
-                <Amount.Fiat ml='auto' value={totalPortfolioUserCurrencyBalance} />
+                <Amount.Fiat ml='auto' value={totalSupportedMarketsBalance} />
               </Flex>
             </MenuItemOption>
           )}

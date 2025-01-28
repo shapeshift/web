@@ -1,6 +1,5 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { isNativeEvmAsset } from '@shapeshiftoss/swapper/src/swappers/utils/helpers/helpers'
+import { isNativeEvmAsset, SwapperName } from '@shapeshiftoss/swapper'
 import type { TextPropTypes } from 'components/Text/Text'
 import { assertUnreachable } from 'lib/utils'
 import type { ApprovalExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'

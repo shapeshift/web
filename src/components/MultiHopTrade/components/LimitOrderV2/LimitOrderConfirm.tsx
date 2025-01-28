@@ -12,7 +12,7 @@ import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
+import { limitOrderApi, usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import {
   selectBuyAmountCryptoBaseUnit,
   selectInputSellAmountCryptoBaseUnit,
@@ -34,7 +34,6 @@ import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
-import { useSetIsApprovalInitiallyNeeded } from '../LimitOrder/hooks/useSetIsApprovalInitiallyNeeded'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
@@ -42,6 +41,7 @@ import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { useAllowanceApproval } from './hooks/useAllowanceApproval'
 import { useAllowanceReset } from './hooks/useAllowanceReset'
+import { useSetIsApprovalInitiallyNeeded } from './hooks/useSetIsApprovalInitiallyNeeded'
 import { InnerSteps } from './InnerSteps'
 import { LimitOrderDetail } from './LimitOrderDetail'
 
@@ -288,7 +288,11 @@ export const LimitOrderConfirm = () => {
         const result = await placeLimitOrder({ quoteId, wallet })
 
         // Exit if the request failed.
-        if ((result as { error: unknown }).error || !result) {
+        if (
+          (result as { error: unknown }).error ||
+          !result ||
+          !(result as { data: unknown }).data
+        ) {
           setLimitOrderTxFailed(quoteId)
           return
         }
@@ -301,6 +305,16 @@ export const LimitOrderConfirm = () => {
           queryKey: ['getLimitOrdersForAccount', accountId],
           refetchType: 'all',
         })
+
+        // Clear the completed quote from the cache
+        dispatch(
+          limitOrderApi.util.invalidateTags([
+            {
+              type: 'limitOrderQuote',
+              id: quoteId,
+            },
+          ]),
+        )
 
         // Track event in mixpanel
         const eventData = getMixpanelLimitOrderEventData({
@@ -322,6 +336,7 @@ export const LimitOrderConfirm = () => {
     allowanceResetMutation,
     buyAmountCryptoPrecision,
     buyAsset,
+    dispatch,
     isConnected,
     isDemoWallet,
     mixpanel,

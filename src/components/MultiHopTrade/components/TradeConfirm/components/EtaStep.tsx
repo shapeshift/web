@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
+import { StepperStep } from '../StepperStep'
 
 const etaStepProps = { py: 0 }
 

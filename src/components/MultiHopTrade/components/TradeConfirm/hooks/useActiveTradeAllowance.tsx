@@ -6,9 +6,9 @@ import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selecto
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { useAllowanceApproval } from '../../MultiHopTradeConfirm/hooks/useAllowanceApproval'
-import { useAllowanceReset } from '../../MultiHopTradeConfirm/hooks/useAllowanceReset'
-import { useSignPermit2 } from '../../MultiHopTradeConfirm/hooks/useSignPermit2'
+import { useAllowanceApproval } from './useAllowanceApproval'
+import { useAllowanceReset } from './useAllowanceReset'
+import { useSignPermit2 } from './useSignPermit2'
 import { useCurrentHopIndex } from './useCurrentHopIndex'
 
 type UseSignAllowanceApprovalProps = {

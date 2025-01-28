@@ -76,7 +76,6 @@ export type FeatureFlags = {
   ChainflipDca: boolean
   ThorFreeFees: boolean
   JupiterSwap: boolean
-  NewTradeFlow: boolean
   NewWalletFlow: boolean
   FoxPageFoxWifHatSection: boolean
   NewLimitFlow: boolean
@@ -179,7 +178,6 @@ const initialState: Preferences = {
     SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
-    NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
     NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
     FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
     NewLimitFlow: getConfig().REACT_APP_FEATURE_NEW_LIMIT_FLOW,

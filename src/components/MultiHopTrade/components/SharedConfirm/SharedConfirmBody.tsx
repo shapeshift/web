@@ -1,7 +1,7 @@
 import { Box, Card, HStack, Step, Stepper } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 
-import { AssetSummaryStep } from '../MultiHopTradeConfirm/components/AssetSummaryStep'
+import { AssetSummaryStep } from './AssetSummaryStep'
 
 const stepContainerProps = { width: '100%', pb: 0 }
 

@@ -6,7 +6,6 @@ import { persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
-import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
@@ -37,7 +36,6 @@ const apiMiddleware = [
   zapper.middleware,
   zapperApi.middleware,
   nftApi.middleware,
-  covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
   limitOrderApi.middleware,
@@ -63,7 +61,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.zapperApi.util.resetApiState())
   store.dispatch(apiSlices.nftApi.util.resetApiState())
-  store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
@@ -88,7 +85,6 @@ const actionSanitizer = (action: any) => {
     'txHistoryApi/executeQuery/fulfilled',
     'zapperApi/executeQuery/fulfilled',
     'nftApi/executeQuery/fulfilled',
-    'covalentApi/executeQuery/fulfilled',
     'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)

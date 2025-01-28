@@ -42,7 +42,12 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const filteredEligibleOpportunities = useMemo(() => {
     // opportunities with 1% APY or more
     const filteredEligibleOpportunities = eligibleOpportunities
-      .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
+      .filter(
+        o =>
+          bnOrZero(o.tvl).gt(50000) &&
+          bnOrZero(o.apy).gte(0.01) &&
+          o.provider !== DefiProvider.ThorchainSavers,
+      )
       .sort((a, b) =>
         bn(b.apy ?? '0')
           .minus(a.apy ?? '0')

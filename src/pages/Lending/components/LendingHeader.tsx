@@ -1,10 +1,14 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Card,
   CardBody,
   CardFooter,
   Container,
   Flex,
   Heading,
+  Link,
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
@@ -128,6 +132,16 @@ export const LendingHeader = () => {
               </CardFooter>
             </Card>
           </Flex>
+
+          <Alert status='warning' variant='subtle'>
+            <AlertIcon />
+            <AlertDescription>
+              {translate('lending.haltedAlert')}
+              <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
+                {translate('lending.halterMoreDetails')}
+              </Link>
+            </AlertDescription>
+          </Alert>
         </Container>
         <TabMenu items={NavItems} />
       </Stack>

@@ -2746,7 +2746,6 @@
       "getAddress": "无法从钱包获取地址。",
       "getAccount": "无法获取 %{pubkey} 的帐户。",
       "switchChainUnsupported": "钱包不支持切换链。",
-      "switchChainFailed": "无法将钱包链切换至 %{chain}。",
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",

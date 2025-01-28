@@ -1766,7 +1766,6 @@
         "secretRecoveryPhraseRequired": "Frase de Recuperación Secreta requerida",
         "secretRecoveryPhraseTooShort": "Frase de Recuperación Secreta demasiado corta",
         "dragAndDrop": "Arrastre y Soltar o elija archivo",
-        "keystoreImportBody": "Sube archivo haciendo clic en buscar o arrastrándolo y soltándolo a continuación.",
         "importKeystore": "Importar Keystore",
         "invalidKeystorePassword": "Contraseña Keystore inválida"
       },
@@ -1789,7 +1788,6 @@
         "selectHeader": "Importar Billetera",
         "keystoreHeader": "Billetera Keystore",
         "body": "Puede tener múltiples billeteras ShapeShift. Puede cargar, crear o importar usando una Frase de recuperación secreta.",
-        "selectBody": "Importa tu billetera usando tu frase de recuperación secreta o cargando tu archivo keystore.",
         "import": "Importar billetera",
         "secretRecoveryPhrase": "Frase Secreta de Recuperación",
         "twelveWordSeedPhrase": "Frase semilla de 12 palabras",
@@ -1880,7 +1878,6 @@
         "importFromKeystore": "Importar desde keystore",
         "whatIsShapeshiftWallet": "¿Qué es la Billetera ShapeShift?",
         "yourDecentralizedGateway": "Tu portal de descentralización. Intercambia y gana Bitcoin, Ethereum, Solana y más desde una única billetera segura.",
-        "crossChainFreedom": "Libertad entre cadenas. Acceda a las mejores tarifas en múltiples exchanges descentralizados, sin necesidad de intermediarios",
         "selfCustody": {
           "title": "Su Billetera ShapeShift es auto-custodia",
           "subTitle": "Tienes las llaves y eres el único que puede acceder a él.",
@@ -2797,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Es solo FOX con sombrero, no lo pienses demasiado. Disfruta un programa de descuento en cadena por tiempo limitado. A medida tu descuento se agote, aprende sobre FOX en el resto de la página y cambia FOX en cualquier momento para conservar tu descuento de tarifa. La tenencia que sea mayor te permite ahorrar dinero en la plataforma ShapeShift.",
       "discount": "*El descuento disminuye linealmente con el tiempo y vence XX/XX/2025. ¡Aprovecha tu descuento del XX% antes que disminuya aún más!",
       "claim": "Reclamar",
       "claimed": "Reclamado",
@@ -2827,7 +2823,6 @@
       "getAddress": "No se pudo obtener dirección de billetera.",
       "getAccount": "No se pudo obtener la cuenta para: %{pubkey}.",
       "switchChainUnsupported": "Billetera no admite cambio de cadenas.",
-      "switchChainFailed": "No se pudo cambiar la cadena de billetera a %{chain}.",
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",

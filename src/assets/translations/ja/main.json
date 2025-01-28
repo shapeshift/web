@@ -1766,7 +1766,6 @@
         "secretRecoveryPhraseRequired": "シークレットリカバリーフレーズが必要です",
         "secretRecoveryPhraseTooShort": "シークレットリカバリーフレーズが短すぎます",
         "dragAndDrop": "ドラッグ＆ドロップまたはファイルを選択",
-        "keystoreImportBody": "参照をクリックするか、下にドラッグアンドドロップしてファイルをアップロードします。",
         "importKeystore": "キーストアをインポートする",
         "invalidKeystorePassword": "キーストアのパスワードが無効です"
       },
@@ -1789,7 +1788,6 @@
         "selectHeader": "ウォレットをインポート",
         "keystoreHeader": "キーストアウォレット",
         "body": "複数のShapeShiftウォレットを持つことができます。ウォレットをロードしたり、シークレットリカバリーフレーズからウォレットをインポートしたり、新しいウォレットを作成したりできます。",
-        "selectBody": "シークレット リカバリ フレーズを使用するか、キーストア ファイルをアップロードしてウォレットをインポートします。",
         "import": "ウォレットをインポートする",
         "secretRecoveryPhrase": "秘密の回復フレーズ",
         "twelveWordSeedPhrase": "12語のシードフレーズ",
@@ -1880,7 +1878,6 @@
         "importFromKeystore": "キーストアからインポート",
         "whatIsShapeshiftWallet": "ShapeShift Walletとは何ですか?",
         "yourDecentralizedGateway": "あなたの分散化ゲートウェイ。単一の安全なウォレットから、Bitcoin、Ethereum、Solana などを取引して獲得できます。",
-        "crossChainFreedom": "クロスチェーンの自由。仲介者を必要とせず、複数の分散型取引所で最高のレートにアクセスできます。",
         "selfCustody": {
           "title": "ShapeShiftウォレットはセルフカストディです",
           "subTitle": "本人のみが鍵を持っており、それにアクセスできるのは本人のみです。",
@@ -2797,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "帽子をかぶったFOXに過ぎません。考えすぎないでください。期間限定のオンチェーン割引プログラムをお楽しみください。割引が減ったら、ページの残りの部分でFOXについて学び、いつでもFOXに交換して手数料割引を維持してください。保有量が多いほど、ShapeShiftプラットフォームでお金を節約できます。",
       "discount": "*割引は時間の経過とともに直線的に減少し、2025 年 XX 月 XX 日に期限切れになります。割引がさらに減少する前に、XX% 割引をご利用ください。",
       "claim": "請求",
       "claimed": "クレーム済",
@@ -2827,7 +2823,6 @@
       "getAddress": "ウォレットからアドレスを取得できませんでした。",
       "getAccount": "%{pubkey} のアカウントを取得できませんでした。",
       "switchChainUnsupported": "ウォレットはチェーンの切り替えをサポートしていません。",
-      "switchChainFailed": "ウォレット チェーンを %{chain} に切り替えることができませんでした。",
       "buildTransaction": "トランザクションの構築に失敗しました。",
       "signTransaction": "トランザクションの署名に失敗しました。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",

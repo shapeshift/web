@@ -1766,7 +1766,6 @@
         "secretRecoveryPhraseRequired": "A Frase Secreta de Recuperação é obrigatória",
         "secretRecoveryPhraseTooShort": "Frase Secreta de Recuperação é curta demais",
         "dragAndDrop": "Arraste e solte ou escolha o arquivo",
-        "keystoreImportBody": "Faça upload do arquivo clicando em procurar ou arrastando e soltando abaixo.",
         "importKeystore": "Importar Keystore",
         "invalidKeystorePassword": "Senha do keystore inválida"
       },
@@ -1789,7 +1788,6 @@
         "selectHeader": "Importar Carteira",
         "keystoreHeader": "Carteira Keystore",
         "body": "Você pode ter várias carteiras ShapeShift. Crie, carregue ou importe uma nova carteira utilizando sua Frase de Recuperação Secreta.",
-        "selectBody": "Importe a carteira usando sua Frase Secreta de Recuperação ou enviando seu arquivo keystore.",
         "import": "Importar carteira",
         "secretRecoveryPhrase": "Frase secreta de recuperação",
         "twelveWordSeedPhrase": "Seed phrase de 12 palavras",
@@ -1880,7 +1878,6 @@
         "importFromKeystore": "Importar do keystore",
         "whatIsShapeshiftWallet": "O que é a ShapeShift Wallet?",
         "yourDecentralizedGateway": "Seu gateway de descentralização. Negocie e ganhe Bitcoin, Ethereum, Solana e mais de uma carteira única e segura.",
-        "crossChainFreedom": "Liberdade entre redes. Acesse as melhores taxas em várias bolsas descentralizadas, sem intermediários necessários",
         "selfCustody": {
           "title": "Auto-custódia",
           "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
@@ -2797,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "É só FOX com um chapéu, não pense demais. Aproveite um programa de desconto on-chain por tempo limitado. Conforme seu desconto diminui, aprenda sobre FOX no resto da página e troque para FOX a qualquer momento para preservar seu desconto de taxa. Qualquer holding que for maior economiza seu dinheiro na plataforma ShapeShift.",
       "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em XX/XX/2025. Aproveite seu desconto de XX% antes que ele diminua ainda mais!",
       "claim": "Resgate",
       "claimed": "Resgatado",
@@ -2827,7 +2823,6 @@
       "getAddress": "Falha ao obter endereço da carteira.",
       "getAccount": "Falha ao obter conta para: %{pubkey}.",
       "switchChainUnsupported": "A carteira não suporta troca de redes.",
-      "switchChainFailed": "Falha ao alternar a rede de carteira para %{chain}.",
       "buildTransaction": "Falha ao construir transação.",
       "signTransaction": "Falha ao assinar a transação.",
       "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",

@@ -5,12 +5,13 @@ import {
   baseChainId,
   bscChainId,
   ethChainId,
-  getAssetNamespaceFromChainId,
   gnosisChainId,
   optimismChainId,
   polygonChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
@@ -213,7 +214,7 @@ export const zapperAssetToMaybeAssetId = (
 ): AssetId | undefined => {
   const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
   if (!chainId) return undefined
-  const assetNamespace = getAssetNamespaceFromChainId(chainId)
+  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
 
   const assetId = toAssetId({
     chainId,

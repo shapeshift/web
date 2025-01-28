@@ -1,8 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { getAssetNamespaceFromChainId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
+import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
@@ -94,7 +94,7 @@ export const SearchTermAssetList = ({
           if (!name || !symbol || !decimals) return null
           const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetNamespace: getAssetNamespaceFromChainId(metaData.chainId),
+            assetNamespace: getAssetNamespaceFromChainId(metaData.chainId as KnownChainIds),
             assetReference: metaData.contractAddress,
           })
           const minimalAsset: MinimalAsset = {

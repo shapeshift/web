@@ -9,7 +9,6 @@ import {
   btcChainId,
   cosmosChainId,
   ethChainId,
-  getAssetNamespaceFromChainId,
   gnosisChainId,
   ltcChainId,
   optimismChainId,
@@ -18,6 +17,8 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -68,7 +69,7 @@ const getCoinDetails = async (
       )
       if (!chainId) return
 
-      const assetNamespace = getAssetNamespaceFromChainId(chainId)
+      const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
 
       const assetId = toAssetId({
         chainId,

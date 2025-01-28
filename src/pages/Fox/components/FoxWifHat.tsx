@@ -48,7 +48,6 @@ export const FoxWifHat = () => {
           accountId={accountId}
           amountCryptoBaseUnit={bnOrZero(claim.amount).toFixed()}
           assetId={foxWifHatAssetId}
-          discountPercentDecimal={0.72}
           // eslint-disable-next-line react-memo/require-usememo
           onClaim={() => handleClaimModalOpen(accountId)}
         />

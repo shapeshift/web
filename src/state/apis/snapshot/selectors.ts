@@ -1,5 +1,5 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId, foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
@@ -10,6 +10,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeModelParamFromFilter } from 'state/selectors'
+import { selectPortfolioAssetBalancesBaseUnit } from 'state/slices/common-selectors'
 import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
@@ -64,11 +65,22 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
     selectVotingPower,
     selectThorVotingPower,
     selectIsSnapshotApiQueriesRejected,
-    (feeModel, inputAmountUsd, votingPower, thorVotingPower, isSnapshotApiQueriesRejected) => {
+    selectPortfolioAssetBalancesBaseUnit,
+    (
+      feeModel,
+      inputAmountUsd,
+      votingPower,
+      thorVotingPower,
+      isSnapshotApiQueriesRejected,
+      assetBalances,
+    ) => {
+      const foxWifHatHeld = assetBalances[foxWifHatAssetId]
+
       const fees: CalculateFeeBpsReturn = calculateFees({
         tradeAmountUsd: bnOrZero(inputAmountUsd),
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
+        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel,
         isSnapshotApiQueriesRejected,
       })

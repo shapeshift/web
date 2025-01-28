@@ -1,11 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
-  ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
   bscChainId,
   ethChainId,
+  getAssetNamespaceFromChainId,
   gnosisChainId,
   optimismChainId,
   polygonChainId,
@@ -213,14 +213,7 @@ export const zapperAssetToMaybeAssetId = (
 ): AssetId | undefined => {
   const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
   if (!chainId) return undefined
-  const assetNamespace = (() => {
-    switch (true) {
-      case chainId === bscChainId:
-        return ASSET_NAMESPACE.bep20
-      default:
-        return ASSET_NAMESPACE.erc20
-    }
-  })()
+  const assetNamespace = getAssetNamespaceFromChainId(chainId)
 
   const assetId = toAssetId({
     chainId,

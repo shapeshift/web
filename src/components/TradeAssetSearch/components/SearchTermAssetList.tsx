@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import { getAssetNamespaceFromChainId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
@@ -15,7 +15,6 @@ import {
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { getAssetNamespaceFromChainId } from '../helpers/customAssetSearch'
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'

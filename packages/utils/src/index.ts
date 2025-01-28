@@ -18,6 +18,7 @@ export * from './historyTimeframe'
 export * from './getNativeFeeAssetReference'
 export * from './assetData'
 export * from './unfreeze'
+export * from './getAssetNamespaceFromChainId'
 export * from './getChainShortName'
 
 export const isSome = <T>(option: T | null | undefined): option is T =>

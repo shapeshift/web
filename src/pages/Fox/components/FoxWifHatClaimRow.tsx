@@ -6,7 +6,8 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { WalletIcon } from 'components/Icons/WalletIcon'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 import {
@@ -23,7 +24,6 @@ type FoxWifHatClaimRowProps = {
   accountId: string
   amountCryptoBaseUnit: string
   assetId: AssetId
-  discountPercentDecimal: number
   onClaim?: () => void
 }
 
@@ -34,11 +34,12 @@ const columnAlignItems = { md: 'center' }
 const columnJustifyContent = { md: 'space-between' }
 const columnSpacing = { base: 4, md: 12, lg: 24, xl: 48 }
 
+const DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD = 1000000
+
 export const FoxWifHatClaimRow = ({
   accountId,
   amountCryptoBaseUnit,
   assetId,
-  discountPercentDecimal,
   onClaim,
 }: FoxWifHatClaimRowProps) => {
   const textColor = useColorModeValue('gray.500', 'gray.400')
@@ -48,9 +49,6 @@ export const FoxWifHatClaimRow = ({
     selectAccountNumberByAccountId(state, { accountId }),
   )
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
-  const {
-    number: { toPercent },
-  } = useLocaleFormatter()
   const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 
   const numberAccounts = useMemo(() => {
@@ -69,6 +67,17 @@ export const FoxWifHatClaimRow = ({
   }, [amountCryptoBaseUnit, foxWifHatAsset])
 
   const { data: isClaimed } = useFoxWifHatClaimedQueryQuery({ index: claim?.index })
+
+  const discountPercent = useMemo(() => {
+    return calculateFees({
+      tradeAmountUsd: bn(DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD),
+      foxHeld: bn(0),
+      feeModel: 'SWAPPER',
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(amountCryptoBaseUnit),
+      isSnapshotApiQueriesRejected: false,
+    }).foxDiscountPercent.toFixed(2)
+  }, [amountCryptoBaseUnit])
 
   return (
     <Stack
@@ -111,7 +120,7 @@ export const FoxWifHatClaimRow = ({
       >
         <Text color='green.500' fontSize='sm' fontWeight='bold'>
           {translate('foxPage.foxWifHat.discountText', {
-            percent: toPercent(discountPercentDecimal),
+            percent: discountPercent,
           })}
         </Text>
 

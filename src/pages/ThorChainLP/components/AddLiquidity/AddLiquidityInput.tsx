@@ -18,7 +18,13 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import {
+  foxWifHatAssetId,
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   assetIdToPoolAssetId,
@@ -201,6 +207,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     useState<string | undefined>()
   const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
     useState<string | undefined>()
+
+  const foxWifHatHeld = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
+  )
 
   const [slippageDecimalPercentage, setSlippageDecimalPercentage] = useState<string | undefined>()
 
@@ -1014,6 +1024,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: bnOrZero(votingPower),
+      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
+      // @TODO: remove this when thor swap discount is removed
+      thorHeld: bn(0),
       feeModel: 'THORCHAIN_LP',
       isSnapshotApiQueriesRejected,
     })
@@ -1058,6 +1071,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     userCurrencyToUsdRate,
     votingPower,
     isSnapshotApiQueriesRejected,
+    foxWifHatHeld,
   ])
 
   const percentOptions = useMemo(() => [], [])

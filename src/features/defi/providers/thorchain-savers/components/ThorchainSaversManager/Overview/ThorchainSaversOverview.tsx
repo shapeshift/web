@@ -408,16 +408,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             colorScheme={bnOrZero(currentCapFillPercentage).lt(100) ? 'green' : 'red'}
           />
         )}
-
-        <Alert status='warning' variant='subtle'>
-          <AlertIcon />
-          <AlertDescription>
-            {translate('lending.haltedAlert')}
-            <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
-              {translate('lending.halterMoreDetails')}
-            </Link>
-          </AlertDescription>
-        </Alert>
       </Flex>
     )
   }, [

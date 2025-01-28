@@ -4,7 +4,6 @@ import { createMigrate, persistReducer } from 'redux-persist'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
-import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
@@ -155,7 +154,6 @@ export const apiSlices = {
   zapper,
   zapperApi,
   nftApi,
-  covalentApi,
   opportunitiesApi,
   abiApi,
   limitOrderApi,
@@ -172,7 +170,6 @@ export const apiReducers = {
   [snapshotApi.reducerPath]: snapshotApi.reducer,
   [zapperApi.reducerPath]: zapperApi.reducer,
   [nftApi.reducerPath]: nftApi.reducer,
-  [covalentApi.reducerPath]: covalentApi.reducer,
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,

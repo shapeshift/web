@@ -17,10 +17,16 @@ type EligibleSliderProps = {
 
 export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4, ...rest }) => {
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
-  const renderEligibleCards = useMemo(() => {
+
+  const featuredOpportunities = useMemo(() => {
     // opportunities with 1% APY or more
     const filteredEligibleOpportunities = eligibleOpportunities
-      .filter(o => bnOrZero(o.tvl).gt(50000) && (!o.apy || bn(o.apy).gte(0.01)))
+      .filter(
+        o =>
+          bnOrZero(o.tvl).gt(50000) &&
+          (!o.apy || bn(o.apy).gte(0.01)) &&
+          o.provider !== DefiProvider.ThorchainSavers,
+      )
       .sort((a, b) => bnOrZero(b.apy).toNumber() - bnOrZero(a.apy).toNumber())
       .slice(0, 5)
 
@@ -33,9 +39,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     )
 
     if (!foxFarmingV9 && !rfoxOpportunity) {
-      return filteredEligibleOpportunities.map(opportunity => (
-        <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
-      ))
+      return filteredEligibleOpportunities
     }
 
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
@@ -48,12 +52,16 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
       'contractAddress',
     ).slice(0, 5)
 
-    return filteredEligibleOpportunitiesWithFoxFarmingV9.map(opportunity => (
-      <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
-    ))
+    return filteredEligibleOpportunitiesWithFoxFarmingV9
   }, [eligibleOpportunities])
 
-  if (eligibleOpportunities.length === 0) return null
+  const renderEligibleCards = useMemo(() => {
+    return featuredOpportunities.map(opportunity => (
+      <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
+    ))
+  }, [featuredOpportunities])
+
+  if (featuredOpportunities.length === 0) return null
   return (
     <FeaturedList slidesToShow={slidesToShow} {...rest}>
       {renderEligibleCards}

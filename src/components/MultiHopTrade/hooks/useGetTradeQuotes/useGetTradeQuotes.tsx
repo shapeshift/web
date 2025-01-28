@@ -1,5 +1,5 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
@@ -36,6 +36,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
 import {
   selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUsdRateByAssetId,
 } from 'state/slices/selectors'
 import {
@@ -213,6 +214,9 @@ export const useGetTradeQuotes = () => {
 
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
+  const foxWifHatHeld = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
+  )
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
@@ -273,6 +277,7 @@ export const useGetTradeQuotes = () => {
         tradeAmountUsd,
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
+        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
       })
@@ -321,6 +326,7 @@ export const useGetTradeQuotes = () => {
     sellAsset,
     sellAssetUsdRate,
     thorVotingPower,
+    foxWifHatHeld,
     userSlippageTolerancePercentageDecimal,
     votingPower,
     wallet,

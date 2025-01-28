@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
@@ -28,6 +28,7 @@ import {
 } from 'state/apis/snapshot/selectors'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import {
@@ -135,6 +136,10 @@ export const useGetTradeRates = () => {
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
+  const foxWifHatHeld = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
+  )
+
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const sellAccountMetadataFilter = useMemo(
@@ -193,6 +198,7 @@ export const useGetTradeRates = () => {
         // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
         sellAccountMetadata,
         votingPower,
+        foxWifHatHeld,
         thorVotingPower,
         receiveAccountMetadata,
         sellAccountId,
@@ -226,6 +232,7 @@ export const useGetTradeRates = () => {
         tradeAmountUsd,
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
+        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,
       })

@@ -2392,6 +2392,8 @@
     "pool": "Pool",
     "poolDepth": "Pool Depth",
     "poolDepthDescription": "The healthiness of the pool",
+    "status": "Status",
+    "statusDescription": "The status of the pool",
     "totalDebtBalance": "Total Debt Balance",
     "totalDebtBalanceDescription": "Cumulative Debt Balance in the lending pool",
     "totalCollateral": "Total Collateral",
@@ -2436,8 +2438,8 @@
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
     "refetchQuote": "Refetch Quote",
-    "haltedAlert": "Lending and synthetic asset services are currently paused on Thorchain. This interruption is expected to last approximately 90 days. We apologize for any inconvenience.",
-    "halterMoreDetails": "For more details, visit thorchain's Discord.",
+    "haltedAlert": "Lending and Savers services are currently paused on THORChain. This interruption is expected to last approximately 90 days. We apologize for any inconvenience.",
+    "halterMoreDetails": "For more details, visit THORChain's Discord.",
     "faq": {
       "title": "FAQ",
       "lending": {

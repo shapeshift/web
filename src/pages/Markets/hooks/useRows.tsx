@@ -5,10 +5,9 @@ import { useTranslate } from 'react-polyglot'
 import { OrderDirection } from 'components/OrderDropdown/types'
 import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { getCoingeckoSupportedChainIds } from 'lib/coingecko/utils'
-import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import { AssetGridWithData } from '../components/AssetGridWithData'
-import { OneClickDefiAssets, ThorchainAssets } from '../components/LpGrid'
+import { OneClickDefiAssets } from '../components/LpGrid'
 import { MarketsCategories } from '../constants'
 
 export type RowProps = {
@@ -130,21 +129,6 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
         supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS.buy,
-      },
-      [MarketsCategories.ThorchainDefi]: {
-        category: MarketsCategories.ThorchainDefi,
-        title: translate(`markets.categories.${MarketsCategories.ThorchainDefi}.title`),
-        subtitle: translate(`markets.categories.${MarketsCategories.ThorchainDefi}.subtitle`),
-        component: ({ selectedChainId, orderBy, sortBy }: RowProps) => (
-          <ThorchainAssets
-            selectedChainId={selectedChainId}
-            limit={limit}
-            orderBy={orderBy}
-            sortBy={sortBy}
-          />
-        ),
-
-        supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,
       },
     }),
     [coingeckoSupportedChainIds, limit, translate],

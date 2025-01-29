@@ -22,6 +22,7 @@ import { DynamicComponent } from 'components/DynamicComponent'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
 import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -42,6 +43,8 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   const alertBg = useColorModeValue('gray.200', 'gray.900')
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
+
+  const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const usePoolDataArgs = useMemo(() => ({ poolAssetId }), [poolAssetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
@@ -83,6 +86,15 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   )
 
   const StatusTag = useCallback(() => {
+    if ((!isLendingActive && !isMimirLoading) || !poolData?.isAssetLendingEnabled) {
+      return (
+        <Tag colorScheme='red'>
+          <TagLeftIcon as={BiErrorCircle} />
+          {translate('common.halted')}
+        </Tag>
+      )
+    }
+
     if (poolData?.isHardCapReached || poolData?.currentCapFillPercentage === 100) {
       return (
         <Tag colorScheme='yellow'>
@@ -107,7 +119,58 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [poolData, translate])
+  }, [poolData, translate, isLendingActive, isMimirLoading])
+
+  const poolAlert = useMemo(() => {
+    if (!poolData) return null
+
+    if ((!isLendingActive && !isMimirLoading) || !poolData.isAssetLendingEnabled) {
+      return (
+        <Alert status='warning' variant='subtle'>
+          <AlertIcon />
+          <AlertDescription>
+            {translate('lending.haltedAlert')}
+            <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
+              {translate('lending.halterMoreDetails')}
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )
+    }
+
+    if (poolData.isHardCapReached || bnOrZero(poolData.currentCapFillPercentage).eq(100)) {
+      return (
+        <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
+          <AlertIcon />
+          <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
+          <>
+            <AlertDescription>
+              {translate('defi.modals.saversVaults.haltedDescription')}
+            </AlertDescription>
+            <Button
+              as={Link}
+              href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20lend%20%23${asset?.symbol}%20on%20%40ShapeShift`}
+              isExternal
+              mt={4}
+              colorScheme='twitter'
+              rightIcon={faTwitterIcon}
+            >
+              @THORChain
+            </Button>
+          </>
+        </Alert>
+      )
+    }
+
+    return (
+      <Progress
+        value={poolData.currentCapFillPercentage}
+        size='sm'
+        borderRadius='md'
+        colorScheme={bnOrZero(poolData.currentCapFillPercentage).lt(100) ? 'green' : 'red'}
+      />
+    )
+  }, [translate, poolData, alertBg, asset?.symbol, isLendingActive, isMimirLoading])
 
   const renderVaultCap = useMemo(() => {
     if (!poolData || !asset) return null
@@ -123,37 +186,11 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
             <Amount.Fiat value={poolData?.maxSupplyFiat} prefix='/' color='text.subtle' />
           </Flex>
         </Flex>
-        {poolData.isHardCapReached || bnOrZero(poolData.currentCapFillPercentage).eq(100) ? (
-          <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
-            <AlertIcon />
-            <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
-            <>
-              <AlertDescription>
-                {translate('defi.modals.saversVaults.haltedDescription')}
-              </AlertDescription>
-              <Button
-                as={Link}
-                href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20lend%20%23${asset.symbol}%20on%20%40ShapeShift`}
-                isExternal
-                mt={4}
-                colorScheme='twitter'
-                rightIcon={faTwitterIcon}
-              >
-                @THORChain
-              </Button>
-            </>
-          </Alert>
-        ) : (
-          <Progress
-            value={poolData.currentCapFillPercentage}
-            size='sm'
-            borderRadius='md'
-            colorScheme={bnOrZero(poolData.currentCapFillPercentage).lt(100) ? 'green' : 'red'}
-          />
-        )}
+
+        {poolAlert}
       </Flex>
     )
-  }, [alertBg, asset, poolData, translate])
+  }, [asset, poolData, translate, poolAlert])
 
   if (!asset) return null
 

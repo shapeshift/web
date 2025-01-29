@@ -9,6 +9,7 @@ import { Carousel } from 'components/Carousel/Carousel'
 import type { CarouselHeaderProps } from 'components/Carousel/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
+import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,11 +39,17 @@ const cardPadding = { base: 4, xl: 0 }
 const displayXlFlex = { base: 'none', xl: 'flex' }
 
 export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
+  const { isLendingActive } = useIsLendingActive()
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
     // opportunities with 1% APY or more
     const filteredEligibleOpportunities = eligibleOpportunities
-      .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
+      .filter(
+        o =>
+          bnOrZero(o.tvl).gt(50000) &&
+          bnOrZero(o.apy).gte(0.01) &&
+          (o.provider !== DefiProvider.ThorchainSavers || isLendingActive),
+      )
       .sort((a, b) =>
         bn(b.apy ?? '0')
           .minus(a.apy ?? '0')
@@ -74,7 +81,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
     ).slice(0, 5)
 
     return filteredEligibleOpportunitiesWithFoxFarmingEvergreen
-  }, [eligibleOpportunities])
+  }, [eligibleOpportunities, isLendingActive])
 
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (

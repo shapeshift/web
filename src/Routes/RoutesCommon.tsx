@@ -190,16 +190,6 @@ export const routes: Route[] = [
     priority: 6,
   },
   {
-    path: '/lending',
-    label: 'navBar.lending',
-    icon: <RiExchangeFundsLine />,
-    main: LendingPage,
-    category: RouteCategory.Featured,
-    priority: 4,
-    mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
-  },
-  {
     path: '/pools',
     label: 'navBar.pools',
     icon: <PoolsIcon />,
@@ -227,6 +217,16 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     mobileNav: true,
     priority: 4,
+  },
+  {
+    path: '/lending',
+    label: 'navBar.lending',
+    icon: <RiExchangeFundsLine />,
+    main: LendingPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
   },
   {
     path: '/buy-crypto',

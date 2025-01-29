@@ -16,6 +16,7 @@ import { RawText, Text } from 'components/Text'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
+import { useIsLendingActive } from './hooks/useIsLendingActive'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 import { usePoolDataQuery } from './hooks/usePoolDataQuery'
 
@@ -54,6 +55,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
   const translate = useTranslate()
+  const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const { isLoading: isLendingPositionDataLoading } = useAllLendingPositionsData({
     assetId: asset.assetId,
@@ -65,6 +67,15 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   )
 
   const StatusTag = useCallback(() => {
+    if ((!isLendingActive && !isMimirLoading) || !poolData?.isAssetLendingEnabled) {
+      return (
+        <Tag colorScheme='red'>
+          <TagLeftIcon as={BiErrorCircle} />
+          {translate('common.halted')}
+        </Tag>
+      )
+    }
+
     if (poolData?.isHardCapReached || poolData?.currentCapFillPercentage === 100) {
       return (
         <Tag colorScheme='yellow'>
@@ -89,7 +100,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [poolData, translate])
+  }, [isLendingActive, poolData, translate, isMimirLoading])
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)
@@ -173,8 +184,8 @@ export const AvailablePools = () => {
         >
           <Text translation='lending.pool' />
           <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('lending.poolDepthDescription')}>
-              <Text translation='lending.poolDepth' />
+            <HelperTooltip label={translate('lending.statusDescription')}>
+              <Text translation='lending.status' />
             </HelperTooltip>
           </Flex>
           <Flex display={mobileDisplay}>

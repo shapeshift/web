@@ -17,10 +17,7 @@ export const AssetGridWithData = ({
   sortBy,
 }: RowProps & {
   limit: number
-  category: Exclude<
-    MarketsCategories,
-    MarketsCategories.OneClickDefi | MarketsCategories.ThorchainDefi
-  >
+  category: Exclude<MarketsCategories, MarketsCategories.OneClickDefi>
   showMarketCap?: boolean
   orderBy?: OrderDirection
   sortBy?: SortOptionsKeys

@@ -50,7 +50,7 @@ export const LendingHeader = () => {
       },
     ]
   }, [])
-  const { isLendingActive } = useIsLendingActive()
+  const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const handleBack = useCallback(() => {
     history.push('/explore')
@@ -135,7 +135,7 @@ export const LendingHeader = () => {
             </Card>
           </Flex>
 
-          {!isLendingActive ? (
+          {!isLendingActive && !isMimirLoading ? (
             <Alert status='warning' variant='subtle'>
               <AlertIcon />
               <AlertDescription>

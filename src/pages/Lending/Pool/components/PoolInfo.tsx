@@ -44,7 +44,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
-  const { isLendingActive } = useIsLendingActive()
+  const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const usePoolDataArgs = useMemo(() => ({ poolAssetId }), [poolAssetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
@@ -86,7 +86,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   )
 
   const StatusTag = useCallback(() => {
-    if (!isLendingActive || !poolData?.isAssetLendingEnabled) {
+    if ((!isLendingActive && !isMimirLoading) || !poolData?.isAssetLendingEnabled) {
       return (
         <Tag colorScheme='red'>
           <TagLeftIcon as={BiErrorCircle} />
@@ -119,12 +119,12 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [poolData, translate, isLendingActive])
+  }, [poolData, translate, isLendingActive, isMimirLoading])
 
   const poolAlert = useMemo(() => {
     if (!poolData) return null
 
-    if (!poolData.isAssetLendingEnabled || !isLendingActive) {
+    if ((!isLendingActive && !isMimirLoading) || !poolData.isAssetLendingEnabled) {
       return (
         <Alert status='warning' variant='subtle'>
           <AlertIcon />
@@ -170,7 +170,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         colorScheme={bnOrZero(poolData.currentCapFillPercentage).lt(100) ? 'green' : 'red'}
       />
     )
-  }, [translate, poolData, alertBg, asset?.symbol, isLendingActive])
+  }, [translate, poolData, alertBg, asset?.symbol, isLendingActive, isMimirLoading])
 
   const renderVaultCap = useMemo(() => {
     if (!poolData || !asset) return null

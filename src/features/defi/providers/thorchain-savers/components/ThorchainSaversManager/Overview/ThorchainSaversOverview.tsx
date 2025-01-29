@@ -95,7 +95,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     state: { wallet },
   } = useWallet()
 
-  const { isLendingActive } = useIsLendingActive()
+  const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const assetId = toAssetId({
     chainId,
@@ -366,7 +366,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   ])
 
   const poolAlert = useMemo(() => {
-    if (!isLendingActive && !isRunePool) {
+    if (!isLendingActive && !isRunePool && !isMimirLoading) {
       return (
         <Alert status='warning' variant='subtle'>
           <AlertIcon />
@@ -420,6 +420,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     isHardCapReached,
     isRunePool,
     isLendingActive,
+    isMimirLoading,
   ])
 
   const renderVaultCap = useMemo(() => {

@@ -55,7 +55,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
   const translate = useTranslate()
-  const { isLendingActive } = useIsLendingActive()
+  const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const { isLoading: isLendingPositionDataLoading } = useAllLendingPositionsData({
     assetId: asset.assetId,
@@ -67,7 +67,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   )
 
   const StatusTag = useCallback(() => {
-    if (!isLendingActive || !poolData?.isAssetLendingEnabled) {
+    if ((!isLendingActive && !isMimirLoading) || !poolData?.isAssetLendingEnabled) {
       return (
         <Tag colorScheme='red'>
           <TagLeftIcon as={BiErrorCircle} />
@@ -100,7 +100,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [isLendingActive, poolData, translate])
+  }, [isLendingActive, poolData, translate, isMimirLoading])
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)

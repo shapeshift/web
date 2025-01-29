@@ -1,9 +1,10 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
+import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { AnimatedCheck } from 'components/AnimatedCheck'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
@@ -13,7 +14,11 @@ import {
 import { TradeExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { getHopExecutionStateSummaryStepTranslation } from '../helpers'
+import {
+  getHopExecutionStateSummaryStepTranslation,
+  StepperStep as StepperStepEnum,
+} from '../helpers'
+import { useCountdown } from '../hooks/useCountdown'
 import { useCurrentHopIndex } from '../hooks/useCurrentHopIndex'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { StepperStep } from '../StepperStep'
@@ -40,6 +45,7 @@ export const ExpandableStepperSteps = ({
     [isExpanded],
   )
   const currentHopIndex = useCurrentHopIndex()
+  const { currentTradeStep } = useStepperSteps()
   const activeTradeQuote = useAppSelector(selectActiveQuote)
   const activeTradeId = activeTradeQuote?.id
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
@@ -109,10 +115,43 @@ export const ExpandableStepperSteps = ({
     )
   }, [hopExecutionState, progressValue, swapperName, confirmedTradeExecutionState])
 
+  const estimatedCompletionTimeForStepMs: number = useMemo(() => {
+    switch (currentTradeStep) {
+      case StepperStepEnum.FirstHopSwap:
+        return activeTradeQuote?.steps[0]?.estimatedExecutionTimeMs ?? 0
+      case StepperStepEnum.LastHopSwap:
+        return activeTradeQuote?.steps[1]?.estimatedExecutionTimeMs ?? 0
+      default:
+        return 0
+    }
+  }, [currentTradeStep, activeTradeQuote?.steps])
+
+  const { timeRemainingMs, start } = useCountdown(estimatedCompletionTimeForStepMs, true)
+
+  const estimatedCompletionTimeElement = useMemo(() => {
+    return (
+      <Flex
+        justifyContent='space-between'
+        alignItems='center'
+        background='background.surface.overlay.base'
+        width='full'
+        borderTopRadius='xl'
+        px={4}
+        py={2}
+      >
+        <Text color='text.subtle' translation='trade.estimatedCompletionTime' />
+        <RawText color='text.subtle' ml='auto'>
+          <RawText>{dayjs.duration(timeRemainingMs).format('mm:ss')}</RawText>
+        </RawText>
+      </Flex>
+    )
+  }, [timeRemainingMs])
+
   if (!titleElement) return null
 
   return (
     <>
+      {estimatedCompletionTimeElement}
       <StepperStep
         title={titleElement}
         stepIndicator={summaryStepIndicator}

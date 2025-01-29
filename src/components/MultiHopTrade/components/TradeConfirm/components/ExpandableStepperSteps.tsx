@@ -1,7 +1,7 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatedCheck } from 'components/AnimatedCheck'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText, Text } from 'components/Text'
@@ -18,7 +18,6 @@ import {
   getHopExecutionStateSummaryStepTranslation,
   StepperStep as StepperStepEnum,
 } from '../helpers'
-import { useCountdown } from '../hooks/useCountdown'
 import { useCurrentHopIndex } from '../hooks/useCurrentHopIndex'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { StepperStep } from '../StepperStep'
@@ -59,7 +58,7 @@ export const ExpandableStepperSteps = ({
   const swapperName = activeTradeQuote?.steps[0].source
   const {
     state: hopExecutionState,
-    swap: { state: swapTxState },
+    swap: { state: swapTxState, sellTxHash },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const summaryStepIndicator = useMemo(() => {
@@ -126,9 +125,39 @@ export const ExpandableStepperSteps = ({
     }
   }, [currentTradeStep, activeTradeQuote?.steps])
 
-  const { timeRemainingMs, start } = useCountdown(estimatedCompletionTimeForStepMs, true)
+  const [timeLeft, setTimeLeft] = useState(estimatedCompletionTimeForStepMs)
+
+  const intervalRef = useRef<NodeJS.Timeout>()
+
+  // Reset the timer when the hop/step changes
+  useEffect(() => {
+    setTimeLeft(estimatedCompletionTimeForStepMs)
+    // Clear any existing interval
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [estimatedCompletionTimeForStepMs])
+
+  useEffect(() => {
+    // Only start the timer when the transaction is submitted on chain
+    if (!sellTxHash) return
+
+    intervalRef.current = setInterval(() => {
+      if (timeLeft > 0) {
+        setTimeLeft(prev => prev - 1000)
+      } else {
+        if (intervalRef.current) clearInterval(intervalRef.current)
+      }
+    }, 1000)
+
+    // Cleanup on unmount or when dependencies change
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [sellTxHash, timeLeft])
 
   const estimatedCompletionTimeElement = useMemo(() => {
+    if (estimatedCompletionTimeForStepMs <= 0) return null
     return (
       <Flex
         justifyContent='space-between'
@@ -141,11 +170,11 @@ export const ExpandableStepperSteps = ({
       >
         <Text color='text.subtle' translation='trade.estimatedCompletionTime' />
         <RawText color='text.subtle' ml='auto'>
-          <RawText>{dayjs.duration(timeRemainingMs).format('mm:ss')}</RawText>
+          <RawText>{dayjs.duration(timeLeft).format('mm:ss')}</RawText>
         </RawText>
       </Flex>
     )
-  }, [timeRemainingMs])
+  }, [estimatedCompletionTimeForStepMs, timeLeft])
 
   if (!titleElement) return null
 

@@ -38,7 +38,6 @@ export type FeatureFlags = {
   Jaypegz: boolean
   ArbitrumBridge: boolean
   PortalsSwap: boolean
-  CovalentJaypegs: boolean
   Chatwoot: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
@@ -76,7 +75,6 @@ export type FeatureFlags = {
   ChainflipDca: boolean
   ThorFreeFees: boolean
   JupiterSwap: boolean
-  NewTradeFlow: boolean
   NewWalletFlow: boolean
   FoxPageFoxWifHatSection: boolean
   NewLimitFlow: boolean
@@ -136,7 +134,6 @@ const initialState: Preferences = {
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
-    CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
@@ -179,7 +176,6 @@ const initialState: Preferences = {
     SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
-    NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
     NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
     FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
     NewLimitFlow: getConfig().REACT_APP_FEATURE_NEW_LIMIT_FLOW,

@@ -17,9 +17,9 @@ import {
 } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { useTradeExecution } from '../../MultiHopTradeConfirm/hooks/useTradeExecution'
 import { getHopExecutionStateButtonTranslation } from '../helpers'
 import { useActiveTradeAllowance } from './useActiveTradeAllowance'
+import { useTradeExecution } from './useTradeExecution'
 
 type UseTradeButtonPropsProps = {
   tradeQuoteStep: TradeQuoteStep

@@ -13,11 +13,11 @@ import {
 import { TradeExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
+import { getHopExecutionStateSummaryStepTranslation } from '../helpers'
+import { useCurrentHopIndex } from '../hooks/useCurrentHopIndex'
+import { useStepperSteps } from '../hooks/useStepperSteps'
+import { StepperStep } from '../StepperStep'
 import { ExpandedStepperSteps } from './ExpandedStepperSteps'
-import { getHopExecutionStateSummaryStepTranslation } from './helpers'
-import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useStepperSteps } from './hooks/useStepperSteps'
 
 const collapseStyle = { width: '100%' }
 

@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isTruthy } from 'lib/utils'
 

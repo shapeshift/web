@@ -50,7 +50,7 @@ jobs:
 
       - name: Create Pull Request
         env:
-          GITHUB_TOKEN: ${{ secrets.GOMES_REPO_READONLY_GITHUB_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.ZEROXEAN_PUBLIC_REPO_ONLY_GH_TOKEN }}
         run: |
           CURRENT_DATE=$(date +'%m/%d/%Y')
           gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data $CURRENT_DATE" --body "Generated from CI."

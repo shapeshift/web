@@ -31,7 +31,6 @@ const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
   return (
     <Box
       as={Button}
-      key={wallet.id}
       variant='ghost'
       px={4}
       ml={-4}
@@ -137,6 +136,7 @@ export const SavedWalletsSection = ({
       <Stack spacing={2} my={6}>
         {(nativeVaultsQuery.data ?? []).map(wallet => (
           <WalletCard
+            key={wallet.id}
             wallet={wallet}
             onClick={handleWalletSelect}
             isSelected={selectedWalletId === wallet.id}

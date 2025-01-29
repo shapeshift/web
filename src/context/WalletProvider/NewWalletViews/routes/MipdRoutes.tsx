@@ -32,7 +32,7 @@ export const MipdRoutes = ({
         />
       </Route>
       {Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
-        <Route exact path={`/${keyManager.toLowerCase()}/connect`}>
+        <Route key={keyManager} exact path={`/${keyManager.toLowerCase()}/connect`}>
           <FirstClassBody
             keyManager={keyManager}
             isLoading={isLoading}

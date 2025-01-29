@@ -1,29 +1,34 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, type AssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ARB_OUTBOX_ABI,
+  ARB_OUTBOX_CONTRACT,
+  ARB_PROXY_ABI,
+  ARB_RETRYABLE_TX_CONTRACT,
+  ARB_SYS_ABI,
+  ARB_SYS_CONTRACT,
+  ARBITRUM_L2_ERC20_GATEWAY_PROXY_CONTRACT,
+  ARBITRUM_RETRYABLE_TX_ABI,
+  L1_ARBITRUM_GATEWAY_ABI,
+  L1_ARBITRUM_GATEWAY_CONTRACT,
+  L1_ORBIT_CUSTOM_GATEWAY_ABI,
+  L1_ORBIT_CUSTOM_GATEWAY_CONTRACT,
+  L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT,
+  L2_ARBITRUM_GATEWAY_ABI,
+  L2_ARBITRUM_GATEWAY_CONTRACT,
+} from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'
-import { txInteractsWithContract } from '.'
-import { ARB_PROXY_ABI } from './abi/ArbProxy'
-import { ARBITRUM_RETRYABLE_TX_ABI } from './abi/ArbRetryableTx'
-import { ARB_SYS_ABI } from './abi/ArbSys'
-import { L1_ARBITRUM_GATEWAY_ABI } from './abi/L1ArbitrumGateway'
-import { L1_ORBIT_CUSTOM_GATEWAY_ABI } from './abi/L1OrbitCustomGateway'
-import { L2_ARBITRUM_GATEWAY_ABI } from './abi/L2ArbitrumGateway'
+import { getSigHash, txInteractsWithContract } from '.'
 import type { Tx } from './types'
-
-const ARB_SYS_CONTRACT = '0x0000000000000000000000000000000000000064'
-const ARBITRUM_L2_ERC20_GATEWAY_PROXY = '0x09e9222E96E7B4AE2a407B98d48e330053351EEe'
-const ARB_RETRYABLE_TX_CONTRACT = '0x000000000000000000000000000000000000006e'
-const L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT = '0x096760F208390250649E3e8763348E783AEF5562'
-const L2_ARBITRUM_GATEWAY_CONTRACT = '0x5288c571Fd7aD117beA99bF60FE0846C4E84F933'
-const L1_ARBITRUM_GATEWAY_CONTRACT = '0x72ce9c846789fdb6fc1f34ac4ad25dd9ef7031ef'
-const L1_ORBIT_CUSTOM_GATEWAY_CONTRACT = '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'arbitrumBridge'
   assetId?: AssetId
+  destinationAddress?: string
+  destinationAssetId?: AssetId
   value?: string
 }
 
@@ -36,6 +41,7 @@ export class Parser implements SubParser<Tx> {
 
   readonly arbProxyAbi = new ethers.Interface(ARB_PROXY_ABI)
   readonly arbSysAbi = new ethers.Interface(ARB_SYS_ABI)
+  readonly arbOutboxAbi = new ethers.Interface(ARB_OUTBOX_ABI)
   readonly arbRetryableTxAbi = new ethers.Interface(ARBITRUM_RETRYABLE_TX_ABI)
   readonly l2ArbitrumGatewayAbi = new ethers.Interface(L2_ARBITRUM_GATEWAY_ABI)
   readonly l1OrbitCustomGatewayAbi = new ethers.Interface(L1_ORBIT_CUSTOM_GATEWAY_ABI)
@@ -48,13 +54,16 @@ export class Parser implements SubParser<Tx> {
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
 
+    const txSigHash = getSigHash(tx.inputData)
+
     const selectedAbi = (() => {
+      if (txInteractsWithContract(tx, ARB_OUTBOX_CONTRACT)) return this.arbOutboxAbi
       if (txInteractsWithContract(tx, ARB_SYS_CONTRACT)) return this.arbSysAbi
       if (txInteractsWithContract(tx, L2_ARBITRUM_GATEWAY_CONTRACT))
         return this.l2ArbitrumGatewayAbi
       if (txInteractsWithContract(tx, L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT))
         return this.l2ArbitrumGatewayAbi
-      if (txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY))
+      if (txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY_CONTRACT))
         return this.l2ArbitrumGatewayAbi
       if (
         txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) &&
@@ -92,6 +101,60 @@ export class Parser implements SubParser<Tx> {
       data.method = `${decoded.name}Deposit`
     }
 
-    return await Promise.resolve({ data })
+    switch (selectedAbi) {
+      case this.arbSysAbi:
+        switch (txSigHash) {
+          case this.arbSysAbi.getFunction('withdrawEth')!.selector:
+            return await Promise.resolve({
+              data: {
+                ...data,
+                destinationAddress: decoded.args.destination as string,
+                destinationAssetId: ethAssetId,
+                value: tx.value,
+              },
+            })
+          default:
+            return await Promise.resolve({ data })
+        }
+      case this.l2ArbitrumGatewayAbi:
+        switch (txSigHash) {
+          case this.l2ArbitrumGatewayAbi.getFunction(
+            'outboundTransfer(address,address,uint256,bytes)',
+          )!.selector: {
+            const amount = decoded.args._amount as BigInt
+            const l1Token = decoded.args._l1Token as string
+
+            const destinationAssetId = toAssetId({
+              chainId: ethChainId,
+              assetNamespace: 'erc20',
+              assetReference: l1Token,
+            })
+
+            return await Promise.resolve({
+              data: {
+                ...data,
+                destinationAddress: decoded.args._to as string,
+                destinationAssetId,
+                value: amount.toString(),
+              },
+            })
+          }
+          case this.l2ArbitrumGatewayAbi.getFunction('finalizeInboundTransfer')!.selector:
+            return await Promise.resolve({
+              data: {
+                ...data,
+                // `finalizeInboundTransfer` on the Ethereum side (i.e withdraw request) is internal to the bridge, and only releases fundus safu
+                // https://docs.arbitrum.io/build-decentralized-apps/token-bridging/token-bridge-erc20
+                // however, on the Arbitrum side, it's an effective deposit
+                method:
+                  this.chainId === arbitrumChainId ? 'finalizeInboundTransferDeposit' : data.method,
+              },
+            })
+          default:
+            return await Promise.resolve({ data })
+        }
+      default:
+        return await Promise.resolve({ data })
+    }
   }
 }

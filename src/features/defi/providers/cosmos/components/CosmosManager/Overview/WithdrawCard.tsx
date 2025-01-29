@@ -52,15 +52,11 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
 
   const undelegationEntries = useMemo(() => {
     if (!opportunityData) return []
-    if (
-      supportsUndelegations(opportunityData) &&
-      opportunityData.undelegations.some(undelegation =>
-        dayjs().isBefore(dayjs(undelegation.completionTime).unix()),
-      )
-    ) {
-      return opportunityData.undelegations
-    }
-    return []
+    if (!supportsUndelegations(opportunityData)) return []
+
+    return opportunityData.undelegations.filter(
+      undelegation => dayjs().unix() < undelegation.completionTime,
+    )
   }, [opportunityData])
 
   const hasUndelegations = Boolean(undelegationEntries?.length)

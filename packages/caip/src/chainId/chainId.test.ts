@@ -17,25 +17,11 @@ describe('chainId', () => {
       expect(result).toEqual('cosmos:cosmoshub-4')
     })
 
-    it('can turn CosmosHub testnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.CosmosHubVega
-      const result = toChainId({ chainNamespace, chainReference })
-      expect(result).toEqual('cosmos:vega-testnet')
-    })
-
     it('can turn Ethereum mainnet to ChainId', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
       const chainReference = CHAIN_REFERENCE.EthereumMainnet
       const result = toChainId({ chainNamespace, chainReference })
       expect(result).toEqual('eip155:1')
-    })
-
-    it('can turn Ethereum testnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Evm
-      const chainReference = CHAIN_REFERENCE.EthereumRopsten
-      const result = toChainId({ chainNamespace, chainReference })
-      expect(result).toEqual('eip155:3')
     })
 
     it('can turn Bitcoin mainnet to ChainId', () => {
@@ -45,21 +31,14 @@ describe('chainId', () => {
       expect(result).toEqual('bip122:000000000019d6689c085ae165831e93')
     })
 
-    it('can turn Bitcoin testnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Utxo
-      const chainReference = CHAIN_REFERENCE.BitcoinTestnet
-      const result = toChainId({ chainNamespace, chainReference })
-      expect(result).toEqual('bip122:000000000933ea01ad0ee984209779ba')
-    })
-
     it('should throw an error for an invalid chain', () => {
       // @ts-ignore
       expect(() =>
         toChainId({
           chainNamespace: CHAIN_NAMESPACE.Utxo,
-          chainReference: CHAIN_REFERENCE.CosmosHubVega,
+          chainReference: CHAIN_REFERENCE.CosmosHubMainnet,
         }),
-      ).toThrow('assertIsChainId: unsupported ChainId: bip122:vega-testnet')
+      ).toThrow('assertIsChainId: unsupported ChainId: bip122:cosmoshub-4')
     })
   })
 
@@ -71,13 +50,6 @@ describe('chainId', () => {
       expect(chainReference).toEqual(CHAIN_REFERENCE.BitcoinMainnet)
     })
 
-    it('can turn Bitcoin testnet to chain and network', () => {
-      const bitcoinChainId = 'bip122:000000000933ea01ad0ee984209779ba'
-      const { chainNamespace, chainReference } = fromChainId(bitcoinChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Utxo)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.BitcoinTestnet)
-    })
-
     it('can turn CosmosHub mainnet to chain and network', () => {
       const cosmosHubChainId = 'cosmos:cosmoshub-4'
       const { chainNamespace, chainReference } = fromChainId(cosmosHubChainId)
@@ -85,32 +57,11 @@ describe('chainId', () => {
       expect(chainReference).toEqual(CHAIN_REFERENCE.CosmosHubMainnet)
     })
 
-    it('can turn CosmosHub testnet to chain and network', () => {
-      const cosmosHubChainId = 'cosmos:vega-testnet'
-      const { chainNamespace, chainReference } = fromChainId(cosmosHubChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.CosmosSdk)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.CosmosHubVega)
-    })
-
     it('can turn Ethereum mainnet to chain and network', () => {
       const ethereumChainId = 'eip155:1'
       const { chainNamespace, chainReference } = fromChainId(ethereumChainId)
       expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Evm)
       expect(chainReference).toEqual(CHAIN_REFERENCE.EthereumMainnet)
-    })
-
-    it('can turn Ethereum ropsten to chain and network', () => {
-      const ethereumChainId = 'eip155:3'
-      const { chainNamespace, chainReference } = fromChainId(ethereumChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Evm)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.EthereumRopsten)
-    })
-
-    it('can turn Ethereum rinkeby to chain and network', () => {
-      const ethereumChainId = 'eip155:4'
-      const { chainNamespace, chainReference } = fromChainId(ethereumChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Evm)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.EthereumRinkeby)
     })
   })
 })
@@ -128,17 +79,8 @@ describe('isChainId', () => {
     expect(() => assertIsChainId('eip155:2')).toThrow()
   })
 
-  it('validates ethereum testnets as true', () => {
-    expect(isChainId('eip155:3')).toBe(true)
-    expect(isChainId('eip155:4')).toBe(true)
-  })
-
   it('validates bip122:000000000019d6689c085ae165831e93 mainnet as true', () => {
     expect(isChainId('bip122:000000000019d6689c085ae165831e93')).toBe(true)
-  })
-
-  it('validates bip122:000000000933ea01ad0ee984209779ba testnet as true', () => {
-    expect(isChainId('bip122:000000000933ea01ad0ee984209779ba')).toBe(true)
   })
 
   it('throws on bip122 with the wrong network reference', () => {
@@ -157,7 +99,6 @@ describe('isChainId', () => {
 
   it('should return true for cosmos', () => {
     expect(isChainId('cosmos:cosmoshub-4')).toBe(true)
-    expect(isChainId('cosmos:vega-testnet')).toBe(true)
   })
 
   it('should throw for an unknown cosmos chain', () => {

@@ -1,16 +1,15 @@
 import { useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
-import type { OhlcData, SeriesType, UTCTimestamp } from 'lightweight-charts'
-import {
-  createChart,
-  CrosshairMode,
-  type HistogramData,
-  LineStyle,
-  LineType,
-  type MouseEventParams,
-  type SingleValueData,
-  type Time,
+import type {
+  HistogramData,
+  MouseEventParams,
+  OhlcData,
+  SeriesType,
+  SingleValueData,
+  Time,
+  UTCTimestamp,
 } from 'lightweight-charts'
+import { createChart, CrosshairMode, LineStyle, LineType } from 'lightweight-charts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -51,7 +50,7 @@ const ChartDiv = styled.div<{ height?: number }>`
   position: relative;
 `
 
-export type crossHairDataProps = HistogramData<Time> | undefined
+export type crossHairDataProps = HistogramData | undefined
 
 export const SimpleChart = <T extends Time>({
   data,
@@ -88,7 +87,7 @@ export const SimpleChart = <T extends Time>({
   const boldBorder = useColorModeValue(boldBorderLight, boldBorderDark)
   const surfaceColor = useColorModeValue(surfaceLight, surfaceDark)
   const accentColorValue = accentColor ?? brandColor
-  const lastPrice = data[data.length - 1] as HistogramData<Time>
+  const lastPrice = data[data.length - 1] as HistogramData
 
   useEffect(() => {
     if (chartContainerRef.current && data) {
@@ -212,7 +211,7 @@ export const SimpleChart = <T extends Time>({
 
       const handleCrosshairMove = (event: MouseEventParams) => {
         if (event.time) {
-          const data = event.seriesData.get(newSeries) as HistogramData<Time>
+          const data = event.seriesData.get(newSeries) as HistogramData
           setCrosshairData(data)
         } else {
           setCrosshairData(undefined)

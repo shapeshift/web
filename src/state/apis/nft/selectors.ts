@@ -9,7 +9,6 @@ import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
 export const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
-export const selectNftApiQueries = (state: ReduxState) => state.nftApi.queries
 
 export const selectPortfolioNftItemsWithCollectionExcludeSpams = createSelector(
   selectNfts,

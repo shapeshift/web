@@ -13,7 +13,7 @@ export const TwirlyToggle = ({ isOpen, onToggle, ...boxProps }: TwirlyToggleProp
     () => (
       <Circle size={8} bgColor='background.surface.raised.base' borderWidth={0}>
         <ChevronUpIcon
-          transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
+          transform={isOpen ? 'rotate(0deg)' : 'rotate(180deg)'}
           transition='transform 0.2s ease-in-out'
           boxSize='16px'
         />

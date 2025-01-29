@@ -20,14 +20,13 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
 import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
-import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type MaxSlippageProps = {
   swapSource?: SwapSource
   isLoading?: boolean
   amountCryptoPrecision: string
-  slippageDecimalPercentage: string
+  slippagePercentageDecimal: string
   hasIntermediaryTransactionOutputs?: boolean
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   symbol: string
@@ -37,7 +36,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   swapSource,
   isLoading,
   amountCryptoPrecision,
-  slippageDecimalPercentage,
+  slippagePercentageDecimal,
   hasIntermediaryTransactionOutputs,
   intermediaryTransactionOutputs,
   symbol,
@@ -52,33 +51,30 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
       swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
     [swapSource],
   )
-  const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
-  const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
+  const slippageAsPercentageString = bnOrZero(slippagePercentageDecimal).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
   const renderSlippageTag = useMemo(() => {
-    if (bnOrZero(defaultSlippagePercentage).eq(bnOrZero(slippageAsPercentageString))) {
-      return (
-        <Tag colorScheme='blue' size='sm'>
-          {translate('trade.slippage.auto')}
-        </Tag>
-      )
-    }
-
     if (bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))) {
       return (
         <Tag colorScheme='purple' size='sm'>
           {translate('trade.slippage.custom')}
         </Tag>
       )
+    } else {
+      return (
+        <Tag colorScheme='blue' size='sm'>
+          {translate('trade.slippage.auto')}
+        </Tag>
+      )
     }
-  }, [defaultSlippagePercentage, slippageAsPercentageString, translate, userSlippagePercentage])
+  }, [slippageAsPercentageString, translate, userSlippagePercentage])
 
   const amountAfterSlippage = useMemo(() => {
-    const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
+    const slippageBps = convertDecimalPercentageToBasisPoints(slippagePercentageDecimal)
     return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
-  }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
+  }, [amountCryptoPrecision, isAmountPositive, slippagePercentageDecimal])
 
   const formattedCryptoAmount = useMemo(
     () => toCrypto(amountAfterSlippage, symbol),

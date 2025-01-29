@@ -18,13 +18,19 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import {
+  foxWifHatAssetId,
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -33,10 +39,10 @@ import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
@@ -47,6 +53,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -68,19 +75,25 @@ import {
   isSome,
   isToken,
 } from 'lib/utils'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
-import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { Opportunity } from 'pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import {
+  selectIsSnapshotApiQueriesRejected,
+  selectIsVotingPowerLoading,
+  selectVotingPower,
+} from 'state/apis/snapshot/selectors'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
@@ -151,24 +164,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const isDemoWallet = useWallet().state.isDemoWallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
-  const [runeIsFiat, toggleRuneIsFiat] = useToggle(false)
-  const [poolAssetIsFiat, togglePoolAssetIsFiat] = useToggle(false)
+  const [isFiat, toggleIsFiat] = useToggle(false)
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const isSnapInstalled = useIsSnapInstalled()
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending,
-    [isSnapshotApiQueriesPending],
-  )
+  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
+  const { isSnapInstalled } = useIsSnapInstalled()
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const [showFeeModal, toggleShowFeeModal] = useState(false)
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
@@ -179,12 +188,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const previousOpportunityId = usePrevious(activeOpportunityId)
 
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
-  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean>(false)
+  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean | undefined>(false)
   const [runeTxFeeCryptoBaseUnit, setRuneTxFeeCryptoBaseUnit] = useState<string | undefined>()
   const [poolAssetTxFeeCryptoBaseUnit, setPoolAssetTxFeeCryptoBaseUnit] = useState<
     string | undefined
   >()
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
+  const [shouldShowInfoAcknowledgement, setShouldShowInfoAcknowledgement] = useState(false)
 
   // Virtual as in, these are the amounts if depositing symetrically. But a user may deposit asymetrically, so these are not the *actual* amounts
   // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
@@ -197,6 +207,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     useState<string | undefined>()
   const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
     useState<string | undefined>()
+
+  const foxWifHatHeld = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
+  )
 
   const [slippageDecimalPercentage, setSlippageDecimalPercentage] = useState<string | undefined>()
 
@@ -232,6 +246,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const poolAssetAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
   )
+
+  const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
+    useThorchainMimirTimes()
 
   const { data: poolAssetAccountAddress } = useThorchainFromAddress({
     accountId: poolAssetAccountId,
@@ -471,17 +488,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
   }, [opportunityType, walletSupportsAsset, walletSupportsRune, isDemoWallet])
 
-  const handleToggleRuneIsFiat = useCallback(
+  const handleToggleIsFiat = useCallback(
     (_isFiat: boolean) => {
-      toggleRuneIsFiat()
+      toggleIsFiat()
     },
-    [toggleRuneIsFiat],
-  )
-  const handleTogglePoolAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      togglePoolAssetIsFiat()
-    },
-    [togglePoolAssetIsFiat],
+    [toggleIsFiat],
   )
 
   const handleBackClick = useCallback(() => {
@@ -567,6 +578,24 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ),
   })
 
+  const {
+    isLoading: isApprovalRequirementsLoading,
+    isAllowanceApprovalRequired: _isApprovalRequired,
+    isAllowanceResetRequired,
+  } = useAllowanceApprovalRequirements({
+    amountCryptoBaseUnit:
+      poolAsset && actualAssetDepositAmountCryptoPrecision
+        ? toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset.precision)
+        : undefined,
+    assetId: poolAsset?.assetId,
+    from: poolAssetAccountAddress,
+    spender: poolAssetInboundAddress,
+  })
+
+  useEffect(() => {
+    setIsApprovalRequired(_isApprovalRequired)
+  }, [_isApprovalRequired])
+
   const hasEnoughAssetBalance = useMemo(() => {
     if (incompleteSide === AsymSide.Rune) return true
 
@@ -604,11 +633,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
       amountCryptoBaseUnit: toBaseUnit(
-        actualAssetDepositAmountCryptoPrecision,
+        isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision ?? 0,
         BigNumber.ROUND_UP,
       ),
       wallet: wallet ?? undefined,
+      from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {
@@ -644,34 +674,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetAccountAddress,
     queryClient,
   ])
-
-  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
-    assetId: poolAsset?.assetId,
-    spender: poolAssetInboundAddress,
-    from: poolAssetAccountAddress,
-  })
-
-  const _isApprovalRequired = useMemo(() => {
-    if (!confirmedQuote) return false
-    if (!poolAsset) return false
-    if (incompleteSide === AsymSide.Rune) return false
-    if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) return false
-
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    if (!supportedEvmChainIds.includes(fromAssetId(poolAsset.assetId).chainId as KnownChainIds))
-      return false
-
-    const allowanceCryptoPrecision = fromBaseUnit(allowanceData ?? '0', poolAsset.precision)
-    return bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(allowanceCryptoPrecision)
-  }, [
-    actualAssetDepositAmountCryptoPrecision,
-    allowanceData,
-    confirmedQuote,
-    incompleteSide,
-    poolAsset,
-  ])
-
-  useEffect(() => setIsApprovalRequired(_isApprovalRequired), [_isApprovalRequired])
 
   // Pool asset fee/balance/sweep data and checks
 
@@ -711,7 +713,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if ((!isApprovalRequired && !poolAssetTxFeeCryptoBaseUnit) || !poolAsset) return false
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
-    if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
+    if (!isToken(poolAsset.assetId)) {
       const assetAmountCryptoBaseUnit = toBaseUnit(
         actualAssetDepositAmountCryptoPrecision!,
         poolAsset?.precision,
@@ -992,13 +994,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
-    dispatch(
-      snapshotApi.endpoints.getVotingPower.initiate(
-        { model: 'THORCHAIN_LP' },
-        // Fetch only once on mount to avoid overfetching
-        { forceRefetch: false },
-      ),
-    )
+    if (isConnected) {
+      dispatch(
+        snapshotApi.endpoints.getVotingPower.initiate(
+          { model: 'THORCHAIN_LP' },
+          // Fetch only once on mount to avoid overfetching
+          { forceRefetch: false },
+        ),
+      )
+    }
 
     if (!slippageFiatUserCurrency) return
     if (!activeOpportunityId) return
@@ -1020,7 +1024,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: bnOrZero(votingPower),
+      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
+      // @TODO: remove this when thor swap discount is removed
+      thorHeld: bn(0),
       feeModel: 'THORCHAIN_LP',
+      isSnapshotApiQueriesRejected,
     })
 
     setConfirmedQuote({
@@ -1050,6 +1058,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     dispatch,
+    isConnected,
     isVotingPowerLoading,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,
@@ -1061,6 +1070,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     totalGasFeeFiatUserCurrency,
     userCurrencyToUsdRate,
     votingPower,
+    isSnapshotApiQueriesRejected,
+    foxWifHatHeld,
   ])
 
   const percentOptions = useMemo(() => [], [])
@@ -1153,8 +1164,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
-              onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
-              isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
+              onToggleIsFiat={handleToggleIsFiat}
+              isFiat={isFiat}
               cryptoAmount={isNonEmptyString(cryptoAmount) ? cryptoAmount : '0'}
               fiatAmount={isNonEmptyString(fiatAmount) ? fiatAmount : '0'}
             />
@@ -1167,19 +1178,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     createHandleAddLiquidityInputChange,
     currentAccountIdByChainId,
     handleAccountIdChange,
-    handleTogglePoolAssetIsFiat,
-    handleToggleRuneIsFiat,
+    handleToggleIsFiat,
     incompleteSide,
     opportunityType,
     pairDivider,
     percentOptions,
     poolAsset,
-    poolAssetIsFiat,
+    isFiat,
     poolAssetMarketData,
     position,
     previousOpportunityId,
     runeAsset,
-    runeIsFiat,
     runeMarketData,
     virtualAssetDepositAmountCryptoPrecision,
     virtualAssetDepositAmountFiatUserCurrency,
@@ -1220,6 +1229,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset, runeAsset, translate, opportunityType])
 
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
+    if (!isConnected) return null
     if (walletSupportsOpportunity) return null
     if (!poolAsset || !runeAsset) return null
 
@@ -1253,13 +1263,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       </Alert>
     )
   }, [
+    isConnected,
+    walletSupportsOpportunity,
     poolAsset,
     runeAsset,
-    translate,
-    walletSupportsAsset,
-    walletSupportsOpportunity,
-    walletSupportsRune,
     isDemoWallet,
+    walletSupportsRune,
+    walletSupportsAsset,
+    translate,
   ])
 
   const handleAssetChange = useCallback(
@@ -1380,6 +1391,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const errorCopy = useMemo(() => {
+    // Wallet not connected is *not* an error
+    if (!isConnected) return
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
     // 1. pool halted/disabled
     // 2. Asset unsupported by wallet
@@ -1411,6 +1424,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isConnected,
     isDemoWallet,
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
@@ -1427,12 +1441,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   const confirmCopy = useMemo(() => {
+    if (!isConnected) return translate('common.connectWallet')
     if (errorCopy) return errorCopy
     if (poolAsset && isApprovalRequired)
-      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: poolAsset.symbol })
+      return translate(
+        isAllowanceResetRequired
+          ? 'trade.resetAllowance'
+          : `transactionRow.parser.erc20.approveSymbol`,
+        { symbol: poolAsset.symbol },
+      )
 
     return translate('pools.addLiquidity')
-  }, [errorCopy, isApprovalRequired, poolAsset, translate])
+  }, [errorCopy, isAllowanceResetRequired, isApprovalRequired, isConnected, poolAsset, translate])
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 
@@ -1471,10 +1491,24 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : handleSubmit()
   }, [handleSubmit, isUnsafeQuote])
 
+  const handleClick = useCallback(() => {
+    thorchainMimirTimes?.liquidityLockupTime
+      ? setShouldShowInfoAcknowledgement(true)
+      : handleDepositSubmit()
+  }, [thorchainMimirTimes, handleDepositSubmit])
+
   if (!poolAsset || !runeAsset) return null
 
   return (
     <SlideTransition>
+      <InfoAcknowledgement
+        message={translate('defi.liquidityLockupWarning', {
+          time: formatSecondsToDuration(thorchainMimirTimes?.liquidityLockupTime ?? 0),
+        })}
+        onAcknowledge={handleDepositSubmit}
+        shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
+      />
       <WarningAcknowledgement
         message={translate('warningAcknowledgement.highSlippageDeposit', {
           slippagePercentage: bnOrZero(slippageDecimalPercentage).times(100).toFixed(2).toString(),
@@ -1482,146 +1516,146 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-      >
-        {renderHeader}
-        <Stack divider={divider} spacing={4} pb={4}>
-          {pairSelect}
-          <Stack>
-            <FormLabel mb={0} px={6} fontSize='sm'>
-              {translate('pools.depositAmounts')}
-            </FormLabel>
-            {!opportunityId && activeOpportunityId && (
-              <LpType
-                assetId={poolAsset.assetId}
-                opportunityId={activeOpportunityId}
-                onAsymSideChange={handleAsymSideChange}
-                isDeposit={true}
-                hasAsymRunePosition={hasAsymRunePosition}
-                hasAsymAssetPosition={hasAsymAssetPosition}
-                hasSymPosition={hasSymPosition}
-                amountsByPosition={amountsByPosition}
-              />
-            )}
-            {tradeAssetInputs}
-          </Stack>
+      />
+      {renderHeader}
+      <Stack divider={divider} spacing={4} pb={4}>
+        {pairSelect}
+        <Stack>
+          <FormLabel mb={0} px={6} fontSize='sm'>
+            {translate('pools.depositAmounts')}
+          </FormLabel>
+          {!opportunityId && activeOpportunityId && (
+            <LpType
+              assetId={poolAsset.assetId}
+              opportunityId={activeOpportunityId}
+              onAsymSideChange={handleAsymSideChange}
+              isDeposit={true}
+              hasAsymRunePosition={hasAsymRunePosition}
+              hasAsymAssetPosition={hasAsymAssetPosition}
+              hasSymPosition={hasSymPosition}
+              amountsByPosition={amountsByPosition}
+            />
+          )}
+          {tradeAssetInputs}
         </Stack>
-        <Collapse in={hasUserEnteredValue}>
-          <PoolSummary
-            assetId={poolAsset.assetId}
-            runePerAsset={runePerAsset}
-            shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
-            isLoading={isSlippageLoading}
-          />
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={6}
-            py={4}
-            bg='background.surface.raised.accent'
-          >
-            <Row fontSize='sm' fontWeight='medium'>
-              <Row.Label>{translate('common.slippage')}</Row.Label>
-              <Row.Value>
-                <Skeleton isLoaded={!isSlippageLoading}>
-                  <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
-                </Skeleton>
-              </Row.Value>
-            </Row>
-            <Row fontSize='sm' fontWeight='medium'>
-              <Row.Label>{translate('common.gasFee')}</Row.Label>
-              <Row.Value>
-                <Skeleton isLoaded={Boolean(confirmedQuote)}>
-                  <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
-                </Skeleton>
-              </Row.Value>
-            </Row>
-            <Row fontSize='sm' fontWeight='medium' isLoading={Boolean(!confirmedQuote)}>
-              <Row.Label display='flex'>
-                <Text translation={shapeshiftFeeTranslation} />
-                {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
-                  <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
-                )}
-              </Row.Label>
-              <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-                <Flex alignItems='center' gap={2}>
-                  {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
-                    <>
-                      <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
-                      <QuestionIcon />
-                    </>
-                  ) : (
-                    <>
-                      <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                      <QuestionIcon color={greenColor} />
-                    </>
-                  )}
-                </Flex>
-              </Row.Value>
-            </Row>
-          </CardFooter>
-        </Collapse>
+      </Stack>
+      <Collapse in={hasUserEnteredValue}>
+        <PoolSummary
+          assetId={poolAsset.assetId}
+          runePerAsset={runePerAsset}
+          shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+          isLoading={isSlippageLoading}
+        />
         <CardFooter
           borderTopWidth={1}
           borderColor='border.subtle'
           flexDir='column'
           gap={4}
           px={6}
+          py={4}
           bg='background.surface.raised.accent'
-          borderBottomRadius='xl'
         >
-          {incompleteAlert}
-          {maybeOpportunityNotSupportedExplainer}
-          {maybeAlert}
-
-          <ButtonWalletPredicate
-            isValidWallet={Boolean(walletSupportsOpportunity)}
-            mx={-2}
-            size='lg'
-            colorScheme={errorCopy ? 'red' : 'blue'}
-            isDisabled={Boolean(
-              disabledSymDepositAfterRune ||
-                isTradingActive === false ||
-                !isThorchainLpDepositEnabled ||
-                !confirmedQuote ||
-                isVotingPowerLoading ||
-                !hasEnoughAssetBalance ||
-                !hasEnoughRuneBalance ||
-                isApprovalTxPending ||
-                (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
-                isSweepNeededError ||
-                isEstimatedPoolAssetFeesDataError ||
-                isEstimatedRuneFeesDataError ||
-                isSmartContractAccountAddress ||
-                bnOrZero(actualAssetDepositAmountCryptoPrecision)
-                  .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
-                  .isZero() ||
-                notEnoughFeeAssetError ||
-                notEnoughRuneFeeError,
-            )}
-            isLoading={
-              (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-              isVotingPowerLoading ||
-              isTradingActiveLoading ||
-              isSmartContractAccountAddressLoading ||
-              isAllowanceDataLoading ||
-              isApprovalTxPending ||
-              (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
-              (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
-            }
-            onClick={handleDepositSubmit}
-          >
-            {confirmCopy}
-          </ButtonWalletPredicate>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isSlippageLoading}>
+                <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.gasFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={Boolean(confirmedQuote)}>
+                <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium' isLoading={Boolean(!confirmedQuote)}>
+            <Row.Label display='flex'>
+              <Text translation={shapeshiftFeeTranslation} />
+              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
+                <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
+              )}
+            </Row.Label>
+            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+              <Flex alignItems='center' gap={2}>
+                {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
+                  <>
+                    <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
+                    <QuestionIcon />
+                  </>
+                ) : (
+                  <>
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                    <QuestionIcon color={greenColor} />
+                  </>
+                )}
+              </Flex>
+            </Row.Value>
+          </Row>
         </CardFooter>
-        <FeeModal
-          isOpen={showFeeModal}
-          onClose={toggleFeeModal}
-          inputAmountUsd={confirmedQuote?.totalAmountUsd}
-          feeModel='THORCHAIN_LP'
-        />
-      </WarningAcknowledgement>
+      </Collapse>
+      <CardFooter
+        borderTopWidth={1}
+        borderColor='border.subtle'
+        flexDir='column'
+        gap={4}
+        px={6}
+        bg='background.surface.raised.accent'
+        borderBottomRadius='xl'
+      >
+        {incompleteAlert}
+        {maybeOpportunityNotSupportedExplainer}
+        {maybeAlert}
+
+        <ButtonWalletPredicate
+          isValidWallet={Boolean(walletSupportsOpportunity)}
+          mx={-2}
+          size='lg'
+          colorScheme={errorCopy ? 'red' : 'blue'}
+          isDisabled={Boolean(
+            disabledSymDepositAfterRune ||
+              isTradingActive === false ||
+              !isThorchainLpDepositEnabled ||
+              !confirmedQuote ||
+              isVotingPowerLoading ||
+              !hasEnoughAssetBalance ||
+              !hasEnoughRuneBalance ||
+              isApprovalTxPending ||
+              (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
+              isSweepNeededError ||
+              isEstimatedPoolAssetFeesDataError ||
+              isEstimatedRuneFeesDataError ||
+              isSmartContractAccountAddress ||
+              bnOrZero(actualAssetDepositAmountCryptoPrecision)
+                .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
+                .isZero() ||
+              notEnoughFeeAssetError ||
+              notEnoughRuneFeeError,
+          )}
+          isLoading={
+            (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
+            isVotingPowerLoading ||
+            isTradingActiveLoading ||
+            isSmartContractAccountAddressLoading ||
+            isApprovalRequirementsLoading ||
+            isApprovalTxPending ||
+            (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
+            (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
+            isThorchainMimirTimesLoading
+          }
+          onClick={handleClick}
+        >
+          {confirmCopy}
+        </ButtonWalletPredicate>
+      </CardFooter>
+      <FeeModal
+        isOpen={showFeeModal}
+        onClose={toggleFeeModal}
+        inputAmountUsd={confirmedQuote?.totalAmountUsd}
+        feeModel='THORCHAIN_LP'
+      />
     </SlideTransition>
   )
 }

@@ -1,20 +1,24 @@
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
+
+import { getStakingContract } from '../helpers'
 
 type TotalStaked = bigint
 
 type UseTotalStakedQueryProps<SelectData = TotalStaked> = {
+  stakingAssetId: AssetId
   select?: (totalStaked: bigint) => SelectData
 }
 
 export const useTotalStakedQuery = <SelectData = TotalStaked>({
+  stakingAssetId,
   select,
 }: UseTotalStakedQueryProps<SelectData>) => {
   return useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    abi: RFOX_ABI,
+    address: getStakingContract(stakingAssetId),
     functionName: 'totalStaked',
     chainId: arbitrum.id,
     query: {

@@ -1,6 +1,6 @@
+import { THORCHAIN_ROUTER_ABI } from '@shapeshiftoss/contracts'
+import type { Address } from 'viem'
 import { encodeFunctionData } from 'viem'
-
-import { routerAbi } from '../swappers/ThorchainSwapper/evm/routerAbi'
 
 export const depositWithExpiry = ({
   vault,
@@ -9,14 +9,14 @@ export const depositWithExpiry = ({
   memo,
   expiry,
 }: {
-  vault: string
-  asset: string
-  amount: string | BigInt
+  vault: Address
+  asset: Address
+  amount: bigint
   memo: string
-  expiry: number | BigInt
+  expiry: bigint
 }) => {
   const data = encodeFunctionData({
-    abi: routerAbi,
+    abi: THORCHAIN_ROUTER_ABI,
     functionName: 'depositWithExpiry',
     args: [vault, asset, amount, memo, expiry],
   })

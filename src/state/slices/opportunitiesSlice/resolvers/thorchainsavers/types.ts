@@ -46,6 +46,20 @@ export type MidgardPoolResponse = {
   volume24h: string
 }
 
+export type MidgardSaverResponse = {
+  pools: {
+    assetAdded: string
+    assetAddress: string
+    assetDeposit: string
+    assetRedeem: string
+    assetWithdrawn: string
+    dateFirstAdded: string
+    dateLastAdded: string
+    pool: string
+    saverUnits: string
+  }[]
+}
+
 export type ThorchainSaverPositionResponse = {
   asset: string
   asset_address: string
@@ -127,4 +141,33 @@ export type ThorchainRunepoolProviderResponseSuccess = {
   withdraw_amount: string
   last_deposit_height: number
   last_withdraw_height: number
+}
+
+export type ThorchainRunepoolReservePositionsResponse = {
+  pools: {
+    assetAdded: string
+    assetAddress: string
+    assetDeposit: string
+    assetPending: string
+    assetWithdrawn: string
+    dateFirstAdded: string
+    dateLastAdded: string
+    liquidityUnits: string
+    pool: string
+    runeAdded: string
+    runeAddress: string
+    runeDeposit: string
+    runePending: string
+    runeWithdrawn: string
+  }[]
+}
+
+export type ThorchainRunepoolMemberPositionResponse = {
+  runeAddress: string
+  units: string
+  runeAdded: string
+  runeDeposit: string
+  runeWithdrawn: string
+  dateFirstAdded: string
+  dateLastAdded: string
 }

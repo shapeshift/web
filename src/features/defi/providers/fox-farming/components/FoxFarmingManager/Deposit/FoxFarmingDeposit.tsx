@@ -21,8 +21,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -65,7 +65,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const foxFarmingOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   useEffect(() => {
     ;(() => {

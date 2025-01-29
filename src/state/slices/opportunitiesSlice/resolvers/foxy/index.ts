@@ -7,7 +7,7 @@ import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectBIP44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
+import { selectBip44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -136,7 +136,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     // These technically exist and are effectively accrued, but we're unable to derive them
     const rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
 
-    const bip44Params = selectBIP44ParamsByAccountId(state, { accountId })
+    const bip44Params = selectBip44ParamsByAccountId(state, { accountId })
 
     if (!bip44Params) continue
 

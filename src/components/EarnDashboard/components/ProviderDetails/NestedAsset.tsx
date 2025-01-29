@@ -102,6 +102,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
           position='relative'
           isExternal={isExternal}
           _after={assetCellAfter}
+          showAssetSymbol={true}
         />
         <Amount.Crypto
           value={balances.cryptoBalancePrecision}

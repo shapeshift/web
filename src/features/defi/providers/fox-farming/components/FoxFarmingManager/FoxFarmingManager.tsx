@@ -19,6 +19,12 @@ export const FoxFarmingManager = () => {
   const { modal } = query
   const { farmingAccountId, setFarmingAccountId: handleFarmingAccountIdChange } = useFoxEth()
 
+  useEffect(() => {
+    if (!query.accountId) return
+
+    handleFarmingAccountIdChange(query.accountId)
+  }, [query.accountId, handleFarmingAccountIdChange])
+
   // farmingAccountId isn't a local state field - it is a memoized state field from the <FoxEthContext /> and will stay hanging
   // This makes sure to clear it on modal close
   useEffect(() => {

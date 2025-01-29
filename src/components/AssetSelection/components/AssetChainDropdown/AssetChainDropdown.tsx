@@ -1,5 +1,6 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import {
+  Box,
   Button,
   Menu,
   MenuButton,
@@ -8,14 +9,21 @@ import {
   MenuOptionGroup,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useMemo } from 'react'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getStyledMenuButtonProps } from 'components/AssetSelection/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { assertGetChainAdapter } from 'lib/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from 'state/slices/related-assets-selectors'
-import { selectChainDisplayNameByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectChainDisplayNameByAssetId,
+  selectIsWalletConnected,
+  selectWalletConnectedChainIds,
+} from 'state/slices/selectors'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { AssetRowLoading } from '../AssetRowLoading'
 import { AssetChainRow } from './AssetChainRow'
@@ -29,6 +37,8 @@ type AssetChainDropdownProps = {
   isError?: boolean
   onlyConnectedChains: boolean
   isDisabled?: boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 
 const flexProps = {
@@ -44,7 +54,9 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     isError,
     isLoading,
     onChangeAsset,
-    onlyConnectedChains,
+    onlyConnectedChains: _onlyConnectedChains,
+    assetFilterPredicate,
+    chainIdFilterPredicate,
   }) => {
     const {
       state: { wallet },
@@ -53,31 +65,122 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const chainDisplayName = useAppSelector(state =>
       selectChainDisplayNameByAssetId(state, assetId ?? ''),
     )
+    const isWalletConnected = useAppSelector(selectIsWalletConnected)
+    const onlyConnectedChains = isWalletConnected ? _onlyConnectedChains : false
+
     const relatedAssetIdsFilter = useMemo(
-      () => ({ assetId, onlyConnectedChains }),
-      [assetId, onlyConnectedChains],
+      () => ({
+        assetId,
+        // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
+        // disabled in the UI. This allows users to see our product supports more assets than they
+        // have connected chains for.
+        onlyConnectedChains: false,
+      }),
+      [assetId],
     )
-    const relatedAssetIds = useAppSelector(state =>
-      selectRelatedAssetIdsInclusiveSorted(state, relatedAssetIdsFilter),
+    const relatedAssetIds = useSelectorWithArgs(
+      selectRelatedAssetIdsInclusiveSorted,
+      relatedAssetIdsFilter,
     )
+    const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
     const filteredRelatedAssetIds = useMemo(() => {
-      if (!assetIds?.length) return relatedAssetIds
-      return relatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
-    }, [assetIds, relatedAssetIds])
+      const filteredRelatedAssetIds = relatedAssetIds.filter(assetId => {
+        const { chainId } = fromAssetId(assetId)
+        const isChainAllowed = chainIdFilterPredicate?.(chainId) ?? true
+        const isAssetAllowed = assetFilterPredicate?.(assetId) ?? true
+        return isChainAllowed && isAssetAllowed
+      })
+      if (!assetIds?.length) return filteredRelatedAssetIds
+      return filteredRelatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
+    }, [assetFilterPredicate, assetIds, chainIdFilterPredicate, relatedAssetIds])
+
+    const isAssetChainIdSupported = useCallback(
+      (assetId: AssetId) => {
+        const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
+        return isSupported
+      },
+      [wallet],
+    )
+
+    const isAssetChainIdConnected = useCallback(
+      (assetId: AssetId) => {
+        const isConnected = walletConnectedChainIds.includes(fromAssetId(assetId).chainId)
+        return isConnected
+      },
+      [walletConnectedChainIds],
+    )
+
+    const isAssetChainIdDisabled = useCallback(
+      (assetId: AssetId) => {
+        const isDisabled =
+          onlyConnectedChains &&
+          (!isAssetChainIdConnected(assetId) || !isAssetChainIdSupported(assetId))
+        return isDisabled
+      },
+      [isAssetChainIdConnected, isAssetChainIdSupported, onlyConnectedChains],
+    )
+
+    // If the currently selected assetId becomes disabled (by switching assets or disconnecting a
+    // chain), switch to the first enabled related assetId
+    useEffect(() => {
+      const isCurrentAssetIdDisabled = assetId ? isAssetChainIdDisabled(assetId) : false
+
+      if (isCurrentAssetIdDisabled) {
+        const firstEnabledAssetId = filteredRelatedAssetIds.find(
+          assetId => !isAssetChainIdDisabled(assetId),
+        )
+        if (firstEnabledAssetId) {
+          onChangeAsset(firstEnabledAssetId)
+        }
+      }
+    }, [
+      filteredRelatedAssetIds,
+      isAssetChainIdConnected,
+      assetId,
+      onChangeAsset,
+      isAssetChainIdSupported,
+      isAssetChainIdDisabled,
+    ])
 
     const renderedChains = useMemo(() => {
       if (!assetId) return null
       return filteredRelatedAssetIds.map(relatedAssetId => {
-        const isSupported = wallet && isAssetSupportedByWallet(relatedAssetId, wallet)
+        const { chainId } = fromAssetId(relatedAssetId)
+        const chainDisplayName = assertGetChainAdapter(chainId).getDisplayName()
+        const isChainIdDisabled = !isAssetChainIdConnected(relatedAssetId)
+        const isChainIdUnsupported = !isAssetChainIdSupported(relatedAssetId)
+        const isDisabled = isAssetChainIdDisabled(relatedAssetId)
+
+        const tooltipLabel = (() => {
+          switch (true) {
+            case isChainIdUnsupported:
+              return translate('trade.tooltip.chainNotSupportedByWallet', { chainDisplayName })
+            case isChainIdDisabled:
+              return translate('trade.tooltip.chainNotConnected', { chainDisplayName })
+            default:
+              return ''
+          }
+        })()
 
         return (
-          <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={!isSupported}>
-            <AssetChainRow assetId={relatedAssetId} mainImplementationAssetId={assetId} />
+          <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={isDisabled}>
+            <Tooltip isDisabled={!isDisabled} label={tooltipLabel}>
+              <Box width='100%' height='100%'>
+                <AssetChainRow assetId={relatedAssetId} mainImplementationAssetId={assetId} />
+              </Box>
+            </Tooltip>
           </MenuItemOption>
         )
       })
-    }, [assetId, filteredRelatedAssetIds, wallet])
+    }, [
+      assetId,
+      filteredRelatedAssetIds,
+      isAssetChainIdConnected,
+      isAssetChainIdDisabled,
+      isAssetChainIdSupported,
+      translate,
+    ])
 
     const handleChangeAsset = useCallback(
       (value: string | string[]) => {
@@ -109,8 +212,10 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
 
     return (
       <Menu isLazy>
-        {/* If we do have related assets (or we're loading/errored), assume everything is happy. 
-            Else if there's no related assets for that asset, display a tooltip explaining "This asset is only available on <currentChain>  
+        {/* 
+          If we do have related assets (or we're loading/errored), assume everything is happy. 
+          Else if there's no related assets for that asset, display a tooltip explaining 
+          "This asset is only available on <currentChain>"
         */}
         <Tooltip isDisabled={isTooltipExplainerDisabled} label={buttonTooltipText}>
           <MenuButton as={Button} isDisabled={isButtonDisabled} {...buttonProps}>
@@ -132,3 +237,17 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     )
   },
 )
+
+export const StyledAssetChainDropdown = ({
+  isDisabled,
+  rightIcon,
+  buttonProps,
+  ...rest
+}: AssetChainDropdownProps & { rightIcon?: React.ReactElement }) => {
+  const combinedButtonProps = useMemo(
+    () => getStyledMenuButtonProps({ isDisabled, rightIcon, buttonProps }),
+    [isDisabled, rightIcon, buttonProps],
+  )
+
+  return <AssetChainDropdown {...rest} buttonProps={combinedButtonProps} isDisabled={isDisabled} />
+}

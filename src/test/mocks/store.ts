@@ -1,8 +1,12 @@
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  ExpiryOption,
+  LimitPriceMode,
+  PriceDirection,
+} from 'state/slices/limitOrderInputSlice/constants'
 import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
-import { initialTradeExecutionState } from 'state/slices/tradeQuoteSlice/constants'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -27,6 +31,13 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
   },
 })
 
+const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
+  provided: {
+    LimitOrder: {},
+    limitOrderQuote: {},
+  },
+})
+
 export const mockStore: ReduxState = {
   assetApi: mockApiFactory('assetApi' as const),
   portfolioApi: mockApiFactory('portfolioApi' as const),
@@ -34,7 +45,6 @@ export const mockStore: ReduxState = {
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   zapperApi: mockApiFactory('zapperApi' as const),
   nftApi: mockApiFactory('nftApi' as const),
-  covalentApi: mockApiFactory('covalentApi' as const),
   zapper: mockApiFactory('zapper' as const),
   swapperApi: mockSwapperApi,
   foxyApi: mockApiFactory('foxyApi' as const),
@@ -42,7 +52,13 @@ export const mockStore: ReduxState = {
   snapshotApi: mockApiFactory('snapshotApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
+  limitOrderApi: mockLimitOrderApi,
   portfolio: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    isAccountMetadataLoadingByAccountId: {},
     accounts: {
       byId: {},
       ids: [],
@@ -69,6 +85,7 @@ export const mockStore: ReduxState = {
       Gnosis: false,
       Arbitrum: false,
       ArbitrumNova: false,
+      Solana: false,
       ArbitrumBridge: false,
       Base: false,
       BnbSmartChain: false,
@@ -79,23 +96,17 @@ export const mockStore: ReduxState = {
       Yat: false,
       WalletConnectToDapps: false,
       WalletConnectToDappsV2: false,
-      Wherever: false,
       SaversVaults: false,
       SaversVaultsDeposit: false,
       SaversVaultsWithdraw: false,
-      DefiDashboard: false,
       Mixpanel: false,
       LifiSwap: false,
       DynamicLpAssets: false,
       ReadOnlyAssets: false,
-      OneInch: false,
-      CovalentJaypegs: false,
       Chatwoot: false,
-      CoinbaseWallet: false,
       AdvancedSlippage: false,
       WalletConnectV2: false,
       CustomSendNonce: false,
-      Snaps: false,
       ThorchainLending: false,
       ThorchainLendingBorrow: false,
       ThorchainLendingRepay: false,
@@ -109,11 +120,30 @@ export const mockStore: ReduxState = {
       AccountManagement: false,
       AccountManagementLedger: false,
       RFOX: false,
+      RFOX_LP: false,
       CustomTokenImport: false,
       ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,
       RunePool: false,
-      Portals: false,
+      RunePoolDeposit: false,
+      RunePoolWithdraw: false,
+      PortalsSwap: false,
+      Markets: false,
+      PhantomWallet: false,
+      FoxPage: false,
+      FoxPageRFOX: false,
+      FoxPageFoxSection: false,
+      FoxPageFoxFarmingSection: false,
+      FoxPageGovernance: false,
+      LimitOrders: false,
+      ChainflipSwap: false,
+      SolanaSwapper: false,
+      ChainflipDca: false,
+      ThorFreeFees: false,
+      JupiterSwap: false,
+      NewWalletFlow: false,
+      FoxPageFoxWifHatSection: false,
+      NewLimitFlow: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -133,11 +163,19 @@ export const mockStore: ReduxState = {
     },
   },
   assets: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     byId: {},
     ids: [],
     relatedAssetIndex: {},
   },
   marketData: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     crypto: {
       byId: {},
       ids: [],
@@ -151,6 +189,10 @@ export const mockStore: ReduxState = {
     isMarketDataLoaded: false,
   },
   txHistory: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     txs: {
       byId: {},
       byAccountIdAssetId: {},
@@ -159,6 +201,10 @@ export const mockStore: ReduxState = {
     hydrationMeta: {},
   },
   opportunities: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     lp: {
       byAccountId: {},
       byId: {},
@@ -175,6 +221,10 @@ export const mockStore: ReduxState = {
     },
   },
   nft: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     selectedNftAvatarByWalletId: {},
     nfts: {
       byId: {},
@@ -188,35 +238,71 @@ export const mockStore: ReduxState = {
   tradeInput: {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
-    sellAssetAccountId: undefined,
-    buyAssetAccountId: undefined,
+    sellAccountId: undefined,
+    buyAccountId: undefined,
     sellAmountCryptoPrecision: '0',
     isInputtingFiatSellAmount: false,
     manualReceiveAddress: undefined,
-    manualReceiveAddressIsValidating: false,
-    manualReceiveAddressIsEditing: false,
-    manualReceiveAddressIsValid: undefined,
+    isManualReceiveAddressValidating: false,
+    isManualReceiveAddressEditing: false,
+    isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
+  },
+  limitOrderInput: {
+    buyAsset: defaultAsset,
+    sellAsset: defaultAsset,
+    sellAccountId: undefined,
+    buyAccountId: undefined,
+    sellAmountCryptoPrecision: '0',
+    isInputtingFiatSellAmount: false,
+    manualReceiveAddress: undefined,
+    isManualReceiveAddressValidating: false,
+    isManualReceiveAddressEditing: false,
+    isManualReceiveAddressValid: undefined,
+    limitPrice: {
+      [PriceDirection.BuyAssetDenomination]: '0',
+      [PriceDirection.SellAssetDenomination]: '0',
+    },
+    limitPriceMode: LimitPriceMode.Market,
+    expiry: ExpiryOption.SevenDays,
+    limitPriceDirection: PriceDirection.BuyAssetDenomination,
   },
   tradeQuoteSlice: {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
-    tradeExecution: initialTradeExecutionState,
+    tradeExecution: {},
     tradeQuotes: {},
     tradeQuoteDisplayCache: [],
     isTradeQuoteRequestAborted: false,
   },
+  limitOrderSlice: {
+    activeQuote: undefined,
+    confirmedLimitOrder: {},
+    orderSubmission: {},
+  },
   snapshot: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     votingPowerByModel: {
       SWAPPER: undefined,
       THORCHAIN_LP: undefined,
+      THORSWAP: undefined,
     },
     strategies: undefined,
+    thorStrategies: undefined,
+    proposals: undefined,
   },
   localWalletSlice: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     walletType: null,
     walletDeviceId: null,
     nativeWalletName: null,
+    rdns: null,
   },
 }

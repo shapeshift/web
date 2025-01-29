@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "Ascendente",
+    "descending": "Descendente",
     "free": "Gratuito",
     "trade": "Trade",
     "trades": "Trades",
@@ -16,6 +18,7 @@
     "done": "Feito",
     "cancel": "Cancelar",
     "close": "Fechar",
+    "closed": "Fechado",
     "loadMore": "Carregar mais",
     "saveChanges": "Salvar Mudanças",
     "new": "Novo",
@@ -24,6 +27,7 @@
     "claimable": "Resgatável",
     "comingSoon": "Em breve ...",
     "approve": "Aprovar",
+    "reset": "Reiniciar",
     "confirm": "Confirmar",
     "seeDetails": "Veja detalhes",
     "activity": "Atividade",
@@ -36,6 +40,8 @@
     "noResultsFound": "Nenhum resultado encontrado.",
     "noResultsBody": "Não há resultados para %{searchQuery}. Tente novamente.",
     "insufficientFunds": "Saldo insuficiente",
+    "insufficientFundsForTrade": "Fundos Insuficientes Para Negociar",
+    "insufficientAllowance": "Permissão insuficiente",
     "estimatedGas": "Taxa de gás estimada",
     "relayerGasFee": "Taxa de gás",
     "insufficientAmountForGas": "Você não tem o suficiente %{assetSymbol}.%{chainSymbol} para pagar as taxas",
@@ -48,6 +54,8 @@
     "overview": "Visão Geral",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
+    "pairing": "Pareando",
+    "connectWalletToGetStartedWith": "Conecte uma carteira para começar a usar %{feature}",
     "connectedWallet": "Carteira Conectada",
     "connectedWalletSettings": "Configurar Carteira",
     "noWallet": "Carteira não conectada",
@@ -74,6 +82,8 @@
     "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
+    "safeProposalQueued": "Proposta SAFE na fila. %{currentConfirmations} de %{confirmationsRequired} assinada.",
+    "safeProposalExecuted": "Proposta na SAFE executada.",
     "submitFeedback": "Deixe um comentário",
     "send": "Enviar",
     "receive": "Receber",
@@ -121,6 +131,7 @@
     "best": "Melhor",
     "gasFee": "Taxas",
     "approvalFee": "Taxa de aprovação",
+    "allowanceResetFee": "Taxa para Permitir Reset",
     "consolidationFee": "Taxa de Consolidação",
     "fees": "Taxas",
     "alternative": "Alternativa",
@@ -139,6 +150,7 @@
     "learnMore": "Aprender mais",
     "showAll": "Mostrar tudo",
     "showLess": "Mostrar menos",
+    "showMore": "Mostrar mais",
     "yourBalance": "Seu saldo",
     "signTransaction": "Assinar transação",
     "active": "Ativo",
@@ -152,6 +164,12 @@
     "symmetric": "Simétrico",
     "asymmetric": "Assimétrico (%{assetSymbol})",
     "import": "Importar",
+    "accountsLoading": "Carregando contas",
+    "noAccounts": "Nenhuma conta para os filtros selecionados.",
+    "sortBy": "Classificar por",
+    "orderBy": "Ordenar por",
+    "filterBy": "Filtrar por",
+    "filterAndSort": "Filtrar e classificar",
     "carousel": {
       "next": "Próximo",
       "prev": "Anterior",
@@ -166,7 +184,12 @@
       "expandRow": "Expandir"
     },
     "featureDisabled": "Este recurso está temporariamente desativado.",
-    "yes": "Sim"
+    "yes": "Sim",
+    "activeAccount": "Conta ativa",
+    "update": "Atualização",
+    "apy": "APY",
+    "tbd": "TBD",
+    "installed": "Instalado"
   },
   "consentBanner": {
     "body": {
@@ -225,6 +248,7 @@
       "balance": "Saldo",
       "price": "Preço",
       "value": "Valor",
+      "apy": "APY",
       "priceChange": "Variação de Preço",
       "allocation": "Alocação",
       "marketCap": "Capitalização de Mercado",
@@ -251,8 +275,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "Compre ou venda criptomoedas",
     "titleMessage": "A ShapeShift possui parceria com provedores de moeda fiduciária para compra e venda de criptomoedas.",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -281,17 +303,8 @@
     "notSupported": "%{asset} não é suportado pela %{wallet}"
   },
   "connectWalletPage": {
-    "title": "A Original Corretora Multichain",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explore o",
-    "defiUniverse": "Universo DeFi",
-    "body": "Negocie, faça bridges e ganhe. Privado. Mantido pela comunidade. Autocustodial. Descentralizado.",
-    "header": "Conecte sua carteira para iniciar",
-    "cta": "Conectar Carteira",
-    "viewADemo": "Ver uma demonstração",
-    "dontHaveWallet": "Não tem uma carteira?",
     "welcomeBack": "Bem-vindo/a de volta!",
-    "welcomeBody": "Conectar sua carteira é como “fazer login”. Selecione sua carteira nas opções para começar.",
     "welcomeToShapeShift": "Bem-vindo/a to ShapeShift",
     "mobileWelcomeBody": "Crie uma carteira totalmente nova ou adicione uma existente para começar.",
     "mobileSelectBody": "Selecione qualquer uma das suas carteiras salvas abaixo, crie ou importe uma nova carteira.",
@@ -397,12 +410,15 @@
       },
       "saversVaults": {
         "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
+        "runePoolDescription": "RUNEPool permite que você ganhe mais %{asset} ao juntar seu %{asset} com outros. Você não precisa escolher pools específicos, todos compartilham o desempenho geral.",
+        "runePoolOverviewDescription": "O RUNEPool otimiza o uso do RUNE depositando-o em todos os pools de liquidez habilitados para POL no THORChain. Ao reunir o RUNE entre esses pools, os participantes ganham o APY combinado, mas enfrentam a exposição à perda impermanente agregada. Em vez de escolher pools individuais, os usuários se beneficiam do desempenho geral, investindo efetivamente em um índice RUNE e em todos os ativos habilitados para POL do THORChain. Isso simplifica o fornecimento de liquidez e reduz o risco individual.",
         "vaultCap": "Limite da Vault",
         "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedDepositTitle": "Depósitos estão temporariamente desabilitados. ",
         "disabledDepositTitle": "Os depósitos estão temporariamente desativados.",
         "haltedWithdrawTitle": "As retiradas estão temporariamente suspensas.",
         "disabledWithdrawTitle": "Os saques estão temporariamente desativados.",
+        "withdrawLockedTitle": "Você tem que esperar %{timeHuman} para sacar.",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
         "protocolFee": "Taxas do Protocolo",
         "fee": "Taxa",
@@ -412,10 +428,12 @@
         "sendDust": "Enviar Cripto",
         "addressToSendTo": "Endereço para Enviar",
         "introducingSaversVaults": "Introduzindo a Savers Vault",
+        "introducingRunePool": "Apresentando RUNEPool",
         "risksBody": {
           "1": "Indique para",
           "2": "este artigo",
-          "3": "para riscos envolvidos com a Savers Vault"
+          "3": "para riscos envolvidos com a Savers Vault",
+          "runePool": "para riscos envolvidos com o RUNEPool."
         },
         "understand": "Eu entendo",
         "days": "%{amount} dias",
@@ -426,7 +444,10 @@
         },
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
         "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
-        "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema."
+        "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema.",
+        "agreeRunePool": {
+          "1": "Entendo que o RUNEPool tem um bloqueio mínimo de 30 dias e um risco maior de perda impermanente."
+        }
       }
     },
     "memoNote": {
@@ -493,6 +514,8 @@
     "myRewardsBody": "Suas posições ativas com recompensas resgatáveis aparecerão aqui.",
     "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
+    "liquidityLockupWarning": "Há um período de bloqueio de %{time}. Durante o bloqueio, você não pode acessar sua liquidez.",
+    "liquidityLocked": "Liquidez bloqueada (%{time})",
     "stakingVaults": "Poupança e Cofres",
     "farming": "Farming",
     "totalEarningBalance": "Saldo Total de Investimentos",
@@ -597,6 +620,9 @@
     "buyCryptoShort": "Compre/venda",
     "lending": "Empréstimo",
     "pools": "Pools",
+    "rFOX": "rFOX",
+    "foxBenefits": "Benefícios FOX",
+    "markets": "Mercados",
     "actionMenu": {
       "send": {
         "title": "Enviar",
@@ -618,8 +644,7 @@
         "title": "Scaneie o código QR",
         "body": "Escaneie facilmente para enviar ou receber criptos"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Enviado",
@@ -650,14 +675,16 @@
         "withdrawEth": "Saque Iniciado",
         "submitRetryable": "Depósito recebido",
         "createRetryableTicket": "Depósito iniciado",
-        "finalizeInboundTransfer": "Saque Recebido",
-        "depositEth": "Depósito iniciado"
+        "finalizeInboundTransferDeposit": "Depósito recebido",
+        "depositEth": "Depósito iniciado",
+        "executeTransaction": "Resgate"
       },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Retirar",
         "unstakeRequest": "Solicitação de Unstake",
-        "setRuneAddress": "Definir endereço da Rune"
+        "setRuneAddress": "Definir endereço da RUNE",
+        "reward": "Distribuição de recompensas"
       },
       "weth": {
         "deposit": "Depósito",
@@ -700,6 +727,7 @@
         "out": "Outbound recebido",
         "refund": "Reembolso",
         "swapOut": "Swap recebido",
+        "swap": "Negocie",
         "swapRefund": "Pagamento Swap",
         "withdraw": "Saque solicitado",
         "withdrawNative": "Sacar",
@@ -763,22 +791,40 @@
     "waitTimeValue": "~5-10 minutos",
     "noSupportedAssets": "Nenhum ativo suportado no portfólio.",
     "arbitrum": {
+      "description": "Ponte via Arbitrum",
       "waitWarning": "A ponte nativa da Arbitrum é mais segura, mas pode levar até uma semana para ser resgatada.",
       "waitCta": "Entendo que levará cerca de 7 dias antes que eu possa resgatar fundos no Ethereum",
-      "claimCta": "Entendo que após resgatar meus fundos, terei que enviar outra transação com uma taxa"
+      "claimCta": "Entendo que após resgatar meus fundos, terei que enviar outra transação com uma taxa",
+      "success": {
+        "tradeSuccess": "Ponte iniciada",
+        "withdrawComplete": "A conexão de %{symbol} para %{chainName} foi iniciada com sucesso."
+      }
     },
-    "claims": "Resgates",
+    "claim": "Resgate",
+    "claimReceiveAddress": "Endereço de recebimento do resgate",
+    "claimPending": "Aguardando seu resgate de",
+    "claimSuccess": "Você resgatou com sucesso",
+    "claimFailed": "Erro ao tentar resgatar",
     "availableClaims": "Disponível",
-    "pendingClaims": "Pendente"
+    "noAvailableClaims": "Nenhum resgate disponível",
+    "pendingClaims": "Pendente",
+    "noPendingClaims": "Nenhum resgate pendente",
+    "availableIn": "Disponível em %{time}",
+    "confirmAndClaim": "Confirmar e Resgate",
+    "viewClaims": "Ver resgates",
+    "viewClaimStatus": "Ver status do resgate",
+    "availableClaimsNotification": "Você tem resgates de pontes prontas!"
   },
   "trade": {
     "trade": "Swap",
+    "resetAllowance": "Redefinir permissão",
     "allowance": "Quota",
     "verifyAddresses": "Verifique os endereços",
     "assetAddress": "%{asset} endereço",
     "verifyAsset": "Verifique %{asset}",
     "verifyAddressMessage": "Certifique-se de que seus endereços estejam corretos antes de continuar.",
     "slippageInfo": "Sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta porcentagem.",
+    "resetAllowanceTooltip": "Quando houver uma permissão diferente de zero restante para este token, a permissão deverá primeiro ser redefinida para 0 antes de aprovar a permissão final.",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
     "noRateAvailable": "Nenhuma taxa disponível.",
@@ -811,17 +857,20 @@
     "gasFeeExceedsTradeAmountThreshold": "A taxa de gás excede %{percentage}% do valor da transação",
     "confirmDetails": "Confirmar Detalhes",
     "confirmAndTrade": "Confirmar e Trocar",
+    "signAndSwap": "Assinar e Negociar",
     "tradeAnyway": "Negocie Assim Mesmo",
     "pending": "Negociação Pendente",
     "complete": "Troca efetivada com sucesso",
     "approveAsset": "Aprovar %{symbol}",
-    "needPermission": "Precisamos de sua permissão para utilizar %{symbol}",
     "whyNeedThis": "Por que isso é necessário?",
     "estimatedGasFee": "Taxa Estimada da Rede",
     "receiveInclFee": "Receba (incluindo taxas)",
     "approvingAsset": "Aprovando %{symbol}",
     "viewTransaction": "Ver transação",
-    "availableQuotes": "Cotações disponíveis",
+    "noQuotesAvailable": "Nenhuma cotação disponível",
+    "noQuotesAvailableDescription": "Nenhuma cotação disponível encontrada neste momento. Tente selecionar outro par.",
+    "availableSwappers": "Cotações disponíveis",
+    "unavailableSwappers": "Swappers indisponíveis",
     "unlimited": "Ilimitado",
     "streamStatus": "Status do Stream ",
     "swapsFailed": "%{failedSwaps} swaps falharam",
@@ -830,6 +879,8 @@
     "beforeFees": "Antes das taxas ",
     "minAmountAfterSlippage": "Quantia esperada após o slippage (%{slippage}%)",
     "free": "De graça",
+    "shapeShiftFee": "Taxa da ShapeShift",
+    "transactionFee": "Taxa de Transação",
     "slowSwapTitle": "%{protocol} negocie",
     "slowSwapBody": "Este swap pode levar alguns minutos para ser concluído.",
     "thorSmartContractWalletUnsupported": "A rede THORChain atualmente não oferece suporte a carteiras com contratos inteligentes.",
@@ -843,6 +894,7 @@
     "enterCustomRecipientAddress": "Insira o endereço do destinatário personalizado",
     "receiveAtLeast": "Receba pelo menos",
     "tooltip": {
+      "continueSwapping": "Continue negociando para mais detalhes",
       "changeQuote": "Alterar cotação",
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
@@ -857,16 +909,34 @@
       "manualReceiveAddress": "Este é o endereço para o qual você receberá seus fundos. Foi inserido manualmente, verifique se está correto.",
       "amountPercentageDifference": "Esta é a diferença percentual no valor total de %{buyAssetSymbol} que você receberá, em comparação com a melhor cotação",
       "overallPercentageDifference": "Esta é a diferença percentual no valor total recebido após a dedução de todas as taxas, em comparação com a melhor cotação",
-      "priceImpactDifference": "A diferença estimada entre os valores em USD dos valores de entrada e saída.",
+      "inputOutputDifference": "A diferença estimada entre os valores em USD dos valores de entrada e saída.",
       "gasFee": "Esta é a taxa de gás estimada para concluir esta negociação.",
       "slippageWithAmount": "Se o preço mudar de forma que você receba menos de %{amount}, sua transação será revertida. Este é o valor mínimo que você tem garantia de receber.",
       "slippage": "A sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta percentagem.",
-      "noRelatedAssets": "Este ativo está disponível apenas em %{chainDisplayName}"
+      "noRelatedAssets": "Este ativo está disponível apenas em %{chainDisplayName}",
+      "chainNotSupportedByWallet": "Esta rede não é suportada pela sua carteira. Mude para uma carteira diferente para negociar este ativo.",
+      "chainNotConnected": "Esta rede não está conectada à sua carteira. Conecte %{chainDisplayName} para negociar este ativo."
     },
     "rates": {
       "tags": {
         "negativeRatio": "Quantia indisponível para vender"
+      },
+      "rateExpired": {
+        "title": "Nova taxa",
+        "body": "Sua taxa de swap anterior expirou. Buscamos uma nova taxa e atualizamos seus valores de cotação. Revise os detalhes mais recentes antes de confirmar seu swap.",
+        "cta": "Ok, entendi"
       }
+    },
+    "permit2Allowance": {
+      "title": "Permissão para o contrato Permit2",
+      "tooltip": "Esta negociação usa o Permit2, que requer uma aprovação única para conceder permissão ilimitada ao contrato Permit2. Após essa configuração inicial, você pode autorizar negociações em qualquer protocolo suportado pelo Permit2 assinando mensagens sem custo que concedem permissões temporárias de 5 minutos."
+    },
+    "permit2Eip712": {
+      "title": "Permitir transferência de token",
+      "description": "Conceda ao contrato inteligente permissão para usar %{symbol} em seu nome.",
+      "error": "Ocorreu um problema ao assinar a mensagem Permit2",
+      "signMessage": "Assinar mensagem",
+      "tooltip": "Isso dará a %{swapperName} 5 minutos para concluir a negociação em seu nome."
     },
     "errors": {
       "title": "Algo de errado aconteceu.",
@@ -897,7 +967,12 @@
       "noQuotesAvailable": "Nenhuma cotação disponível para esta negociação",
       "smartContractWalletNotSupported": "Contrato inteligente da carteira não suportada. ",
       "unsafeQuote": "Este valor está abaixo do mínimo recomendado para este par (%{recommendedMin} %{symbol}). Isso pode causar falha na negociação ou perda dos fundos.",
-      "rateLimitExceeded": "Limite de taxa excedido. Tente novamente mais tarde"
+      "rateLimitExceeded": "Limite de taxa excedido. Tente novamente mais tarde",
+      "maxSlippageExceededWithExpectedSlippage": "A tolerância máxima de slippage permitida para esta negociação foi excedida durante a simulação. Slippage esperado: %{expectedSlippage}%. Tente novamente com uma tolerância de slipppage maior.",
+      "executionRevertedWithExpectedSlippage": "Execução revertida durante a execução. Isso pode ser devido à tolerância de slipipage insuficiente. Slippage esperado: %{expectedSlippage}%. Tente novamente com uma tolerância de slippage maior.",
+      "slippageToleranceExceeded": "Tolerância de slippage excedida.",
+      "underMinimumAmount": "Um ou mais ativos nesta negociação estão abaixo do valor mínimo exigido para esta negociação.",
+      "consumedMoreFees": "A transação foi revertida porque as taxas consumidas por essa negociação foram maiores do que o esperado."
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
@@ -905,20 +980,29 @@
     "or": "ou",
     "onChainName": "na %{chainName}",
     "unknownGas": "(desconhecido)",
+    "unknownProtocolFee": "(desconhecido)",
     "numHops": "Esta negociação inclui %{numHops} Hops",
     "receiveAddress": "Endereço de recebimento",
-    "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira manualmente um endereço ou",
-    "smartContractReceiveAddressDescription": "Detectamos que você está trocando de um contrato inteligente cujo endereço pode não existir na rede de destino. Verifique e insira manualmente o endereço do destinatário desejado em %{chainName}",
+    "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira um endereço manualmente",
+    "disableThorNativeSmartContractReceive": "Detectamos que você está enviando para um endereço de contrato inteligente em %{chainName}. Devido às limitações do THORChain, não há suporte para receber %{nativeAssetSymbol} para um endereço de contrato inteligente. Insira outro endereço",
+    "disableThorTaprootReceive": "Detectamos que você está enviando para um endereço taproot Bitcoin. Devido às limitações do THORChain, receber BTC para um endereço taproot não é suportado no momento. Insira outro endereço.",
+    "disableChainflipKeepKeyTaprootReceive": "Devido às limitações do KeepKey, vender BTC no ChainFlip ainda não está disponível. Por favor, escolha outro par ou conecte uma carteira diferente.",
     "toContinue": "para continuar.",
     "addressPlaceholder": "%{chainName} endereço",
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?",
     "enableMetaMaskSnap": "use o snap multichain",
     "connectChain": "conectar %{chainName}",
-    "approvalGasFee": "Taxa para aprovação %{fee}",
+    "approvalGasFee": "Taxa de gás de aprovação %{fee}",
+    "approvalGasFeeLoading": "Taxa de gás de aprovação carregando...",
+    "approvalResetGasFee": "Taxa de gás para reiniciar %{fee}",
+    "approvalResetGasFeeLoading": "Taxa de gás para reiniciar carregando...",
     "approvalFailed": "Um problema ocorreu durante a aprovação dos tokens",
+    "approvalResetFailed": "Ocorreu um problema durante a redefinição da permissão",
+    "allowanceResetTxName": "Tx da redefinição de permissão:",
+    "allowanceApprovalTxName": "Tx da permissão de aprovação:",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
     "doAnotherTrade": "Faça outra negociação",
-    "showDetails": "Mostrar detalhes",
+    "summary": "Resumo de Trades",
     "transactionSuccessful": "Transação bem-sucedida, aguardando confirmações",
     "temp": {
       "tradeSuccess": "Negociação concluída",
@@ -926,21 +1010,108 @@
     },
     "hopTitle": {
       "bridge": "Bridge via %{swapperName}",
-      "swap": "Swap via %{swapperName}"
+      "swap": "Swap via %{swapperName}",
+      "swapEta": "Trocar via %{swapperName} em ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "Ocorreu um problema ao executar a bridge",
       "swap": "Ocorreu um problema ao executar o swap"
     },
     "transactionTitle": {
-      "bridge": "Bridge da %{sellChainName} para %{buyChainName} via %{swapperName}",
+      "bridge": "Trocar de %{sellChainName} para %{buyChainName} via %{swapperName}",
       "swap": "Swap na %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Aprovação de permissão de token",
-    "assetSummaryDescription": "%{amountFiatFormatted} na %{chainName}",
+    "resetTitle": "Redefinição da permissão de token",
+    "fiatAmountOnChain": "%{amountFiatFormatted} em %{chainName}",
     "quote": {
       "cantSetSlippage": "Não foi possível definir um slippage personalizado (%{userSlippageFormatted}) para %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
+    },
+    "awaitingPermit2Approval": "Aguardando transferência de token",
+    "awaitingSwap": "Aguardando troca via %{swapperName}",
+    "awaitingBridge": "Aguardando ponte via %{bridgeName}",
+    "awaitingApproval": "Aguardando aprovação",
+    "awaitingAllowanceReset": "Aguardando redefinição de permissão",
+    "foxSavings": {
+      "youSaved": "Você economizou %{feeSaving} em sua negociação com a FOX Savings!",
+      "youCouldHaveSaved": "Você poderia ter economizado %{fee} em sua negociação com a FOX Savings.",
+      "buyFox": "Comprar FOX",
+      "share": "Compartilhar",
+      "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!"
+    }
+  },
+  "limitOrder": {
+    "heading": "Limite",
+    "confirm": "Confirmar",
+    "placeOrderPending": "Aguardando confirmação",
+    "placeOrderSuccess": "Sucesso!",
+    "placeOrderFailed": "Algo deu errado",
+    "placeOrder": "Colocar ordem",
+    "cancel": {
+      "cancelOrder": "Cancelar Ordem Limite",
+      "requestCancellation": "Sim, pedir cancelamento",
+      "areYouSureYouWantToCancelOrder": "Tem certeza de que deseja cancelar esta ordem?",
+      "cancellationFailed": "Falha ao cancelar a ordem"
+    },
+    "viewOrder": "Ver Ordem",
+    "viewOnChain": "Ver transação on-chain",
+    "yourOrderHasBeenPlaced": "Sua ordem foi enviada.",
+    "yourCancellationHasBeenSubmitted": "Seu cancelamento foi enviado.",
+    "limitPrice": "Preço Limite",
+    "executionPrice": "Preço de execução",
+    "provider": "Provedor",
+    "expiration": "Expiração",
+    "networkFee": "Taxa de rede",
+    "confirmInfo": "A ordem limite pode não ser preenchida exatamente quando os preços on-chain atingem o preço limite.",
+    "learnMore": "Saber mais",
+    "previewOrder": "Pré-visualizar pedido",
+    "youGet": "Você ganha pelo menos",
+    "whenPriceReaches": "Quando o preço atinge",
+    "expiry": "Expiração",
+    "noOpenOrders": "Ainda não há ordens abertas.",
+    "noHistoricalOrders": "Nenhum histórico de ordens ainda.",
+    "limitPriceIsPercentLowerThanMarket": "O preço limite é %{percent}% menor que o preço de mercado",
+    "expiryOption": {
+      "oneHour": "1 hora",
+      "oneDay": "1 dia",
+      "threeDays": "3 dias",
+      "sevenDays": "7 dias",
+      "twentyEightDays": "28 dias",
+      "custom": "Customizar"
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Ativo de venda nativo não suportado",
+      "insufficientValidTo": "A ordem expirou muito cedo",
+      "excessiveValidTo": "A ordem expirou muito tarde",
+      "insufficientLiquidity": "Liquidez insuficiente",
+      "zeroFunds": "É necessário um saldo de ativos de venda diferente de zero",
+      "insufficientFundsForGas": "Fundos insuficientes para gás",
+      "allowanceResetRequired": "Redefinição de permissão necessária"
+    },
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "O preço está %{percent}% abaixo do mercado.\n\nEmbora o CoW sempre tenha como objetivo obter o melhor preço disponível, isso pode resultar na venda do seu %{sellAssetSymbol} com prejuízo. Considere clicar em \"Mercado\" em vez disso."
+    },
+    "usdtAllowanceReset": {
+      "title": "Não é possível aprovar permissão para USDT",
+      "description": "Sua permissão atual de USDT na Ethereum precisa ser redefinida para 0 antes que possa ser definida para um valor suficiente. Por favor, revogue a permissão atual de tokens USDT e tente novamente."
+    },
+    "openOrders": "Ordens abertas",
+    "orderHistory": "Histórico de ordens",
+    "status": {
+      "open": "Abrir",
+      "fulfilled": "Preenchida",
+      "cancelled": "Cancelado",
+      "expired": "Expirado"
+    },
+    "orders": "Ordens",
+    "viewOrders": "Ver Ordens",
+    "loadingOrderList": "Carregando suas ordens limite...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "Sua carteira atualmente tem saldo %{symbol} insuficiente em %{chainName} para executar esta ordem. A ordem ainda está aberta e se tornará executável quando você recarregar seu saldo %{symbol} em %{chainName}.",
+        "insufficientAllowance": "Esta ordem requer uma permissão adicional de %{symbol} em %{chainName} para ser aprovada para que o CoW Swap execute esta ordem. A ordem ainda está aberta e se tornará executável quando você concluir a aprovação da permissão."
+      }
     }
   },
   "modals": {
@@ -1117,6 +1288,9 @@
         "average": "Médio",
         "fast": "Rápido",
         "enterAmount": "Insira o valor"
+      },
+      "status": {
+        "pendingBody": "Enviando %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1197,6 +1371,7 @@
     },
     "approve": {
       "header": "Permitir %{spenderName} usar o seu %{asset}",
+      "resetHeader": "Redefinir %{spenderName} permissão para %{asset}",
       "shapeshiftRouterName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
@@ -1218,6 +1393,7 @@
       },
       "withdrawTo": "Retirar para",
       "amountToDeposit": "Quantia Para Depositar",
+      "amountDeposited": "Valor depositado",
       "amountToStake": "Quantidade para Stake",
       "amountToWithdraw": "Quantia Para Sacar.",
       "amountToClaim": "Quantia para resgatar",
@@ -1422,7 +1598,6 @@
         "button": "Emparelhar"
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar sua carteira Keplr"
       }
     },
@@ -1438,7 +1613,8 @@
         "connect": "Conectar"
       },
       "verify": {
-        "confirmOnDevice": "Confirme no dispositivo"
+        "confirmOnDevice": "Confirme no dispositivo",
+        "addressMismatch": "Incompatibilidade de endereço. Verifique se você tem o dispositivo correto conectado e tente novamente."
       },
       "success": {
         "header": "Ledger conectada",
@@ -1461,31 +1637,42 @@
         "pairExistingDeviceBody": "Conectando um dispositivo Ledger diferente? Clique em 'Parear novo dispositivo' para começar do zero."
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar a Ledger"
       },
       "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo.",
       "signWarning": "Antes de assinar, certifique-se de ter o aplicativo %{chain} aberto no seu dispositivo."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
-        "connectFailure": "Não foi possível conectar a carteira MetaMask",
-        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?"
-      },
+    "mipd": {
       "connect": {
-        "header": "Emparelhar MetaMask",
-        "body": "Clique em Emparelhar e conecte sua carteira MetaMask na janela pop-up",
-        "button": "Emparelhar"
+        "header": "Par %{name}",
+        "body": "Clique em Parear e faça login em %{name} na janela pop-up",
+        "button": "Parear"
+      },
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com %{name}",
+        "connectFailure": "Não foi possível conectar %{name}"
       },
       "failure": {
-        "header": "Erro",
-        "body": "Não foi possível conectar sua carteira MetaMask"
-      },
+        "body": "Não foi possível conectar %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "Conecte sua carteira MetaMask",
         "body": "Clique para autenticar a plataforma ShapeShift em sua carteira MetaMask",
         "button": "Abrir"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com o Phantom",
+        "connectFailure": "Não é possível conectar a carteira Phantom",
+        "multipleWallets": "O provedor de Ethereum detectado não é Phantom. Você tem várias carteiras instaladas?"
+      },
+      "connect": {
+        "header": "Parear Phantom",
+        "body": "Clique em Parear e faça login no Phantom na janela pop-up",
+        "button": "Parear"
       }
     },
     "metaMaskSnap": {
@@ -1499,8 +1686,10 @@
         "title": "Você removeu o suporte Multichain da MetaMask!",
         "subtitle": "Adicione novamente o Multichain Snap na MetaMask para enviar, receber, rastrear, negociar e ganhar com as seguintes redes:"
       },
-      "secondaryTitle": "A melhor experiência Multichain para MetaMask: Powered by ShapeShift",
-      "secondaryBody": "Envie, receba, rastreie, negocie e ganhe com o ShapeShift Multichain Snap nas seguintes redes:",
+      "update": {
+        "title": "Multichain Snap precisa de atualização",
+        "subtitle": "Clique em 'Atualizar' para continuar usando os recursos multichain da ShapeShift na MetaMask!"
+      },
       "connectMetaMask": "Conecte a MetaMask",
       "andMore": "...e mais",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap instalado",
@@ -1510,6 +1699,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Instale o Multichain Snap",
+      "updateTitle": "Atualizar Multichain Snap",
       "warningExperimental": "O ShapeShift Multichain Snap é um recurso novo e experimental, fornecido \"como está\"",
       "warningBackup": "Certifique-se de ter feito backup das palavras-chave da sua MetaMask. Qualquer fundos que você enviar para redes não EVM usando este Snap serão direcionados para a conta padrão que você configurou com MetaMask.",
       "agreeIntro": "Antes de continuar, leia o seguinte:",
@@ -1523,7 +1713,8 @@
       "agreeItem4": "Ao ativar o ShapeShift Multichain Snap, você reconhece que o está usando por sua própria conta e risco",
       "readAndUnderstood": "Eu li e entendi",
       "seedBackedUp": "Eu fiz backup das minhas palavras-chave da MetaMask",
-      "acceptInstall": "Confirme e instale"
+      "acceptInstall": "Confirme e instale",
+      "acceptUpdate": "Confirmar e atualizar"
     },
     "coinbase": {
       "errors": {
@@ -1537,7 +1728,6 @@
         "button": "Parear"
       },
       "failure": {
-        "header": "Não é possível conectar a carteira Coinbase",
         "body": "Não é possível conectar a carteira Coinbase"
       }
     },
@@ -1552,29 +1742,7 @@
         "button": "Emparelhar"
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar sua carteira WalletConnect"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com a XDEFI",
-        "connectFailure": "Não foi possível conectar a carteira XDEFI",
-        "multipleWallets": "O provedor Ethereum detectado não é XDEFI. Você tem várias carteiras instaladas e ativadas? Priorize o XDEFI nas configurações e pressione para parear novamente."
-      },
-      "connect": {
-        "header": "Emparelhar XDEFI",
-        "body": "Clique em Emparelhar e faça login na carteira XDEFI na janela pop-up",
-        "button": "Emparelhar"
-      },
-      "failure": {
-        "header": "Erro",
-        "body": "Não foi possível conectar a carteira XDEFI"
-      },
-      "redirect": {
-        "header": "Abra no aplicativo XDEFI",
-        "body": "Clique para abrir o painel ShapeShift na XDEFI",
-        "button": "Abrir"
       }
     },
     "shapeShift": {
@@ -1591,11 +1759,16 @@
       },
       "import": {
         "header": "Importe sua carteira",
+        "keystoreHeader": "Importe sua carteira keystore",
         "body": "Digite ou cole sua Frase de Recuperação Secreta em letras minúsculas, sem vírgulas ou números e um único espaço entre cada palavra.",
         "button": "Avançar",
         "secretRecoveryPhraseError": "Digite sua Frase Secreta de Recuperação com um único espaço entre as palavras. Não utilize vírgulas ou caracteres adicionais.",
         "secretRecoveryPhraseRequired": "A Frase Secreta de Recuperação é obrigatória",
-        "secretRecoveryPhraseTooShort": "Frase Secreta de Recuperação é curta demais"
+        "secretRecoveryPhraseTooShort": "Frase Secreta de Recuperação é curta demais",
+        "dragAndDrop": "Arraste e solte ou escolha o arquivo",
+        "keystoreImportBody": "Faça upload do arquivo clicando em procurar ou arrastando e soltando abaixo.",
+        "importKeystore": "Importar Keystore",
+        "invalidKeystorePassword": "Senha do keystore inválida"
       },
       "password": {
         "header": "Insira sua senha",
@@ -1613,10 +1786,17 @@
       },
       "start": {
         "header": "Carteira ShapeShift",
+        "selectHeader": "Importar Carteira",
+        "keystoreHeader": "Carteira Keystore",
         "body": "Você pode ter várias carteiras ShapeShift. Crie, carregue ou importe uma nova carteira utilizando sua Frase de Recuperação Secreta.",
+        "selectBody": "Importe a carteira usando sua Frase Secreta de Recuperação ou enviando seu arquivo keystore.",
         "import": "Importar carteira",
+        "secretRecoveryPhrase": "Frase secreta de recuperação",
+        "twelveWordSeedPhrase": "Seed phrase de 12 palavras",
+        "keystore": "Keystore",
         "create": "Criar nova carteira",
-        "load": "Carteiras salvas"
+        "load": "Carteiras salvas",
+        "uploadKeystore": "Carregar arquivo Keystore"
       },
       "success": {
         "encryptingWallet": "Criptografando sua carteira... Caso seu navegador solicitar armazenamento persistente, clique em 'Permitir'.",
@@ -1692,6 +1872,15 @@
       "onboarding": {
         "skip": "Pular",
         "shapeshiftWallet": "Carteira ShapeShift",
+        "createNewWallet": "Criar uma nova carteira",
+        "shapeshiftNative": "Nativo ShapeShift",
+        "addNewWallet": "Adicionar nova carteira",
+        "comingFromThorswap": "Vindo do THORSwap?",
+        "importExisting": "Importar existente",
+        "importFromKeystore": "Importar do keystore",
+        "whatIsShapeshiftWallet": "O que é a ShapeShift Wallet?",
+        "yourDecentralizedGateway": "Seu gateway de descentralização. Negocie e ganhe Bitcoin, Ethereum, Solana e mais de uma carteira única e segura.",
+        "crossChainFreedom": "Liberdade entre redes. Acesse as melhores taxas em várias bolsas descentralizadas, sem intermediários necessários",
         "selfCustody": {
           "title": "Auto-custódia",
           "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
@@ -1768,6 +1957,7 @@
         "SegwitNativeTooltip": "Recomendado para a maioria dos usuários. Só utilize outros endereços sabendo sua função.",
         "btcFormat": "Formato BTC",
         "assetUnavailable": "Os dados de mercado para este ativo ainda não estão disponíveis. Estamos trabalhando nisso, aguente firme!",
+        "customAsset": "Este é um ativo importado personalizado. Os dados de mercado podem não ser precisos.",
         "loading": "Buscando histórico de preços, aguarde...",
         "maxTotalSupply": "Fornecimento total máximo",
         "availableSupply": "Fornecimento disponível",
@@ -1850,11 +2040,12 @@
       "description": "Selecione as contas que você gostaria de importar na lista abaixo.",
       "import": "Importar",
       "loadMoreDisabled": "Esta carteira não suporta múltiplas contas para esta rede."
-    },
-    "ledgerOpenApp": {
-      "title": "Abra o aplicativo %{appName}",
-      "description": "Para conectar esta rede, você precisará abrir o aplicativo Ledger no seu dispositivo."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Abra o aplicativo %{appName}",
+    "description": "Para continuar, você precisará abrir o aplicativo %{appName} no seu dispositivo Ledger.",
+    "devicePrompt": "Seu dispositivo solicitará quaisquer etapas necessárias para concluir sua ação atual."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2064,7 +2255,8 @@
           "connectionError": "Não é possível conectar ao URI fornecido.",
           "invalidUri": "URL inválido",
           "v1UriUnsupported": "URL da WalletConnect V1não habilitado",
-          "v2UriUnsupported": "URL da WalletConnect V2 não habilitado"
+          "v2UriUnsupported": "URL da WalletConnect V2 não habilitado",
+          "disclaimerBody": "A Shapeshift não pode garantir a segurança ou proteção de aplicativos de terceiros. Ao usar o WalletConnect, você assume total responsabilidade por quaisquer riscos envolvidos."
         },
         "sessionProposal": {
           "dAppInfo": "Informação do dApp",
@@ -2322,6 +2514,7 @@
     "pricePerAsset": "%{from} por %{to}",
     "symAlert": "Seu %{from} será dividido em uma exposição de 50:50 para %{to} e %{from} ao entrar na pool.",
     "symAfterRuneAlert": "Depósitos simétricos não são possíveis após um depósito RUNE assimétrico devido à forma como a rede THOR funciona.",
+    "withdrawTypeNotAvailable": "Este tipo de retirada não está disponível para este pool.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
     "unsupportedDemoWalletExplainer": "A carteira de demonstração não é suportada. Conecte-se a uma carteira para usar este recurso.",
@@ -2347,6 +2540,10 @@
     "confirmAndWithdraw": "Confirmar e retirar",
     "removeAmounts": "Remover Valor(es)",
     "stagedTooltip": "Staged pools aquelas que aceitam liquidez, mas não acumularão nenhum lucro até estarem disponíveis",
+    "newPosition": "Nova posição",
+    "newPositionTooltip": "Isso criará uma nova posição de LP em vez de adicionar uma já existente.",
+    "notSupported": "Não é possivel",
+    "notSupportedTooltip": "Devido à sua posição Asymmetric Rune existente, depositar neste pool com ambos os ativos não é possível. Por favor, retire sua posição atual se desejar criar um novo LP com ambos os ativos.",
     "yourPositions": {
       "yourPositions": "Suas posições",
       "emptyTitle": "Nenhuma posição ativa",
@@ -2444,9 +2641,9 @@
     "rewardAddressHelper": "É aqui que as recompensas serão enviadas",
     "useWalletAddress": "Usar endereço de carteira",
     "useCustomAddress": "Usar endereço personalizado",
-    "stakeWarning": "Ao fazer stake de seus tokens FOX, esteja ciente de que o período de lock-up é %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens do stake, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
+    "stakeWarning": "Ao fazer stake de seu %{symbol}, esteja ciente de que o período de lock-up é %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens do stake, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
     "bridgeCta": "Você selecionou %{assetSymbol} em %{originNetwork}, mas precisará de %{assetSymbol} em %{destinationNetwork} para fazer stake. Podemos ajudar você a fazer a ponte entre seus fundos e %{destinationNetwork}. Gostaria que o orientássemos durante o processo?",
-    "unstakeWarning": "Antes de poder resgatar seu FOX, o período de espera é %{cooldownPeriod}. Após esse tempo, você poderá pegar seu valor retirado do stake.",
+    "unstakeWarning": "Antes de poder reivindicar seu %{symbol}, o período de espera é %{cooldownPeriod}. Após esse tempo, você poderá reivindicar seu valor não apostado.",
     "tooltips": {
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
       "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
@@ -2472,7 +2669,7 @@
     "newAddressInfo": "Isso será atualizado para o próximo ciclo de recompensa",
     "confirmAndUpdateAddress": "Confirmar e atualizar endereço",
     "unstakeFrom": "Unstake de r%{assetSymbol}",
-    "claimPending": "Solicitando saque",
+    "claimPending": "Aguardando seu resgate de %{amount} %{symbol}",
     "claimSuccess": "Você resgatou com sucesso %{amount} %{symbol}.",
     "claimReceiveAddress": "Endereço Para Receber Resgate",
     "noRewardsYet": "Nenhuma recompensa ainda",
@@ -2485,14 +2682,16 @@
     "noSupportedChainsDescription": "Adicione %{chainLabel} ou conecte-se a uma carteira que suporte isso.",
     "confirmAndBridge": "Confirme & Faça a ponte",
     "myStakedBalance": "Meu saldo em stake",
-    "myStakedBalanceHelper": "A quantidade de FOX que você tem em stake",
-    "pendingRewardsBalance": "Saldo atual estimado de recompensas",
+    "myStakedBalanceHelper": "A quantia de %{symbol} que você colocou em stake",
+    "pendingRewardsBalance": "Saldo de recompensas pendentes",
     "pendingRewardsBalanceHelper": "Esta é apenas uma estimativa de suas recompensas pendentes com base nas receitas de época até a data. Toda a contabilidade é feita no final da época e não pode ser calculada exatamente antes do final do mês",
     "lifetimeRewards": "Recompensas vitalícias",
-    "lifetimeRewardsHelper": "Recompensas vitalícias são as recompensas cumulativas de apostar seu FOX",
+    "lifetimeRewardsHelper": "O total de recompensas que você ganhou ao fazer stake %{symbol} até o momento",
     "timeInPool": "Tempo na Pool",
     "timeInPoolHelper": "O tempo na pool é o depósito de vida mais longo no rFOX",
     "myPosition": "Minha posição",
+    "positionDetails": "Detalhes da posição",
+    "mySymbolPosition": "Minha posição %{symbol}",
     "faq": {
       "title": "Perguntas frequentes",
       "what": {
@@ -2525,10 +2724,121 @@
       }
     },
     "totals": "Totais de rFOX",
-    "totalStaked": "FOX total em stake",
+    "totalStaked": "Total %{symbol} em stake",
+    "totalStakedHelper": "O valor total em %{symbol} está em stake",
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
-    "emissionsPool": "Emissões da Pool (esta época)",
-    "emissionsPoolHelper": "Emissões da Pool (esta época)",
-    "foxBurnAmount": "Quantia de FOX queimado"
+    "emissionsPool": "%{symbol} Emissões da Pool (Nesta Época)",
+    "emissionsPoolHelper": "O valor total de recompensas a serem distribuídas %{symbol} stakers",
+    "foxBurnAmount": "Quantidade de queima da FOX (nesta época)",
+    "pendingDistribution": "Distribuição pendente"
+  },
+  "markets": {
+    "recommended": "Recomendado",
+    "watchlist": "Minha Lista",
+    "marketsBody": "Descubra as criptomoedas mais empolgantes. Acompanhe os principais ganhadores, tokens emergentes, oportunidades DeFi e muito mais. Salve, compartilhe e negocie seus favoritos.",
+    "watchlistEmpty": {
+      "emptyTitle": "Nenhum ativo na watchlist",
+      "emptyBody": "Parece que você ainda não marcou nenhum ativo com estrela. Comece a adicionar ativos à sua watchlist agora para rastreá-los!"
+    },
+    "emptyTitle": "Nenhum ativo encontrado",
+    "emptyBody": "Nenhum ativo foi encontrado com o filtro atual. Veja mais ativos ajustando a rede selecionada.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Ativos DeFi com um clique",
+        "subtitle": "Descubra o rendimento que mais combina com você! Mude sem esforço com Portais entre Pools, Vaults, opções de empréstimo e LSDs."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "Ganhe rendimento nativo em seus ativos com o THORCHain Savers."
+      },
+      "trending": {
+        "title": "Trending",
+        "subtitle": "Os ativos mais visualizados nas últimas 24 horas."
+      },
+      "tradingVolume": {
+        "title": "Volume de negociação",
+        "subtitle": "Principais ativos com maior volume de negociação nas últimas 24 horas."
+      },
+      "marketCap": {
+        "title": "Capitalização de mercado",
+        "subtitle": "Principais ativos com maior capitalização de mercado nas últimas 24 horas."
+      },
+      "topMovers": {
+        "title": "Principais ganhadores",
+        "subtitle": "Principais ativos que subiram %{percentage}% ou mais."
+      },
+      "recentlyAdded": {
+        "title": "Adicionado recentemente",
+        "subtitle": "Descubra os lançamentos recentes."
+      }
+    }
+  },
+  "foxPage": {
+    "title": "Painel de Tokens FOX",
+    "description": "Desde 2019, o token FOX tem oferecido aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 oferece descontos em taxas, uma participação nas receitas do THORChain e permite que você influencie o futuro do ShapeShift por meio do seu voto. Aposte, troque, compre, forneça e gerencie suas participações na FOX aqui.",
+    "foxToken": "Token FOX",
+    "24hrPriceChange": "Alteração de preço 24h",
+    "rfox": {
+      "whatIs": "O que é staking de rFOX?",
+      "totalSymbolBurn": "Total de %{symbol} queimado",
+      "simulateTitle": "Simulador rFOX",
+      "simulateSubtle": "Insira o número do depósito de algo",
+      "estimatedRewards": "Recompensas estimadas",
+      "depositAmount": "Valor do depósito",
+      "shapeshiftRevenue": "Receita da ShapeShift",
+      "30days": "30 dias"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "Cansado de migrar seu %{rewardAssetSymbol} de pool para pool? Basta fazer stake do seu %{assetSymbol} e ganhar %{rewardAssetSymbol} sempre.",
+      "totalClaimableRewards": "Total de recompensas resgatáveis.",
+      "totalStakingValue": "Valor total em staking",
+      "nextEpoch": "Próxima Época"
+    },
+    "foxWifHat": {
+      "title": "FOX Wif Hat",
+      "description": "É só FOX com um chapéu, não pense demais. Aproveite um programa de desconto on-chain por tempo limitado. Conforme seu desconto diminui, aprenda sobre FOX no resto da página e troque para FOX a qualquer momento para preservar seu desconto de taxa. Qualquer holding que for maior economiza seu dinheiro na plataforma ShapeShift.",
+      "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em XX/XX/2025. Aproveite seu desconto de XX% antes que ele diminua ainda mais!",
+      "claim": "Resgate",
+      "claimed": "Resgatado",
+      "discountText": "*%{percent}% de desconto em taxas de trading"
+    },
+    "governance": {
+      "title": "Governança",
+      "description": {
+        "0": "Junte-se a nós",
+        "1": "no fórum",
+        "2": "e molde o futuro da DAO."
+      },
+      "totalVotingPower": "Poder total de voto",
+      "noActiveProposals": "Nenhuma proposta ativa disponível",
+      "noClosedProposals": "Nenhuma proposta fechada disponível"
+    }
+  },
+  "thorFees": {
+    "title": "Veio pela THORSwap?",
+    "description": "Os detentores de THOR negociam gratuitamente até 2024."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Endereço %{address} não suportado.",
+      "unsupportedChain": "A carteira não suporta %{chain}.",
+      "ledgerAppOpenCancelled": "Abertura do aplicativo Ledger cancelada.",
+      "getAddress": "Falha ao obter endereço da carteira.",
+      "getAccount": "Falha ao obter conta para: %{pubkey}.",
+      "switchChainUnsupported": "A carteira não suporta troca de redes.",
+      "switchChainFailed": "Falha ao alternar a rede de carteira para %{chain}.",
+      "buildTransaction": "Falha ao construir transação.",
+      "signTransaction": "Falha ao assinar a transação.",
+      "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
+      "signMessage": "Falha ao assinar a mensagem.",
+      "broadcastTransaction": "Falha ao transmitir a transação.",
+      "broadcastTransactionWithMessage": "Falha ao transmitir transação (%{message}).",
+      "getGasFeeData": "Falha ao obter taxas da rede.",
+      "getFeeData": "Falha ao estimar as taxas de rede.",
+      "getPublicKey": "Falha ao obter a chave pública da carteira.",
+      "getUtxos": "Falha ao obter os utxos.",
+      "getValidator": "Falha ao obter o validador."
+    }
   }
 }

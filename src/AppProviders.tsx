@@ -30,6 +30,8 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { wagmiConfig } from 'lib/wagmi-config'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
+import { FoxPageProvider } from 'pages/Fox/hooks/useFoxPageContext'
+import { RFOXProvider } from 'pages/RFOX/hooks/useRfoxContext'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -59,43 +61,47 @@ export function AppProviders({ children }: ProvidersProps) {
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
-        <PluginProvider>
-          <ColorModeScript storageKey='ss-theme' />
-          <ChatwootWidget />
-          <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-            <ToastContainer />
-            <PersistGate loading={splashScreen} persistor={persistor}>
-              <HashRouter basename='/'>
-                <ScrollToTop />
-                <BrowserRouterProvider>
-                  <I18nProvider>
-                    <WalletProvider>
-                      <WalletConnectV2Provider>
+        <QueryClientProvider>
+          <PluginProvider>
+            <ColorModeScript storageKey='ss-theme' />
+            <ChatwootWidget />
+            <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+              <ToastContainer />
+              <PersistGate loading={splashScreen} persistor={persistor}>
+                <HashRouter basename='/'>
+                  <ScrollToTop />
+                  <BrowserRouterProvider>
+                    <I18nProvider>
+                      <WalletProvider>
                         <KeepKeyProvider>
-                          <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <QueryClientProvider>
-                              <WagmiProvider config={wagmiConfig}>
-                                <ModalProvider>
+                          <ModalProvider>
+                            <WalletConnectV2Provider>
+                              <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                                <WagmiProvider config={wagmiConfig}>
                                   <TransactionsProvider>
                                     <AppProvider>
                                       <FoxEthProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
+                                        <DefiManagerProvider>
+                                          <RFOXProvider>
+                                            <FoxPageProvider>{children}</FoxPageProvider>
+                                          </RFOXProvider>
+                                        </DefiManagerProvider>
                                       </FoxEthProvider>
                                     </AppProvider>
                                   </TransactionsProvider>
-                                </ModalProvider>
-                              </WagmiProvider>
-                            </QueryClientProvider>
-                          </ErrorBoundary>
+                                </WagmiProvider>
+                              </ErrorBoundary>
+                            </WalletConnectV2Provider>
+                          </ModalProvider>
                         </KeepKeyProvider>
-                      </WalletConnectV2Provider>
-                    </WalletProvider>
-                  </I18nProvider>
-                </BrowserRouterProvider>
-              </HashRouter>
-            </PersistGate>
-          </ChakraProvider>
-        </PluginProvider>
+                      </WalletProvider>
+                    </I18nProvider>
+                  </BrowserRouterProvider>
+                </HashRouter>
+              </PersistGate>
+            </ChakraProvider>
+          </PluginProvider>
+        </QueryClientProvider>
       </ReduxProvider>
     </HelmetProvider>
   )

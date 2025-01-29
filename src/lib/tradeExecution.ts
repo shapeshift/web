@@ -5,6 +5,7 @@ import type {
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
   SellTxHashArgs,
+  SolanaTransactionExecutionInput,
   StatusArgs,
   Swapper,
   SwapperApi,
@@ -13,6 +14,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
+  isExecutableTradeQuote,
   swappers,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
@@ -20,11 +22,14 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import EventEmitter from 'events'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from 'lib/poll/poll'
+import { selectFirstHopSellAccountId } from 'state/slices/tradeInputSlice/selectors'
+import { store } from 'state/store'
 
-import { getEthersV5Provider } from './ethersProviderSingleton'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
+import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 export class TradeExecution {
@@ -64,8 +69,12 @@ export class TradeExecution {
       if (!hop) {
         throw new Error(`No hop found for stepIndex ${stepIndex}`)
       }
+
       const chainId = hop.sellAsset.chainId
 
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        throw new Error('Unable to execute trade')
+      }
       const sellTxHash = await buildSignBroadcast(swapper, {
         tradeQuote,
         chainId,
@@ -77,18 +86,26 @@ export class TradeExecution {
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
       this.emitter.emit(TradeExecutionEvent.SellTxHash, sellTxHashArgs)
 
+      // TODO(gomes): this is wrong, but isn't.
+      // It is a "sufficiently sane" solution to avoid more plumbing and possible regressions
+      // All this is used for is to check whether the address is a smart contract, to avoid spewing SAFE API with requests
+      // Given the intersection of the inherent bits of sc wallets (only one chain, not deployed on others) and EVM chains (same address on every chain)
+      // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
+      const accountId = selectFirstHopSellAccountId(store.getState())
       const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
             quoteId: tradeQuote.id,
             txHash: sellTxHash,
             chainId,
+            accountId,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,
-            getEthersV5Provider,
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
+            assertGetSolanaChainAdapter,
+            fetchIsSmartContractAddressQuery,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }
@@ -120,6 +137,7 @@ export class TradeExecution {
     slippageTolerancePercentageDecimal,
     from,
     supportsEIP1559,
+    permit2Signature,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
     const buildSignBroadcast =
@@ -150,7 +168,7 @@ export class TradeExecution {
           supportsEIP1559: _supportsEIP1559,
           config,
           assertGetEvmChainAdapter,
-          getEthersV5Provider,
+          permit2Signature,
         })
 
         return await swapper.executeEvmTransaction(unsignedTxResult, {
@@ -202,7 +220,6 @@ export class TradeExecution {
         from,
         config,
         assertGetEvmChainAdapter,
-        getEthersV5Provider,
       })
 
       return await swapper.executeEvmMessage(unsignedTxResult, { signMessage }, config)
@@ -225,6 +242,7 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     xpub,
+    senderAddress,
     accountType,
     signAndBroadcastTransaction,
   }: UtxoTransactionExecutionInput) {
@@ -251,6 +269,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         xpub,
+        senderAddress,
         accountType,
         config,
         assertGetUtxoChainAdapter,
@@ -306,6 +325,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSolanaTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: SolanaTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedSolanaTransaction) {
+        throw Error('missing implementation for getUnsignedSolanaTransaction')
+      }
+      if (!swapper.executeSolanaTransaction) {
+        throw Error('missing implementation for executeSolanaTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedSolanaTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetSolanaChainAdapter,
+      })
+
+      return await swapper.executeSolanaTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

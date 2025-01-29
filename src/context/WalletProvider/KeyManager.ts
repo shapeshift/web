@@ -1,12 +1,12 @@
 export enum KeyManager {
   Mobile = 'mobile',
   Native = 'native',
-  KeepKey = 'keepkey',
-  MetaMask = 'metamask',
-  Demo = 'demo',
-  XDefi = 'xdefi',
-  Keplr = 'keplr',
   Coinbase = 'coinbase',
+  Phantom = 'phantom',
+  MetaMask = 'metamask',
+  KeepKey = 'keepkey',
+  Keplr = 'keplr',
+  Demo = 'demo',
   WalletConnectV2 = 'walletconnectv2',
   Ledger = 'ledger',
 }

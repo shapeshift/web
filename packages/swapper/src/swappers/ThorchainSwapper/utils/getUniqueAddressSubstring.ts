@@ -1,4 +1,4 @@
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 export const getUniqueAddressSubstring = (
   destinationAssetId: AssetId,

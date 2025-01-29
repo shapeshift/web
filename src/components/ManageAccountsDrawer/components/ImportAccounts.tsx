@@ -10,10 +10,10 @@ import {
   Tooltip,
   Tr,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -172,10 +172,10 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     dispatch: walletDispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const isMetaMaskMultichainWallet = useMemo(
-    () => wallet instanceof MetaMaskShapeShiftMultiChainHDWallet,
+    () => wallet instanceof MetaMaskMultiChainHDWallet,
     [wallet],
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
@@ -305,6 +305,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [])
 
   const handleDone = useCallback(async () => {
+    if (!walletDeviceId) {
+      console.error('Missing walletDeviceId')
+      return
+    }
+
     if (isDemoWallet) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       accountManagementPopover.close()

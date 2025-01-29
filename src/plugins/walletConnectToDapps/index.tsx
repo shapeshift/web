@@ -1,4 +1,4 @@
-import { type Plugins } from 'plugins/types'
+import type { Plugins } from 'plugins/types'
 import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 
 // eslint-disable-next-line import/no-default-export

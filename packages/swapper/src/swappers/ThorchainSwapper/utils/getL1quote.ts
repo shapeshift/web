@@ -3,7 +3,6 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
-  baseUnitToPrecision,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
   fromBaseUnit,
@@ -11,14 +10,15 @@ import {
   isRejected,
   toBaseUnit,
 } from '@shapeshiftoss/utils'
-import { Err, Ok, type Result } from '@sniptt/monads'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import { addLimitToMemo } from '../../../thorchain-utils/memo/addLimitToMemo'
 import type {
+  CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
@@ -35,10 +35,10 @@ import {
 import { getThorTxInfo as getEvmThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
   ThorEvmTradeQuote,
+  ThornodeQuoteResponseSuccess,
   ThorTradeQuote,
   ThorTradeUtxoOrCosmosQuote,
-} from '../getThorTradeQuote/getTradeQuote'
-import type { ThornodeQuoteResponseSuccess } from '../types'
+} from '../types'
 import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage'
@@ -47,8 +47,8 @@ import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
-export const getL1quote = async (
-  input: GetTradeQuoteInput,
+export const getL1Quote = async (
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
@@ -64,6 +64,15 @@ export const getL1quote = async (
   } = input
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
+  if (chainNamespace === CHAIN_NAMESPACE.Solana) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Solana is not supported',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -150,18 +159,12 @@ export const getL1quote = async (
 
   const perRouteValues = [getRouteValues(swapQuote, false)]
 
-  if (
-    streamingSwapQuote &&
-    swapQuote.expected_amount_out !== streamingSwapQuote.expected_amount_out
-  ) {
+  if (streamingSwapQuote) {
     perRouteValues.push(getRouteValues(streamingSwapQuote, true))
   }
 
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
-    const sellAmountCryptoPrecision = baseUnitToPrecision({
-      value: sellAmountCryptoBaseUnit,
-      inputExponent: sellAsset.precision,
-    })
+    const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
     // All thorchain pool amounts are base 8 regardless of token precision
     const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 
@@ -211,7 +214,7 @@ export const getL1quote = async (
       const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const { networkFeeCryptoBaseUnit } = await getEvmTxFees({
         adapter: sellAdapter,
-        supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+        supportsEIP1559: Boolean((input as GetEvmTradeQuoteInput).supportsEIP1559),
       })
 
       const maybeRoutes = await Promise.allSettled(
@@ -238,12 +241,15 @@ export const getL1quote = async (
 
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = isStreaming
-              ? quote.memo
-              : addLimitToMemo({
-                  memo: quote.memo,
-                  limit: limitWithManualSlippage,
-                })
+            const memo = (() => {
+              if (!quote.memo) throw new Error('no memo provided')
+
+              if (isStreaming) return quote.memo
+              return addLimitToMemo({
+                memo: quote.memo,
+                limit: limitWithManualSlippage,
+              })
+            })()
 
             const { data, router, vault } = await getEvmThorTxInfo({
               sellAsset,
@@ -261,6 +267,7 @@ export const getL1quote = async (
 
             return {
               id: uuid(),
+              quoteOrRate: 'quote',
               memo,
               receiveAddress,
               affiliateBps,
@@ -286,7 +293,7 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber,
+                  accountNumber: accountNumber!,
                   allowanceContract: router,
                   feeData: {
                     networkFeeCryptoBaseUnit,
@@ -340,16 +347,19 @@ export const getL1quote = async (
 
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = isStreaming
-              ? quote.memo
-              : addLimitToMemo({
-                  memo: quote.memo,
-                  limit: limitWithManualSlippage,
-                })
+            const memo = (() => {
+              if (!quote.memo) throw new Error('no memo provided')
+
+              if (isStreaming) return quote.memo
+              return addLimitToMemo({
+                memo: quote.memo,
+                limit: limitWithManualSlippage,
+              })
+            })()
 
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
-              xpub: (input as GetUtxoTradeQuoteInput).xpub,
+              xpub: (input as GetUtxoTradeQuoteInput).xpub!,
               memo,
               config: deps.config,
             })
@@ -372,6 +382,7 @@ export const getL1quote = async (
 
             return {
               id: uuid(),
+              quoteOrRate: 'quote',
               memo,
               receiveAddress,
               affiliateBps,
@@ -454,15 +465,19 @@ export const getL1quote = async (
 
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = isStreaming
-              ? quote.memo
-              : addLimitToMemo({
-                  memo: quote.memo,
-                  limit: limitWithManualSlippage,
-                })
+            const memo = (() => {
+              if (!quote.memo) return ''
+
+              if (isStreaming) return quote.memo
+              return addLimitToMemo({
+                memo: quote.memo,
+                limit: limitWithManualSlippage,
+              })
+            })()
 
             return {
               id: uuid(),
+              quoteOrRate: 'quote',
               memo,
               receiveAddress,
               affiliateBps,
@@ -503,6 +518,6 @@ export const getL1quote = async (
     }
 
     default:
-      assertUnreachable(chainNamespace)
+      return assertUnreachable(chainNamespace)
   }
 }

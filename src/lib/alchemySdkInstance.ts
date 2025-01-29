@@ -11,7 +11,7 @@ import { getConfig } from 'config'
 
 const alchemyInstanceMap: Map<ChainId, Alchemy> = new Map()
 
-export const ALCHEMY_SUPPORTED_CHAIN_IDS = [
+export const ALCHEMY_SDK_SUPPORTED_CHAIN_IDS = [
   ethChainId,
   polygonChainId,
   optimismChainId,
@@ -25,15 +25,11 @@ export const getAlchemyInstanceByChainId = (chainId: ChainId): Alchemy => {
   const apiKey = (() => {
     switch (chainId) {
       case polygonChainId:
-        return getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY
       case ethChainId:
-        return getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY
       case optimismChainId:
-        return getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY
       case arbitrumChainId:
-        return getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY
       case baseChainId:
-        return getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY
+        return getConfig().REACT_APP_ALCHEMY_API_KEY
       default:
         return undefined
     }

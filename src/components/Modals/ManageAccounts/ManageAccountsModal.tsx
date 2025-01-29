@@ -110,12 +110,6 @@ export const ManageAccountsModal = () => {
 
   return (
     <>
-      <ManageAccountsDrawer
-        isOpen={isDrawerOpen}
-        onClose={handleDrawerClose}
-        chainId={selectedChainId}
-      />
-
       <Modal
         isOpen={isOpen}
         onClose={close}
@@ -125,6 +119,11 @@ export const ManageAccountsModal = () => {
       >
         <ModalOverlay />
         <ModalContent>
+          <ManageAccountsDrawer
+            isOpen={isDrawerOpen}
+            onClose={handleDrawerClose}
+            chainId={selectedChainId}
+          />
           <ModalHeader textAlign='left' pt={14}>
             <RawText as='h3' fontWeight='semibold'>
               {translate('accountManagement.manageAccounts.title')}

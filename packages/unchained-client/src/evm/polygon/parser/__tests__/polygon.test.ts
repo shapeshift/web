@@ -1,12 +1,13 @@
 import { polygonAssetId, polygonChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
-import { TransactionParser, ZRX_POLYGON_PROXY_CONTRACT } from '../index'
+import { TransactionParser } from '../index'
 import erc20Approve from './mockData/erc20Approve'
 import erc721 from './mockData/erc721'
 import erc1155 from './mockData/erc1155'
@@ -744,7 +745,7 @@ describe('parseTx', () => {
         assetId: polygonAssetId,
         components: [{ value: '6982000000000000000' }],
         from: address,
-        to: ZRX_POLYGON_PROXY_CONTRACT,
+        to: ZRX_ETHEREUM_PROXY_CONTRACT,
         totalValue: '6982000000000000000',
         type: TransferType.Send,
       }

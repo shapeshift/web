@@ -1,6 +1,7 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 

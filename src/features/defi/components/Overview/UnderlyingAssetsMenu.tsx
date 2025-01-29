@@ -28,7 +28,7 @@ export const UnderlyingAssetsMenu = ({ lpAsset, underlyingAssets }: UnderlyingAs
               {asset.icons ? (
                 <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
               ) : (
-                <AssetIcon src={asset.icon} size='2xs' />
+                <AssetIcon assetId={asset.assetId} size='2xs' />
               )}
               <Amount.Crypto
                 fontSize='sm'

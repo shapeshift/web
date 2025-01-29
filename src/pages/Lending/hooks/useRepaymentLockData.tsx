@@ -1,5 +1,4 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -11,6 +10,7 @@ import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 type UseLendingPositionDataProps = {
   accountId?: AccountId | null
   assetId?: AssetId
+  enabled?: boolean
 }
 
 export const useRepaymentLockData = ({
@@ -19,7 +19,7 @@ export const useRepaymentLockData = ({
   // Let the parent pass its own query options
   // enabled will be used in conjunction with this hook's own isRepaymentLockQueryEnabled to determine whether or not to run the query
   enabled = true,
-}: UseLendingPositionDataProps & Pick<QueryObserverOptions, 'enabled'>) => {
+}: UseLendingPositionDataProps) => {
   const { data: blockHeight } = useQuery({
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // We use the block query to get the current height, so we obviously need to mark it stale at the end of each THOR block

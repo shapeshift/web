@@ -1,10 +1,10 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata } from '@shapeshiftoss/types'
+import type { AccountMetadata, CosmosSdkChainId } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 import type {
   CustomTransactionData,
@@ -35,9 +35,9 @@ export const approveCosmosRequest = async ({
   assertIsDefined(customTransactionData)
   assertIsDefined(accountMetadata)
 
-  const bip44Params = accountMetadata.bip44Params
-  const accountNumber = bip44Params.accountNumber
-  const addressNList = toAddressNList(bip44Params)
+  const { bip44Params } = accountMetadata
+  const { accountNumber } = bip44Params
+  const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
 
   switch (request.method) {
     case CosmosSigningMethod.COSMOS_SIGN_AMINO:

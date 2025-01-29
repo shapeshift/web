@@ -1,10 +1,8 @@
-import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { makeAsset } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -13,15 +11,13 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
-import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
-import { accountToPortfolio, haveSameElements } from './utils'
+import { accountToPortfolio, haveSameElements, makeAssets } from './utils'
 
 type WalletMetaPayload = {
   walletId: WalletId
@@ -35,6 +31,12 @@ export const portfolio = createSlice({
   reducers: {
     clear: () => {
       return initialState
+    },
+    setIsAccountMetadataLoading: (
+      state,
+      { payload }: { payload: { accountId: AccountId; isLoading: boolean } },
+    ) => {
+      state.isAccountMetadataLoadingByAccountId[payload.accountId] = payload.isLoading
     },
     setWalletMeta: (
       state,
@@ -73,70 +75,46 @@ export const portfolio = createSlice({
 
       Object.assign(state.connectedWallet, { supportedChainIds: payload })
     },
-    upsertAccountMetadata: {
-      reducer: (
-        draftState,
-        {
-          payload,
-        }: { payload: { accountMetadataByAccountId: AccountMetadataById; walletId: string } },
-      ) => {
-        // WARNING: don't use the current state.connectedWallet.id here because it's updated async
-        // to this and results in account data corruption
-        const { accountMetadataByAccountId, walletId } = payload
-        draftState.accountMetadata.byId = merge(
-          draftState.accountMetadata.byId,
-          accountMetadataByAccountId,
-        )
-        draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
+    upsertAccountMetadata: (
+      draftState,
+      {
+        payload,
+      }: { payload: { accountMetadataByAccountId: AccountMetadataById; walletId: string } },
+    ) => {
+      // WARNING: don't use the current state.connectedWallet.id here because it's updated async
+      // to this and results in account data corruption
+      const { accountMetadataByAccountId, walletId } = payload
+      draftState.accountMetadata.byId = merge(
+        draftState.accountMetadata.byId,
+        accountMetadataByAccountId,
+      )
+      draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-        if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
-        const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
-        const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
-        // keep an index of what account ids belong to this wallet
-        draftState.wallet.byId[walletId] = uniq(
-          existingWalletAccountIds.concat(newWalletAccountIds),
-        )
-      },
-
-      // Use the `prepareAutoBatched` utility to automatically
-      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
-      prepare: prepareAutoBatched<{
-        accountMetadataByAccountId: AccountMetadataById
-        walletId: string
-      }>(),
-    },
-    clearWalletMetadata: {
-      reducer: (draftState, { payload }: { payload: WalletId }) => {
-        const walletId = payload
-        // Clear AccountIds that were previously associated with that wallet
-        draftState.wallet.byId[walletId] = []
-        draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
-
-        // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
-        // Theoretically, not doing so would make reloading these easier?
-      },
-
-      // Use the `prepareAutoBatched` utility to automatically
-      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
-      prepare: prepareAutoBatched<WalletId>(),
+      if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
+      const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
+      const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
+      // keep an index of what account ids belong to this wallet
+      draftState.wallet.byId[walletId] = uniq(existingWalletAccountIds.concat(newWalletAccountIds))
     },
 
-    upsertPortfolio: {
-      reducer: (draftState, { payload }: { payload: Portfolio }) => {
-        // upsert all
-        draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
-        draftState.accounts.ids = Object.keys(draftState.accounts.byId)
+    clearWalletMetadata: (draftState, { payload }: { payload: WalletId }) => {
+      const walletId = payload
+      // Clear AccountIds that were previously associated with that wallet
+      draftState.wallet.byId[walletId] = []
+      draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
 
-        draftState.accountBalances.byId = merge(
-          draftState.accountBalances.byId,
-          payload.accountBalances.byId,
-        )
-        draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
-      },
-
-      // Use the `prepareAutoBatched` utility to automatically
-      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
-      prepare: prepareAutoBatched<Portfolio>(),
+      // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
+      // Theoretically, not doing so would make reloading these easier?
+    },
+    upsertPortfolio: (draftState, { payload }: { payload: Portfolio }) => {
+      // upsert all
+      draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
+      draftState.accounts.ids = Object.keys(draftState.accounts.byId)
+      draftState.accountBalances.byId = merge(
+        draftState.accountBalances.byId,
+        payload.accountBalances.byId,
+      )
+      draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
     },
     /**
      * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
@@ -182,6 +160,7 @@ export const portfolioApi = createApi({
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
+        dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: true }))
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
         const assetIds = state.assets.ids
@@ -193,39 +172,21 @@ export const portfolioApi = createApi({
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const nftCollectionsById = selectNftCollections(state)
 
-          const data = ((): Portfolio => {
-            // add placeholder non spam assets for evm chains
-            if (evmChainIds.includes(chainId as EvmChainId)) {
-              const account = portfolioAccounts[pubkey] as Account<EvmChainId>
+          const data = await (async (): Promise<Portfolio> => {
+            const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
 
-              const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
-                (prev, token) => {
-                  const isSpam = [token.name, token.symbol].some(text => {
-                    if (isNft(token.assetId)) return isSpammyNftText(text)
-                    return isSpammyTokenText(text)
-                  })
-                  if (state.assets.byId[token.assetId] || isSpam) return prev
-                  prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
-                  prev.ids.push(token.assetId)
-                  return prev
-                },
-                { byId: {}, ids: [] },
-              )
+            // upsert placeholder assets
+            if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
 
-              // upsert placeholder assets
-              dispatch(assetSlice.actions.upsertAssets(assets))
-
-              return accountToPortfolio({
-                portfolioAccounts,
-                assetIds: assetIds.concat(assets.ids),
-                nftCollectionsById,
-              })
-            }
-
-            return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
+            return accountToPortfolio({
+              portfolioAccounts,
+              assetIds: assetIds.concat(assets?.ids ?? []),
+              nftCollectionsById,
+            })
           })()
 
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
+          dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: false }))
           return { data }
         } catch (e) {
           console.error(e)
@@ -233,6 +194,7 @@ export const portfolioApi = createApi({
           data.accounts.ids.push(accountId)
           data.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
           dispatch(portfolio.actions.upsertPortfolio(data))
+          dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: false }))
           return { data }
         }
       },

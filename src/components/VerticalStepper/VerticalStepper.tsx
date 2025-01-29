@@ -23,7 +23,7 @@ export const VerticalStepper = ({ state, activeStep, steps }: VerticalStepperPro
         state={state}
         activeStep={activeStep}
         orientation='horizontal'
-        labelOrientation='vertical'
+        variant='circles-alt'
         size='sm'
       >
         {steps.map(step => (

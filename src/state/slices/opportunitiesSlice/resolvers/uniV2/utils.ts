@@ -1,16 +1,18 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftoss/contracts'
+import {
+  ContractType,
+  getOrCreateContractByType,
+  viemEthMainnetClient,
+} from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import memoize from 'lodash/memoize'
-import type { Address, GetContractReturnType, PublicClient } from 'viem'
+import type { GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, parseAbiItem } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { viemEthMainnetClient } from 'lib/viem-client'
 
 import { TRADING_FEE_RATE } from './constants'
 
@@ -19,7 +21,7 @@ export const getToken0Volume24Hr = async ({
   uniswapLPContract,
 }: {
   blockNumber: number
-  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair, PublicClient, Address>
+  uniswapLPContract: GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient>
 }) => {
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day

@@ -11,11 +11,10 @@ import {
   gnosisChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import axios from 'axios'
-
 import {
   arbitrum,
   arbitrumNova,
@@ -26,10 +25,15 @@ import {
   gnosis,
   optimism,
   polygon,
-} from './baseAssets'
-import { colorMap } from './colorMap'
+  solana,
+} from '@shapeshiftoss/utils'
+import axios from 'axios'
 
-type Token = {
+import colormap from './color-map.json'
+
+export const colorMap: Record<string, string> = colormap
+
+export type Token = {
   chainId: number
   address: string
   name: string
@@ -38,7 +42,7 @@ type Token = {
   logoURI: string
 }
 
-type TokenList = {
+export type TokenList = {
   name: string
   logoURI: string
   keywords: string[]
@@ -119,6 +123,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: base.explorer,
           explorerAddressLink: base.explorerAddressLink,
           explorerTxLink: base.explorerTxLink,
+        }
+      case solanaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.splToken,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: solana.explorer,
+          explorerAddressLink: solana.explorerAddressLink,
+          explorerTxLink: solana.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

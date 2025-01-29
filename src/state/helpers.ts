@@ -1,13 +1,14 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { assertUnreachable } from 'lib/utils'
 
-import { assertUnreachable } from '../lib/utils'
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
     case SwapperName.LIFI:
-    case SwapperName.OneInch:
+    case SwapperName.Chainflip:
+    case SwapperName.Jupiter:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -22,8 +23,18 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
 }
 
 export const getEnabledSwappers = (
-  { Portals, LifiSwap, ThorSwap, ZrxSwap, OneInch, ArbitrumBridge, Cowswap }: FeatureFlags,
+  {
+    ChainflipSwap,
+    PortalsSwap,
+    LifiSwap,
+    ThorSwap,
+    ZrxSwap,
+    ArbitrumBridge,
+    Cowswap,
+    JupiterSwap,
+  }: FeatureFlags,
   isCrossAccountTrade: boolean,
+  isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
   return {
     [SwapperName.LIFI]:
@@ -32,15 +43,20 @@ export const getEnabledSwappers = (
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
     [SwapperName.Zrx]:
       ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
-    [SwapperName.OneInch]:
-      OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
     [SwapperName.CowSwap]:
       Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
     [SwapperName.ArbitrumBridge]:
       ArbitrumBridge &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
     [SwapperName.Portals]:
-      Portals && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
+      PortalsSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
+    [SwapperName.Chainflip]:
+      ChainflipSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
+    [SwapperName.Jupiter]:
+      JupiterSwap &&
+      (!isCrossAccountTrade ||
+        (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolBuyAssetId)),
     [SwapperName.Test]: false,
   }
 }

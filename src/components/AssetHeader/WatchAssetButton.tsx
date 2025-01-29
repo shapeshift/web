@@ -1,4 +1,5 @@
-import { IconButton } from '@chakra-ui/react'
+import type { BoxProps } from '@chakra-ui/react'
+import { Box, Icon } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { FaRegStar, FaStar } from 'react-icons/fa'
@@ -6,31 +7,43 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectIsAssetIdWatched } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-const starEmpty = <FaRegStar />
-const starFilled = <FaStar />
-
-type WatchAssetButtonProps = {
+type WatchAssetButtonProps = Partial<BoxProps> & {
   assetId: AssetId
 }
 
-export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId }) => {
+const hoverBgProps = {
+  bg: 'background.button.secondary.hover',
+}
+
+export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, ...props }) => {
   const appDispatch = useAppDispatch()
   const isAssetIdWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
-  const handleToggleWatchAsset = useCallback(() => {
-    if (isAssetIdWatched) {
-      appDispatch(preferences.actions.removeWatchedAssetId(assetId))
-    } else {
-      appDispatch(preferences.actions.addWatchedAssetId(assetId))
-    }
-  }, [appDispatch, assetId, isAssetIdWatched])
+
+  const handleToggleWatchAsset: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    e => {
+      e.stopPropagation()
+      appDispatch(preferences.actions.toggleWatchedAssetId(assetId))
+    },
+    [appDispatch, assetId],
+  )
+
   return (
-    <IconButton
-      onClick={handleToggleWatchAsset}
-      icon={isAssetIdWatched ? starFilled : starEmpty}
+    <Box
+      as='span'
+      display='inline-flex'
+      justifyContent='center'
+      alignItems='center'
+      minWidth='auto'
+      borderRadius='full'
+      bg='background.button.secondary.base'
+      _hover={hoverBgProps}
+      p={2}
+      ml={2}
       aria-label='favorite asset'
-      isRound
-      variant='ghost'
-      fontSize='2xl'
-    />
+      onClick={handleToggleWatchAsset}
+      {...props}
+    >
+      <Icon as={isAssetIdWatched ? FaStar : FaRegStar} />
+    </Box>
   )
 }

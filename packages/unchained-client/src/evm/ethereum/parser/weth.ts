@@ -1,5 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { WETH_ABI, WETH_TOKEN_CONTRACT } from '@shapeshiftoss/contracts'
+import assert from 'assert'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
@@ -7,8 +9,6 @@ import type { BaseTxMetadata } from '../../../types'
 import { TransferType } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { getSigHash, txInteractsWithContract } from '../../parser'
-import { WETH_ABI } from './abi/weth'
-import { WETH_CONTRACT_MAINNET, WETH_CONTRACT_ROPSTEN } from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'weth'
@@ -34,16 +34,9 @@ export class Parser implements SubParser<Tx> {
     this.chainId = args.chainId
     this.provider = args.provider
 
-    this.wethContract = (() => {
-      switch (args.chainId) {
-        case 'eip155:1':
-          return WETH_CONTRACT_MAINNET
-        case 'eip155:3':
-          return WETH_CONTRACT_ROPSTEN
-        default:
-          throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
-      }
-    })()
+    assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
+
+    this.wethContract = WETH_TOKEN_CONTRACT
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

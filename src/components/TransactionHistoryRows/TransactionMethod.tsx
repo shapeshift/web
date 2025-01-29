@@ -83,6 +83,7 @@ export const TransactionMethod = ({
       case Method.BeginUnbonding:
       case Method.ClaimWithdraw:
       case Method.DepositRefund:
+      case Method.ExecuteTransaction:
       case Method.Exit:
       case Method.ExitPool:
       case Method.InstantUnstake:

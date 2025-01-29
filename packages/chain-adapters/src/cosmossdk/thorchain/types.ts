@@ -1,5 +1,5 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Bip44Params } from '@shapeshiftoss/types'
 
 export type BuildDepositTxInput = {
   memo: string
@@ -7,5 +7,5 @@ export type BuildDepositTxInput = {
   wallet: HDWallet
   gas: string
   fee: string
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
 }

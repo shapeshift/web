@@ -1,12 +1,13 @@
-import { arbitrumAssetId, arbitrumChainId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
-import { TransactionParser, ZRX_ARBITRUM_PROXY_CONTRACT } from '../index'
+import { TransactionParser } from '../index'
 import { arbitrumBridgeErc20GatewayReceive } from './mockData/arbitrumBridgeErc20GatewayReceive'
 import { arbitrumBridgeErc20ReceiveTx } from './mockData/arbitrumBridgeErc20ReceiveTx'
 import { arbitrumBridgeErc20WithdrawTx } from './mockData/arbitrumBridgeErc20WithdrawTx'
@@ -30,7 +31,6 @@ import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
-  vi.stubEnv('REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS', '0xac2a4fd70bcd8bab0662960455c363735f0e2b56')
 })
 
 const mockedApi = vi.mocked(new V1Api())
@@ -754,7 +754,7 @@ describe('parseTx', () => {
         assetId: arbitrumAssetId,
         components: [{ value: '944413987404689' }],
         from: address,
-        to: ZRX_ARBITRUM_PROXY_CONTRACT,
+        to: ZRX_ETHEREUM_PROXY_CONTRACT,
         totalValue: '944413987404689',
         type: TransferType.Send,
       }
@@ -1054,7 +1054,7 @@ describe('parseTx', () => {
         confirmations: 1114870,
         data: {
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
-          method: 'finalizeInboundTransfer',
+          method: 'finalizeInboundTransferDeposit',
           parser: 'arbitrumBridge',
         },
         status: 'Confirmed',
@@ -1079,7 +1079,7 @@ describe('parseTx', () => {
         confirmations: 1180014,
         data: {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-          method: 'finalizeInboundTransfer',
+          method: 'finalizeInboundTransferDeposit',
           parser: 'arbitrumBridge',
         },
         status: 'Confirmed',
@@ -1126,6 +1126,9 @@ describe('parseTx', () => {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           method: 'outboundTransfer',
           parser: 'arbitrumBridge',
+          destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          destinationAssetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          value: '1000',
         },
         fee: {
           assetId: 'eip155:42161/slip44:60',
@@ -1201,6 +1204,9 @@ describe('parseTx', () => {
           assetId: undefined,
           method: 'withdrawEth',
           parser: 'arbitrumBridge',
+          destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          destinationAssetId: ethAssetId,
+          value: '100000000000',
         },
         fee: {
           assetId: 'eip155:42161/slip44:60',

@@ -106,7 +106,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
           ? bnOrZero(fromBaseUnit(receive.value, receive.asset?.precision ?? 18)).toFixed()
           : '-',
         outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
-        outputAddresses: receive ? `"${receive?.from.join('\n')}"` : '-',
+        outputAddresses: receive ? `"${receive?.to.join('\n')}"` : '-',
       })
     }
 

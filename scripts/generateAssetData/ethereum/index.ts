@@ -1,15 +1,15 @@
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { ethereum, unfreeze } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
+import { getPortalTokens } from 'lib/portals/utils'
 
-import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-import { getPortalTokens } from '../utils/portals'
 
 const foxyToken: Asset = {
   assetId: toAssetId({
@@ -32,7 +32,7 @@ const foxyToken: Asset = {
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
-    getPortalTokens(ethereum),
+    getPortalTokens(ethereum, 'all'),
   ])
 
   const [coingeckoTokens, portalsTokens] = results.map(result => {
@@ -71,5 +71,5 @@ export const getAssets = async (): Promise<Asset[]> => {
     modifiedAssets = modifiedAssets.concat(newModifiedTokens)
   }
 
-  return [ethereum, ...modifiedAssets]
+  return [unfreeze(ethereum), ...modifiedAssets]
 }

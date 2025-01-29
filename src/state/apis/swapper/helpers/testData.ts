@@ -4,6 +4,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 export const lifiQuote: TradeQuote = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
   rate: '51.34579860391078801712',
+  quoteOrRate: 'quote',
   affiliateBps: '0',
   potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
@@ -54,6 +55,7 @@ export const lifiQuote: TradeQuote = {
 
 export const thorQuote: TradeQuote = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
+  quoteOrRate: 'quote',
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
@@ -136,59 +138,9 @@ export const thorQuote: TradeQuote = {
   ],
 }
 
-export const oneInchQuote: TradeQuote = {
-  id: '89654b4f-c90b-4578-bb9f-7c93e7ad227d',
-  rate: '51.63754486526613135844',
-  affiliateBps: '0',
-  potentialAffiliateBps: '0',
-  receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  slippageTolerancePercentageDecimal: '0',
-  steps: [
-    {
-      estimatedExecutionTimeMs: undefined,
-      allowanceContract: '0x1111111254eeb25477b68fb85ed929f73a960582',
-      rate: '51.63754486526613135844',
-      buyAsset: {
-        assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        chainId: 'eip155:1',
-        name: 'FOX on Ethereum',
-        precision: 18,
-        color: '#3761F9',
-        icon: '/fox-token-logo.png',
-        symbol: 'FOX',
-        explorer: 'https://etherscan.io',
-        explorerAddressLink: 'https://etherscan.io/address/',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        relatedAssetKey: null,
-      },
-      sellAsset: {
-        assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        chainId: 'eip155:1',
-        name: 'USD Coin on Ethereum',
-        precision: 6,
-        color: '#2373CB',
-        icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-        symbol: 'USDC',
-        explorer: 'https://etherscan.io',
-        explorerAddressLink: 'https://etherscan.io/address/',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        relatedAssetKey: null,
-      },
-      accountNumber: 0,
-      buyAmountBeforeFeesCryptoBaseUnit: '1032761224814295680395',
-      buyAmountAfterFeesCryptoBaseUnit: '1032761224814295680395',
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
-      feeData: {
-        protocolFees: {},
-        networkFeeCryptoBaseUnit: '5746091301638380',
-      },
-      source: SwapperName.OneInch,
-    },
-  ],
-}
-
 export const cowQuote: TradeQuote = {
   id: '220858750',
+  quoteOrRate: 'quote',
   rate: '51.86127422365727736757',
   affiliateBps: '0',
   potentialAffiliateBps: '0',
@@ -257,6 +209,7 @@ export const cowQuote: TradeQuote = {
 
 export const zrxQuote: TradeQuote = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
+  quoteOrRate: 'quote',
   rate: '51.603817692372651273',
   affiliateBps: '0',
   potentialAffiliateBps: '0',
@@ -306,4 +259,4 @@ export const zrxQuote: TradeQuote = {
   ],
 }
 
-export const quotes: TradeQuote[] = [lifiQuote, thorQuote, zrxQuote, cowQuote, oneInchQuote]
+export const quotes: TradeQuote[] = [lifiQuote, thorQuote, zrxQuote, cowQuote]

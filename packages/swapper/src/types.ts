@@ -1,34 +1,38 @@
+import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
-  CosmosSdkChainId,
   EvmChainAdapter,
-  EvmChainId,
   UtxoChainAdapter,
-  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
+import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
   AssetsByIdPartial,
+  CosmosSdkChainId,
+  EvmChainId,
   KnownChainIds,
+  OrderQuoteResponse,
   PartialRecord,
   UtxoAccountType,
+  UtxoChainId,
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
-import type { ethers as ethersV5 } from 'ethers5'
-import type { Chain, PublicClient, Transport } from 'viem'
+import type { InterpolationOptions } from 'node-polyglot'
+import type { Address } from 'viem'
 
+import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
-  REACT_APP_ONE_INCH_API_URL: string
   REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
   REACT_APP_THORCHAIN_NODE_URL: string
@@ -43,8 +47,14 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: string
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_BASE_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
+  REACT_APP_ZRX_BASE_URL: string
+  REACT_APP_CHAINFLIP_API_KEY: string
+  REACT_APP_CHAINFLIP_API_URL: string
+  REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA: boolean
+  REACT_APP_JUPITER_API_URL: string
 }
 
 export enum SwapperName {
@@ -53,9 +63,10 @@ export enum SwapperName {
   Zrx = '0x',
   Test = 'Test',
   LIFI = 'LI.FI',
-  OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
+  Chainflip = 'Chainflip',
+  Jupiter = 'Jupiter',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -89,8 +100,14 @@ export enum TradeQuoteError {
   RateLimitExceeded = 'RateLimitExceeded',
   // catch-all for XHRs that can fail
   QueryFailed = 'QueryFailed',
+  // the response from the API was invalid or unexpected
+  InvalidResponse = 'InvalidResponse',
   // an assertion triggered, indicating a bug
   InternalError = 'InternalError',
+  // The max. slippage allowed for this trade has been exceeded at final quote time, as returned by the active quote swapper's API upstream
+  FinalQuoteMaxSlippageExceeded = 'FinalQuoteMaxSlippageExceeded',
+  // Execution reverted at final quote time, as returned by the active quote swapper's API upstream
+  FinalQuoteExecutionReverted = 'FinalQuoteExecutionReverted',
   // catch-all for unknown issues
   UnknownError = 'UnknownError',
 }
@@ -104,6 +121,11 @@ export type CosmosSdkFeeData = {
   estimatedGasCryptoBaseUnit: string
 }
 
+export type SolanaFeeData = {
+  computeUnits: string
+  priorityFee: string
+}
+
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -113,8 +135,14 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
-  protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData
+  protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
+}
+
+export const isSolanaFeeData = (
+  chainSpecific: QuoteFeeData['chainSpecific'],
+): chainSpecific is SolanaFeeData => {
+  return Boolean(chainSpecific && 'priorityFee' in chainSpecific)
 }
 
 export type BuyAssetBySellIdInput = {
@@ -123,58 +151,108 @@ export type BuyAssetBySellIdInput = {
   config: SwapperConfig
 }
 
-type CommonTradeInput = {
+type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sendAddress?: string
-  receiveAddress: string
-  accountNumber: number
-  receiveAccountNumber?: number
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
 
-export type GetEvmTradeQuoteInput = CommonTradeInput & {
+export type CommonTradeQuoteInput = CommonTradeInputBase & {
+  sendAddress?: string
+  receiveAddress: string
+  accountNumber: number
+  quoteOrRate: 'quote'
+  originalRate: TradeRate
+}
+
+type CommonTradeRateInput = CommonTradeInputBase & {
+  sendAddress?: undefined
+  receiveAddress: string | undefined
+  accountNumber: undefined
+  quoteOrRate: 'rate'
+}
+
+type CommonTradeInput = CommonTradeQuoteInput
+
+export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: EvmChainId
   supportsEIP1559: boolean
+}
+export type GetEvmTradeRateInput = CommonTradeRateInput & {
+  chainId: EvmChainId
+  supportsEIP1559: false
+}
+export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase
+
+export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
+  chainId: CosmosSdkChainId
 }
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
 
-export type GetUtxoTradeQuoteInput = CommonTradeInput & {
+export type GetCosmosSdkTradeRateInput = CommonTradeRateInput & {
+  chainId: CosmosSdkChainId
+}
+
+type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
   accountNumber: number
   xpub: string
 }
 
+export type GetUtxoTradeRateInput = CommonTradeRateInput & {
+  chainId: UtxoChainId
+  accountType: UtxoAccountType
+  // accountNumber and accountType may be undefined if no wallet is connected
+  // accountType will default to UtxoAccountType.P2pkh without a wallet connected
+  accountNumber: number | undefined
+  xpub: string | undefined
+}
+
+export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet
+
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
+export type GetTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetCosmosSdkTradeRateInput
+  | GetUtxoTradeRateInput
+
+export type GetTradeQuoteInputWithWallet =
+  | GetUtxoTradeQuoteWithWallet
+  | GetEvmTradeQuoteInputBase
+  | GetCosmosSdkTradeQuoteInputBase
+
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }
 export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
+export type SolanaSwapperDeps = {
+  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
+}
 
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
-  viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>>
   config: SwapperConfig
   assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
-  CosmosSdkSwapperDeps
+  CosmosSdkSwapperDeps &
+  SolanaSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -185,24 +263,57 @@ export type TradeQuoteStep = {
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  accountNumber: number
+  // Undefined in case this is a trade rate - this means we *cannot* execute this guy
+  accountNumber: number | undefined
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
+  permit2Eip712?: TypedData
+  zrxTransactionMetadata?: {
+    to: Address
+    data: Address
+    gasPrice: string | undefined
+    gas: string | undefined
+    value: string
+  }
+  portalsTransactionMetadata?: {
+    to: Address
+    from: Address
+    data: string
+    value: string
+    gasLimit: string
+  }
+  jupiterQuoteResponse?: QuoteResponse
+  jupiterTransactionMetadata?: {
+    addressLookupTableAddresses: string[]
+    instructions?: TransactionInstruction[]
+  }
+  cowswapQuoteResponse?: OrderQuoteResponse
+  chainflipSpecific?: {
+    chainflipSwapId?: number
+    chainflipDepositAddress?: string
+    chainflipNumberOfChunks?: number
+    chainflipChunkIntervalBlocks?: number
+    chainflipMaxBoostFee?: number
+  }
 }
+
+export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
+export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: number }
 
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string
-  receiveAccountNumber?: number
+  receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
+  priceImpactPercentageDecimal?: string
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
+  quoteOrRate: 'quote' | 'rate'
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -221,40 +332,38 @@ type TupleOf<T, N extends number> = N extends N
 export type SingleHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 1>
 export type MultiHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 2>
 
+export type SingleHopTradeRateSteps = TupleOf<TradeRateStep, 1>
+export type MultiHopTradeRateSteps = TupleOf<TradeRateStep, 2>
+
 export type SupportedTradeQuoteStepIndex = 0 | 1
 
 export type SingleHopTradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps
 }
-export type MultiHopTradeQuote = TradeQuoteBase & {
-  steps: MultiHopTradeQuoteSteps
-}
-
 // Note: don't try to do TradeQuote = SingleHopTradeQuote | MultiHopTradeQuote here, which would be cleaner but you'll have type errors such as
 // "An interface can only extend an object type or intersection of object types with statically known members."
 export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
+} & {
+  quoteOrRate: 'quote'
+  receiveAddress: string
+}
+
+export type MultiHopTradeQuote = TradeQuote & {
+  steps: MultiHopTradeQuoteSteps
+}
+
+export type MultiHopTradeRate = TradeRate & {
+  steps: MultiHopTradeRateSteps
+}
+
+export type TradeRate = TradeQuoteBase & {
+  steps: SingleHopTradeRateSteps | MultiHopTradeRateSteps
+} & {
+  quoteOrRate: 'rate'
 }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
-
-export type CowSwapOrder = {
-  sellToken: string
-  buyToken: string
-  sellAmount: string
-  buyAmount: string
-  validTo: number
-  appData: string
-  appDataHash: string
-  feeAmount: string
-  kind: string
-  partiallyFillable: boolean
-  receiver: string
-  sellTokenBalance: string
-  buyTokenBalance: string
-  quoteId: number
-  signingScheme: 'eip712' | 'ethsign'
-}
 
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote
@@ -281,8 +390,13 @@ export type CosmosSdkTransactionExecutionProps = {
   signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
 }
 
+export type SolanaTransactionExecutionProps = {
+  signAndBroadcastTransaction: (transactionRequest: SolanaSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
-type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
+type SolanaAccountMetadata = { from: string }
+type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
 export type CommonGetUnsignedTransactionArgs = {
@@ -294,10 +408,19 @@ export type CommonGetUnsignedTransactionArgs = {
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean } & EvmSwapperDeps
+  EvmAccountMetadata &
+  Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'> & {
+    permit2Signature: string | undefined
+    supportsEIP1559: boolean
+  }
+
+export type GetUnsignedSolanaTransactionArgs = CommonGetUnsignedTransactionArgs &
+  SolanaAccountMetadata &
+  SolanaSwapperDeps
+
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
-  EvmSwapperDeps
+  Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
   UtxoAccountMetadata &
   UtxoSwapperDeps
@@ -328,15 +451,18 @@ export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string
   chainId: ChainId
+  accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
-  CosmosSdkSwapperDeps
+  CosmosSdkSwapperDeps &
+  SolanaSwapperDeps
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -346,11 +472,6 @@ export type EvmTransactionRequest = {
   data: string
   chainId: number
 } & evm.types.Fees
-
-export type CowMessageToSign = {
-  chainId: ChainId
-  orderToSign: CowSwapOrder
-}
 
 // TODO: one day this might be a union to support various implementations or generic 💀
 export type EvmMessageToSign = CowMessageToSign
@@ -377,13 +498,20 @@ export type Swapper = {
     txToSign: StdSignDoc,
     callbacks: CosmosSdkTransactionExecutionProps,
   ) => Promise<string>
+  executeSolanaTransaction?: (
+    txToSign: SolanaSignTx,
+    callbacks: SolanaTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
-  checkTradeStatus: (
-    input: CheckTradeStatusInput,
-  ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  checkTradeStatus: (input: CheckTradeStatusInput) => Promise<{
+    status: TxStatus
+    buyTxHash: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
+  }>
+  getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (
@@ -394,9 +522,18 @@ export type SwapperApi = {
   getUnsignedCosmosSdkTransaction?: (
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<StdSignDoc>
+  getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
+  getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
+  getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
+  getCosmosSdkTransactionFees?: (input: GetUnsignedCosmosSdkTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
+  swapperName: SwapperName
+}
+
+export type RateResult = Result<TradeRate[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 
@@ -409,7 +546,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata & { supportsEIP1559: boolean }
+  EvmAccountMetadata & { supportsEIP1559: boolean; permit2Signature: string | undefined }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &
@@ -423,6 +560,10 @@ export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
   CosmosSdkTransactionExecutionProps &
   CosmosSdkAccountMetadata
 
+export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
+  SolanaTransactionExecutionProps &
+  SolanaAccountMetadata
+
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
   Status = 'status',
@@ -435,7 +576,7 @@ export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHa
 export type StatusArgs = {
   stepIndex: number
   status: TxStatus
-  message?: string
+  message?: string | [string, InterpolationOptions]
   buyTxHash?: string
 }
 

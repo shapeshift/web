@@ -164,10 +164,13 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
               connectedType: KeyManager.Mobile,
             },
           })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
-          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
         } catch (e) {
           console.log(e)

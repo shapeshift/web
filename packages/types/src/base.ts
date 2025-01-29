@@ -2,12 +2,15 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 
 import type { PartialRecord } from './utility'
 
-export type BIP44Params = {
+export type RootBip44Params = {
   purpose: number
   coinType: number
   accountNumber: number
-  isChange?: boolean
-  index?: number
+}
+
+export type Bip44Params = RootBip44Params & {
+  isChange: boolean | undefined
+  addressIndex: number | undefined
 }
 
 export enum KnownChainIds {
@@ -25,8 +28,28 @@ export enum KnownChainIds {
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
   LitecoinMainnet = 'bip122:12a765e31ffd4059bada1e25190f6e98',
   CosmosMainnet = 'cosmos:cosmoshub-4',
-  ThorchainMainnet = 'cosmos:thorchain-mainnet-v1',
+  ThorchainMainnet = 'cosmos:thorchain-1',
+  SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
 }
+
+export type EvmChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.OptimismMainnet
+  | KnownChainIds.BnbSmartChainMainnet
+  | KnownChainIds.PolygonMainnet
+  | KnownChainIds.GnosisMainnet
+  | KnownChainIds.ArbitrumMainnet
+  | KnownChainIds.ArbitrumNovaMainnet
+  | KnownChainIds.BaseMainnet
+
+export type CosmosSdkChainId = KnownChainIds.CosmosMainnet | KnownChainIds.ThorchainMainnet
+
+export type UtxoChainId =
+  | KnownChainIds.BitcoinMainnet
+  | KnownChainIds.BitcoinCashMainnet
+  | KnownChainIds.DogecoinMainnet
+  | KnownChainIds.LitecoinMainnet
 
 export enum WithdrawType {
   DELAYED,
@@ -65,7 +88,7 @@ export type AssetsById = Record<AssetId, Asset>
 export type AssetsByIdPartial = PartialRecord<AssetId, Asset>
 
 export type AccountMetadata = {
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
   accountType?: UtxoAccountType
 }
 

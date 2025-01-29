@@ -1,5 +1,8 @@
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
@@ -7,10 +10,10 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import {
-  RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS,
-  thorchainBlockTimeMs,
-} from 'lib/utils/thorchain/constants'
-import type { ThorchainBlock } from 'lib/utils/thorchain/types'
+  selectLiquidityLockupTime,
+  selectRunePoolMaturityTime,
+} from 'lib/utils/thorchain/selectors'
+import type { ThorchainMimir } from 'lib/utils/thorchain/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -30,7 +33,12 @@ import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
 } from '../types'
-import type { ThorchainRunepoolInformationResponseSuccess } from './types'
+import type {
+  MidgardSaverResponse,
+  ThorchainRunepoolInformationResponseSuccess,
+  ThorchainRunepoolMemberPositionResponse,
+  ThorchainRunepoolReservePositionsResponse,
+} from './types'
 import { getMidgardPools, getThorchainSaversPosition } from './utils'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
@@ -49,7 +57,16 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
   const availablePools = thorchainPools.filter(pool => pool.status === 'Available')
 
-  const opportunityIds = availablePools.reduce<OpportunityId[]>((acc, currentPool) => {
+  const midgardPools = await getMidgardPools('7d')
+
+  const sortedPools = availablePools.sort((a, b) => {
+    const aApy = bnOrZero(midgardPools.find(pool => pool.asset === a.asset)?.saversAPR)
+    const bApy = bnOrZero(midgardPools.find(pool => pool.asset === b.asset)?.saversAPR)
+
+    return bApy.minus(aApy).toNumber()
+  })
+
+  const opportunityIds = sortedPools.reduce<OpportunityId[]>((acc, currentPool) => {
     const maybeOpportunityId = poolAssetIdToAssetId(currentPool.asset)
 
     if (
@@ -156,17 +173,97 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       rewardAssetIds: [assetId] as [AssetId],
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
-      name: `${underlyingAsset.symbol} Vault`,
+      name: underlyingAsset.symbol,
       saversMaxSupplyFiat: saversMaxSupplyUserCurrency,
       isFull: thorchainPool.synth_mint_paused,
       isClaimableRewards: false,
     }
   }
 
-  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+  const asset = selectAssetById(state, thorchainAssetId)
+
+  if (getConfig().REACT_APP_FEATURE_RUNEPOOL && asset) {
+    const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
+      `${getConfig().REACT_APP_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
+    )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(
         `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+      )
+
+    const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
+      (acc, pool) => {
+        const assetId = poolAssetIdToAssetId(pool.asset)
+
+        if (!assetId) return acc
+
+        return {
+          ...acc,
+          [assetId]: pool,
+        }
+      },
+      {},
+    )
+
+    const underlyingAssetIds = reservePositions.pools
+      .map(pool => poolAssetIdToAssetId(pool.pool))
+      .filter(
+        assetId => isSome(assetId) && opportunityIds.includes(assetId as OpportunityId),
+      ) as AssetId[]
+
+    const totalRuneAmount = reservePositions.pools.reduce((acc, pool) => {
+      const assetId = poolAssetIdToAssetId(pool.pool)
+
+      if (!assetId) return acc
+
+      const share = bnOrZero(pool.liquidityUnits).div(poolsByAssetid[assetId].pool_units)
+      const runeAmount = share.times(poolsByAssetid[assetId].balance_rune)
+
+      return acc.plus(runeAmount)
+    }, bn(0))
+
+    const { underlyingAssetRatiosBaseUnit, underlyingAssetWeightPercentageDecimal } =
+      reservePositions.pools.reduce(
+        (acc, pool) => {
+          const assetId = poolAssetIdToAssetId(pool.pool)
+
+          if (!assetId) return acc
+
+          const thorchainPool = poolsByAssetid[assetId]
+
+          if (!thorchainPool) return acc
+
+          const share = bnOrZero(pool.liquidityUnits).div(thorchainPool.pool_units)
+
+          const runeAmount = share.times(bnOrZero(thorchainPool.balance_rune))
+
+          const assetAmount = share.times(thorchainPool.balance_asset)
+
+          const poolWeightPercentageDecimal = bnOrZero(runeAmount).div(totalRuneAmount)
+
+          const poolRatio = bnOrZero(assetAmount).div(runeAmount)
+
+          const adjustedRatio = poolRatio.times(poolWeightPercentageDecimal)
+
+          const asset = selectAssetById(state, assetId)
+
+          if (!asset) return acc
+
+          return {
+            underlyingAssetRatiosBaseUnit: [
+              ...acc.underlyingAssetRatiosBaseUnit,
+              toBaseUnit(adjustedRatio.toFixed(), asset.precision),
+            ],
+            underlyingAssetWeightPercentageDecimal: [
+              ...acc.underlyingAssetWeightPercentageDecimal,
+              poolWeightPercentageDecimal.toFixed(),
+            ],
+          }
+        },
+        {
+          underlyingAssetRatiosBaseUnit: [] as string[],
+          underlyingAssetWeightPercentageDecimal: [] as string[],
+        },
       )
 
     const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
@@ -183,12 +280,11 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
         .toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
-      // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
-      underlyingAssetIds: [],
+      underlyingAssetIds,
       rewardAssetIds: [thorchainAssetId] as [AssetId],
-      // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
-      underlyingAssetRatiosBaseUnit: [],
-      name: `RUNEPool`,
+      underlyingAssetRatiosBaseUnit,
+      underlyingAssetWeightPercentageDecimal,
+      name: asset.symbol,
       saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,
@@ -219,6 +315,13 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   }
 
   try {
+    const { data: mimir } = await axios.get<ThorchainMimir>(
+      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
+    )
+
+    const liquidityLockupTime = selectLiquidityLockupTime(mimir)
+    const runePoolDepositMaturityTime = selectRunePoolMaturityTime(mimir)
+
     for (const stakingOpportunityId of opportunityIds) {
       const asset = selectAssetById(state, stakingOpportunityId)
       if (!asset)
@@ -242,7 +345,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         continue
       }
 
-      const { asset_deposit_value, asset_redeem_value } = accountPosition
+      const { asset_deposit_value, asset_redeem_value, asset_address } = accountPosition
 
       const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
         bn(10).pow(asset.precision),
@@ -253,37 +356,41 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       ) // to actual asset precision base unit
 
       const rewardsAmountsCryptoBaseUnit: [string] = [
-        stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
+        stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(0),
       ]
 
-      if (stakingOpportunityId === thorchainAssetId && accountPosition.last_add_height) {
-      }
+      const dateUnlocked = await (async () => {
+        try {
+          if (stakingOpportunityId === thorchainAssetId) {
+            const { data } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
+              `${getConfig().REACT_APP_MIDGARD_URL}/runepool/${asset_address}`,
+            )
 
-      const maybeMaturity = await (async () => {
-        if (stakingOpportunityId !== thorchainAssetId) return {}
-        if (!accountPosition.last_add_height) return { maturity: undefined }
+            return bnOrZero(data[0].dateLastAdded).plus(runePoolDepositMaturityTime).toNumber()
+          }
 
-        const blockParams = new URLSearchParams({
-          height: accountPosition.last_add_height?.toString(),
-        })
+          const { data } = await axios.get<MidgardSaverResponse>(
+            `${getConfig().REACT_APP_MIDGARD_URL}/saver/${asset_address}`,
+          )
 
-        const { data: blockDetails } = await axios.get<ThorchainBlock>(
-          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/block?${blockParams}`,
-        )
+          const dateLastAdded = data.pools.find(({ pool }) => pool === accountPosition.asset)
+            ?.dateLastAdded
 
-        const maturity =
-          new Date(blockDetails.header.time).getTime() +
-          thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
-
-        return { maturity }
+          return dateLastAdded
+            ? bnOrZero(dateLastAdded).plus(liquidityLockupTime).toNumber()
+            : undefined
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.status === 404) return
+          throw new Error('Error fetching savers date last added')
+        }
       })()
 
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         isLoaded: true,
         userStakingId,
-        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
+        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(0),
         rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
-        ...maybeMaturity,
+        dateUnlocked,
       }
     }
 

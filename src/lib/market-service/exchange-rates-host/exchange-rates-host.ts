@@ -1,5 +1,5 @@
 import type { HistoryData, MarketData } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { getHistoryTimeframeBounds } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import { getConfig } from 'config'
@@ -70,31 +70,7 @@ export class ExchangeRateHostService implements FiatMarketService {
     symbol,
     timeframe,
   }: FiatPriceHistoryArgs): Promise<HistoryData[]> => {
-    const end = dayjs().endOf('day')
-    let start
-    switch (timeframe) {
-      case HistoryTimeframe.HOUR:
-        // minimum granularity on upstream API is 1 day
-        start = end.subtract(1, 'day')
-        break
-      case HistoryTimeframe.DAY:
-        start = end.subtract(1, 'day')
-        break
-      case HistoryTimeframe.WEEK:
-        start = end.subtract(1, 'week')
-        break
-      case HistoryTimeframe.MONTH:
-        start = end.subtract(1, 'month')
-        break
-      case HistoryTimeframe.YEAR:
-        start = end.subtract(1, 'year')
-        break
-      case HistoryTimeframe.ALL:
-        start = end.subtract(5, 'years')
-        break
-      default:
-        start = end
-    }
+    const { start, end } = getHistoryTimeframeBounds(timeframe)
 
     try {
       const urls: string[] = makeExchangeRateRequestUrls(

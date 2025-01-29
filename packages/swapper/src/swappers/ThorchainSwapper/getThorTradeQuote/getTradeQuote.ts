@@ -2,46 +2,23 @@ import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
-import type { ThornodePoolResponse } from '../types'
-import { getL1quote } from '../utils/getL1quote'
+import type { ThornodePoolResponse, ThorTradeQuote } from '../types'
+import { getL1Quote } from '../utils/getL1quote'
 import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
-type ThorTradeQuoteSpecificMetadata = {
-  isStreaming: boolean
-  memo: string
-  recommendedMinimumCryptoBaseUnit: string
-  tradeType: TradeType
-  expiry: number
-  longtailData?: {
-    longtailToL1ExpectedAmountOut?: bigint
-    L1ToLongtailExpectedAmountOut?: bigint
-  }
-}
-export type ThorEvmTradeQuote = TradeQuote &
-  ThorTradeQuoteSpecificMetadata & {
-    router: string
-    vault: string
-    aggregator?: string
-    data: string
-    tradeType: TradeType
-  }
-
-export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
-export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
-
 export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
-  !!quote && 'tradeType' in quote
+  !!quote && 'tradeType' in quote && 'vault' in quote
 
 export const getThorTradeQuote = async (
-  input: GetTradeQuoteInput,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = deps.config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
@@ -116,7 +93,7 @@ export const getThorTradeQuote = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1quote(input, deps, streamingInterval, tradeType)
+      return getL1Quote(input, deps, streamingInterval, tradeType)
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, deps, streamingInterval)
     case TradeType.L1ToLongTail:
@@ -127,6 +104,6 @@ export const getThorTradeQuote = async (
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:
-      assertUnreachable(tradeType)
+      return assertUnreachable(tradeType)
   }
 }

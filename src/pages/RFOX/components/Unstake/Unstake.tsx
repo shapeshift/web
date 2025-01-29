@@ -1,20 +1,22 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getAddress } from 'viem'
-import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
-import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { getStakingBalanceOfQueryKey } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { getStakingInfoQueryKey } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
 
 const UnstakeInput = makeSuspenseful(
   lazy(() =>
@@ -22,6 +24,7 @@ const UnstakeInput = makeSuspenseful(
       default: UnstakeInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const UnstakeConfirm = makeSuspenseful(
@@ -30,6 +33,7 @@ const UnstakeConfirm = makeSuspenseful(
       default: UnstakeConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const UnstakeStatus = makeSuspenseful(
@@ -38,6 +42,7 @@ const UnstakeStatus = makeSuspenseful(
       default: UnstakeStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const UnstakeEntries = [
@@ -61,41 +66,35 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
 
-  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-      : undefined,
-  })
-
-  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
-    stakingAssetId: confirmedQuote ? confirmedQuote.stakingAssetId : undefined,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
-  })
-
-  const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-      : undefined,
-  })
+  const stakingAssetAccountAddress = useMemo(() => {
+    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
+  }, [confirmedQuote])
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-      : undefined,
+    stakingAssetAccountAddress,
   })
 
   const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
+    await queryClient.invalidateQueries({
+      queryKey: getStakingInfoQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getStakingBalanceOfQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getUnstakingRequestCountQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [
-    newContractBalanceOfCryptoBaseUnitQueryKey,
-    queryClient,
-    unstakingRequestCountQueryKey,
-    unstakingRequestQueryKey,
-    userStakingBalanceOfCryptoBaseUnitQueryKey,
-  ])
+  }, [confirmedQuote, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
 
   const renderUnstakeInput = useCallback(() => {
     return <UnstakeInput setConfirmedQuote={setConfirmedQuote} headerComponent={headerComponent} />
@@ -121,6 +120,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     return (
       <UnstakeStatus
         txId={unstakeTxid}
+        setUnstakeTxid={setUnstakeTxid}
         onTxConfirmed={handleTxConfirmed}
         confirmedQuote={confirmedQuote}
         headerComponent={headerComponent}

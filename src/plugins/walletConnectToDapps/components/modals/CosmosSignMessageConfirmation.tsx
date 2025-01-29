@@ -18,7 +18,8 @@ import type {
 } from 'plugins/walletConnectToDapps/types'
 import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
-import { type FC, useCallback, useMemo, useState } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
@@ -42,7 +43,10 @@ export const CosmosSignMessageConfirmationModal: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
+  const walletIcon = useMemo(
+    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
+    [WalletIcon],
+  )
   const cardBg = useColorModeValue('white', 'gray.850')
   const request = state.modalData.requestEvent?.params.request
 

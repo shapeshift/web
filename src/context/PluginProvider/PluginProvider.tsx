@@ -111,6 +111,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Arbitrum && chainId === KnownChainIds.ArbitrumMainnet) return false
       if (!featureFlags.ArbitrumNova && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
       if (!featureFlags.Base && chainId === KnownChainIds.BaseMainnet) return false
+      if (!featureFlags.Solana && chainId === KnownChainIds.SolanaMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       return true

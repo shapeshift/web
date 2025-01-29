@@ -2,11 +2,11 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
   EvmBaseAdapter,
-  EvmChainId,
   FeeDataEstimate,
   FeeDataKey,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type {
   ConfirmData,

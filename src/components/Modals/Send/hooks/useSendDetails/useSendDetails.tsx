@@ -1,18 +1,18 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
-import { tokenOrUndefined } from 'lib/utils'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { contractAddressOrUndefined } from 'lib/utils'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -24,7 +24,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../../Form'
-import { SendFormFields, SendRoutes } from '../../SendCommon'
+import { SendFormFields } from '../../SendCommon'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.AmountCryptoPrecision
 
@@ -32,7 +32,6 @@ type UseSendDetailsReturnType = {
   balancesLoading: boolean
   fieldName: AmountFieldName
   handleInputChange(inputValue: string): void
-  handleNextClick(): void
   handleSendMax(): Promise<void>
   isLoading: boolean
   toggleIsFiat(): void
@@ -44,7 +43,6 @@ type UseSendDetailsReturnType = {
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.AmountCryptoPrecision)
-  const history = useHistory()
   const { setValue } = useFormContext<SendInput>()
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({
     name: SendFormFields.AssetId,
@@ -52,6 +50,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const amountCryptoPrecision = useWatch<SendInput, SendFormFields.AmountCryptoPrecision>({
     name: SendFormFields.AmountCryptoPrecision,
   })
+  const isManualInputChange = useRef(true)
 
   const fiatAmount = useWatch<SendInput, SendFormFields.FiatAmount>({
     name: SendFormFields.FiatAmount,
@@ -109,8 +108,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet },
   } = useWallet()
 
-  const { assetReference } = fromAssetId(assetId)
-  const contractAddress = tokenOrUndefined(assetReference)
+  const contractAddress = contractAddressOrUndefined(assetId)
 
   const estimateFormFees = useCallback(
     ({
@@ -150,7 +148,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }) => {
       const [, { sendMax, amountCryptoPrecision }] = queryKey
 
-      if (bnOrZero(amountCryptoPrecision).lt(0)) return null
+      if (bnOrZero(amountCryptoPrecision).lte(0)) return null
       if (!asset || !accountId) return null
 
       const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(bnOrZero(amountCryptoPrecision))
@@ -190,7 +188,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               bn(toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision)).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
+            .minus(assetId === solAssetId ? solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS : 0)
             .gt(0)
+
           if (!canCoverFees) {
             setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
             // Don't throw here - this is *not* an exception and we do want to consume the fees
@@ -241,7 +241,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [amountCryptoPrecision, fiatAmount])
 
   const {
-    isLoading: _isEstimatedFormFeesLoading,
+    isFetching: _isEstimatedFormFeesFetching,
     data: estimatedFees,
     error,
   } = useQuery({
@@ -253,6 +253,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     staleTime: 15 * 1000,
     // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
     retry: false,
+    // If the user get back and forth between the address and the amount form, we want to refetch the fees so it revalidate the form
+    refetchOnMount: 'always',
+    gcTime: 0,
   })
 
   const {
@@ -274,13 +277,23 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
+    const networkFee = fromBaseUnit(fastFee, feeAsset.precision)
 
-    const maxCrypto = bnOrZero(cryptoHumanBalance).minus(networkFee)
+    const maxCrypto =
+      feeAsset.assetId !== assetId
+        ? bnOrZero(cryptoHumanBalance)
+        : bnOrZero(cryptoHumanBalance)
+            .minus(networkFee)
+            .minus(
+              assetId === solAssetId
+                ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
+                : 0,
+            )
     const maxFiat = maxCrypto.times(price)
 
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)
     const maxFiatOrZero = maxFiat.isPositive() ? maxFiat : bn(0)
+
     setValue(SendFormFields.AmountCryptoPrecision, maxCryptoOrZero.toPrecision())
     setValue(SendFormFields.FiatAmount, maxFiatOrZero.toFixed(2))
   }, [
@@ -306,7 +319,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     isTransitioning ||
     isEstimatedSendMaxFeesLoading ||
     isEstimatedSendMaxFeesRefetching ||
-    _isEstimatedFormFeesLoading
+    _isEstimatedFormFeesFetching
 
   useEffect(() => {
     // Since we are debouncing the query, ensure reverting back to an empty input doesn't end up in the previous error being displayed
@@ -318,7 +331,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       'The request failed and the interceptors did not return an alternative response'
     )
       return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
-    setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
+    if (error?.message) {
+      setValue(SendFormFields.AmountFieldError, error.message)
+    }
   }, [error, hasEnteredPositiveAmount, setValue])
 
   useEffect(() => {
@@ -329,9 +344,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setValue(SendFormFields.EstimatedFees, estimatedFees)
   }, [estimatedFees, sendMax, setValue])
 
-  const handleNextClick = () => history.push(SendRoutes.Confirm)
-
   const handleSendMax = useCallback(async () => {
+    isManualInputChange.current = false
     setValue(SendFormFields.SendMax, true)
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
@@ -374,7 +388,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const handleInputChange = useCallback(
     (inputValue: string) => {
-      setValue(SendFormFields.SendMax, false)
+      if (isManualInputChange.current) {
+        setValue(SendFormFields.SendMax, false)
+      }
 
       const otherField =
         fieldName !== SendFormFields.FiatAmount
@@ -396,6 +412,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
 
       setValue(otherField, otherAmount)
+      isManualInputChange.current = true
     },
     [fieldName, price, setValue],
   )
@@ -413,7 +430,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance: userCurrencyBalance,
-    handleNextClick,
     handleSendMax,
     handleInputChange,
     isLoading: isEstimatedFormFeesLoading,

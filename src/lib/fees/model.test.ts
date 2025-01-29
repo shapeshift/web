@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
+import { selectIsSnapshotApiQueriesRejected } from 'state/apis/snapshot/selectors'
+import { store } from 'state/store'
 
 import { calculateFees } from './model'
 import { swapperParameters } from './parameters/swapper'
@@ -30,10 +32,14 @@ describe('calculateFees', () => {
   it('should return 0 bps for < no fee threshold', () => {
     const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD).minus(1)
     const foxHeld = bn(0)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
     expect(feeBps.toNumber()).toEqual(0)
   })
@@ -41,10 +47,14 @@ describe('calculateFees', () => {
   it('should return FEE_CURVE_MAX_FEE_BPS - 1 for === no fee threshold', () => {
     const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD)
     const foxHeld = bn(0)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
     expect(feeBps.toNumber()).toEqual(FEE_CURVE_MAX_FEE_BPS - 1)
   })
@@ -52,10 +62,14 @@ describe('calculateFees', () => {
   it('should return FEE_CURVE_MAX_FEE_BPS - 1 for slightly above no fee threshold', () => {
     const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD + 0.01)
     const foxHeld = bn(0)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
     expect(feeBps.toNumber()).toEqual(FEE_CURVE_MAX_FEE_BPS - 1)
   })
@@ -63,10 +77,14 @@ describe('calculateFees', () => {
   it('should return close to min bps for huge amounts', () => {
     const tradeAmountUsd = bn(1_000_000)
     const foxHeld = bn(0)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
     expect(feeBps.toNumber()).toEqual(FEE_CURVE_MIN_FEE_BPS)
   })
@@ -74,33 +92,45 @@ describe('calculateFees', () => {
   it('should return close to midpoint for midpoint', () => {
     const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
     const foxHeld = bn(0)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
-    expect(feeBps.toNumber()).toEqual(30)
+    expect(feeBps.toNumber()).toEqual(35)
   })
 
   it('should discount fees by 50% holding at midpoint holding half max fox discount limit', () => {
     const tradeAmountUsd = bn(FEE_CURVE_MIDPOINT_USD)
     const foxHeld = bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD / 2)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
-    expect(feeBps.toNumber()).toEqual(15)
+    expect(feeBps.toNumber()).toEqual(17)
     expect(foxDiscountPercent).toEqual(bn(50))
   })
 
   it('should discount fees 100% holding max fox discount limit', () => {
     const tradeAmountUsd = bn(Infinity)
     const foxHeld = bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
     expect(feeBps.toNumber()).toEqual(0)
     expect(foxDiscountPercent).toEqual(bn(100))
@@ -111,11 +141,14 @@ describe('calculateFees', () => {
 
     mocks.selectIsSnapshotApiQueriesRejected.mockReturnValueOnce(true)
     const foxHeld = bn(0)
-
+    const isSnapshotApiQueriesRejected = selectIsSnapshotApiQueriesRejected(store.getState())
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
     expect(feeBps.toNumber()).toEqual(FEE_CURVE_MAX_FEE_BPS)
     expect(foxDiscountPercent).toEqual(bn(0))

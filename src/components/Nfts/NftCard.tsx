@@ -53,8 +53,10 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
+  const [isMediaErrored, setIsMediaErrored] = useState(false)
 
   const handleMediaLoaded = useCallback(() => setIsMediaLoaded(true), [])
+  const handleMediaErrored = useCallback(() => setIsMediaErrored(true), [])
 
   const chainId = fromAssetId(nftItem.assetId).chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
@@ -124,9 +126,10 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
             top={0}
           >
             <Image
-              src={mediaUrl ?? placeholderImage}
+              src={!isMediaErrored && mediaUrl ? mediaUrl : placeholderImage}
               alt={name}
               onLoad={handleMediaLoaded}
+              onError={handleMediaErrored}
               {...mediaBoxProps}
             />
           </Skeleton>

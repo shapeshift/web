@@ -30,22 +30,10 @@ jobs:
       - name: Build Packages
         run: yarn build:packages
 
-      - name: Generate CAIP adapters
-        run: yarn generate:caip-adapters
-
-      - name: Generate color map
-        run: yarn run generate:color-map
-
-      - name: Generate asset data
+      - name: Generate all assets
         env:
           ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
-        run: yarn run generate:asset-data
-
-      - name: Generate THOR assets
-        run: yarn run generate:thor-asset-map
-
-      - name: Generate THOR long-tail assets
-        run: yarn run generate:thor-longtail-tokens
+        run: yarn run generate:all
 
       - name: Create new feature branch
         run: git checkout -B feat_regenerate_asset_data

@@ -4,11 +4,10 @@ import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import type { MetaMaskAdapter as MetaMaskMultiChainAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
 import { getConfig } from 'config'
 import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
@@ -26,11 +25,11 @@ import { LedgerConfig } from './Ledger/config'
 import { MetaMaskConfig } from './MetaMask/config'
 import { MobileConfig } from './MobileWallet/config'
 import { NativeConfig } from './NativeWallet/config'
+import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
-import { XDEFIConfig } from './XDEFI/config'
 
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
@@ -43,12 +42,6 @@ const NativeTestPhrase = lazy(() =>
     default: NativeTestPhrase,
   })),
 )
-const XDEFIFailure = lazy(() =>
-  import('./XDEFI/components/Failure').then(({ XDEFIFailure }) => ({ default: XDEFIFailure })),
-)
-const XDEFIConnect = lazy(() =>
-  import('./XDEFI/components/Connect').then(({ XDEFIConnect }) => ({ default: XDEFIConnect })),
-)
 const NativeSuccess = lazy(() =>
   import('./NativeWallet/components/NativeSuccess').then(({ NativeSuccess }) => ({
     default: NativeSuccess,
@@ -59,6 +52,12 @@ const NativeStart = lazy(() =>
     default: NativeStart,
   })),
 )
+const NativeImportSelect = lazy(() =>
+  import('./NativeWallet/components/NativeImportSelect').then(({ NativeImportSelect }) => ({
+    default: NativeImportSelect,
+  })),
+)
+
 const NativeRename = lazy(() =>
   import('./NativeWallet/components/NativeRename').then(({ NativeRename }) => ({
     default: NativeRename,
@@ -84,11 +83,17 @@ const NativeCreate = lazy(() =>
     default: NativeCreate,
   })),
 )
-const NativeImport = lazy(() =>
-  import('./NativeWallet/components/NativeImport').then(({ NativeImport }) => ({
-    default: NativeImport,
+const NativeImportSeed = lazy(() =>
+  import('./NativeWallet/components/NativeImportSeed').then(({ NativeImportSeed }) => ({
+    default: NativeImportSeed,
   })),
 )
+const NativeImportKeystore = lazy(() =>
+  import('./NativeWallet/components/NativeImportKeystore').then(({ NativeImportKeystore }) => ({
+    default: NativeImportKeystore,
+  })),
+)
+
 const NativeLegacyLogin = lazy(() =>
   import('./NativeWallet/components/NativeLegacyLogin').then(({ NativeLegacyLogin }) => ({
     default: NativeLegacyLogin,
@@ -102,6 +107,11 @@ const EnterPassword = lazy(() =>
 const SnapInstall = lazy(() =>
   import('./MetaMask/components/SnapInstall').then(({ SnapInstall }) => ({ default: SnapInstall })),
 )
+
+const SnapUpdate = lazy(() =>
+  import('./MetaMask/components/SnapUpdate').then(({ SnapUpdate }) => ({ default: SnapUpdate })),
+)
+
 const ChangeLabel = lazy(() =>
   import('components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
     default: ChangeLabel,
@@ -233,6 +243,18 @@ const MetaMaskFailure = lazy(() =>
     default: MetaMaskFailure,
   })),
 )
+
+const PhantomConnect = lazy(() =>
+  import('./Phantom/components/Connect').then(({ PhantomConnect }) => ({
+    default: PhantomConnect,
+  })),
+)
+const PhantomFailure = lazy(() =>
+  import('./Phantom/components/Failure').then(({ PhantomFailure }) => ({
+    default: PhantomFailure,
+  })),
+)
+
 const MetaMaskMenu = lazy(() =>
   import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
     default: MetaMaskMenu,
@@ -320,11 +342,9 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.KeepKey]: SupportedWalletInfo<typeof WebUSBKeepKeyAdapter | typeof KkRestAdapter>
   [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
   [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
-  [KeyManager.MetaMask]: SupportedWalletInfo<
-    typeof MetaMaskAdapter | typeof MetaMaskMultiChainAdapter
-  >
+  [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
+  [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
-  [KeyManager.XDefi]: SupportedWalletInfo<typeof XDEFIAdapter>
 }
 
 export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
@@ -334,7 +354,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/mobile/connect', component: MobileStart },
       { path: '/mobile/load', component: MobileLoad },
       { path: '/mobile/rename', component: MobileRename },
-      { path: '/mobile/import', component: MobileImport },
+      { path: '/mobile/import-select', component: MobileImport },
       { path: '/mobile/create', component: MobileCreate },
       { path: '/mobile/create-test', component: MobileCreateTest },
       { path: '/mobile/success', component: MobileSuccess },
@@ -352,7 +372,9 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: NativeWalletRoutes.Load, component: NativeLoad },
       { path: NativeWalletRoutes.Password, component: NativePassword },
       { path: NativeWalletRoutes.Rename, component: NativeRename },
-      { path: NativeWalletRoutes.Import, component: NativeImport },
+      { path: NativeWalletRoutes.ImportSelect, component: NativeImportSelect },
+      { path: NativeWalletRoutes.ImportSeed, component: NativeImportSeed },
+      { path: NativeWalletRoutes.ImportKeystore, component: NativeImportKeystore },
       { path: NativeWalletRoutes.Create, component: NativeCreate },
       { path: NativeWalletRoutes.CreateTest, component: NativeTestPhrase },
       { path: NativeWalletRoutes.Success, component: NativeSuccess },
@@ -394,15 +416,16 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/snap/install', component: SnapInstall },
+      { path: '/metamask/snap/update', component: SnapUpdate },
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
     connectedMenuComponent: MetaMaskMenu,
   },
-  [KeyManager.XDefi]: {
-    ...XDEFIConfig,
+  [KeyManager.Phantom]: {
+    ...PhantomConfig,
     routes: [
-      { path: '/xdefi/connect', component: XDEFIConnect },
-      { path: '/xdefi/failure', component: XDEFIFailure },
+      { path: '/phantom/connect', component: PhantomConnect },
+      { path: '/phantom/failure', component: PhantomFailure },
     ],
   },
   [KeyManager.Coinbase]: {
@@ -455,8 +478,6 @@ type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => Key
 
 export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMode) => {
   switch (keyManager) {
-    case KeyManager.WalletConnectV2:
-      return walletConnectV2ProviderConfig
     case KeyManager.Coinbase:
       return {
         appName: 'ShapeShift',
@@ -465,6 +486,8 @@ export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMod
         defaultChainId: 1,
         darkMode: isDarkMode,
       }
+    case KeyManager.WalletConnectV2:
+      return walletConnectV2ProviderConfig
     default:
       return undefined
   }

@@ -1,15 +1,25 @@
 import BigNumber from 'bignumber.js'
+import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectIsSnapshotApiQueriesRejected } from 'state/apis/snapshot/selectors'
-import { store } from 'state/store'
 
+import {
+  FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
+  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
+  FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
+} from './constant'
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
+
+export const THORSWAP_UNIT_THRESHOLD = 1
+export const THORSWAP_MAXIMUM_YEAR_TRESHOLD = 2025
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
   foxHeld: BigNumber
+  thorHeld: BigNumber
+  foxWifHatHeldCryptoBaseUnit: BigNumber
   feeModel: ParameterModel
+  isSnapshotApiQueriesRejected: boolean
 }
 
 /**
@@ -34,7 +44,14 @@ export type CalculateFeeBpsReturn = {
 }
 type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
 
-export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeModel }) => {
+export const calculateFees: CalculateFeeBps = ({
+  tradeAmountUsd,
+  foxHeld,
+  feeModel,
+  thorHeld,
+  foxWifHatHeldCryptoBaseUnit,
+  isSnapshotApiQueriesRejected,
+}) => {
   const {
     FEE_CURVE_NO_FEE_THRESHOLD_USD,
     FEE_CURVE_MAX_FEE_BPS,
@@ -48,27 +65,66 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   const minFeeBps = bn(FEE_CURVE_MIN_FEE_BPS)
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
+  const isThorFreeEnabled = getConfig().REACT_APP_FEATURE_THOR_FREE_FEES
+  const isFoxWifHatEnabled = getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION
+
+  const isFoxWifHatCampaignActive =
+    new Date().getTime() >= FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS &&
+    new Date().getTime() <= FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS &&
+    isFoxWifHatEnabled
+
+  const isFoxWifHatDiscountEligible =
+    isFoxWifHatCampaignActive &&
+    foxWifHatHeldCryptoBaseUnit &&
+    foxWifHatHeldCryptoBaseUnit?.gte(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT)
+
+  const currentFoxWifHatDiscountPercent = (() => {
+    if (!isFoxWifHatCampaignActive) return bn(0)
+    if (!isFoxWifHatDiscountEligible) return bn(0)
+
+    const currentTime = new Date().getTime()
+    const totalCampaignDuration =
+      FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS - FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS
+    const timeElapsed = currentTime - FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS
+    const remainingPercentage = bn(100).times(
+      bn(1).minus(bn(timeElapsed).div(totalCampaignDuration)),
+    )
+
+    return BigNumber.maximum(BigNumber.minimum(remainingPercentage, bn(100)), bn(0))
+  })()
 
   // trades below the fee threshold are free.
   const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
+
+  const isThorFree =
+    isThorFreeEnabled &&
+    thorHeld.gte(THORSWAP_UNIT_THRESHOLD) &&
+    new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
+
   // failure to fetch fox discount results in free trades.
-  const isFallbackFees = selectIsSnapshotApiQueriesRejected(store.getState())
+  const isFallbackFees = isSnapshotApiQueriesRejected
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
     if (isFree) return bn(100)
-    // No discount if we cannot fetch FOX holdings
-    if (isFallbackFees) return bn(0)
+    // THOR holder before TIP014 are trade free until 2025
+    if (isThorFree) return bn(100)
 
-    return BigNumber.minimum(
-      bn(100),
-      bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
-    )
+    const foxDiscountPercent = bnOrZero(foxHeld)
+      .times(100)
+      .div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
+
+    console.log({ foxDiscountPercent, currentFoxWifHatDiscountPercent })
+
+    // No discount if we cannot fetch FOX holdings and we are not eligible for the WIF HAT campaign
+    if (isFallbackFees && !isFoxWifHatDiscountEligible) return bn(0)
+
+    return BigNumber.maximum(foxDiscountPercent, currentFoxWifHatDiscountPercent)
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number
   const feeBpsBeforeDiscountFloat =
-    isFallbackFees && !isFree
+    isFallbackFees && !isFree && !isThorFree && !isFoxWifHatDiscountEligible
       ? bn(FEE_CURVE_MAX_FEE_BPS)
       : minFeeBps.plus(
           maxFeeBps
@@ -88,7 +144,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
         )
 
   const feeBpsFloat =
-    isFallbackFees && !isFree
+    isFallbackFees && !isFree && !isThorFree && !isFoxWifHatDiscountEligible
       ? bn(FEE_CURVE_MAX_FEE_BPS)
       : BigNumber.maximum(
           feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),
@@ -101,6 +157,12 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
     .minus(feeBpsFloat)
     .div(feeBpsBeforeDiscountFloat)
     .times(100)
+
+  console.log({
+    foxDiscountPercent: foxDiscountPercent.toFixed(2),
+    feeBpsFloat: feeBpsFloat.toFixed(2),
+    feeBpsBeforeDiscountFloat: feeBpsBeforeDiscountFloat.toFixed(2),
+  })
 
   const feeBps = feeBpsAfterDiscount
   const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))

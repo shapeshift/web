@@ -4,7 +4,6 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -21,7 +20,7 @@ export interface CoinbaseSetupProps
 }
 
 export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
-  const { dispatch, getAdapter, onProviderChange } = useWallet()
+  const { dispatch, getAdapter } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -39,16 +38,11 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
     const adapter = await getAdapter(KeyManager.Coinbase)
     if (adapter) {
       try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
-
         const wallet = await adapter.pairDevice()
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-coinbase::pairDevice returned null or undefined')
         }
-
-        await onProviderChange(KeyManager.Coinbase, wallet)
 
         const { name, icon } = CoinbaseConfig
         const deviceId = await wallet.getDeviceID()
@@ -58,9 +52,12 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Coinbase },
         })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: true,
+        })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Coinbase, deviceId)
+        localWallet.setLocalWallet({ type: KeyManager.Coinbase, deviceId })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         console.error(e, 'Coinbase Connect: There was an error initializing the wallet')
@@ -69,7 +66,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet, onProviderChange])
+  }, [dispatch, getAdapter, history, localWallet])
 
   return (
     <ConnectModal

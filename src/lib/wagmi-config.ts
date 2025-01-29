@@ -1,3 +1,4 @@
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import {
   arbitrum,
   arbitrumNova,
@@ -10,8 +11,6 @@ import {
   polygon,
 } from 'viem/chains'
 import { createConfig } from 'wagmi'
-
-import { viemClientByNetworkId } from './viem-client'
 
 declare module 'wagmi' {
   interface Register {

@@ -75,6 +75,7 @@ export const httpClientIntegration = defineIntegration(_httpClientIntegration)
 /**
  * Interceptor function for fetch requests
  *
+ * @param options
  * @param requestInfo The Fetch API request info
  * @param response The Fetch API response
  * @param requestInit The request init object
@@ -417,6 +418,7 @@ function _shouldCaptureResponse(options: HttpClientOptions, status: number, url:
     !isSentryRequestUrl(url, getClient())
   )
 }
+
 /**
  * Creates a synthetic Sentry event from given response data
  *

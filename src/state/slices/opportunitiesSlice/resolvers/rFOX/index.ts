@@ -1,17 +1,11 @@
-import {
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
+import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { MarketData } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { viemClientByNetworkId } from 'lib/viem-client'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { getStakingInfoQueryFn } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -28,8 +22,7 @@ import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput
 
 const client = viemClientByNetworkId[arbitrum.id]
 
-const stakingAssetId = foxOnArbitrumOneAssetId
-const stakingAssetAccountAddress = RFOX_PROXY_CONTRACT_ADDRESS
+const stakingAssetAccountAddress = RFOX_PROXY_CONTRACT
 
 export const rFOXStakingMetadataResolver = async ({
   opportunityId,
@@ -41,16 +34,16 @@ export const rFOXStakingMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingAsset = selectAssetById(state, stakingAssetId)
+  const stakingAsset = selectAssetById(state, opportunityId)
 
   const stakingAssetMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
     state,
-    stakingAssetId,
+    opportunityId,
   )
 
   const contractData = await readContract(client, {
     abi: erc20Abi,
-    address: getAddress(fromAssetId(stakingAssetId).assetReference),
+    address: getAddress(fromAssetId(opportunityId).assetReference),
     functionName: 'balanceOf',
     args: [getAddress(stakingAssetAccountAddress)],
   })
@@ -59,6 +52,8 @@ export const rFOXStakingMetadataResolver = async ({
     .times(stakingAssetMarketData.price)
     .toFixed(2)
 
+  const underlyingAssetIds = [opportunityId]
+
   const data = {
     byId: {
       [opportunityId]: {
@@ -66,9 +61,13 @@ export const rFOXStakingMetadataResolver = async ({
         id: opportunityId,
         provider: DefiProvider.rFOX,
         type: DefiType.Staking,
-        underlyingAssetId: foxOnArbitrumOneAssetId,
-        underlyingAssetIds: [foxOnArbitrumOneAssetId],
-        underlyingAssetRatiosBaseUnit: ['1'] as const,
+        underlyingAssetId: opportunityId,
+        underlyingAssetIds,
+        underlyingAssetRatiosBaseUnit: [
+          bn(1)
+            .times(bn(10).pow(stakingAsset?.precision ?? 0))
+            .toString(),
+        ] as const,
         expired: false,
         name: 'rFOX',
         apy: undefined,
@@ -80,7 +79,7 @@ export const rFOXStakingMetadataResolver = async ({
     type: defiType,
   } as const
 
-  return await Promise.resolve({ data })
+  return { data }
 }
 
 export const rFOXStakingUserDataResolver = async ({
@@ -90,7 +89,11 @@ export const rFOXStakingUserDataResolver = async ({
   const stakingAssetAccountAddress = getAddress(fromAccountId(accountId).account)
   const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-  const rfoxStakingInfo = await getStakingInfoQueryFn(stakingAssetAccountAddress)()
+  const rfoxStakingInfo = await getStakingInfoQueryFn({
+    stakingAssetAccountAddress,
+    stakingAssetId: opportunityId,
+  })
+
   const stakedAmountCryptoBaseUnit = selectStakingBalance(rfoxStakingInfo)
 
   // TODO: Implement rewards

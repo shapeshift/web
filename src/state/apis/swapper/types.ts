@@ -1,18 +1,12 @@
 import type {
   GetTradeQuoteInput,
-  SwapErrorRight,
+  GetTradeRateInput,
   SwapperName,
   TradeQuote,
   TradeQuoteError as SwapperTradeQuoteError,
+  TradeRate,
 } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { ReduxState } from 'state/reducer'
-
-export type QuoteHelperType = (
-  getTradeQuoteInput: GetTradeQuoteInput,
-  state: ReduxState,
-) => Promise<Result<TradeQuote, SwapErrorRight>>
 
 // The following are errors that affect all quotes.
 export enum TradeQuoteRequestError {
@@ -27,7 +21,6 @@ export enum TradeQuoteRequestError {
 // The following affect individual trade quotes.
 // These errors affect the ability to execute an individual quote as opposed to inability to get an individual quote.
 export enum TradeQuoteValidationError {
-  SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
@@ -53,7 +46,7 @@ export type ErrorWithMeta<T> = { error: T; meta?: InterpolationOptions }
 
 export type ApiQuote = {
   id: string
-  quote: TradeQuote | undefined
+  quote: TradeQuote | TradeRate | undefined
   swapperName: SwapperName
   inputOutputRatio: number
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -61,9 +54,7 @@ export type ApiQuote = {
   isStale: boolean
 }
 
-export type TradeQuoteRequest = { swapperName: SwapperName } & GetTradeQuoteInput
-
-export type TradeQuoteResponse = {
-  errors: ErrorWithMeta<TradeQuoteRequestError>[]
-  quotes: ApiQuote[]
-}
+export type TradeQuoteOrRateRequest = { swapperName: SwapperName } & (
+  | GetTradeQuoteInput
+  | GetTradeRateInput
+)

@@ -15,6 +15,8 @@ import WorkBoxPlugin from 'workbox-webpack-plugin'
 import { cspMeta, headers, serializeCsp } from './headers'
 import { progressPlugin } from './progress'
 
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
 type DevServerConfigFunction = (
   proxy: unknown,
   allowedHost: unknown,
@@ -69,6 +71,9 @@ const reactAppRewireConfig = {
     // we should probably align with whatever solution is chosen.)
     _.merge(config, {
       resolve: {
+        alias: {
+          '@ledgerhq/cryptoassets': false,
+        },
         fallback: {
           crypto: require.resolve('crypto-browserify'),
           http: require.resolve('stream-http'),
@@ -145,7 +150,7 @@ const reactAppRewireConfig = {
     // Remove synthetic CSP/SRI/CID environment variables from DefinePlugin.
     _.merge(config, {
       plugins: (config.plugins ?? []).map(plugin => {
-        if (plugin.constructor.name !== 'DefinePlugin') return plugin
+        if (plugin?.constructor.name !== 'DefinePlugin') return plugin
 
         const definitions = JSON.parse(
           JSON.stringify((plugin as unknown as { definitions: unknown }).definitions),
@@ -187,7 +192,7 @@ const reactAppRewireConfig = {
           include: /src/,
           // raise error on circular imports
           failOnError: true,
-          // allow import cycles that include an asyncronous import,
+          // allow import cycles that include an asynchronous import,
           // e.g. via import(/* webpackMode: "weak" */ './file.js')
           allowAsyncCycles: false,
           // set the current working directory for displaying module paths
@@ -203,7 +208,7 @@ const reactAppRewireConfig = {
     const env = Object.fromEntries(
       Object.entries(
         (config.plugins ?? [])
-          .filter(plugin => plugin.constructor.name === 'DefinePlugin')
+          .filter(plugin => plugin?.constructor.name === 'DefinePlugin')
           .reduceRight<webpack.DefinePlugin | undefined>(
             (_a, x) => x as webpack.DefinePlugin,
             undefined,
@@ -220,7 +225,7 @@ const reactAppRewireConfig = {
         ? {
             plugins: [
               ...(config.plugins ?? []).map(plugin => {
-                switch (plugin.constructor.name) {
+                switch (plugin?.constructor.name) {
                   case 'DefinePlugin': {
                     // Remove all REACT_APP_* 'process.env' entries from DefinePlugin; these will
                     // be pulled from env.json via src/config.ts and src/env/index.ts.
@@ -239,7 +244,15 @@ const reactAppRewireConfig = {
                             // consuming them in packages will result in these being undefined
                             [
                               'REACT_APP_FEATURE_NFT_METADATA',
-                              'REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS',
+                              'REACT_APP_AVALANCHE_NODE_URL',
+                              'REACT_APP_OPTIMISM_NODE_URL',
+                              'REACT_APP_BNBSMARTCHAIN_NODE_URL',
+                              'REACT_APP_POLYGON_NODE_URL',
+                              'REACT_APP_GNOSIS_NODE_URL',
+                              'REACT_APP_ETHEREUM_NODE_URL',
+                              'REACT_APP_ARBITRUM_NODE_URL',
+                              'REACT_APP_ARBITRUM_NOVA_NODE_URL',
+                              'REACT_APP_BASE_NODE_URL',
                             ].includes(k) || !k.startsWith('REACT_APP_'),
                         )
                         .sort((a, b) => {
@@ -359,6 +372,19 @@ const reactAppRewireConfig = {
         // bundles all imports from this package. This plugin silences the warning.
         // https://webpack.js.org/guides/dependency-management/#require-with-expression
         new ContextReplacementPlugin(/@cowprotocol\/app-data/),
+      ],
+    })
+
+    // Set up the BundleAnalyzerPlugin for analyzing the bundle size
+    _.merge(config, {
+      plugins: [
+        ...(config.plugins ?? []),
+        process.env.ANALYZE === 'true' &&
+          new BundleAnalyzerPlugin({
+            analyzerMode: 'server',
+            analyzerPort: 8888,
+            openAnalyzer: true,
+          }),
       ],
     })
 

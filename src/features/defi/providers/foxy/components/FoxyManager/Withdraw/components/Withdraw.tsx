@@ -19,7 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -93,7 +93,7 @@ export const Withdraw: React.FC<
     [accountId],
   )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {

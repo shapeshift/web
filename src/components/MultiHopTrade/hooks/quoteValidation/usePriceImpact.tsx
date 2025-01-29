@@ -1,15 +1,12 @@
-import {
-  getHopByIndex,
-  type SupportedTradeQuoteStepIndex,
-  type TradeQuote,
-} from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
+export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) => {
   // Avoid using tradeInputSlice selectors here due to inaccurate values during debouncing.
   // Selectors update instantly, but quotes are refreshed post-request completion, leading to
   // discrepancies while fetching.
@@ -43,6 +40,10 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
 
   const priceImpactPercentage = useMemo(() => {
     if (!tradeQuote || !buyAsset || !buyAssetUsdRate || !sellAmountBeforeFeesUsd) return
+
+    if (tradeQuote.priceImpactPercentageDecimal) {
+      return bnOrZero(tradeQuote.priceImpactPercentageDecimal).times(100).abs()
+    }
 
     // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
     // the pool rather than a rate of input versus output

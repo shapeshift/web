@@ -1,8 +1,8 @@
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { assertUnreachable } from 'lib/utils'
-import type { ErrorWithMeta } from 'state/apis/swapper/types'
-import { type TradeQuoteError, TradeQuoteValidationError } from 'state/apis/swapper/types'
+import type { ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper/types'
+import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 
 export const getQuoteErrorTranslation = (
   tradeQuoteError: ErrorWithMeta<TradeQuoteError>,
@@ -14,8 +14,6 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.unsupportedTradePair'
       case SwapperTradeQuoteError.NoRouteFound:
         return 'trade.errors.noRouteFound'
-      case TradeQuoteValidationError.SmartContractWalletNotSupported:
-        return 'trade.errors.smartContractWalletNotSupported'
       case SwapperTradeQuoteError.TradingHalted:
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
       case TradeQuoteValidationError.TradingInactiveOnSellChain:
@@ -26,6 +24,7 @@ export const getQuoteErrorTranslation = (
       case SwapperTradeQuoteError.SellAmountBelowTradeFee:
         return 'trade.errors.sellAmountDoesNotCoverFee'
       case TradeQuoteValidationError.InsufficientFirstHopAssetBalance:
+        return 'common.insufficientFundsForTrade'
       case TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
       case TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance:
@@ -46,12 +45,17 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.networkFeeEstimateFailed'
       case SwapperTradeQuoteError.RateLimitExceeded:
         return 'trade.errors.rateLimitExceeded'
+      case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:
+        return 'trade.errors.maxSlippageExceededWithExpectedSlippage'
+      case SwapperTradeQuoteError.FinalQuoteExecutionReverted:
+        return 'trade.errors.executionRevertedWithExpectedSlippage'
       case TradeQuoteValidationError.UnknownError:
       case SwapperTradeQuoteError.UnknownError:
       case SwapperTradeQuoteError.InternalError:
       case TradeQuoteValidationError.QueryFailed:
       case SwapperTradeQuoteError.QueryFailed:
       case TradeQuoteValidationError.QuoteSellAmountInvalid:
+      case SwapperTradeQuoteError.InvalidResponse:
         return 'trade.errors.quoteError'
       default:
         assertUnreachable(error)

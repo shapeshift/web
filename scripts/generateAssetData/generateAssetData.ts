@@ -1,5 +1,6 @@
 import 'dotenv/config'
 
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   ethAssetId,
@@ -8,19 +9,31 @@ import {
   gnosisAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById, AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import {
+  atom,
+  bitcoin,
+  bitcoincash,
+  decodeAssetData,
+  decodeRelatedAssetIndex,
+  dogecoin,
+  encodeAssetData,
+  encodeRelatedAssetIndex,
+  litecoin,
+  thorchain,
+  unfreeze,
+} from '@shapeshiftoss/utils'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
-import path from 'path'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
-import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
+import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
@@ -28,12 +41,8 @@ import * as gnosis from './gnosis'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
-import { filterOutBlacklistedAssets } from './utils'
-
-const generatedAssetsPath = path.join(
-  __dirname,
-  '../../src/lib/asset-service/service/generatedAssetData.json',
-)
+import * as solana from './solana'
+import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
@@ -46,15 +55,16 @@ const generateAssetData = async () => {
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
+  const solanaAssets = await solana.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
-    bitcoin,
-    bitcoincash,
-    dogecoin,
-    litecoin,
-    atom,
-    thorchain,
+    unfreeze(bitcoin),
+    unfreeze(bitcoincash),
+    unfreeze(dogecoin),
+    unfreeze(litecoin),
+    unfreeze(atom),
+    unfreeze(thorchain),
     ...ethAssets,
     ...cosmosAssets,
     ...avalancheAssets,
@@ -65,6 +75,7 @@ const generateAssetData = async () => {
     ...arbitrumAssets,
     ...arbitrumNovaAssets,
     ...baseAssets,
+    ...solanaAssets,
   ]
 
   // remove blacklisted assets
@@ -95,9 +106,8 @@ const generateAssetData = async () => {
       .includes(asset.name)
   }
 
-  const currentGeneratedAssetData: AssetsByIdPartial = JSON.parse(
-    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
-  )
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+  const { assetData: currentGeneratedAssetData } = decodeAssetData(encodedAssetData)
 
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
     const currentGeneratedAssetId = currentGeneratedAssetData[asset.assetId]
@@ -108,7 +118,7 @@ const generateAssetData = async () => {
 
     const { chainId } = fromAssetId(asset.assetId)
 
-    // mark any ethereum assets that also exist on other evm chains
+    // mark any ethereum assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.EthereumMainnet &&
       asset.assetId !== ethAssetId && // don't mark native asset
@@ -117,7 +127,7 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Ethereum`
     }
 
-    // mark any avalanche assets that also exist on other evm chains
+    // mark any avalanche assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.AvalancheMainnet &&
       asset.assetId !== avalancheAssetId && // don't mark native asset
@@ -126,12 +136,12 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Avalanche`
     }
 
-    // mark any bnbsmartchain assets that also exist on other evm chains
+    // mark any bnbsmartchain assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.BnbSmartChainMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on BNB Smart Chain`
     }
 
-    // mark any polygon assets that also exist on other evm chains
+    // mark any polygon assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.PolygonMainnet &&
       asset.assetId !== polygonAssetId &&
@@ -140,7 +150,7 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Polygon`
     }
 
-    // mark any gnosis assets that also exist on other evm chains
+    // mark any gnosis assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.GnosisMainnet &&
       asset.assetId !== gnosisAssetId &&
@@ -149,24 +159,29 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Gnosis`
     }
 
-    // mark any arbitrum one assets that also exist on other evm chains
+    // mark any arbitrum one assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.ArbitrumMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Arbitrum One`
     }
 
-    // mark any arbitrum nova assets that also exist on other evm chains
+    // mark any arbitrum nova assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.ArbitrumNovaMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Arbitrum Nova`
     }
 
-    // mark any optimism assets that also exist on other evm chains
+    // mark any optimism assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.OptimismMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Optimism`
     }
 
-    // mark any base assets that also exist on other evm chains
+    // mark any base assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Base`
+    }
+
+    // mark any base assets that also exist on EVM chains
+    if (chainId === KnownChainIds.SolanaMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Solana`
     }
 
     acc[asset.assetId] = asset
@@ -198,16 +213,68 @@ const generateAssetData = async () => {
   }
   assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
-  await fs.promises.writeFile(
-    generatedAssetsPath,
-    // beautify the file for github diff.
-    JSON.stringify(assetsWithOverridesApplied, null, 2),
+  const sortedAssetIds = await getSortedAssetIds(assetsWithOverridesApplied)
+
+  // Encode the assets for minimal size while preserving ordering
+  const reEncodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
+
+  return { sortedAssetIds, assetData: assetsWithOverridesApplied }
+}
+
+const readRelatedAssetIndex = () => {
+  const encodedAssetData = JSON.parse(fs.readFileSync(ASSET_DATA_PATH, 'utf8'))
+  const encodedRelatedAssetIndex = JSON.parse(fs.readFileSync(RELATED_ASSET_INDEX_PATH, 'utf8'))
+
+  const { sortedAssetIds: originalSortedAssetIds } = decodeAssetData(encodedAssetData)
+  const relatedAssetIndex = decodeRelatedAssetIndex(
+    encodedRelatedAssetIndex,
+    originalSortedAssetIds,
+  )
+
+  return relatedAssetIndex
+}
+
+const reEncodeAndWriteRelatedAssetIndex = (
+  originalRelatedAssetIndex: Record<AssetId, AssetId[]>,
+  updatedSortedAssetIds: AssetId[],
+) => {
+  const updatedEncodedRelatedAssetIndex = encodeRelatedAssetIndex(
+    originalRelatedAssetIndex,
+    updatedSortedAssetIds,
+  )
+
+  // Remove any undefined values from the updated encoded related asset index
+  const filteredUpdatedEncodedRelatedAssetIndex = Object.fromEntries(
+    Object.entries(updatedEncodedRelatedAssetIndex).filter(([_, value]) => value !== undefined),
+  )
+
+  fs.writeFileSync(
+    RELATED_ASSET_INDEX_PATH,
+    JSON.stringify(filteredUpdatedEncodedRelatedAssetIndex),
   )
 }
 
 const main = async () => {
   try {
-    await generateAssetData()
+    // Read the original related asset index
+    const originalRelatedAssetIndex = readRelatedAssetIndex()
+
+    // Generate the new assetData and sortedAssetIds
+    const { sortedAssetIds: updatedSortedAssetIds } = await generateAssetData()
+
+    // We need to update the relatedAssetIndex to match the new asset ordering:
+    // - The original relatedAssetIndex references assets by their index in the original
+    //   sortedAssetIds array
+    // - After regenerating assetData, the positions in the sortedAssetIds may have changed, which
+    //   means a given index in the relatedAssetIndex will point to a different asset in the new
+    //   sortedAssetIds
+    // - To prevent corruption, we rewrite the relatedAssetIndex using the new positions, resulting
+    //   in a new relatedAssetIndex that references assets by their index in the updated
+    //   sortedAssetIds
+    reEncodeAndWriteRelatedAssetIndex(originalRelatedAssetIndex, updatedSortedAssetIds)
+
+    // Generate the new related asset index
     await generateRelatedAssetIndex()
 
     console.info('Assets and related assets data generated.')

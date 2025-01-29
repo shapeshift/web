@@ -72,7 +72,7 @@ export const ChangePassphrase = () => {
     // Trigger a refresh of the wallet metadata only once the settings have been applied
     // and the previous wallet meta is gone from the store
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    connect(KeyManager.KeepKey)
+    connect(KeyManager.KeepKey, false)
   }, [
     appDispatch,
     connect,

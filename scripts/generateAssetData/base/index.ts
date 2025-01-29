@@ -1,16 +1,29 @@
-import { baseChainId } from '@shapeshiftoss/caip'
+import { baseChainId, foxWifHatAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { base, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
+import { getPortalTokens } from 'lib/portals/utils'
 
-import { base } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import { getPortalTokens } from '../utils/portals'
+
+const foxWifHatAsset: Readonly<Asset> = Object.freeze({
+  assetId: foxWifHatAssetId,
+  chainId: baseChainId,
+  name: 'FOX Wif Hat',
+  precision: 18,
+  symbol: 'FWH',
+  color: '#FFFFFF',
+  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/base/icons/foxwifhat-logo.png',
+  explorer: base.explorer,
+  explorerAddressLink: base.explorerAddressLink,
+  explorerTxLink: base.explorerTxLink,
+}) as Readonly<Asset>
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(baseChainId),
-    getPortalTokens(base),
+    getPortalTokens(base, 'all'),
   ])
 
   const [assets, _portalsAssets] = results.map(result => {
@@ -25,7 +38,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([base]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(base), unfreeze(foxWifHatAsset)]),
     'assetId',
   )
 

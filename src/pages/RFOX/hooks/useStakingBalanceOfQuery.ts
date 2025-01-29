@@ -1,4 +1,6 @@
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
 import { useMemo } from 'react'
@@ -7,7 +9,6 @@ import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 type StakingBalanceOfQueryKey = ReadContractQueryKey<
   typeof erc20Abi,
@@ -24,49 +25,60 @@ type UseStakingBalanceOfQueryProps<SelectData = StakingBalanceOf> = {
 }
 const client = viemClientByNetworkId[arbitrum.id]
 
+export const getStakingBalanceOfQueryKey = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}: {
+  stakingAssetAccountAddress: string | undefined
+  stakingAssetId: AssetId | undefined
+}): StakingBalanceOfQueryKey => [
+  'readContract',
+  {
+    address: stakingAssetId
+      ? getAddress(fromAssetId(stakingAssetId).assetReference)
+      : ('' as Address),
+    functionName: 'balanceOf',
+    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
+    chainId: arbitrum.id,
+  },
+]
+
+export const getStakingBalanceOfQueryFn = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}: {
+  stakingAssetAccountAddress: string
+  stakingAssetId: AssetId
+}) => {
+  return readContract(client, {
+    abi: erc20Abi,
+    address: getAddress(fromAssetId(stakingAssetId).assetReference),
+    functionName: 'balanceOf',
+    args: [getAddress(stakingAssetAccountAddress)],
+  })
+}
+
 export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
   stakingAssetAccountAddress,
   stakingAssetId,
   select,
   enabled = true,
 }: UseStakingBalanceOfQueryProps<SelectData>) => {
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey: StakingBalanceOfQueryKey = useMemo(
-    () => [
-      'readContract',
-      {
-        address: stakingAssetId
-          ? getAddress(fromAssetId(stakingAssetId).assetReference)
-          : ('' as Address),
-        functionName: 'balanceOf',
-        args: [
-          stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
-        ],
-        chainId: arbitrum.id,
-      },
-    ],
-    [stakingAssetAccountAddress, stakingAssetId],
-  )
+  const queryKey = useMemo(() => {
+    return getStakingBalanceOfQueryKey({ stakingAssetAccountAddress, stakingAssetId })
+  }, [stakingAssetAccountAddress, stakingAssetId])
 
-  const stakingBalanceOfQueryFn = useMemo(
+  const queryFn = useMemo(
     () =>
       enabled && stakingAssetAccountAddress && stakingAssetId
-        ? () =>
-            readContract(client, {
-              abi: erc20Abi,
-              address: getAddress(fromAssetId(stakingAssetId).assetReference),
-              functionName: 'balanceOf',
-              args: [getAddress(stakingAssetAccountAddress)],
-            })
+        ? () => getStakingBalanceOfQueryFn({ stakingAssetAccountAddress, stakingAssetId })
         : skipToken,
     [enabled, stakingAssetAccountAddress, stakingAssetId],
   )
 
-  const stakingBalanceOfQuery = useQuery({
+  return useQuery({
     queryKey,
-    queryFn: stakingBalanceOfQueryFn,
+    queryFn,
     select,
   })
-
-  return { ...stakingBalanceOfQuery, queryKey }
 }

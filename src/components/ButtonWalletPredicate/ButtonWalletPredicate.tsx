@@ -17,14 +17,14 @@ export const ButtonWalletPredicate = ({
   const translate = useTranslate()
   const {
     dispatch,
-    state: { isDemoWallet },
+    state: { isConnected, isDemoWallet },
   } = useWallet()
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
-  if (isDemoWallet)
+  if (isDemoWallet || !isConnected)
     return (
       <Button {...restProps} onClick={handleConnect} isDisabled={false} colorScheme='blue'>
         {translate('common.connectWallet')}

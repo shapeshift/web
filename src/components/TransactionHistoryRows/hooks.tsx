@@ -4,7 +4,7 @@ import { Dex, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { useFindPriceHistoryByAssetIdsQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useFindPriceHistoryByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { FindPriceHistoryByAssetIdArgs } from 'state/slices/marketDataSlice/types'
 import { selectCryptoPriceHistoryTimeframe } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,11 +17,20 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     selectCryptoPriceHistoryTimeframe(state, HistoryTimeframe.ALL),
   )
 
-  const [priceHistoryParams, setPriceHistoryParams] = useState<
+  const [sellAssetPriceHistoryParams, setSellAssetPriceHistoryParams] = useState<
     FindPriceHistoryByAssetIdArgs | typeof skipToken
   >(skipToken)
 
-  const { isLoading } = useFindPriceHistoryByAssetIdsQuery(priceHistoryParams)
+  const [buyAssetPriceHistoryParams, setBuyAssetPriceHistoryParams] = useState<
+    FindPriceHistoryByAssetIdArgs | typeof skipToken
+  >(skipToken)
+
+  const { isLoading: isSellAssetPriceHistoryLoading } = useFindPriceHistoryByAssetIdQuery(
+    sellAssetPriceHistoryParams,
+  )
+  const { isLoading: isBuyAssetPriceHistoryLoading } = useFindPriceHistoryByAssetIdQuery(
+    buyAssetPriceHistoryParams,
+  )
 
   const buy = useMemo(
     () => txDetails.transfers.find(transfer => transfer.type === TransferType.Receive),
@@ -37,16 +46,16 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     if (!(txDetails.tx.trade && buy && sell)) return
     if (txDetails.tx.trade.dexName !== Dex.CowSwap) return
 
-    const assetIds = []
-    if (!cryptoPriceHistoryData?.[buy.asset.assetId]) assetIds.push(buy.asset.assetId)
-    if (!cryptoPriceHistoryData?.[sell.asset.assetId]) assetIds.push(sell.asset.assetId)
-
-    if (assetIds.length > 0 && !isLoading) {
-      setPriceHistoryParams({
-        assetIds,
+    if (!cryptoPriceHistoryData?.[buy.asset.assetId] && !isBuyAssetPriceHistoryLoading)
+      setBuyAssetPriceHistoryParams({
+        assetId: buy.asset.assetId,
         timeframe: HistoryTimeframe.ALL,
       })
-    }
+    if (!cryptoPriceHistoryData?.[sell.asset.assetId] && !isSellAssetPriceHistoryLoading)
+      setSellAssetPriceHistoryParams({
+        assetId: sell.asset.assetId,
+        timeframe: HistoryTimeframe.ALL,
+      })
 
     const tradeFees = getTradeFees({
       sell,
@@ -56,7 +65,15 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     })
 
     return tradeFees
-  }, [txDetails.tx.trade, txDetails.tx.blockTime, buy, sell, cryptoPriceHistoryData, isLoading])
+  }, [
+    txDetails.tx.trade,
+    txDetails.tx.blockTime,
+    buy,
+    sell,
+    cryptoPriceHistoryData,
+    isBuyAssetPriceHistoryLoading,
+    isSellAssetPriceHistoryLoading,
+  ])
 
   return tradeFees
 }

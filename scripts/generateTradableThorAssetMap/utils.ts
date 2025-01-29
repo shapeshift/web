@@ -3,6 +3,8 @@ import {
   ASSET_NAMESPACE,
   avalancheAssetId,
   avalancheChainId,
+  baseAssetId,
+  baseChainId,
   bchAssetId,
   bchChainId,
   binanceAssetId,
@@ -41,6 +43,7 @@ enum ThorchainChain {
   GAIA = 'GAIA',
   THOR = 'THOR',
   BSC = 'BSC',
+  BASE = 'BASE',
 }
 
 const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
@@ -54,6 +57,7 @@ const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
   [ThorchainChain.GAIA, cosmosChainId],
   [ThorchainChain.THOR, thorchainChainId],
   [ThorchainChain.BSC, bscChainId],
+  [ThorchainChain.BASE, baseChainId],
 ])
 
 function assertUnreachable(x: never): never {
@@ -82,6 +86,8 @@ export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | 
       return cosmosAssetId
     case ThorchainChain.BSC:
       return bscAssetId
+    case ThorchainChain.BASE:
+      return baseAssetId
     default:
       assertUnreachable(chain)
   }
@@ -93,6 +99,7 @@ export const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | 
     case KnownChainIds.AvalancheMainnet:
     case KnownChainIds.PolygonMainnet:
     case KnownChainIds.GnosisMainnet:
+    case KnownChainIds.BaseMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.BnbSmartChainMainnet:
       return ASSET_NAMESPACE.bep20
@@ -111,7 +118,10 @@ export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair 
   const [, id] = symbol.split('-')
   const chainId = ChainToChainIdMap.get(chain as ThorchainChain)
   const isFeeAsset =
-    chain === symbol || thorchainAsset === 'GAIA.ATOM' || thorchainAsset === 'BSC.BNB'
+    chain === symbol ||
+    thorchainAsset === 'GAIA.ATOM' ||
+    thorchainAsset === 'BSC.BNB' ||
+    thorchainAsset === 'BASE.ETH'
   if (isFeeAsset) {
     const assetId = chainId ? getFeeAssetFromThorchainChain(chain as ThorchainChain) : undefined
     if (assetId) {

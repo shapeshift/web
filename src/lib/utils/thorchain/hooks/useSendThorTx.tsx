@@ -4,7 +4,12 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { assertAndProcessMemo, depositWithExpiry, SwapperName } from '@shapeshiftoss/swapper'
+import {
+  assertAndProcessMemo,
+  depositWithExpiry,
+  fetchSafeTransactionInfo,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -15,6 +20,7 @@ import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress, zeroAddress } from 'viem'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -26,7 +32,10 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import {
+  THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT,
+  THORCHAIN_POOL_MODULE_ADDRESS,
+} from 'lib/utils/thorchain/constants'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
@@ -60,6 +69,7 @@ type UseSendThorTxProps = {
   disableEstimateFeesRefetch?: boolean
   fromAddress: string | null
   memo: string | null
+  dustAmountCryptoBaseUnit?: string
 }
 
 export const useSendThorTx = ({
@@ -71,6 +81,7 @@ export const useSendThorTx = ({
   disableEstimateFeesRefetch,
   fromAddress,
   memo: _memo,
+  dustAmountCryptoBaseUnit: _dustAmountCryptoBaseUnit,
 }: UseSendThorTxProps) => {
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
@@ -94,13 +105,18 @@ export const useSendThorTx = ({
     return ['withdrawLiquidity', 'withdrawSavers'].includes(action)
   }, [action])
 
+  // Either a fall through of the passed dustAmountCryptoBaseUnit, or the default dust amount for that feeAsset
   // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs
   const dustAmountCryptoBaseUnit = useMemo(() => {
-    return THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
-  }, [feeAsset])
+    return _dustAmountCryptoBaseUnit
+      ? _dustAmountCryptoBaseUnit
+      : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
+  }, [_dustAmountCryptoBaseUnit, feeAsset?.assetId])
 
   const amountOrDustCryptoBaseUnit = useMemo(() => {
-    return shouldUseDustAmount ? dustAmountCryptoBaseUnit : bnOrZero(amountCryptoBaseUnit).toFixed()
+    return shouldUseDustAmount
+      ? bnOrZero(dustAmountCryptoBaseUnit).toFixed(0)
+      : bnOrZero(amountCryptoBaseUnit).toFixed(0)
   }, [shouldUseDustAmount, dustAmountCryptoBaseUnit, amountCryptoBaseUnit])
 
   const transactionType = useMemo(() => {
@@ -132,9 +148,10 @@ export const useSendThorTx = ({
   }, [inboundAddressData, transactionType])
 
   const outboundFeeCryptoBaseUnit = useMemo(() => {
+    if (assetId === thorchainAssetId) return THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT
     if (!feeAsset || !inboundAddressData) return
     return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), feeAsset.precision)
-  }, [feeAsset, inboundAddressData])
+  }, [assetId, feeAsset, inboundAddressData])
 
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return
@@ -150,14 +167,14 @@ export const useSendThorTx = ({
      * https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d_
      */
     const assetAddress =
-      !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+      !isToken(assetId) || shouldUseDustAmount
         ? zeroAddress
         : getAddress(fromAssetId(assetId).assetReference)
 
     return depositWithExpiry({
       vault: getAddress(inboundAddressData.address),
       asset: assetAddress,
-      amount: amountOrDustCryptoBaseUnit,
+      amount: BigInt(amountOrDustCryptoBaseUnit),
       memo,
       expiry: BigInt(dayjs().add(15, 'minute').unix()),
     })
@@ -195,7 +212,7 @@ export const useSendThorTx = ({
 
         return {
           amountCryptoPrecision:
-            !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+            !isToken(assetId) || shouldUseDustAmount
               ? fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision)
               : '0',
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
@@ -269,7 +286,7 @@ export const useSendThorTx = ({
     if (!transactionType) return
     if (!estimateFeesArgs) return
     if (accountNumber === undefined) return
-    if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
+    if (isToken(asset.assetId) && !inboundAddressData) return
 
     if (
       action !== 'withdrawRunepool' &&
@@ -324,12 +341,11 @@ export const useSendThorTx = ({
 
           const buildCustomTxInput = await createBuildCustomTxInput({
             accountNumber,
+            from: account,
             adapter,
             data: depositWithExpiryInputData,
             value:
-              !isToken(fromAssetId(asset.assetId).assetReference) || shouldUseDustAmount
-                ? amountOrDustCryptoBaseUnit
-                : '0',
+              !isToken(asset.assetId) || shouldUseDustAmount ? amountOrDustCryptoBaseUnit : '0',
             to: inboundAddressData.router,
             wallet,
           })
@@ -368,10 +384,7 @@ export const useSendThorTx = ({
             input: '',
           }
 
-          const _txId = await handleSend({
-            sendInput,
-            wallet,
-          })
+          const _txId = await handleSend({ sendInput, wallet })
 
           return {
             _txId,
@@ -383,48 +396,59 @@ export const useSendThorTx = ({
       }
     })()
 
+    const maybeSafeTx = await fetchSafeTransactionInfo({
+      safeTxHash: _txId,
+      fetchIsSmartContractAddressQuery,
+      accountId,
+    })
+
     const _txIdLink = getTxLink({
       defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
       txId: _txId ?? '',
       name: SwapperName.Thorchain,
+      maybeSafeTx,
+      accountId,
     })
 
-    toast({
-      title: translate('modals.send.transactionSent'),
-      description: _txId ? (
-        <Text>
-          <Link href={_txIdLink} isExternal>
-            {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-          </Link>
-        </Text>
-      ) : undefined,
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right',
-    })
+    // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet
+    if (!maybeSafeTx?.isSafeTxHash) {
+      toast({
+        title: translate('modals.send.transactionSent'),
+        description: _txId ? (
+          <Text>
+            <Link href={_txIdLink} isExternal>
+              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+            </Link>
+          </Text>
+        ) : undefined,
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
+    }
 
     setTxId(_txId)
     setSerializedTxIndex(_serializedTxIndex)
 
     return _txId
   }, [
-    accountId,
-    accountNumber,
-    amountOrDustCryptoBaseUnit,
-    asset,
-    depositWithExpiryInputData,
-    estimateFeesArgs,
-    fromAddress,
-    inboundAddressData,
     memo,
-    selectedCurrency,
-    shouldUseDustAmount,
-    toast,
-    transactionType,
-    translate,
+    asset,
     wallet,
+    accountId,
+    transactionType,
+    estimateFeesArgs,
+    accountNumber,
+    inboundAddressData,
     action,
+    shouldUseDustAmount,
+    amountOrDustCryptoBaseUnit,
+    toast,
+    translate,
+    depositWithExpiryInputData,
+    fromAddress,
+    selectedCurrency,
   ])
 
   return {

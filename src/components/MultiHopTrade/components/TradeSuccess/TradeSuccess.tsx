@@ -1,83 +1,169 @@
+import { ArrowForwardIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   CardBody,
   CardFooter,
   Collapse,
+  Divider,
+  Flex,
   HStack,
+  Icon,
+  Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { foxAssetId, foxOnArbitrumOneAssetId, foxOnGnosisAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
+import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
+import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectFirstHop,
+  selectLastHop,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  selectTradeQuoteAffiliateFeeDiscountUserCurrency,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
+import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
+import { YouSaved } from './components/YouSaved'
 
-export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
+export type TradeSuccessProps = {
+  handleBack: () => void
+  children?: JSX.Element
+  titleTranslation: string | [string, InterpolationOptions]
+  buttonTranslation: string | [string, InterpolationOptions]
+  summaryTranslation?: string | [string, InterpolationOptions]
+  sellAsset?: Asset
+  buyAsset?: Asset
+  sellAmountCryptoPrecision?: string
+  buyAmountCryptoPrecision?: string
+}
 
-const pairProps = { showFirst: true }
-
-export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
+export const TradeSuccess = ({
+  handleBack,
+  titleTranslation,
+  buttonTranslation,
+  summaryTranslation,
+  children,
+  sellAmountCryptoPrecision,
+  sellAsset,
+  buyAsset,
+  buyAmountCryptoPrecision,
+}: TradeSuccessProps) => {
   const translate = useTranslate()
 
-  const { isOpen, onToggle } = useDisclosure({
+  const { isOpen, onToggle: handleToggle } = useDisclosure({
     defaultIsOpen: false,
   })
 
+  const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
 
-  const subText = useMemo(() => {
-    if (!lastHop) return ''
+  const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
 
-    const manager = getChainAdapterManager()
-    const adapter = manager.get(lastHop.buyAsset.chainId)
+  const affiliateFeeUserCurrency = useAppSelector(
+    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  )
 
-    if (!adapter) return ''
+  const hasFeeSaving = !bnOrZero(feeSavingUserCurrency).isZero()
+  const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
 
-    const chainName = adapter.getDisplayName()
+  const AmountsLine = useCallback(() => {
+    if (!(sellAsset && buyAsset)) return null
+    if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
 
-    return translate('trade.temp.tradeComplete', {
-      symbol: lastHop.buyAsset.symbol,
-      chainName,
+    return (
+      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
+        <Flex alignItems='center' gap={2}>
+          <AssetIcon size='xs' assetId={sellAsset?.assetId} />
+          <Amount.Crypto
+            whiteSpace='nowrap'
+            value={sellAmountCryptoPrecision}
+            symbol={sellAsset.symbol}
+          />
+        </Flex>
+        <Icon as={ArrowForwardIcon} boxSize={4} color='text.subtle' />
+        <Flex alignItems='center' gap={2}>
+          <AssetIcon size='xs' assetId={buyAsset?.assetId} />
+          <Amount.Crypto
+            whiteSpace='nowrap'
+            value={buyAmountCryptoPrecision}
+            symbol={buyAsset.symbol}
+          />
+        </Flex>
+      </Flex>
+    )
+  }, [sellAsset, buyAsset, sellAmountCryptoPrecision, buyAmountCryptoPrecision])
+
+  // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
+
+  // trade FOX. If a user trades FOX, the discount calculations will have changed from the correct
+  // values because the amount of FOX held in the wallet will have changed.
+  // See https://github.com/shapeshift/web/issues/8028 for more details.
+  const enableFoxDiscountSummary = useMemo(() => {
+    const foxAssetIds = [foxAssetId, foxOnGnosisAssetId, foxOnArbitrumOneAssetId]
+    const didTradeFox = foxAssetIds.some(assetId => {
+      return (
+        firstHop?.buyAsset.assetId === assetId ||
+        firstHop?.sellAsset.assetId === assetId ||
+        lastHop?.buyAsset.assetId === assetId ||
+        lastHop?.sellAsset.assetId === assetId
+      )
     })
-  }, [lastHop, translate])
 
-  if (!lastHop) return null
+    return !didTradeFox
+  }, [firstHop, lastHop])
 
   return (
     <>
-      <CardBody pb={0} px={0}>
+      <CardBody pb={4} px={0}>
         <SlideTransition>
-          <Box textAlign='center' py={4}>
-            <AssetIcon assetId={lastHop.buyAsset.assetId} mb={2} pairProps={pairProps} />
-            <Text translation='trade.temp.tradeSuccess' />
-            <RawText fontSize='md' color='gray.500' mt={2}>
-              {subText}
-            </RawText>
-          </Box>
+          <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
+            <Stack alignItems='center'>
+              <AnimatedCheck boxSize={12} />
+              <Text translation={titleTranslation} fontWeight='bold' />
+            </Stack>
+            <AmountsLine />
+          </Flex>
         </SlideTransition>
-      </CardBody>
-      <CardFooter flexDir='column' gap={2} px={4}>
-        <SlideTransition>
+        <Stack gap={4} px={8}>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-            {translate('trade.doAnotherTrade')}
+            {translate(buttonTranslation)}
           </Button>
-          <HStack width='full' justifyContent='space-between' mt={4}>
-            <Button variant='link' onClick={onToggle} px={2}>
-              {translate('trade.showDetails')}
-            </Button>
-            <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />
-          </HStack>
-          <Box mx={-4}>
-            <Collapse in={isOpen}>{children}</Collapse>
-          </Box>
-        </SlideTransition>
-      </CardFooter>
+          {enableFoxDiscountSummary && hasFeeSaving && (
+            <YouSaved feeSavingUserCurrency={enableFoxDiscountSummary && feeSavingUserCurrency!} />
+          )}
+          {couldHaveReducedFee && (
+            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
+          )}
+        </Stack>
+      </CardBody>
+      {summaryTranslation && children && (
+        <>
+          <Divider />
+          <CardFooter flexDir='column' gap={2} px={8}>
+            <SlideTransition>
+              <HStack width='full' justifyContent='space-between'>
+                <Button variant='link' onClick={handleToggle} px={2}>
+                  {translate(summaryTranslation)}
+                </Button>
+                <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
+              </HStack>
+              <Box>
+                <Collapse in={isOpen}>{children}</Collapse>
+              </Box>
+            </SlideTransition>
+          </CardFooter>
+        </>
+      )}
     </>
   )
 }

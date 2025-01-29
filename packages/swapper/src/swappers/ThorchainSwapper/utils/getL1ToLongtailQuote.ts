@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
+import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import {
   convertDecimalPercentageToBasisPoints,
   isFulfilled,
@@ -11,24 +12,23 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetTradeQuoteInput,
+  CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import { ALLOWANCE_CONTRACT } from '../constants'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '../types'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1quote } from './getL1quote'
+import { getL1Quote } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getL1ToLongtailQuote = async (
-  input: GetTradeQuoteInput,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -94,14 +94,14 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  const l1Tol1QuoteInput: GetTradeQuoteInput = {
+  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
     ...input,
     buyAsset: buyAssetFeeAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const maybeThorchainQuotes = await getL1quote(
+  const maybeThorchainQuotes = await getL1Quote(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
@@ -121,7 +121,6 @@ export const getL1ToLongtailQuote = async (
       const onlyStep = getHopByIndex(quote, 0)!
 
       const maybeBestAggregator = await getBestAggregator(
-        deps,
         buyAssetFeeAsset,
         getWrappedToken(buyAssetFeeAsset),
         getTokenFromAsset(buyAsset),
@@ -158,11 +157,11 @@ export const getL1ToLongtailQuote = async (
           buyAmountAfterFeesCryptoBaseUnit: quotedAmountOut.toString(),
           // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
-          allowanceContract: ALLOWANCE_CONTRACT,
+          allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {
-          L1ToLongtailExpectedAmountOut: quotedAmountOut,
+          L1ToLongtailExpectedAmountOut: quotedAmountOut.toString(),
         },
       })
     }),

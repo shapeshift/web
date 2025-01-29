@@ -14,8 +14,8 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { type ChainId } from '@shapeshiftoss/caip'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -60,9 +60,9 @@ export const AddAccountModal = () => {
     selectMaybeNextAccountNumberByChainId(s, filter),
   )
 
-  const isSnapInstalled = Boolean(useIsSnapInstalled())
+  const { isSnapInstalled } = useIsSnapInstalled()
 
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
   const unsupportedSnapChainIds = useMemo(() => {
     if (!isMetaMaskMultichainWallet) return []
     if (nextAccountNumber === null) return []
@@ -73,7 +73,7 @@ export const AddAccountModal = () => {
           accountNumber: nextAccountNumber,
           chainId,
           wallet,
-          isSnapInstalled,
+          isSnapInstalled: Boolean(isSnapInstalled),
         }),
     )
   }, [chainIds, isMetaMaskMultichainWallet, isSnapInstalled, nextAccountNumber, wallet])
@@ -98,6 +98,7 @@ export const AddAccountModal = () => {
     if (!wallet) return
     if (!selectedChainId) return
     if (!nextAccountNumber) return
+    if (!walletDeviceId) return
     ;(async () => {
       const accountNumber = nextAccountNumber
       const chainIds = [selectedChainId]
@@ -105,7 +106,7 @@ export const AddAccountModal = () => {
         accountNumber,
         chainIds,
         wallet,
-        isSnapInstalled,
+        isSnapInstalled: Boolean(isSnapInstalled),
       })
 
       const { getAccount } = portfolioApi.endpoints
@@ -118,7 +119,7 @@ export const AddAccountModal = () => {
       )
       const accountIds = Object.keys(accountMetadataByAccountId)
       accountIds.forEach(accountId => {
-        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts))
+        dispatch(getAccount.initiate({ accountId }, opts))
         dispatch(portfolio.actions.enableAccountId(accountId))
       })
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()

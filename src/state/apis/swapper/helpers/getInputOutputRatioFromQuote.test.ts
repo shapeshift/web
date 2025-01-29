@@ -7,13 +7,7 @@ import { mockStore } from 'test/mocks/store'
 import { describe, expect, it, vi } from 'vitest'
 import { assertUnreachable } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import {
-  cowQuote,
-  lifiQuote,
-  oneInchQuote,
-  thorQuote,
-  zrxQuote,
-} from 'state/apis/swapper/helpers/testData'
+import { cowQuote, lifiQuote, thorQuote, zrxQuote } from 'state/apis/swapper/helpers/testData'
 import type { ReduxState } from 'state/reducer'
 
 const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -110,18 +104,5 @@ describe('getInputOutputRatioFromQuote', () => {
     })
 
     expect(ratio).toBe(0.7514700580555285)
-  })
-
-  it('should return correct ratio for a 1inch quote', () => {
-    const mockState = {
-      ...mockStore,
-    }
-    const ratio = getInputOutputRatioFromQuote({
-      state: mockState,
-      quote: oneInchQuote,
-      swapperName: SwapperName.OneInch,
-    })
-
-    expect(ratio).toBe(0.6504547578605688)
   })
 })

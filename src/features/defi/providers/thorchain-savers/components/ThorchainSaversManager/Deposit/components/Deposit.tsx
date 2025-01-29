@@ -1,10 +1,9 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -20,10 +19,12 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
+import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -31,11 +32,13 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
-import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getFeesWithWalletEIP1559Support } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
 import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -80,7 +83,8 @@ export const Deposit: React.FC<DepositProps> = ({
   fromAddress,
   onNext,
 }) => {
-  const [isApprovalRequired, setIsApprovalRequired] = useState(false)
+  // Redeclared here as state field because of chicken-and-egg issues
+  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean | undefined>(false)
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
 
   const toast = useToast()
@@ -91,6 +95,8 @@ export const Deposit: React.FC<DepositProps> = ({
     null,
   )
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
+  const [shouldShowInfoAcknowledgement, setShouldShowInfoAcknowledgement] = useState(false)
+  const [depositValues, setDepositValues] = useState<DepositValues>()
   const [inputValues, setInputValues] = useState<{
     fiatAmount: string
     cryptoAmount: string
@@ -107,7 +113,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const isRunePool = assetId === thorchainAssetId
 
-  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
+  const isTokenDeposit = isToken(assetId)
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
@@ -165,6 +171,9 @@ export const Deposit: React.FC<DepositProps> = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
+  const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
+    useThorchainMimirTimes()
+
   const {
     data: thorchainSaversDepositQuote,
     isLoading: isThorchainSaversDepositQuoteLoading,
@@ -200,40 +209,17 @@ export const Deposit: React.FC<DepositProps> = ({
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 
+  const { isAllowanceApprovalRequired: _isApprovalRequired, isAllowanceResetRequired } =
+    useAllowanceApprovalRequirements({
+      assetId,
+      amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
+      spender: inboundAddress,
+      from: accountId ? fromAccountId(accountId).account : undefined,
+    })
+
   useEffect(() => {
-    if (!accountId) return
-    ;(async () => {
-      const isApprovalRequired = await (async () => {
-        // Router contract address is only set in case we're depositting a token, not a native asset
-        if (!inboundAddress) return false
-        // Do not try to get allowance for native assets, including non-EVM ones.
-        if (!isTokenDeposit) return false
-
-        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-          address: fromAssetId(assetId).assetReference,
-          spender: inboundAddress,
-          from: fromAccountId(accountId).account,
-          chainId: asset.chainId,
-        })
-
-        const cryptoAmountBaseUnit = toBaseUnit(inputValues?.cryptoAmount, asset.precision)
-
-        if (bnOrZero(allowanceOnChainCryptoBaseUnit).eq(0)) return true
-        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit)) return true
-
-        return false
-      })()
-      setIsApprovalRequired(isApprovalRequired)
-    })()
-  }, [
-    accountId,
-    asset.chainId,
-    asset.precision,
-    assetId,
-    inputValues,
-    inboundAddress,
-    isTokenDeposit,
-  ])
+    setIsApprovalRequired(_isApprovalRequired)
+  }, [_isApprovalRequired, setIsApprovalRequired])
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
   // the current workaround is to not do fee deduction for non-UTXO chains,
@@ -324,7 +310,12 @@ export const Deposit: React.FC<DepositProps> = ({
         }
 
         const approvalFees = await (() => {
-          if (!isApprovalRequired || !inboundAddress || accountNumber === undefined || !wallet)
+          if (
+            !(isApprovalRequired || isAllowanceResetRequired) ||
+            !inboundAddress ||
+            accountNumber === undefined ||
+            !wallet
+          )
             return undefined
 
           const contract = getOrCreateContractByType({
@@ -337,16 +328,16 @@ export const Deposit: React.FC<DepositProps> = ({
           const data = encodeFunctionData({
             abi: contract.abi,
             functionName: 'approve',
-            args: [getAddress(inboundAddress), maxUint256],
+            args: [getAddress(inboundAddress), isAllowanceResetRequired ? 0n : maxUint256],
           })
 
           const adapter = assertGetEvmChainAdapter(chainId)
 
-          return getFeesWithWallet({
-            accountNumber,
+          return getFeesWithWalletEIP1559Support({
             adapter,
             data,
             to: fromAssetId(assetId).assetReference,
+            from: userAddress,
             value: '0',
             wallet,
           })
@@ -362,7 +353,7 @@ export const Deposit: React.FC<DepositProps> = ({
             },
           })
 
-          onNext(DefiStep.Approve)
+          onNext(isAllowanceResetRequired ? DefiStep.AllowanceReset : DefiStep.Approve)
           return
         }
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)
@@ -389,23 +380,24 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      userAddress,
-      opportunityData,
-      inputValues,
-      accountId,
-      contextDispatch,
       feeAsset,
-      chainId,
+      accountId,
+      userAddress,
+      inputValues,
+      opportunityData,
+      contextDispatch,
+      isApprovalRequired,
       estimatedFeesData,
       onNext,
       isSweepNeeded,
       assetId,
       assets,
-      isApprovalRequired,
+      isAllowanceResetRequired,
       inboundAddress,
       accountNumber,
       wallet,
       asset.chainId,
+      chainId,
       toast,
       translate,
     ],
@@ -832,60 +824,103 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmountDebounced],
   )
 
+  const handleContinueOrAcknowledgement = useCallback(
+    (formValues: DepositValues) => {
+      setDepositValues(formValues)
+      if (isRunePool && thorchainMimirTimes?.runePoolDepositMaturityTime) {
+        setShouldShowInfoAcknowledgement(true)
+        return
+      }
+
+      if (!isRunePool && thorchainMimirTimes?.liquidityLockupTime) {
+        setShouldShowInfoAcknowledgement(true)
+        return
+      }
+
+      handleContinue(formValues)
+    },
+    [thorchainMimirTimes, isRunePool, handleContinue],
+  )
+
+  const handleAcknowledge = useCallback(() => {
+    if (!depositValues) return
+    handleContinue(depositValues)
+  }, [depositValues, handleContinue])
+
   if (!state || !contextDispatch || !opportunityData) return null
 
   return (
-    <ReusableDeposit
-      accountId={accountId}
-      onAccountIdChange={handleAccountIdChange}
-      asset={asset}
-      apy={opportunityData.apy ?? undefined}
-      cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
-      cryptoInputValidation={cryptoInputValidation}
-      fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
-      fiatInputValidation={fiatInputValidation}
-      marketData={assetMarketData}
-      onCancel={handleCancel}
-      onPercentClick={handlePercentClick}
-      onContinue={handleContinue}
-      onBack={handleBack}
-      onChange={handleInputChange}
-      percentOptions={percentOptions}
-      enableSlippage={false}
-      isLoading={
-        isEstimatedFeesDataLoading ||
-        isSweepNeededLoading ||
-        isThorchainSaversDepositQuoteLoading ||
-        state.loading
-      }
-    >
-      {!isRunePool ? (
-        <>
-          <Row>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-                <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row>
-            <Row.Label>
-              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-                {translate(
-                  `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-                  { amount: daysToBreakEven ?? '0' },
-                )}
-              </Skeleton>
-            </Row.Value>
-          </Row>
-        </>
-      ) : null}
-    </ReusableDeposit>
+    <>
+      <InfoAcknowledgement
+        message={translate('defi.liquidityLockupWarning', {
+          time: formatSecondsToDuration(
+            isRunePool
+              ? thorchainMimirTimes?.runePoolDepositMaturityTime ?? 0
+              : thorchainMimirTimes?.liquidityLockupTime ?? 0,
+          ),
+        })}
+        onAcknowledge={handleAcknowledge}
+        shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
+      />
+      <ReusableDeposit
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
+        asset={asset}
+        apy={opportunityData.apy ?? undefined}
+        cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
+        cryptoInputValidation={cryptoInputValidation}
+        fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+        fiatInputValidation={fiatInputValidation}
+        marketData={assetMarketData}
+        onCancel={handleCancel}
+        onPercentClick={handlePercentClick}
+        onContinue={handleContinueOrAcknowledgement}
+        onBack={handleBack}
+        onChange={handleInputChange}
+        percentOptions={percentOptions}
+        enableSlippage={false}
+        isLoading={
+          isEstimatedFeesDataLoading ||
+          isSweepNeededLoading ||
+          isThorchainSaversDepositQuoteLoading ||
+          isThorchainMimirTimesLoading ||
+          state.loading
+        }
+      >
+        {!isRunePool ? (
+          <>
+            <Row>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                  <Amount.Crypto
+                    value={slippageCryptoAmountPrecision ?? ''}
+                    symbol={asset.symbol}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row>
+              <Row.Label>
+                <HelperTooltip
+                  label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}
+                >
+                  {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+                </HelperTooltip>
+              </Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                  {translate(
+                    `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+                    { amount: daysToBreakEven ?? '0' },
+                  )}
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </>
+        ) : null}
+      </ReusableDeposit>
+    </>
   )
 }

@@ -12,7 +12,8 @@ import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { DefiProvider, type LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,7 +55,9 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
     [groupedItems],
   )
 
-  const { next, data, hasMore } = useInfiniteScroll(flatItems)
+  const { next, data, hasMore } = useInfiniteScroll({
+    array: flatItems,
+  })
 
   const handleClick = useCallback(
     (opportunity: LpEarnOpportunityType, action: DefiAction) => {
@@ -69,7 +72,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-      if (!isConnected && isDemoWallet) {
+      if (!isConnected || isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

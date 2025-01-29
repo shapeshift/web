@@ -1,14 +1,9 @@
 import { toAccountId } from '@shapeshiftoss/caip'
-import type { UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams,
-  utxoChainIds,
-} from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
-import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
+import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
@@ -25,29 +20,22 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       const adapter = assertGetUtxoChainAdapter(chainId)
 
       let supportedAccountTypes = adapter.getSupportedAccountTypes()
-      if (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) {
+      if (wallet instanceof MetaMaskMultiChainHDWallet) {
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }
+      if (wallet instanceof PhantomHDWallet) {
+        // Phantom supposedly supports more script types, but only supports Segwit Native (bech32 addresses) for now
+        supportedAccountTypes = [UtxoAccountType.SegwitNative]
+      }
       for (const accountType of supportedAccountTypes) {
-        const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, accountNumber)
-        const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
-        const pubkeys = await wallet.getPublicKeys([
-          {
-            coin: adapter.getCoinName(),
-            addressNList,
-            curve: 'secp256k1',
-            scriptType,
-          },
-        ])
+        const { xpub: pubkey } = await adapter.getPublicKey(wallet, accountNumber, accountType)
 
-        // We do not want to throw for all ChainIds and script types, if one fails
-        if (!pubkeys?.[0]?.xpub || typeof pubkeys?.[0]?.xpub !== 'string') continue
-
-        const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         if (!pubkey) continue
 
+        const bip44Params = adapter.getBip44Params({ accountNumber, accountType })
         const accountId = toAccountId({ chainId, account: pubkey })
+
         acc[accountId] = { accountType, bip44Params }
       }
     }

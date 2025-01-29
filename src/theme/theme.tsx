@@ -1,4 +1,5 @@
-import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
+import type { ThemeConfig } from '@chakra-ui/react'
+import { extendTheme } from '@chakra-ui/react'
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
 import { AccordionStyle as Accordion } from 'components/Accordion/Accordion.theme'
@@ -143,6 +144,23 @@ const styles = {
       alignItems: 'stretch',
     },
     '--shapeshift-header-bg': mode('white', 'blackAlpha.100')(props),
+    '#chakra-toast-manager-bottom-right': {
+      '.chakra-toast': {
+        '.chakra-toast__inner': {
+          width: '100%',
+        },
+        '.chakra-alert': {
+          justifyContent: 'space-between',
+        },
+        '.chakra-alert > div:nth-of-type(2)': {
+          width: '100%',
+          justifyContent: 'space-between',
+          button: {
+            minWidth: 'inherit',
+          },
+        },
+      },
+    },
   }),
 }
 

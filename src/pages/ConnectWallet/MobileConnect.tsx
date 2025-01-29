@@ -16,6 +16,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import BlueFox from 'assets/blue-fox.svg'
 import GreenFox from 'assets/green-fox.svg'
 import OrangeFox from 'assets/orange-fox.svg'
@@ -28,17 +29,12 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { MobileWallestList } from './components/WalletList'
 
 const containerStyles = { touchAction: 'none' }
-
-export type WalletInfo = {
-  id?: string
-  name?: string
-  createdAt?: number
-}
 
 const scaleFade = keyframes`
   from { scale: 1.5; opacity: 0; }
@@ -65,13 +61,16 @@ const BodyText: React.FC<TextProps> = props => (
 )
 
 export const MobileConnect = () => {
-  const { create, importWallet, dispatch } = useWallet()
+  const { create, importWallet, dispatch, getAdapter, state } = useWallet()
+  const localWallet = useLocalWallet()
   const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
   const [hideWallets, setHideWallets] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
+  const hasWallet = Boolean(state.walletInfo?.deviceId)
+  const history = useHistory()
 
   const handleCreate = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -82,6 +81,27 @@ export const MobileConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     importWallet(KeyManager.Mobile)
   }, [dispatch, importWallet])
+
+  const query = useQuery<{ returnUrl: string }>()
+  useEffect(() => {
+    // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
+    // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+    // The (/:chainId/:assetSubId) part is URI encoded as one entity in the regular app flow in <AssetAccountRow />, using generatePath()
+    // This applies a similar logic here, that works with history.push()
+    const match = matchPath<{ accountId?: string; chainId?: string; assetSubId?: string }>(
+      query.returnUrl,
+      {
+        path: '/accounts/:accountId/:chainId/:assetSubId',
+      },
+    )
+    const path = match
+      ? generatePath('/accounts/:accountId/:assetId', {
+          accountId: match?.params?.accountId ?? '',
+          assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
+        })
+      : query?.returnUrl
+    hasWallet && history.push(path ?? '/trade')
+  }, [history, hasWallet, query, state, dispatch])
 
   useEffect(() => {
     if (!wallets.length) {
@@ -103,6 +123,56 @@ export const MobileConnect = () => {
       })()
     }
   }, [wallets])
+
+  const handleWalletSelect = useCallback(
+    async (item: RevocableWallet) => {
+      const adapter = await getAdapter(KeyManager.Mobile)
+      const deviceId = item?.id
+      if (adapter && deviceId) {
+        const { name, icon } = MobileConfig
+        try {
+          const revoker = await getWallet(deviceId)
+          if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
+          if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
+
+          const wallet = await adapter.pairDevice(revoker.id)
+          await wallet?.loadDevice({ mnemonic: revoker.mnemonic })
+          if (!(await wallet?.isInitialized())) {
+            await wallet?.initialize()
+          }
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: item.label },
+              connectedType: KeyManager.Mobile,
+            },
+          })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          dispatch({
+            type: WalletActions.SET_CONNECTOR_TYPE,
+            payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
+          })
+
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
+          localWallet.setLocalNativeWalletName(item?.label ?? 'label')
+        } catch (e) {
+          console.log(e)
+          setError('walletProvider.shapeShift.load.error.pair')
+        }
+      } else {
+        setError('walletProvider.shapeShift.load.error.pair')
+      }
+    },
+    [dispatch, getAdapter, localWallet],
+  )
 
   const handleToggleWallets = useCallback(() => {
     setHideWallets(!hideWallets) // allow users with saved wallets to toggle between saved and create/import

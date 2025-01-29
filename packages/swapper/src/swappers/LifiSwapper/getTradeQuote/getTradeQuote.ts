@@ -1,5 +1,5 @@
 import type { ChainKey, RoutesRequest } from '@lifi/sdk'
-import { getRoutes, LiFiError, LiFiErrorCode } from '@lifi/sdk'
+import { getRoutes, LiFiErrorCode, SDKError } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import {
@@ -15,17 +15,17 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
+  SwapErrorRight,
   SwapperDeps,
   SwapSource,
+  TradeQuoteStep,
 } from '../../../types'
-import {
-  type GetEvmTradeQuoteInput,
-  type SwapErrorRight,
-  SwapperName,
-  TradeQuoteError,
-} from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { configureLiFi } from '../utils/configureLiFi'
 import { LIFI_INTEGRATOR_ID } from '../utils/constants'
@@ -34,13 +34,17 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from '../utils/types'
+import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
-export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput,
-  deps: SwapperDeps,
-  lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
+export async function getTrade({
+  input,
+  deps,
+  lifiChainMap,
+}: {
+  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
+  deps: SwapperDeps
+  lifiChainMap: Map<ChainId, ChainKey>
+}): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -51,6 +55,7 @@ export async function getTradeQuote(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+    quoteOrRate,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -79,6 +84,11 @@ export async function getTradeQuote(
 
   configureLiFi()
 
+  const lifiAllowedBridges =
+    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.bridges : undefined
+  const lifiAllowedExchanges =
+    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.exchanges : undefined
+
   const affiliateBpsDecimalPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
   const routesRequest: RoutesRequest = {
     fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -92,7 +102,21 @@ export async function getTradeQuote(
       // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
-      bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
+      // Routes via Stargate or Amarok can always be executed in one step, as LiFi can make those
+      // bridges swap into any requested token on the destination chain. Other bridges my require
+      // two steps. As such, additional balance checks on the destination chain are required which
+      // are currently incompatible with our fee calculations, leading to incorrect fee display,
+      // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
+      // these bridges are disabled.
+      bridges: {
+        deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
+        ...(lifiAllowedBridges ? { allow: lifiAllowedBridges } : {}),
+      },
+      ...(lifiAllowedExchanges
+        ? {
+            exchanges: { allow: lifiAllowedExchanges },
+          }
+        : {}),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -108,7 +132,13 @@ export async function getTradeQuote(
   // })
   const routesResponse = await getRoutes(routesRequest)
     .then(response => Ok(response))
-    .catch((e: LiFiError) => {
+    .catch((e: SDKError) => {
+      // This shouldn't happen, but if it does (`/routes`) endpoint errors), Li.Fi probably went "down" for that specific request
+      // We should use the stale rate quote, though if it's a proper limit, `/stepTransaction` would fail too, meaning things will still fail at Tx execution time
+      // Which is much better than a blank screen
+      if (quoteOrRate === 'quote') return Ok({ routes: [] })
+
+      // This is a rate. All errors re: validation or internal server errors etc should be handled gracefully
       const code = (() => {
         switch (e.code) {
           case LiFiErrorCode.ValidationError:
@@ -133,6 +163,13 @@ export async function getTradeQuote(
   const { routes } = routesResponse.unwrap()
 
   if (routes.length === 0) {
+    if (quoteOrRate === 'quote')
+      return Ok([
+        {
+          ...input.originalRate,
+          quoteOrRate: 'quote',
+        } as LifiTradeQuote,
+      ])
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
@@ -201,8 +238,9 @@ export async function getTradeQuote(
           const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
             chainId: stepChainId,
             lifiStep,
-            supportsEIP1559,
+            supportsEIP1559: Boolean(supportsEIP1559),
             deps,
+            from: sendAddress,
           })
 
           const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
@@ -236,9 +274,28 @@ export async function getTradeQuote(
         .dividedBy(bn(selectedLifiRoute.fromAmount))
         .toString()
 
+      const lifiBridgeTools = selectedLifiRoute.steps
+        .filter(
+          current => current.includedSteps?.some(includedStep => includedStep.type === 'cross'),
+        )
+        .map(current => current.tool)
+
+      const lifiExchangeTools = selectedLifiRoute.steps
+        .filter(
+          current =>
+            // A step tool is an exchange (swap) tool if all of its steps are non-cross-chain steps
+            current.includedSteps?.every(includedStep => includedStep.type !== 'cross'),
+        )
+        .map(current => current.tool)
+
       return {
         id: selectedLifiRoute.id,
         receiveAddress,
+        quoteOrRate,
+        lifiTools: {
+          bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
+          exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
+        },
         affiliateBps,
         potentialAffiliateBps,
         steps,
@@ -251,7 +308,7 @@ export async function getTradeQuote(
 
   if (promises.every(isRejected)) {
     for (const promise of promises) {
-      if (promise.reason instanceof LiFiError) {
+      if (promise.reason instanceof SDKError) {
         if (promise.reason.stack?.includes('Request failed with status code 429')) {
           return Err(
             makeSwapErrorRight({
@@ -278,5 +335,25 @@ export async function getTradeQuote(
     )
   }
 
-  return Ok(promises.filter(isFulfilled).map(({ value }) => value))
+  return Ok(promises.filter(isFulfilled).map(({ value }) => value)) as Result<
+    LifiTradeQuote[] | LifiTradeRate[],
+    SwapErrorRight
+  >
+}
+
+export const getTradeQuote = async (
+  input: GetEvmTradeQuoteInputBase,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {
+  const quotesResult = await getTrade({ input, deps, lifiChainMap })
+
+  return quotesResult.map(quotes =>
+    quotes.map(quote => ({
+      ...quote,
+      quoteOrRate: 'quote' as const,
+      receiveAddress: quote.receiveAddress!,
+      steps: quote.steps.map(step => step) as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
+    })),
+  )
 }

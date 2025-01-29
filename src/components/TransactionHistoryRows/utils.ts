@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { memoize } from 'lodash'
@@ -29,7 +30,7 @@ type GetTradeFeesInput = {
   buy: Transfer
   sell: Transfer
   blockTime: number
-  cryptoPriceHistoryData?: PriceHistoryData
+  cryptoPriceHistoryData?: PriceHistoryData<AssetId>
 }
 
 export type TradeFees = {

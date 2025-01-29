@@ -1,10 +1,10 @@
+import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftoss/contracts'
+import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { viemEthMainnetClient } from 'lib/viem-client'
 import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,
@@ -16,8 +16,11 @@ const mockAmount0Out = '97000000000000000000000'
 const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
-vi.mock('lib/viem-client', () => {
+vi.mock('@shapeshiftoss/contracts', async () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
+
+  const actual = await vi.importActual('@shapeshiftoss/contracts')
+
   const viemEthMainnetClient = {
     createEventFilter: vi.fn(() => ({})),
     getLogs: () =>
@@ -39,6 +42,7 @@ vi.mock('lib/viem-client', () => {
       }),
   }
   return {
+    ...actual,
     viemEthMainnetClient,
     viemClientByChainId: {
       [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
@@ -50,7 +54,7 @@ const mockContract = getContract({
   abi: [],
   address: '' as Address,
   client: viemEthMainnetClient,
-}) as unknown as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, Address>
+}) as unknown as GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient>
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(
   new Token(1, '0x0000000000000000000000000000000000000000', token0Decimals),

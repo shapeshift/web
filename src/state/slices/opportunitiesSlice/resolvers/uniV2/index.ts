@@ -1,13 +1,17 @@
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds, type MarketData } from '@shapeshiftoss/types'
+import {
+  ContractType,
+  fetchUniV2PairData,
+  getEthersProvider,
+  getOrCreateContractByType,
+  WETH_TOKEN_CONTRACT,
+} from '@shapeshiftoss/contracts'
+import type { MarketData } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
-import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
-import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import { getAddress } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { toBaseUnit } from 'lib/math'
 import { selectZapperFulfilled } from 'state/apis/zapper/selectors'
 import { zapperApi } from 'state/apis/zapper/zapperApi'
@@ -127,8 +131,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = zapperAppBalanceData.tokens?.[0].decimals!
-      token1Decimals = zapperAppBalanceData.tokens?.[1].decimals!
+      token0Decimals = bnOrZero(zapperAppBalanceData.tokens?.[0].decimals!).toNumber()
+      token1Decimals = bnOrZero(zapperAppBalanceData.tokens?.[1].decimals!).toNumber()
       token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
       token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
       token0Address = getAddress(zapperAppBalanceData?.tokens?.[0].address!)
@@ -148,7 +152,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const { chainId } = fromAssetId(opportunityId)
     const token0MarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
       state,
-      token0Address === WETH_TOKEN_CONTRACT_ADDRESS
+      token0Address === WETH_TOKEN_CONTRACT
         ? ethAssetId
         : toAssetId({
             assetNamespace: 'erc20',
@@ -159,7 +163,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
     const assetId0 =
       // Uniswap uses ERC20 WETH under the hood, but we want to display it as ETH
-      token0Address === WETH_TOKEN_CONTRACT_ADDRESS
+      token0Address === WETH_TOKEN_CONTRACT
         ? ethAssetId
         : toAssetId({
             assetNamespace: 'erc20',
@@ -168,14 +172,14 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
           })
     // Uniswap uses ERC20 WETH under the hood, but we want to display it as ETH
     const assetId1 =
-      token1Address === WETH_TOKEN_CONTRACT_ADDRESS
+      token1Address === WETH_TOKEN_CONTRACT
         ? ethAssetId
         : toAssetId({
             assetNamespace: 'erc20',
             assetReference: token1Address,
             chainId,
           })
-    const underlyingAssetIds = [assetId0, assetId1] as const
+    const underlyingAssetIds = [assetId0, assetId1]
     const underlyingAsset0 = assets.byId[underlyingAssetIds[0]]
     const underlyingAsset1 = assets.byId[underlyingAssetIds[1]]
     const lpAsset = assets.byId[opportunityId]

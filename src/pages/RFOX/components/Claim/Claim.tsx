@@ -1,17 +1,20 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense, useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getAddress } from 'viem'
-import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 
-import type { RfoxClaimQuote } from './types'
-import { ClaimRoutePaths, type ClaimRouteProps } from './types'
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
 
 const ClaimSelect = makeSuspenseful(
   lazy(() =>
@@ -19,6 +22,7 @@ const ClaimSelect = makeSuspenseful(
       default: ClaimSelect,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ClaimConfirm = makeSuspenseful(
@@ -27,6 +31,7 @@ const ClaimConfirm = makeSuspenseful(
       default: ClaimConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ClaimStatus = makeSuspenseful(
@@ -35,6 +40,7 @@ const ClaimStatus = makeSuspenseful(
       default: ClaimStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ClaimEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
@@ -54,22 +60,23 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
-  const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-      : undefined,
-  })
+  const stakingAssetAccountAddress = useMemo(() => {
+    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
+  }, [confirmedQuote])
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-      : undefined,
+    stakingAssetAccountAddress,
   })
 
   const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
+    await queryClient.invalidateQueries({
+      queryKey: getUnstakingRequestCountQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [queryClient, unstakingRequestCountQueryKey, unstakingRequestQueryKey])
+  }, [confirmedQuote, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
 
   const renderClaimSelect = useCallback(() => {
     return (
@@ -100,7 +107,9 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
     return (
       <ClaimStatus
+        accountId={confirmedQuote.stakingAssetAccountId}
         txId={claimTxid}
+        setClaimTxid={setClaimTxid}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
         confirmedQuote={confirmedQuote}

@@ -22,8 +22,3 @@ export const useUnavailableBalanceChartDataAssetNames = (assetIds: AssetId[]): s
     .map(assetId => assets[assetId]?.name)
     .join(', ')
 }
-
-export const useIsBalanceChartDataUnavailable = (assetIds: AssetId[]): boolean => {
-  const unavailableBalanceChartDataAssetNames = useUnavailableBalanceChartDataAssetNames(assetIds)
-  return Boolean(unavailableBalanceChartDataAssetNames)
-}

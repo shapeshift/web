@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
 import type {
-  AssetsByIdPartial,
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
@@ -9,9 +8,9 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
-import { AssetService } from 'lib/asset-service'
+import type { AssetService } from 'lib/asset-service'
+import { getAssetService } from 'lib/asset-service'
 
-import generatedAssetData from '../asset-service/service/generatedAssetData.json'
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
@@ -61,7 +60,7 @@ export class MarketServiceManager {
       // TODO: Debank market provider
     ]
 
-    this.assetService = new AssetService()
+    this.assetService = getAssetService()
   }
 
   async findAll(args: FindAllMarketArgs): Promise<MarketCapResult> {
@@ -81,7 +80,7 @@ export class MarketServiceManager {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs) {
-    const assets = generatedAssetData as unknown as AssetsByIdPartial
+    const assets = this.assetService.assetsById
 
     if (isNft(assetId)) {
       return {
@@ -170,6 +169,13 @@ export class MarketServiceManager {
     // coingecko is the only provider that allows us to specify the sorting of assets, so we don't bother with other services
     const coinGeckoMarketService = new CoinGeckoMarketService()
     const result = await coinGeckoMarketService.findAll({ count }, 'volume_desc')
+    return Object.keys(result)
+  }
+
+  async findAllSortedByMarketCapDesc(count: number): Promise<AssetId[]> {
+    // coingecko is the only provider that allows us to specify the sorting of assets, so we don't bother with other services
+    const coinGeckoMarketService = new CoinGeckoMarketService()
+    const result = await coinGeckoMarketService.findAll({ count }, 'market_cap_desc')
     return Object.keys(result)
   }
 }

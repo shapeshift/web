@@ -9,26 +9,14 @@ type DonutChartProps = {
   width: number
   height: number
   margin?: typeof defaultMargin
+  data: ChartData[]
 }
 
-type ChartData = {
+export type ChartData = {
   name: string
   value: number
   color: string
 }
-
-const mockData: ChartData[] = [
-  {
-    name: 'Collateral',
-    value: 50,
-    color: 'green.200',
-  },
-  {
-    name: 'Debt',
-    value: 50,
-    color: 'purple.300',
-  },
-]
 
 const frequency = (d: ChartData) => d.value
 
@@ -60,6 +48,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   width,
   height,
   margin = defaultMargin,
+  data,
 }) => {
   const innerWidth = width - margin.left - margin.right
   const innerHeight = height - margin.top - margin.bottom
@@ -77,7 +66,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
     <svg width={width} height={height}>
       <Group top={top} left={left}>
         <Pie
-          data={mockData}
+          data={data}
           pieValue={frequency}
           pieSortValues={pieSortValues}
           outerRadius={radius}

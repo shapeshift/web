@@ -118,7 +118,7 @@ export const parseMaybeUrl = async ({
         }
       }
 
-      // Validation was unsuccesful, but this may still be a valid address for this adapter
+      // Validation was unsuccessful, but this may still be a valid address for this adapter
       const isValidAddress = await validateAddress({ chainId, maybeAddress: urlOrAddress })
       if (isValidAddress) {
         return {

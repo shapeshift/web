@@ -1,3 +1,5 @@
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
@@ -10,8 +12,6 @@ import * as cowswap from './cowswap'
 import * as foxy from './foxy'
 import * as uniV2 from './uniV2'
 import * as weth from './weth'
-
-export const ZRX_ETHEREUM_PROXY_CONTRACT = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF'
 
 export interface TransactionParserArgs extends BaseTransactionParserArgs {
   midgardUrl: string

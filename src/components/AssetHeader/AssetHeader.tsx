@@ -15,7 +15,7 @@ import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { middleEllipsis, tokenOrUndefined } from 'lib/utils'
+import { isToken, middleEllipsis } from 'lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -35,7 +35,6 @@ type AssetHeaderProps = {
 const externalLinkIcon = <ExternalLinkIcon />
 const displayMdFlex = { base: 'none', md: 'flex' }
 const fontSizeMd2xl = { base: 'xl', md: '2xl' }
-const pairProps = { showFirst: true }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
@@ -70,14 +69,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   const href = (() => {
     const { assetReference } = fromAssetId(asset.assetId)
-    const maybeToken = tokenOrUndefined(assetReference)
 
     if (isNft(asset.assetId)) {
       const [token] = assetReference.split('/')
       return `${asset.explorer}/token/${token}?a=${asset.id}`
     }
 
-    if (maybeToken) return `${asset?.explorerAddressLink}${maybeToken}`
+    if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
 
     return asset.explorer
   })()
@@ -91,12 +89,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       <PageHeader.Left>
         <Display.Desktop>
           <Flex alignItems='center' mr='auto' flex={1}>
-            <AssetIcon assetId={asset.assetId} pairProps={pairProps} />
+            <AssetIcon assetId={asset.assetId} />
             <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
               <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
                 {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
               </Heading>
 
+              <WatchAssetButton assetId={assetId} />
               <IconButton
                 as={Link}
                 isExternal

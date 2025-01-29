@@ -2,7 +2,8 @@ import type { AxiosStatic } from 'axios'
 import type { Awaitable, HookCleanupCallback } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getFullAppData, getNowPlusThirtyMinutesTimestamp } from './helpers'
+import { getFullAppData } from '../../../../cowswap-utils'
+import { getNowPlusThirtyMinutesTimestamp } from './helpers'
 
 vi.mock('../cowService', async () => {
   const axios: AxiosStatic = await vi.importMock('axios')
@@ -41,14 +42,18 @@ describe('utils', () => {
       const slippageTolerancePercentage = '0.005' // 0.5%
       const affiliateAppDataFragment = {} // no affiliate fee
 
-      const result = await getFullAppData(slippageTolerancePercentage, affiliateAppDataFragment)
+      const result = await getFullAppData(
+        slippageTolerancePercentage,
+        affiliateAppDataFragment,
+        'market',
+      )
 
       expect(result).toHaveProperty('appDataHash')
       expect(result).toHaveProperty('appData')
       expect(result).toEqual({
-        appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+        appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
         appData:
-          '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
+          '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
       })
     })
     it('should return correct AppData for given inputs for affiliate fee', async () => {
@@ -60,14 +65,18 @@ describe('utils', () => {
         },
       }
 
-      const result = await getFullAppData(slippageTolerancePercentage, affiliateAppDataFragment)
+      const result = await getFullAppData(
+        slippageTolerancePercentage,
+        affiliateAppDataFragment,
+        'market',
+      )
 
       expect(result).toHaveProperty('appDataHash')
       expect(result).toHaveProperty('appData')
       expect(result).toEqual({
-        appDataHash: '0x415378688feaaa6cfcdb873d9b467c8201b821cfa3a567f058c04871d317da34',
+        appDataHash: '0x6a731164dc2bb01874c1537079a3f543894da3b5803dcfed23aaf8396c919be2',
         appData:
-          '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"partnerFee":{"bps":48,"recipient":"0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
+          '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"partnerFee":{"bps":48,"recipient":"0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
       })
     })
   })

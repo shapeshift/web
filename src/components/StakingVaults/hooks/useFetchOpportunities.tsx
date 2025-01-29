@@ -1,25 +1,30 @@
 import { useQuery } from '@tanstack/react-query'
+import { knownChainIds } from 'constants/chains'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   useGetZapperAppsBalancesOutputQuery,
   useGetZapperUniV2PoolAssetIdsQuery,
 } from 'state/apis/zapper/zapperApi'
 import {
+  selectEnabledWalletAccountIds,
   selectEvmAccountIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
 export const useFetchOpportunities = () => {
+  const {
+    state: { isConnected },
+  } = useWallet()
   const dispatch = useAppDispatch()
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const requestedAccountIds = useSelector(selectWalletAccountIds)
+  const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
   const evmAccountIds = useSelector(selectEvmAccountIds)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
@@ -43,8 +48,10 @@ export const useFetchOpportunities = () => {
       requestedAccountIds,
       portfolioAssetIds,
       portfolioAccounts,
+      knownChainIds,
     ),
-    enabled: Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
+    enabled:
+      !isConnected || Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
     staleTime: Infinity,
     // Note the default gcTime of react-query below. Doesn't need to be explicit, but given how bug-prone this is, leaving  here as explicit so it
     // can be easily updated if needed

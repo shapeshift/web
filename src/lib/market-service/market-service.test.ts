@@ -65,6 +65,20 @@ vi.mock('./portals/portals', () => ({
   }),
 }))
 
+const mockZerionFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
+const mockZerionFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
+const mockZerionFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockCGPriceHistoryData)
+
+vi.mock('./zerion/zerion', () => ({
+  ZerionMarketService: vi.fn().mockImplementation(() => {
+    return {
+      findAll: mockZerionFindAll,
+      findByAssetId: mockZerionFindByAssetId,
+      findPriceHistoryByAssetId: mockZerionFindPriceHistoryByAssetId,
+    }
+  }),
+}))
+
 const mockYearnVaultFindAll = vi.fn().mockImplementation(() => mockYearnServiceFindAllData)
 const mockYearnVaultFindByAssetId = vi.fn().mockImplementation(() => mockYearnFindByAssetIdData)
 const mockYearnVaultFindPriceHistoryByAssetId = vi
@@ -153,6 +167,7 @@ describe('market service', () => {
       mockYearnVaultFindAll.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindAll.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
       await expect(marketServiceManager.findAll({ count: Number() })).rejects.toEqual(
         new Error('Cannot find market service provider for market data.'),
       )
@@ -168,6 +183,7 @@ describe('market service', () => {
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
       expect(result).toEqual(mockFoxyMarketData)
@@ -188,6 +204,7 @@ describe('market service', () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockFoxyMarketData)
@@ -200,6 +217,7 @@ describe('market service', () => {
       mockYearnVaultFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(btcArgs)
       expect(result).toBeNull()
@@ -224,6 +242,7 @@ describe('market service', () => {
       mockCoingeckoFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
@@ -238,6 +257,7 @@ describe('market service', () => {
       mockYearnVaultFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,

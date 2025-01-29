@@ -12,5 +12,5 @@ export const CoinbaseConfig: CoinbaseConfigType = {
   ],
   supportsMobile: 'browser',
   icon: CoinbaseIcon,
-  name: 'Coinbase',
+  name: 'Coinbase Wallet',
 }

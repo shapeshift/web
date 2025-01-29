@@ -1,5 +1,9 @@
 ## Contributing to ShapeShift Web
 
+#### :warning: Typo-Only Changes Not Accepted
+
+We do not accept issues or pull requests that only fix typos in comments, variables, or documentation. Such issues will be closed without review.
+
 #### Submitting an Issue
 
 - **Do not open a GitHub issue if the bug you found is a security
@@ -26,7 +30,7 @@
   demonstrate new functionality is working.
   
 - For all presentational components we leverage the [Chakra UI](https://chakra-ui.com/) with a custom theme. All of your components should be composed of Chakra UI base components. 
-If a need arises were you need to build something completely custom. Please post in the `#product-public-chat` on [Discord](https://discord.gg/shapeshift).
+If a need arises where you need to build something completely custom. Please post in the `#product-public-chat` on [Discord](https://discord.gg/shapeshift).
 
 #### Getting Your PR Accepted
 

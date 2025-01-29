@@ -26,9 +26,9 @@ import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioLoading,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -69,13 +69,13 @@ export const FoxyDeposit: React.FC<{
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
@@ -149,7 +149,7 @@ export const FoxyDeposit: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, handleAccountIdChange, foxyContractAddress, translate, stakingAsset.symbol])

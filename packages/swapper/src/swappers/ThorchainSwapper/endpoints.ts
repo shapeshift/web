@@ -1,22 +1,24 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
 import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
-import { type Result } from '@sniptt/monads/build'
+import type { Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
-import { encodeFunctionData, parseAbiItem } from 'viem'
 
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
+  CommonTradeQuoteInput,
   CosmosSdkFeeData,
   EvmTransactionRequest,
-  GetTradeQuoteInput,
+  GetTradeRateInput,
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
@@ -24,15 +26,21 @@ import type {
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
   UtxoFeeData,
 } from '../../types'
+import {
+  checkSafeTransactionStatus,
+  isExecutableTradeQuote,
+  isExecutableTradeStep,
+} from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
-import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import type { ThornodeStatusResponse } from './types'
-import { checkOutboundTxConfirmations } from './utils/checkOutputTxConfirmations'
+import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
+import type { ThorEvmTradeQuote, ThornodeStatusResponse, ThornodeTxResponse } from './types'
+import { getCallDataFromQuote } from './utils/getCallDataFromQuote'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
@@ -47,7 +55,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps } = input
@@ -60,7 +68,20 @@ export const thorchainApi: SwapperApi = {
       deps,
     )
   },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    deps: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const { affiliateBps } = input
 
+    return await getThorTradeRate(
+      {
+        ...input,
+        affiliateBps,
+      },
+      deps,
+    )
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
@@ -69,12 +90,14 @@ export const thorchainApi: SwapperApi = {
     assertGetEvmChainAdapter,
     config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const {
       router,
       vault,
       aggregator,
-      data,
+      data: _data,
       steps,
       memo: tcMemo,
       tradeType,
@@ -84,13 +107,29 @@ export const thorchainApi: SwapperApi = {
     } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
+    if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
+
     const value = isNativeEvmAsset(sellAsset.assetId)
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
       : '0'
 
     switch (tradeType) {
       case TradeType.L1ToL1: {
-        const feeData = await getFees({
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+
+        const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data,
           to: router,
@@ -111,16 +150,15 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToL1: {
         assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
 
-        const swapInAbiItem = parseAbiItem(
-          'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
+        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? '0'
+        // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
         )
 
-        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
-        // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
-
         const amountOutMin = BigInt(
-          bnOrZero(expectedAmountOut.toString())
+          bnOrZero(expectedAmountOut)
             .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
             .toFixed(0, BigNumber.ROUND_UP),
         )
@@ -128,24 +166,25 @@ export const thorchainApi: SwapperApi = {
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 
-        const tcRouter = router as Address
         const tcVault = vault as Address
-        const token = fromAssetId(sellAsset.assetId).assetReference as Address
-        const amount = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
-        const tenMinutes = BigInt(600)
-        const deadline = currentTimestamp + tenMinutes
-        const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
 
-        const swapInData = encodeFunctionData({
-          abi: [swapInAbiItem],
-          functionName: 'swapIn',
-          args: params,
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router: aggregator,
+          vault: tcVault,
         })
 
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data: swapInData,
+          data,
           to: aggregator,
           value,
           from,
@@ -154,7 +193,7 @@ export const thorchainApi: SwapperApi = {
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
-          data: swapInData,
+          data,
           from,
           to: aggregator,
           value,
@@ -162,11 +201,14 @@ export const thorchainApi: SwapperApi = {
         }
       }
       case TradeType.L1ToLongTail:
-        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? 0n
+        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? '0'
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
 
-        const { data: dataWithAmountOut, router: updatedRouter } = await getEvmThorTxInfo({
+        const { router: updatedRouter } = await getEvmThorTxInfo({
           sellAsset,
           sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           memo: tcMemo,
@@ -176,9 +218,23 @@ export const thorchainApi: SwapperApi = {
 
         assert(router, 'router required for l1 to thorchain longtail swaps')
 
-        const feeData = await getFees({
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+
+        const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data: dataWithAmountOut,
+          data,
           to: updatedRouter,
           value,
           from,
@@ -187,7 +243,7 @@ export const thorchainApi: SwapperApi = {
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
-          data: dataWithAmountOut,
+          data,
           from,
           to: updatedRouter,
           value,
@@ -196,7 +252,157 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToLongTail:
         throw Error(`Unsupported trade type: ${TradeType}`)
       default:
-        assertUnreachable(tradeType)
+        return assertUnreachable(tradeType)
+    }
+  },
+  getEvmTransactionFees: async ({
+    chainId,
+    from,
+    tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+    config,
+  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const {
+      router,
+      vault,
+      aggregator,
+      data: _data,
+      steps,
+      memo: tcMemo,
+      tradeType,
+      expiry,
+      longtailData,
+      slippageTolerancePercentageDecimal,
+    } = tradeQuote as ThorEvmTradeQuote
+    const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
+
+    if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
+
+    const value = isNativeEvmAsset(sellAsset.assetId)
+      ? sellAmountIncludingProtocolFeesCryptoBaseUnit
+      : '0'
+
+    switch (tradeType) {
+      case TradeType.L1ToL1: {
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+        const { networkFeeCryptoBaseUnit } = await evm.getFees({
+          adapter: assertGetEvmChainAdapter(chainId),
+          data,
+          to: router,
+          value,
+          from,
+          supportsEIP1559,
+        })
+
+        return networkFeeCryptoBaseUnit
+      }
+      case TradeType.LongTailToL1: {
+        assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
+
+        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? '0'
+        // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
+
+        const amountOutMin = BigInt(
+          bnOrZero(expectedAmountOut)
+            .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+            .toFixed(0, BigNumber.ROUND_UP),
+        )
+
+        // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
+        assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
+
+        const tcVault = vault as Address
+
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router: aggregator,
+          vault: tcVault,
+        })
+
+        const { networkFeeCryptoBaseUnit } = await evm.getFees({
+          adapter: assertGetEvmChainAdapter(chainId),
+          data,
+          to: aggregator,
+          value,
+          from,
+          supportsEIP1559,
+        })
+
+        return networkFeeCryptoBaseUnit
+      }
+      case TradeType.L1ToLongTail:
+        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut
+        // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
+
+        const { router: updatedRouter } = await getEvmThorTxInfo({
+          sellAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+        })
+
+        assert(router, 'router required for l1 to thorchain longtail swaps')
+
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+
+        const { networkFeeCryptoBaseUnit } = await evm.getFees({
+          adapter: assertGetEvmChainAdapter(chainId),
+          data,
+          to: updatedRouter,
+          value,
+          from,
+          supportsEIP1559,
+        })
+
+        return networkFeeCryptoBaseUnit
+      case TradeType.LongTailToLongTail:
+        throw Error(`Unsupported trade type: ${TradeType}`)
+      default:
+        return assertUnreachable(tradeType)
     }
   },
 
@@ -207,10 +413,17 @@ export const thorchainApi: SwapperApi = {
     assertGetUtxoChainAdapter,
     config,
   }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
-    // TODO: pull these from db using id so we don't have type zoo and casting hell
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
-      steps[0]
+      firstStep
+
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     const { vault, opReturnData } = await getUtxoThorTxInfo({
       sellAsset,
@@ -234,6 +447,44 @@ export const thorchainApi: SwapperApi = {
       },
     })
   },
+  getUtxoTransactionFees: async ({
+    tradeQuote,
+    xpub,
+    assertGetUtxoChainAdapter,
+    config,
+  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    const { sellAsset } = firstStep
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    const { vault, opReturnData } = await getUtxoThorTxInfo({
+      sellAsset,
+      xpub,
+      memo,
+      config,
+    })
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to: vault,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub!,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
+  },
 
   getUnsignedCosmosSdkTransaction: async ({
     tradeQuote,
@@ -241,9 +492,13 @@ export const thorchainApi: SwapperApi = {
     from,
     config,
   }: GetUnsignedCosmosSdkTransactionArgs): Promise<StdSignDoc> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]
+
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
     const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit
@@ -325,24 +580,64 @@ export const thorchainApi: SwapperApi = {
       memo,
     }
   },
+  getCosmosSdkTransactionFees: async (
+    input: GetUnsignedCosmosSdkTransactionArgs,
+  ): Promise<string> => {
+    const { assertGetCosmosSdkChainAdapter, tradeQuote, chainId } = input
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const adapter = assertGetCosmosSdkChainAdapter(chainId)
+
+    const feeData = await adapter.getFeeData({})
+
+    return feeData.fast.txFee
+  },
 
   checkTradeStatus: async ({
     txHash,
+    chainId,
+    accountId,
+    fetchIsSmartContractAddressQuery,
     config,
+    assertGetEvmChainAdapter,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
-    message: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
   }> => {
     try {
+      const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+        txHash,
+        chainId,
+        assertGetEvmChainAdapter,
+        accountId,
+        fetchIsSmartContractAddressQuery,
+      })
+
+      if (maybeSafeTransactionStatus) {
+        // return any safe transaction status that has not yet executed on chain (no buyTxHash)
+        if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+
+        // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
+        // Mutate txHash and continue with regular status check flow.
+        txHash = maybeSafeTransactionStatus.buyTxHash
+      }
+
       const thorTxHash = txHash.replace(/^0x/, '')
 
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
-      const { data } = await axios.get<ThornodeStatusResponse>(
-        `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
-      )
+      const [{ data: txData }, { data: txStatusData }] = await Promise.all([
+        axios.get<ThornodeTxResponse>(
+          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+        ),
+        axios.get<ThornodeStatusResponse>(
+          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+        ),
+      ])
 
-      if ('error' in data) {
+      // We care about txStatusData errors because it drives all of the status logic.
+      if ('error' in txStatusData) {
         return {
           buyTxHash: undefined,
           status: TxStatus.Unknown,
@@ -350,33 +645,31 @@ export const thorchainApi: SwapperApi = {
         }
       }
 
-      const latestOutTx = data.out_txs?.[data.out_txs.length - 1]
-      const hasOutboundTx = latestOutTx?.chain !== 'THOR'
+      // We use planned_out_txs to determine the number of out txs because we don't want to derive
+      // swap completion based on the length of out_txs which is populated as the trade executed
+      const numOutTxs = txStatusData.planned_out_txs?.length ?? 0
+      const lastOutTx = txStatusData.out_txs?.[numOutTxs - 1]
 
-      const buyTxHash = parseThorBuyTxHash(txHash, latestOutTx)
+      const buyTxHash = parseThorBuyTxHash(txHash, lastOutTx)
 
-      // if we have an outbound transaction (non rune) and associated buyTxHash, check if it's been confirmed on-chain
-      if (hasOutboundTx && buyTxHash) {
-        const outboundTxConfirmations = await checkOutboundTxConfirmations(
+      const hasOutboundL1Tx = lastOutTx !== undefined && lastOutTx.chain !== 'THOR'
+      const hasOutboundRuneTx = lastOutTx !== undefined && lastOutTx.chain === 'THOR'
+
+      // We consider the transaction confirmed as soon as we have a buyTxHash
+      // For UTXOs, this means that the swap will be confirmed as soon as Txs hit the mempool
+      // Which is actually correct, as we update UTXO balances optimistically
+      if (!('error' in txData) && buyTxHash && (hasOutboundL1Tx || hasOutboundRuneTx)) {
+        return {
           buyTxHash,
-          latestOutTx,
-          config,
-        )
-
-        if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {
-          return {
-            buyTxHash,
-            status: TxStatus.Confirmed,
-            message: undefined,
-          }
+          status: TxStatus.Confirmed,
+          message: undefined,
         }
       }
 
-      const { message, status } = getLatestThorTxStatusMessage(data, hasOutboundTx)
-
+      const message = getLatestThorTxStatusMessage(txStatusData, hasOutboundL1Tx)
       return {
         buyTxHash,
-        status,
+        status: TxStatus.Pending,
         message,
       }
     } catch (e) {

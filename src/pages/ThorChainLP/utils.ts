@@ -1,5 +1,6 @@
 import { captureException, setContext } from '@sentry/react'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type {
   AsymSide,
   LpConfirmedDepositQuote,

@@ -1,4 +1,5 @@
-import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
@@ -6,7 +7,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -159,7 +161,7 @@ export const getThorchainLendingPosition = async ({
 
     const allPositions = lendingPositionsResponse
     if (!allPositions.length) {
-      throw new Error(`No lending positions found for asset ID: ${assetId}`)
+      return null
     }
 
     const accountAddresses = await getAccountAddresses(accountId)
@@ -188,12 +190,4 @@ export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePo
   }
 
   return data
-}
-
-export const getLtvFromCollateralizationRatio = (
-  collateralizationRatio: BigNumber.Value,
-): string => {
-  const crDecimal = bnOrZero(collateralizationRatio).div(100)
-  const ltvPercentage = bn(1).div(crDecimal).times(100).toFixed(2)
-  return ltvPercentage
 }

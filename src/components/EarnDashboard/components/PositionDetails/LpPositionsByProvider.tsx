@@ -53,8 +53,12 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const filteredDown = lpOpportunities.filter(
-    e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+  const filteredDown = useMemo(
+    () =>
+      lpOpportunities.filter(
+        e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+      ),
+    [ids, lpOpportunities],
   )
 
   const handleClick = useCallback(

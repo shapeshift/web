@@ -1,4 +1,5 @@
-import { type AssetId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { sellSupportedChainIds } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import type { MidgardPoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'

@@ -5,6 +5,7 @@ export * from './bignumber'
 export * from './bip44'
 export * from './fees'
 export * from './utxoUtils'
+export * from './ledgerAppGate'
 
 export const getAssetNamespace = (type: string): AssetNamespace => {
   if (type === 'ERC20') return 'erc20'
@@ -38,8 +39,6 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
     case CHAIN_NAMESPACE.Evm:
       switch (chainReference) {
         case CHAIN_REFERENCE.EthereumMainnet:
-        case CHAIN_REFERENCE.EthereumRinkeby:
-        case CHAIN_REFERENCE.EthereumRopsten:
         case CHAIN_REFERENCE.AvalancheCChain:
         case CHAIN_REFERENCE.OptimismMainnet:
         case CHAIN_REFERENCE.BnbSmartChainMainnet:
@@ -57,7 +56,6 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
     case CHAIN_NAMESPACE.CosmosSdk:
       switch (chainReference) {
         case CHAIN_REFERENCE.CosmosHubMainnet:
-        case CHAIN_REFERENCE.CosmosHubVega:
           return 'cosmos'
         case CHAIN_REFERENCE.ThorchainMainnet:
           return 'thorchain'

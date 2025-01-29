@@ -6,7 +6,7 @@ const transform = (fileInfo: FileInfo, api: API) => {
 
   root.find(j.ExportNamedDeclaration).forEach(path => {
     const objectExpression = j(path)
-      .find(j.VariableDeclarator, { id: { name: 'migrations' } })
+      .find(j.VariableDeclarator, { id: { name: 'clearAssetsMigrations' } })
       .find(j.ObjectExpression)
       .at(0)
 

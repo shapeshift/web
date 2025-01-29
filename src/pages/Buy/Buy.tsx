@@ -16,7 +16,6 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,7 +53,6 @@ export const Buy = () => {
     state: { isConnected, isDemoWallet },
   } = useWallet()
   const translate = useTranslate()
-  useFetchFiatAssetMarketData()
 
   const chainCount = useAppSelector(selectFiatRampChainCount)
 

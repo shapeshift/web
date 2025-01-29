@@ -1,4 +1,3 @@
-import { animated, useSpring } from '@react-spring/web'
 export interface LineChartProps {
   width: number
   label: string
@@ -7,22 +6,20 @@ export interface LineChartProps {
 }
 
 export const MinPrice = ({ label, yText, stroke, width }: LineChartProps) => {
-  const styles = useSpring({ y: yText })
-
   return (
     <g>
-      <animated.text
+      <text
         x={width}
+        y={yText}
         width={100}
         dy='2.25rem'
         dx='-0.5rem'
         fontSize='12px'
         fill={stroke}
         textAnchor='end'
-        y={styles.y}
       >
         {label}
-      </animated.text>
+      </text>
     </g>
   )
 }

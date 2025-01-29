@@ -9,7 +9,7 @@ import { Equity } from 'components/Equity/Equity'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { selectWalletAccountIds } from 'state/slices/selectors'
+import { selectEnabledWalletAccountIds } from 'state/slices/selectors'
 
 import { AccountBalance } from './AccountBalance'
 
@@ -31,7 +31,7 @@ export const AccountToken = () => {
    * so we'll redirect user to the "accounts" page,
    * in order to choose the account from beginning.
    */
-  const accountIds = useSelector(selectWalletAccountIds)
+  const accountIds = useSelector(selectEnabledWalletAccountIds)
   const isCurrentAccountIdOwner = Boolean(accountIds.map(toLower).includes(toLower(accountId)))
   if (!accountIds.length) return null
   if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
@@ -55,7 +55,7 @@ export const AccountToken = () => {
         gap={4}
         display={multiHopTradeDisplay}
       >
-        <MultiHopTrade isCompact />
+        <MultiHopTrade isCompact defaultBuyAssetId={id} />
       </Flex>
     </Stack>
   )

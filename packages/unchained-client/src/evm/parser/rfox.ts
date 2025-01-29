@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'
 import { getSigHash, txInteractsWithContract } from '.'
-import { RFOX_ABI } from './abi/rfox'
 import type { Tx } from './types'
 
 export interface TxMetadata extends BaseTxMetadata {

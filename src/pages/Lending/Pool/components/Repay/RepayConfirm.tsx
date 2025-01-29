@@ -294,8 +294,8 @@ export const RepayConfirm = ({
         chainAdapter &&
         confirmedQuote?.repaymentAmountCryptoPrecision &&
         repaymentAccountNumber !== undefined &&
-        (!isToken(fromAssetId(repaymentAsset.assetId).assetReference) ||
-          (isToken(fromAssetId(repaymentAsset.assetId).assetReference) && inboundAddressData))
+        (!isToken(repaymentAsset.assetId) ||
+          (isToken(repaymentAsset.assetId) && inboundAddressData))
       )
     )
       return

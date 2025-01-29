@@ -1,20 +1,18 @@
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
 import { getConfig } from 'config'
-import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
+import { persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
-import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
-import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -25,15 +23,6 @@ import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
-
-const persistConfig = {
-  key: 'root',
-  version: Math.max(...Object.keys(migrations).map(Number)),
-  whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft', 'snapshot', 'localWalletSlice'],
-  storage: localforage,
-  // @ts-ignore createMigrate typings are wrong
-  migrate: createMigrate(migrations, { debug: false }),
-}
 
 const apiMiddleware = [
   portfolioApi.middleware,
@@ -47,14 +36,12 @@ const apiMiddleware = [
   zapper.middleware,
   zapperApi.middleware,
   nftApi.middleware,
-  covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
+  limitOrderApi.middleware,
 ]
 
 const subscriptionMiddleware = createSubscriptionMiddleware()
-
-const persistedReducer = persistReducer(persistConfig, reducer)
 
 export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
@@ -64,6 +51,8 @@ export const clearState = () => {
   store.dispatch(slices.opportunities.actions.clear())
   store.dispatch(slices.tradeInput.actions.clear())
   store.dispatch(slices.localWalletSlice.actions.clear())
+  store.dispatch(slices.limitOrderInput.actions.clear())
+  store.dispatch(slices.limitOrderSlice.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -72,7 +61,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.zapperApi.util.resetApiState())
   store.dispatch(apiSlices.nftApi.util.resetApiState())
-  store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
@@ -97,7 +85,6 @@ const actionSanitizer = (action: any) => {
     'txHistoryApi/executeQuery/fulfilled',
     'zapperApi/executeQuery/fulfilled',
     'nftApi/executeQuery/fulfilled',
-    'covalentApi/executeQuery/fulfilled',
     'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)
@@ -126,23 +113,18 @@ const stateSanitizer = (state: any) => {
 /// This allows us to create an empty store for tests
 export const createStore = () =>
   configureStore({
-    reducer: persistedReducer,
+    reducer,
     enhancers: existingEnhancers => {
       // Add the autobatch enhancer to the store setup
       return existingEnhancers.concat(autoBatchEnhancer())
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
-        immutableCheck: {
-          warnAfter: 128,
-          ignoredActions: [PERSIST, PURGE],
-        },
-        serializableCheck: {
-          ignoreState: true,
-          ignoreActions: true,
-          warnAfter: 128,
-          ignoredActions: [PERSIST, PURGE],
-        },
+        // funnily enough, the checks that should check for perf. issues are actually slowing down the app
+        // This is actually safe, since we're not derps mutating the state directly and are using actions and immer for extra safety
+        // https://github.com/reduxjs/redux-toolkit/issues/415
+        immutableCheck: false,
+        serializableCheck: false,
         thunk: {
           extraArgument: { subscribe: subscriptionMiddleware.subscribe },
         },
@@ -159,8 +141,6 @@ export const createStore = () =>
 export const store = createStore()
 export const persistor = persistStore(store)
 
-export type ReduxStore = typeof store
-
 // dev QoL to access the store in the console
 if (window && getConfig().REACT_APP_REDUX_WINDOW) window.store = store
 
@@ -168,6 +148,10 @@ getStateWith(store.getState)
 registerSelectors(selectors)
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
+export const useSelectorWithArgs = <Args extends unknown[], TSelected>(
+  selector: (state: ReduxState, ...args: Args) => TSelected,
+  ...args: Args
+) => useAppSelector(state => selector(state, ...args))
 
 // https://redux-toolkit.js.org/usage/usage-with-typescript#getting-the-dispatch-type
 export type AppDispatch = typeof store.dispatch

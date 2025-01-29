@@ -32,3 +32,6 @@ export const ZRX_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: ZRX_SUPPORTED_CHAINIDS as ChainId[],
   buy: ZRX_SUPPORTED_CHAINIDS as ChainId[],
 }
+
+// https://0x.org/docs/developer-resources/faqs-and-troubleshooting
+export const ZRX_NATIVE_ASSET_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

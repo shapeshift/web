@@ -1,5 +1,5 @@
+import { getEthersProvider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 export const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 

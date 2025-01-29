@@ -1,7 +1,9 @@
 import { TriangleDownIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Center,
   Flex,
+  Input,
   Skeleton,
   Slider,
   SliderFilledTrack,
@@ -11,31 +13,66 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { NumberFormatValues } from 'react-number-format'
+import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   FEE_CURVE_PARAMETERS,
   FEE_MODEL_TO_FEATURE_NAME,
   FEE_MODEL_TO_FEATURE_NAME_PLURAL,
 } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from './common'
-import type { FeeSlidersProps } from './FeeExplainer'
+
+const inputStyle = {
+  input: {
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+}
+
+export type FeeSlidersProps = {
+  tradeSizeUSD: number
+  setTradeSizeUSD: (val: number) => void
+  simulatedFoxHolding: number
+  setSimulatedFoxHolding: (val: number) => void
+  actualFoxHoldings: string
+  isLoading?: boolean
+  feeModel: ParameterModel
+}
 
 export const FeeSliders: React.FC<FeeSlidersProps> = ({
   tradeSizeUSD,
   setTradeSizeUSD,
-  foxHolding,
-  setFoxHolding,
+  simulatedFoxHolding,
+  setSimulatedFoxHolding,
   isLoading,
-  currentFoxHoldings,
+  actualFoxHoldings,
   feeModel,
 }) => {
+  const [hasUserAdjustedFoxHolding, setHasUserAdjustedFoxHolding] = useState(false)
+
+  useEffect(() => {
+    if (!hasUserAdjustedFoxHolding) {
+      setSimulatedFoxHolding(Number(actualFoxHoldings))
+    }
+  }, [actualFoxHoldings, setSimulatedFoxHolding, hasUserAdjustedFoxHolding])
+
+  const handleSliderChange = useCallback(
+    (value: number) => {
+      setHasUserAdjustedFoxHolding(true)
+      setSimulatedFoxHolding(value)
+    },
+    [setSimulatedFoxHolding],
+  )
+
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[feeModel]
   const translate = useTranslate()
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[feeModel])
@@ -45,29 +82,53 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   )
   const featurePlural = translate(FEE_MODEL_TO_FEATURE_NAME_PLURAL[feeModel])
   const {
-    number: { toFiat },
+    number: { toFiat, localeParts },
   } = useLocaleFormatter()
+
+  const handleSetSimulatedFoxHolding = useCallback(
+    (values: NumberFormatValues) => {
+      setHasUserAdjustedFoxHolding(true)
+      setSimulatedFoxHolding(bnOrZero(values.value).toNumber())
+    },
+    [setSimulatedFoxHolding],
+  )
+
+  const handleSetTradeSizeUsd = useCallback(
+    (values: NumberFormatValues) => {
+      setTradeSizeUSD(bnOrZero(values.value).toNumber())
+    },
+    [setTradeSizeUSD],
+  )
+
   return (
     <VStack height='100%' spacing={8} mt={6}>
       <Stack spacing={4} width='full'>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxDiscounts.foxPower' />
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto
-              value={foxHolding.toString()}
-              symbol='FOX'
-              fontWeight='bold'
-              maximumFractionDigits={0}
-            />
+          <Skeleton isLoaded={!isLoading || hasUserAdjustedFoxHolding} width='35%'>
+            <Box sx={inputStyle}>
+              <NumberFormat
+                decimalScale={2}
+                customInput={Input}
+                isNumericString={true}
+                inputMode='decimal'
+                suffix={' FOX'}
+                decimalSeparator={localeParts.decimal}
+                thousandSeparator={localeParts.group}
+                value={simulatedFoxHolding}
+                onValueChange={handleSetSimulatedFoxHolding}
+              />
+            </Box>
           </Skeleton>
         </Flex>
         <Stack width='100%'>
           <Slider
             min={0}
             max={CHART_TRADE_SIZE_MAX_FOX}
-            value={foxHolding}
-            defaultValue={Number(currentFoxHoldings)}
-            onChange={setFoxHolding}
+            value={simulatedFoxHolding}
+            defaultValue={Number(actualFoxHoldings)}
+            onChange={handleSliderChange}
+            focusThumbOnChange={false}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
@@ -87,9 +148,9 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             </SliderMark>
             <SliderMark
               value={
-                bn(currentFoxHoldings).gt(CHART_TRADE_SIZE_MAX_FOX)
+                bn(actualFoxHoldings).gt(CHART_TRADE_SIZE_MAX_FOX)
                   ? CHART_TRADE_SIZE_MAX_FOX
-                  : Number(currentFoxHoldings)
+                  : Number(actualFoxHoldings)
               }
               top='-14px !important'
               color='yellow.500'
@@ -100,9 +161,22 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
         </Stack>
       </Stack>
       <Stack width='full' spacing={4}>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation={featureSizeTranslation} />
-          <Amount.Fiat fiatType='USD' value={tradeSizeUSD} fontWeight='bold' />
+          <Box sx={inputStyle} width='35%'>
+            <NumberFormat
+              decimalScale={2}
+              customInput={Input}
+              isNumericString={true}
+              // Fees always represented in USD, but disambiguating things for non-freedom-units dollar variants
+              prefix={localeParts.prefix === '$' ? 'USD' : '$'}
+              decimalSeparator={localeParts.decimal}
+              thousandSeparator={localeParts.group}
+              inputMode='decimal'
+              value={tradeSizeUSD}
+              onValueChange={handleSetTradeSizeUsd}
+            />
+          </Box>
         </Flex>
         <Stack width='100%' pb={8}>
           <Slider
@@ -110,6 +184,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             max={CHART_TRADE_SIZE_MAX_USD}
             value={tradeSizeUSD}
             onChange={setTradeSizeUSD}
+            focusThumbOnChange={false}
           >
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
               <Amount.Fiat fiatType='USD' value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
@@ -145,7 +220,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           </Flex>
           <Amount.Crypto
             fontWeight='bold'
-            value={currentFoxHoldings}
+            value={actualFoxHoldings}
             symbol='FOX'
             maximumFractionDigits={0}
           />

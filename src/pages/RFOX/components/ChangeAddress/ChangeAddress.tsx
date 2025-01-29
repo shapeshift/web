@@ -1,15 +1,19 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { getStakingInfoQueryKey } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
 
 const ChangeAddressInput = makeSuspenseful(
   lazy(() =>
@@ -17,6 +21,7 @@ const ChangeAddressInput = makeSuspenseful(
       default: ChangeAddressInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ChangeAddressConfirm = makeSuspenseful(
@@ -25,6 +30,7 @@ const ChangeAddressConfirm = makeSuspenseful(
       default: ChangeAddressConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ChangeAddressStatus = makeSuspenseful(
@@ -33,6 +39,7 @@ const ChangeAddressStatus = makeSuspenseful(
       default: ChangeAddressStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ChangeAddressEntries = [
@@ -56,15 +63,18 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
 
-  const { queryKey: stakingInfoQueryKey } = useStakingInfoQuery({
-    stakingAssetAccountAddress: confirmedQuote
-      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
-      : undefined,
-  })
+  const stakingAssetAccountAddress = useMemo(() => {
+    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
+  }, [confirmedQuote])
 
   const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: stakingInfoQueryKey })
-  }, [queryClient, stakingInfoQueryKey])
+    await queryClient.invalidateQueries({
+      queryKey: getStakingInfoQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+  }, [confirmedQuote, queryClient, stakingAssetAccountAddress])
 
   const renderChangeAddressInput = useCallback(() => {
     return (
@@ -92,6 +102,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
     return (
       <ChangeAddressStatus
         txId={changeAddressTxid}
+        setChangeAddressTxid={setChangeAddressTxid}
         confirmedQuote={confirmedQuote}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}

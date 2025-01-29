@@ -11,6 +11,7 @@ import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { getThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
   InboundAddressResponse,
+  ThorEvmTradeQuote,
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../types'
@@ -18,7 +19,6 @@ import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
-import type { ThorEvmTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
 const mockedGetThorTxInfo = vi.mocked(getThorTxInfo)
@@ -56,6 +56,7 @@ vi.mock('config', () => {
 
 const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
+    quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     potentialAffiliateBps: '0',
@@ -95,6 +96,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     ],
   },
   {
+    quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     potentialAffiliateBps: '0',

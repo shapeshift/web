@@ -15,10 +15,9 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
-import { store } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
+import { KeyManager } from './KeyManager'
 import { SelectModal } from './SelectModal'
 import { NativeWalletRoutes } from './types'
 
@@ -62,14 +61,11 @@ export const WalletViewsSwitch = () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
       await wallet?.cancel()
       disconnect()
-      store.dispatch(localWalletSlice.actions.clearLocalWallet())
       dispatch({ type: WalletActions.OPEN_KEEPKEY_DISCONNECT })
     } else {
       history.replace(INITIAL_WALLET_MODAL_ROUTE)
       if (disconnectOnCloseModal) {
         disconnect()
-        dispatch({ type: WalletActions.RESET_STATE })
-        store.dispatch(localWalletSlice.actions.clearLocalWallet())
       } else {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       }
@@ -105,10 +101,12 @@ export const WalletViewsSwitch = () => {
   /**
    * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
    */
+  const supportedWallet =
+    SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
   const walletRoutesList = useMemo(
     () =>
       modalType
-        ? SUPPORTED_WALLETS[modalType].routes.map(route => {
+        ? supportedWallet.routes.map(route => {
             const Component = route.component
             return !Component ? null : (
               <Route
@@ -122,7 +120,7 @@ export const WalletViewsSwitch = () => {
             )
           })
         : [],
-    [modalType],
+    [modalType, supportedWallet.routes],
   )
 
   const renderSelectModal = useCallback(() => <SelectModal />, [])

@@ -17,7 +17,10 @@
     "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "0.29.0",
     "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^"
   }
 }

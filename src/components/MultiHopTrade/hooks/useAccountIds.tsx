@@ -1,6 +1,9 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { selectFirstHopSellAccountId, selectLastHopBuyAccountId } from 'state/slices/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -19,14 +22,16 @@ export const useAccountIds = (): {
   // Setters - the selectors above initially select a *default* value, but eventually onAccountIdChange may fire if the user changes the account
 
   const setSellAssetAccountId = useCallback(
-    (accountId: AccountId | undefined) =>
-      dispatch(tradeInput.actions.setSellAssetAccountNumber(accountId)),
+    (accountId: AccountId | undefined) => {
+      dispatch(tradeInput.actions.setSellAccountId(accountId))
+    },
     [dispatch],
   )
 
   const setBuyAssetAccountId = useCallback(
-    (accountId: AccountId | undefined) =>
-      dispatch(tradeInput.actions.setBuyAssetAccountNumber(accountId)),
+    (accountId: AccountId | undefined) => {
+      dispatch(tradeInput.actions.setBuyAccountId(accountId))
+    },
     [dispatch],
   )
 

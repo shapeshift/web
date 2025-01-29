@@ -154,7 +154,7 @@ export const bucketEvents = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Buck
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   assets: AssetsByIdPartial
-  cryptoPriceHistoryData: PriceHistoryData
+  cryptoPriceHistoryData: PriceHistoryData<AssetId>
   fiatPriceHistoryData: HistoryData[]
   selectedCurrency: SupportedFiatCurrencies
 }
@@ -194,7 +194,7 @@ type CalculateBucketPricesArgs = {
   assetIds: AssetId[]
   buckets: Bucket[]
   assets: AssetsByIdPartial
-  cryptoPriceHistoryData: PriceHistoryData
+  cryptoPriceHistoryData: PriceHistoryData<AssetId>
   fiatPriceHistoryData: HistoryData[]
   selectedCurrency: SupportedFiatCurrencies
 }

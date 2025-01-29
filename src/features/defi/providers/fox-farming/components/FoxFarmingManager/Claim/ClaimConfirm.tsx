@@ -22,6 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -250,13 +251,15 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
             </Row.Label>
             <Row.Value>
               <Skeleton minWidth='100px' isLoaded={!!accountAddress}>
-                <Link
-                  isExternal
-                  color='blue.500'
-                  href={`${asset?.explorerAddressLink}${accountAddress}`}
-                >
-                  <MiddleEllipsis value={accountAddress ?? ''} />
-                </Link>
+                <InlineCopyButton value={accountAddress ?? ''}>
+                  <Link
+                    isExternal
+                    color='blue.500'
+                    href={`${asset?.explorerAddressLink}${accountAddress}`}
+                  >
+                    <MiddleEllipsis value={accountAddress ?? ''} />
+                  </Link>
+                </InlineCopyButton>
               </Skeleton>
             </Row.Value>
           </Row>

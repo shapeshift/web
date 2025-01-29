@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { type FC } from 'react'
+import type { FC } from 'react'
 import { RawText } from 'components/Text'
 
 type AccountGroupProps = {
@@ -14,6 +14,7 @@ export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
     py={2}
     color='text.subtle'
     fontSize='sm'
+    alignItems='center'
     justifyContent='space-between'
   >
     <RawText>{title}</RawText>

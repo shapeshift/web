@@ -86,8 +86,12 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const filteredDown = stakingOpportunities.filter(
-    e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+  const filteredDown = useMemo(
+    () =>
+      stakingOpportunities.filter(
+        e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+      ),
+    [ids, stakingOpportunities],
   )
 
   const handleClick = useCallback(
@@ -110,7 +114,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-      if (!isConnected && isDemoWallet) {
+      if (!isConnected || isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

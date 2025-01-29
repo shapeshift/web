@@ -66,7 +66,7 @@ export const TransactionTeaser: React.FC<TransactionTeaserProps> = ({
 
   return (
     <Flex gap={4} alignItems='center' px={4} py={4} onClick={onToggle}>
-      <AssetIconWithBadge transfersByType={transfersByType} type={type} assetId={assetId}>
+      <AssetIconWithBadge size='md' transfersByType={transfersByType} type={type} assetId={assetId}>
         <TransactionTypeIcon type={type} status={status} />
       </AssetIconWithBadge>
       <Stack flex={1} spacing={0} minWidth={0}>

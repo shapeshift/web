@@ -1,8 +1,16 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
+import partition from 'lodash/partition'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -12,7 +20,7 @@ import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ActiveQuoteMeta } from './types'
 
-export const getHopTotalNetworkFeeUserCurrencyPrecision = (
+export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
   getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string,
@@ -31,28 +39,34 @@ export const getHopTotalNetworkFeeUserCurrencyPrecision = (
 /**
  * Computes the total network fee across all hops
  * @param quote The trade quote
+ * @param getFeeAsset
+ * @param getFeeAssetRate
  * @returns The total network fee across all hops in fiat precision
  */
 export const getTotalNetworkFeeUserCurrencyPrecision = (
-  quote: TradeQuote,
+  quote: TradeQuote | TradeRate,
   getFeeAsset: (assetId: AssetId) => Asset,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
-): BigNumber =>
-  quote.steps.reduce((acc, step) => {
+): BigNumber | undefined => {
+  // network fee is unknown, which is different than it being akschual 0
+  if (quote.steps.every(step => !step.feeData.networkFeeCryptoBaseUnit)) return
+
+  return quote.steps.reduce((acc, step) => {
     const feeAsset = getFeeAsset(step.sellAsset.assetId)
-    const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrencyPrecision(
+    const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrency(
       step.feeData.networkFeeCryptoBaseUnit,
       feeAsset,
       getFeeAssetRate,
     )
     return acc.plus(networkFeeFiatPrecision ?? '0')
   }, bn(0))
+}
 
 export const getHopTotalProtocolFeesFiatPrecision = (
   tradeQuoteStep: TradeQuote['steps'][number],
   userCurrencyToUsdRate: string,
   marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
-): string => {
+): string | undefined => {
   return sumProtocolFeesToDenom({
     marketDataByAssetIdUsd,
     protocolFees: tradeQuoteStep.feeData.protocolFees,
@@ -66,7 +80,11 @@ export const getHopTotalProtocolFeesFiatPrecision = (
  * @param quote The trade quote
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
-export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
+export const getBuyAmountAfterFeesCryptoPrecision = ({
+  quote,
+}: {
+  quote: TradeQuote | TradeRate
+}) => {
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
   const lastStep = getHopByIndex(quote, lastStepIndex)
 
@@ -85,8 +103,9 @@ export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQu
 export const _reduceTotalProtocolFeeByAssetForStep = (
   accumulator: Record<AssetId, ProtocolFee>,
   step: TradeQuoteStep,
-) =>
-  Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
+) => {
+  if (step.feeData.protocolFees === undefined) return accumulator
+  return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
     (innerAccumulator, [assetId, protocolFee]) => {
       if (!protocolFee) return innerAccumulator
       if (innerAccumulator[assetId] === undefined) {
@@ -104,22 +123,32 @@ export const _reduceTotalProtocolFeeByAssetForStep = (
     },
     accumulator,
   )
+}
 
 export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep) =>
   _reduceTotalProtocolFeeByAssetForStep({}, step)
 
-export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
+export const getTotalProtocolFeeByAsset = (
+  quote: TradeQuote | TradeRate,
+): Record<AssetId, ProtocolFee> =>
   quote.steps.reduce<Record<AssetId, ProtocolFee>>(
     (acc, step) => _reduceTotalProtocolFeeByAssetForStep(acc, step),
     {},
   )
 
+const isKnownNetworkFees = (quote: ApiQuote): boolean => {
+  return Boolean(quote?.quote?.steps?.every(step => Boolean(step.feeData.networkFeeCryptoBaseUnit)))
+}
+
 const sortApiQuotes = (unorderedQuotes: ApiQuote[]): ApiQuote[] => {
-  return orderBy(
+  const orderedQuotes = orderBy(
     unorderedQuotes,
     ['inputOutputRatio', 'quote.rate', 'swapperName'],
     ['desc', 'desc', 'asc'],
   )
+  const [quotesWithKnownFees, quotesWithUnknownFees] = partition(orderedQuotes, isKnownNetworkFees)
+
+  return [...quotesWithKnownFees, ...quotesWithUnknownFees]
 }
 
 export const sortTradeQuotes = (

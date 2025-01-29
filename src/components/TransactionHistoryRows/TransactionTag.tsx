@@ -2,6 +2,9 @@ import { Tag } from '@chakra-ui/react'
 import type { TransferType } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import type { Transfer, TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { getStakingAssetId } from 'pages/RFOX/helpers'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type TransactionTagProps = {
   txDetails: TxDetails
@@ -14,6 +17,15 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
       .flat()
       .some(transfer => !!transfer.id)
   }, [transfersByType])
+
+  const rFoxStakingAsset = useAppSelector(state =>
+    selectAssetById(
+      state,
+      txData?.parser === 'rfox' && txData.type === 'thorchain'
+        ? getStakingAssetId(txData.stakingContract)
+        : '',
+    ),
+  )
 
   if (txData && txData.parser === 'ibc') {
     return (
@@ -32,7 +44,7 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
   if (txData && txData.parser === 'rfox') {
     return (
       <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
-        rFOX
+        {rFoxStakingAsset ? `rFOX (${rFoxStakingAsset.symbol})` : 'rFOX'}
       </Tag>
     )
   }

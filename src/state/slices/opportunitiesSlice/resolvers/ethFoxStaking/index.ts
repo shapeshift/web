@@ -1,7 +1,15 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type {
+  FoxEthStakingContract,
+  FoxEthStakingContractAbi,
+  KnownContractAddress,
+} from '@shapeshiftoss/contracts'
+import {
+  ETH_FOX_POOL_CONTRACT,
+  fetchUniV2PairData,
+  getOrCreateContractByAddress,
+} from '@shapeshiftoss/contracts'
 import type { MarketData } from '@shapeshiftoss/types'
-import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
-import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -50,8 +58,10 @@ export const ethFoxStakingMetadataResolver = async ({
   }
 
   assertIsFoxEthStakingContractAddress(contractAddress)
-  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
-  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
+  const foxFarmingContract = getOrCreateContractByAddress(
+    contractAddress as KnownContractAddress,
+  ) as FoxEthStakingContract<FoxEthStakingContractAbi>
+  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT)
 
   // tvl
   const totalSupply = await foxFarmingContract.read.totalSupply()
@@ -132,7 +142,7 @@ export const ethFoxStakingUserDataResolver = async ({
   )
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId)
+  const { assetReference } = fromAssetId(opportunityId)
   const { account } = fromAccountId(accountId)
   const accountAddress = getAddress(account)
 
@@ -140,9 +150,11 @@ export const ethFoxStakingUserDataResolver = async ({
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
-  assertIsFoxEthStakingContractAddress(contractAddress)
+  const maybeContractAddress = assetReference as string
 
-  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
+  assertIsFoxEthStakingContractAddress(maybeContractAddress)
+
+  const foxFarmingContract = getOrCreateContractByAddress(maybeContractAddress)
 
   const stakedBalance = await foxFarmingContract.read.balanceOf([accountAddress])
   const earned = await foxFarmingContract.read.earned([accountAddress])

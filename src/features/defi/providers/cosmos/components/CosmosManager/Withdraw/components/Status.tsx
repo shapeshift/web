@@ -12,6 +12,7 @@ import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
@@ -126,7 +127,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusIcon: <AssetIcon size='xs' src={asset?.icon} justifyContent='center' />,
           statusText: StatusTextEnum.pending,
           statusBg: 'transparent',
           statusBody: translate('modals.withdraw.status.pending'),
@@ -165,7 +166,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             <Text translation='modals.confirm.withdrawTo' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <MiddleEllipsis value={userAddress || ''} />
+            <InlineCopyButton value={userAddress || ''}>
+              <MiddleEllipsis value={userAddress || ''} />
+            </InlineCopyButton>
           </Row.Value>
         </Row>
         {state.txid && (

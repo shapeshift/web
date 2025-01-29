@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
@@ -7,7 +7,8 @@ import {
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { memo, useCallback, useMemo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
@@ -15,18 +16,21 @@ import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/Tr
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper/types'
+import type { ApiQuote } from 'state/apis/swapper/types'
+import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,
-  selectInputBuyAsset,
-  selectInputSellAmountCryptoPrecision,
-  selectInputSellAsset,
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-  selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
+import {
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
+  selectUserSlippagePercentageDecimal,
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
@@ -61,9 +65,38 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     onBack,
   }) => {
     const { quote, errors, inputOutputRatio, swapperName } = quoteData
-
+    const {
+      isOpen: isTooltipOpen,
+      onToggle: onTooltipToggle,
+      onOpen: onTooltipOpen,
+      onClose: onTooltipClose,
+    } = useDisclosure()
     const dispatch = useAppDispatch()
     const translate = useTranslate()
+
+    const handleToolTipOpen = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault()
+        onTooltipOpen()
+      },
+      [onTooltipOpen],
+    )
+
+    const handleTooltipToggle = useCallback(
+      (e: React.TouchEvent) => {
+        e.preventDefault()
+        onTooltipToggle()
+      },
+      [onTooltipToggle],
+    )
+
+    const handleTooltipClose = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault()
+        onTooltipClose()
+      },
+      [onTooltipClose],
+    )
 
     const {
       number: { toPercent },
@@ -104,7 +137,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         quote,
         getFeeAsset,
         getFeeAssetUserCurrencyRate,
-      ).toString()
+      )?.toString()
     }, [quote])
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here
@@ -184,17 +217,36 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !quote || error !== undefined:
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
-            <Tag size='sm' colorScheme='red'>
-              {translate(
-                ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
-              )}
-            </Tag>
+            <Box
+              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
+              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onTouchEnd={handleTooltipToggle}
+            >
+              <Tooltip
+                label={translate(
+                  ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
+                )}
+                isOpen={isTooltipOpen}
+              >
+                <Circle size={6}>
+                  <WarningIcon color='text.error' boxSize={4} />
+                </Circle>
+              </Tooltip>
+            </Box>
           )
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
-            <Tag size='sm' colorScheme='red'>
-              {translate('trade.rates.tags.negativeRatio')}
-            </Tag>
+            <Box
+              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
+              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onTouchEnd={handleTooltipToggle}
+            >
+              <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
+                <Circle size={6}>
+                  <WarningIcon color='text.error' boxSize={4} />
+                </Circle>
+              </Tooltip>
+            </Box>
           )
         case isBest:
           return (
@@ -204,11 +256,23 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           )
         default:
           return quoteOverallDifferenceDecimalPercentage !== undefined ? (
-            <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
-              <Tag size='sm'>
-                <Amount.Percent value={quoteOverallDifferenceDecimalPercentage} autoColor={false} />
-              </Tag>
-            </Tooltip>
+            <Box
+              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
+              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onTouchEnd={handleTooltipToggle}
+            >
+              <Tooltip
+                label={translate('trade.tooltip.overallPercentageDifference')}
+                isOpen={isTooltipOpen}
+              >
+                <Tag size='sm'>
+                  <Amount.Percent
+                    value={quoteOverallDifferenceDecimalPercentage}
+                    autoColor={false}
+                  />
+                </Tag>
+              </Tooltip>
+            </Box>
           ) : null
       }
     }, [
@@ -219,6 +283,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isAmountEntered,
       isBest,
       quoteOverallDifferenceDecimalPercentage,
+      handleToolTipOpen,
+      handleTooltipClose,
+      handleTooltipToggle,
+      isTooltipOpen,
     ])
 
     const isDisabled = !quote || isLoading
@@ -298,11 +366,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           buyAsset={buyAsset}
           isBest={isBest}
           numHops={quote?.steps.length}
-          totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
+          totalReceiveAmountFiatUserCurrency={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
           quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
-          networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
+          networkFeeFiatUserCurrency={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
           slippage={slippage}
           tradeQuote={quote}

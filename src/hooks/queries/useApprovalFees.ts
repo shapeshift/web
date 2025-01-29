@@ -1,12 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/src/swappers/utils/constants'
 import { useMemo } from 'react'
+import { maxUint256 } from 'viem'
 import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData } from 'lib/utils/evm'
 
 import { useEvmFees } from './useEvmFees'
-import { useIsApprovalRequired } from './useIsApprovalRequired'
 
 export enum AllowanceType {
   Exact,
@@ -15,35 +14,28 @@ export enum AllowanceType {
 }
 
 type UseApprovalFeesInput = {
-  accountNumber: number
   assetId: AssetId
-  from?: string
+  from: string | undefined
   spender: string
   amountCryptoBaseUnit: string
   allowanceType: AllowanceType
+  enabled: boolean
 }
 
 export const useApprovalFees = ({
-  accountNumber,
   assetId,
   amountCryptoBaseUnit,
   from,
   allowanceType,
   spender,
+  enabled,
 }: UseApprovalFeesInput) => {
   const { assetReference: to, chainId } = useMemo(() => {
     return fromAssetId(assetId)
   }, [assetId])
 
-  const { allowanceCryptoBaseUnitResult, isApprovalRequired } = useIsApprovalRequired({
-    amountCryptoBaseUnit,
-    assetId,
-    from,
-    spender,
-  })
-
   const approveContractData = useMemo(() => {
-    if (!amountCryptoBaseUnit || !spender) return
+    if (!amountCryptoBaseUnit || !spender || !enabled) return
 
     return getApproveContractData({
       approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
@@ -54,24 +46,22 @@ export const useApprovalFees = ({
       spender,
       to,
     })
-  }, [allowanceType, amountCryptoBaseUnit, chainId, spender, to])
+  }, [allowanceType, amountCryptoBaseUnit, chainId, enabled, spender, to])
 
   const evmFeesResult = useEvmFees({
-    accountNumber,
     to,
+    from,
     value: '0',
     chainId,
     data: approveContractData,
-    enabled: Boolean(isApprovalRequired),
+    enabled: Boolean(enabled),
     refetchIntervalInBackground: true,
-    refetchInterval: isApprovalRequired ? 15_000 : false,
+    refetchInterval: enabled ? 15_000 : false,
   })
 
   return {
-    allowanceCryptoBaseUnitResult,
     approveContractData,
     evmFeesResult,
-    isApprovalRequired,
   }
 }
 
@@ -83,7 +73,7 @@ export const getApprovalAmountCryptoBaseUnit = (
     case AllowanceType.Exact:
       return amountCryptoBaseUnit
     case AllowanceType.Unlimited:
-      return MAX_ALLOWANCE
+      return maxUint256.toString()
     case AllowanceType.Reset:
       return '0'
     default:

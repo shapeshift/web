@@ -2,7 +2,9 @@
 
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
@@ -52,6 +54,10 @@ type ParamFilter = Partial<{
   feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
+  parser: TxMetadata['parser']
+  hopIndex: number
+  tradeId: TradeQuote['id']
+  quoteId: QuoteId
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -66,6 +72,13 @@ export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
       `${param}-${filter?.[param] ?? param}`,
   )
 
+export const selectRequiredParamFromFilter = <T extends ParamFilterKey>(param: T) =>
+  createCachedSelector(
+    (_state: ReduxState, filter: Required<Pick<ParamFilter, T>>): NonNullable<ParamFilter[T]> =>
+      filter[param] as NonNullable<ParamFilter[T]>,
+    (paramValue: NonNullable<ParamFilter[T]>): NonNullable<ParamFilter[T]> => paramValue,
+  )((_state: ReduxState, filter: Required<Pick<ParamFilter, T>>) => `${param}-${filter[param]}`)
+
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 export const selectAccountIdsParamFromFilter = selectParamFromFilter('accountIds')
 export const selectFromParamFromFilter = selectParamFromFilter('from')
@@ -79,7 +92,6 @@ export const selectValidatorIdParamFromFilter = selectParamFromFilter('validator
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
-export const selectEndpointNameParamFromFilter = selectParamFromFilter('endpointName')
 export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
 export const selectIncludeRewardsBalancesParamFromFilter =
   selectParamFromFilter('includeRewardsBalances')
@@ -88,3 +100,8 @@ export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
+export const selectParserParamFromFilter = selectParamFromFilter('parser')
+
+export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
+export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')
+export const selectQuoteIdParamFromRequiredFilter = selectRequiredParamFromFilter('quoteId')

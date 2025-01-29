@@ -7,6 +7,7 @@
   "name": "ShapeShift",
   "short_name": "ShapeShift",
   "description": "Your Web3 & DeFi Portal",
+  "iconPath": "/icon-512x512.png",
   "icons": [
     {
       "src": "/icon-192x192.png",

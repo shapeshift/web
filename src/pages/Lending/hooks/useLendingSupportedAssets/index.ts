@@ -14,8 +14,8 @@ import { useSelector } from 'react-redux'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
+import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
@@ -25,6 +25,8 @@ import { store, useAppSelector } from 'state/store'
 
 const queryKey = ['lendingSupportedAssets']
 
+const lendingThorRegex = /^LENDING-THOR-(\w+)$/
+
 export const useLendingSupportedAssets = ({
   type,
   statusFilter = 'Available',
@@ -32,8 +34,10 @@ export const useLendingSupportedAssets = ({
   type: 'collateral' | 'borrow'
   statusFilter?: ThornodePoolStatuses | 'All'
 }) => {
-  const wallet = useWallet().state.wallet
-  const isSnapInstalled = useIsSnapInstalled()
+  const {
+    state: { wallet, isConnected },
+  } = useWallet()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const { data: availablePools } = useQuery({
     ...reactQueries.thornode.poolsData(),
@@ -44,6 +48,11 @@ export const useLendingSupportedAssets = ({
       statusFilter !== 'All'
         ? pools => pools.filter(pool => statusFilter.includes(pool.status))
         : undefined,
+  })
+
+  const { data: mimir } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
   })
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
@@ -66,20 +75,42 @@ export const useLendingSupportedAssets = ({
   const selectSupportedAssets = useCallback(
     (data: ThornodePoolResponse[] | undefined) => {
       if (!data) return []
-      const pools = (availablePools ?? []).filter(
-        pool => type === 'borrow' || bnOrZero(pool.loan_collateral).gt(0),
-      )
+      if (!mimir) return []
+
+      const pools = (availablePools ?? []).filter(pool => {
+        if (type === 'borrow') return true
+        if (type === 'collateral') {
+          const mimirLendingEnabledPools = Object.keys(mimir)
+            .filter(key => lendingThorRegex.test(key))
+            .map(key => {
+              const match = key.match(lendingThorRegex)?.[1]
+              if (!match) return undefined
+
+              // i.e LENDING-THOR-BTC, LENDING-THOR-ETH
+              // No token pools support, so that works, and lending's pretty much going hasta la vista
+              // so we don't need to worry about this not generalizing to assets
+              return `${match}.${match}`
+            })
+            .filter(Boolean)
+
+          return mimirLendingEnabledPools.includes(pool.asset)
+        }
+        return false
+      })
 
       const supportedAssets = pools
         .map(pool => {
           const assetId = poolAssetIdToAssetId(pool.asset)
           const chainId = assetId ? (fromAssetId(assetId).chainId as KnownChainIds) : undefined
 
-          if (!chainId || !walletSupportChains.includes(chainId)) return undefined
-          // Chain supported by the wallet, but no actual account for it.
-          // This can happen with Ledger, when the chain's accounts haven't been connected
-          if (type === 'borrow' && !walletChainIds.includes(chainId)) {
-            return undefined
+          // Wallet feature-capability checks below do not apply if no wallet is connected
+          if (isConnected) {
+            if (!chainId || !walletSupportChains.includes(chainId)) return undefined
+            // Chain supported by the wallet, but no actual account for it.
+            // This can happen with Ledger, when the chain's accounts haven't been connected
+            if (type === 'borrow' && !walletChainIds.includes(chainId)) {
+              return undefined
+            }
           }
 
           const asset = selectAssetById(store.getState(), assetId ?? '')
@@ -89,9 +120,8 @@ export const useLendingSupportedAssets = ({
 
       if (
         type === 'borrow' &&
-        wallet &&
-        supportsThorchain(wallet) &&
-        walletChainIds.includes(thorchainChainId)
+        (!isConnected ||
+          (wallet && supportsThorchain(wallet) && walletChainIds.includes(thorchainChainId)))
       ) {
         const runeAsset = selectAssetById(store.getState(), thorchainAssetId)
         if (!runeAsset) return
@@ -99,7 +129,7 @@ export const useLendingSupportedAssets = ({
       }
       return supportedAssets
     },
-    [availablePools, type, wallet, walletChainIds, walletSupportChains],
+    [availablePools, isConnected, mimir, type, wallet, walletChainIds, walletSupportChains],
   )
 
   const lendingSupportedAssetsQuery = useQuery({

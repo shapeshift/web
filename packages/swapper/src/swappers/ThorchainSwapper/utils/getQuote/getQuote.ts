@@ -1,13 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bchAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { baseUnitToPrecision, bn, toBaseUnit } from '@shapeshiftoss/utils'
+import { bn, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
 
-import type { SwapperDeps } from '../../../../types'
-import { type SwapErrorRight, TradeQuoteError } from '../../../../types'
+import type { SwapErrorRight, SwapperDeps } from '../../../../types'
+import { TradeQuoteError } from '../../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../../utils'
 import type { ThornodeQuoteResponse, ThornodeQuoteResponseSuccess } from '../../types'
 import { THORCHAIN_AFFILIATE_NAME, THORCHAIN_FIXED_PRECISION } from '../constants'
@@ -48,10 +48,7 @@ const _getQuote = async (
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
-  const sellAmountCryptoPrecision = baseUnitToPrecision({
-    value: sellAmountCryptoBaseUnit,
-    inputExponent: sellAsset.precision,
-  })
+  const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
   // All THORChain pool amounts are base 8 regardless of token precision
   const sellAmountCryptoThorBaseUnit = bn(
     toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),
@@ -92,7 +89,7 @@ const _getQuote = async (
   } else if (isError && /trading is halted/.test(data.error)) {
     return Err(
       makeSwapErrorRight({
-        message: `[getTradeRate]: Trading is halted, cannot process swap`,
+        message: `[_getQuote]: Trading is halted, cannot process swap`,
         code: TradeQuoteError.TradingHalted,
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),

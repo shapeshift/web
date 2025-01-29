@@ -1,5 +1,5 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
+import { evm } from '@shapeshiftoss/chain-adapters'
 
 import { THOR_EVM_GAS_LIMIT } from '../../constants'
 
@@ -17,7 +17,7 @@ export const getEvmTxFees = async (args: GetEvmTxFeesArgs): Promise<EvmTxFees> =
 
   const { average } = await adapter.getGasFeeData()
 
-  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+  const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
     ...average,
     supportsEIP1559,
     gasLimit: THOR_EVM_GAS_LIMIT, // hardcoded default for quote estimation (no wallet)

@@ -12,16 +12,17 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { type FC, useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Row, type RowProps } from 'components/Row/Row'
+import type { RowProps } from 'components/Row/Row'
+import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
@@ -34,6 +35,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { getStakingContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -43,7 +45,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { ClaimRoutePaths, type ClaimRouteProps, type RfoxClaimQuote } from './types'
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
 
 type ClaimConfirmProps = {
   claimQuote: RfoxClaimQuote
@@ -71,7 +74,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
 
   const claimAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, claimQuote.stakingAssetId),
   )
 
   const stakingAmountCryptoPrecision = useMemo(
@@ -104,14 +107,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   )
 
   const callData = useMemo(() => {
-    if (!stakingAsset) return
-
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: RFOX_ABI,
       functionName: 'withdraw',
       args: [BigInt(claimQuote.index)],
     })
-  }, [stakingAsset, claimQuote.index])
+  }, [claimQuote.index])
 
   const {
     mutateAsync: handleClaim,
@@ -120,16 +121,17 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     isSuccess: isClaimMutationSuccess,
   } = useMutation({
     mutationFn: async () => {
-      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
+      if (!wallet || stakingAssetAccountNumber === undefined) return
 
-      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+      const adapter = assertGetEvmChainAdapter(fromAssetId(claimQuote.stakingAssetId).chainId)
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        to: getStakingContract(claimQuote.stakingAssetId),
         wallet,
       })
 
@@ -152,13 +154,14 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const claimFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: getStakingContract(claimQuote.stakingAssetId),
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, claimQuote.stakingAssetId, stakingAssetAccountNumber],
+    [callData, claimQuote.stakingAssetId, stakingAssetAccountAddress, stakingAssetAccountNumber],
   )
 
   const {
@@ -204,11 +207,13 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   }, [stakingAsset, stakingAmountCryptoPrecision, claimAmountUserCurrency])
 
   const handleSubmit = useCallback(async () => {
-    await handleClaim()
+    const txHash = await handleClaim()
+    if (!txHash) return
     history.push(ClaimRoutePaths.Status)
   }, [handleClaim, history])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
+
   const isClaimTxPending = useMemo(
     () => isClaimMutationPending || (isClaimMutationSuccess && !claimTx),
     [claimTx, isClaimMutationPending, isClaimMutationSuccess],

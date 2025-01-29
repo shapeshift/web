@@ -24,9 +24,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,13 +57,13 @@ export const FoxyWithdraw: React.FC<{
     selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
   )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {

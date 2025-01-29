@@ -9,7 +9,8 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import type { ChangeEvent } from 'react'
@@ -53,7 +54,17 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     '--chakra-colors-blackAlpha-400',
   )
   const backgroundColor = useColorModeValue('gray.100', 'darkNeutralAlpha.700')
+  const checkboxBackground = useColorModeValue('white', 'transparent')
   const isRunePool = assetId === thorchainAssetId
+
+  const checkboxStyles = useMemo(
+    () => ({
+      '.chakra-checkbox__control:not([data-checked])': {
+        background: checkboxBackground,
+      },
+    }),
+    [checkboxBackground],
+  )
 
   const [hasAgreed, setHasAgreed] = useState(false)
 
@@ -72,8 +83,8 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   }, [assetId, openFiatRamp])
 
   const needAssetTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['common.needAsset', { asset: asset?.name }],
-    [asset?.name],
+    () => ['common.needAsset', { asset: asset?.symbol }],
+    [asset?.symbol],
   )
 
   const saversVaultDescriptionTranslation: TextPropTypes['translation'] = useMemo(
@@ -103,7 +114,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
         </Alert>
         {isRunePool ? (
           <Box borderRadius='xl' background={backgroundColor}>
-            <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
+            <Checkbox sx={checkboxStyles} isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
               {translate('defi.modals.saversVaults.agreeRunePool.1')}
             </Checkbox>
           </Box>
@@ -134,6 +145,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     backgroundColor,
     isRunePool,
     onClick,
+    checkboxStyles,
   ])
 
   // @TODO: update the RUNEPool link a better article exists

@@ -31,6 +31,10 @@ export enum MixPanelEvent {
   RepayConfirm = 'Repay Confirm',
   TradeConfirmSecondHop = 'Trade Confirm Second Hop',
   TradeSuccess = 'Trade Success',
+  ThorDiscountTradeSuccess = 'Thor Discount Trade Success',
+  ThorDiscountTradeFailed = 'Thor Discount Trade Failed',
+  ThorDiscountTradeConfirm = 'Thor Discount Trade Confirm',
+  ThorDiscountTradeConfirmSecondHop = 'Thor Discount Trade Second Hop',
   BorrowSuccess = 'Borrow Success',
   RepaySuccess = 'Repay Success',
   TradeFailed = 'Trade Failed',
@@ -38,7 +42,8 @@ export enum MixPanelEvent {
   SwitchWallet = 'Switch Wallet',
   DisconnectWallet = 'Disconnect Wallet',
   FiatRamp = 'Fiat Ramp',
-  NativeImport = 'Native Import',
+  NativeImportSeed = 'Native Import Seed',
+  NativeImportKeystore = 'Native Import Keystore',
   NativeCreate = 'Native Create',
   Click = 'Click',
   ClickdApp = 'Click dApp',
@@ -61,6 +66,9 @@ export enum MixPanelEvent {
   LpIncompleteWithdrawPreview = 'LP Incomplete Withdraw Preview',
   LpIncompleteWithdrawConfirm = 'LP Incomplete Withdraw Confirm',
   CustomAssetAdded = 'Custom Asset Added',
+  ToggleWatchAsset = 'Toggle Watch Asset',
+  LimitOrderPlaced = 'Limit Order Placed',
+  LimitOrderCanceled = 'Limit Order Canceled',
 }
 
 export type TrackOpportunityProps = {

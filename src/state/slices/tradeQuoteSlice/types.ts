@@ -1,5 +1,6 @@
-import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
@@ -7,8 +8,8 @@ export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteMeta: ActiveQuoteMeta | undefined // the selected quote metadata used to find the active quote in the api responses
-  confirmedQuote: TradeQuote | undefined // the quote being executed
-  tradeExecution: TradeExecutionMetadata
+  confirmedQuote: TradeQuote | TradeRate | undefined // the quote being executed
+  tradeExecution: Record<TradeQuote['id'], TradeExecutionMetadata>
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
   tradeQuoteDisplayCache: ApiQuote[]
   isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
@@ -23,8 +24,9 @@ export enum TransactionExecutionState {
 
 export enum HopExecutionState {
   Pending = 'Pending',
-  AwaitingApprovalReset = 'AwaitingApprovalReset',
-  AwaitingApproval = 'AwaitingApproval',
+  AwaitingAllowanceReset = 'AwaitingAllowanceReset',
+  AwaitingAllowanceApproval = 'AwaitingAllowanceApproval',
+  AwaitingPermit2Eip712Sign = 'AwaitingPermit2Eip712Sign',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
 }
@@ -44,7 +46,7 @@ export enum HopKey {
 
 export enum AllowanceKey {
   AllowanceReset = 'allowanceReset',
-  Approval = 'approval',
+  AllowanceApproval = 'allowanceApproval',
 }
 
 export type StreamingSwapFailedSwap = {
@@ -61,6 +63,7 @@ export type StreamingSwapMetadata = {
 export type ApprovalExecutionMetadata = {
   state: TransactionExecutionState
   txHash?: string
+  isInitiallyRequired: boolean | undefined
   isRequired?: boolean
 }
 
@@ -69,13 +72,16 @@ export type SwapExecutionMetadata = {
   sellTxHash?: string
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
-  message?: string
+  message?: string | [string, InterpolationOptions]
 }
 
 export type HopExecutionMetadata = {
   state: HopExecutionState
   allowanceReset: ApprovalExecutionMetadata
-  approval: ApprovalExecutionMetadata
+  allowanceApproval: ApprovalExecutionMetadata
+  permit2: Omit<ApprovalExecutionMetadata, 'txHash' | 'isInitiallyRequired'> & {
+    permit2Signature?: string
+  }
   swap: SwapExecutionMetadata
 }
 

@@ -1,15 +1,14 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata } from '@shapeshiftoss/types'
+import type { AccountMetadata, EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { PartialFields } from 'lib/types'
 import { assertGetChainAdapter } from 'lib/utils'
-import type { GetFeesWithWalletArgs } from 'lib/utils/evm'
+import type { GetFeesWithWalletEip1559SupportArgs } from 'lib/utils/evm'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -90,16 +89,34 @@ export const common = createQueryKeys('common', {
   }),
   evmFees: ({
     data,
-    accountNumber,
     to,
     value,
     chainId,
+    from,
   }: PartialFields<
-    Omit<GetFeesWithWalletArgs, 'wallet' | 'adapter'>,
-    'accountNumber' | 'data' | 'to'
+    Omit<GetFeesWithWalletEip1559SupportArgs, 'wallet' | 'adapter'>,
+    'data' | 'to' | 'from'
   > & {
     chainId: ChainId | undefined
   }) => ({
-    queryKey: ['evmFees', to, chainId, accountNumber, data, value],
+    queryKey: ['evmFees', to, chainId, data, value, from],
+  }),
+  hdwalletNativeVaultsList: () => ({
+    queryKey: ['hdwalletNativeVaultsList'],
+    queryFn: async () => {
+      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
+
+      const storedWallets = await Vault.list().then(vaultIds =>
+        Promise.all(
+          vaultIds.map(async id => {
+            const meta = await Vault.meta(id)
+            const name = String(meta?.get('name') ?? id)
+            return { id, name }
+          }),
+        ),
+      )
+
+      return storedWallets
+    },
   }),
 })

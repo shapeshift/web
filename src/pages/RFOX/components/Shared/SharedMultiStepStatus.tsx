@@ -195,6 +195,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
           ) => {
             return (
               <TransactionRow
+                accountId={confirmedQuote.sellAssetAccountId}
                 key={asset.assetId}
                 assetId={asset.assetId}
                 header={header}
@@ -209,7 +210,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
         )}
       </Stack>
     )
-  }, [steps, handleStart, activeStepIndex, isFailed])
+  }, [steps, confirmedQuote.sellAssetAccountId, handleStart, activeStepIndex, isFailed])
 
   if (!(sellAsset && buyAsset)) return null
 

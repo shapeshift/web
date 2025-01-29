@@ -1,6 +1,7 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
 import { Avatar, Center, Flex } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold' }
 
@@ -37,6 +38,7 @@ export const PairIcons = ({
   showFirst?: boolean
 } & FlexProps): JSX.Element => {
   const firstIcon = icons[0]
+
   const remainingIcons = useMemo(() => {
     const iconsMinusFirst = icons.slice(showFirst ? 1 : 0)
     if (iconsMinusFirst.length > 1) {
@@ -51,8 +53,9 @@ export const PairIcons = ({
         >
           {iconsMinusFirst.map(iconSrc => {
             const { left, top, zIndex } = getRandomPosition(iconsMinusFirst.length)
+
             return (
-              <Avatar
+              <LazyLoadAvatar
                 key={iconSrc}
                 src={iconSrc}
                 position='absolute'
@@ -81,7 +84,7 @@ export const PairIcons = ({
       )
     }
     return iconsMinusFirst.map(iconSrc => (
-      <Avatar
+      <LazyLoadAvatar
         ml={showFirst ? '-2.5' : 0}
         key={iconSrc}
         src={iconSrc}
@@ -90,9 +93,10 @@ export const PairIcons = ({
       />
     ))
   }, [iconBoxSize, iconSize, icons, showFirst])
+
   return (
     <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
-      {showFirst && <Avatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
+      {showFirst && <LazyLoadAvatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
 
       {remainingIcons}
     </Flex>

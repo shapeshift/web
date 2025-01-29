@@ -1,26 +1,29 @@
 import { ethChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import {
+  TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
+  viemClientByChainId,
+} from '@shapeshiftoss/contracts'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type {
-  GetTradeQuoteInput,
+  CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { ALLOWANCE_CONTRACT } from '../constants'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '../types'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1quote } from './getL1quote'
+import { getL1Quote } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (
-  input: GetTradeQuoteInput,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -54,11 +57,10 @@ export const getLongtailToL1Quote = async (
   }
 
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
-  const publicClient = deps.viemClientByChainId[sellChainId as EvmChainId]
+  const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
   const maybeBestAggregator = await getBestAggregator(
-    deps,
     buyAssetFeeAsset,
     getTokenFromAsset(sellAsset),
     getWrappedToken(buyAssetFeeAsset),
@@ -71,13 +73,13 @@ export const getLongtailToL1Quote = async (
 
   const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
 
-  const l1Tol1QuoteInput: GetTradeQuoteInput = {
+  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
     ...input,
     sellAsset: buyAssetFeeAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuotes = await getL1quote(
+  const thorchainQuotes = await getL1Quote(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
@@ -85,21 +87,24 @@ export const getLongtailToL1Quote = async (
   )
 
   return thorchainQuotes.andThen(quotes => {
-    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
-      ...q,
-      aggregator: bestAggregator,
-      // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
-      steps: q.steps.map(s => ({
-        ...s,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        sellAsset,
-        allowanceContract: ALLOWANCE_CONTRACT,
-      })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
-      isLongtail: true,
-      longtailData: {
-        longtailToL1ExpectedAmountOut: quotedAmountOut,
-      },
-    }))
+    const updatedQuotes = quotes.map(
+      q =>
+        ({
+          ...q,
+          aggregator: bestAggregator,
+          // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
+          steps: q.steps.map(s => ({
+            ...s,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            sellAsset,
+            allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
+          })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
+          isLongtail: true,
+          longtailData: {
+            longtailToL1ExpectedAmountOut: quotedAmountOut.toString(),
+          },
+        }) satisfies ThorTradeQuote,
+    )
 
     return Ok(updatedQuotes)
   })

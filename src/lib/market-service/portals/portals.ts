@@ -1,7 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
-  AssetsByIdPartial,
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
@@ -10,6 +9,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { createThrottle } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import { getConfig } from 'config'
@@ -17,15 +17,13 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/portals/constants'
+import type { GetTokensResponse, HistoryResponse } from 'lib/portals/types'
 import { assertUnreachable, getTimeFrameBounds, isToken } from 'lib/utils'
 
-import generatedAssetData from '../../asset-service/service/generatedAssetData.json'
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
-import { createThrottle } from '../utils'
 import { isValidDate } from '../utils/isValidDate'
-import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
-import type { GetTokensResponse, HistoryResponse } from './types'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)
@@ -35,10 +33,12 @@ const calculatePercentChange = (openPrice: string, closePrice: string): number =
 }
 
 const { throttle, clear } = createThrottle({
-  capacity: 500, // 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
+  // in theory, 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
+  // in practice, we get rate limited way before that
+  capacity: 50,
   costPerReq: 1,
-  drainPerInterval: 125, // Replenish 125 requests every 15 seconds
-  intervalMs: 15000, // 15 seconds
+  drainPerInterval: 50,
+  intervalMs: 60_000, // 1mn
 })
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
@@ -115,11 +115,7 @@ export class PortalsMarketService implements MarketService {
     }
   }
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
-    const assets = generatedAssetData as unknown as AssetsByIdPartial
-
     try {
-      const asset = assets[assetId]
-      if (!asset) return null
       const { chainId, assetReference } = fromAssetId(assetId)
 
       const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
@@ -128,7 +124,7 @@ export class PortalsMarketService implements MarketService {
         return null
       }
 
-      const id = `${network}:${isToken(assetReference) ? assetReference : zeroAddress}`
+      const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
       const url = `${this.baseUrl}/v2/tokens/history`
       const params = {
         id,
@@ -137,6 +133,7 @@ export class PortalsMarketService implements MarketService {
         page: 0,
       }
 
+      await throttle()
       const { data } = await axios.get<HistoryResponse>(url, {
         headers: {
           Authorization: `Bearer ${PORTALS_API_KEY}`,
@@ -174,7 +171,7 @@ export class PortalsMarketService implements MarketService {
       return []
     }
 
-    const id = `${network}:${isToken(assetReference) ? assetReference : zeroAddress}`
+    const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
     const { start: _start, end } = getTimeFrameBounds(timeframe)
 
     const resolution = (() => {

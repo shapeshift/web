@@ -21,7 +21,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
@@ -90,7 +90,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   useEffect(() => {
     try {

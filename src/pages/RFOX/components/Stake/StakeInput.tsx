@@ -1,32 +1,42 @@
-import { CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName, isSome } from '@shapeshiftoss/utils'
+import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { InfoAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FormDivider } from 'components/FormDivider'
-import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
+  selectAssets,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -34,12 +44,14 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
+import { ConnectWallet } from '../Shared/ConnectWallet'
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
 import { useRfoxStake } from './hooks/useRfoxStake'
-import type { RfoxStakingQuote, StakeInputValues } from './types'
-import { StakeRoutePaths, type StakeRouteProps } from './types'
+import type { RfoxStakingQuote, StakeInputValues, StakeRouteProps } from './types'
+import { StakeRoutePaths } from './types'
 
 const formControlProps = {
   borderRadius: 0,
@@ -65,30 +77,66 @@ const defaultFormValues = {
 }
 
 export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
-  stakingAssetId = foxOnArbitrumOneAssetId,
   l1AssetId = foxAssetId,
   headerComponent,
   onRuneAddressChange,
   runeAddress,
   setConfirmedQuote,
+  setStepIndex,
 }) => {
-  const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
-  const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
+
+  const {
+    stakingAssetId: selectedStakingAssetId,
+    setStakingAssetId: setSelectedStakingAssetId,
+    selectedAssetAccountId,
+    stakingAssetAccountId,
+    supportedStakingAssetIds,
+  } = useRFOXContext()
+
+  const stakingAssetIds = useMemo(() => {
+    return supportedStakingAssetIds.concat(l1AssetId)
+  }, [supportedStakingAssetIds, l1AssetId])
+
+  const assets = useAppSelector(selectAssets)
+
+  const stakingAssets = useMemo(() => {
+    return stakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
+  }, [assets, stakingAssetIds])
+
+  const stakingAssetId = useMemo(() => {
+    if (selectedStakingAssetId === foxAssetId) return foxOnArbitrumOneAssetId
+    return selectedStakingAssetId
+  }, [selectedStakingAssetId])
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
+
+  const { data: currentRuneAddress } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    stakingAssetId,
+    select: selectRuneAddress,
+  })
+
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+
+  const isBridgeRequired = selectedStakingAssetId === l1AssetId
+
   const isChainSupportedByWallet = useWalletSupportsChain(
-    fromAssetId(selectedAssetId).chainId,
+    fromAssetId(selectedStakingAssetId).chainId,
     wallet,
   )
 
   const methods = useForm<StakeInputValues>({
     defaultValues: defaultFormValues,
-    mode: 'onChange',
+    mode: 'all',
     shouldUnregister: true,
   })
 
@@ -99,27 +147,40 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setValue,
   } = methods
 
-  const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const l1Asset = useAppSelector(state => selectAssetById(state, l1AssetId))
-  const selectedAssetFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(selectedAssetId).chainId),
+  const selectedStakingAsset = useAppSelector(state =>
+    selectAssetById(state, selectedStakingAssetId),
   )
+  const selectedStakingAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, selectedStakingAssetId),
+  )
+  const selectedStakingAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: selectedAssetAccountId ?? '',
+      assetId: selectedStakingAssetId,
+    }),
+    [selectedAssetAccountId, selectedStakingAssetId],
+  )
+  const selectedStakingAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, selectedStakingAssetBalanceFilter),
+  )
+  const selectedStakingAssetFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(selectedStakingAssetId).chainId),
+  )
+
   const stakingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
   )
+  const stakingAssetFeeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: stakingAssetFeeAsset?.assetId,
+    }),
+    [stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
+  )
+  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+  )
 
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const selectedAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, selectedAsset?.chainId ?? ''),
-  )
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
-  )
-
-  const selectedAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, selectedAsset?.assetId ?? ''),
-  )
   const [showWarning, setShowWarning] = useState(false)
   const [collapseIn, setCollapseIn] = useState(false)
   const percentOptions = useMemo(() => [1], [])
@@ -134,8 +195,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
-    [amountCryptoPrecision, stakingAsset?.precision],
+    () => toBaseUnit(amountCryptoPrecision, selectedStakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, selectedStakingAsset?.precision],
   )
 
   const [isFiat, handleToggleIsFiat] = useToggle(false)
@@ -146,41 +207,35 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   useEffect(() => {
-    // hydrate FOX.ARB market data in case the user doesn't hold it
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([stakingAssetId]))
-  }, [dispatch, selectedAssetId, stakingAssetId])
+    // hydrate market data in case the user doesn't hold it
+    stakingAssetIds.forEach(stakingAssetId => {
+      dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
+    })
+  }, [dispatch, stakingAssetIds])
+
   useEffect(() => {
     // Only set this once, never collapse out
     if (collapseIn) return
     if (isValidStakingAmount) setCollapseIn(true)
   }, [collapseIn, isValidStakingAmount])
 
-  const selectedAssetBalanceFilter = useMemo(
-    () => ({
-      accountId: selectedAssetAccountId ?? '',
-      assetId: selectedAssetId,
-    }),
-    [selectedAssetAccountId, selectedAssetId],
-  )
-  const selectedAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, selectedAssetBalanceFilter),
-  )
-
-  const selectedAssetFiatBalance = bnOrZero(selectedAssetBalanceCryptoPrecision)
-    .times(selectedAssetMarketData.price)
-    .toString()
-
   const validateHasEnoughBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).lte(0)) return true
 
+      const selectedStakingAssetFiatBalance = bnOrZero(selectedStakingAssetBalanceCryptoPrecision)
+        .times(selectedStakingAssetMarketData.price)
+        .toString()
+
       const hasEnoughBalance = bnOrZero(input).lte(
-        bnOrZero(isFiat ? selectedAssetFiatBalance : selectedAssetBalanceCryptoPrecision),
+        bnOrZero(
+          isFiat ? selectedStakingAssetFiatBalance : selectedStakingAssetBalanceCryptoPrecision,
+        ),
       )
 
       return hasEnoughBalance
     },
-    [isFiat, selectedAssetBalanceCryptoPrecision, selectedAssetFiatBalance],
+    [isFiat, selectedStakingAssetBalanceCryptoPrecision, selectedStakingAssetMarketData],
   )
 
   const hasEnoughBalance = useMemo(
@@ -203,7 +258,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     },
   } = useRfoxStake({
     amountCryptoBaseUnit,
-    runeAddress,
+    runeAddress: currentRuneAddress || runeAddress,
     stakingAssetId,
     stakingAssetAccountId,
     hasEnoughBalance,
@@ -212,9 +267,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     methods,
   })
 
-  const { data: cooldownPeriod } = useCooldownPeriodQuery()
-  // TODO(gomes): implement me when we have multi-account here
-  const handleAccountIdChange = useCallback(() => {}, [])
+  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -232,9 +285,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       !(
         selectedAssetAccountId &&
         stakingAssetAccountId &&
-        runeAddress &&
-        selectedAsset &&
-        stakingAsset &&
+        (runeAddress || currentRuneAddress) &&
+        selectedStakingAsset &&
         isValidStakingAmount
       )
     )
@@ -243,17 +295,24 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     const _confirmedQuote = {
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-      runeAddress,
+      stakingAmountCryptoBaseUnit: toBaseUnit(
+        amountCryptoPrecision,
+        selectedStakingAsset.precision,
+      ),
+      // typescript is borked, one of them is defined because of the early return
+      runeAddress: currentRuneAddress || runeAddress || '',
     }
 
     setConfirmedQuote(_confirmedQuote)
 
     if (isBridgeRequired) {
       const bridgeQuote: RfoxBridgeQuote = {
-        sellAssetId: selectedAssetId,
+        sellAssetId: selectedStakingAssetId,
         buyAssetId: stakingAssetId,
-        bridgeAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedAsset.precision ?? 0),
+        bridgeAmountCryptoBaseUnit: toBaseUnit(
+          amountCryptoPrecision,
+          selectedStakingAsset.precision,
+        ),
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
@@ -265,53 +324,43 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectedAssetAccountId,
     stakingAssetAccountId,
     runeAddress,
-    selectedAsset,
-    stakingAsset,
-    isValidStakingAmount,
+    selectedStakingAsset,
     stakingAssetId,
+    selectedStakingAssetId,
+    isValidStakingAmount,
     amountCryptoPrecision,
     setConfirmedQuote,
     isBridgeRequired,
     history,
-    selectedAssetId,
+    currentRuneAddress,
   ])
 
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleStakingAssetClick = useCallback(() => {
-    if (!(stakingAsset && l1Asset)) return
-
     buyAssetSearch.open({
-      onAssetClick: asset => setSelectedAssetId(asset.assetId),
+      onAssetClick: asset => setSelectedStakingAssetId(asset.assetId),
       title: 'common.selectAsset',
-      assets: [stakingAsset, l1Asset],
+      assets: stakingAssets,
     })
-  }, [stakingAsset, l1Asset, buyAssetSearch])
+  }, [stakingAssets, buyAssetSearch, setSelectedStakingAssetId])
 
-  const handleAssetChange = useCallback((asset: Asset) => setSelectedAssetId(asset.assetId), [])
+  const handleAssetChange = useCallback(
+    (asset: Asset) => setSelectedStakingAssetId(asset.assetId),
+    [setSelectedStakingAssetId],
+  )
 
   const assetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        assetId={selectedAsset?.assetId}
+        assetId={selectedStakingAsset?.assetId}
         onAssetClick={handleStakingAssetClick}
         onAssetChange={handleAssetChange}
-        assetIds={assetIds}
+        assetIds={stakingAssetIds}
         onlyConnectedChains={true}
       />
     )
-  }, [selectedAsset?.assetId, handleStakingAssetClick, handleAssetChange, assetIds])
-
-  const stakingAssetFeeAssetBalanceFilter = useMemo(
-    () => ({
-      accountId: stakingAssetAccountId ?? '',
-      assetId: stakingAssetFeeAsset?.assetId,
-    }),
-    [stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
-  )
-  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
-  )
+  }, [selectedStakingAsset?.assetId, handleStakingAssetClick, handleAssetChange, stakingAssetIds])
 
   const validateHasEnoughStakingAssetFeeBalance = useCallback(
     (input: string) => {
@@ -337,8 +386,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     trigger('amountFieldInput')
   }, [
     approvalFees,
-    selectedAssetFeeAsset?.precision,
-    selectedAssetFeeAsset?.symbol,
+    stakingAssetFeeAsset,
     stakingAssetFeeAssetBalanceCryptoPrecision,
     amountCryptoPrecision,
     amountUserCurrency,
@@ -361,8 +409,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       },
     }
   }, [
-    stakingAssetFeeAsset?.chainId,
-    stakingAssetFeeAsset?.symbol,
+    stakingAssetFeeAsset,
     translate,
     validateHasEnoughBalance,
     validateHasEnoughStakingAssetFeeBalance,
@@ -371,25 +418,26 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const warningAcknowledgementMessage = useMemo(() => {
     if (!isBridgeRequired)
       return translate('RFOX.stakeWarning', {
+        symbol: selectedStakingAsset?.symbol,
         cooldownPeriod,
       })
 
     return translate('RFOX.bridgeCta', {
-      assetSymbol: selectedAsset?.symbol,
-      originNetwork: selectedAssetFeeAsset?.networkName,
+      assetSymbol: selectedStakingAsset?.symbol,
+      originNetwork: selectedStakingAssetFeeAsset?.networkName,
       destinationNetwork: stakingAssetFeeAsset?.networkName,
     })
   }, [
-    selectedAsset?.symbol,
     cooldownPeriod,
-    selectedAssetFeeAsset?.networkName,
     isBridgeRequired,
-    stakingAssetFeeAsset?.networkName,
+    stakingAssetFeeAsset,
+    selectedStakingAsset,
+    selectedStakingAssetFeeAsset,
     translate,
   ])
 
   const { price: assetUserCurrencyRate } = useAppSelector(state =>
-    selectMarketDataByFilter(state, { assetId: stakingAssetId }),
+    selectMarketDataByFilter(state, { assetId: selectedStakingAssetId }),
   )
 
   // Consumed by onMaxClick
@@ -412,7 +460,46 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return translate('RFOX.chainNotSupportedByWallet')
   }, [isChainSupportedByWallet, translate])
 
-  if (!selectedAsset) return null
+  const submitButtonText = useMemo(() => {
+    if (isAccountsMetadataLoading) return translate('common.accountsLoading')
+
+    if (errors.manualRuneAddress?.type === 'required') return translate('RFOX.selectRuneAddress')
+
+    return (
+      errors.amountFieldInput?.message ||
+      errors.manualRuneAddress?.message ||
+      chainNotSupportedByWalletCopy ||
+      translate('RFOX.stake')
+    )
+  }, [
+    chainNotSupportedByWalletCopy,
+    errors.amountFieldInput,
+    errors.manualRuneAddress,
+    translate,
+    isAccountsMetadataLoading,
+  ])
+
+  if (!selectedStakingAsset) return null
+
+  if (!isConnected)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ConnectWallet />
+        </CardBody>
+      </SlideTransition>
+    )
+
+  if (!stakingAssetAccountAddress && !isAccountsMetadataLoading)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={selectedStakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
 
   return (
     <SlideTransition>
@@ -422,107 +509,116 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         shouldShowAcknowledgement={showWarning}
         setShouldShowAcknowledgement={setShowWarning}
         buttonTranslation={'common.yes'}
-      >
-        <FormProvider {...methods}>
-          <Stack>
-            {headerComponent}
-            <TradeAssetInput
-              amountFieldInputRules={amountFieldInputRules}
-              assetId={selectedAsset?.assetId}
-              accountId={selectedAssetAccountId}
-              assetSymbol={selectedAsset?.symbol ?? ''}
-              assetIcon={selectedAsset?.icon ?? ''}
-              percentOptions={percentOptions}
-              onAccountIdChange={handleAccountIdChange}
-              // TODO: remove me when implementing multi-account
-              isAccountSelectionDisabled={true}
-              onToggleIsFiat={handleToggleIsFiat}
-              onChange={handleAmountChange}
-              isFiat={isFiat}
-              formControlProps={formControlProps}
-              layout='stacked'
-              label={translate('transactionRow.amount')}
-              labelPostFix={assetSelectComponent}
-              isSendMaxDisabled={false}
-              cryptoAmount={amountCryptoPrecision}
-              fiatAmount={amountUserCurrency}
-            />
-            <FormDivider />
-            <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
-            <Collapse in={collapseIn}>
-              {stakingAssetAccountId && (
-                <StakeSummary
-                  stakingAssetId={stakingAssetId}
-                  stakingAssetAccountId={stakingAssetAccountId}
-                  stakingAmountCryptoPrecision={amountCryptoPrecision}
-                />
-              )}
-              <CardFooter
-                borderTopWidth={1}
-                borderColor='border.subtle'
-                flexDir='column'
-                gap={4}
-                px={6}
-                py={4}
-                bg='background.surface.raised.accent'
-              >
-                {isGetApprovalFeesEnabled && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.approvalFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
-                        <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )}
-                {isGetStakeFeesEnabled && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.gasFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}>
-                        <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )}
-              </CardFooter>
-            </Collapse>
-          </Stack>
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={6}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
-          >
-            <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet)}
-              isDisabled={Boolean(
-                errors.amountFieldInput ||
-                  !runeAddress ||
-                  !isValidStakingAmount ||
-                  !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
-                  !cooldownPeriod,
-              )}
-              size='lg'
-              mx={-2}
-              onClick={handleWarning}
-              isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
-              colorScheme={
-                Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
-              }
+      />
+      <FormProvider {...methods}>
+        <Stack>
+          {headerComponent}
+          <TradeAssetInput
+            amountFieldInputRules={amountFieldInputRules}
+            assetId={selectedStakingAsset?.assetId}
+            accountId={selectedAssetAccountId}
+            assetSymbol={selectedStakingAsset?.symbol ?? ''}
+            assetIcon={selectedStakingAsset?.icon ?? ''}
+            percentOptions={percentOptions}
+            isAccountSelectionDisabled
+            // Since we disable AccountId selection at asset-selection in profit of top-level page account dropdown,
+            // this *is* effectively disabled, however, onAccountIdChange *needs* to be a noop, or else the top-level
+            // dropdown will break, as this component calls onAccountIdChange once on first render - regardless of whether account selection is disabled or not
+            onAccountIdChange={noop}
+            onToggleIsFiat={handleToggleIsFiat}
+            onChange={handleAmountChange}
+            isFiat={isFiat}
+            formControlProps={formControlProps}
+            layout='stacked'
+            label={translate('transactionRow.amount')}
+            labelPostFix={assetSelectComponent}
+            isSendMaxDisabled={false}
+            cryptoAmount={amountCryptoPrecision}
+            fiatAmount={amountUserCurrency}
+          />
+          <FormDivider />
+          <AddressSelection
+            selectedAddress={runeAddress}
+            onRuneAddressChange={handleRuneAddressChange}
+            setStepIndex={setStepIndex}
+          />
+          <Collapse in={collapseIn}>
+            {stakingAssetAccountId && (
+              <StakeSummary
+                stakingAssetId={stakingAssetId}
+                stakingAssetAccountId={stakingAssetAccountId}
+                stakingAmountCryptoPrecision={amountCryptoPrecision}
+              />
+            )}
+            <CardFooter
+              borderTopWidth={1}
+              borderColor='border.subtle'
+              flexDir='column'
+              gap={4}
+              px={6}
+              py={4}
+              bg='background.surface.raised.accent'
             >
-              {errors.amountFieldInput?.message ||
-                errors.manualRuneAddress?.message ||
-                chainNotSupportedByWalletCopy ||
-                translate('RFOX.stake')}
-            </ButtonWalletPredicate>
-          </CardFooter>
-        </FormProvider>
-      </InfoAcknowledgement>
+              {isGetApprovalFeesEnabled && (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.approvalFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
+                      <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
+              {isGetStakeFeesEnabled && (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.gasFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}>
+                      <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
+            </CardFooter>
+          </Collapse>
+        </Stack>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <ButtonWalletPredicate
+            isValidWallet={Boolean(isChainSupportedByWallet || isAccountsMetadataLoading)}
+            isDisabled={Boolean(
+              errors.amountFieldInput ||
+                (!runeAddress && !currentRuneAddress) ||
+                !isValidStakingAmount ||
+                !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+                isAccountsMetadataLoading ||
+                !cooldownPeriod,
+            )}
+            size='lg'
+            mx={-2}
+            onClick={handleWarning}
+            isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
+            colorScheme={
+              Boolean(
+                errors.amountFieldInput ||
+                  // Required rewards input isn't an error per se
+                  (errors.manualRuneAddress && errors.manualRuneAddress.type !== 'required'),
+              ) && !isAccountsMetadataLoading
+                ? 'red'
+                : 'blue'
+            }
+          >
+            {submitButtonText}
+          </ButtonWalletPredicate>
+        </CardFooter>
+      </FormProvider>
     </SlideTransition>
   )
 }

@@ -14,6 +14,7 @@ import {
   ltcChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -30,14 +31,46 @@ import {
   supportsGnosis,
   supportsOptimism,
   supportsPolygon,
+  supportsSolana,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
-import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { METAMASK_RDNS } from 'lib/mipd'
 import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
+
+type CheckWalletHasRuntimeSupportArgs = {
+  isSnapInstalled: boolean | null
+  chainId: ChainId
+  wallet: HDWallet | null
+}
+
+const checkWalletHasRuntimeSupport = ({
+  chainId,
+  wallet,
+  isSnapInstalled,
+}: CheckWalletHasRuntimeSupportArgs) => {
+  if (!wallet) return false
+
+  // Non-EVM ChainIds are only supported with the MM multichain snap installed
+  if (
+    isMetaMask(wallet) &&
+    // snap installation checks may take a render or two too many to kick in after switching from MM with snaps to another mipd wallet
+    // however, we get a new wallet ref instantly, so this ensures we don't wrongly derive non-EVM accounts for another EIP1193 wallet
+    (!isSnapInstalled || wallet.providerRdns !== METAMASK_RDNS) &&
+    !isEvmChainId(chainId)
+  )
+    return false
+
+  // We are now sure we have runtime support for the chain.
+  // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
+  // any other wallet, which supports static wallet feature-detection
+  return true
+}
 
 type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
@@ -61,15 +94,7 @@ export const walletSupportsChain = ({
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
-  const hasRuntimeSupport = (() => {
-    // Non-EVM ChainIds are only supported with the MM multichain snap installed
-    if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false
-
-    // We are now sure we have runtime support for the chain.
-    // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
-    // any other wallet, which supports static wallet feature-detection
-    return true
-  })()
+  const hasRuntimeSupport = checkWalletHasRuntimeSupport({ wallet, isSnapInstalled, chainId })
 
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
@@ -78,10 +103,13 @@ export const walletSupportsChain = ({
 
   switch (chainId) {
     case btcChainId:
-    case bchChainId:
-    case dogeChainId:
-    case ltcChainId:
       return supportsBTC(wallet)
+    case bchChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case dogeChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case ltcChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -104,6 +132,8 @@ export const walletSupportsChain = ({
       return supportsCosmos(wallet)
     case thorchainChainId:
       return supportsThorchain(wallet)
+    case solanaChainId:
+      return supportsSolana(wallet)
     default: {
       return false
     }
@@ -114,12 +144,10 @@ export const useWalletSupportsChain = (
   chainId: ChainId,
   wallet: HDWallet | null,
 ): boolean | null => {
-  // We might be in a state where the wallet adapter is MetaMaskShapeShiftMultiChainHDWallet, but the actual underlying wallet
-  // doesn't have multichain capabilities since snaps isn't installed
-  // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-shapeshift-multichain able to do feature detection
-  // programatically depending on whether the snaps is installed or not, but in the meantime, this will make things happy
-  // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
-  const isSnapInstalled = useIsSnapInstalled()
+  // MetaMaskMultiChainHDWallet is the reference EIP-1193 JavaScript provider implementation, but also includes snaps support hardcoded in feature capabilities
+  // However we might be in a state where the wallet adapter is MetaMaskMultiChainHDWallet, but the actual underlying wallet
+  // doesn't have multichain capabilities since snaps isn't installed/the connected wallet isn't *actual* MM
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const chainAccountIdsFilter = useMemo(() => ({ chainId }), [chainId])
   const chainAccountIds = useAppSelector(state =>
@@ -134,6 +162,23 @@ export const useWalletSupportsChain = (
       checkConnectedAccountIds: chainAccountIds,
     })
   }, [chainAccountIds, chainId, isSnapInstalled, wallet])
+
+  return result
+}
+
+export const useWalletSupportsChainAtRuntime = (
+  chainId: ChainId,
+  wallet: HDWallet | null,
+): boolean | null => {
+  const { isSnapInstalled } = useIsSnapInstalled()
+
+  const result = useMemo(() => {
+    return checkWalletHasRuntimeSupport({
+      isSnapInstalled,
+      chainId,
+      wallet,
+    })
+  }, [chainId, isSnapInstalled, wallet])
 
   return result
 }

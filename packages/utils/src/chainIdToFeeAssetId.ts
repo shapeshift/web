@@ -14,6 +14,7 @@ import {
   ltcAssetId,
   optimismAssetId,
   polygonAssetId,
+  solAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -53,9 +54,9 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return polygonAssetId
     case KnownChainIds.ThorchainMainnet:
       return thorchainAssetId
+    case KnownChainIds.SolanaMainnet:
+      return solAssetId
     default:
-      assertUnreachable(chainId)
+      return assertUnreachable(chainId)
   }
-
-  throw Error(`Unsupported chainId: ${chainId}`)
 }

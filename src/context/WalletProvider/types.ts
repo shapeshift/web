@@ -3,10 +3,10 @@ import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
+import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
 
 import type { KeyManager } from './KeyManager'
 
@@ -19,8 +19,8 @@ export type AdaptersByKeyManager = {
   [KeyManager.Keplr]: KeplrAdapter
   [KeyManager.WalletConnectV2]: WalletConnectV2Adapter
   [KeyManager.MetaMask]: MetaMaskAdapter
+  [KeyManager.Phantom]: PhantomAdapter
   [KeyManager.Coinbase]: CoinbaseAdapter
-  [KeyManager.XDefi]: XDEFIAdapter
 }
 
 export enum NativeWalletRoutes {
@@ -28,7 +28,9 @@ export enum NativeWalletRoutes {
   Load = '/native/load',
   Password = '/native/password',
   Rename = '/native/rename',
-  Import = '/native/import',
+  ImportSelect = '/native/import-select',
+  ImportSeed = '/native/import-seed',
+  ImportKeystore = '/native/import-keystore',
   Create = '/native/create',
   CreateTest = '/native/create-test',
   Success = '/native/success',

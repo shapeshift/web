@@ -1,4 +1,4 @@
-import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { bn } from 'lib/bignumber/bignumber'
@@ -7,9 +7,9 @@ import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { Borrower } from 'lib/utils/thorchain/lending/types'
 import {
   selectAccountIdsByAssetId,
+  selectEnabledWalletAccountIds,
   selectUserCurrencyRateByAssetId,
   selectUserCurrencyToUsdRate,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -20,9 +20,11 @@ type UseAllLendingPositionsDataProps = {
 }
 
 export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDataProps = {}) => {
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({
+    type: 'collateral',
+  })
 
-  const accountIds = useAppSelector(selectWalletAccountIds)
+  const accountIds = useAppSelector(selectEnabledWalletAccountIds)
   const accounts = useMemo(
     () =>
       (lendingSupportedAssets ?? [])
@@ -113,7 +115,15 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
   )
 
   const isLoading = useMemo(() => positions.some(position => position.isLoading), [positions])
-  const isActive = useMemo(() => positions.some(position => position.data), [positions])
+
+  const isActive = useMemo(() => {
+    return positions.some(position => {
+      const data = position.data
+      if (!data) return false
+      const { collateralBalanceCryptoPrecision } = data
+      return collateralBalanceCryptoPrecision && parseFloat(collateralBalanceCryptoPrecision) > 0
+    })
+  }, [positions])
 
   return {
     debtValueUserCurrency,

@@ -1,20 +1,16 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, SwapSource, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
+  isExecutableTradeQuote,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
-import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
-import { isSmartContractAddress } from 'lib/address/utils'
-import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getChainShortName } from '@shapeshiftoss/utils'
+import { isMultiHopTradeQuote, isMultiHopTradeRate } from 'components/MultiHopTrade/utils'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -22,21 +18,24 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletConnectedChainIds,
+  selectWalletId,
 } from 'state/slices/common-selectors'
 import {
   selectAssets,
   selectFeeAssetById,
+  selectPortfolioAccountIdByNumberByChainId,
+} from 'state/slices/selectors'
+import {
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
-  selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
 
-import type { ErrorWithMeta } from '../types'
-import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+import type { ErrorWithMeta, TradeQuoteError } from '../types'
+import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
-export const validateTradeQuote = async (
+export const validateTradeQuote = (
   state: ReduxState,
   {
     swapperName,
@@ -46,9 +45,10 @@ export const validateTradeQuote = async (
     isTradingActiveOnBuyPool,
     sendAddress,
     inputSellAmountCryptoBaseUnit,
+    quoteOrRate,
   }: {
     swapperName: SwapperName
-    quote: TradeQuote | undefined
+    quote: TradeQuote | TradeRate | undefined
     error: SwapErrorRight | undefined
     isTradingActiveOnSellPool: boolean
     isTradingActiveOnBuyPool: boolean
@@ -56,14 +56,16 @@ export const validateTradeQuote = async (
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
+    quoteOrRate: 'quote' | 'rate'
   },
-): Promise<{
+): {
   errors: ErrorWithMeta<TradeQuoteError>[]
   warnings: ErrorWithMeta<TradeQuoteWarning>[]
-}> => {
+} => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
       const errorCode = error?.code
+      const errorDetails = error?.details
       switch (errorCode) {
         case SwapperTradeQuoteError.UnsupportedChain:
         case SwapperTradeQuoteError.CrossChainNotSupported:
@@ -75,8 +77,17 @@ export const validateTradeQuote = async (
         case SwapperTradeQuoteError.TradingHalted:
         case SwapperTradeQuoteError.SellAmountBelowTradeFee:
         case SwapperTradeQuoteError.RateLimitExceeded:
+        case SwapperTradeQuoteError.InvalidResponse:
           // no metadata associated with this error
           return { error: errorCode }
+        case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:
+        case SwapperTradeQuoteError.FinalQuoteExecutionReverted: {
+          const { expectedSlippage }: { expectedSlippage?: string | undefined } = errorDetails ?? {}
+          return {
+            error: errorCode,
+            meta: { expectedSlippage: expectedSlippage ? expectedSlippage : 'Unknown' },
+          }
+        }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {
           const {
             minAmountCryptoBaseUnit,
@@ -92,10 +103,7 @@ export const validateTradeQuote = async (
             }
           }
 
-          const minAmountCryptoHuman = baseUnitToHuman({
-            value: minAmountCryptoBaseUnit,
-            inputExponent: asset.precision,
-          })
+          const minAmountCryptoHuman = fromBaseUnit(minAmountCryptoBaseUnit, asset.precision)
           const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
@@ -116,14 +124,19 @@ export const validateTradeQuote = async (
     return { errors: [tradeQuoteError], warnings: [] }
   }
 
-  // This should really never happen but in case it does:
-  if (!sendAddress) throw new Error('sendAddress is required')
+  // This should really never happen in case the wallet *is* connected but in case it does:
+  if (quoteOrRate === 'quote' && !sendAddress) throw new Error('sendAddress is required')
+
+  // If we have a walletId at the time we hit this, we have a wallet. Else, none is connected, meaning we shouldn't surface balance errors
+  const walletId = selectWalletId(state)
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!
   const secondHop = getHopByIndex(quote, 1)
 
-  const isMultiHopTrade = isMultiHopTradeQuote(quote)
+  const isMultiHopTrade = isExecutableTradeQuote(quote)
+    ? isMultiHopTradeQuote(quote)
+    : isMultiHopTradeRate(quote)
 
   const lastHop = (isMultiHopTrade ? secondHop : firstHop)!
   const walletConnectedChainIds = selectWalletConnectedChainIds(state)
@@ -205,24 +218,42 @@ export const validateTradeQuote = async (
   // This is an oversimplification where protocol fees are assumed to be only deducted from
   // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
   // Later we'll need to handle protocol fees payable from the buy side.
-  const insufficientBalanceForProtocolFeesErrors = Object.entries(totalProtocolFeesByAsset)
-    .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
-      if (!protocolFee.requiresBalance) return false
+  const insufficientBalanceForProtocolFeesErrors =
+    // TODO(gomes): We will need to handle this differently since a rate doesn't contain bip44 data
+    sellAssetAccountNumber !== undefined
+      ? Object.entries(totalProtocolFeesByAsset)
+          .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+            if (!protocolFee.requiresBalance) return false
 
-      const accountId =
-        portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-      const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
-      return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
-    })
-    .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
-      return {
-        error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
-        meta: {
-          symbol: protocolFee.asset.symbol,
-          chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
-        },
-      }
-    })
+            const accountId =
+              portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
+            const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+
+            // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
+            // them kick the swapperName bit out of the condition
+            if (
+              firstHopSellFeeAsset?.assetId === assetId &&
+              firstHop.sellAsset.assetId === assetId &&
+              swapperName === SwapperName.Jupiter
+            ) {
+              return bnOrZero(balanceCryptoBaseUnit)
+                .minus(sellAmountCryptoBaseUnit)
+                .minus(protocolFee.amountCryptoBaseUnit)
+                .lt(0)
+            }
+
+            return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
+          })
+          .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+            return {
+              error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
+              meta: {
+                symbol: protocolFee.asset.symbol,
+                chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
+              },
+            }
+          })
+      : []
 
   const recommendedMinimumCryptoBaseUnit = (quote as ThorTradeQuote)
     .recommendedMinimumCryptoBaseUnit
@@ -233,39 +264,6 @@ export const validateTradeQuote = async (
       bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
     )
 
-  const disableSmartContractSwap = await (async () => {
-    // Swappers other than THORChain shouldn't be affected by this limitation
-    if (swapperName !== SwapperName.Thorchain) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    const _isSmartContractSellAddress = await isSmartContractAddress(
-      sendAddress,
-      firstHop.sellAsset.chainId,
-    )
-    const _isSmartContractReceiveAddress = await isSmartContractAddress(
-      quote.receiveAddress,
-      firstHop.buyAsset.chainId,
-    )
-    // For long-tails, the *destination* address cannot be a smart contract
-    // https://dev.thorchain.org/aggregators/aggregator-overview.html#admonition-warning
-    // This doesn't apply to regular THOR swaps however, which docs have no mention of *destination* having to be an EOA
-    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?search=smart%20contract
-    if (
-      [firstHop.source, secondHop?.source ?? ('' as SwapSource)].some(source =>
-        [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(source),
-      ) &&
-      _isSmartContractReceiveAddress !== false
-    )
-      return true
-    // Regardless of whether this is a long-tail or not, the *source* address should never be a smart contract
-    // https://dev.thorchain.org/concepts/sending-transactions.html?highlight=smart%20congtract%20address#admonition-danger-2
-    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?highlight=smart%20congtract%20address#admonition-warning-1
-    if (_isSmartContractSellAddress !== false) return true
-
-    // All checks passed - this is an EOA address
-    return false
-  })()
-
   // Ensure the trade is not selling an amount higher than the user input, within a very safe threshold.
   // Threshold is required because cowswap sometimes quotes a sell amount a teeny-tiny bit more than you input.
   const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit).lt(
@@ -274,9 +272,6 @@ export const validateTradeQuote = async (
 
   return {
     errors: [
-      !!disableSmartContractSwap && {
-        error: TradeQuoteValidationError.SmartContractWalletNotSupported,
-      },
       !isTradingActiveOnSellPool && {
         error: TradeQuoteValidationError.TradingInactiveOnSellChain,
         meta: {
@@ -293,7 +288,8 @@ export const validateTradeQuote = async (
           ).getDisplayName(),
         },
       },
-      !walletSupportsIntermediaryAssetChain &&
+      walletId &&
+        !walletSupportsIntermediaryAssetChain &&
         secondHop && {
           error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
           meta: {
@@ -301,24 +297,29 @@ export const validateTradeQuote = async (
             chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
           },
         },
-      !firstHopHasSufficientBalanceForGas && {
-        error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
-        meta: {
-          assetSymbol: firstHopSellFeeAsset?.symbol,
-          chainSymbol: firstHopSellFeeAsset
-            ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
-            : '',
+      walletId &&
+        !firstHopHasSufficientBalanceForGas && {
+          error:
+            firstHopSellFeeAsset?.assetId === firstHop.sellAsset.assetId
+              ? TradeQuoteValidationError.InsufficientFirstHopAssetBalance
+              : TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
+          meta: {
+            assetSymbol: firstHopSellFeeAsset?.symbol,
+            chainSymbol: firstHopSellFeeAsset
+              ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
+              : '',
+          },
         },
-      },
-      !secondHopHasSufficientBalanceForGas && {
-        error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
-        meta: {
-          assetSymbol: secondHopSellFeeAsset?.symbol,
-          chainSymbol: secondHopSellFeeAsset
-            ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
-            : '',
+      walletId &&
+        !secondHopHasSufficientBalanceForGas && {
+          error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
+          meta: {
+            assetSymbol: secondHopSellFeeAsset?.symbol,
+            chainSymbol: secondHopSellFeeAsset
+              ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
+              : '',
+          },
         },
-      },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
       invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
 

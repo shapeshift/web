@@ -1,13 +1,8 @@
-import {
-  type AccountId,
-  CHAIN_NAMESPACE,
-  type ChainId,
-  fromAccountId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
-import type { UtxoChainAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 export const isUtxoChainAdapter = (chainAdapter: unknown): chainAdapter is UtxoChainAdapter => {

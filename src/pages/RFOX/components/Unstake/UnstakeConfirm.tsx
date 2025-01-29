@@ -25,8 +25,8 @@ import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/sl
 import { useAppSelector } from 'state/store'
 
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
-import type { RfoxUnstakingQuote } from './types'
-import { UnstakeRoutePaths, type UnstakeRouteProps } from './types'
+import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
+import { UnstakeRoutePaths } from './types'
 
 type UnstakeConfirmProps = {
   confirmedQuote: RfoxUnstakingQuote
@@ -114,10 +114,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
   const handleSubmit = useCallback(async () => {
-    await handleUnstake()
+    if (!stakingAsset) return
 
+    await handleUnstake()
     history.push(UnstakeRoutePaths.Status)
-  }, [handleUnstake, history])
+  }, [handleUnstake, history, stakingAsset])
 
   return (
     <SlideTransition>

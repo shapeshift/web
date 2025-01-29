@@ -1,6 +1,7 @@
 import { Card, CardBody, Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { DefiIcon } from 'components/Icons/DeFi'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
@@ -17,6 +18,8 @@ export type ProviderTableProps = {
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
 }
+
+const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 
 export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   chainId,
@@ -45,7 +48,8 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
         <Card variant='dashboard'>
           <CardBody>
             {(() => {
-              if (!(includeEarnBalances || includeRewardsBalances)) return null
+              if (!(includeEarnBalances || includeRewardsBalances))
+                return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
               if (searchQuery) return <SearchEmpty searchQuery={searchQuery} />
               return <ResultsEmpty ctaHref='/earn' ctaText='defi.startEarning' />
             })()}

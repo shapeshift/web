@@ -6,7 +6,7 @@ import { RawText } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />

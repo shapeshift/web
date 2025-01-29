@@ -1,4 +1,5 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -17,7 +18,8 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
-import type { Address } from 'viem'
+import { getAddress } from 'viem'
+import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
@@ -26,7 +28,9 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { viemEthMainnetClient } from 'lib/viem-client'
+import { useMipdProviders } from 'lib/mipd'
+import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
@@ -50,7 +54,11 @@ export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
   onClose?: () => void
-} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'connectedType'>
+  walletInfo: {
+    icon: ComponentWithAs<'svg', IconProps> | string
+    name: string
+  } | null
+} & Pick<InitialState, 'isConnected' | 'connectedType'>
 
 export const WalletConnected = (props: WalletConnectedProps) => {
   return (
@@ -84,14 +92,18 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.200', 'gray.800')
-  const [ensName, setEnsName] = useState<string | null>('')
 
-  useEffect(() => {
-    if (!walletInfo?.meta?.address) return
-    viemEthMainnetClient
-      .getEnsName({ address: walletInfo.meta.address as Address })
-      .then(setEnsName)
-  }, [walletInfo?.meta?.address])
+  const { data: ensName } = useEnsName({
+    address: walletInfo?.meta?.address ? getAddress(walletInfo.meta.address) : undefined,
+  })
+
+  const maybeRdns = useAppSelector(selectWalletRdns)
+
+  const mipdProviders = useMipdProviders()
+  const maybeMipdProvider = useMemo(
+    () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
+    [mipdProviders, maybeRdns],
+  )
 
   useEffect(() => {
     setWalletLabel('')
@@ -118,10 +130,10 @@ const WalletButton: FC<WalletButtonProps> = ({
     () => (
       <HStack>
         {!(isConnected || isDemoWallet) && <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
-        <WalletImage walletInfo={walletInfo} />
+        <WalletImage walletInfo={maybeMipdProvider?.info || walletInfo} />
       </HStack>
     ),
-    [isConnected, isDemoWallet, walletInfo],
+    [isConnected, isDemoWallet, maybeMipdProvider, walletInfo],
   )
   const connectIcon = useMemo(() => <FaWallet />, [])
 
@@ -162,6 +174,11 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
   const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
     state
 
+  const maybeRdns = useAppSelector(selectWalletRdns)
+
+  const mipdProviders = useMipdProviders()
+  const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === maybeRdns)
+
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = useCallback(() => {
     onClick && onClick()
@@ -189,7 +206,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
             {hasWallet || isLoadingLocalWallet ? (
               <WalletConnected
                 isConnected={isConnected || isDemoWallet}
-                walletInfo={walletInfo}
+                walletInfo={maybeMipdProvider?.info || walletInfo}
                 onDisconnect={disconnect}
                 onSwitchProvider={handleConnect}
                 connectedType={connectedType}

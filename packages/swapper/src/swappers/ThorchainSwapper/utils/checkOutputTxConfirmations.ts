@@ -6,7 +6,7 @@ import type { SwapperConfig } from '../../../types'
 import type { ThorNodeTxSchema } from '../types'
 import { ThorchainChain } from '../types'
 
-export const checkOutboundTxConfirmations = async (
+export const checkOutputTxConfirmations = async (
   buyTxHash: string,
   latestOutTx: ThorNodeTxSchema | undefined,
   config: SwapperConfig,
@@ -42,10 +42,13 @@ export const checkOutboundTxConfirmations = async (
       case ThorchainChain.GAIA: {
         return config.REACT_APP_UNCHAINED_COSMOS_HTTP_URL
       }
+      case ThorchainChain.BASE: {
+        return config.REACT_APP_UNCHAINED_BASE_HTTP_URL
+      }
       case ThorchainChain.BSC:
         throw Error(`${latestOutTx.chain} not supported`)
       default:
-        assertUnreachable(latestOutTx.chain)
+        return assertUnreachable(latestOutTx.chain)
     }
   })()
 

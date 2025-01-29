@@ -182,14 +182,24 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     const pairedAddress = pairAssetAddress ?? ''
 
     const asymDestinationPoolAssetId =
-      actionSide !== 'sym' ? assetIdToPoolAssetId({ assetId }) : undefined
+      opportunityType === 'sym' && actionSide !== 'sym'
+        ? assetIdToPoolAssetId({ assetId })
+        : undefined
 
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}${
           asymDestinationPoolAssetId ? `:${asymDestinationPoolAssetId}` : ''
         }`
-  }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, actionSide, assetId])
+  }, [
+    actionSide,
+    assetId,
+    confirmedQuote,
+    isDeposit,
+    opportunityType,
+    pairAssetAddress,
+    thorchainNotationAssetId,
+  ])
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
@@ -314,6 +324,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
         txId: txId ?? '',
         name: SwapperName.Thorchain,
+        // THORFi is incompatible with SAFE wallets because msg.sender/tx.origin shenanigans, so this will never be a SAFE Tx
+        maybeSafeTx: undefined,
+        accountId: undefined,
       }),
     [txId],
   )

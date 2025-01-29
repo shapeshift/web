@@ -12,9 +12,8 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -32,6 +31,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { getStakingContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -41,8 +41,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import type { RfoxChangeAddressQuote } from './types'
-import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
+import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
+import { ChangeAddressRoutePaths } from './types'
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
@@ -87,7 +87,7 @@ export const ChangeAddressConfirm: React.FC<
 
   const callData = useMemo(() => {
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: RFOX_ABI,
       functionName: 'setRuneAddress',
       args: [confirmedQuote.newRuneAddress],
     })
@@ -95,13 +95,19 @@ export const ChangeAddressConfirm: React.FC<
 
   const changeAddressFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: getStakingContract(confirmedQuote.stakingAssetId),
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, confirmedQuote.stakingAssetId, stakingAssetAccountNumber],
+    [
+      callData,
+      confirmedQuote.stakingAssetId,
+      stakingAssetAccountAddress,
+      stakingAssetAccountNumber,
+    ],
   )
 
   const {
@@ -144,10 +150,11 @@ export const ChangeAddressConfirm: React.FC<
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        to: getStakingContract(confirmedQuote.stakingAssetId),
         wallet,
       })
 
@@ -167,10 +174,11 @@ export const ChangeAddressConfirm: React.FC<
   })
 
   const handleSubmit = useCallback(async () => {
-    await handleChangeAddress()
+    if (!stakingAsset) return
 
+    await handleChangeAddress()
     history.push(ChangeAddressRoutePaths.Status)
-  }, [history, handleChangeAddress])
+  }, [history, handleChangeAddress, stakingAsset])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

@@ -1,7 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
-  ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
   bscChainId,
@@ -11,6 +10,8 @@ import {
   polygonChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
@@ -140,7 +141,7 @@ type ZapperToken = {
   price?: number
   supply?: number
   symbol: string
-  decimals: number
+  decimals: string | number
   dataProps?: Infer<typeof ZapperDataPropsSchema>
   displayProps?: Infer<typeof ZapperDisplayPropsSchema>
   pricePerShare?: (string | number)[]
@@ -155,7 +156,7 @@ const ZapperTokenSchema: Type<ZapperToken> = z
     type: z.literals('base-token', 'app-token'),
     network: SupportedZapperNetworks,
     address: z.string(),
-    decimals: z.number(),
+    decimals: z.union([z.string(), z.number()]),
     symbol: z.string(),
     price: z.number(),
     metaType: z.literals('claimable', 'supplied', 'borrowed').optional(),
@@ -174,8 +175,6 @@ const ZapperTokenSchema: Type<ZapperToken> = z
     tokens: z.array(z.lazy(() => ZapperTokenSchema)).optional(),
   })
   .allowUnknownKeys()
-
-export type ZapperTokenWithBalances = Infer<typeof ZapperTokenSchema>
 
 const ZapperAssetBaseSchema = z
   .object({
@@ -215,14 +214,7 @@ export const zapperAssetToMaybeAssetId = (
 ): AssetId | undefined => {
   const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
   if (!chainId) return undefined
-  const assetNamespace = (() => {
-    switch (true) {
-      case chainId === bscChainId:
-        return ASSET_NAMESPACE.bep20
-      default:
-        return ASSET_NAMESPACE.erc20
-    }
-  })()
+  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
 
   const assetId = toAssetId({
     chainId,
@@ -382,12 +374,14 @@ const categorySchema = z
 export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
 export type ZapperAssetBase = Infer<typeof ZapperAssetBaseSchema>
 export const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = Infer<typeof V2AppTokensResponse>
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const V2NftUserTokensResponse = userNftTokenSchema
 export type V2NftUserTokensResponseType = Infer<typeof V2NftUserTokensResponse>
 

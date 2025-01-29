@@ -7,12 +7,14 @@ import { isFulfilled, isRejected } from 'lib/utils'
 
 import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
 import { deriveEvmAccountIdsAndMetadata } from './evm'
+import { deriveSolanaAccountIdsAndMetadata } from './solana'
 import { deriveUtxoAccountIdsAndMetadata } from './utxo'
 
 export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.CosmosSdk]: deriveCosmosSdkAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Evm]: deriveEvmAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Utxo]: deriveUtxoAccountIdsAndMetadata,
+  [CHAIN_NAMESPACE.Solana]: deriveSolanaAccountIdsAndMetadata,
 } as const
 
 export type DeriveAccountIdsAndMetadataArgs = {
@@ -38,6 +40,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     [CHAIN_NAMESPACE.CosmosSdk]: [],
     [CHAIN_NAMESPACE.Evm]: [],
     [CHAIN_NAMESPACE.Utxo]: [],
+    [CHAIN_NAMESPACE.Solana]: [],
   }
   const chainIdsByChainNamespace = chainIds.reduce((acc, chainId) => {
     const { chainNamespace } = fromChainId(chainId)

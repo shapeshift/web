@@ -3,7 +3,7 @@ import { FailureModal } from 'context/WalletProvider/components/FailureModal'
 export const LedgerFailure = () => {
   return (
     <FailureModal
-      headerText={'walletProvider.ledger.failure.header'}
+      headerText={'common.error'}
       bodyText={'walletProvider.ledger.failure.body'}
     ></FailureModal>
   )

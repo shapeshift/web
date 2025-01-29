@@ -1,12 +1,15 @@
-import { ASSET_NAMESPACE, bscChainId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
-import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { MinimalAsset } from '@shapeshiftoss/utils'
+import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
+import { orderBy } from 'lodash'
 import { useMemo } from 'react'
-import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
+import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
-  selectAssetsSortedByName,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
 import { selectAssets } from 'state/slices/selectors'
@@ -21,6 +24,7 @@ export type SearchTermAssetListProps = {
   activeChainId: ChainId | 'All'
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
+  assetFilterPredicate?: (assetId: AssetId) => boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
 }
@@ -30,38 +34,55 @@ export const SearchTermAssetList = ({
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
+  assetFilterPredicate,
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
-  const assets = useAppSelector(selectAssetsSortedByName)
+  const assets = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  )
+  const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const chainIds = useMemo(
-    () => (activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]),
-    [activeChainId, walletConnectedChainIds],
-  )
-  const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
-  const customTokenSupportedChainIds = useMemo(
-    () =>
-      walletSupportedEvmChainIds.filter(chainId => ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId)),
-    [walletSupportedEvmChainIds],
-  )
+  const customTokenSupportedChainIds = useMemo(() => {
+    // Solana _is_ supported by Alchemy, but not by the SDK
+    return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
+  }, [])
+  const chainIds = useMemo(() => {
+    if (activeChainId === 'All') {
+      return customTokenSupportedChainIds
+    } else if (customTokenSupportedChainIds.includes(activeChainId)) {
+      return [activeChainId]
+    } else {
+      return []
+    }
+  }, [activeChainId, customTokenSupportedChainIds])
+
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
-    chainIds: customTokenSupportedChainIds,
+    chainIds,
   })
 
   const assetsForChain = useMemo(() => {
+    const _assets = assets.filter(asset => assetFilterPredicate?.(asset.assetId) ?? true)
     if (activeChainId === 'All') {
-      if (allowWalletUnsupportedAssets) return assets
-      return assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+      if (allowWalletUnsupportedAssets) return _assets
+      return _assets.filter(
+        asset => walletConnectedChainIds.includes(asset.chainId) && !isNft(asset.assetId),
+      )
     }
 
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return assets.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
+    return _assets.filter(asset => asset.chainId === activeChainId && !isNft(asset.assetId))
+  }, [
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    assets,
+    walletConnectedChainIds,
+    assetFilterPredicate,
+  ])
 
   const customAssets: Asset[] = useMemo(
     () =>
@@ -73,8 +94,7 @@ export const SearchTermAssetList = ({
           if (!name || !symbol || !decimals) return null
           const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetNamespace:
-              metaData.chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetNamespace: getAssetNamespaceFromChainId(metaData.chainId as KnownChainIds),
             assetReference: metaData.contractAddress,
           })
           const minimalAsset: MinimalAsset = {
@@ -95,9 +115,16 @@ export const SearchTermAssetList = ({
     const filteredAssets = filterAssetsBySearchTerm(searchString, assetsForChain)
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
+    const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
+    const getAssetBalance = (asset: Asset) =>
+      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
-    return filteredAssets.concat(uniqueCustomAssets)
-  }, [assetsForChain, customAssets, searchString])
+    return orderBy(
+      Object.values(assetsWithCustomAssets).filter(isSome),
+      [getAssetBalance],
+      ['desc'],
+    )
+  }, [assetsForChain, customAssets, searchString, portfolioUserCurrencyBalances])
 
   const { groups, groupCounts, groupIsLoading } = useMemo(() => {
     return {

@@ -9,6 +9,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
     bip122: 'bitcoin/info',
     cosmos: 'cosmos/info',
     eip155: 'ethereum',
+    solana: 'solana',
   }
 
   const trustWalletChainName = chainNamespaceToTrustWallet[chainNamespace]

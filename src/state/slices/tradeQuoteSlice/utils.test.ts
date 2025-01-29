@@ -2,10 +2,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee } from '@shapeshiftoss/swapper'
 import { BTC, ETH, FOX_MAINNET } from '@shapeshiftoss/swapper/dist/swappers/utils/test-data/assets'
 import { marketDataByAssetIdUsd } from '@shapeshiftoss/swapper/dist/swappers/utils/test-data/cryptoMarketDataById'
-import { subtractBasisPointAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
-import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, convertPrecision } from 'lib/bignumber/bignumber'
 import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 describe('sumProtocolFeesToDenom', () => {
@@ -91,15 +91,13 @@ describe('sumProtocolFeesToDenom', () => {
       protocolFees,
     })
 
-    const btcAmountInUsd = baseUnitToHuman({
-      value: '3000000',
-      inputExponent: BTC.precision,
-    }).times(marketDataByAssetIdUsd[BTC.assetId].price)
+    const btcAmountInUsd = bn(fromBaseUnit('3000000', BTC.precision)).times(
+      marketDataByAssetIdUsd[BTC.assetId].price,
+    )
 
-    const ethAmountInUsd = baseUnitToHuman({
-      value: '500000000000000000',
-      inputExponent: ETH.precision,
-    }).times(marketDataByAssetIdUsd[ETH.assetId].price)
+    const ethAmountInUsd = bn(fromBaseUnit('500000000000000000', ETH.precision)).times(
+      marketDataByAssetIdUsd[ETH.assetId].price,
+    )
 
     const expectation = btcAmountInUsd.plus(ethAmountInUsd).toString()
 

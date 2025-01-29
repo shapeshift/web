@@ -1,26 +1,24 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type {
-  CosmosSdkChainId,
-  EvmChainId,
+  BuildSendTxInput,
   FeeData,
   FeeDataEstimate,
   GetFeeDataInput,
-  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import {
   checkIsMetaMaskDesktop,
-  checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertGetChainAdapter, tokenOrUndefined } from 'lib/utils'
+import { assertGetChainAdapter, contractAddressOrUndefined } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -90,6 +88,16 @@ export const estimateFees = ({
       }
       return adapter.getFeeData(getFeeDataInput)
     }
+    case CHAIN_NAMESPACE.Solana: {
+      const adapter = assertGetSolanaChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+        to,
+        value,
+        chainSpecific: { from: account, tokenId: contractAddress },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
     default:
       throw new Error(`${chainNamespace} not supported`)
   }
@@ -102,22 +110,21 @@ export const handleSend = async ({
   sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
-  const supportedEvmChainIds = getSupportedEvmChainIds()
-
   const state = store.getState()
   const asset = selectAssetById(state, sendInput.assetId ?? '')
   if (!asset) return ''
+
+  const chainId = asset.chainId
+  const supportedEvmChainIds = getSupportedEvmChainIds()
+
   const acccountMetadataFilter = { accountId: sendInput.accountId }
   const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
-  const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
-  const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
+  const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
-    // MM impersonators don't support Cosmos SDK chains
-    (!isMetaMaskDesktop ||
-      isMetaMaskImpersonator ||
-      (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+    // MM only supports snap things... if the snap is installed
+    (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
   ) {
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }
@@ -125,8 +132,6 @@ export const handleSend = async ({
   const value = bnOrZero(sendInput.amountCryptoPrecision)
     .times(bn(10).exponentiatedBy(asset.precision))
     .toFixed(0)
-
-  const chainId = asset.chainId
 
   const { estimatedFees, feeType, to, memo, from } = sendInput
 
@@ -151,7 +156,7 @@ export const handleSend = async ({
       if (!shouldUseEIP1559Fees && gasPrice === undefined) {
         throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
       }
-      const contractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
       const { accountNumber } = bip44Params
       const adapter = assertGetEvmChainAdapter(chainId)
       return await adapter.buildSendTransaction({
@@ -209,6 +214,28 @@ export const handleSend = async ({
       }
       const adapter = assertGetCosmosSdkChainAdapter(chainId)
       return adapter.buildSendTransaction(params)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Solana) {
+      if (!supportsSolana(wallet)) throw new Error(`useFormSend: wallet does not support solana`)
+
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
+
+      const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
+        to,
+        value,
+        wallet,
+        accountNumber: bip44Params.accountNumber,
+        chainSpecific: {
+          tokenId: contractAddress,
+          computeUnitLimit: fees.chainSpecific.computeUnits,
+          computeUnitPrice: fees.chainSpecific.priorityFee,
+        },
+      }
+
+      const adapter = assertGetSolanaChainAdapter(chainId)
+      return adapter.buildSendTransaction(input)
     }
 
     throw new Error(`${chainId} not supported`)

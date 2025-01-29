@@ -7,7 +7,7 @@ import {
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Bip44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -17,7 +17,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
-import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import * as arbitrumNova from './ArbitrumNovaChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -270,7 +270,7 @@ describe('ArbitrumNovaChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0xf0',
           to: EOA_ADDRESS,
           chainId: Number(fromChainId(arbitrumNovaChainId).chainReference),
@@ -299,7 +299,7 @@ describe('ArbitrumNovaChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
           chainId: Number(fromChainId(arbitrumNovaChainId).chainReference),
@@ -329,7 +329,7 @@ describe('ArbitrumNovaChainAdapter', () => {
           receiverAddress: '0x1234',
           signTxInput,
         }),
-      ).rejects.toThrow(/Error signing & broadcasting tx/)
+      ).rejects.toThrow(/error signing & broadcasting tx/)
     })
 
     it('should return the hash returned by wallet.ethSendTx', async () => {
@@ -362,7 +362,7 @@ describe('ArbitrumNovaChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
         },
       }
 
@@ -381,13 +381,11 @@ describe('ArbitrumNovaChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
         },
       }
 
-      await expect(adapter.signMessage(message)).rejects.toThrow(
-        /EvmBaseAdapter: error signing message/,
-      )
+      await expect(adapter.signMessage(message)).rejects.toThrow(/error signing message/)
     })
   })
 
@@ -427,9 +425,7 @@ describe('ArbitrumNovaChainAdapter', () => {
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.ArbitrumNovaMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        `${adapter.getName()}ChainAdapter: to is required`,
-      )
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('to is required')
     })
 
     it('should throw if passed tx has no "value" property', async () => {
@@ -442,9 +438,7 @@ describe('ArbitrumNovaChainAdapter', () => {
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.ArbitrumNovaMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        `${adapter.getName()}ChainAdapter: value is required`,
-      )
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('value is required')
     })
 
     it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {
@@ -470,9 +464,9 @@ describe('ArbitrumNovaChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(arbitrumNovaChainId).chainReference),
-          data: '',
+          data: '0x',
           gasLimit: toHex(BigInt(gasLimit)),
           gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
@@ -506,7 +500,7 @@ describe('ArbitrumNovaChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(arbitrumNovaChainId).chainReference),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
           gasLimit: toHex(BigInt(gasLimit)),
@@ -521,30 +515,48 @@ describe('ArbitrumNovaChainAdapter', () => {
     })
   })
 
-  describe('getBIP44Params', () => {
+  describe('getBip44Params', () => {
     const adapter = new arbitrumNova.ChainAdapter(makeChainAdapterArgs())
 
     it('should return the correct coinType', () => {
-      const result = adapter.getBIP44Params({ accountNumber: 0 })
+      const result = adapter.getBip44Params({ accountNumber: 0 })
       expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Arbitrum))
     })
 
     it('should respect accountNumber', () => {
-      const testCases: BIP44Params[] = [
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Arbitrum), accountNumber: 0 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Arbitrum), accountNumber: 1 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Arbitrum), accountNumber: 2 },
+      const testCases: Bip44Params[] = [
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Arbitrum),
+          accountNumber: 0,
+          isChange: false,
+          addressIndex: 0,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Arbitrum),
+          accountNumber: 1,
+          isChange: false,
+          addressIndex: 0,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Arbitrum),
+          accountNumber: 2,
+          isChange: false,
+          addressIndex: 0,
+        },
       ]
 
       testCases.forEach(expected => {
-        const result = adapter.getBIP44Params({ accountNumber: expected.accountNumber })
+        const result = adapter.getBip44Params({ accountNumber: expected.accountNumber })
         expect(result).toStrictEqual(expected)
       })
     })
 
     it('should throw for negative accountNumber', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: -1 })
+        adapter.getBip44Params({ accountNumber: -1 })
       }).toThrow('accountNumber must be >= 0')
     })
   })

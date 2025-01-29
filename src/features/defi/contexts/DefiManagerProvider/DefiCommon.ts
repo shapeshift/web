@@ -19,6 +19,7 @@ export enum DefiAction {
 export enum DefiStep {
   Info = 'info',
   Approve = 'approve',
+  AllowanceReset = 'allowanceReset',
   Confirm = 'confirm',
   Sweep = 'sweep',
   Status = 'status',

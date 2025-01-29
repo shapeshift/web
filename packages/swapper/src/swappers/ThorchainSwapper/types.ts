@@ -1,5 +1,8 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+import type { TradeQuote, TradeRate } from '../../types'
+import type { TradeType } from './utils/longTailHelpers'
+
 export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
 
 export type MidgardPoolResponse = {
@@ -75,8 +78,8 @@ export type ThornodeQuoteResponseSuccess = {
   warning: string
 }
 
-type ThornodeQuoteResponseError = { error: string }
-export type ThornodeQuoteResponse = ThornodeQuoteResponseSuccess | ThornodeQuoteResponseError
+type ThornodeResponseError = { error: string }
+export type ThornodeQuoteResponse = ThornodeQuoteResponseSuccess | ThornodeResponseError
 
 type MidgardCoins = {
   asset: string
@@ -157,6 +160,13 @@ export type ThorNodeTxSchema = {
   memo?: string
 }
 
+export type ThorNodePlannedTxSchema = {
+  chain: ThorchainChain
+  to_address: string
+  coin: ThorNodeCoinSchema
+  refund: boolean
+}
+
 export type ThorNodeStatusResponseSuccess = {
   tx?: {
     id: string
@@ -206,15 +216,31 @@ export type ThorNodeStatusResponseSuccess = {
     }
   }
   out_txs?: ThorNodeTxSchema[]
-  planned_out_txs?: {
-    chain: ThorchainChain
-    to_address: string
-    coin: ThorNodeCoinSchema
-    refund: boolean
-  }[]
+  planned_out_txs?: ThorNodePlannedTxSchema[]
 }
 
-export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeQuoteResponseError
+export type ThorNodeTxResponseSuccess = {
+  observed_tx: {
+    tx: ThorNodeTxSchema
+    observed_pub_key?: string
+    external_observed_height?: number
+    external_confirmation_delay_height?: number
+    aggregator?: string
+    aggregator_target?: string
+    aggregator_target_limit?: string
+    signers?: string[]
+    keysign_ms?: number
+    out_hashes?: string[]
+    status?: 'done' | 'incomplete'
+  }
+  consensus_height?: number
+  finalised_height?: number
+  outbound_height?: number
+  keysign_metric?: { tx_id?: string; node_tss_times: { address?: string; tss_time?: number }[] }
+}
+
+export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeResponseError
+export type ThornodeTxResponse = ThorNodeTxResponseSuccess | ThornodeResponseError
 
 // When this is updated, also update the instance in generateTradableThorAssetMap
 export enum ThorchainChain {
@@ -228,4 +254,42 @@ export enum ThorchainChain {
   GAIA = 'GAIA',
   THOR = 'THOR',
   BSC = 'BSC',
+  BASE = 'BASE',
 }
+
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    vault: string
+    aggregator?: string
+    data: string
+  } & {
+    receiveAddress: string
+  }
+
+export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
+export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
+
+type ThorTradeQuoteSpecificMetadata = {
+  isStreaming: boolean
+  memo: string
+  recommendedMinimumCryptoBaseUnit: string
+  tradeType: TradeType
+  expiry: number
+  longtailData?: {
+    longtailToL1ExpectedAmountOut?: string
+    L1ToLongtailExpectedAmountOut?: string
+  }
+}
+
+export type ThorEvmTradeRate = TradeRate &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    vault: string
+    aggregator?: string
+    data: string
+    tradeType: TradeType
+  }
+
+export type ThorTradeUtxoOrCosmosRate = TradeRate & ThorTradeQuoteSpecificMetadata
+export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate

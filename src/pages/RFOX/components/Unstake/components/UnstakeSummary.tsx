@@ -1,7 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -9,7 +8,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -48,7 +47,9 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useCooldownPeriodQuery()
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } =
+    useCooldownPeriodQuery(stakingAssetId)
+
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],
@@ -59,6 +60,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId,
     select: selectStakingBalance,
   })
 
@@ -67,7 +69,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery({
     stakingAssetId,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    stakingAssetAccountAddress: getStakingContract(stakingAssetId),
     select: data => data.toString(),
   })
 

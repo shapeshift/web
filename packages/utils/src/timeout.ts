@@ -1,4 +1,5 @@
-import { Err, type Result } from '@sniptt/monads'
+import type { Result } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 
 export const timeout = <SuccessType, FallbackType>(
   promise: Promise<SuccessType>,

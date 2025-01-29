@@ -2,7 +2,8 @@ import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { knownChainIds } from 'constants/chains'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -11,8 +12,10 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from 'components/ChainMenu'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { sortChainIdsByDisplayName } from 'lib/utils'
 import {
+  selectAssetsSortedByMarketCap,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
@@ -37,18 +40,24 @@ const assetButtonProps = {
   height: 'auto',
 }
 
-const NUM_QUICK_ACCESS_ASSETS = 5
+const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
 }) => {
+  const { walletInfo } = useWallet().state
+  const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
   const translate = useTranslate()
   const history = useHistory()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
@@ -56,7 +65,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioAssetsSortedByBalance = useAppSelector(
-    selectPortfolioFungibleAssetsSortedByBalance,
+    // When no wallet is connected, there is no portfolio, hence we display all Assets
+    hasWallet ? selectPortfolioFungibleAssetsSortedByBalance : selectAssetsSortedByMarketCap,
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -100,13 +110,25 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    if (allowWalletUnsupportedAssets) return unfilteredPopularAssets
-    return unfilteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
-  }, [activeChainId, popularAssetsByChainId, walletConnectedChainIds, allowWalletUnsupportedAssets])
+    const filteredPopularAssets = unfilteredPopularAssets.filter(
+      asset => assetFilterPredicate?.(asset.assetId) ?? true,
+    )
+    if (allowWalletUnsupportedAssets || !hasWallet) return filteredPopularAssets
+
+    // TODO: move `allowWalletUnsupportedAssets` into `assetFilterPredicate`
+    return filteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+  }, [
+    popularAssetsByChainId,
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    hasWallet,
+    walletConnectedChainIds,
+    assetFilterPredicate,
+  ])
 
   const quickAccessAssets = useMemo(() => {
     if (activeChainId !== 'All') {
-      return popularAssets.slice(0, 5)
+      return popularAssets.slice(0, 6)
     }
 
     // if we selected 'All' chains, we'll dedupe EVM assets in favor of ethereum mainnet
@@ -128,26 +150,32 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
+    const filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
+      asset => assetFilterPredicate?.(asset.assetId) ?? true,
+    )
+
     if (activeChainId === 'All') {
-      return portfolioAssetsSortedByBalance
+      return filteredPortfolioAssetsSortedByBalance
     }
 
-    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance])
+    return filteredPortfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
+  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
-      if (allowWalletUnsupportedAssets) {
+      if (allowWalletUnsupportedAssets || !hasWallet) {
         return knownChainIds
       }
 
       return walletConnectedChainIds
     })()
 
-    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds)
+    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds).filter(
+      chainId => chainIdFilterPredicate?.(chainId) ?? true,
+    )
 
     return ['All', ...sortedChainIds]
-  }, [walletConnectedChainIds, allowWalletUnsupportedAssets])
+  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds, chainIdFilterPredicate])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {
@@ -179,12 +207,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [])
 
   return (
-    <CustomAssetAcknowledgement
-      asset={assetToImport}
-      handleAssetClick={handleAssetClick}
-      shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-      setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
-    >
+    <>
+      <CustomAssetAcknowledgement
+        asset={assetToImport}
+        handleAssetClick={handleAssetClick}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
       <Stack
         gap={4}
         px={4}
@@ -225,7 +254,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
-          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+          assetFilterPredicate={assetFilterPredicate}
+          allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
         />
       ) : (
         <DefaultAssetList
@@ -234,6 +264,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
         />
       )}
-    </CustomAssetAcknowledgement>
+    </>
   )
 }

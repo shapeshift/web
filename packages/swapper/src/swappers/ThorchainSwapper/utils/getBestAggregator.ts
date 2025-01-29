@@ -1,5 +1,10 @@
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import {
+  UNISWAP_V3_POOL_FACTORY_CONTRACT_MAINNET,
+  UNISWAP_V3_QUOTER_ABI,
+  UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
+  viemClientByChainId,
+} from '@shapeshiftoss/contracts'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { Token } from '@uniswap/sdk-core'
 import type { FeeAmount } from '@uniswap/v3-sdk'
@@ -7,14 +12,8 @@ import assert from 'assert'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 
-import type { SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import {
-  UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS,
-  UNI_V3_ETHEREUM_QUOTER_ADDRESS,
-} from '../constants'
-import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import {
   feeAmountToContractMap,
   generateV3PoolAddressesAcrossFeeRange,
@@ -24,20 +23,19 @@ import {
 } from './longTailHelpers'
 
 export const getBestAggregator = async (
-  deps: SwapperDeps,
   buyAsset: Asset,
   sellToken: Token,
   buyToken: Token,
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string,
 ) => {
-  const publicClient = deps.viemClientByChainId[buyAsset.chainId as EvmChainId]
+  const publicClient = viemClientByChainId[buyAsset.chainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${buyAsset.chainId}'`)
 
   const poolAddresses: Map<
     Address,
     { token0Address: Address; token1Address: Address; fee: FeeAmount }
   > = generateV3PoolAddressesAcrossFeeRange(
-    UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS,
+    UNISWAP_V3_POOL_FACTORY_CONTRACT_MAINNET,
     sellToken,
     buyToken,
   )
@@ -49,10 +47,10 @@ export const getBestAggregator = async (
     buyToken.address,
   )
 
-  const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, Address> =
+  const quoterContract: GetContractReturnType<typeof UNISWAP_V3_QUOTER_ABI, PublicClient, Address> =
     getContract({
-      abi: QuoterAbi,
-      address: UNI_V3_ETHEREUM_QUOTER_ADDRESS,
+      abi: UNISWAP_V3_QUOTER_ABI,
+      address: UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
       client: publicClient,
     })
 

@@ -1,11 +1,11 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Center,
   Checkbox,
   Flex,
   Link,
-  type ResponsiveValue,
   Text,
   useBreakpointValue,
   useColorModeValue,
@@ -13,9 +13,9 @@ import {
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type * as CSS from 'csstype'
-import { type PropsWithChildren, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { AssetIcon } from 'components/AssetIcon'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -33,7 +33,7 @@ type CustomAssetAcknowledgementProps = {
   handleAssetClick: (asset: Asset) => void
   shouldShowWarningAcknowledgement: boolean
   setShouldShowWarningAcknowledgement: (shouldShow: boolean) => void
-} & PropsWithChildren
+}
 
 const extractAndCapitalizeDomain = (url: string): string => {
   try {
@@ -53,7 +53,6 @@ const extractAndCapitalizeDomain = (url: string): string => {
 }
 
 export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProps> = ({
-  children,
   asset,
   handleAssetClick,
   shouldShowWarningAcknowledgement,
@@ -75,7 +74,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))
     // Use the market API to get the market data for the custom asset
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([asset.assetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(asset.assetId))
     // Once the custom asset is in the store, proceed as if it was a normal asset
     handleAssetClick(asset)
   }, [dispatch, handleAssetClick, asset])
@@ -170,8 +169,6 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
       setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       disableButton={!hasAcknowledged}
       content={Content}
-    >
-      {children}
-    </WarningAcknowledgement>
+    />
   )
 }

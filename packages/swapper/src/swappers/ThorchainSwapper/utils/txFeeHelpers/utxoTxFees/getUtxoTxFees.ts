@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 

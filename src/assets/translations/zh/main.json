@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "升序",
+    "descending": "降序",
     "free": "免费",
     "trade": "交易",
     "trades": "交易",
@@ -16,6 +18,7 @@
     "done": "完成",
     "cancel": "取消",
     "close": "关闭",
+    "closed": "关闭",
     "loadMore": "加载更多",
     "saveChanges": "保存更改",
     "new": "新的",
@@ -24,6 +27,7 @@
     "claimable": "可认领的",
     "comingSoon": "即将推出 ...",
     "approve": "授权",
+    "reset": "重置",
     "confirm": "确认",
     "seeDetails": "查看具体信息",
     "activity": "激活",
@@ -36,6 +40,7 @@
     "noResultsFound": "未找到结果。",
     "noResultsBody": "%{searchQuery} 没有结果。尝试新的搜索。",
     "insufficientFunds": "不充足的资金",
+    "insufficientAllowance": "津贴不足",
     "estimatedGas": "预估手续费",
     "relayerGasFee": "中继器手续费",
     "insufficientAmountForGas": "没有足够的 %{assetSymbol}.%{chainSymbol} 来支付手续费",
@@ -48,6 +53,7 @@
     "overview": "总览",
     "getStarted": "开始使用",
     "connectWallet": "连接钱包",
+    "connectWalletToGetStartedWith": "连接钱包以开始使用 %{feature}",
     "connectedWallet": "已连接的钱包",
     "connectedWalletSettings": "钱包设置",
     "noWallet": "没有连接钱包",
@@ -74,9 +80,10 @@
     "retryQuestion": "重试？",
     "transactionFailed": "交易失败",
     "transactionFailedBody": "交易失败",
+    "safeProposalQueued": "SAFE 提案已排队。已签署 %{currentConfirmations} 个（共 %{confirmationsRequired} 个）。",
+    "safeProposalExecuted": "已执行 SAFE 建议。",
     "submitFeedback": "提交反馈",
     "send": "发送",
-    "sendAmountAsset": "发送 %{amount} %{asset}",
     "receive": "接收",
     "privacy": "隐私政策",
     "terms": "服务条款",
@@ -106,9 +113,11 @@
     "switchNetwork": "切换网络",
     "selectNetwork": "选择一个网络",
     "unsupportedNetwork": "不支持的网络",
+    "unsupportedWallet": "不支持的钱包",
     "chartUnavailable": "%{unavailableAssetNames} 的余额图表数据暂时不可用。",
     "search": "搜索",
     "searchAsset": "搜索资产",
+    "searchNameOrAddress": "按姓名或地址搜索",
     "enterAmount": "输入数量",
     "enterAddress": "输入地址",
     "pageNotFound": "找不到你要查找的页面",
@@ -150,6 +159,13 @@
     "prices": "价格",
     "symmetric": "对称",
     "asymmetric": "不对称 (%{assetSymbol})",
+    "import": "导入",
+    "accountsLoading": "正在加载帐户",
+    "noAccounts": "没有符合所选过滤器的帐户。",
+    "sortBy": "排序方式",
+    "orderBy": "排序依据",
+    "filterBy": "过滤方式",
+    "filterAndSort": "过滤和排序",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -163,7 +179,12 @@
       "sortedDesc": "降序排序",
       "expandRow": "展开行"
     },
-    "featureDisabled": "此功能暂时禁用。"
+    "featureDisabled": "此功能暂时禁用。",
+    "yes": "是的",
+    "activeAccount": "活跃账户",
+    "update": "更新",
+    "apy": "APY",
+    "tbd": "TBD"
   },
   "consentBanner": {
     "body": {
@@ -222,6 +243,7 @@
       "balance": "余额",
       "price": "价格",
       "value": "价值",
+      "apy": "年利率",
       "priceChange": "价格变化",
       "allocation": "分配",
       "marketCap": "市值",
@@ -248,8 +270,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "购买或出售加密货币",
     "titleMessage": "你可以使用以下方法%{action} %{asset}：",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -279,12 +299,16 @@
   },
   "connectWalletPage": {
     "title": "最初的多链交易所",
+    "primaryTitle": "欢迎来到多链 DeFi。",
+    "secondaryTitle": "隐私的、去中心化、非托管的。",
+    "primaryDescription": "轻松交易、桥接并赚取奖励。体验原生比特币、狗狗币等。一键管理流动性和 DeFi 头寸。",
+    "snapDescription": "为你的 MetaMask 下载 ShapeShift Multichain Snap 并解锁比特币、狗狗币等。",
     "shapeshift": "ShapeShift",
     "exploreThe": "探索",
     "defiUniverse": "DeFi 宇宙",
     "body": "交易、跨链桥和赚取收益。隐私的。社区所有。无监护。去中心化的。",
     "header": "请连接钱包以开始",
-    "cta": "连接钱包",
+    "cta": "连接或创建钱包",
     "viewADemo": "查看演示",
     "dontHaveWallet": "没有钱包？",
     "welcomeBack": "欢迎回来！",
@@ -394,12 +418,15 @@
       },
       "saversVaults": {
         "description": "通过 THORChain 储户金库 赚取你的 %{asset} 收益。无锁定时间，奖励自动累积。 THORChain 上的收益来兑换费用和区块奖励。单面收益率上限为流动性提供者双面收益率的一半。",
+        "runePoolDescription": "RUNEPool 可让你通过与他人共享 %{asset} 来赚取更多 %{asset}。你不必选择特定的池子，每个人都可以分享整体表现。",
+        "runePoolOverviewDescription": "RUNEPool 通过将 RUNE 存入 THORChain 中所有支持 POL 的流动性池来优化 RUNE 的使用。通过在这些池中汇集 RUNE，参与者可以获得综合 APY，但面临总无常损失的风险。用户无需选择单个池，而是从整体表现中受益，有效地投资于 RUNE 指数和所有支持 THORChain POL 的资产。这简化了流动性提供并降低了个人风险。",
         "vaultCap": "金库容量",
         "vaultCapTooltip": "该金库当前的最大容量",
         "haltedDepositTitle": "充值暂时停止。",
         "disabledDepositTitle": "暂时禁止存款。",
         "haltedWithdrawTitle": "提款暂时停止。",
         "disabledWithdrawTitle": "暂时禁止提款。",
+        "withdrawLockedTitle": "您必须等待 %{timeHuman} 才能提款。",
         "haltedDescription": "请 @THORChain 发推文以提高上限！",
         "protocolFee": "协议费",
         "fee": "费用",
@@ -409,10 +436,12 @@
         "sendDust": "发送 Dust",
         "addressToSendTo": "发送地址到",
         "introducingSaversVaults": "介绍储户金库",
+        "introducingRunePool": "介绍 RUNEPool",
         "risksBody": {
           "1": "参考",
           "2": "这篇文章",
-          "3": "与储户金库有关的风险。"
+          "3": "与储户金库有关的风险。",
+          "runePool": "与 RUNEPool 相关的风险。"
         },
         "understand": "我理解",
         "days": "%{amount} 天",
@@ -423,7 +452,10 @@
         },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
         "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
-        "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。"
+        "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。",
+        "agreeRunePool": {
+          "1": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。"
+        }
       }
     },
     "memoNote": {
@@ -490,6 +522,8 @@
     "myRewardsBody": "你的活跃仓位以及可领取的奖励将显示在此处。",
     "viewAllPositions": "查看所有仓位",
     "liquidityPools": "流动资金池",
+    "liquidityLockupWarning": "锁定期为 %{time}。在锁定期间，你无法动用你的流动性。",
+    "liquidityLocked": "流动性锁定 (%{time})",
     "stakingVaults": "质押 & 金库",
     "farming": "收益挖矿",
     "totalEarningBalance": "总盈利余额",
@@ -594,6 +628,9 @@
     "buyCryptoShort": "买/卖",
     "lending": "贷款",
     "pools": "池",
+    "rFOX": "rFOX",
+    "foxBenefits": "FOX 优势",
+    "markets": "市场",
     "actionMenu": {
       "send": {
         "title": "发送",
@@ -615,8 +652,7 @@
         "title": "扫描二维码",
         "body": "轻松扫描以发送或接收加密货币"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "已发送",
@@ -641,11 +677,22 @@
     "for": "对于",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "提现已发起",
+        "outboundTransferDeposit": "充值已启动",
+        "withdrawEth": "提现已发起",
+        "submitRetryable": "充值到账",
+        "createRetryableTicket": "充值已启动",
+        "finalizeInboundTransferDeposit": "充值已到账",
+        "depositEth": "充值已启动",
+        "executeTransaction": "认领"
+      },
       "rfox": {
         "stake": "质押",
         "withdraw": "提现",
         "unstakeRequest": "取消质押请求",
-        "setRuneAddress": "设置符文地址"
+        "setRuneAddress": "设置 RUNE 地址",
+        "reward": "奖励分配"
       },
       "weth": {
         "deposit": "充值",
@@ -688,6 +735,7 @@
         "out": "Outbound 已收到",
         "refund": "退款",
         "swapOut": "已收到兑换",
+        "swap": "交易",
         "swapRefund": "兑换退款",
         "withdraw": "请求提现",
         "withdrawNative": "提现",
@@ -734,6 +782,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "确保你的 %{destinationChainName} 账户中有 %{destinationSymbol}，你将需要它来进行交易",
     "confirm": "确认桥接",
     "selectChain": "选择链",
     "selectAsset": "选择资产",
@@ -748,16 +797,42 @@
     "route": "路径",
     "waitTimeLabel": "大约等待时间",
     "waitTimeValue": "~5-10 分钟",
-    "noSupportedAssets": "投资组合中没有受支持的资产。"
+    "noSupportedAssets": "投资组合中没有受支持的资产。",
+    "arbitrum": {
+      "description": "通过 Arbitrum 搭建桥接",
+      "waitWarning": "Arbitrum 的原生桥更安全，但可能需要长达一周的时间才能认领。",
+      "waitCta": "我知道我需要大约 7 天的时间才能在以太坊上领取资金",
+      "claimCta": "我理解领取资金后，我必须再发送一笔交易并支付费用",
+      "success": {
+        "tradeSuccess": "桥接已启动",
+        "withdrawComplete": "已成功启动 %{symbol} 至 %{chainName} 的桥接。"
+      }
+    },
+    "claim": "认领",
+    "claimReceiveAddress": "认领接收地址",
+    "claimPending": "等待您的认领",
+    "claimSuccess": "您已成功申领",
+    "claimFailed": "尝试申领时出错",
+    "availableClaims": "可用的",
+    "noAvailableClaims": "沒有认领",
+    "pendingClaims": "待确认",
+    "noPendingClaims": "没有待决认领",
+    "availableIn": "%{time} 后可用",
+    "confirmAndClaim": "确认并认领",
+    "viewClaims": "查看认领",
+    "viewClaimStatus": "查看认领状态",
+    "availableClaimsNotification": "你已准备好桥梁认领！"
   },
   "trade": {
     "trade": "交易",
+    "resetAllowance": "重置津贴",
     "allowance": "额度",
     "verifyAddresses": "验证地址",
     "assetAddress": "%{asset} 地址",
     "verifyAsset": "验证 %{asset}",
     "verifyAddressMessage": "在继续之前确保您的地址正确。",
     "slippageInfo": "如果价格不利变化超过此百分比，你的交易将恢复。",
+    "resetAllowanceTooltip": "当此代币剩余的配额非零时，必须先将配额重置为 0，然后才能批准最终配额。",
     "allowanceTooltip": "你授予智能合约允许使用的数量。",
     "searchingRate": "利率...",
     "noRateAvailable": "没有利率可用。",
@@ -794,13 +869,15 @@
     "pending": "交易待处理",
     "complete": "交易完成",
     "approveAsset": "授权与 %{symbol} 交互",
-    "needPermission": "需要你的授权才能使用你的 %{symbol}",
     "whyNeedThis": "为什么我需要这样做？",
     "estimatedGasFee": "预估手续费",
     "receiveInclFee": "接收（含手续费）",
     "approvingAsset": "授权 %{symbol}",
     "viewTransaction": "查看交易",
-    "availableQuotes": "可用报价",
+    "noQuotesAvailable": "没有可用报价",
+    "noQuotesAvailableDescription": "目前未找到可用的报价。请尝试选择另一对。",
+    "availableSwappers": "可用报价",
+    "unavailableSwappers": "不可用的交换者",
     "unlimited": "无限的",
     "streamStatus": "Stream 状态",
     "swapsFailed": "%{failedSwaps} 兑换失败",
@@ -822,6 +899,7 @@
     "enterCustomRecipientAddress": "输入自定义收件人地址",
     "receiveAtLeast": "至少收到",
     "tooltip": {
+      "continueSwapping": "继续交换最终细节",
       "changeQuote": "更改报价",
       "rate": "这是该交易对的预期利率。",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
@@ -836,7 +914,7 @@
       "manualReceiveAddress": "这是你接收资金的地址。已手动输入，请确保正确。",
       "amountPercentageDifference": "这是你将收到的 %{buyAssetSymbol} 总数与最佳报价相比的百分比差异",
       "overallPercentageDifference": "这是扣除所有费用后收到的总数与最佳报价相比的百分比差异",
-      "priceImpactDifference": "输入和输出金额的美元价值之间的估计差异。",
+      "inputOutputDifference": "输入和输出金额的美元价值之间的估计差异。",
       "gasFee": "这是完成这笔交易的估计手续费。",
       "slippageWithAmount": "如果价格变动导致你收到的金额少于 %{amount}，你的交易将被还原。这是保证你收到的最低金额。",
       "slippage": "如果价格不利变化超过此百分比，你的交易将恢复。",
@@ -845,7 +923,18 @@
     "rates": {
       "tags": {
         "negativeRatio": "卖出数量不足"
+      },
+      "rateExpired": {
+        "body": "你之前的掉期利率已过期。我们已获取新利率并更新了你的报价金额。请在确认掉期前查看最新详细信息。",
+        "cta": "好的，明白了"
       }
+    },
+    "permit2": {
+      "title": "允许代币转移：",
+      "description": "授予智能合约代表你使用 %{symbol} 的权限。",
+      "tooltip": "此项交易具有一个名为“Permit2”的附加安全功能，该功能要求你授权应用程序代表你完成交易。",
+      "error": "签署 Permit2 消息时出现问题",
+      "signMessage": "签署消息"
     },
     "errors": {
       "title": "出了些问题",
@@ -884,19 +973,28 @@
     "or": "或者",
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
+    "unknownProtocolFee": "（未知）",
     "numHops": "此交易包括 %{numHops}  hop",
     "receiveAddress": "接收地址",
-    "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
+    "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
+    "disableThorNativeSmartContractReceive": "我们检测到你正在向 %{chainName} 上的智能合约地址发送。由于 THORChain 的限制，不支持将 %{nativeAssetSymbol} 接收至智能合约地址。请输入其他地址",
+    "disableThorTaprootReceive": "我们检测到你正在向 taproot 比特币地址发送。由于 THORChain 的限制，目前不支持将 BTC 接收至 taproot 地址。请输入其他地址。",
     "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
     "enableMetaMaskSnap": "使用多链 snap",
     "connectChain": "连接 %{chainName}",
-    "approvalGasFee": "授权手续费 %{fee}",
+    "approvalGasFee": "配额批准 gas 费 %{fee}",
+    "approvalGasFeeLoading": "配额批准gas费加载...",
+    "approvalResetGasFee": "限额重置 gas 费用 %{fee}",
+    "approvalResetGasFeeLoading": "津贴重置汽gas费加载中...",
     "approvalFailed": "额度审批过程中出现问题",
+    "approvalResetFailed": "重置配额时出现问题",
+    "allowanceResetTxName": "津贴重置tx：",
+    "allowanceApprovalTxName": "津贴批准tx：",
     "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
     "doAnotherTrade": "进行另一笔交易",
-    "showDetails": "显示详细资料",
+    "summary": "交易总结",
     "transactionSuccessful": "交易成功，等待确认",
     "temp": {
       "tradeSuccess": "交易完成",
@@ -911,15 +1009,70 @@
       "swap": "执行兑换时出现问题"
     },
     "transactionTitle": {
-      "bridge": "通过 %{swapperName} 从 %{sellChainName} 桥接到 %{buyChainName}",
       "swap": "通过 %{swapperName} 在 %{sellChainName} 上进行兑换"
     },
     "approvalTitle": "代币津贴批准",
-    "assetSummaryDescription": "%{chainName} 上的 %{amountFiatFormatted}",
+    "resetTitle": "代币限额重置",
+    "fiatAmountOnChain": "%{chainName} 上的 %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
       "slippage": "滑点：%{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "限制",
+    "confirm": "确认",
+    "placeOrderPending": "等待确认",
+    "placeOrderSuccess": "成功！",
+    "placeOrderFailed": "出了点问题",
+    "placeOrder": "下订单",
+    "cancel": {
+      "cancelOrder": "取消限价单",
+      "requestCancellation": "是的，请求取消",
+      "areYouSureYouWantToCancelOrder": "你确实要取消此订单吗？",
+      "cancellationFailed": "取消订单失败"
+    },
+    "viewOrder": "查看订单",
+    "viewOnChain": "查看链上交易",
+    "yourOrderHasBeenPlaced": "你的订单已下达。",
+    "yourCancellationHasBeenSubmitted": "你的取消已提交。",
+    "limitPrice": "限价",
+    "provider": "提供者",
+    "expiration": "到期",
+    "networkFee": "网络费",
+    "confirmInfo": "当链上价格达到限价时，限价订单可能无法准确成交。",
+    "learnMore": "了解更多",
+    "previewOrder": "预览顺序",
+    "whenPriceReaches": "当价格达到",
+    "expiry": "到期",
+    "noOpenOrders": "尚无未结订单。",
+    "noHistoricalOrders": "尚无历史订单。",
+    "expiryOption": {
+      "oneHour": "1小时",
+      "oneDay": "1天",
+      "threeDays": "3天",
+      "sevenDays": "7天",
+      "twentyEightDays": "28天",
+      "custom": "定制"
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "不支持本机出售资产",
+      "insufficientValidTo": "订单到期太快",
+      "excessiveValidTo": "订单到期时间太远",
+      "insufficientLiquidity": "流动性不足"
+    },
+    "expiresIn": "有效期至",
+    "openOrders": "未结订单",
+    "orderHistory": "订单历史记录",
+    "status": {
+      "open": "打开",
+      "fulfilled": "已实现",
+      "cancelled": "取消的",
+      "expired": "已到期"
+    },
+    "orders": "订单",
+    "viewOrders": "查看订单",
+    "loadingOrderList": "钱包不支持 %{chain}。"
   },
   "modals": {
     "assetSearch": {
@@ -1095,6 +1248,9 @@
         "average": "中速",
         "fast": "快速",
         "enterAmount": "输入金额"
+      },
+      "status": {
+        "pendingBody": "正在发送 %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1175,6 +1331,7 @@
     },
     "approve": {
       "header": "允许 %{spenderName} 使用你的 %{asset}",
+      "resetHeader": "重置 %{asset} 的 %{spenderName} 限额",
       "shapeshiftRouterName": "ShapeShift DAO 路由",
       "body": "需要你的授权才能使用你的 %{asset}",
       "learnMore": "为什么我需要这样做？",
@@ -1196,6 +1353,7 @@
       },
       "withdrawTo": "提现到",
       "amountToDeposit": "充值数量",
+      "amountDeposited": "充值金额",
       "amountToStake": "质押数量",
       "amountToWithdraw": "提现数量",
       "amountToClaim": "认领数量",
@@ -1400,7 +1558,6 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接 Keplr 钱包"
       }
     },
@@ -1416,7 +1573,8 @@
         "connect": "连接"
       },
       "verify": {
-        "confirmOnDevice": "在设备上确认"
+        "confirmOnDevice": "在设备上确认",
+        "addressMismatch": "地址不匹配。请检查你是否连接了正确的设备，然后重试。"
       },
       "success": {
         "header": "Ledger 已连接",
@@ -1427,7 +1585,9 @@
         "connectFailure": "无法连接Ledger钱包",
         "unknown": "与 Ledger 钱包通信时发生意外错误",
         "appNotOpen": "%{app} 未在 Ledger 上打开",
-        "appNotOpenDescription": "请在你的设备上打开 %{app} 应用程序并重试。"
+        "appNotOpenDescription": "请在你的设备上打开 %{app} 应用程序并重试。",
+        "noDeviceConnected": "未连接 Ledger 设备",
+        "multipleDevicesConnected": "已连接多个 Ledger 设备。请断开除一个设备之外的所有设备。"
       },
       "connect": {
         "header": "匹配 Ledger",
@@ -1437,31 +1597,42 @@
         "pairExistingDeviceBody": "正在连接其他 Ledger 设备？单击“配对新设备”即可重新开始。"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接Ledger钱包"
       },
       "connectWarning": "连接链条之前，请确保你的设备上已打开该应用程序。",
       "signWarning": "签名之前，请确保您的设备上已打开 %{chain} 应用程序。"
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "与 MetaMask 通信时发生意外错误",
-        "connectFailure": "无法连接 MetaMask 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 MetaMask 。你安装了多个钱包吗？"
-      },
+    "mipd": {
       "connect": {
-        "header": "配对 MetaMask 钱包",
-        "body": "单击“配对”并从弹出窗口中登录 MetaMask",
+        "header": "对 %{name}",
+        "body": "单击“配对”，然后从弹出窗口登录 %{name}",
         "button": "匹配"
       },
-      "failure": {
-        "header": "错误",
-        "body": "无法连接 MetaMask 钱包"
+      "errors": {
+        "unknown": "与 %{name} 通信时发生意外错误",
+        "connectFailure": "无法连接 %{name}"
       },
+      "failure": {
+        "body": "无法连接 %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "在 MetaMask 应用程序中打开",
         "body": "在 MetaMask 中单击打开 ShapeShift 仪表板",
         "button": "打开"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "与 Phantom 通信时发生意外错误",
+        "connectFailure": "无法连接 Phantom 钱包",
+        "multipleWallets": "检测到的以太坊提供商不是 Phantom。你是否安装了多个钱包？"
+      },
+      "connect": {
+        "header": "匹配 Phantom ",
+        "body": "单击“匹配”并从弹出窗口登录 Phantom",
+        "button": "匹配"
       }
     },
     "metaMaskSnap": {
@@ -1475,8 +1646,10 @@
         "title": "你已从 MetaMask 中删除了多链支持！",
         "subtitle": "在 MetaMask 上重新添加多链 Snap，发送、接收、跟踪、交易和赚取收益可通过以下链："
       },
-      "secondaryTitle": "MetaMask 的最佳多链体验：由 ShapeShift 提供支持",
-      "secondaryBody": "使用 ShapeShift Multichain Snap 发送、接收、跟踪、交易和赚取收益在以下链：",
+      "update": {
+        "title": "多链 Snap 需要更新",
+        "subtitle": "单击“更新”以继续使用 ShapeShift 的多链功能和 MetaMask！"
+      },
       "connectMetaMask": "连接 MetaMask",
       "andMore": "...和更多",
       "snapInstalledToast": "ShapeShift 多链 MetaMask Snap 已安装 ",
@@ -1486,6 +1659,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "安装多链 Snap",
+      "updateTitle": "更新多链 Snap",
       "warningExperimental": "ShapeShift 多链 Snap 是一项新的实验性功能，“按原样”提供",
       "warningBackup": "确保你已备份 MetaMask 助记词。你使用此 Snap 发送到非 EVM 链的任何资金都将直接到你在MetaMask 设置的默认帐户。",
       "agreeIntro": "在继续之前，请阅读以下内容：",
@@ -1499,7 +1673,8 @@
       "agreeItem4": "启用 ShapeShift Multichain Snap 即表示你承认使用它的风险由你自行承担",
       "readAndUnderstood": "我已阅读并理解",
       "seedBackedUp": "我已备份我的 MetaMask 助记词",
-      "acceptInstall": "确认并安装"
+      "acceptInstall": "确认并安装",
+      "acceptUpdate": "确认并更新"
     },
     "coinbase": {
       "errors": {
@@ -1513,7 +1688,6 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "无法连接 Coinbase 钱包",
         "body": "无法连接 Coinbase 钱包"
       }
     },
@@ -1528,29 +1702,7 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接 WalletConnect 钱包"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "与 XDEFI 通信时发生意外错误",
-        "connectFailure": "无法连接 XDEFI 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 XDEFI。你是否安装并开启了多个钱包？在设置中优先考虑 XDEFI，然后再次按匹配。"
-      },
-      "connect": {
-        "header": "匹配 XDEFI",
-        "body": "单击“匹配”并从弹出窗口登录 XDEFI",
-        "button": "匹配"
-      },
-      "failure": {
-        "header": "错误",
-        "body": "无法连接 XDEFI 钱包"
-      },
-      "redirect": {
-        "header": "在 XDEFI 应用程序中打开",
-        "body": "单击以在 XDEFI 中打开 ShapeShift 仪表板",
-        "button": "打开"
       }
     },
     "shapeShift": {
@@ -1744,6 +1896,7 @@
         "SegwitNativeTooltip": "推荐给大多数用户。仅当你知道其他地址的用途时才使用它们",
         "btcFormat": "比特币钱包地址格式",
         "assetUnavailable": "该资产的市场数据尚不可用。我们正在努力，请稍等！",
+        "customAsset": "这是自定义导入的资产。市场数据可能不准确。",
         "loading": "正在获取价格历史记录，请稍等...",
         "maxTotalSupply": "最大总供应量",
         "availableSupply": "可用供应",
@@ -1826,11 +1979,12 @@
       "description": "从下面的列表中选择你想要导入的帐户。",
       "import": "导入",
       "loadMoreDisabled": "此钱包不支持此链的多个账户。"
-    },
-    "ledgerOpenApp": {
-      "title": "打开 %{appName} 应用",
-      "description": "要连接此链，你需要在设备上打开 Ledger 应用程序。"
     }
+  },
+  "ledgerOpenApp": {
+    "title": "打开 %{appName} 应用",
+    "description": "要继续，你需要在 Ledger 设备上打开 %{appName} 应用程序。",
+    "devicePrompt": "你的设备将提示你完成当前操作所需的任何必要步骤。"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2165,10 +2319,14 @@
     "poolDepth": "池深度",
     "poolDepthDescription": "池的健康状况",
     "totalDebtBalance": "总债务余额",
+    "totalDebtBalanceDescription": "贷款池累计债务余额",
     "totalCollateral": "抵押品总额",
+    "totalCollateralDescription": "添加到借贷池的总抵押品",
     "estCollateralizationRatio": "预估抵押比例",
+    "estCollateralizationRatioDescription": "目前抵押率固定为200%，未来将根据市场情况，动态平衡抵押率的上限和下限。",
     "collateralizationRatio": "抵押比例",
     "totalBorrowers": "借款人总数",
+    "totalBorrowersDescription": "参与借款人数量",
     "myLoanInformation": "我的借贷信息",
     "loanInformation": "借贷概要",
     "poolInformation": "池信息",
@@ -2188,8 +2346,12 @@
     "switchAssets": "转换资产",
     "backToLending": "回到贷款",
     "outstandingDebt": "未尝债务",
+    "outstandingDebtDescription": "你借入的抵押品金额",
     "collateral": "抵押品",
     "debt": "债务",
+    "healthy": "深度最佳，贷款高效。",
+    "caution": "深度适中，预计借款会出现一些下滑",
+    "risky": "深度较低，借款滑点可能较高。",
     "confirmAndBorrow": "确认并借用",
     "confirmAndRepay": "确认并偿还",
     "borrowAgain": "再次借用",
@@ -2290,8 +2452,10 @@
     "pricePerAsset": "%{from} 每 %{to}",
     "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
     "symAfterRuneAlert": "由于 THOR 网络的工作方式，非对称 RUNE 存款之后无法进行对称存款。",
+    "withdrawTypeNotAvailable": "此提款类型不适用于此池。",
     "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
+    "unsupportedDemoWalletExplainer": "不支持演示钱包，请连接到钱包以使用此功能。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
     "shareOfPool": "池份额",
@@ -2314,6 +2478,10 @@
     "confirmAndWithdraw": "确认与提款",
     "removeAmounts": "删除数量",
     "stagedTooltip": "分阶段池是接受流动性的新池，但在可用之前不会产生任何收益",
+    "newPosition": "新的位置",
+    "newPositionTooltip": "这将创建一个新的 LP 位置，而不是添加到任何现有的位置。",
+    "notSupported": "不可能",
+    "notSupportedTooltip": "由于你现有的非对称符文仓位，无法将两种资产存入此池。如果你希望使用两种资产创建新的 LP，请撤回你当前的仓位。",
     "yourPositions": {
       "yourPositions": "你得仓位",
       "emptyTitle": "没有活跃得仓位",
@@ -2349,7 +2517,14 @@
     "highSlippageDeposit": "此存款的滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
     "highSlippageBorrow": "此借款滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
     "highSlippageTrade": "此交易受价格变动影响 (%{slippagePercentage}%)。请谨慎操作。",
-    "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。"
+    "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。",
+    "customToken": "任何人都可以创建代币，包括假代币，因此需要谨慎。某些代币可能不适用于 ShapeShift。导入此代币即表示您接受风险。此代币不在美国主要交易所交易，也不在 ShapeShift 上频繁交换。交易前务必先进行研究。"
+  },
+  "streamingAcknowledgement": {
+    "description": "这是一个流式兑换，虽然你可以获得更优惠的价格，但最多可能需要 %{estimatedTimeHuman} 才能完成。"
+  },
+  "customTokenAcknowledgement": {
+    "understand": "我了解风险"
   },
   "watchlist": {
     "empty": {
@@ -2370,6 +2545,10 @@
     "lending": {
       "title": "借贷",
       "body": "用你的资产作为抵押进行借贷。"
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "质押FOX可赚取RUNE。"
     }
   },
   "RFOX": {
@@ -2382,6 +2561,7 @@
     "claim": "认领",
     "rewards": "奖励",
     "claims": "认领",
+    "chainNotSupportedByWallet": "钱包不支持该链",
     "changeAddress": "更换地址",
     "sameAddressNotAllowed": "不允许使用相同地址",
     "stakingDetails": "质押详情",
@@ -2399,6 +2579,7 @@
     "rewardAddressHelper": "奖励将发送至此处",
     "useWalletAddress": "使用钱包地址",
     "useCustomAddress": "使用自定义地址",
+    "bridgeCta": "你选择了 %{originNetwork} 上的 %{assetSymbol}，但你需要 %{destinationNetwork} 上的 %{assetSymbol} 才能质押。我们可以帮助你将资金桥接到 %{destinationNetwork}。你希望我们指导你完成整个过程吗？",
     "tooltips": {
       "stakeAmount": "这是你将质押的 FOX 数量",
       "unstakeAmount": "这是你将要赎回的 FOX 数量",
@@ -2413,6 +2594,7 @@
     "changeRewardAddressPending": "更改奖励地址...",
     "changeRewardAddressSuccess": "你已成功更改你的 THORChain 奖励地址。",
     "unstakePending": "请求提取 %{amount} %{symbol}",
+    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",
     "newRewardAddress": "新的奖励地址",
     "rewardCycleExplainer": "这将更新下一个奖励周期。",
@@ -2423,20 +2605,23 @@
     "newAddressInfo": "这将更新下一个奖励周期",
     "confirmAndUpdateAddress": "确认并更新地址",
     "unstakeFrom": "从 r%{assetSymbol} 取消质押",
-    "claimPending": "请求撤回",
+    "claimPending": "等待你领取 %{amount} %{symbol}",
     "claimSuccess": "你已成功领取 %{amount} %{symbol}。",
     "claimReceiveAddress": "领取接收地址",
+    "noRewardsYet": "尚无奖励",
     "noClaimsAvailable": "沒有可认领",
     "errorFetchingClaims": "获取声明时出错",
     "noClaimsAvailableDescription": "您没有任何可认领",
+    "unstakeNow": "取消质押以领取 FOX",
     "bridgeAndConfirm": "桥接与确认",
     "noSupportedChains": "链不被支持",
     "noSupportedChainsDescription": "添加 %{chainLabel} 或连接到支持它的钱包。",
     "confirmAndBridge": "确认与桥接",
-    "myRewardBalance": "我的奖励余额",
-    "myRewardBalanceHelper": "我的奖励余额",
+    "myStakedBalance": "我的质押余额",
+    "pendingRewardsBalanceHelper": "这只是根据历代迄今的收入估算的待定奖励。所有会计工作均在历代末进行，无法在月底之前准确计算",
     "lifetimeRewards": "终生奖励",
     "timeInPool": "池的时间",
+    "timeInPoolHelper": "存入 rFOX 池的时间是存入 rFOX 的最长时间",
     "myPosition": "我的位置",
     "faq": {
       "title": "常见问题",
@@ -2470,10 +2655,109 @@
       }
     },
     "totals": "rFOX 总计",
-    "totalStaked": "FOX 总质押量",
     "totalFeesCollected": "收取的费用总额（本期）",
-    "emissionsPool": "排放池（本期）",
-    "emissionsPoolHelper": "排放池（本期）",
-    "foxBurnAmount": "FOX 销毁数量"
+    "foxBurnAmount": "FOX 销毁量（本周期）",
+    "pendingDistribution": "等待分配"
+  },
+  "markets": {
+    "recommended": "推荐的",
+    "watchlist": "我的关注列表",
+    "marketsBody": "发现最令人兴奋的加密货币。跟踪最热门的货币、新兴代币、DeFi 机会等等。保存、分享和交易您最喜欢的货币。",
+    "watchlistEmpty": {
+      "emptyTitle": "监视列表中没有资产",
+      "emptyBody": "看来你尚未为任何资产加注星标。立即开始将资产添加到你的监视列表以进行跟踪！"
+    },
+    "emptyTitle": "未找到任何资产",
+    "emptyBody": "当前过滤器未找到任何资产。通过调整所选链可查看更多资产。",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "一键获取 DeFi 资产",
+        "subtitle": "发现最适合你的收益！通过门户轻松在池、金库、贷款选项和 LSD 之间切换。"
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "利用 THORCHain Savers 获取你资产的原生收益。"
+      },
+      "trending": {
+        "title": "热门内容",
+        "subtitle": "过去 24 小时内浏览次数最多的资产。"
+      },
+      "tradingVolume": {
+        "title": "交易量",
+        "subtitle": "过去 24 小时内交易量最高的资产。"
+      },
+      "marketCap": {
+        "title": "市值",
+        "subtitle": "过去 24 小时内市值最高的资产。"
+      },
+      "topMovers": {
+        "title": "排名前列的",
+        "subtitle": "涨幅达 %{percentage}% 或更多的顶级资产。"
+      },
+      "recentlyAdded": {
+        "title": "最近添加",
+        "subtitle": "发现最近发布的产品。"
+      }
+    }
+  },
+  "foxPage": {
+    "title": "FOX 代币仪表板",
+    "description": "自 2019 年以来，我们的变形 FOX 代币一直为用户提供不断扩展的实用性和优势。如今，我们的 ERC-20 治理代币为您提供费用折扣、THORChain 的收入份额，并使你能够通过投票影响 ShapeShift 的未来。在这里质押、交换、购买、供应和管理你的 FOX 资产。",
+    "foxToken": "FOX 代币",
+    "24hrPriceChange": "24小时价格变化",
+    "rfox": {
+      "whatIs": "什么是 rFOX Staking？",
+      "totalFoxBurn": "FOX 总销毁量",
+      "simulateTitle": "rFOX 模拟器",
+      "simulateSubtle": "输入存款金额",
+      "estimatedRewards": "预计奖励",
+      "depositAmount": "存款金额",
+      "shapeshiftRevenue": "ShapeShift 收入",
+      "30days": "30 天"
+    },
+    "foxFarming": {
+      "title": "FOX 农业+",
+      "description": "厌倦了将你的 %{rewardAssetSymbol} 从一个农场转移到另一个农场？只需质押你的 %{assetSymbol} 并永久赚取 %{rewardAssetSymbol}。",
+      "totalClaimableRewards": "可领取奖励总额",
+      "totalStakingValue": "总质押价值",
+      "nextEpoch": "下一个时代"
+    },
+    "governance": {
+      "title": "治理",
+      "description": {
+        "0": "加入我们",
+        "1": "在论坛上",
+        "2": "并塑造 DAO 的未来。"
+      },
+      "totalVotingPower": "总投票权",
+      "noActiveProposals": "没有可用的有效提案",
+      "noClosedProposals": "没有可用的封闭式提案"
+    }
+  },
+  "thorFees": {
+    "title": "来自 THORSwap 吗？",
+    "description": "THOR 持有者可免费交易至 2024 年。"
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "不支持地址 %{address}。",
+      "unsupportedChain": "钱包不支持 %{chain}。",
+      "ledgerAppOpenCancelled": "Ledger 应用程序开放已取消。",
+      "getAddress": "无法从钱包获取地址。",
+      "getAccount": "无法获取 %{pubkey} 的帐户。",
+      "switchChainUnsupported": "钱包不支持切换链。",
+      "switchChainFailed": "无法将钱包链切换至 %{chain}。",
+      "buildTransaction": "无法建立交易。",
+      "signTransaction": "签署交易失败。",
+      "signAndBroadcastTransaction": "签署并广播交易失败。",
+      "signMessage": "消息签名失败。",
+      "broadcastTransaction": "广播交易失败。",
+      "broadcastTransactionWithMessage": "无法广播交易 (%{message})。",
+      "getGasFeeData": "获取网络费用失败。",
+      "getFeeData": "无法估算网络费用。",
+      "getPublicKey": "无法从钱包获取公钥。",
+      "getUtxos": "无法获取 utxos。",
+      "getValidator": "无法获取验证器。"
+    }
   }
 }

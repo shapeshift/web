@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -33,7 +34,7 @@ import {
 } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
@@ -88,7 +89,7 @@ export const ClaimConfirm = ({
   const toast = useToast()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const cryptoHumanBalance = useMemo(
     () => bnOrZero(claimAmount).div(`1e+${stakingAsset.precision}`),
@@ -248,13 +249,15 @@ export const ClaimConfirm = ({
             </Row.Label>
             <Row.Value>
               <Skeleton minWidth='100px' isLoaded={!!userAddress}>
-                <Link
-                  isExternal
-                  color='blue.500'
-                  href={`${stakingAsset?.explorerAddressLink}${userAddress}`}
-                >
-                  <MiddleEllipsis value={userAddress} />
-                </Link>
+                <InlineCopyButton value={userAddress}>
+                  <Link
+                    isExternal
+                    color='blue.500'
+                    href={`${stakingAsset?.explorerAddressLink}${userAddress}`}
+                  >
+                    <MiddleEllipsis value={userAddress} />
+                  </Link>
+                </InlineCopyButton>
               </Skeleton>
             </Row.Value>
           </Row>

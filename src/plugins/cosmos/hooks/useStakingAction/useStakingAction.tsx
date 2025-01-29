@@ -1,6 +1,6 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import type { Asset, BIP44Params } from '@shapeshiftoss/types'
+import type { Asset, Bip44Params } from '@shapeshiftoss/types'
 import {
   isStakingChainAdapter,
   StakingAction,
@@ -8,7 +8,6 @@ import {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   checkIsMetaMaskDesktop,
-  checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -20,7 +19,7 @@ type StakingInput = {
   asset: Asset
   chainSpecific: cosmossdk.BuildTxInput
   validator: string
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
 } & (
   | {
       action: StakingAction.Claim
@@ -46,13 +45,10 @@ export const useStakingAction = () => {
     try {
       // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
 
-      const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
-      const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
+      const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
       if (
         !wallet.supportsOfflineSigning() &&
-        (!isMetaMaskDesktop ||
-          isMetaMaskImpersonator ||
-          (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+        (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
       ) {
         throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }
@@ -68,8 +64,9 @@ export const useStakingAction = () => {
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
       const { accountNumber } = bip44Params
+
+      const address = await adapter.getAddress({ accountNumber, wallet })
       const { txToSign, receiverAddress } = await (async () => {
-        const address = await adapter.getAddress({ accountNumber, wallet })
         switch (action) {
           case StakingAction.Claim:
             return {
@@ -116,9 +113,8 @@ export const useStakingAction = () => {
             throw new Error(`unsupported staking action: ${action}`)
         }
       })()
-      const senderAddress = await adapter.getAddress({ accountNumber, wallet })
       return adapter.signAndBroadcastTransaction({
-        senderAddress,
+        senderAddress: address,
         receiverAddress,
         signTxInput: { txToSign, wallet },
       })

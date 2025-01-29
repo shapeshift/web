@@ -333,7 +333,17 @@ export const TransactionGenericRow = ({
 
     if (hasManyReceiveAssets) {
       const symbols = transfersByType.Receive.map(transfer => transfer.asset.symbol)
-      return <RawText color='text.subtle'>{symbols.join(' + ')}</RawText>
+      return (
+        <RawText
+          color='text.subtle'
+          textOverflow='ellipsis'
+          overflow='hidden'
+          maxWidth='200px'
+          whiteSpace='nowrap'
+        >
+          {symbols.join(' + ')}
+        </RawText>
+      )
     }
   }, [
     hasNoReceiveAssets,

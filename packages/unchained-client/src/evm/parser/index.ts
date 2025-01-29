@@ -154,7 +154,7 @@ export class BaseTransactionParser<T extends Tx> {
           })
         }
 
-        // alias matic token on matic to native asset as they are the same
+        // alias POL token on POLY to native asset as they are the same
         if (
           this.chainId === polygonChainId &&
           transfer.contract === '0x0000000000000000000000000000000000001010'

@@ -1,11 +1,10 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -13,7 +12,6 @@ import { isToken } from 'lib/utils'
 import type { MaybeApproveInput } from 'lib/utils/evm/types'
 
 type UseApproveProps = MaybeApproveInput & {
-  from?: string
   onSuccess?: (txHash: string) => void
 }
 
@@ -32,7 +30,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
     if (!(input.spender && input.amountCryptoBaseUnit)) return
 
     return encodeFunctionData({
-      abi: erc20ABI,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [getAddress(input.spender), BigInt(input.amountCryptoBaseUnit)],
     })
@@ -46,12 +44,13 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
+      from: input.from,
       accountNumber: input.accountNumber,
       to: input.assetId ? fromAssetId(input.assetId).assetReference : undefined,
       data: approvalCallData,
       chainId,
     }),
-    [approvalCallData, chainId, input.accountNumber, input.assetId],
+    [approvalCallData, chainId, input.accountNumber, input.assetId, input.from],
   )
 
   const allowanceDataQuery = useAllowance({
@@ -62,7 +61,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
 
   const isApprovalRequired = useMemo(() => {
     if (!(input.assetId && input.amountCryptoBaseUnit && chainId)) return false
-    if (!(isEvmChainId(chainId) && isToken(fromAssetId(input.assetId).assetReference))) return false
+    if (!(isEvmChainId(chainId) && isToken(input.assetId))) return false
 
     if (!allowanceDataQuery?.data) return
 

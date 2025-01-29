@@ -198,10 +198,8 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approve')}
       preFooter={preFooter}
       providerIcon='/fox-token-logo.png'
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={foxFarmingOpportunity?.contractAddress ?? ''}

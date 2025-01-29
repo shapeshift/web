@@ -97,7 +97,7 @@ export const Widget: React.FC = () => {
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
           <TabPanel px={0} py={0}>
-            <Stake headerComponent={TabHeader} />
+            <Stake headerComponent={TabHeader} setStepIndex={setStepIndex} />
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Unstake headerComponent={TabHeader} />

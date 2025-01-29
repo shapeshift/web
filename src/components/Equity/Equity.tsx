@@ -14,14 +14,15 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetEquityItemsByFilter,
   selectAssets,
   selectEquityTotalBalance,
+  selectIsPortfolioLoading,
   selectOpportunityApiPending,
-  selectPortfolioLoading,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -41,9 +42,12 @@ const stackDividerStyle = { marginLeft: 14 }
 
 export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
-  const portfolioLoading = useSelector(selectPortfolioLoading)
+  const portfolioLoading = useSelector(selectIsPortfolioLoading)
   const opportunitiesLoading = useAppSelector(selectOpportunityApiPending)
   const isLoading = portfolioLoading || opportunitiesLoading
+  const {
+    state: { isConnected },
+  } = useWallet()
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
@@ -142,7 +146,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     [borderColor],
   )
 
-  if (!asset) return null
+  if (!asset || !isConnected) return null
 
   return (
     <Card variant='dashboard'>

@@ -4,7 +4,7 @@ Our asset data is generated periodically using a yarn script, with the result co
 
 ### Before you start
 
-The script requires a private Zerion API key. Request the key from the engineering team and set is as an environment variable:
+The script requires a private Zerion API key. Request the key from the engineering team and set it as an environment variable:
 
 ```bash
 export ZERION_API_KEY=<zerion api key>

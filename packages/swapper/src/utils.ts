@@ -1,21 +1,30 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
+import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import type { InterpolationOptions } from 'node-polyglot'
 
+import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
+  ExecutableTradeStep,
+  SolanaTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapperName,
   TradeQuote,
+  TradeQuoteStep,
+  TradeRate,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -103,9 +112,14 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
         data: any,
         config?: AxiosRequestConfig<any>,
       ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
+      delete: <T = any>(
+        url: string,
+        data: any,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
     }
   >(service, {
-    get: (trappedAxios, method: 'get' | 'post') => {
+    get: (trappedAxios, method: 'get' | 'post' | 'delete') => {
       const originalMethodPromise = trappedAxios[method]
       return async (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) => {
         // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {
@@ -140,7 +154,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export const getHopByIndex = (
-  quote: TradeQuote | undefined,
+  quote: TradeQuote | TradeRate | undefined,
   index: SupportedTradeQuoteStepIndex,
 ) => {
   if (quote === undefined) return undefined
@@ -159,29 +173,106 @@ export const executeEvmTransaction = (
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
+export const executeSolanaTransaction = (
+  txToSign: SolanaSignTx,
+  callbacks: SolanaTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
 export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   status: TxStatus.Unknown,
   buyTxHash,
   message: undefined,
 })
 
-export const checkEvmSwapStatus = async ({
+export const checkSafeTransactionStatus = async ({
+  accountId,
   txHash,
   chainId,
   assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
 }: {
+  accountId: AccountId | undefined
   txHash: string
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
+}): Promise<
+  | {
+      status: TxStatus
+      buyTxHash: string | undefined
+      message: string | [string, InterpolationOptions] | undefined
+    }
+  | undefined
+> => {
+  const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
+    accountId,
+    fetchIsSmartContractAddressQuery,
+    safeTxHash: txHash,
+  })
+
+  if (!transaction) return
+
+  // SAFE proposal queued, but not executed on-chain yet
+  if (isQueuedSafeTx) {
+    return {
+      status: TxStatus.Pending,
+      message: [
+        'common.safeProposalQueued',
+        {
+          currentConfirmations: transaction.confirmations?.length,
+          confirmationsRequired: transaction.confirmationsRequired,
+        },
+      ],
+      buyTxHash: undefined,
+    }
+  }
+
+  // Transaction executed on-chain
+  if (isExecutedSafeTx) {
+    const adapter = assertGetEvmChainAdapter(chainId)
+    const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
+    const status = evm.getTxStatus(tx)
+
+    return {
+      status,
+      buyTxHash: transaction.transactionHash,
+      message: 'common.safeProposalExecuted',
+    }
+  }
+}
+
+export const checkEvmSwapStatus = async ({
+  txHash,
+  chainId,
+  accountId,
+  assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
+}: {
+  txHash: string
+  accountId: AccountId | undefined
+  chainId: ChainId
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
-  message: string | undefined
+  message: string | [string, InterpolationOptions] | undefined
 }> => {
   try {
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      accountId,
+      txHash,
+      fetchIsSmartContractAddressQuery,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
+    if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
+
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
-    const status = getTxStatus(tx)
+    const status = evm.getTxStatus(tx)
 
     return {
       status,
@@ -194,7 +285,7 @@ export const checkEvmSwapStatus = async ({
   }
 }
 
-export const getRate = ({
+export const getInputOutputRate = ({
   sellAmountCryptoBaseUnit,
   buyAmountCryptoBaseUnit,
   sellAsset,
@@ -208,4 +299,56 @@ export const getRate = ({
   const sellAmountCryptoHuman = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
   const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
+}
+
+export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote =>
+  quote.quoteOrRate === 'quote'
+
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case 'erc20':
+    case 'erc721':
+    case 'erc1155':
+    case 'bep20':
+    case 'bep721':
+    case 'bep1155':
+    case 'token':
+      return true
+    default:
+      return false
+  }
+}
+export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableTradeStep =>
+  step.accountNumber !== undefined
+
+export const checkSolanaSwapStatus = async ({
+  txHash,
+  accountId,
+  assertGetSolanaChainAdapter,
+}: {
+  txHash: string
+  accountId: AccountId | undefined
+  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
+}): Promise<{
+  status: TxStatus
+  buyTxHash: string | undefined
+  message: string | [string, InterpolationOptions] | undefined
+}> => {
+  try {
+    if (!accountId) throw new Error('Missing accountId')
+
+    const account = fromAccountId(accountId).account
+    const adapter = assertGetSolanaChainAdapter(solanaChainId)
+    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+    const status = await adapter.getTxStatus(tx, account)
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
 }

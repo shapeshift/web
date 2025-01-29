@@ -96,6 +96,11 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     'eth_signTransaction',
   ],
   showQrModal: true,
+  qrModalOptions: {
+    themeVariables: {
+      '--wcm-z-index': '2000',
+    },
+  },
   rpcMap: {
     [CHAIN_REFERENCE.AvalancheCChain]: REACT_APP_AVALANCHE_NODE_URL,
     [CHAIN_REFERENCE.OptimismMainnet]: REACT_APP_OPTIMISM_NODE_URL,

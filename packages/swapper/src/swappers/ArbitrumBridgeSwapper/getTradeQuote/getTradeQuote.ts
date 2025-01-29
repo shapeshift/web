@@ -1,35 +1,32 @@
 import { ethChainId } from '@shapeshiftoss/caip'
-import { type HDWallet, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
+import type {
+  ArbitrumBridgeTradeQuote,
+  ArbitrumBridgeTradeRate,
+  GetEvmTradeQuoteInputWithWallet,
+} from '../types'
+import type { FetchArbitrumBridgeQuoteInput } from '../utils/fetchArbitrumBridgeSwap'
+import { fetchArbitrumBridgeQuote } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
-export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & {
-  wallet: HDWallet
-}
-
-type ArbitrumBridgeSpecificMetadata = {
-  direction: 'deposit' | 'withdrawal'
-}
-
-export type ArbitrumBridgeTradeQuote = TradeQuote & ArbitrumBridgeSpecificMetadata
-
-export const isArbitrumBridgeTradeQuote = (
-  quote: TradeQuote | undefined,
-): quote is ArbitrumBridgeTradeQuote => !!quote && 'direction' in quote
+export const isArbitrumBridgeTradeQuoteOrRate = (
+  quote: TradeQuote | TradeRate | undefined,
+): quote is ArbitrumBridgeTradeQuote | ArbitrumBridgeTradeRate => !!quote && 'direction' in quote
 
 export const getTradeQuoteWithWallet = async (
   inputWithWallet: GetEvmTradeQuoteInputWithWallet,
@@ -41,9 +38,6 @@ export const getTradeQuoteWithWallet = async (
   return getTradeQuote(
     {
       ...input,
-      sellAsset: input.sellAsset,
-      buyAsset: input.buyAsset,
-      accountNumber: input.accountNumber,
       supportsEIP1559,
     },
     deps,
@@ -51,8 +45,8 @@ export const getTradeQuoteWithWallet = async (
 }
 
 export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput,
-  { assertGetEvmChainAdapter, getEthersV5Provider }: SwapperDeps,
+  input: GetEvmTradeQuoteInputBase,
+  { assertGetEvmChainAdapter }: SwapperDeps,
 ): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> {
   const {
     chainId,
@@ -65,7 +59,7 @@ export async function getTradeQuote(
     sendAddress,
   } = input
 
-  const assertion = await assertValidTrade({ buyAsset, sellAsset, getEthersV5Provider })
+  const assertion = await assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const isDeposit = sellAsset.chainId === ethChainId
@@ -77,23 +71,25 @@ export async function getTradeQuote(
   const rate = '1'
 
   try {
-    const swap = await fetchArbitrumBridgeSwap({
-      supportsEIP1559,
+    const args = {
+      supportsEIP1559: Boolean(supportsEIP1559),
       chainId,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
-      sendAddress: sendAddress ?? '',
+      sendAddress,
       receiveAddress,
       assertGetEvmChainAdapter,
-      getEthersV5Provider,
-    })
+      quoteOrRate: 'quote',
+    }
+    const swap = await fetchArbitrumBridgeQuote(args as FetchArbitrumBridgeQuoteInput)
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
     const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
 
     return Ok({
       id: uuid(),
+      quoteOrRate: 'quote' as const,
       receiveAddress,
       affiliateBps: '0',
       potentialAffiliateBps: '0',

@@ -54,7 +54,9 @@ export const trackOpportunityEvent = (
     provider: opportunity.provider,
     type: opportunity.type,
     version: opportunity.version,
-    assets: opportunity.underlyingAssetIds.map(assetId =>
+    name: opportunity.name,
+    asset: getMaybeCompositeAssetSymbol(opportunity.assetId, assetsById),
+    underlyingAssets: opportunity.underlyingAssetIds.map(assetId =>
       getMaybeCompositeAssetSymbol(assetId, assetsById),
     ),
     ...(fiatAmounts && {

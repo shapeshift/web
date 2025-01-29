@@ -17,6 +17,12 @@
     },
     {
       "path": "../caip",
+    },
+    {
+      "path": "../chain-adapters",
+    },
+    {
+      "path": "../utils",
     }
   ]
 }

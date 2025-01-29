@@ -1,16 +1,16 @@
 import { gnosisChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { gnosis, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
+import { getPortalTokens } from 'lib/portals/utils'
 
-import { gnosis } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
   const [assets, _portalsAssets] = await Promise.all([
     coingecko.getAssets(gnosisChainId),
-    getPortalTokens(gnosis),
+    getPortalTokens(gnosis, 'all'),
   ])
 
   // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
@@ -19,7 +19,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([gnosis]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(gnosis)]),
     'assetId',
   )
 

@@ -1,6 +1,5 @@
-import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { AssetId, AssetReference, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -19,6 +18,8 @@ import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { isSplToken } from './solana'
 
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -96,12 +97,23 @@ export function partitionCompareWith<T>(
   return result
 }
 
-export const isToken = (assetReference: AssetReference | string) => {
-  return !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case 'erc20':
+    case 'erc721':
+    case 'erc1155':
+    case 'bep20':
+    case 'bep721':
+    case 'bep1155':
+    case 'token':
+      return true
+    default:
+      return false
+  }
 }
 
-export const tokenOrUndefined = (assetReference: AssetReference | string) =>
-  isToken(assetReference) ? assetReference : undefined
+export const contractAddressOrUndefined = (assetId: AssetId) =>
+  isToken(assetId) || isSplToken(assetId) ? fromAssetId(assetId).assetReference : undefined
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
@@ -161,9 +173,6 @@ export const isResolvedErr = <U, V, T extends Result<U, V>>(
   promise: PromiseSettledResult<T>,
 ): promise is PromiseRejectedResult => 'value' in promise && promise.value.isErr()
 
-export const setTimeoutAsync = (waitMs: number) =>
-  new Promise(resolve => setTimeout(resolve, waitMs))
-
 export function assertUnreachable(x: never): never {
   throw Error(`unhandled case: ${x}`)
 }
@@ -206,9 +215,6 @@ export const isUrl = (x: string) => {
     return false
   }
 }
-
-export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
-  maybeSkipToken === skipToken
 
 export const getSupportedChainIdsByChainNamespace = () => {
   return Array.from(getChainAdapterManager().keys()).reduce<
@@ -276,9 +282,6 @@ export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
 
 export const chainIdToChainDisplayName = (chainId: ChainId): AssetId =>
   assertGetChainAdapter(chainId).getDisplayName()
-
-export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
-  chainIdToFeeAssetId(fromAssetId(assetId).chainId)
 
 export const isKnownChainId = (chainId: ChainId): chainId is KnownChainIds =>
   Object.values(KnownChainIds).includes(chainId as KnownChainIds)

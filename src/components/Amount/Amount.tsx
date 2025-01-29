@@ -12,7 +12,9 @@ export type AmountProps = {
   suffix?: string
   omitDecimalTrailingZeros?: boolean
   abbreviated?: boolean
+  truncateLargeNumbers?: boolean
   maximumFractionDigits?: number
+  noSpace?: boolean
 } & TextProps
 
 export function Amount({
@@ -22,6 +24,7 @@ export function Amount({
   maximumFractionDigits,
   omitDecimalTrailingZeros = false,
   abbreviated = false,
+  noSpace = false,
   ...props
 }: any): React.ReactElement {
   const {
@@ -30,9 +33,9 @@ export function Amount({
 
   return (
     <RawText {...props}>
-      {prefix}
+      {prefix && `${prefix}${noSpace ? '' : ' '}`}
       {toString(value, { maximumFractionDigits, omitDecimalTrailingZeros, abbreviated })}
-      {suffix}
+      {suffix && `${noSpace ? '' : ' '}${suffix}`}
     </RawText>
   )
 }
@@ -60,6 +63,8 @@ const Crypto = ({
   suffix,
   omitDecimalTrailingZeros = false,
   abbreviated = false,
+  truncateLargeNumbers = false,
+  noSpace = false,
   ...props
 }: CryptoAmountProps) => {
   const {
@@ -70,13 +75,14 @@ const Crypto = ({
     maximumFractionDigits,
     omitDecimalTrailingZeros,
     abbreviated,
+    truncateLargeNumbers,
   })
 
   return (
     <RawText {...props}>
-      {prefix && `${prefix} `}
+      {prefix && `${prefix}${noSpace ? '' : ' '}`}
       {crypto}
-      {suffix && ` ${suffix}`}
+      {suffix && `${noSpace ? '' : ' '}${suffix}`}
     </RawText>
   )
 }
@@ -89,6 +95,7 @@ const Fiat = ({
   maximumFractionDigits,
   omitDecimalTrailingZeros = false,
   abbreviated = false,
+  noSpace = false,
   ...props
 }: FiatAmountProps) => {
   const {
@@ -104,9 +111,9 @@ const Fiat = ({
 
   return (
     <RawText {...props}>
-      {prefix && `${prefix} `}
+      {prefix && `${prefix}${noSpace ? '' : ' '}`}
       {fiat}
-      {suffix && ` ${suffix}`}
+      {suffix && `${noSpace ? '' : ' '}${suffix}`}
     </RawText>
   )
 }

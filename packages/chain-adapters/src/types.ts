@@ -4,18 +4,22 @@ import type {
   CosmosSignTx,
   ETHSignTx,
   HDWallet,
+  SolanaSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
-import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type {
+  ChainSpecific,
+  KnownChainIds,
+  UtxoAccountType,
+  UtxoChainId,
+} from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type PQueue from 'p-queue'
 
-import * as cosmossdk from './cosmossdk/types'
-import * as evm from './evm/types'
-import type { UtxoChainId } from './utxo'
-import * as utxo from './utxo/types'
-
-export { cosmossdk, evm, utxo }
+import type * as cosmossdk from './cosmossdk/types'
+import type * as evm from './evm/types'
+import type * as solana from './solana/types'
+import type * as utxo from './utxo/types'
 
 // this placeholder forces us to be explicit about transactions not transferring funds to humans
 export type ContractInteraction = Nominal<'contract-interaction', 'ContractInteraction'>
@@ -39,6 +43,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmossdk.Account
     [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
+    [KnownChainIds.SolanaMainnet]: solana.Account
   }
 >
 
@@ -79,6 +84,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
     [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
+    [KnownChainIds.SolanaMainnet]: solana.FeeData
   }
 >
 
@@ -99,10 +105,10 @@ export type SubscribeTxsInput = {
   pubKey?: string
 }
 
-export type GetBIP44ParamsInput = {
+export type GetBip44ParamsInput = {
   accountNumber: number
   accountType?: UtxoAccountType
-  index?: number
+  addressIndex?: number
   isChange?: boolean
 }
 
@@ -152,6 +158,7 @@ export type ChainSignTx = {
   [KnownChainIds.LitecoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
+  [KnownChainIds.SolanaMainnet]: SolanaSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -194,6 +201,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
+    [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
   }
 >
 
@@ -256,7 +264,7 @@ export type GetAddressInputBase = {
   wallet: HDWallet
   accountNumber: number
   isChange?: boolean
-  index?: number
+  addressIndex?: number
   /**
    * Request that the address be shown to the user by the device, if supported
    */
@@ -286,6 +294,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -347,6 +356,7 @@ export enum ChainAdapterDisplayName {
   BitcoinCash = 'Bitcoin Cash',
   Dogecoin = 'Dogecoin',
   Litecoin = 'Litecoin',
+  Solana = 'Solana',
 }
 
 export type BroadcastTransactionInput = {

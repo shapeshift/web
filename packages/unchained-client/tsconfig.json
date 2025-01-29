@@ -8,6 +8,6 @@
   "exclude": ["dist"],
   "references": [
     { "path": "../caip" },
-    { "path": "../types" },
+    { "path": "../contracts" }
   ]
 }

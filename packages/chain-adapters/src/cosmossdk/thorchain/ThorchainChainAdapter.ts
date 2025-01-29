@@ -1,13 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, ThorchainSignTx, ThorchainWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
+import PQueue from 'p-queue'
 
-import { ErrorHandler } from '../../error/ErrorHandler'
+import { ChainAdapterError, ErrorHandler } from '../../error/ErrorHandler'
 import type {
   BuildDepositTxInput,
   BuildSendApiTxInput,
@@ -17,16 +18,18 @@ import type {
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTxInput,
+  TxHistoryInput,
+  TxHistoryResponse,
   ValidAddressResult,
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../../types'
-import { toAddressNList } from '../../utils'
+import { toAddressNList, verifyLedgerAppOpen } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { ThorchainMsgSend } from '../types'
-import { ThorchainMessageType, type ThorchainMsgDeposit } from '../types'
+import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
+import { ThorchainMessageType } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
@@ -44,20 +47,23 @@ const calculateFee = (fee: string): string => {
 
 export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorchain.V1Api> {
   midgardUrl: string
+  httpV1: unchained.thorchainV1.V1Api
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Thorchain),
     accountNumber: 0,
   }
 
+  protected readonly httpV1: unchained.thorchainV1.V1Api
+
   constructor(args: ChainAdapterArgs) {
     super({
       assetId: thorchainAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       denom: 'rune',
       parser: new unchained.thorchain.TransactionParser({
         assetId: thorchainAssetId,
@@ -67,6 +73,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
+
+    this.httpV1 = args.httpV1
+  }
+
+  private assertSupportsChain(wallet: HDWallet): asserts wallet is ThorchainWallet {
+    if (!supportsThorchain(wallet)) {
+      throw new ChainAdapterError(`wallet does not support: ${this.getDisplayName()}`, {
+        translation: 'chainAdapters.errors.unsupportedChain',
+        options: { chain: this.getDisplayName() },
+      })
+    }
   }
 
   getDisplayName() {
@@ -89,26 +106,27 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, accountNumber, showOnDevice = false } = input
-    const bip44Params = this.getBIP44Params({ accountNumber })
-
-    if (input.pubKey) return input.pubKey
-
     try {
-      if (supportsThorchain(wallet)) {
-        const address = await wallet.thorchainGetAddress({
-          addressNList: toAddressNList(bip44Params),
-          showDisplay: showOnDevice,
-        })
-        if (!address) {
-          throw new Error('Unable to generate Thorchain address.')
-        }
-        return address
-      } else {
-        throw new Error('Wallet does not support Thorchain.')
-      }
-    } catch (error) {
-      return ErrorHandler(error)
+      const { wallet, accountNumber, pubKey, showOnDevice = false } = input
+
+      if (pubKey) return pubKey
+
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      const bip44Params = this.getBip44Params({ accountNumber })
+      const address = await wallet.thorchainGetAddress({
+        addressNList: toAddressNList(bip44Params),
+        showDisplay: showOnDevice,
+      })
+
+      if (!address) throw new Error('error getting address from wallet')
+
+      return address
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAddress',
+      })
     }
   }
 
@@ -132,20 +150,48 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async signTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
+  async getTxHistoryV1(input: TxHistoryInput): Promise<TxHistoryResponse> {
     try {
-      const { txToSign, wallet } = signTxInput
-      if (supportsThorchain(wallet)) {
-        const signedTx = await wallet.thorchainSignTx(txToSign)
+      const requestQueue = input.requestQueue ?? new PQueue()
 
-        if (!signedTx?.serialized) throw new Error('Error signing tx')
+      const data = await requestQueue.add(() =>
+        this.httpV1.getTxHistory({
+          pubkey: input.pubkey,
+          pageSize: input.pageSize,
+          cursor: input.cursor,
+        }),
+      )
 
-        return signedTx.serialized
-      } else {
-        throw new Error('Wallet does not support Thorchain.')
+      const txs = await Promise.all(
+        data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+      )
+
+      return {
+        cursor: data.cursor,
+        pubkey: input.pubkey,
+        transactions: txs,
       }
     } catch (err) {
       return ErrorHandler(err)
+    }
+  }
+
+  async signTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
+    try {
+      const { txToSign, wallet } = signTxInput
+
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      const signedTx = await wallet.thorchainSignTx(txToSign)
+
+      if (!signedTx?.serialized) throw new Error('error signing tx')
+
+      return signedTx.serialized
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signTransaction',
+      })
     }
   }
 
@@ -178,16 +224,27 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
   async buildSendTransaction(
     input: BuildSendTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
-    const { accountNumber, wallet } = input
-    const from = await this.getAddress({ accountNumber, wallet })
-    return this.buildSendApiTransaction({ ...input, from })
+    try {
+      const { accountNumber, wallet } = input
+
+      const from = await this.getAddress({ accountNumber, wallet })
+      const tx = await this.buildSendApiTransaction({ ...input, from })
+
+      return tx
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
   }
 
   /* MsgDeposit is used for thorchain swap/lp/repayment operations */
@@ -221,7 +278,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -241,22 +300,24 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.ThorchainMainnet>): Promise<string> {
-    await Promise.all([
-      assertAddressNotSanctioned(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-    ])
-
-    const { wallet } = signTxInput
-
     try {
-      if (supportsThorchain(wallet)) {
-        const signedTx = await this.signTransaction(signTxInput)
-        return this.providers.http.sendTx({ body: { rawTx: signedTx } })
-      } else {
-        throw new Error('Wallet does not support Thorchain.')
-      }
-    } catch (error) {
-      return ErrorHandler(error)
+      const { wallet } = signTxInput
+
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+      ])
+
+      this.assertSupportsChain(wallet)
+
+      const hex = await this.signTransaction(signTxInput)
+      const txHash = await this.broadcastTransaction({ senderAddress, receiverAddress, hex })
+
+      return txHash
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signAndBroadcastTransaction',
+      })
     }
   }
 }

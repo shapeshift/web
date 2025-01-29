@@ -8,6 +8,8 @@ export enum TradeRoutePaths {
   Quotes = '/trade/quotes',
   VerifyAddresses = '/trade/verify-addresses',
   QuoteList = '/trade/quote-list',
+  Claim = '/trade/claim',
+  LimitOrder = '/trade/limit-order',
 }
 
 export type GetReceiveAddressArgs = {
@@ -29,9 +31,12 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'potentialAffiliateBps'
   | 'allowMultiHop'
   | 'slippageTolerancePercentageDecimal'
+  | 'quoteOrRate'
+  | 'originalRate'
 >
 
 export enum TradeInputTab {
   Trade = 'trade',
   Claim = 'claim',
+  LimitOrder = 'limitOrder',
 }

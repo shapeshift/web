@@ -1,12 +1,6 @@
-import type { GridProps } from '@chakra-ui/react'
 import { lazy } from 'react'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-
-export const poolRowGrid: GridProps['gridTemplateColumns'] = {
-  base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: '200px repeat(5, 1fr)',
-}
 
 const AvailablePools = makeSuspenseful(
   lazy(() =>

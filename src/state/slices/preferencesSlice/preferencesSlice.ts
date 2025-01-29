@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -7,6 +7,8 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 
 dayjs.extend(localizedFormat)
 
@@ -17,17 +19,16 @@ export type FeatureFlags = {
   Gnosis: boolean
   Arbitrum: boolean
   ArbitrumNova: boolean
+  Solana: boolean
   Base: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   Yat: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
-  Wherever: boolean
   SaversVaults: boolean
   SaversVaultsDeposit: boolean
   SaversVaultsWithdraw: boolean
-  DefiDashboard: boolean
   Cowswap: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
@@ -35,16 +36,12 @@ export type FeatureFlags = {
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
   Jaypegz: boolean
-  OneInch: boolean
   ArbitrumBridge: boolean
-  Portals: boolean
-  CovalentJaypegs: boolean
+  PortalsSwap: boolean
   Chatwoot: boolean
-  CoinbaseWallet: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
   CustomSendNonce: boolean
-  Snaps: boolean
   ThorchainLending: boolean
   ThorchainLendingBorrow: boolean
   ThorchainLendingRepay: boolean
@@ -58,10 +55,29 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
+  RFOX_LP: boolean
   CustomTokenImport: boolean
   ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
   RunePool: boolean
+  RunePoolDeposit: boolean
+  RunePoolWithdraw: boolean
+  Markets: boolean
+  PhantomWallet: boolean
+  FoxPage: boolean
+  FoxPageRFOX: boolean
+  FoxPageFoxSection: boolean
+  FoxPageFoxFarmingSection: boolean
+  FoxPageGovernance: boolean
+  LimitOrders: boolean
+  ChainflipSwap: boolean
+  SolanaSwapper: boolean
+  ChainflipDca: boolean
+  ThorFreeFees: boolean
+  JupiterSwap: boolean
+  NewWalletFlow: boolean
+  FoxPageFoxWifHatSection: boolean
+  NewLimitFlow: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -105,33 +121,28 @@ const initialState: Preferences = {
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     Arbitrum: getConfig().REACT_APP_FEATURE_ARBITRUM,
     ArbitrumNova: getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA,
+    Solana: getConfig().REACT_APP_FEATURE_SOLANA,
     Base: getConfig().REACT_APP_FEATURE_BASE,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     SaversVaultsDeposit: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT,
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
-    DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
-    CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
-    OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
-    Portals: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
+    PortalsSwap: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
-    CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
-    Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     ThorchainLendingBorrow: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING_BORROW,
     ThorchainLendingRepay: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING_REPAY,
@@ -145,10 +156,29 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
+    RFOX_LP: getConfig().REACT_APP_FEATURE_RFOX_LP,
     CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
     RunePool: getConfig().REACT_APP_FEATURE_RUNEPOOL,
+    RunePoolDeposit: getConfig().REACT_APP_FEATURE_RUNEPOOL_DEPOSIT,
+    RunePoolWithdraw: getConfig().REACT_APP_FEATURE_RUNEPOOL_WITHDRAW,
+    Markets: getConfig().REACT_APP_FEATURE_MARKETS,
+    PhantomWallet: getConfig().REACT_APP_FEATURE_PHANTOM_WALLET,
+    FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
+    FoxPageRFOX: getConfig().REACT_APP_FEATURE_FOX_PAGE_RFOX,
+    FoxPageFoxSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION,
+    FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
+    FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
+    LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
+    ChainflipSwap: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP,
+    ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA,
+    SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
+    ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
+    JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
+    NewWalletFlow: getConfig().REACT_APP_FEATURE_NEW_WALLET_FLOW,
+    FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
+    NewLimitFlow: getConfig().REACT_APP_FEATURE_NEW_LIMIT_FLOW,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -200,11 +230,18 @@ export const preferences = createSlice({
     setSnapInstalled(state, { payload }: { payload: boolean }) {
       state.snapInstalled = payload
     },
-    addWatchedAssetId(state, { payload }: { payload: AssetId }) {
-      state.watchedAssets = state.watchedAssets.concat(payload)
-    },
-    removeWatchedAssetId(state, { payload }: { payload: AssetId }) {
-      state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
+    toggleWatchedAssetId(state, { payload }: { payload: AssetId }) {
+      const isWatched = state.watchedAssets.includes(payload)
+      if (isWatched) {
+        state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
+      } else {
+        state.watchedAssets = state.watchedAssets.concat(payload)
+      }
+
+      getMixPanel()?.track(MixPanelEvent.ToggleWatchAsset, {
+        assetId: payload,
+        isAdding: !isWatched,
+      })
     },
     setHomeMarketView(state, { payload }: { payload: HomeMarketView }) {
       state.selectedHomeView = payload

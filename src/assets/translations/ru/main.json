@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "\nВосходящий",
+    "descending": "Нисходящий",
     "free": "Бесплатно",
     "trade": "Торговля",
     "trades": "Сделки",
@@ -16,6 +18,7 @@
     "done": "Готово",
     "cancel": "Отмена",
     "close": "Закрыть",
+    "closed": "Закрытый",
     "loadMore": "Загрузить еще",
     "saveChanges": "Сохранить изменения",
     "new": "Новое",
@@ -24,6 +27,7 @@
     "claimable": "Заклеймить",
     "comingSoon": "Скоро будет ...",
     "approve": "Подтвердить",
+    "reset": "Сброс",
     "confirm": "Подтвердить",
     "seeDetails": "Посмотреть детали",
     "activity": "Активность",
@@ -36,6 +40,8 @@
     "noResultsFound": "Результатов не найдено.",
     "noResultsBody": "Для %{searchQuery} нет результатов. Попробуйте выполнить новый поиск.",
     "insufficientFunds": "Недостаточно средств",
+    "insufficientFundsForTrade": "Недостаточно средств для торговли",
+    "insufficientAllowance": "Недостаточное разрешение",
     "estimatedGas": "Предполагаемая плата за газ",
     "relayerGasFee": "Плата за газ для релейщиков",
     "insufficientAmountForGas": "Недостаточно  %{assetSymbol}.%{chainSymbol} для покрытия газа",
@@ -48,6 +54,8 @@
     "overview": "Обзор",
     "getStarted": "Начать",
     "connectWallet": "Подключить кошелек",
+    "pairing": "Создание пары",
+    "connectWalletToGetStartedWith": "Подключите кошелек, чтобы начать работу с %{feature}",
     "connectedWallet": "Подключенный кошелек",
     "connectedWalletSettings": "Настройки кошелька",
     "noWallet": "Нет подключенного кошелька",
@@ -74,6 +82,8 @@
     "retryQuestion": "Повторить?",
     "transactionFailed": "Ошибка транзакции",
     "transactionFailedBody": "Сбой транзакции",
+    "safeProposalQueued": "Предложение SAFE поставлено в очередь. Подписано %{currentConfirmations} из %{confirmationsRequired}.",
+    "safeProposalExecuted": "Выполнено предложение SAFE.",
     "submitFeedback": "Обратная связь",
     "send": "Отправить",
     "receive": "Получить",
@@ -121,6 +131,7 @@
     "best": "Лучшая",
     "gasFee": "Плата за газ",
     "approvalFee": "Плата за разрешение",
+    "allowanceResetFee": "Плата за сброс",
     "consolidationFee": "Комиссия за консолидацию",
     "fees": "Комиссия",
     "alternative": "Альтернатива",
@@ -139,6 +150,7 @@
     "learnMore": "Подробнее",
     "showAll": "Показать больше",
     "showLess": "Показать меньше",
+    "showMore": "Показать еще",
     "yourBalance": "Ваш баланс",
     "signTransaction": "Подписать транзакцию",
     "active": "Активный",
@@ -152,6 +164,12 @@
     "symmetric": "Симметричный",
     "asymmetric": "Асимметричный  (%{assetSymbol})",
     "import": "Импорт",
+    "accountsLoading": "Загрузка аккаунтов",
+    "noAccounts": "Нет учетных записей для выбранных фильтров.",
+    "sortBy": "Сортировать по",
+    "orderBy": "Журнал",
+    "filterBy": "Фильтр по",
+    "filterAndSort": "Фильтр и сортировка",
     "carousel": {
       "next": "Далее",
       "prev": "Предыдущий",
@@ -166,7 +184,12 @@
       "expandRow": "Развернуть ряд"
     },
     "featureDisabled": "Эта функция временно отключена.",
-    "yes": "Да"
+    "yes": "Да",
+    "activeAccount": "Активный аккаунт",
+    "update": "Обновление",
+    "apy": "APY",
+    "tbd": "TBD",
+    "installed": "Установлен"
   },
   "consentBanner": {
     "body": {
@@ -225,6 +248,7 @@
       "balance": "Баланс",
       "price": "Цена",
       "value": "Обьем",
+      "apy": "APY",
       "priceChange": "Изменение цены",
       "allocation": "Распределение",
       "marketCap": "Рыночная капитализация",
@@ -251,8 +275,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "Купить или продать криптовалюту",
     "titleMessage": "Вы можете %{action} %{asset}, используя:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Гора Пелерин",
     "onRamper": "OnRamper",
@@ -281,17 +303,8 @@
     "notSupported": "%{asset} не поддерживается %{wallet}"
   },
   "connectWalletPage": {
-    "title": "Оригинальная мультичейн биржа",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Исследуйте",
-    "defiUniverse": "Вселенную DeFi",
-    "body": "Торговля, бридж и заработок. Частный. В собственности общества. Децентрализованная.",
-    "header": "Пожалуйста, подключите кошелек, чтобы начать",
-    "cta": "Подключить кошелек",
-    "viewADemo": "Посмотреть демо-версию",
-    "dontHaveWallet": "У вас нет кошелька?",
     "welcomeBack": "С возвращением!",
-    "welcomeBody": "Подключение кошелька аналогично \"входу в систему\". Выберите свой кошелек из предложенных вариантов, чтобы начать работу.",
     "welcomeToShapeShift": "Добро пожаловать в ShapeShift",
     "mobileWelcomeBody": "Создайте новый кошелек или добавьте существующий, чтобы легко начать работу.",
     "mobileSelectBody": "Выберите любой из сохраненных ниже кошельков, а также создайте или импортируйте новый кошелек.",
@@ -389,20 +402,23 @@
         "confirmAndClaim": "Подтвердить и получить",
         "rewardAmount": "Сумма вознаграждения",
         "claimingRewards": "Полученные вознаграждения ",
-        "claimAmount": "Сума клейма",
+        "claimAmount": "Сумма клейма",
         "claimToAddress": "Заклеймить на",
-        "confirmClaim": "Подтвредить клейм",
+        "confirmClaim": "Подтвердить клейм",
         "claimNow": "Заклеймить сейчас",
         "claimYour": "Заклеймить свои %{opportunity}"
       },
       "saversVaults": {
         "description": "Получайте доход от вашего %{asset} через хранилища THORChain. Время блокировки отсутствует, а вознаграждения накапливаются автоматически. Доходность THORChain складывается из комиссий за своп и вознаграждений за блокчейн. Односторонняя доходность ограничена половиной двусторонней доходности поставщиков ликвидности.",
+        "runePoolDescription": "RUNEPool позволяет вам зарабатывать больше %{asset}, объединяя свои %{asset} с другими. Вам не нужно выбирать конкретные пулы, все участвуют в общей производительности.",
+        "runePoolOverviewDescription": "RUNEPool оптимизирует использование RUNE, размещая его во всех пулах ликвидности THORChain, поддерживающих пулы. Объединяя RUNE в этих пулах, участники зарабатывают совокупную APY, но подвергаются риску совокупных непостоянных потерь. Вместо того чтобы выбирать отдельные пулы, пользователи получают выгоду от общей производительности, эффективно инвестируя в индекс RUNE и все активы THORChain с поддержкой пулов. Это упрощает предоставление ликвидности и снижает индивидуальный риск.",
         "vaultCap": "Капитализация хранилища",
         "vaultCapTooltip": "Текущая максимальная вместимость данного хранилища",
         "haltedDepositTitle": "Вклады временно приостановлены.",
         "disabledDepositTitle": "Депозиты временно отключены.",
         "haltedWithdrawTitle": "Вывод средств временно приостановлен.",
         "disabledWithdrawTitle": "Вывод средств временно отключен.",
+        "withdrawLockedTitle": "Чтобы снять деньги, вам придется подождать %{timeHuman}.",
         "haltedDescription": "Пожалуйста, напишите в твиттере @THORChain, чтобы поднять капитализацию!",
         "protocolFee": "Плата за протокол",
         "fee": "Комиссия",
@@ -412,10 +428,12 @@
         "sendDust": "Отправить Dust",
         "addressToSendTo": "Адрес, на который необходимо отправить",
         "introducingSaversVaults": "Представляем вашему вниманию хранилища Savers",
+        "introducingRunePool": "Представляем вам RUNEPool",
         "risksBody": {
           "1": "См.",
           "2": "эту статью",
-          "3": "за риски, связанные с хранилищами сбережений."
+          "3": "за риски, связанные с хранилищами сбережений.",
+          "runePool": "о рисках, связанных с использованием RUNEPool."
         },
         "understand": "Я понимаю",
         "days": "%{amount} дней",
@@ -426,7 +444,10 @@
         },
         "cannotDepositWhilePendingTx": "Невозможно пополнить счет, пока транзакция  находится на рассмотрении",
         "cannotWithdrawWhilePendingTx": "Невозможно снять средства, пока транзакция находится на рассмотрении",
-        "dangerousWithdrawWarning": "Комиссия THORChain может привести к полной потере выводимых средств. Чтобы избежать этой проблемы, подумайте о снятии большей суммы."
+        "dangerousWithdrawWarning": "Комиссия THORChain может привести к полной потере выводимых средств. Чтобы избежать этой проблемы, подумайте о снятии большей суммы.",
+        "agreeRunePool": {
+          "1": "Я понимаю, что RUNEPool имеет как минимальную блокировку на 30 дней, так и повышенный риск непостоянной потери."
+        }
       }
     },
     "memoNote": {
@@ -493,6 +514,8 @@
     "myRewardsBody": "Здесь будут отображаться ваши активные позиции с возможностью получения вознаграждения.",
     "viewAllPositions": "Посмотреть все позиции",
     "liquidityPools": "Пулы ликвидности",
+    "liquidityLockupWarning": "Существует период блокировки %{time}. Во время блокировки вы не можете получить доступ к своей ликвидности.",
+    "liquidityLocked": "Ликвидность заблокирована (%{time})",
     "stakingVaults": "Стейкинг и хранилища",
     "farming": "Фарминг",
     "totalEarningBalance": "Общий баланс заработков",
@@ -597,6 +620,9 @@
     "buyCryptoShort": "Купить/Продать",
     "lending": "Кредитование",
     "pools": "Пулы",
+    "rFOX": "rFOX",
+    "foxBenefits": "Преимущества FOX",
+    "markets": "Рынки",
     "actionMenu": {
       "send": {
         "title": "Отправить",
@@ -618,8 +644,7 @@
         "title": "Сканировать QR-код",
         "body": "Простое сканирование для отправки или получения криптовалюты"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Отправлено",
@@ -650,14 +675,16 @@
         "withdrawEth": "Вывод инициирован",
         "submitRetryable": "Депозит получен",
         "createRetryableTicket": "Депозит инициирован",
-        "finalizeInboundTransfer": "Вывод средств Получено",
-        "depositEth": "Депозит инициирован"
+        "finalizeInboundTransferDeposit": "Депозит получен",
+        "depositEth": "Депозит инициирован",
+        "executeTransaction": "Клейм"
       },
       "rfox": {
         "stake": "Стейкинг",
         "withdraw": "Вывести",
         "unstakeRequest": "Запрос на снятие со стейкинга",
-        "setRuneAddress": "Установить адрес для Rune"
+        "setRuneAddress": "Установить адрес для RUNE",
+        "reward": "Распределение вознаграждений"
       },
       "weth": {
         "deposit": "\nПополнение счета",
@@ -700,6 +727,7 @@
         "out": "Получено исходящих",
         "refund": "Возврат",
         "swapOut": "Полученный обмен",
+        "swap": "Обмен",
         "swapRefund": "Возврат обмена",
         "withdraw": "Вывод Запрошено",
         "withdrawNative": "Вывести",
@@ -763,22 +791,40 @@
     "waitTimeValue": "~5-10 минут",
     "noSupportedAssets": "В портфеле нет поддерживаемых активов.",
     "arbitrum": {
+      "description": "Перевести через Arbitrum",
       "waitWarning": "Нативный мост Arbitrum более надежен, но его использование может занять до недели.",
       "waitCta": "Я понимаю, что пройдет ~7 дней, прежде чем я смогу получить средства в Ethereum",
-      "claimCta": "Я понимаю, что после получения средств мне придется отправить еще одну транзакцию с комиссией."
+      "claimCta": "Я понимаю, что после получения средств мне придется отправить еще одну транзакцию с комиссией.",
+      "success": {
+        "tradeSuccess": "Мост начат",
+        "withdrawComplete": "Успешно инициировано мостовое соединение %{symbol} с %{chainName}."
+      }
     },
-    "claims": "Клеймы",
+    "claim": "Клейм",
+    "claimReceiveAddress": "Адрес получения клейма",
+    "claimPending": "Жду вашего клейма о",
+    "claimSuccess": "Вы успешно заклеймили.",
+    "claimFailed": "Ошибка при попытке подачи клейма",
     "availableClaims": "Доступно",
-    "pendingClaims": "В ожидании"
+    "noAvailableClaims": "Нет доступных клеймов",
+    "pendingClaims": "В ожидании",
+    "noPendingClaims": "Нет клейма в ожидании ",
+    "availableIn": "Доступно в %{time}",
+    "confirmAndClaim": "Подтвердить и заклеймить",
+    "viewClaims": "Просмотр претензий",
+    "viewClaimStatus": "Просмотр статуса клейма",
+    "availableClaimsNotification": "У вы уже перевели клейм!"
   },
   "trade": {
     "trade": "Торговля",
+    "resetAllowance": "Разрешение на сброс",
     "allowance": "руководство",
     "verifyAddresses": "Подтверждение адресов",
     "assetAddress": "%{asset} адрес",
     "verifyAsset": "Верификация %{asset}",
     "verifyAddressMessage": "Перед началом работы убедитесь, что адреса указаны правильно.",
     "slippageInfo": "Ваша сделка будет возвращена, если цена изменится в неблагоприятную сторону более чем на этот процент.",
+    "resetAllowanceTooltip": "Если для данного токена остается ненулевая надбавка, то перед утверждением окончательной надбавки надбавка должна быть сброшена в 0.",
     "allowanceTooltip": "Сумма, которую вы дадите смарт-контракту полномочия использовать от вашего имени.",
     "searchingRate": "Поиск лучшего курса...",
     "noRateAvailable": "Тариф не предусмотрен.",
@@ -811,17 +857,20 @@
     "gasFeeExceedsTradeAmountThreshold": "Комиссия за газ превышает %{percentage}% от суммы сделки",
     "confirmDetails": "Подтвердить условия",
     "confirmAndTrade": "Подтвердить и торговать",
+    "signAndSwap": "Подписать и обменять",
     "tradeAnyway": "Всё равно обменять",
     "pending": "Торговля на стадии рассмотрения",
     "complete": "Выполнено",
     "approveAsset": "Подтвердить взаимодействие с %{symbol}",
-    "needPermission": "требуется ваше разрешение на использование вашего %{symbol}",
     "whyNeedThis": "Зачем мне это нужно?",
     "estimatedGasFee": "Предполагаемая комиссия за газ",
     "receiveInclFee": "Поступления (вкл. комиссию)",
     "approvingAsset": "Подтверждение %{symbol}",
     "viewTransaction": "Посмотреть транзакцию",
-    "availableQuotes": "Доступные котировки",
+    "noQuotesAvailable": "Котировки отсутствуют",
+    "noQuotesAvailableDescription": "В данный момент доступных котировок не найдено. Попробуйте выбрать другую пару.",
+    "availableSwappers": "Доступные котировки",
+    "unavailableSwappers": "Недоступные обменники",
     "unlimited": "Безлимитный",
     "streamStatus": "Статус операции",
     "swapsFailed": "%{failedSwaps} обмен не удался",
@@ -830,6 +879,8 @@
     "beforeFees": "До уплаты комиссии",
     "minAmountAfterSlippage": "Мин. ожидаемое время после проскальзывания ( %{slippage}%)",
     "free": "Бесплатно",
+    "shapeShiftFee": "Комиссия ShapeShift",
+    "transactionFee": "Комиссия за транзакцию",
     "slowSwapTitle": "%{protocol} торговля",
     "slowSwapBody": "Этот обмен может занять несколько минут.",
     "thorSmartContractWalletUnsupported": "В настоящее время сеть THORChain не поддерживает кошельки смарт-контрактов.",
@@ -843,6 +894,7 @@
     "enterCustomRecipientAddress": "Введите пользовательский адрес получателя",
     "receiveAtLeast": "Получите как минимум",
     "tooltip": {
+      "continueSwapping": "Продолжайте обменивать для получения окончательных данных",
       "changeQuote": "Изменить котировку",
       "rate": "Ожидаемый курс для данной пары",
       "noRateAvailable": "Часто это связано с очень ограниченной или отсутствующей ликвидностью по торговой паре.",
@@ -857,16 +909,34 @@
       "manualReceiveAddress": "Это адрес, на который вы будете получать средства. Он был введен вручную, пожалуйста, проверьте его достоверность.",
       "amountPercentageDifference": "Это процентная разница в общей сумме %{buyAssetSymbol}, которую вы получите, по сравнению с лучшим предложением",
       "overallPercentageDifference": "Это процентная разница в общей сумме, полученной после вычета всех комиссий, по сравнению с лучшим предложением.",
-      "priceImpactDifference": "Расчетная разница между значениями входных и выходных сумм в долларах США.",
+      "inputOutputDifference": "Расчетная разница между значениями входных и выходных сумм в долларах США.",
       "gasFee": "Это примерная стоимость газа для завершения этой сделки.",
       "slippageWithAmount": "Если цена изменится таким образом, что вы получите меньше  %{amount}, ваша сделка будет отменена. Это минимальная сумма, которую вы гарантированно получите.",
       "slippage": "Ваша сделка будет отменена, если цена изменится в неблагоприятную сторону более чем на этот процент.",
-      "noRelatedAssets": "Этот актив доступен только на  %{chainDisplayName}"
+      "noRelatedAssets": "Этот актив доступен только на  %{chainDisplayName}",
+      "chainNotSupportedByWallet": "Эта цепочка не поддерживается вашим кошельком. Перейдите на другой кошелек, чтобы торговать этим активом.",
+      "chainNotConnected": "Эта цепочка не подключена к вашему кошельку. Подключите %{chainDisplayName}, чтобы торговать этим активом."
     },
     "rates": {
       "tags": {
         "negativeRatio": "Недостаточная сумма продажи"
+      },
+      "rateExpired": {
+        "title": "Новый тариф",
+        "body": "Срок действия предыдущей ставки обмена истек. Мы нашли новый курс и обновили ваши котировки. Пожалуйста, просмотрите последние данные, прежде чем подтверждать своп.",
+        "cta": "Хорошо, понял."
       }
+    },
+    "permit2Allowance": {
+      "title": "Разрешение на Permit2 ",
+      "tooltip": "Эта сделка использует протокол Permit2, который требует однократного одобрения для предоставления неограниченного разрешения на контракт Permit2. После этой первоначальной настройки вы можете разрешать сделки по любому протоколу, поддерживаемому Permit2, подписывая сообщения без газа, которые предоставляют временные 5-минутные разрешения."
+    },
+    "permit2Eip712": {
+      "title": "Разрешить передачу токенов",
+      "description": "Предоставьте смарт-контракту разрешение на использование %{symbol} от вашего имени.",
+      "error": "Возникла проблема при подписании сообщения Permit2",
+      "signMessage": "Подписать",
+      "tooltip": "Это даст %{swapperName} 5-минутный запас времени, чтобы завершить сделку от вашего имени."
     },
     "errors": {
       "title": "Что-то пошло не так",
@@ -897,7 +967,12 @@
       "noQuotesAvailable": "Нет доступных котировок для данной сделки",
       "smartContractWalletNotSupported": "Кошелек смарт-контрактов не поддерживается",
       "unsafeQuote": "Эта сумма ниже рекомендуемого минимума для данной пары (%{recommendedMin} %{symbol}). Это может привести к неудачной сделке или потере средств.",
-      "rateLimitExceeded": "Превышен лимит скорости, повторите попытку позже"
+      "rateLimitExceeded": "Превышен лимит скорости, повторите попытку позже",
+      "maxSlippageExceededWithExpectedSlippage": "Максимально допустимое проскальзывание для этой сделки было превышено во время моделирования. Ожидаемое проскальзывание: %{expectedSlippage}%. Повторите попытку с более высоким допуском на проскальзывание.",
+      "executionRevertedWithExpectedSlippage": "Во время выполнения произошел откат исполнения. Это может быть связано с недостаточной устойчивостью к проскальзыванию. Ожидаемое проскальзывание: %{expectedSlippage}%. Повторите попытку с более высоким допуском на проскальзывание.",
+      "slippageToleranceExceeded": "Превышен допустимый уровень проскальзывания.",
+      "underMinimumAmount": "Один или несколько активов в этой сделке ниже минимальной суммы, необходимой для этой сделки.",
+      "consumedMoreFees": "Транзакция была возвращена, поскольку комиссии, затраченные на эту сделку, оказались выше, чем ожидалось."
     },
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
     "recentTrades": "Последние сделки",
@@ -905,20 +980,29 @@
     "or": "или",
     "onChainName": "на %{chainName}",
     "unknownGas": "(неизвестно)",
+    "unknownProtocolFee": "(неизвестно)",
     "numHops": "Эта торговля включает  %{numHops} hops",
     "receiveAddress": "Адрес получателя",
-    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную или",
-    "smartContractReceiveAddressDescription": "Мы обнаружили, что вы осуществляете обмен со смарт-контракта, адрес которого может отсутствовать в цепочке назначения. Пожалуйста, проверьте и вручную введите желаемый адрес получателя на %{chainName}",
+    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную",
+    "disableThorNativeSmartContractReceive": "Мы обнаружили, что вы отправляете на адрес смарт-контракта на %{chainName}. В связи с ограничениями THORChain получение %{nativeAssetSymbol} на адрес смарт-контракта не поддерживается. Пожалуйста, введите другой адрес",
+    "disableThorTaprootReceive": "Мы обнаружили, что вы отправляете на taproot Bitcoin-адрес. В связи с ограничениями THORChain получение BTC на taproot-адрес в настоящее время не поддерживается. Пожалуйста, введите другой адрес.",
+    "disableChainflipKeepKeyTaprootReceive": "Из-за ограничений KeepKey продажа BTC на ChainFlip пока недоступна. Пожалуйста, выберите другую пару или подключите другой кошелек.",
     "toContinue": "для продолжения.",
     "addressPlaceholder": "%{chainName} адрес",
     "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?",
     "enableMetaMaskSnap": "используйте multichain snap",
     "connectChain": "подключить %{chainName}",
-    "approvalGasFee": "Размер платы за газ %{fee}",
+    "approvalGasFee": "Плата за разрешение на использование газа %{fee}",
+    "approvalGasFeeLoading": "Разрешение на утверждение платы за газ...",
+    "approvalResetGasFee": "Плата за сброс газа %{fee}",
+    "approvalResetGasFeeLoading": "Сброс разрешений на загрузку платы за газ...",
     "approvalFailed": "Возникла проблема при утверждении разрешения",
+    "approvalResetFailed": "Возникла проблема при сбросе настроек",
+    "allowanceResetTxName": "Сброс разрешений tx:",
+    "allowanceApprovalTxName": "Утверждение разрешения tx:",
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
     "doAnotherTrade": "Совершите еще одну сделку",
-    "showDetails": "Показать детали",
+    "summary": "Торговая сводка",
     "transactionSuccessful": "Транзакция прошла успешно, ожидаем подтверждений",
     "temp": {
       "tradeSuccess": "Трейд завершен",
@@ -926,21 +1010,108 @@
     },
     "hopTitle": {
       "bridge": "Бридж через %{swapperName}",
-      "swap": "Обмен через %{swapperName}"
+      "swap": "Обмен через %{swapperName}",
+      "swapEta": "Обмен через %{swapperName} в ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "Возникла проблема при выполнении моста",
       "swap": "Возникла проблема при выполнении обмена"
     },
     "transactionTitle": {
-      "bridge": "Бридж с %{sellChainName} на %{buyChainName} через %{swapperName}",
+      "bridge": "Обмен с %{sellChainName} на %{buyChainName} через %{swapperName}",
       "swap": "Обмен на %{sellChainName} через %{swapperName}"
     },
     "approvalTitle": "Согласие на использование токенов",
-    "assetSummaryDescription": "%{amountFiatFormatted} на %{chainName}",
+    "resetTitle": "Сброс ограничений на токены",
+    "fiatAmountOnChain": "%{amountFiatFormatted} на %{chainName}",
     "quote": {
       "cantSetSlippage": "Мы не можем установить пользовательское проскальзывание (%{userSlippageFormatted}) для %{swapperName}",
       "slippage": "Проскальзывание: %{slippageFormatted}"
+    },
+    "awaitingPermit2Approval": "Ожидание передачи токена",
+    "awaitingSwap": "Ожидание обмена через %{имя обменщика}",
+    "awaitingBridge": "Ожидание моста через %{bridgeName}",
+    "awaitingApproval": "Ожидает одобрения",
+    "awaitingAllowanceReset": "Ожидание сброса разрешений",
+    "foxSavings": {
+      "youSaved": "Вы сэкономили %{feeSaving} на сделке с FOX Savings! ",
+      "youCouldHaveSaved": "Вы могли бы сэкономить %{fee} на сделке с FOX Savings. ",
+      "buyFox": "Купить FOX ",
+      "share": "Поделиться ",
+      "postBody": "Я только что сэкономил %{fee}, торгуя на @ShapeShift, просто владея $FOX! "
+    }
+  },
+  "limitOrder": {
+    "heading": "Ограничение",
+    "confirm": "Подтвердить",
+    "placeOrderPending": "Ожидание подтверждения",
+    "placeOrderSuccess": "Успех!",
+    "placeOrderFailed": "Что-то пошло не так",
+    "placeOrder": "Разместить заказ",
+    "cancel": {
+      "cancelOrder": "Отменить лимитный ордер",
+      "requestCancellation": "Да, запросить отмену",
+      "areYouSureYouWantToCancelOrder": "Вы уверены, что хотите отменить этот ордер?",
+      "cancellationFailed": "Не удалось отменить ордер"
+    },
+    "viewOrder": "Посмотреть заказ",
+    "viewOnChain": "Просмотр транзакции по цепочке",
+    "yourOrderHasBeenPlaced": "Ваш заказ оформлен.",
+    "yourCancellationHasBeenSubmitted": "Ваша отмена была отправлена.",
+    "limitPrice": "Предельная цена",
+    "executionPrice": "Цена исполнения",
+    "provider": "Поставщик",
+    "expiration": "Срок действия",
+    "networkFee": "Комиссия за сеть",
+    "confirmInfo": "Лимитный ордер может не исполниться именно тогда, когда цены на цепи достигнут лимитной цены.",
+    "learnMore": "Узнать больше",
+    "previewOrder": "Предварительный заказ",
+    "youGet": "Вы получите как минимум",
+    "whenPriceReaches": "Когда цена достигает",
+    "expiry": "Срок действия",
+    "noOpenOrders": "Открытых ордеров пока нет.",
+    "noHistoricalOrders": "Исторических ордеров пока нет.",
+    "limitPriceIsPercentLowerThanMarket": "Лимитная цена на %{percent}% ниже рыночной цены",
+    "expiryOption": {
+      "oneHour": "1 час",
+      "oneDay": "1 день",
+      "threeDays": "3 дня",
+      "sevenDays": "7 дней",
+      "twentyEightDays": "28 дней",
+      "custom": "Пользовательское"
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Родные активы для продажи не поддерживаются",
+      "insufficientValidTo": "Слишком раннее истечение срока действия ордера",
+      "excessiveValidTo": "Срок действия ордера слишком далеко в будущем",
+      "insufficientLiquidity": "Недостаточная ликвидность",
+      "zeroFunds": "Необходим ненулевой баланс активов на продажу",
+      "insufficientFundsForGas": "Недостаточно средств на оплату газа",
+      "allowanceResetRequired": "Требуется сброс разрешений"
+    },
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Цена на %{percent} % ниже рыночной.\n\nХотя CoW всегда стремится предложить вам наилучшую доступную цену, это может привести к продаже вашего %{sellAssetSymbol} в убыток. Подумайте о том, чтобы вместо этого нажать «Рынок»."
+    },
+    "usdtAllowanceReset": {
+      "title": "Невозможно одобрить разрешение на использование USDT",
+      "description": "Ваш текущий запас USDT на Ethereum должен быть сброшен до 0, прежде чем его можно будет установить на достаточное значение. Пожалуйста, отмените текущий запас токенов USDT и повторите попытку."
+    },
+    "openOrders": "Открытые ордера",
+    "orderHistory": "История ордеров",
+    "status": {
+      "open": "Открыть",
+      "fulfilled": "Выполнено",
+      "cancelled": "Отменено",
+      "expired": "Просроченный"
+    },
+    "orders": "Ордеры",
+    "viewOrders": "Просмотр ордеров",
+    "loadingOrderList": "Загрузка лимитных ордеров...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "В настоящее время в вашем кошельке недостаточно %{symbol} баланса на %{chainName} для выполнения этого ордера. Ордер все еще открыт и будет исполнен, когда вы пополните свой баланс %{символ} на %{chainName}.",
+        "insufficientAllowance": "Для исполнения этого ордера требуется дополнительная надбавка в размере %{symbol} на %{chainName}, которая должна быть одобрена для CoW Swap. Ордер все еще открыт и станет исполняемым, когда вы завершите утверждение надбавки."
+      }
     }
   },
   "modals": {
@@ -1117,6 +1288,9 @@
         "average": "Средняя",
         "fast": "Быстро",
         "enterAmount": "Введите сумму"
+      },
+      "status": {
+        "pendingBody": "Отправка %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1197,6 +1371,7 @@
     },
     "approve": {
       "header": "Разрешить %{spenderName} использовать ваш %{asset}",
+      "resetHeader": "Сбросьте %{spenderName} надбавку за %{asset}",
       "shapeshiftRouterName": "Маршрутизатор ShapeShift DAO ",
       "body": " Нам нужно ваше разрешение на использование Вашего %{asset}",
       "learnMore": "Зачем мне это нужно?",
@@ -1218,6 +1393,7 @@
       },
       "withdrawTo": "Вывести на",
       "amountToDeposit": "Сумма к пополнению",
+      "amountDeposited": "Сумма депозита",
       "amountToStake": "Сумма для стейкинга",
       "amountToWithdraw": "Сумма для вывода",
       "amountToClaim": "Сумма к выплате",
@@ -1422,7 +1598,6 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек Keplr"
       }
     },
@@ -1438,7 +1613,8 @@
         "connect": "Подключить"
       },
       "verify": {
-        "confirmOnDevice": "Подтвердите на устройстве"
+        "confirmOnDevice": "Подтвердите на устройстве",
+        "addressMismatch": "Несоответствие адреса. Пожалуйста, проверьте правильность подключения устройства и повторите попытку."
       },
       "success": {
         "header": "Ledger подключен",
@@ -1461,31 +1637,42 @@
         "pairExistingDeviceBody": "Подключаете другое устройство Ledger? Нажмите \" Подключить новое устройство\", чтобы начать с чистого листа."
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек Ledger"
       },
       "connectWarning": "Перед подключением сети убедитесь, что на устройстве открыто приложение.",
       "signWarning": "Перед подписанием убедитесь, что на вашем устройстве открыто приложение %{chain}."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "Произошла непредвиденная ошибка при соединении с MetaMask",
-        "connectFailure": "Невозможно подключиться к кошельку MetaMask",
-        "multipleWallets": "Обнаруженный Ethereum-провайдер не относится к MetaMask. У вас установлено несколько кошельков?"
-      },
+    "mipd": {
       "connect": {
-        "header": "Подключить MetaMask",
-        "body": "Нажмите кнопку подключить и войдите в MetaMask из всплывающего окна",
-        "button": "Подключить"
+        "header": "Pair %{name}",
+        "body": "Нажмите Pair и войдите в систему под именем %{name} из всплывающего окна.",
+        "button": "Pair"
+      },
+      "errors": {
+        "unknown": "Возникла непредвиденная ошибка при соединении с %{name}",
+        "connectFailure": "Невозможно подключиться к %{name}"
       },
       "failure": {
-        "header": "Ошибка",
-        "body": "Невозможно подключить кошелек MetaMask"
-      },
+        "body": "Невозможно подключиться к %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "Открыто в приложении MetaMask",
         "body": "Нажмите, чтобы открыть приборную панель ShapeShift в MetaMask",
         "button": "Открыть"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Возникла непредвиденная ошибка при взаимодействии с Phantom",
+        "connectFailure": "Невозможно подключиться к кошельку Phantom",
+        "multipleWallets": "Обнаруженный провайдер Ethereum не является Phantom. У вас установлено несколько кошельков?"
+      },
+      "connect": {
+        "header": "Подключить Phantom",
+        "body": "Нажмите Подключить и авторизуйтесь в Phantom во всплывающем окне",
+        "button": "Подключить"
       }
     },
     "metaMaskSnap": {
@@ -1499,8 +1686,10 @@
         "title": "Вы удалили поддержку Multichain из MetaMask!",
         "subtitle": "Повторно добавьте привязку Multichain на MetaMask, чтобы отправлять, получать, отслеживать, торговать и зарабатывать со следующими цепочками:"
       },
-      "secondaryTitle": "Лучший опыт работы с Multichain для MetaMask: На платформе ShapeShift",
-      "secondaryBody": "Отправляйте, получайте, отслеживайте, обменивайте и зарабатывайте с помощью ShapeShift Multichain Snap на следующих цепочках:",
+      "update": {
+        "title": "Multichain Snap нуждается в обновлении",
+        "subtitle": "Нажмите «Обновить», чтобы продолжить использовать Multi Chain-функции ShapeShift с MetaMask!"
+      },
       "connectMetaMask": "Подключить MetaMask",
       "andMore": "...и многое другое",
       "snapInstalledToast": "Установлена привязка ShapeShift Multichain MetaMask",
@@ -1510,6 +1699,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
+      "updateTitle": "Обновление Multichain Snap",
       "warningExperimental": "ShapeShift Multichain Snap является новой, экспериментальной функцией и предоставляется \"как есть\".",
       "warningBackup": "Убедитесь, что вы создали резервную копию начальной фразы MetaMask. Все средства, которые вы отправляете в не-EVM-цепочки с помощью этой привязки, будут направляться на счет по умолчанию, настроенный в MetaMask.",
       "agreeIntro": "Перед продолжением работы ознакомьтесь с данной информацией:",
@@ -1523,7 +1713,8 @@
       "agreeItem4": "Включая ShapeShift Multichain Snap, вы подтверждаете, что используете его на свой страх и риск",
       "readAndUnderstood": "Я ознакомился и понимаю",
       "seedBackedUp": "Я создал резервную копию своей начальной фразы MetaMask",
-      "acceptInstall": "Подтвердить и установить"
+      "acceptInstall": "Подтвердить и установить",
+      "acceptUpdate": "Подтвердить и обновить"
     },
     "coinbase": {
       "errors": {
@@ -1537,7 +1728,6 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Невозможно подключить кошелек Coinbase",
         "body": "Невозможно подключить кошелек Coinbase"
       }
     },
@@ -1552,29 +1742,7 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек WalletConnect"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "Возникла непредвиденная ошибка при взаимодействии с XDEFI",
-        "connectFailure": "Не удается подключиться к кошельку XDEFI",
-        "multipleWallets": "Обнаруженный поставщик Ethereum не является XDEFI. У вас установлено и включено несколько кошельков? Установите приоритет XDEFI в настройках и нажмите pair еще раз."
-      },
-      "connect": {
-        "header": "Подключить XDEFI",
-        "body": "Нажмите Подключить и войдите в XDEFI из всплывающего окна",
-        "button": "Подключить"
-      },
-      "failure": {
-        "header": "Ошибка",
-        "body": "Невозможно подключить кошелек XDEFI"
-      },
-      "redirect": {
-        "header": "Открыть в приложении XDEFI",
-        "body": "Нажмите, чтобы открыть информационную панель ShapeShift в XDEFI",
-        "button": "Открыть"
       }
     },
     "shapeShift": {
@@ -1591,11 +1759,16 @@
       },
       "import": {
         "header": "Импортировать кошелек",
+        "keystoreHeader": "Импортируйте кошелек keystore ",
         "body": "Введите или вставьте вашу секретную фразу восстановления в нижнем регистре без запятых и цифр и с одним пробелом между словами.",
         "button": "Далее",
         "secretRecoveryPhraseError": "Введите свою секретную фразу восстановления с одним пробелом между словами. Опускайте запятые, знаки возврата и любые дополнительные символы.",
         "secretRecoveryPhraseRequired": "Требуется секретная фраза восстановления",
-        "secretRecoveryPhraseTooShort": "Секретная фраза восстановления слишком короткая"
+        "secretRecoveryPhraseTooShort": "Секретная фраза восстановления слишком короткая",
+        "dragAndDrop": "Перетащите или выберите файл ",
+        "keystoreImportBody": "Загрузите файл, нажав кнопку «Обзор» или перетащив его ниже. ",
+        "importKeystore": "Импорт Keystore",
+        "invalidKeystorePassword": "Неверный пароль keystore "
       },
       "password": {
         "header": "Создайте новый пароль",
@@ -1613,10 +1786,17 @@
       },
       "start": {
         "header": " Кошелек ShapeShift",
+        "selectHeader": "Импортировать кошелек ",
+        "keystoreHeader": "Кошелек Keystore ",
         "body": "У вас может быть несколько кошельков ShapeShift. Вы можете загрузить кошелек, импортировать кошелек из секретной фразы восстановления или создать новый кошелек.",
+        "selectBody": "Импортируйте кошелек с помощью секретной фразы восстановления или загрузив файл keystore. ",
         "import": "Импорт кошелька",
+        "secretRecoveryPhrase": "Секретная фраза восстановления ",
+        "twelveWordSeedPhrase": "Фраза из 12 слов ",
+        "keystore": "Keystore",
         "create": "Создать новый кошелек",
-        "load": "Сохраненные кошельки"
+        "load": "Сохраненные кошельки",
+        "uploadKeystore": "Загрузка файла Keystore"
       },
       "success": {
         "encryptingWallet": "Шифрование кошелька... если ваш браузер запрашивает сохранение данных в постоянном хранилище, пожалуйста, нажмите Разрешить",
@@ -1692,6 +1872,15 @@
       "onboarding": {
         "skip": "Пропустить",
         "shapeshiftWallet": "Кошелек ShapeShift",
+        "createNewWallet": "Создать новый кошелек",
+        "shapeshiftNative": "ShapeShift Native",
+        "addNewWallet": "Добавить новый кошелек",
+        "comingFromThorswap": "Приходите из THORSwap?",
+        "importExisting": "Импорт существующих",
+        "importFromKeystore": "Импорт из keystore",
+        "whatIsShapeshiftWallet": "Что такое кошелек ShapeShift?",
+        "yourDecentralizedGateway": "Ваш шлюз децентрализации. Торгуйте и зарабатывайте Bitcoin, Ethereum, Solana и другие криптовалюты с помощью единого и безопасного кошелька.",
+        "crossChainFreedom": "Свобода кросс-цепочек. Доступ к лучшим ставкам на нескольких децентрализованных биржах, без посредников",
         "selfCustody": {
           "title": "Ваш кошелек ShapeShift - это самоохрана",
           "subTitle": "Ключи находятся у вас, и только вы можете получить к ним доступ.",
@@ -1768,6 +1957,7 @@
         "SegwitNativeTooltip": "Рекомендуется для большинства пользователей. Используйте другие адреса, только если вы знаете, для чего они нужны",
         "btcFormat": "BTC формат",
         "assetUnavailable": "Рыночные данные для этого актива пока недоступны. Мы работаем над этим, ждите!",
+        "customAsset": "Это импортированный актив. Рыночные данные могут быть неточными.",
         "loading": "Удивительная история цен, держитесь крепче...",
         "maxTotalSupply": "Максимальное предложение",
         "availableSupply": "Доступное предложение",
@@ -1850,11 +2040,12 @@
       "description": "Выберите счета, которые вы хотите импортировать, из списка ниже.",
       "import": "Импорт",
       "loadMoreDisabled": "Этот кошелек не поддерживает несколько аккаунтов для этой цепочки."
-    },
-    "ledgerOpenApp": {
-      "title": "Открыть %{appName} апликацию",
-      "description": "Чтобы подключить эту цепочку, необходимо открыть приложение Ledger на своем устройстве."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Открыть %{appName} апликацию",
+    "description": "Чтобы продолжить, вам нужно открыть приложение %{appName} на вашем устройстве Ledger.",
+    "devicePrompt": "Устройство предложит вам выполнить все необходимые действия для завершения текущего действия."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2064,7 +2255,8 @@
           "connectionError": "Не удается подключиться к предоставленному URI.",
           "invalidUri": "Неверный URI",
           "v1UriUnsupported": "WalletConnect V1 URI не включен",
-          "v2UriUnsupported": "URI WalletConnect V2 не включен"
+          "v2UriUnsupported": "URI WalletConnect V2 не включен",
+          "disclaimerBody": "Shapeshift не может гарантировать безопасность и надежность приложений третьих лиц. Используя WalletConnect, вы берете на себя полную ответственность за любые риски."
         },
         "sessionProposal": {
           "dAppInfo": "Информация dApp",
@@ -2322,6 +2514,7 @@
     "pricePerAsset": "%{from} до %{to}",
     "symAlert": "При входе в бассейн ваш %{from} будет разделен на %{to} и %{from} в соотношении 50:50.",
     "symAfterRuneAlert": "Симметричные депозиты невозможны после асимметричного депозита RUNE из-за особенностей работы сети THOR.",
+    "withdrawTypeNotAvailable": "Этот тип снятия средств недоступен для данного пула.",
     "incompletePositionDepositAlert": "Эта позиция не завершена, пожалуйста, внесите соответствующую сумму %{asset} чтобы завершить эту позицию.",
     "incompletePositionWithdrawAlert": "Эта позиция не завершена, пожалуйста, отмените ее, удалив 100% ликвидности. Вы также можете завершить позицию через \"Добавить ликвидность\".",
     "unsupportedDemoWalletExplainer": "Демо-кошелек не поддерживается, пожалуйста, подключитесь к кошельку, чтобы использовать эту функцию.",
@@ -2347,6 +2540,10 @@
     "confirmAndWithdraw": "Подтвердить и снять",
     "removeAmounts": "Сумма(ы) вывода",
     "stagedTooltip": "Поэтапные пулы - это новые пулы, принимающие ликвидность, но не начисляющие доход до тех пор, пока не будут доступны",
+    "newPosition": "Новая позиция",
+    "newPositionTooltip": "Это создаст новую позицию LP, а не добавит ее к существующим.",
+    "notSupported": "Невозможно",
+    "notSupportedTooltip": "Из-за существующей позиции по Asymmetric Rune внесение средств в этот пул обоими активами невозможно. Пожалуйста, снимите текущую позицию, если вы хотите создать новый LP с обоими активами.",
     "yourPositions": {
       "yourPositions": "Ваша позиция",
       "emptyTitle": "Нет активных позиций",
@@ -2444,9 +2641,9 @@
     "rewardAddressHelper": "Сюда будут отправляться вознаграждения",
     "useWalletAddress": "Используйте адрес кошелька",
     "useCustomAddress": "Использование пользовательского адреса",
-    "stakeWarning": "Когда вы стейкаете свои токены FOX, имейте в виду, что период блокировки составляет %{cooldownPeriod}. Это означает, что если вы решите снять со стейкинга, вам придется подождать %{cooldownPeriod}, прежде чем вы сможете получить свои средства.",
+    "stakeWarning": "Когда вы стейкаете на %{symbol}, пожалуйста, имейте в виду, что период блокировки составляет %{cooldownPeriod}.Это означает, что если вы решите снять свои токены со стейкинга, вам придется подождать %{cooldownPeriod}, прежде чем вы сможете получить свои средства.",
     "bridgeCta": "Вы выбрали %{assetSymbol} в %{originNetwork}, но вам нужен %{assetSymbol} в %{destinationNetwork}, чтобы застейкать. Мы можем помочь вам перевести средства в %{сеть назначения}. Хотите, чтобы мы провели вас через этот процесс?",
-    "unstakeWarning": "Прежде чем вы сможете потребовать свой FOX, период снятия составляет %{cooldownPeriod}. По истечении этого времени вы сможете потребовать свою незастейканую сумму.",
+    "unstakeWarning": "Прежде чем вы сможете потребовать свой  %{symbol} , необходимо подождать в течение %{cooldownPeriod}. По истечении этого времени вы сможете потребовать свою незастейканую сумму.",
     "tooltips": {
       "stakeAmount": "Это сумма FOX, которую вы будете стейкать.",
       "unstakeAmount": "Это количество FOX, которое вы разблокируете.",
@@ -2472,7 +2669,7 @@
     "newAddressInfo": "Это будет обновлено для следующего цикла вознаграждения",
     "confirmAndUpdateAddress": "Подтвердить и обновить адрес",
     "unstakeFrom": "Отстейкать с r%{assetSymbol}",
-    "claimPending": "Запрос на вывод средств",
+    "claimPending": "Ожидаем вашего заявления на %{amount} %{symbol}",
     "claimSuccess": "Вы успешно заклеймили %{amount} %{symbol}.",
     "claimReceiveAddress": "Адрес для получения клейма",
     "noRewardsYet": "Пока нет наград",
@@ -2485,14 +2682,16 @@
     "noSupportedChainsDescription": "Добавьте %{chainLabel} или подключитесь к кошельку, который его поддерживает.",
     "confirmAndBridge": "Подтвердить и перевести",
     "myStakedBalance": "Мой баланс Стейкинга",
-    "myStakedBalanceHelper": "Количество FOX которое вы застейкали",
-    "pendingRewardsBalance": "Текущий оценочный баланс вознаграждений",
+    "myStakedBalanceHelper": "Сумма %{symbol}, которую вы застейкали",
+    "pendingRewardsBalance": "Баланс начисленных вознаграждений",
     "pendingRewardsBalanceHelper": "Это лишь приблизительная оценка ваших ожидаемых вознаграждений, основанная на доходах за период до настоящего времени. Все расчеты производятся в конце эпохи и не могут быть точно рассчитаны до конца месяца.",
     "lifetimeRewards": "Награды за все время",
-    "lifetimeRewardsHelper": "Пожизненное вознаграждение - это совокупное вознаграждение от стейкинга FOX.",
+    "lifetimeRewardsHelper": "Общее вознаграждение, которое вы заработали, со стейкинга на ваш %{symbol}, на сегодняшний день",
     "timeInPool": "Время в пуле",
     "timeInPoolHelper": "Время в пуле - самый долгий вклад в rFOX",
     "myPosition": "Моя позиция",
+    "positionDetails": "Подробности о позиции",
+    "mySymbolPosition": "Моя %{symbol} Позиция",
     "faq": {
       "title": "FAQ",
       "what": {
@@ -2525,10 +2724,121 @@
       }
     },
     "totals": "Всего rFOX ",
-    "totalStaked": "Всего FOX Застейкано",
+    "totalStaked": "Всего %{symbol} застейкано",
+    "totalStakedHelper": "Общая сумма стейкинга %{symbol}",
     "totalFeesCollected": "Общая сумма собранных комиссий (в эту эпоху)",
-    "emissionsPool": "Пул эмиссии (данная эпоха)",
-    "emissionsPoolHelper": "Пул эмиссии (данная эпоха)",
-    "foxBurnAmount": "Сумма Сожженных FOX "
+    "emissionsPool": "%{symbol} Пул эмиссии (данная эпоха)",
+    "emissionsPoolHelper": "Общая сумма вознаграждений, которые будут распределены %{symbol} стакеры",
+    "foxBurnAmount": "FOX Количество сжигания (эта эпоха)",
+    "pendingDistribution": "Ожидающееся распределение"
+  },
+  "markets": {
+    "recommended": "Рекомендуем",
+    "watchlist": "Мой список наблюдения",
+    "marketsBody": "Откройте для себя самые интересные криптовалюты. Отслеживайте топ-движения, появляющиеся токены, возможности DeFi и многое другое. Сохраняйте, делитесь и торгуйте избранным.",
+    "watchlistEmpty": {
+      "emptyTitle": "Нет активов в списке наблюдения",
+      "emptyBody": "Похоже, вы еще не отметили ни одного актива. Начните добавлять активы в свой список наблюдения прямо сейчас, чтобы отслеживать их!"
+    },
+    "emptyTitle": "Активы не найдены",
+    "emptyBody": "Не найдено активов с текущим фильтром. Просмотрите больше активов, изменив выбранную цепочку.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Активы DeFi одним кликом",
+        "subtitle": "Откройте для себя доходность, которая подходит вам больше всего! Переключайтесь между пулами, хранилищами, вариантами кредитования и LSD без особых усилий с помощью порталов."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "Получайте доходность на свои активы с THORCHain Savers."
+      },
+      "trending": {
+        "title": "Тренды",
+        "subtitle": "Самые просматриваемые активы за последние 24 часа."
+      },
+      "tradingVolume": {
+        "title": "Trading Volume",
+        "subtitle": "Лучшие активы с наибольшим объемом торгов за последние 24 часа."
+      },
+      "marketCap": {
+        "title": "Рыночная капитализация",
+        "subtitle": "Топ активов с наибольшей рыночной капитализацией за последние 24 часа."
+      },
+      "topMovers": {
+        "title": "Top Movers",
+        "subtitle": "Лучшие активы, которые подскочили на %{percentage}% или более."
+      },
+      "recentlyAdded": {
+        "title": "Недавно добавленные",
+        "subtitle": "Узнайте о недавних запусках."
+      }
+    }
+  },
+  "foxPage": {
+    "title": "Панель управления токенами FOX",
+    "description": "Начиная с 2019 года, наш токен ShapeShift FOX предлагает пользователям постоянно расширяющийся мир полезностей и преимуществ. Сегодня наш токен управления ERC-20 дает вам скидки на комиссионные, долю в доходах THORChain и позволяет влиять на будущее ShapeShift с помощью вашего голоса. Стейкайте, обменивайте, покупайте, поставляйте и управляйте своими FOX-холдингами здесь.",
+    "foxToken": "Токен FOX",
+    "24hrPriceChange": "Изменение цены за 24 часа",
+    "rfox": {
+      "whatIs": "Что такое стейкинг rFOX?",
+      "totalSymbolBurn": "Всего %{symbol} Сжечь",
+      "simulateTitle": "Симулятор rFOX",
+      "simulateSubtle": "Ввод номера депозита что-то",
+      "estimatedRewards": "Предполагаемые вознаграждения",
+      "depositAmount": "Сумма депозита",
+      "shapeshiftRevenue": "Доходы ShapeShift",
+      "30days": "30 дней"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "Надоело кочевать с фермы на ферму, чтобы заработать %{rewardAssetSymbol} Просто застейкайте свой %{assetSymbol}  и зарабатывайте %{rewardAssetSymbol} ",
+      "totalClaimableRewards": "Общая сумма вознаграждений, на которые можно претендовать",
+      "totalStakingValue": "Общая стоимость стейкинга",
+      "nextEpoch": "Следующая эпоха"
+    },
+    "foxWifHat": {
+      "title": "FOX Wif Hat",
+      "description": "Это просто FOX wif hat, не задумывайтесь. Воспользуйтесь ограниченной по времени программой скидок на цепочку. По мере того как ваша скидка уменьшается, узнавайте о FOX на остальной части страницы и меняйте на FOX в любое время, чтобы сохранить свою скидку на комиссию. Какой бы холдинг ни был выше, вы экономите деньги на платформе ShapeShift.",
+      "discount": "*Скидка линейно уменьшается с течением времени и истекает в XX/XX/2025. Воспользуйтесь своей скидкой XX%, пока она не уменьшилась еще больше!",
+      "claim": "Заявление",
+      "claimed": "Заявлено",
+      "discountText": "*%{percent}% скидки на торговые комиссии"
+    },
+    "governance": {
+      "title": "Управление",
+      "description": {
+        "0": "Присоединяйтесь к нам",
+        "1": "на форуме",
+        "2": "и определяйте будущее DAO."
+      },
+      "totalVotingPower": "Общее количество голосов",
+      "noActiveProposals": "Активные предложения отсутствуют",
+      "noClosedProposals": "Закрытые предложения отсутствуют"
+    }
+  },
+  "thorFees": {
+    "title": "Здесь из THORSwap?",
+    "description": "Обладатели THOR будут торговать бесплатно до 2024 года."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Адрес %{address} не поддерживается.",
+      "unsupportedChain": "Кошелек не поддерживает %{chain}.",
+      "ledgerAppOpenCancelled": "Открытие приложения Ledger отменено.",
+      "getAddress": "Не удалось получить адрес из кошелька.",
+      "getAccount": "Не удалось получить учетную запись для: %{pubkey}.",
+      "switchChainUnsupported": "Кошелек не поддерживает переключающие сети.",
+      "switchChainFailed": "Не удалось переключить сеть кошелька на %{chain}.",
+      "buildTransaction": "Не удалось создать транзакцию.",
+      "signTransaction": "Не удалось подписать транзакцию.",
+      "signAndBroadcastTransaction": "Не удалось подписать и передать транзакцию.",
+      "signMessage": "Не удалось подписать сообщение.",
+      "broadcastTransaction": "Не удалось передать транзакцию.",
+      "broadcastTransactionWithMessage": "Не удалось передать транзакцию (%{message}).",
+      "getGasFeeData": "Не удалось получить оплату за сеть.",
+      "getFeeData": "Не удалось оценить сетевые комиссии.",
+      "getPublicKey": "Не удалось получить открытый ключ из кошелька.",
+      "getUtxos": "Не удалось получить utxos.",
+      "getValidator": "Не удалось получить валидатора."
+    }
   }
 }

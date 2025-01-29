@@ -17,6 +17,7 @@ import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -28,6 +29,7 @@ import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
@@ -36,16 +38,20 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from 'lib/utils/time'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  getThorchainSaversPosition,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
-  isRunePoolUserStakingOpportunity,
+  isSaversUserStakingOpportunity,
   makeDefiProviderDisplayName,
   serializeUserStakingId,
   toOpportunityId,
@@ -56,9 +62,9 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestStakingBalanceAccountIdByStakingId,
-  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunitiesApiQueriesByFilter,
+  selectPortfolioAccountMetadataByAccountId,
   selectStakingOpportunityByFilter,
   selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
@@ -83,6 +89,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const assetId = toAssetId({
     chainId,
@@ -135,6 +145,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const isThorchainSaversDepositEnabled = useFeatureFlag('SaversVaultsDeposit')
   const isThorchainSaversWithdrawalsEnabled = useFeatureFlag('SaversVaultsWithdraw')
 
+  const isRunePoolDepositEnabled = useFeatureFlag('RunePoolDeposit')
+  const isRunepoolWithdrawEnabled = useFeatureFlag('RunePoolWithdraw')
+
   useEffect(() => {
     if (!maybeAccountId) return
     handleAccountIdChange(maybeAccountId)
@@ -160,24 +173,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
       : undefined,
   )
-
-  const hasStakedBalance = useMemo(() => {
-    return bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).gt(0)
-  }, [earnOpportunityData?.stakedAmountCryptoBaseUnit])
-
-  const highestAssetBalanceFilter = useMemo(
-    () => ({
-      assetId,
-    }),
-    [assetId],
-  )
-  const highestAssetBalanceAccountId = useAppSelector(state =>
-    selectHighestUserCurrencyBalanceAccountByAssetId(state, highestAssetBalanceFilter),
-  )
-
-  const highestStakedOrAssetBalanceAccountId = hasStakedBalance
-    ? maybeAccountId
-    : highestAssetBalanceAccountId
 
   const opportunityMetadataFilter = useMemo(() => ({ stakingId: assetId as StakingId }), [assetId])
   const opportunityMetadata = useAppSelector(state =>
@@ -243,25 +238,27 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       .length,
   )
 
-  const isRunepoolWithdrawUnlocked = useMemo(() => {
-    if (!isRunePoolUserStakingOpportunity(earnOpportunityData)) return
-
-    const maturityDate = new Date(earnOpportunityData.maturity)
-    const currentDate = new Date()
-
-    return currentDate >= maturityDate
+  const remainingLockupTime = useMemo(() => {
+    if (!isSaversUserStakingOpportunity(earnOpportunityData)) return 0
+    return Math.max(earnOpportunityData.dateUnlocked - Math.floor(Date.now() / 1000), 0)
   }, [earnOpportunityData])
 
-  const runepoolSecondsLeftBeforeWithdrawal = useMemo(() => {
-    if (!isRunePoolUserStakingOpportunity(earnOpportunityData)) return 0
+  const accountFilter = useMemo(() => ({ accountId: maybeAccountId }), [maybeAccountId])
 
-    const maturityDate = new Date(earnOpportunityData.maturity)
-    const currentDate = new Date()
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
 
-    const diffTime = maturityDate.getTime() - currentDate.getTime()
-
-    return Math.ceil(diffTime / 1000)
-  }, [earnOpportunityData])
+  const { data: fromAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId: accountId!,
+      assetId,
+      wallet: wallet!,
+      accountMetadata: accountMetadata!,
+      getPosition: getThorchainSaversPosition,
+    }),
+    enabled: Boolean(accountId && wallet && accountMetadata),
+  })
 
   const makeDefaultMenu = useCallback(
     ({
@@ -271,9 +268,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits,
       isDisabledDeposits,
       isDisabledWithdrawals,
-      isRunepoolWithdrawUnlocked,
-      isRunePool,
-      runepoolSecondsLeftBeforeWithdrawal,
+      remainingLockupTime,
     }: {
       isFull?: boolean
       hasPendingTxs?: boolean
@@ -281,9 +276,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits?: boolean
       isDisabledDeposits?: boolean
       isDisabledWithdrawals?: boolean
-      isRunepoolWithdrawUnlocked?: boolean
-      isRunePool?: boolean
-      runepoolSecondsLeftBeforeWithdrawal?: number
+      remainingLockupTime?: number
     } = {}): DefiButtonProps[] => [
       ...(isFull
         ? []
@@ -316,21 +309,27 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           hasPendingTxs ||
           hasPendingQueries ||
           isDisabledWithdrawals ||
-          (isRunePool && !isRunepoolWithdrawUnlocked),
+          Boolean(remainingLockupTime),
         toolTip: (() => {
-          if (isRunePool && !isRunepoolWithdrawUnlocked && runepoolSecondsLeftBeforeWithdrawal)
-            return translate('defi.modals.saversVaults.runePoolWithdrawLockedTitle', {
-              timeHuman: formatSecondsToDuration(runepoolSecondsLeftBeforeWithdrawal),
-            })
-          if (isDisabledWithdrawals)
+          if (isDisabledWithdrawals) {
             return translate('defi.modals.saversVaults.disabledWithdrawTitle')
-          if (hasPendingTxs || hasPendingQueries)
+          }
+
+          if (remainingLockupTime) {
+            return translate('defi.modals.saversVaults.withdrawLockedTitle', {
+              timeHuman: formatSecondsToDuration(remainingLockupTime),
+            })
+          }
+
+          if (hasPendingTxs || hasPendingQueries) {
             return translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
+          }
         })(),
       },
     ],
     [translate],
   )
+
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
@@ -339,25 +338,28 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingTxs,
       hasPendingQueries,
       isHaltedDeposits: isTradingActive === false,
-      isDisabledDeposits: isThorchainSaversDepositEnabled === false,
-      isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
-      isRunepoolWithdrawUnlocked,
-      runepoolSecondsLeftBeforeWithdrawal,
-      isRunePool,
+      isDisabledDeposits:
+        (!isRunePool && isThorchainSaversDepositEnabled === false) ||
+        (isRunePool && !isRunePoolDepositEnabled),
+      isDisabledWithdrawals:
+        (!isRunePool && isThorchainSaversWithdrawalsEnabled === false) ||
+        (isRunePool && !isRunepoolWithdrawEnabled),
+      remainingLockupTime,
     })
   }, [
     earnOpportunityData,
-    makeDefaultMenu,
-    opportunityMetadata?.isFull,
-    isHardCapReached,
-    hasPendingTxs,
     hasPendingQueries,
-    isTradingActive,
+    hasPendingTxs,
+    isHardCapReached,
+    isRunePool,
+    isRunePoolDepositEnabled,
+    isRunepoolWithdrawEnabled,
     isThorchainSaversDepositEnabled,
     isThorchainSaversWithdrawalsEnabled,
-    isRunepoolWithdrawUnlocked,
-    runepoolSecondsLeftBeforeWithdrawal,
-    isRunePool,
+    isTradingActive,
+    makeDefaultMenu,
+    opportunityMetadata?.isFull,
+    remainingLockupTime,
   ])
 
   const renderVaultCap = useMemo(() => {
@@ -436,11 +438,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (
-    (!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
-    isTradingActiveLoading ||
-    isMockDepositQuoteLoading
-  ) {
+  if (!earnOpportunityData?.isLoaded || isTradingActiveLoading || isMockDepositQuoteLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
@@ -452,15 +450,15 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
 
-  if (!(highestStakedOrAssetBalanceAccountId && opportunityDataFilter)) return null
   if (!asset) return null
   if (!underlyingAssetsWithBalancesAndIcons) return null
   if (!earnOpportunityData) return null
 
   return (
     <Overview
-      accountId={highestStakedOrAssetBalanceAccountId}
+      accountId={maybeAccountId}
       onAccountIdChange={handleAccountIdChange}
+      positionAddress={fromAddress}
       asset={asset}
       name={earnOpportunityData.name ?? ''}
       opportunityFiatBalance={underlyingAssetsFiatBalanceCryptoPrecision}

@@ -8,7 +8,6 @@ export const PortalsSupportedChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.OptimismMainnet,
-  KnownChainIds.ArbitrumMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.BaseMainnet,
 ] as const

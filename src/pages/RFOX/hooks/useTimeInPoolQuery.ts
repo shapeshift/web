@@ -1,9 +1,10 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 import type { RFOXAccountLog } from '../types'
 import { getAccountLogsQueryFn, getAccountLogsQueryKey } from './useAccountLogsQuery'
@@ -12,6 +13,7 @@ const client = viemClientByNetworkId[arbitrum.id]
 
 type UseTimeInPoolQueryProps<SelectData = bigint> = {
   stakingAssetAccountAddress: string | undefined
+  stakingAssetId: AssetId
   select?: (timeInPoolSeconds: bigint) => SelectData
 }
 
@@ -66,25 +68,26 @@ export const getTimeInPoolSeconds = async (sortedLogs: RFOXAccountLog[]) => {
 
 export const useTimeInPoolQuery = <SelectData = bigint>({
   stakingAssetAccountAddress,
+  stakingAssetId,
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
   const queryKey = useMemo(
-    () => ['timeInPool', stakingAssetAccountAddress],
-    [stakingAssetAccountAddress],
+    () => ['timeInPool', stakingAssetAccountAddress, stakingAssetId],
+    [stakingAssetAccountAddress, stakingAssetId],
   )
   const queryFn = useMemo(
     () =>
       stakingAssetAccountAddress
         ? async () => {
             const sortedAccountLogs = await queryClient.fetchQuery({
-              queryFn: getAccountLogsQueryFn(stakingAssetAccountAddress),
-              queryKey: getAccountLogsQueryKey(stakingAssetAccountAddress),
+              queryFn: getAccountLogsQueryFn(stakingAssetAccountAddress, stakingAssetId),
+              queryKey: getAccountLogsQueryKey(stakingAssetAccountAddress, stakingAssetId),
             })
 
             return getTimeInPoolSeconds(sortedAccountLogs)
           }
         : skipToken,
-    [stakingAssetAccountAddress],
+    [stakingAssetAccountAddress, stakingAssetId],
   )
   const timeInPoolQuery = useQuery({
     queryKey,

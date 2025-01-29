@@ -324,7 +324,6 @@ export const BorrowConfirm = ({
     return maybeTxId
   }, [
     confirmedQuote,
-    mixpanel,
     isQuoteExpired,
     loanTxStatus,
     collateralAssetId,
@@ -336,6 +335,7 @@ export const BorrowConfirm = ({
     collateralAccountMetadata,
     borrowAsset,
     collateralAsset,
+    mixpanel,
     eventData,
     collateralAccountId,
     estimatedFeesData,

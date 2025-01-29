@@ -9,6 +9,7 @@ import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails/PositionDetails'
+import { DefiIcon } from 'components/Icons/DeFi'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText } from 'components/Text'
@@ -65,6 +66,8 @@ export type PositionTableProps = {
   includeRewardsBalances?: boolean
 }
 
+const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
+
 export const PositionTable: React.FC<PositionTableProps> = ({
   chainId,
   includeEarnBalances,
@@ -84,7 +87,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const positions = useAppSelector(state =>
@@ -94,21 +97,23 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     ),
   )
 
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
 
   const filteredPositions = useMemo(
     () =>
-      positions.filter(position => {
-        const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
-        return walletSupportsChain({
-          checkConnectedAccountIds: chainAccountIds,
-          chainId: fromAssetId(position.assetId).chainId,
-          wallet,
-          isSnapInstalled,
-        })
-      }),
-    [accountIdsByChainId, isSnapInstalled, positions, wallet],
+      !isConnected
+        ? positions
+        : positions.filter(position => {
+            const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
+            return walletSupportsChain({
+              checkConnectedAccountIds: chainAccountIds,
+              chainId: fromAssetId(position.assetId).chainId,
+              wallet,
+              isSnapInstalled,
+            })
+          }),
+    [accountIdsByChainId, isConnected, isSnapInstalled, positions, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -215,7 +220,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const renderEmptyComponent = useCallback(() => {
-    if (!(includeEarnBalances || includeRewardsBalances)) return null
+    if (!(includeEarnBalances || includeRewardsBalances))
+      return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
     return searchQuery ? (
       <SearchEmpty searchQuery={searchQuery} />
     ) : (

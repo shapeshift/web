@@ -22,9 +22,9 @@ import { Text } from 'components/Text'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectChartTimeframe,
+  selectIsPortfolioLoading,
   selectPortfolioAssetIds,
-  selectPortfolioLoading,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalance,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -63,10 +63,8 @@ export const DashboardChart = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const portfolioTotalUserCurrencyBalance = useAppSelector(
-    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-  )
-  const loading = useAppSelector(selectPortfolioLoading)
+  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+  const loading = useAppSelector(selectIsPortfolioLoading)
   const isLoaded = !loading
 
   const [isRainbowChart, setIsRainbowChart] = useState(false)

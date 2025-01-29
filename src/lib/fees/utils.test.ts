@@ -1,7 +1,7 @@
+import { getEthersProvider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Block } from 'ethers'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { findClosestFoxDiscountDelayBlockNumber } from './utils'
 

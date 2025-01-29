@@ -1,5 +1,7 @@
+import type { SpaceProps } from '@chakra-ui/react'
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -13,11 +15,17 @@ type AddressInputProps = {
   rules: ControllerProps['rules']
   enableQr?: boolean
   placeholder?: string
+  pe?: SpaceProps['pe']
 }
 
 const qrCodeIcon = <QRCodeIcon />
 
-export const AddressInput = ({ rules, placeholder, enableQr = false }: AddressInputProps) => {
+export const AddressInput = ({
+  rules,
+  placeholder,
+  enableQr = false,
+  pe = 10,
+}: AddressInputProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const isValid = useFormContext<SendInput>().formState.isValid
@@ -43,11 +51,24 @@ export const AddressInput = ({ rules, placeholder, enableQr = false }: AddressIn
         data-test='send-address-input'
         data-1p-ignore
         // Because the InputRightElement is hover the input, we need to let this space free
-        pe={10}
+        pe={pe}
         isInvalid={!isValid}
+        // This is already a `useCallback()`
+        // eslint-disable-next-line react-memo/require-usememo
+        sx={
+          isMobile
+            ? {
+                fontSize: value && value.length > 42 ? '9.8px' : '11px',
+                transition: 'font-size 0.2s ease-in-out',
+              }
+            : {
+                fontSize: value && value.length > 42 ? '12px' : '13.5px',
+                transition: 'font-size 0.2s ease-in-out',
+              }
+        }
       />
     ),
-    [isValid, placeholder],
+    [isValid, pe, placeholder],
   )
 
   return (

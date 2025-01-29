@@ -269,6 +269,7 @@ export type UserLpDataPosition = {
     side: AsymSide
   }
   status: PositionStatus
+  remainingLockupTime: number
 
   // DO NOT REMOVE these two. While it looks like this would be superfluous because we already have AccountId, that's not exactly true.
   // AccountId refers to the AccountId the position was *fetched* with/for, e.g ETH account 0 or ROON account 0.

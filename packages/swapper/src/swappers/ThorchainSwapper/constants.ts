@@ -1,4 +1,5 @@
-import { bchChainId, type ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bchChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 
@@ -17,6 +18,7 @@ export const sellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
   [KnownChainIds.BnbSmartChainMainnet]: true,
+  [KnownChainIds.BaseMainnet]: true,
 }
 
 export const buySupportedChainIds: Record<ChainId, boolean> = {
@@ -29,6 +31,7 @@ export const buySupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
   [KnownChainIds.BnbSmartChainMainnet]: true,
+  [KnownChainIds.BaseMainnet]: true,
 }
 
 export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
@@ -44,11 +47,6 @@ export const THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE: SwapSource = `${SwapperNa
 // static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
 // expressed in thor units (8 decimals of precision)
 export const THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT = '2000000'
-
-export const UNI_V3_ETHEREUM_QUOTER_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
-export const UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS =
-  '0x1F98431c8aD98523631AE4a59f267346ea31F984'
-export const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
 export const BTC_MAXIMUM_BYTES_LENGTH = 80
 export const BCH_MAXIMUM_BYTES_LENGTH = 220

@@ -53,7 +53,7 @@ import { nft, nftApi, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
 import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
-import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
+import { selectEnabledWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -99,13 +99,15 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const translate = useTranslate()
 
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
+  const [isMediaErrored, setIsMediaErrored] = useState(false)
   const handleMediaLoaded = useCallback(() => setIsMediaLoaded(true), [])
+  const handleMediaErrored = useCallback(() => setIsMediaErrored(true), [])
 
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const walletId = useAppSelector(selectWalletId)
-  const accountIds = useAppSelector(selectWalletAccountIds)
+  const accountIds = useAppSelector(selectEnabledWalletAccountIds)
 
   useGetNftCollectionQuery(
     { accountIds, collectionId: nftItem.collectionId },
@@ -167,23 +169,23 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
       switch (chainId) {
         case polygonChainId:
           return `${getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case ethChainId:
           return `${getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case optimismChainId:
           return `${getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case arbitrumChainId:
           return `${getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case baseChainId:
           return `${getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         default:
           return undefined
@@ -284,8 +286,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
             {!mediaUrl || mediaType === 'image' ? (
               <>
                 <Image
-                  src={mediaUrl ?? placeholderImage}
+                  src={mediaUrl && !isMediaErrored ? mediaUrl : placeholderImage}
                   onLoad={handleMediaLoaded}
+                  onError={handleMediaErrored}
                   {...mediaBoxProps}
                 />
                 <Button colorScheme='whiteAlpha' onClick={handleSetAsAvatarClick}>
@@ -312,10 +315,12 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
     assetLink,
     customizeLink,
     handleMediaLoaded,
+    handleMediaErrored,
     handleRefreshClick,
     handleReportSpamClick,
     handleSetAsAvatarClick,
     isMediaLoaded,
+    isMediaErrored,
     mediaBoxProps,
     mediaType,
     mediaUrl,

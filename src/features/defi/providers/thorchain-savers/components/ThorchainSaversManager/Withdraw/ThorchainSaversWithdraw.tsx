@@ -1,6 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -148,18 +149,22 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
           <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress} />
         ),
       },
-      [DefiStep.Sweep]: {
-        label: translate('modals.send.consolidate.consolidateFunds'),
-        component: ({ onNext }) => (
-          <Sweep
-            accountId={accountId}
-            fromAddress={fromAddress ?? null}
-            assetId={assetId}
-            onBack={makeHandleSweepBack(onNext)}
-            onSweepSeen={makeHandleSweepSeen(onNext)}
-          />
-        ),
-      },
+      ...(isUtxoChainId(chainId)
+        ? {
+            [DefiStep.Sweep]: {
+              label: translate('modals.send.consolidate.consolidateFunds'),
+              component: ({ onNext }) => (
+                <Sweep
+                  accountId={accountId}
+                  fromAddress={fromAddress ?? null}
+                  assetId={assetId}
+                  onBack={makeHandleSweepBack(onNext)}
+                  onSweepSeen={makeHandleSweepSeen(onNext)}
+                />
+              ),
+            },
+          }
+        : {}),
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
@@ -174,6 +179,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
     accountId,
     asset.symbol,
     assetId,
+    chainId,
     fromAddress,
     makeHandleSweepBack,
     makeHandleSweepSeen,

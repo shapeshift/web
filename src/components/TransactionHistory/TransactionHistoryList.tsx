@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Button } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -7,7 +6,7 @@ import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { selectIsAnyTxHistoryApiQueryPending } from 'state/slices/selectors'
-import { type TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 type TransactionHistoryListProps = {
@@ -18,7 +17,10 @@ type TransactionHistoryListProps = {
 
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = memo(
   ({ txIds, useCompactMode = false, initialTxsCount }) => {
-    const { next, data, hasMore } = useInfiniteScroll(txIds, initialTxsCount)
+    const { next, data, hasMore } = useInfiniteScroll({
+      array: txIds,
+      initialTxsCount,
+    })
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
     const translate = useTranslate()
 
@@ -26,9 +28,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       () =>
         !hasMore && isAnyTxHistoryApiQueryPending ? (
           <CircularProgress isIndeterminate size={6} />
-        ) : (
-          <ChevronDownIcon />
-        ),
+        ) : undefined,
       [hasMore, isAnyTxHistoryApiQueryPending],
     )
 

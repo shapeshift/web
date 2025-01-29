@@ -3,28 +3,29 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
-import type { UseMutationResult } from '@tanstack/react-query'
-import { useMutation, type UseQueryResult } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { useMemo, useState } from 'react'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { encodeFunctionData } from 'viem'
+import { encodeFunctionData, erc20Abi } from 'viem'
+import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  isGetFeesWithWalletArgs,
+  isGetFeesWithWalletEIP1559SupportArgs,
 } from 'lib/utils/evm'
+import { getStakingContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -117,7 +118,7 @@ export const useRfoxStake = ({
     if (!(isValidStakingAmount && runeAddress && stakingAsset)) return
 
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: RFOX_ABI,
       functionName: 'stake',
       args: [BigInt(amountCryptoBaseUnit), runeAddress],
     })
@@ -127,16 +128,16 @@ export const useRfoxStake = ({
     if (!stakingAsset) return
 
     return encodeFunctionData({
-      abi: erc20ABI,
+      abi: erc20Abi,
       functionName: 'approve',
-      args: [RFOX_PROXY_CONTRACT_ADDRESS, BigInt(amountCryptoBaseUnit)],
+      args: [getStakingContract(stakingAssetId), BigInt(amountCryptoBaseUnit)],
     })
-  }, [amountCryptoBaseUnit, stakingAsset])
+  }, [amountCryptoBaseUnit, stakingAssetId, stakingAsset])
 
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
-    spender: RFOX_PROXY_CONTRACT_ADDRESS,
-    from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
+    spender: getStakingContract(stakingAssetId),
+    from: stakingAssetAccountAddress,
   })
 
   const allowanceCryptoPrecision = useMemo(() => {
@@ -160,12 +161,13 @@ export const useRfoxStake = ({
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       to: fromAssetId(stakingAssetId).assetReference,
       data: approvalCallData!,
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [approvalCallData, stakingAssetAccountNumber, stakingAssetId],
+    [approvalCallData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const getApprovalFeesWithWalletInput = useMemo(
@@ -176,7 +178,7 @@ export const useRfoxStake = ({
   const isGetApprovalFeesEnabled = useMemo(
     () =>
       Boolean(
-        isGetFeesWithWalletArgs(getApprovalFeesWithWalletInput) &&
+        isGetFeesWithWalletEIP1559SupportArgs(getApprovalFeesWithWalletInput) &&
           hasEnoughBalance &&
           isApprovalRequired &&
           !Boolean(errors?.manualRuneAddress),
@@ -203,6 +205,7 @@ export const useRfoxStake = ({
       if (
         !wallet ||
         stakingAssetAccountNumber === undefined ||
+        !stakingAssetAccountAddress ||
         !stakingAsset ||
         !adapter ||
         !stakeCallData ||
@@ -212,10 +215,11 @@ export const useRfoxStake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: stakeCallData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        to: getStakingContract(stakingAssetId),
         wallet,
       })
 
@@ -236,13 +240,14 @@ export const useRfoxStake = ({
 
   const stakeFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: getStakingContract(stakingAssetId),
       accountNumber: stakingAssetAccountNumber,
+      from: stakingAssetAccountAddress,
       data: stakeCallData,
       value: '0',
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [stakeCallData, stakingAssetAccountNumber, stakingAssetId],
+    [stakeCallData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const isGetStakeFeesEnabled = useMemo(
@@ -278,32 +283,60 @@ export const useRfoxStake = ({
     refetchInterval: 15_000,
   })
 
+  const { data: maybeSafeApprovalTx } = useSafeTxQuery({
+    maybeSafeTxHash: approvalTxHash ?? undefined,
+    accountId: stakingAssetAccountId,
+  })
+
+  const approvalTxLink = useMemo(() => {
+    if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountId)) return
+
+    return getTxLink({
+      name: undefined,
+      defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
+      txId: approvalTxHash,
+      accountId: stakingAssetAccountId,
+      maybeSafeTx: maybeSafeApprovalTx,
+    })
+  }, [
+    approvalTxHash,
+    maybeSafeApprovalTx,
+    stakingAssetAccountId,
+    stakingAssetFeeAsset?.explorerTxLink,
+  ])
+
+  useEffect(() => {
+    if (!approvalTxLink) return
+
+    toast({
+      title: translate('modals.send.transactionSent'),
+      description: (
+        <Text>
+          {stakingAssetFeeAsset?.explorerTxLink && (
+            <Link href={approvalTxLink} isExternal>
+              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+            </Link>
+          )}
+        </Text>
+      ),
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right',
+    })
+  }, [approvalTxHash, approvalTxLink, stakingAssetFeeAsset?.explorerTxLink, toast, translate])
+
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
-      spender: RFOX_PROXY_CONTRACT_ADDRESS,
+      spender: getStakingContract(stakingAssetId),
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {
       setApprovalTxHash(txId)
-      toast({
-        title: translate('modals.send.transactionSent'),
-        description: (
-          <Text>
-            {stakingAssetFeeAsset?.explorerTxLink && (
-              <Link href={`${stakingAssetFeeAsset.explorerTxLink}${txId}`} isExternal>
-                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-              </Link>
-            )}
-          </Text>
-        ),
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
     },
   })
 

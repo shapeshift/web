@@ -1,28 +1,29 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
+  getTradeRates,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { viemClientByChainId } from 'lib/viem-client'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
+import type { ApiQuote, TradeQuoteOrRateRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
@@ -41,8 +42,8 @@ export const swapperApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
   endpoints: build => ({
-    getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteRequest>({
-      queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
+    getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteOrRateRequest>({
+      queryFn: async (tradeQuoteInput: TradeQuoteOrRateRequest, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const {
           swapperName,
@@ -52,18 +53,27 @@ export const swapperApi = createApi({
           buyAsset,
           affiliateBps,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          quoteOrRate,
         } = tradeQuoteInput
 
-        const isCrossAccountTrade = sendAddress !== receiveAddress
+        const isSolBuyAssetId = buyAsset.assetId === solAssetId
+        const isCrossAccountTrade =
+          Boolean(sendAddress && receiveAddress) &&
+          sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
-        const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
+        const isSwapperEnabled = getEnabledSwappers(
+          featureFlags,
+          isCrossAccountTrade,
+          isSolBuyAssetId,
+        )[swapperName]
 
         if (!isSwapperEnabled) return { data: {} }
 
         // hydrate crypto market data for buy and sell assets
-        await dispatch(
-          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
-        )
+        await Promise.all([
+          dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId)),
+          dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId)),
+        ])
 
         const swapperDeps: SwapperDeps = {
           assetsById: selectAssets(state),
@@ -71,19 +81,36 @@ export const swapperApi = createApi({
           assertGetEvmChainAdapter,
           assertGetUtxoChainAdapter,
           assertGetCosmosSdkChainAdapter,
-          getEthersV5Provider,
-          viemClientByChainId,
+          assertGetSolanaChainAdapter,
+          fetchIsSmartContractAddressQuery,
           config: getConfig(),
         }
 
-        const quoteResult = await getTradeQuotes(
-          {
-            ...tradeQuoteInput,
-            affiliateBps,
-          },
-          swapperName,
-          swapperDeps,
-        )
+        const getQuoteResult = () => {
+          if (quoteOrRate === 'rate')
+            return getTradeRates(
+              {
+                ...tradeQuoteInput,
+                affiliateBps,
+              } as GetTradeRateInput,
+              swapperName,
+              swapperDeps,
+            )
+
+          if (!tradeQuoteInput.receiveAddress)
+            throw new Error('Cannot get a trade quote without a receive address')
+
+          return getTradeQuotes(
+            {
+              ...tradeQuoteInput,
+              affiliateBps,
+            },
+            swapperName,
+            swapperDeps,
+          )
+        }
+
+        const quoteResult = await getQuoteResult()
 
         if (quoteResult === undefined) {
           return { data: {} }
@@ -180,7 +207,7 @@ export const swapperApi = createApi({
               }
             }
 
-            const { errors, warnings } = await validateTradeQuote(state, {
+            const { errors, warnings } = validateTradeQuote(state, {
               swapperName,
               quote,
               error,
@@ -188,6 +215,7 @@ export const swapperApi = createApi({
               isTradingActiveOnBuyPool,
               sendAddress,
               inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              quoteOrRate: tradeQuoteInput.quoteOrRate,
             })
             return {
               id: quoteSource,
@@ -232,7 +260,7 @@ export const swapperApi = createApi({
         const state = getState() as ReduxState
 
         const featureFlags = selectFeatureFlags(state)
-        const enabledSwappers = getEnabledSwappers(featureFlags, false)
+        const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
         const assets = selectAssets(state)
         const sellAsset = selectInputSellAsset(state)
         const swapperConfig: SwapperConfig = getConfig()

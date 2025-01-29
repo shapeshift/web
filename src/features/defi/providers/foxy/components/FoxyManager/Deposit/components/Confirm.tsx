@@ -21,7 +21,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -49,7 +49,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
   )
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   // user info
   const { state: walletState } = useWallet()
@@ -73,7 +73,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         walletState.wallet &&
         foxyApi &&
         bip44Params &&
-        dispatch
+        dispatch &&
+        feeAsset
       )
     )
       return
@@ -131,6 +132,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     foxyApi,
     bip44Params,
     dispatch,
+    feeAsset,
     state?.deposit.cryptoAmount,
     asset.precision,
     contractAddress,

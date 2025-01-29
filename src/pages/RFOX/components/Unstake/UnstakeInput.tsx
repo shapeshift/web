@@ -1,18 +1,21 @@
-import { CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FormDivider } from 'components/FormDivider'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -20,17 +23,19 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
   selectAssetById,
+  selectAssets,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
+import { ConnectWallet } from '../Shared/ConnectWallet'
 import { UnstakeSummary } from './components/UnstakeSummary'
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
@@ -52,17 +57,80 @@ const defaultFormValues = {
 }
 
 type UnstakeInputProps = {
-  stakingAssetId?: AssetId
   setConfirmedQuote: (quote: RfoxUnstakingQuote | undefined) => void
 }
 
 export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
-  stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
   headerComponent,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
+    useRFOXContext()
+
+  useEffect(() => {
+    if (supportedStakingAssetIds.includes(stakingAssetId)) return
+    setStakingAssetId(supportedStakingAssetIds[0])
+  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+
+  const assets = useAppSelector(selectAssets)
+
+  const stakingAssets = useMemo(() => {
+    return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
+  }, [assets, supportedStakingAssetIds])
+
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+  )
+
+  const stakingAssetFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
+  )
+  const stakingAssetFeeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: stakingAssetFeeAsset?.assetId,
+    }),
+    [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
+  )
+  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+  )
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
+
+  const buyAssetSearch = useModal('buyAssetSearch')
+
+  const handleStakingAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onAssetClick: asset => setStakingAssetId(asset.assetId),
+      title: 'common.selectAsset',
+      assets: stakingAssets,
+    })
+  }, [stakingAssets, buyAssetSearch, setStakingAssetId])
+
+  const handleAssetChange = useCallback(
+    (asset: Asset) => setStakingAssetId(asset.assetId),
+    [setStakingAssetId],
+  )
+
+  const assetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        assetId={stakingAssetId}
+        onAssetClick={handleStakingAssetClick}
+        onAssetChange={handleAssetChange}
+        assetIds={supportedStakingAssetIds}
+        onlyConnectedChains={true}
+      />
+    )
+  }, [stakingAssetId, handleStakingAssetClick, handleAssetChange, supportedStakingAssetIds])
 
   const methods = useForm<UnstakeInputValues>({
     defaultValues: defaultFormValues,
@@ -86,15 +154,15 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     name: 'amountUserCurrency',
   })
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const amountCryptoBaseUnit = useMemo(
     () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
+
   const isChainSupportedByWallet = useWalletSupportsChain(
     fromAssetId(stakingAssetId).chainId,
     wallet,
@@ -108,24 +176,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [], [])
   const [sliderValue, setSliderValue] = useState<number>(100)
-
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
-
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
-  )
-
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
-
-  const stakingAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
-  )
 
   const {
     isGetUnstakeFeesEnabled,
@@ -149,6 +199,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId,
     select: selectStakingBalance,
   })
 
@@ -164,18 +215,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       .times(stakingAssetMarketData?.price ?? 0)
       .toFixed(2)
   }, [stakingAssetMarketData, userStakingBalanceCryptoPrecision])
-
-  const feeAssetBalanceFilter = useMemo(
-    () => ({
-      accountId: stakingAssetAccountId ?? '',
-      assetId: feeAsset?.assetId,
-    }),
-    [feeAsset?.assetId, stakingAssetAccountId],
-  )
-
-  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
-  )
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
@@ -214,7 +253,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   // Set the form values on initial staked balance fetch
   useEffect(() => {
     if (!userStakingBalanceCryptoPrecision || !userStakingBalanceUserCurrency) return
-    if (amountCryptoPrecision && amountUserCurrency) return
 
     handlePercentageSliderChangeEnd(percentage)
   }, [
@@ -231,7 +269,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setSliderValue(percentage)
   }, [])
 
-  const { data: cooldownPeriod } = useCooldownPeriodQuery()
+  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
 
   const handleSubmit = useCallback(() => {
     if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset && cooldownPeriod)) return
@@ -258,28 +296,31 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).isZero()) return true
-      if (bnOrZero(feeAssetBalanceCryptoPrecision).isZero()) return false
+      if (bnOrZero(stakingAssetFeeAssetBalanceCryptoPrecision).isZero()) return false
 
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
+        toBaseUnit(
+          stakingAssetFeeAssetBalanceCryptoPrecision,
+          stakingAssetFeeAsset?.precision ?? 0,
+        ),
       )
 
       if (!hasEnoughFeeBalance) return false
 
       return true
     },
-    [feeAsset?.precision, feeAssetBalanceCryptoPrecision, unstakeFees],
+    [stakingAssetFeeAsset?.precision, stakingAssetFeeAssetBalanceCryptoPrecision, unstakeFees],
   )
 
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
   useEffect(() => {
     trigger('amountFieldInput')
   }, [
-    feeAsset?.precision,
-    feeAsset?.symbol,
-    feeAssetBalanceCryptoPrecision,
+    stakingAssetFeeAsset?.precision,
+    stakingAssetFeeAsset?.symbol,
+    stakingAssetFeeAssetBalanceCryptoPrecision,
     amountCryptoPrecision,
     amountUserCurrency,
     unstakeFees,
@@ -292,15 +333,37 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       validate: {
         hasEnoughFeeBalance: (input: string) =>
           validateHasEnoughFeeBalance(input) ||
-          translate('modals.send.errors.notEnoughNativeToken', { asset: feeAsset?.symbol }),
+          translate('modals.send.errors.notEnoughNativeToken', {
+            asset: stakingAssetFeeAsset?.symbol,
+          }),
       },
     }
-  }, [feeAsset?.symbol, translate, validateHasEnoughFeeBalance])
+  }, [stakingAssetFeeAsset?.symbol, translate, validateHasEnoughFeeBalance])
 
   const chainNotSupportedByWalletCopy = useMemo(() => {
     if (isChainSupportedByWallet) return
     return translate('trade.errors.quoteUnsupportedChain')
   }, [isChainSupportedByWallet, translate])
+
+  if (!isConnected)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ConnectWallet />
+        </CardBody>
+      </SlideTransition>
+    )
+
+  if (!stakingAssetAccountAddress)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
 
   if (!stakingAsset) return null
 
@@ -308,124 +371,119 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     <SlideTransition>
       <WarningAcknowledgement
         message={translate('RFOX.unstakeWarning', {
+          symbol: stakingAsset.symbol,
           cooldownPeriod,
         })}
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={showWarning}
         setShouldShowAcknowledgement={setShowWarning}
-      >
-        <FormProvider {...methods}>
-          <Stack>
-            {headerComponent}
-            <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-              <Stack>
-                <AmountSlider
-                  sliderValue={sliderValue}
-                  handlePercentageSliderChange={handlePercentageSliderChange}
-                  onPercentageClick={handlePercentageClick}
-                  handlePercentageSliderChangeEnd={handlePercentageSliderChangeEnd}
-                >
-                  <Flex
-                    width='full'
-                    justifyContent='space-between'
-                    fontSize='xs'
-                    color='text.subtle'
-                  >
-                    <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-                      <Amount.Fiat value={0} />
-                    </Skeleton>
-                    <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-                      {/* Actually defined at display time, see isLoaded above */}
-                      <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
-                    </Skeleton>
-                  </Flex>
-                </AmountSlider>
-              </Stack>
-            </Skeleton>
-            <FormDivider />
-            <TradeAssetInput
-              amountFieldInputRules={amountFieldInputRules}
-              assetIcon={stakingAsset?.icon ?? ''}
-              assetId={stakingAssetId}
-              assetSymbol={stakingAsset?.symbol ?? ''}
-              cryptoAmount={amountCryptoPrecision}
-              fiatAmount={amountUserCurrency}
-              formControlProps={formControlProps}
-              // TODO(gomes): bring me back when multi account is implemented
-              isAccountSelectionDisabled
-              isAccountSelectionHidden
-              isFiat={isFiat}
-              isReadOnly
-              isSendMaxDisabled={true}
-              layout='stacked'
-              onAccountIdChange={handleAccountIdChange}
-              onToggleIsFiat={handleToggleIsFiat}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
-            />
-
-            <Collapse in={hasEnteredValue}>
-              {stakingAssetAccountId && (
-                <UnstakeSummary
-                  amountCryptoPrecision={amountCryptoPrecision ?? 0}
-                  stakingAssetAccountId={stakingAssetAccountId}
-                  stakingAssetId={stakingAssetId}
-                  isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
-                />
-              )}
-              <CardFooter
-                borderTopWidth={1}
-                borderColor='border.subtle'
-                flexDir='column'
-                gap={4}
-                px={6}
-                py={4}
-                bg='background.surface.raised.accent'
+      />
+      <FormProvider {...methods}>
+        <Stack>
+          {headerComponent}
+          <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+            <Stack>
+              <AmountSlider
+                sliderValue={sliderValue}
+                handlePercentageSliderChange={handlePercentageSliderChange}
+                onPercentageClick={handlePercentageClick}
+                handlePercentageSliderChangeEnd={handlePercentageSliderChangeEnd}
               >
-                {isGetUnstakeFeesEnabled && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.gasFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton isLoaded={Boolean(!isUnstakeFeesLoading && unstakeFees)}>
-                        <Amount.Fiat value={unstakeFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )}
-              </CardFooter>
-            </Collapse>
-          </Stack>
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={6}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
-          >
-            <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet)}
-              isDisabled={Boolean(
-                !hasEnteredValue ||
-                  !isUnstakeFeesSuccess ||
-                  Boolean(errors.amountFieldInput) ||
-                  !cooldownPeriod,
-              )}
-              size='lg'
-              mx={-2}
-              onClick={handleWarning}
-              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
-              isLoading={isUnstakeFeesLoading}
+                <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
+                  <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+                    <Amount.Fiat value={0} />
+                  </Skeleton>
+                  <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+                    {/* Actually defined at display time, see isLoaded above */}
+                    <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
+                  </Skeleton>
+                </Flex>
+              </AmountSlider>
+            </Stack>
+          </Skeleton>
+          <FormDivider />
+          <TradeAssetInput
+            amountFieldInputRules={amountFieldInputRules}
+            assetIcon={stakingAsset?.icon ?? ''}
+            assetId={stakingAssetId}
+            assetSymbol={stakingAsset?.symbol ?? ''}
+            cryptoAmount={amountCryptoPrecision}
+            fiatAmount={amountUserCurrency}
+            formControlProps={formControlProps}
+            // TODO(gomes): bring me back when multi account is implemented
+            isAccountSelectionDisabled
+            isAccountSelectionHidden
+            labelPostFix={assetSelectComponent}
+            isFiat={isFiat}
+            isReadOnly
+            isSendMaxDisabled={true}
+            layout='stacked'
+            onAccountIdChange={handleAccountIdChange}
+            onToggleIsFiat={handleToggleIsFiat}
+            percentOptions={percentOptions}
+            showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
+          />
+
+          <Collapse in={hasEnteredValue}>
+            {stakingAssetAccountId && (
+              <UnstakeSummary
+                amountCryptoPrecision={amountCryptoPrecision ?? 0}
+                stakingAssetAccountId={stakingAssetAccountId}
+                stakingAssetId={stakingAssetId}
+                isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
+              />
+            )}
+            <CardFooter
+              borderTopWidth={1}
+              borderColor='border.subtle'
+              flexDir='column'
+              gap={4}
+              px={6}
+              py={4}
+              bg='background.surface.raised.accent'
             >
-              {errors.amountFieldInput?.message ||
-                chainNotSupportedByWalletCopy ||
-                translate('RFOX.unstake')}
-            </ButtonWalletPredicate>
-          </CardFooter>
-        </FormProvider>
-      </WarningAcknowledgement>
+              {isGetUnstakeFeesEnabled && (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.gasFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={Boolean(!isUnstakeFeesLoading && unstakeFees)}>
+                      <Amount.Fiat value={unstakeFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
+            </CardFooter>
+          </Collapse>
+        </Stack>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <ButtonWalletPredicate
+            isValidWallet={Boolean(isChainSupportedByWallet)}
+            isDisabled={Boolean(
+              !hasEnteredValue ||
+                !isUnstakeFeesSuccess ||
+                Boolean(errors.amountFieldInput) ||
+                !cooldownPeriod,
+            )}
+            size='lg'
+            mx={-2}
+            onClick={handleWarning}
+            colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
+            isLoading={isUnstakeFeesLoading}
+          >
+            {errors.amountFieldInput?.message ||
+              chainNotSupportedByWalletCopy ||
+              translate('RFOX.unstake')}
+          </ButtonWalletPredicate>
+        </CardFooter>
+      </FormProvider>
     </SlideTransition>
   )
 }

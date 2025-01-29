@@ -1,6 +1,6 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, polygonChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
+import type { ethereum } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
@@ -121,7 +121,7 @@ export const parseAlchemyNftToNftItem = async (
       const tokenMetadata = await v1HttpApi.getTokenMetadata({
         contract: alchemyNft.contract.address,
         id: alchemyNft.tokenId,
-        type: alchemyNft.contract.tokenType.toLowerCase() as TokenType,
+        type: alchemyNft.contract.tokenType.toLowerCase() as ethereum.TokenType,
       })
 
       return Ok([

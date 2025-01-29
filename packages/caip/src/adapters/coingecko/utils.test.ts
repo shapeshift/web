@@ -126,8 +126,8 @@ describe('adapters:coingecko:utils', () => {
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos',
         },
-        'cosmos:thorchain-mainnet-v1': {
-          'cosmos:thorchain-mainnet-v1/slip44:931': 'thorchain',
+        'cosmos:thorchain-1': {
+          'cosmos:thorchain-1/slip44:931': 'thorchain',
         },
         'eip155:1': {
           'eip155:1/slip44:60': 'ethereum',
@@ -165,6 +165,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:8453': {
           'eip155:8453/slip44:60': 'ethereum',
           'eip155:8453/erc20:0x4200000000000000000000000000000000000006': 'weth',
+        },
+        'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': {
+          'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501': 'solana',
         },
       }
       expect(result).toEqual(expected)

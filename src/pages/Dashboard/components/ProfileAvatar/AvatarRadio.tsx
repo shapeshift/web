@@ -10,9 +10,9 @@ type AvatarRadioProps = {
 const boxStyle = { aspectRatio: '4/4' }
 
 export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
-  const { getInputProps, getCheckboxProps } = useRadio(rest)
+  const { getInputProps, getRadioProps } = useRadio(rest)
   const inputProps = getInputProps()
-  const checkboxProps = getCheckboxProps()
+  const checkboxProps = getRadioProps()
   const borderColor = useColorModeValue('gray.200', 'white')
   const [isLoaded, setIsLoaded] = useState(false)
   const handleOnLoad = useCallback(() => setIsLoaded(true), [])

@@ -14,10 +14,13 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 - [Helpful Docs](#helpful-docs)
 - [Resources](#resources)
 - [Requirements](#requirements)
-- [Developer Onboarding](#developer-onboarding)
-- [Commands](#commands)
 - [Debugging](#debugging)
-
+- [Quick Start](#quick-start)
+- [Commands](#commands)
+- [Developer Onboarding](#developer-onboarding)
+- [Releases](#releases)
+- [MixPanel](#mixpanel)
+        
 ## Helpful Docs
 
 - [Architecture](docs/architecture.md)

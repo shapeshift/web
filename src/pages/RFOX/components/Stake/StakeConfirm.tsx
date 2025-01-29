@@ -13,15 +13,14 @@ import {
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -29,7 +28,7 @@ import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
@@ -43,8 +42,8 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { useRfoxStake } from './hooks/useRfoxStake'
-import type { RfoxStakingQuote } from './types'
-import { StakeRoutePaths, type StakeRouteProps } from './types'
+import type { RfoxStakingQuote, StakeRouteProps } from './types'
+import { StakeRoutePaths } from './types'
 
 const backIcon = <ArrowBackIcon />
 
@@ -143,6 +142,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId: confirmedQuote.stakingAssetId,
     select: selectStakingBalance,
   })
 
@@ -151,7 +151,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery<string>({
     stakingAssetId: confirmedQuote.stakingAssetId,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    stakingAssetAccountAddress: getStakingContract(confirmedQuote.stakingAssetId),
     select: data =>
       bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
   })
@@ -170,10 +170,8 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   )
 
   const isApprovalTxPending = useMemo(
-    () =>
-      isApprovalMutationPending ||
-      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
-    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
+    () => isApprovalMutationPending || (isApprovalMutationSuccess && isApprovalRequired),
+    [isApprovalMutationPending, isApprovalMutationSuccess, isApprovalRequired],
   )
 
   const isApprovalTxSuccess = useMemo(
@@ -227,7 +225,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           stakingAsset?.assetId,
-          RFOX_PROXY_CONTRACT_ADDRESS,
+          getStakingContract(confirmedQuote.stakingAssetId),
           stakingAssetAccountAddress,
         ),
       )
@@ -238,6 +236,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isApprovalTxPending,
     stakingAssetAccountAddress,
     queryClient,
+    confirmedQuote.stakingAssetId,
   ])
 
   const serializedStakeTxIndex = useMemo(() => {
@@ -261,11 +260,12 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   }, [history])
 
   const handleSubmit = useCallback(async () => {
+    if (!stakingAsset) return
     if (isApprovalRequired) return handleApprove()
 
     await handleStake()
     history.push(StakeRoutePaths.Status)
-  }, [handleStake, history, isApprovalRequired, handleApprove])
+  }, [handleStake, history, isApprovalRequired, handleApprove, stakingAsset])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

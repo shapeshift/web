@@ -2,19 +2,22 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
-import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
+import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, isGetFeesWithWalletArgs } from 'lib/utils/evm'
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
+} from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
 import { selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -64,7 +67,7 @@ export const useRfoxBridgeApproval = ({
     if (!allowanceContract) return
 
     return encodeFunctionData({
-      abi: erc20ABI,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [getAddress(allowanceContract), BigInt(confirmedQuote.bridgeAmountCryptoBaseUnit)],
     })
@@ -76,6 +79,7 @@ export const useRfoxBridgeApproval = ({
       spender: allowanceContract!, // see handleApprove below
       amountCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       wallet: wallet ?? undefined,
+      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
     }),
     onSuccess: (txHash: string) => {
@@ -109,8 +113,8 @@ export const useRfoxBridgeApproval = ({
   }, [approvalTxHash, confirmedQuote.sellAssetAccountId])
 
   const isGetApprovalFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
-      Boolean(isApprovalRequired && isGetFeesWithWalletArgs(input)),
+    (input: MaybeGetFeesWithWalletEip1559Args): input is GetFeesWithWalletEip1559SupportArgs =>
+      Boolean(isApprovalRequired && isGetFeesWithWalletEIP1559SupportArgs(input)),
     [isApprovalRequired],
   )
 

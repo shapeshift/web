@@ -1,7 +1,8 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { btcAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,15 +14,16 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isUtxoAccountId } from 'lib/utils/utxo'
+import { METAMASK_RDNS } from 'lib/mipd'
+import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioDegradedState,
   selectShowSnapsModal,
-  selectWalletAccountIds,
   selectWalletId,
 } from 'state/slices/selectors'
-import { useAppDispatch } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
@@ -29,7 +31,6 @@ import { DegradedStateBanner } from './DegradedStateBanner'
 import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
-import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
@@ -50,14 +51,15 @@ const widthProp = { base: 'auto', md: 'full' }
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const snapModal = useModal('snaps')
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
+  const previousIsCorrectVersion = usePrevious(isCorrectVersion)
   const showSnapModal = useSelector(selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const history = useHistory()
   const {
-    state: { isDemoWallet, wallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
@@ -96,36 +98,54 @@ export const Header = memo(() => {
     [dispatch],
   )
 
-  const currentWalletId = useSelector(selectWalletId)
-  const walletAccountIds = useSelector(selectWalletAccountIds)
-  const hasUtxoAccountIds = useMemo(
-    () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
+  const connectedRdns = useAppSelector(selectWalletRdns)
+  const previousConnectedRdns = usePrevious(connectedRdns)
+  const currentWalletId = useAppSelector(selectWalletId)
+  const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const hasNonEvmAccountIds = useMemo(
+    () => walletAccountIds.some(accountId => !isEvmChainId(fromAccountId(accountId).chainId)),
     [walletAccountIds],
   )
 
   useEffect(() => {
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
     if (!(currentWalletId && isMetaMaskMultichainWallet && isSnapInstalled === false)) return
 
     // We have just detected that the user doesn't have the snap installed currently
     // We need to check whether or not the user had previous non-EVM AccountIds and clear those
-    if (hasUtxoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
-  }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
+    if (hasNonEvmAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
+  }, [appDispatch, currentWalletId, hasNonEvmAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
-    if (previousSnapInstall === true && isSnapInstalled === false) {
-      // they uninstalled the snap
-      toast({
-        status: 'success',
-        title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
-        position: 'bottom',
-      })
+    if (!isCorrectVersion && isSnapInstalled) return
+    if (snapModal.isOpen) return
+
+    if (
+      previousSnapInstall === true &&
+      isSnapInstalled === false &&
+      previousIsCorrectVersion === true
+    ) {
+      if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
+        // they uninstalled the snap
+        toast({
+          status: 'success',
+          title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
+          position: 'bottom',
+        })
+      }
       const walletId = currentWalletId
       if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
-      snapModal.open({ isRemoved: true })
+      if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
+        return snapModal.open({ isRemoved: true })
+      }
     }
-    if (previousSnapInstall === false && isSnapInstalled === true) {
+    if (
+      previousSnapInstall === false &&
+      isSnapInstalled === true &&
+      previousConnectedRdns === METAMASK_RDNS &&
+      connectedRdns === METAMASK_RDNS
+    ) {
       history.push(`/assets/${btcAssetId}`)
 
       // they installed the snap
@@ -134,14 +154,18 @@ export const Header = memo(() => {
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
         position: 'bottom',
       })
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
   }, [
     appDispatch,
+    connectedRdns,
     currentWalletId,
     dispatch,
     history,
+    isCorrectVersion,
     isSnapInstalled,
+    previousConnectedRdns,
+    previousIsCorrectVersion,
     previousSnapInstall,
     showSnapModal,
     snapModal,
@@ -220,8 +244,7 @@ export const Header = memo(() => {
                 </Suspense>
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
-              <TxWindow />
-              <Notifications />
+              {isConnected && <TxWindow />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

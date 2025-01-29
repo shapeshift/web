@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
+  adapters,
   arbitrumAssetId,
   arbitrumNovaAssetId,
   baseAssetId,
@@ -10,23 +11,36 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
+import {
+  createThrottle,
+  decodeAssetData,
+  decodeRelatedAssetIndex,
+  encodeAssetData,
+  encodeRelatedAssetIndex,
+  isEvmChainId,
+} from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
-import path from 'path'
+import type { CoingeckoAssetDetails } from 'lib/coingecko/types'
 import type { PartialFields } from 'lib/types'
+import { isToken } from 'lib/utils'
 
-import { createThrottle } from '../utils'
-import { zerionImplementationToMaybeAssetId } from './mapping'
+import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
+import {
+  coingeckoPlatformDetailsToMaybeAssetId,
+  zerionImplementationToMaybeAssetId,
+} from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 // NOTE: this must call the zerion api directly rather than our proxy because of rate limiting requirements
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 const BATCH_SIZE = 100
+
+const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
 const axiosInstance = axios.create()
 axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
@@ -35,28 +49,7 @@ const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
-  [ethAssetId]: [
-    optimismAssetId,
-    arbitrumAssetId,
-    arbitrumNovaAssetId,
-    baseAssetId,
-    // WETH on Ethereum
-    'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    // WETH on Gnosis
-    'eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
-    // WETH on Polygon
-    'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
-    // WETH on Arbitrum One
-    'eip155:42161/erc20:0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-    // WETH on Arbitrum Nova
-    'eip155:42170/erc20:0x722e8bdd2ce80a4422e880164f2079488e115365',
-    // WETH on Avalanche
-    'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
-    // WETH on BSC
-    'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8',
-    // WETH on Optimism
-    'eip155:10/erc20:0x4200000000000000000000000000000000000006',
-  ],
+  [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
 }
 
@@ -98,7 +91,7 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
   return result
 }
 
-const getRelatedAssetIds = async (
+const getZerionRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
@@ -136,27 +129,49 @@ const getRelatedAssetIds = async (
   if (firstEntry === undefined) return
 
   const implementations = firstEntry.attributes.implementations
-  const primaryImplementationId = firstEntry.id
 
-  const primaryImplementation = implementations?.find(
-    implementation => implementation.address === primaryImplementationId,
-  )
-
-  const relatedAssetKey = primaryImplementation
-    ? zerionImplementationToMaybeAssetId(primaryImplementation)
-    : undefined
-
-  const relatedAssetIds = implementations
+  // Use all assetIds actually present in the dataset
+  const allRelatedAssetIds = implementations
     ?.map(zerionImplementationToMaybeAssetId)
     .filter(isSome)
-    .filter(
-      relatedAssetId =>
-        relatedAssetId !== relatedAssetKey && assetData[relatedAssetId] !== undefined,
-    )
+    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
 
-  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length === 0) {
+  if (!allRelatedAssetIds || allRelatedAssetIds.length <= 1) {
     return
   }
+
+  const relatedAssetKey = allRelatedAssetIds[0]
+  const relatedAssetIds = allRelatedAssetIds.filter(assetId => assetId !== relatedAssetKey)
+
+  return { relatedAssetIds, relatedAssetKey }
+}
+
+const getCoingeckoRelatedAssetIds = async (
+  assetId: AssetId,
+  assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
+): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
+  if (!isToken(assetId)) return
+  // Yes, this means effectively the same but double wrap never hurts
+  if (FEE_ASSET_IDS.includes(assetId)) return
+  const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
+  const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
+  const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
+  const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
+
+  const platforms = data.platforms
+
+  // Use all assetIds actually present in the dataset
+  const allRelatedAssetIds = Object.entries(platforms)
+    ?.map(coingeckoPlatformDetailsToMaybeAssetId)
+    .filter(isSome)
+    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
+
+  if (allRelatedAssetIds.length <= 1) {
+    return
+  }
+
+  const relatedAssetKey = allRelatedAssetIds[0]
+  const relatedAssetIds = allRelatedAssetIds.filter(assetId => assetId !== relatedAssetKey)
 
   return { relatedAssetIds, relatedAssetKey }
 }
@@ -190,7 +205,25 @@ const processRelatedAssetIds = async (
     }
   }
 
-  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
+  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(assetId, assetData)
+    .then(result => {
+      happyCount++
+      return result
+    })
+    .catch(() => {
+      sadCount++
+      return undefined
+    })
+
+  const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
+    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. cg may not have
+    // all related assetIds for a given asset, and Zerion may not have any at all the same asset.
+    // e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not
+    // present at all under the USDC.SOL umbrella in Zerion. Using the primary implementation
+    // ensures we use a reliable identifier for the related assets, not a more obscure one.
+    coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,
+    assetData,
+  )
     .then(result => {
       happyCount++
       return result
@@ -208,11 +241,20 @@ const processRelatedAssetIds = async (
   }
 
   const relatedAssetKey =
-    manualRelatedAssetsResult?.relatedAssetKey || relatedAssetsResult?.relatedAssetKey || assetId
+    manualRelatedAssetsResult?.relatedAssetKey ||
+    zerionRelatedAssetsResult?.relatedAssetKey ||
+    coingeckoRelatedAssetsResult?.relatedAssetKey ||
+    assetId
 
-  const zerionRelatedAssetIds = relatedAssetsResult?.relatedAssetIds ?? []
+  const zerionRelatedAssetIds = zerionRelatedAssetsResult?.relatedAssetIds ?? []
+  const coingeckoRelatedAssetIds = coingeckoRelatedAssetsResult?.relatedAssetIds ?? []
   const mergedRelatedAssetIds = Array.from(
-    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds, assetId]),
+    new Set([
+      ...manualRelatedAssetIds,
+      ...zerionRelatedAssetIds,
+      ...coingeckoRelatedAssetIds,
+      assetId,
+    ]),
   )
 
   // Has zerion-provided related assets, or manually added ones
@@ -238,29 +280,38 @@ const processRelatedAssetIds = async (
 export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
   console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
-  const generatedAssetsPath = path.join(
-    __dirname,
-    '../../../src/lib/asset-service/service/generatedAssetData.json',
-  )
-  const relatedAssetIndexPath = path.join(
-    __dirname,
-    '../../../src/lib/asset-service/service/relatedAssetIndex.json',
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+  const encodedRelatedAssetIndex = JSON.parse(
+    await fs.promises.readFile(RELATED_ASSET_INDEX_PATH, 'utf8'),
   )
 
-  const generatedAssetData: AssetsById = JSON.parse(
-    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
-  )
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = JSON.parse(
-    await fs.promises.readFile(relatedAssetIndexPath, 'utf8'),
-  )
-  const assetDataWithRelatedAssetKeys: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>> = {
-    ...generatedAssetData,
-  }
+  const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
+  const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
-  if (rebuildAll) {
+  // Remove stale related asset data from the assetData where:
+  // a) rebuildAll is set
+  // b) the primary related asset no longer exists in the dataset
+  Object.values(generatedAssetData).forEach(asset => {
+    const relatedAssetKey = asset.relatedAssetKey
+
+    if (!relatedAssetKey) return
+
+    const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
+
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
-  }
+    if (rebuildAll || primaryRelatedAsset === undefined) {
+      delete relatedAssetIndex[relatedAssetKey]
+      delete asset.relatedAssetKey
+    }
+  })
+
+  // Remove stale related asset data from the relatedAssetIndex where:
+  // a) a related assetId no longer exists in the dataset
+  Object.entries(relatedAssetIndex).forEach(([relatedAssetKey, relatedAssetIds]) => {
+    relatedAssetIndex[relatedAssetKey] = relatedAssetIds.filter(
+      assetId => generatedAssetData[assetId] !== undefined,
+    )
+  })
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
@@ -273,12 +324,7 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(
-          assetId,
-          assetDataWithRelatedAssetKeys,
-          relatedAssetIndex,
-          throttle,
-        )
+        await processRelatedAssetIds(assetId, generatedAssetData, relatedAssetIndex, throttle)
         return
       }),
     )
@@ -286,17 +332,11 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
 
   clearThrottleInterval()
 
-  await fs.promises.writeFile(
-    generatedAssetsPath,
-    // beautify the file for github diff.
-    JSON.stringify(assetDataWithRelatedAssetKeys, null, 2),
-  )
+  const reEncodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
+  const reEncodedAssetData = encodeAssetData(sortedAssetIds, generatedAssetData)
 
-  await fs.promises.writeFile(
-    relatedAssetIndexPath,
-    // beautify the file for github diff.
-    JSON.stringify(relatedAssetIndex, null, 2),
-  )
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

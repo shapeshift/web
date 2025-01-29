@@ -18,7 +18,6 @@ import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioS
 import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import { BLACKLISTED_COLLECTION_IDS, hasSpammyMedias, isSpammyNftText } from './constants'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
@@ -44,7 +43,7 @@ type GetNftCollectionInput = {
   accountIds: AccountId[]
 }
 
-type NftState = {
+export type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
   nfts: {
     byId: PartialRecord<AssetId, NftItem>
@@ -191,13 +190,6 @@ export const nftApi = createApi({
           (accountIds: AccountId[]) =>
             dispatch(
               zapperApi.endpoints.getZapperNftUserTokens.initiate(
-                { accountIds },
-                { forceRefetch: true },
-              ),
-            ),
-          (accountIds: AccountId[]) =>
-            dispatch(
-              covalentApi.endpoints.getCovalentNftUserTokens.initiate(
                 { accountIds },
                 { forceRefetch: true },
               ),

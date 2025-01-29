@@ -27,7 +27,7 @@ export const UnderlyingAssetTag = ({
     {asset.icons ? (
       <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
     ) : (
-      <AssetIcon src={asset.icon} size='2xs' />
+      <AssetIcon assetId={asset.assetId} size='2xs' />
     )}
     <Flex columnGap={2} flexWrap='wrap' flex={1} justifyContent='space-between'>
       <Amount.Crypto

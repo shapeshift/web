@@ -1,9 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -11,9 +12,13 @@ import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectSearchQueryFromFilter,
+} from 'state/selectors'
 
-import { selectAssets } from './assetsSlice/selectors'
+import { selectAssets, selectAssetsSortedByMarketCap } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -29,7 +34,7 @@ export const selectIsWalletConnected = (state: ReduxState) =>
   state.portfolio.connectedWallet !== undefined
 export const selectWalletSupportedChainIds = (state: ReduxState) =>
   state.portfolio.connectedWallet?.supportedChainIds ?? []
-export const selectWalletEnabledAccountIds = createDeepEqualOutputSelector(
+export const selectEnabledAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.enabledAccountIds,
   (walletId, enabledAccountIds) => {
@@ -38,23 +43,32 @@ export const selectWalletEnabledAccountIds = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletAccountIds = createDeepEqualOutputSelector(
+export const selectEnabledWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
-  selectWalletEnabledAccountIds,
+  selectEnabledAccountIds,
   (walletId, walletById, enabledAccountIds): AccountId[] => {
     const walletAccountIds = (walletId && walletById[walletId]) ?? []
     return walletAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
   },
 )
 
+export const selectWalletAccountIds = createDeepEqualOutputSelector(
+  selectWalletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => {
+    const walletAccountIds = walletById?.[walletId ?? ''] ?? []
+    return walletAccountIds
+  },
+)
+
 export const selectEvmAccountIds = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   accountIds => accountIds.filter(accountId => isEvmChainId(fromAccountId(accountId).chainId)),
 )
 
 export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   accountIds => {
     const chainIds = accountIds.reduce<ChainId[]>((acc, accountId) => {
       const { chainId } = fromAccountId(accountId)
@@ -66,7 +80,7 @@ export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
   (walletAccountIds, accountBalancesById) =>
     pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
@@ -191,6 +205,38 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
     },
   )
 
+export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAssetBalancesBaseUnit,
+    selectPortfolioUserCurrencyBalances,
+    selectMarketDataUsd,
+    (assets, portfolioBalancesCryptoBaseUnit, portfolioBalancesUserCurrency, marketDataUsd) => {
+      const getAssetBalanceCryptoPrecision = (asset: Asset) =>
+        fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
+
+      const getAssetUserCurrencyBalance = (asset: Asset) =>
+        bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
+
+      // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+      // but we actually can't - this would rug the quadruple-sorting
+      const getAssetMarketCap = (asset: Asset) =>
+        bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+      const getAssetName = (asset: Asset) => asset.name
+
+      return orderBy(
+        Object.values(assets).filter(isSome),
+        [
+          getAssetUserCurrencyBalance,
+          getAssetMarketCap,
+          getAssetBalanceCryptoPrecision,
+          getAssetName,
+        ],
+        ['desc', 'desc', 'desc', 'asc'],
+      )
+    },
+  )
+
 export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
   const getAssetName = (asset: Asset) => asset.name
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
@@ -240,3 +286,48 @@ export const selectIsAssetWithoutMarketData = createSelector(
     return !marketData || marketData.price === '0'
   },
 )
+
+export const selectAssetsBySearchQuery = createCachedSelector(
+  selectAssetsSortedByMarketCap,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioUserCurrencyBalances,
+  selectMarketDataUsd,
+  selectSearchQueryFromFilter,
+  (
+    sortedAssets: Asset[],
+    portfolioBalancesCryptoBaseUnit,
+    portfolioBalancesUserCurrency,
+    marketDataUsd,
+    searchQuery?: string,
+  ): Asset[] => {
+    if (!searchQuery) return sortedAssets
+
+    const matchedAssets = matchSorter(sortedAssets, searchQuery ?? '', {
+      keys: ['name', 'symbol', 'assetId'],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+
+    const getAssetBalanceCryptoPrecision = (asset: Asset) =>
+      fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
+
+    const getAssetUserCurrencyBalance = (asset: Asset) =>
+      bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
+
+    // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+    // but we actually can't - this would rug the quadruple-sorting
+    const getAssetMarketCap = (asset: Asset) =>
+      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+    const getAssetName = (asset: Asset) => asset.name
+
+    return orderBy(
+      Object.values(matchedAssets).filter(isSome),
+      [
+        getAssetUserCurrencyBalance,
+        getAssetMarketCap,
+        getAssetBalanceCryptoPrecision,
+        getAssetName,
+      ],
+      ['desc', 'desc', 'desc', 'asc'],
+    )
+  },
+)((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')

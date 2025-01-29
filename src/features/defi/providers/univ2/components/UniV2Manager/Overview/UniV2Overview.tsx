@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -140,6 +140,7 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
+      positionAddress={maybeAccountId ? fromAccountId(maybeAccountId).account : undefined}
       asset={lpAsset}
       icons={earnLpOpportunity.icons}
       name={earnLpOpportunity.opportunityName}

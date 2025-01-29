@@ -18,7 +18,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { selectBip44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
@@ -58,7 +58,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
   )
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const getDepositGasEstimateCryptoBaseUnit = useCallback(
     async (deposit: DepositValues) => {
@@ -99,7 +99,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         foxyApi &&
         dispatch &&
         bip44Params &&
-        state
+        state &&
+        feeAsset
       )
     )
       return
@@ -163,6 +164,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     dispatch,
     bip44Params,
     state,
+    feeAsset,
     contractAddress,
     asset.precision,
     poll,
@@ -222,8 +224,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approve')}
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
       onCancel={handleCancel}

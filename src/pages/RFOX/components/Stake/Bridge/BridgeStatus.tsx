@@ -8,8 +8,8 @@ import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
 import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
-import type { RfoxBridgeQuote } from './types'
-import { BridgeRoutePaths, type BridgeRouteProps } from './types'
+import type { BridgeRouteProps, RfoxBridgeQuote } from './types'
+import { BridgeRoutePaths } from './types'
 
 type BridgeStatusProps = {
   confirmedQuote: RfoxBridgeQuote
@@ -37,6 +37,12 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     history.push({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
   }, [confirmedQuote, history])
 
+  const handleSignAndBroadcast = useCallback(async () => {
+    if (!sellAsset) return
+
+    return await handleBridge()
+  }, [handleBridge, sellAsset])
+
   const steps: MultiStepStatusStep[] = useMemo(() => {
     if (!(sellAsset && buyAsset)) return []
 
@@ -51,7 +57,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
           />
         ),
         isActionable: true,
-        onSignAndBroadcast: handleBridge,
+        onSignAndBroadcast: handleSignAndBroadcast,
         serializedTxIndex: serializedL1TxIndex,
       },
       {
@@ -66,9 +72,9 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     buyAsset,
     translate,
     bridgeAmountCryptoPrecision,
-    handleBridge,
     serializedL1TxIndex,
     serializedL2TxIndex,
+    handleSignAndBroadcast,
   ])
 
   return (

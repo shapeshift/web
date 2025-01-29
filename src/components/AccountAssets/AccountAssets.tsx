@@ -15,6 +15,7 @@ type AccountAssetsProps = {
 const CHAIN_NAMESPACE_SUPPORTS_TOKENS: ChainNamespace[] = [
   CHAIN_NAMESPACE.Evm,
   CHAIN_NAMESPACE.CosmosSdk,
+  CHAIN_NAMESPACE.Solana,
 ]
 
 export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {

@@ -9,9 +9,9 @@ describe('routerCalldata', () => {
     const data = depositWithExpiry({
       vault: VAULT,
       asset: '0x0000000000000000000000000000000000000000',
-      amount: '70000000000000000',
+      amount: 70000000000000000n,
       memo: `s:ETH.USDC-9D4A2E9EB0CE3606EB48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420`,
-      expiry: 1694809972,
+      expiry: 1694809972n,
     })
 
     // expected data same as an actual thorchain trade

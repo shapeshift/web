@@ -21,8 +21,8 @@ import { Amount } from 'components/Amount/Amount'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
 import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -44,11 +44,10 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
+  const { isLendingActive } = useIsLendingActive()
+
   const usePoolDataArgs = useMemo(() => ({ poolAssetId }), [poolAssetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
-
-  const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
-  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
 
   const totalCollateralComponent = useMemo(
     () => (
@@ -87,7 +86,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   )
 
   const StatusTag = useCallback(() => {
-    if (!isThorchainLendingBorrowEnabled && !isThorchainLendingRepayEnabled) {
+    if (!isLendingActive || !poolData?.isAssetLendingEnabled) {
       return (
         <Tag colorScheme='red'>
           <TagLeftIcon as={BiErrorCircle} />
@@ -120,12 +119,12 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [isThorchainLendingBorrowEnabled, isThorchainLendingRepayEnabled, poolData, translate])
+  }, [poolData, translate, isLendingActive])
 
   const poolAlert = useMemo(() => {
     if (!poolData) return null
 
-    if (!isThorchainLendingBorrowEnabled && !isThorchainLendingRepayEnabled) {
+    if (!poolData.isAssetLendingEnabled || !isLendingActive) {
       return (
         <Alert status='warning' variant='subtle'>
           <AlertIcon />
@@ -171,14 +170,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         colorScheme={bnOrZero(poolData.currentCapFillPercentage).lt(100) ? 'green' : 'red'}
       />
     )
-  }, [
-    isThorchainLendingBorrowEnabled,
-    isThorchainLendingRepayEnabled,
-    translate,
-    poolData,
-    alertBg,
-    asset?.symbol,
-  ])
+  }, [translate, poolData, alertBg, asset?.symbol, isLendingActive])
 
   const renderVaultCap = useMemo(() => {
     if (!poolData || !asset) return null

@@ -26,6 +26,7 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
+import { useIsLendingActive } from '../hooks/useIsLendingActive'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const responsiveFlex = { base: 'auto', lg: 1 }
@@ -49,6 +50,7 @@ export const LendingHeader = () => {
       },
     ]
   }, [])
+  const { isLendingActive } = useIsLendingActive()
 
   const handleBack = useCallback(() => {
     history.push('/explore')
@@ -133,15 +135,17 @@ export const LendingHeader = () => {
             </Card>
           </Flex>
 
-          <Alert status='warning' variant='subtle'>
-            <AlertIcon />
-            <AlertDescription>
-              {translate('lending.haltedAlert')}
-              <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
-                {translate('lending.halterMoreDetails')}
-              </Link>
-            </AlertDescription>
-          </Alert>
+          {!isLendingActive ? (
+            <Alert status='warning' variant='subtle'>
+              <AlertIcon />
+              <AlertDescription>
+                {translate('lending.haltedAlert')}
+                <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
+                  {translate('lending.halterMoreDetails')}
+                </Link>
+              </AlertDescription>
+            </Alert>
+          ) : null}
         </Container>
         <TabMenu items={NavItems} />
       </Stack>

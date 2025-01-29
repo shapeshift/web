@@ -1,10 +1,6 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Divider,
   Flex,
-  Link,
   ModalCloseButton,
   ModalHeader,
   Stack,
@@ -17,7 +13,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTeaser'
@@ -25,7 +20,6 @@ import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText, Text } from 'components/Text'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
@@ -96,8 +90,6 @@ export const Overview: React.FC<OverviewProps> = ({
   version,
   postChildren,
 }) => {
-  const translate = useTranslate()
-
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssetsCryptoPrecision) return null
     return rewardAssetsCryptoPrecision.map((asset, index) => (
@@ -234,17 +226,6 @@ export const Overview: React.FC<OverviewProps> = ({
                 </StatGroup>
               )}
               {postChildren}
-              {provider === DefiProvider.ThorchainSavers ? (
-                <Alert status='warning' variant='subtle'>
-                  <AlertIcon />
-                  <AlertDescription>
-                    {translate('lending.haltedAlert')}
-                    <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
-                      {translate('lending.halterMoreDetails')}
-                    </Link>
-                  </AlertDescription>
-                </Alert>
-              ) : null}
             </Stack>
           </>
         )}

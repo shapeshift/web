@@ -4,6 +4,7 @@ import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
+import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -16,6 +17,7 @@ type EligibleSliderProps = {
 } & BoxProps
 
 export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4, ...rest }) => {
+  const { isLendingActive } = useIsLendingActive()
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
 
   const featuredOpportunities = useMemo(() => {
@@ -25,7 +27,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
         o =>
           bnOrZero(o.tvl).gt(50000) &&
           (!o.apy || bn(o.apy).gte(0.01)) &&
-          o.provider !== DefiProvider.ThorchainSavers,
+          (o.provider !== DefiProvider.ThorchainSavers || isLendingActive),
       )
       .sort((a, b) => bnOrZero(b.apy).toNumber() - bnOrZero(a.apy).toNumber())
       .slice(0, 5)
@@ -53,7 +55,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     ).slice(0, 5)
 
     return filteredEligibleOpportunitiesWithFoxFarmingV9
-  }, [eligibleOpportunities])
+  }, [eligibleOpportunities, isLendingActive])
 
   const renderEligibleCards = useMemo(() => {
     return featuredOpportunities.map(opportunity => (

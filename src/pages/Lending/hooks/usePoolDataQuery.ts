@@ -2,11 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
 import {
+  selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
@@ -26,6 +29,19 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
     assetId: poolAssetId,
     swapperName: SwapperName.Thorchain,
   })
+
+  const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
+
+  const { data: mimir } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
+  const isAssetLendingEnabled = useMemo(() => {
+    if (!mimir || !poolAsset) return false
+    const mimirKey = `LENDING-THOR-${poolAsset.symbol.toUpperCase()}`
+    return mimir[mimirKey] === 1
+  }, [mimir, poolAsset])
 
   const poolDataQuery = useQuery({
     // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
@@ -84,6 +100,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
         tvl,
         maxSupplyFiat,
         isTradingActive,
+        isAssetLendingEnabled,
         isHardCapReached: bnOrZero(tvl).eq(maxSupplyFiat),
         currentCapFillPercentage: bnOrZero(tvl).div(bnOrZero(maxSupplyFiat)).times(100).toNumber(),
       }

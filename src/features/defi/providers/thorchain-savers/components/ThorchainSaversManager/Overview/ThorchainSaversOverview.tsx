@@ -43,6 +43,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from 'lib/utils/time'
+import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getThorchainSaversPosition,
@@ -93,6 +94,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const {
     state: { wallet },
   } = useWallet()
+
+  const { isLendingActive } = useIsLendingActive()
 
   const assetId = toAssetId({
     chainId,
@@ -362,6 +365,63 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     remainingLockupTime,
   ])
 
+  const poolAlert = useMemo(() => {
+    if (!isLendingActive && !isRunePool) {
+      return (
+        <Alert status='warning' variant='subtle'>
+          <AlertIcon />
+          <AlertDescription>
+            {translate('lending.haltedAlert')}
+            <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
+              {translate('lending.halterMoreDetails')}
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )
+    }
+
+    if (isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100)) {
+      return (
+        <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
+          <AlertIcon />
+          <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
+          <>
+            <AlertDescription>
+              {translate('defi.modals.saversVaults.haltedDescription')}
+            </AlertDescription>
+            <Button
+              as={Link}
+              href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
+              isExternal
+              mt={4}
+              colorScheme='twitter'
+              rightIcon={faTwitterIcon}
+            >
+              @THORChain
+            </Button>
+          </>
+        </Alert>
+      )
+    }
+
+    return (
+      <Progress
+        value={currentCapFillPercentage}
+        size='sm'
+        borderRadius='md'
+        colorScheme={bnOrZero(currentCapFillPercentage).lt(100) ? 'green' : 'red'}
+      />
+    )
+  }, [
+    translate,
+    alertBg,
+    underlyingAsset?.symbol,
+    currentCapFillPercentage,
+    isHardCapReached,
+    isRunePool,
+    isLendingActive,
+  ])
+
   const renderVaultCap = useMemo(() => {
     return (
       <Flex direction='column' gap={2}>
@@ -380,45 +440,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             ) : null}
           </Flex>
         </Flex>
-        {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
-          <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
-            <AlertIcon />
-            <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
-            <>
-              <AlertDescription>
-                {translate('defi.modals.saversVaults.haltedDescription')}
-              </AlertDescription>
-              <Button
-                as={Link}
-                href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
-                isExternal
-                mt={4}
-                colorScheme='twitter'
-                rightIcon={faTwitterIcon}
-              >
-                @THORChain
-              </Button>
-            </>
-          </Alert>
-        ) : (
-          <Progress
-            value={currentCapFillPercentage}
-            size='sm'
-            borderRadius='md'
-            colorScheme={bnOrZero(currentCapFillPercentage).lt(100) ? 'green' : 'red'}
-          />
-        )}
+
+        {poolAlert}
       </Flex>
     )
-  }, [
-    alertBg,
-    currentCapFillPercentage,
-    isHardCapReached,
-    opportunityMetadata?.saversMaxSupplyFiat,
-    opportunityMetadata?.tvl,
-    translate,
-    underlyingAsset?.symbol,
-  ])
+  }, [opportunityMetadata?.saversMaxSupplyFiat, opportunityMetadata?.tvl, translate, poolAlert])
 
   const description = useMemo(
     () => ({

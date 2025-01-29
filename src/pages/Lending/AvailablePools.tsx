@@ -13,10 +13,10 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
+import { useIsLendingActive } from './hooks/useIsLendingActive'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 import { usePoolDataQuery } from './hooks/usePoolDataQuery'
 
@@ -55,9 +55,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
   const translate = useTranslate()
-
-  const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
-  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
+  const { isLendingActive } = useIsLendingActive()
 
   const { isLoading: isLendingPositionDataLoading } = useAllLendingPositionsData({
     assetId: asset.assetId,
@@ -69,7 +67,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   )
 
   const StatusTag = useCallback(() => {
-    if (!isThorchainLendingBorrowEnabled && !isThorchainLendingRepayEnabled) {
+    if (!isLendingActive || !poolData?.isAssetLendingEnabled) {
       return (
         <Tag colorScheme='red'>
           <TagLeftIcon as={BiErrorCircle} />
@@ -102,7 +100,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [isThorchainLendingBorrowEnabled, isThorchainLendingRepayEnabled, poolData, translate])
+  }, [isLendingActive, poolData, translate])
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)

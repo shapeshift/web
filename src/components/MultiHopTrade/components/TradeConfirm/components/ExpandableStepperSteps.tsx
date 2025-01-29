@@ -170,7 +170,11 @@ export const ExpandableStepperSteps = ({
       >
         <Text color='text.subtle' translation='trade.estimatedCompletionTime' />
         <RawText color='text.subtle' ml='auto'>
-          <RawText>{dayjs.duration(timeLeft).format('mm:ss')}</RawText>
+          <RawText>
+            {dayjs.duration(timeLeft).hours() > 0 && `${dayjs.duration(timeLeft).format('H')}h `}
+            {dayjs.duration(timeLeft).minutes() > 0 && `${dayjs.duration(timeLeft).format('m')}m `}
+            {dayjs.duration(timeLeft).format('ss')}s
+          </RawText>
         </RawText>
       </Flex>
     )

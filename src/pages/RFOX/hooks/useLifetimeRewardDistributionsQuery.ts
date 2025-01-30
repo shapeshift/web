@@ -1,4 +1,4 @@
-import { isSome } from '@shapeshiftoss/utils'
+import { bnOrZero, isSome } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
@@ -40,6 +40,7 @@ export const useLifetimeRewardDistributionsQuery = ({
                 if (!distribution) return null
 
                 // filter out genesis "distributions"
+                if (bnOrZero(distribution.amount).eq(0)) return null
                 if (epoch.distributionStatus === 'complete' && !distribution.txId) return null
 
                 return {

@@ -156,6 +156,27 @@ export const ExpandableStepperSteps = ({
     }
   }, [sellTxHash, timeLeft])
 
+  const formattedDuration = useMemo(() => {
+    const duration = dayjs.duration(timeLeft)
+    const hasDays = duration.days() > 0
+    const hasHours = duration.hours() > 0
+    const hasMinutes = duration.minutes() > 0
+
+    // Show all units from highest non-zero to seconds
+    if (hasDays) {
+      return `${duration.format('D')}d ${duration.format('H')}h ${duration.format(
+        'm',
+      )}m ${duration.format('ss')}s`
+    }
+    if (hasHours) {
+      return `${duration.format('H')}h ${duration.format('m')}m ${duration.format('ss')}s`
+    }
+    if (hasMinutes) {
+      return `${duration.format('m')}m ${duration.format('ss')}s`
+    }
+    return `${duration.format('ss')}s`
+  }, [timeLeft])
+
   const estimatedCompletionTimeElement = useMemo(() => {
     if (estimatedCompletionTimeForStepMs <= 0) return null
     return (
@@ -170,15 +191,11 @@ export const ExpandableStepperSteps = ({
       >
         <Text color='text.subtle' translation='trade.estimatedCompletionTime' />
         <RawText color='text.subtle' ml='auto'>
-          <RawText>
-            {dayjs.duration(timeLeft).hours() > 0 && `${dayjs.duration(timeLeft).format('H')}h `}
-            {dayjs.duration(timeLeft).minutes() > 0 && `${dayjs.duration(timeLeft).format('m')}m `}
-            {dayjs.duration(timeLeft).format('ss')}s
-          </RawText>
+          <RawText>{formattedDuration}</RawText>
         </RawText>
       </Flex>
     )
-  }, [estimatedCompletionTimeForStepMs, timeLeft])
+  }, [estimatedCompletionTimeForStepMs, formattedDuration])
 
   if (!titleElement) return null
 

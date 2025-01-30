@@ -1,6 +1,6 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { V2NftUserItem } from 'state/apis/zapper/validators'
+import type { V2NftUserItem } from 'state/apis/portals/validators'
 
 import type { NftCollectionType, NftItemWithCollection } from '../types'
 

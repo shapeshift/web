@@ -12,7 +12,7 @@ import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
-import { zapper, zapperApi } from './apis/zapper/zapperApi'
+import { portals, portalsApi } from './apis/portals/portalsApi'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -33,8 +33,8 @@ const apiMiddleware = [
   swapperApi.middleware,
   fiatRampApi.middleware,
   snapshotApi.middleware,
-  zapper.middleware,
-  zapperApi.middleware,
+  portals.middleware,
+  portalsApi.middleware,
   nftApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
@@ -59,9 +59,8 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
-  store.dispatch(apiSlices.zapperApi.util.resetApiState())
+  store.dispatch(apiSlices.portalsApi.util.resetApiState())
   store.dispatch(apiSlices.nftApi.util.resetApiState())
-  store.dispatch(apiSlices.zapper.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 
@@ -83,9 +82,9 @@ const actionSanitizer = (action: any) => {
     'assetApi/executeQuery/fulfilled',
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
-    'zapperApi/executeQuery/fulfilled',
+    'portalsApi/executeQuery/fulfilled',
     'nftApi/executeQuery/fulfilled',
-    'zapper/executeQuery/fulfilled',
+    'portals/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)
     ? {

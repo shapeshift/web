@@ -72,14 +72,14 @@ const headers = {
   Authorization: `Bearer ${PORTALS_API_KEY}`,
 }
 
-export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
-export type GetZapperAppTokensOutput = Record<AssetId, PortalsAssetBase>
+export type GetPortalsUniV2PoolAssetIdsOutput = AssetId[]
+export type GetPortalsAppTokensOutput = Record<AssetId, PortalsAssetBase>
 
-export type GetZapperAppsBalancesInput = {
+export type GetPortalsAppsBalancesInput = {
   evmAccountIds: AccountId[]
 }
 
-export type GetZapperAppsBalancesOutput = {
+export type GetPortalsAppsBalancesOutput = {
   userData: ReadOnlyOpportunityType[]
   opportunities: Record<string, OpportunityMetadataBase>
   metadataByProvider: Record<string, DefiProviderMetadata>
@@ -119,11 +119,11 @@ type PortalsAccountResponse = {
 }
 
 // https://docs.zapper.xyz/docs/apis/getting-started
-export const zapperApi = createApi({
+export const portalsApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'zapperApi',
+  reducerPath: 'portalsApi',
   endpoints: build => ({
-    getZapperAppsOutput: build.query<Record<string, V2AppResponseType>, void>({
+    getPortalsAppsOutput: build.query<Record<string, V2AppResponseType>, void>({
       queryFn: async () => {
         try {
           if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
@@ -172,7 +172,7 @@ export const zapperApi = createApi({
         }
       },
     }),
-    getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
+    getPortalsAppTokensOutput: build.query<GetPortalsAppTokensOutput, void>({
       queryFn: async () => {
         try {
           if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
@@ -197,9 +197,9 @@ export const zapperApi = createApi({
           })
 
           const { data } = res.tokens.reduce<{
-            data: GetZapperAppTokensOutput
+            data: GetPortalsAppTokensOutput
           }>(
-            (acc: { data: GetZapperAppTokensOutput }, tokenData: TokenInfo) => {
+            (acc: { data: GetPortalsAppTokensOutput }, tokenData: TokenInfo) => {
               const chainId = portalsNetworkToChainId(tokenData.network as SupportedPortalsNetwork)
               if (!chainId) return acc
 
@@ -262,11 +262,11 @@ export const zapperApi = createApi({
   }),
 })
 
-export const zapper = createApi({
+export const portals = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'zapper',
+  reducerPath: 'portals',
   endpoints: build => ({
-    getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
+    getPortalsUniV2PoolAssetIds: build.query<GetPortalsUniV2PoolAssetIdsOutput, void>({
       queryFn: async () => {
         const evmNetworks = [chainIdToPortalsNetwork(ethChainId)]
         const networks = evmNetworks.map(network => network?.toLowerCase()).filter(isSome)
@@ -299,9 +299,9 @@ export const zapper = createApi({
         return { data: assetIds }
       },
     }),
-    getZapperAppsBalancesOutput: build.query<
-      GetZapperAppsBalancesOutput,
-      GetZapperAppsBalancesInput
+    getPortalsAppsBalancesOutput: build.query<
+      GetPortalsAppsBalancesOutput,
+      GetPortalsAppsBalancesInput
     >({
       queryFn: async ({ evmAccountIds }, { dispatch, getState }) => {
         const state = getState() as ReduxState
@@ -737,4 +737,4 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperUniV2PoolAssetIdsQuery, useGetZapperAppsBalancesOutputQuery } = zapper
+export const { useGetPortalsUniV2PoolAssetIdsQuery, useGetPortalsAppsBalancesOutputQuery } = portals

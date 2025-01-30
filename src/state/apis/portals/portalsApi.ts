@@ -203,7 +203,7 @@ export const portalsApi = createApi({
 
               const assetId = toAssetId({
                 chainId,
-                assetNamespace: 'erc20', // TODO: bep20
+                assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
                 assetReference: tokenData.address,
               })
 
@@ -287,7 +287,7 @@ export const portals = createApi({
 
             return toAssetId({
               chainId,
-              assetNamespace: 'erc20',
+              assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
               assetReference: tokenData.address,
             })
           })
@@ -382,8 +382,7 @@ export const portals = createApi({
 
                     const assetId = toAssetId({
                       chainId,
-                      assetNamespace:
-                        chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                      assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
                       assetReference: balance.address,
                     })
 
@@ -414,8 +413,7 @@ export const portals = createApi({
                     const underlyingAssetIds = tokens.map(tokenAddress =>
                       toAssetId({
                         chainId,
-                        assetNamespace:
-                          chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                        assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
                         assetReference: tokenAddress as string,
                       }),
                     )

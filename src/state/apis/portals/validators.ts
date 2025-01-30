@@ -16,18 +16,6 @@ import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
 
-// Redeclared here to make these two utils work in scripts
-const isNonEmpty = (x: string | any[] | Set<any>) => {
-  // Array.prototype.length || String.prototype.length for arrays and strings
-  if (typeof x === 'string' || Array.isArray(x)) {
-    return Boolean(x.length)
-  }
-  // Set.prototype.size for sets
-  if (x instanceof Set) {
-    return Boolean(x.size)
-  }
-  return false
-}
 const isUrl = (x: string) => {
   try {
     new URL(x)
@@ -228,18 +216,6 @@ const PortalsProductSchema = z.object({
   meta: z.array(z.unknown()),
 })
 
-const PortalsV2AppBalance = z.object({
-  key: z.string(),
-  address: z.string(),
-  appId: PortalsAppIdSchema,
-  appName: z.string(),
-  appImage: z.string(),
-  network: SupportedPortalsNetworks,
-  updatedAt: z.string(),
-  balanceUSD: z.number(),
-  products: z.array(PortalsProductSchema),
-})
-
 const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
 export type MediaFileType = (typeof MEDIA_FILETYPE)[number]
 export type MediaType = 'video' | 'image'
@@ -272,88 +248,6 @@ const mediaSchema = z.object({
 
 export type MediaUrl = Infer<typeof mediaSchema>
 
-const socialLinkSchema = z.object({
-  name: z.string(),
-  label: z.string(),
-  url: z.string().withPredicate(isUrl),
-  logoUrl: z.string(),
-})
-
-const statsSchema = z.object({
-  hourlyVolumeEth: z.number(),
-  hourlyVolumeEthPercentChange: z.number().nullable(),
-  dailyVolumeEth: z.number(),
-  dailyVolumeEthPercentChange: z.number().nullable(),
-  weeklyVolumeEth: z.number(),
-  weeklyVolumeEthPercentChange: z.number().nullable(),
-  monthlyVolumeEth: z.number(),
-  monthlyVolumeEthPercentChange: z.number().nullable(),
-  totalVolumeEth: z.number(),
-})
-
-const fullCollectionSchema = z.object({
-  name: z.string(),
-  network: z.string(),
-  description: z.string(),
-  logoImageUrl: z.string().nullable(),
-  cardImageUrl: z.string().nullable(),
-  bannerImageUrl: z.string().nullable(),
-  nftStandard: z.string(),
-  floorPriceEth: z.string().nullable(),
-  marketCap: z.string().optional(),
-  openseaId: z.string().nullable(),
-  socialLinks: z.array(socialLinkSchema),
-  stats: statsSchema,
-  type: z.string(),
-})
-
-const nftCollectionSchema = z.object({
-  balance: z.string(),
-  balanceUSD: z.string(),
-  collection: fullCollectionSchema,
-})
-
-const cursorSchema = z.string().withPredicate(isNonEmpty)
-
-const v2NftBalancesCollectionsSchema = z.object({
-  items: z.array(nftCollectionSchema),
-  cursor: cursorSchema.optional(),
-})
-
-const optionalUrl = z.union([z.string().withPredicate(isUrl).optional().nullable(), z.literal('')])
-
-const collectionSchema = z.object({
-  address: z.string(),
-  network: z.string(),
-  name: z.string().optional(),
-  nftStandard: z.string().withPredicate(isNonEmpty),
-  type: z.string(),
-  floorPriceEth: z.string().nullable(),
-  logoImageUrl: optionalUrl,
-  openseaId: z.string().nullable(),
-})
-
-const tokenSchema = z.object({
-  id: z.string().withPredicate(isNonEmpty),
-  name: z.string().withPredicate(isNonEmpty),
-  tokenId: z.string().withPredicate(isNonEmpty),
-  lastSaleEth: z.string().nullable(),
-  rarityRank: z.number().nullable(),
-  estimatedValueEth: z.number().nullable(),
-  medias: z.array(mediaSchema),
-  collection: collectionSchema,
-})
-
-const userNftItemSchema = z.object({
-  balance: z.string().withPredicate(isNonEmpty),
-  token: tokenSchema,
-})
-
-const userNftTokenSchema = z.object({
-  cursor: cursorSchema.optional(),
-  items: z.array(userNftItemSchema).optional(),
-})
-
 const categorySchema = z
   .object({
     id: z.number(),
@@ -363,26 +257,7 @@ const categorySchema = z
   })
   .allowUnknownKeys()
 
-export type V2NftUserItem = Infer<typeof userNftItemSchema>
-
-export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const V2BalancesAppsResponse = z.array(PortalsV2AppBalance)
-
 export type PortalsAssetBase = Infer<typeof PortalsAssetBaseSchema>
-export const V2AppTokensResponse = z.array(PortalsAssetBaseSchema)
-export type V2AppTokensResponseType = Infer<typeof V2AppTokensResponse>
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const V2NftUserTokensResponse = userNftTokenSchema
-export type V2NftUserTokensResponseType = Infer<typeof V2NftUserTokensResponse>
-
-export type V2NftCollectionType = Infer<typeof nftCollectionSchema>
-
-export const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
-export type V2NftBalancesCollectionsResponseType = Infer<typeof V2NftBalancesCollectionsResponse>
-
-export type V2PortalsNft = Infer<typeof tokenSchema>
 
 export const V2AppsBalancesResponse = z.array(
   z.object({
@@ -426,5 +301,4 @@ const V2AppResponse = z
   })
   .allowUnknownKeys()
 
-export const V2AppsResponse = z.array(V2AppResponse)
 export type V2AppResponseType = Infer<typeof V2AppResponse>

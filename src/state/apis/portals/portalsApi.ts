@@ -72,10 +72,10 @@ const headers = {
   Authorization: `Bearer ${PORTALS_API_KEY}`,
 }
 
-export type GetPortalsUniV2PoolAssetIdsOutput = AssetId[]
-export type GetPortalsAppTokensOutput = Record<AssetId, PortalsAssetBase>
+type GetPortalsUniV2PoolAssetIdsOutput = AssetId[]
+type GetPortalsAppTokensOutput = Record<AssetId, PortalsAssetBase>
 
-export type GetPortalsAppsBalancesInput = {
+type GetPortalsAppsBalancesInput = {
   evmAccountIds: AccountId[]
 }
 
@@ -118,7 +118,6 @@ type PortalsAccountResponse = {
   balances: PortalsBalance[]
 }
 
-// https://docs.zapper.xyz/docs/apis/getting-started
 export const portalsApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portalsApi',
@@ -136,7 +135,6 @@ export const portalsApi = createApi({
             },
           })
 
-          // Group platforms by platform ID and network to match Zapper's format
           const platformsById = platforms
             .filter(platform => !['basic', 'native'].includes(platform.platform))
             .reduce<Record<string, V2AppResponseType>>((acc, platform: Platform) => {
@@ -185,8 +183,8 @@ export const portalsApi = createApi({
           const params = {
             platforms: ['uniswapv2'],
             networks,
-            minLiquidity: '100000', // Same as in fetchPortalsTokens
-            limit: '250', // Max allowed by API
+            minLiquidity: '100000',
+            limit: '250', // Max allowed by portals API
           }
 
           const { data: res } = await axios.get<GetTokensResponse>(url, {
@@ -209,7 +207,6 @@ export const portalsApi = createApi({
                 assetReference: tokenData.address,
               })
 
-              // Convert TokenInfo to PortalsAssetBase format
               const PortalsAssetBase: PortalsAssetBase = {
                 type: 'app-token',
                 address: tokenData.address,
@@ -223,8 +220,8 @@ export const portalsApi = createApi({
                   type: 'base-token',
                   address: tokenAddress,
                   network: tokenData.network as SupportedPortalsNetwork,
-                  symbol: '', // We don't have this info from Portals
-                  decimals: '18', // Default to 18, as we don't have this info from Portals
+                  symbol: '', // This no exist from Portals, tokenData.tokens only gives us addresses
+                  decimals: 'x', // Also a placeholder, unused here
                 })),
                 dataProps: {
                   liquidity: tokenData.liquidity,
@@ -326,18 +323,24 @@ export const portals = createApi({
           // Get unique addresses set from EVM AccountIds
           const addresses = accountIdsToEvmAddresses(evmAccountIds)
 
-          const url = `${PORTALS_BASE_URL}/v2/account`
-          const params = {
-            owner: addresses[0], // TODO: handle multiple addresses if needed
-            networks: evmNetworks,
-          }
+          // Make parallel requests for each address
+          const accountResponses = await Promise.all(
+            addresses.map(async address => {
+              const url = `${PORTALS_BASE_URL}/v2/account`
+              const params = {
+                owner: address,
+                networks: evmNetworks,
+              }
 
-          const { data: res } = await axios.get<PortalsAccountResponse>(url, {
-            headers: {
-              Authorization: `Bearer ${PORTALS_API_KEY}`,
-            },
-            params,
-          })
+              const { data: res } = await axios.get<PortalsAccountResponse>(url, {
+                headers: {
+                  Authorization: `Bearer ${PORTALS_API_KEY}`,
+                },
+                params,
+              })
+              return { address, data: res }
+            }),
+          )
 
           type AccumulatorType = {
             userData: ReadOnlyOpportunityType[]
@@ -345,210 +348,231 @@ export const portals = createApi({
             metadataByProvider: Record<string, DefiProviderMetadata>
           }
 
-          const parsedOpportunities = res.balances
-            .filter(balance => {
-              // Only filter out basic/native tokens at the top level, but allow them as underlying assets
-              if (balance.metadata?.tags?.[0] === '#pool') return true
-              return !['basic', 'native'].includes(balance.platform)
-            })
-            .reduce<AccumulatorType>(
-              (acc: AccumulatorType, balance: PortalsBalance) => {
-                const appName =
-                  balance.platform === 'uniswapv2' ? DefiProvider.UniV2 : balance.platform
-
-                // Avoids duplicates from our full-fledged opportunities
-                if (Object.values(DefiProvider).includes(appName as DefiProvider)) {
-                  if (appName !== DefiProvider.UniV2) return acc
-                }
-
-                const appImage = balance.image ?? balance.images?.[0] ?? ''
-                const accountId = toAccountId({
-                  chainId:
-                    PORTALS_NETWORKS_TO_CHAIN_ID_MAP[balance.network as SupportedPortalsNetwork],
-                  account: addresses[0],
+          const parsedOpportunities = accountResponses.reduce<AccumulatorType>(
+            (acc: AccumulatorType, { address, data: res }) => {
+              const balances = res.balances
+                .filter(balance => {
+                  // Only filter out basic/native tokens at the top level, but allow them as underlying assets
+                  if (balance.metadata?.tags?.[0] === '#pool') return true
+                  return !['basic', 'native'].includes(balance.platform)
                 })
+                .reduce<AccumulatorType>(
+                  (balanceAcc: AccumulatorType, balance: PortalsBalance) => {
+                    const appName =
+                      balance.platform === 'uniswapv2' ? DefiProvider.UniV2 : balance.platform
 
-                const chainId = portalsNetworkToChainId(balance.network as SupportedPortalsNetwork)
-                if (!chainId) return acc
+                    // Avoids duplicates from our full-fledged opportunities
+                    if (Object.values(DefiProvider).includes(appName as DefiProvider)) {
+                      if (appName !== DefiProvider.UniV2) return balanceAcc
+                    }
 
-                const assetId = toAssetId({
-                  chainId,
-                  assetNamespace:
-                    chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-                  assetReference: balance.address,
-                })
+                    const appImage = balance.image ?? balance.images?.[0] ?? ''
+                    const accountId = toAccountId({
+                      chainId:
+                        PORTALS_NETWORKS_TO_CHAIN_ID_MAP[
+                          balance.network as SupportedPortalsNetwork
+                        ],
+                      account: address,
+                    })
 
-                const stakedAmountCryptoBaseUnit = balance.rawBalance
-                const fiatAmount = bnOrZero(balance.balanceUSD).toString()
-                const apy = bnOrZero(balance.metrics?.apy ?? balance.metrics?.baseApy ?? 0)
-                  .div(100)
-                  .toString()
-                const tvl = bnOrZero(balance.liquidity).toString()
-                const icon = balance.image ?? balance.images?.[0] ?? ''
-                const name = balance.name
+                    const chainId = portalsNetworkToChainId(
+                      balance.network as SupportedPortalsNetwork,
+                    )
+                    if (!chainId) return balanceAcc
 
-                // Use #pool tag to determine if this is an LP token
-                const isLpToken = balance.metadata?.tags?.includes('#pool')
-                const defiType = isLpToken ? DefiType.LiquidityPool : DefiType.Staking
+                    const assetId = toAssetId({
+                      chainId,
+                      assetNamespace:
+                        chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                      assetReference: balance.address,
+                    })
 
-                const opportunityId: StakingId = `${balance.address}#${balance.key}`
+                    const stakedAmountCryptoBaseUnit = balance.rawBalance
+                    const fiatAmount = bnOrZero(balance.balanceUSD).toString()
+                    const apy = bnOrZero(balance.metrics?.apy ?? balance.metrics?.baseApy ?? 0)
+                      .div(100)
+                      .toString()
+                    const tvl = bnOrZero(balance.liquidity).toString()
+                    const icon = balance.image ?? balance.images?.[0] ?? ''
+                    const name = balance.name
 
-                if (!acc.metadataByProvider[appName]) {
-                  acc.metadataByProvider[appName] = {
-                    provider: appName,
-                    icon: appImage,
-                    color: '#000000',
-                  }
-                }
+                    // Use #pool tag to determine if this is an LP token
+                    const isLpToken = balance.metadata?.tags?.includes('#pool')
+                    const defiType = isLpToken ? DefiType.LiquidityPool : DefiType.Staking
 
-                const tokens = balance.tokens ?? []
-                const underlyingAssetIds = tokens.map(tokenAddress =>
-                  toAssetId({
-                    chainId,
-                    assetNamespace:
-                      chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-                    assetReference: tokenAddress as string,
-                  }),
+                    const opportunityId: StakingId = `${balance.address}#${balance.key}`
+
+                    if (!balanceAcc.metadataByProvider[appName]) {
+                      balanceAcc.metadataByProvider[appName] = {
+                        provider: appName,
+                        icon: appImage,
+                        color: '#000000',
+                      }
+                    }
+
+                    const tokens = balance.tokens ?? []
+                    const underlyingAssetIds = tokens.map(tokenAddress =>
+                      toAssetId({
+                        chainId,
+                        assetNamespace:
+                          chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                        assetReference: tokenAddress as string,
+                      }),
+                    )
+
+                    const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
+                    if (assetMarketData.price === '0' && balance.price) {
+                      dispatch(
+                        marketDataSlice.actions.setCryptoMarketData({
+                          [assetId]: {
+                            price: bnOrZero(balance.price).toString(),
+                            marketCap: '0',
+                            volume: bnOrZero(balance.metrics?.volumeUsd1d).toString(),
+                            changePercent24Hr: 0,
+                          },
+                        }),
+                      )
+                    }
+
+                    // Create or update the asset if it doesn't exist
+                    if (!assets[assetId]) {
+                      const icons = [...(balance.images ?? []), balance.image].filter(
+                        Boolean,
+                      ) as string[]
+                      const asset = makeAsset(assets, {
+                        assetId,
+                        symbol: balance.symbol,
+                        name: balance.name,
+                        precision: balance.decimals,
+                        icons,
+                      })
+                      dispatch(assetsSlice.actions.upsertAsset(asset))
+                    }
+
+                    const reserves = balance.reserves ?? []
+                    const totalSupply = balance.totalSupply ? bnOrZero(balance.totalSupply) : bn(1)
+
+                    const underlyingAssetRatiosBaseUnit = reserves
+                      .filter(reserve => reserve !== undefined && reserve !== null)
+                      .map((reserve, i) => {
+                        const tokenAddress = balance.tokens?.[i]
+                        if (!tokenAddress) return '0'
+
+                        const underlyingAssetId = underlyingAssetIds[i]
+                        if (!underlyingAssetId) return '0'
+
+                        const underlyingAsset = assets[underlyingAssetId]
+                        if (!underlyingAsset) return '0'
+
+                        // Calculate ratio of reserve to total supply
+                        const reserveAmount = bnOrZero(reserve)
+                        const ratio = reserveAmount.div(bnOrZero(totalSupply))
+
+                        // Convert ratio to base unit
+                        return toBaseUnit(ratio.toString(), underlyingAsset.precision)
+                      }) as readonly string[]
+
+                    if (!balanceAcc.opportunities[opportunityId]) {
+                      balanceAcc.opportunities[opportunityId] = {
+                        apy,
+                        assetId,
+                        underlyingAssetId: assetId,
+                        underlyingAssetIds,
+                        underlyingAssetRatiosBaseUnit,
+                        id: opportunityId,
+                        icon,
+                        name,
+                        rewardAssetIds: [], // Portals doesn't provide reward info
+                        provider: appName,
+                        tvl,
+                        type: defiType,
+                        group: balance.metadata?.tags?.[0]?.replace('#', '') ?? '',
+                        isClaimableRewards: false,
+                        isReadOnly: appName !== DefiProvider.UniV2, // Only mark non-UniV2 opportunities as read-only
+                      }
+                    }
+
+                    const opportunity: ReadOnlyOpportunityType = {
+                      accountId,
+                      provider: appName,
+                      userStakingId: serializeUserStakingId(accountId, opportunityId),
+                      opportunityId,
+                      stakedAmountCryptoBaseUnit,
+                      rewardsCryptoBaseUnit: {
+                        amounts: [] as readonly [],
+                        claimable: false,
+                      },
+                      fiatAmount,
+                    }
+
+                    balanceAcc.userData.push(opportunity)
+                    return balanceAcc
+                  },
+                  {
+                    userData: acc.userData,
+                    opportunities: acc.opportunities,
+                    metadataByProvider: acc.metadataByProvider,
+                  },
                 )
 
-                const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-                if (assetMarketData.price === '0' && balance.price) {
-                  dispatch(
-                    marketDataSlice.actions.setCryptoMarketData({
-                      [assetId]: {
-                        price: bnOrZero(balance.price).toString(),
-                        marketCap: '0',
-                        volume: bnOrZero(balance.metrics?.volumeUsd1d).toString(),
-                        changePercent24Hr: 0,
-                      },
-                    }),
-                  )
-                }
-
-                // Create or update the asset if it doesn't exist
-                if (!assets[assetId]) {
-                  const icons = [...(balance.images ?? []), balance.image].filter(
-                    Boolean,
-                  ) as string[]
-                  const asset = makeAsset(assets, {
-                    assetId,
-                    symbol: balance.symbol,
-                    name: balance.name,
-                    precision: balance.decimals,
-                    icons,
-                  })
-                  dispatch(assetsSlice.actions.upsertAsset(asset))
-                }
-
-                const reserves = balance.reserves ?? []
-                const totalSupply = balance.totalSupply ? bnOrZero(balance.totalSupply) : bn(1)
-
-                const underlyingAssetRatiosBaseUnit = reserves
-                  .filter(reserve => reserve !== undefined && reserve !== null)
-                  .map((reserve, i) => {
-                    const tokenAddress = balance.tokens?.[i]
-                    if (!tokenAddress) return '0'
-
-                    const underlyingAssetId = underlyingAssetIds[i]
-                    if (!underlyingAssetId) return '0'
-
-                    const underlyingAsset = assets[underlyingAssetId]
-                    if (!underlyingAsset) return '0'
-
-                    // Calculate ratio of reserve to total supply
-                    const reserveAmount = bnOrZero(reserve)
-                    const ratio = reserveAmount.div(bnOrZero(totalSupply))
-
-                    // Convert ratio to base unit
-                    return toBaseUnit(ratio.toString(), underlyingAsset.precision)
-                  }) as readonly string[]
-
-                if (!acc.opportunities[opportunityId]) {
-                  acc.opportunities[opportunityId] = {
-                    apy,
-                    assetId,
-                    underlyingAssetId: assetId,
-                    underlyingAssetIds,
-                    underlyingAssetRatiosBaseUnit,
-                    id: opportunityId,
-                    icon,
-                    name,
-                    rewardAssetIds: [], // Portals doesn't provide reward info
-                    provider: appName,
-                    tvl,
-                    type: defiType,
-                    group: balance.metadata?.tags?.[0]?.replace('#', '') ?? '',
-                    isClaimableRewards: false,
-                    isReadOnly: appName !== DefiProvider.UniV2, // Only mark non-UniV2 opportunities as read-only
-                  }
-                }
-
-                const opportunity: ReadOnlyOpportunityType = {
-                  accountId,
-                  provider: appName,
-                  userStakingId: serializeUserStakingId(accountId, opportunityId),
-                  opportunityId,
-                  stakedAmountCryptoBaseUnit,
-                  rewardsCryptoBaseUnit: {
-                    amounts: [] as readonly [],
-                    claimable: false,
-                  },
-                  fiatAmount,
-                }
-
-                acc.userData.push(opportunity)
-                return acc
-              },
-              { userData: [], opportunities: {}, metadataByProvider: {} },
-            )
+              return {
+                userData: [...acc.userData, ...balances.userData],
+                opportunities: { ...acc.opportunities, ...balances.opportunities },
+                metadataByProvider: { ...acc.metadataByProvider, ...balances.metadataByProvider },
+              }
+            },
+            { userData: [], opportunities: {}, metadataByProvider: {} },
+          )
 
           const tokensDataToFetch = new Set<string>()
 
-          // Collect all tokens needing data (missing from assets OR zero market data)
-          res.balances.forEach(balance => {
-            const network = balance.network as SupportedPortalsNetwork
-            const chainId = portalsNetworkToChainId(network)
-            if (!chainId) return
+          // Collect all tokens needing data from all account responses
+          accountResponses.forEach(({ data: res }) => {
+            res.balances.forEach(balance => {
+              const network = balance.network as SupportedPortalsNetwork
+              const chainId = portalsNetworkToChainId(network)
+              if (!chainId) return
 
-            // Check LP token
-            const assetId = toAssetId({
-              chainId,
-              assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
-              assetReference: balance.address,
-            })
-
-            // Add if missing from assets OR has zero market data, and not zero address
-            const asset = assets[assetId]
-            const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-            if (
-              (!asset || marketData.price === '0') &&
-              balance.platform !== 'native' &&
-              balance.address.toLowerCase() !== zeroAddress
-            ) {
-              tokensDataToFetch.add(`${network}:${balance.address}`)
-            }
-
-            // Check underlying tokens
-            balance.tokens?.forEach(tokenAddress => {
-              // Skip zero address tokens
-              if (tokenAddress.toLowerCase() === zeroAddress) return
-
-              const underlyingAssetId = toAssetId({
+              // Check LP token
+              const assetId = toAssetId({
                 chainId,
                 assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
-                assetReference: tokenAddress,
+                assetReference: balance.address,
               })
 
-              const underlyingAsset = assets[underlyingAssetId]
-              const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(
-                state,
-                underlyingAssetId,
-              )
-
-              // Include all non-zero-address tokens that need data
-              if (!underlyingAsset || underlyingMarketData.price === '0') {
-                tokensDataToFetch.add(`${network}:${tokenAddress}`)
+              // Add if missing from assets OR has zero market data, and not zero address
+              const asset = assets[assetId]
+              const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
+              if (
+                (!asset || marketData.price === '0') &&
+                balance.platform !== 'native' &&
+                balance.address.toLowerCase() !== zeroAddress
+              ) {
+                tokensDataToFetch.add(`${network}:${balance.address}`)
               }
+
+              // Check underlying tokens
+              balance.tokens?.forEach(tokenAddress => {
+                // Skip zero address tokens
+                if (tokenAddress.toLowerCase() === zeroAddress) return
+
+                const underlyingAssetId = toAssetId({
+                  chainId,
+                  assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+                  assetReference: tokenAddress,
+                })
+
+                const underlyingAsset = assets[underlyingAssetId]
+                const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(
+                  state,
+                  underlyingAssetId,
+                )
+
+                // Include all non-zero-address tokens that need data
+                if (!underlyingAsset || underlyingMarketData.price === '0') {
+                  tokensDataToFetch.add(`${network}:${tokenAddress}`)
+                }
+              })
             })
           })
 
@@ -567,70 +591,72 @@ export const portals = createApi({
           const marketDataUpsertPayload: Record<AssetId, MarketData> = {}
 
           // Process balances for market data
-          res.balances.forEach(balance => {
-            const network = balance.network as SupportedPortalsNetwork
-            const chainId = portalsNetworkToChainId(network)
-            if (!chainId) return
+          accountResponses.forEach(({ data: res }) => {
+            res.balances.forEach(balance => {
+              const network = balance.network as SupportedPortalsNetwork
+              const chainId = portalsNetworkToChainId(network)
+              if (!chainId) return
 
-            // Skip zero address
-            if (balance.address.toLowerCase() === zeroAddress) return
+              // Skip zero address
+              if (balance.address.toLowerCase() === zeroAddress) return
 
-            // LP token market data
-            const lpAssetId = toAssetId({
-              chainId,
-              assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
-              assetReference: balance.address,
-            })
-            const lpMarketData = selectMarketDataByAssetIdUserCurrency(state, lpAssetId)
-
-            // Find token data from the fetched data
-            const lpTokenInfo = tokenData?.tokens.find(
-              t =>
-                t.address.toLowerCase() === balance.address.toLowerCase() &&
-                t.network.toLowerCase() === network.toLowerCase(),
-            )
-
-            if (lpMarketData.price === '0' && (balance.price || lpTokenInfo?.price)) {
-              marketDataUpsertPayload[lpAssetId] = {
-                price: bnOrZero(balance.price || lpTokenInfo?.price).toString(),
-                marketCap: bnOrZero(balance.liquidity || lpTokenInfo?.liquidity).toString(),
-                volume: bnOrZero(
-                  balance.metrics?.volumeUsd1d || lpTokenInfo?.metrics?.volumeUsd1d,
-                ).toString(),
-                changePercent24Hr: 0,
-              }
-            }
-
-            // Underlying tokens market data
-            balance.tokens?.forEach(tokenAddress => {
-              // Skip zero address tokens
-              if (tokenAddress.toLowerCase() === zeroAddress) return
-
-              const underlyingAssetId = toAssetId({
+              // LP token market data
+              const lpAssetId = toAssetId({
                 chainId,
                 assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
-                assetReference: tokenAddress,
+                assetReference: balance.address,
               })
-              const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(
-                state,
-                underlyingAssetId,
-              )
+              const lpMarketData = selectMarketDataByAssetIdUserCurrency(state, lpAssetId)
 
               // Find token data from the fetched data
-              const tokenInfo = tokenData?.tokens.find(
+              const lpTokenInfo = tokenData?.tokens.find(
                 t =>
-                  t.address.toLowerCase() === tokenAddress.toLowerCase() &&
+                  t.address.toLowerCase() === balance.address.toLowerCase() &&
                   t.network.toLowerCase() === network.toLowerCase(),
               )
 
-              if (underlyingMarketData.price === '0' && tokenInfo?.price) {
-                marketDataUpsertPayload[underlyingAssetId] = {
-                  price: bnOrZero(tokenInfo.price).toString(),
-                  marketCap: bnOrZero(tokenInfo.liquidity).toString(),
-                  volume: bnOrZero(tokenInfo.metrics?.volumeUsd1d).toString(),
+              if (lpMarketData.price === '0' && (balance.price || lpTokenInfo?.price)) {
+                marketDataUpsertPayload[lpAssetId] = {
+                  price: bnOrZero(balance.price || lpTokenInfo?.price).toString(),
+                  marketCap: bnOrZero(balance.liquidity || lpTokenInfo?.liquidity).toString(),
+                  volume: bnOrZero(
+                    balance.metrics?.volumeUsd1d || lpTokenInfo?.metrics?.volumeUsd1d,
+                  ).toString(),
                   changePercent24Hr: 0,
                 }
               }
+
+              // Underlying tokens market data
+              balance.tokens?.forEach(tokenAddress => {
+                // Skip zero address tokens
+                if (tokenAddress.toLowerCase() === zeroAddress) return
+
+                const underlyingAssetId = toAssetId({
+                  chainId,
+                  assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+                  assetReference: tokenAddress,
+                })
+                const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(
+                  state,
+                  underlyingAssetId,
+                )
+
+                // Find token data from the fetched data
+                const tokenInfo = tokenData?.tokens.find(
+                  t =>
+                    t.address.toLowerCase() === tokenAddress.toLowerCase() &&
+                    t.network.toLowerCase() === network.toLowerCase(),
+                )
+
+                if (underlyingMarketData.price === '0' && tokenInfo?.price) {
+                  marketDataUpsertPayload[underlyingAssetId] = {
+                    price: bnOrZero(tokenInfo.price).toString(),
+                    marketCap: bnOrZero(tokenInfo.liquidity).toString(),
+                    volume: bnOrZero(tokenInfo.metrics?.volumeUsd1d).toString(),
+                    changePercent24Hr: 0,
+                  }
+                }
+              })
             })
           })
 

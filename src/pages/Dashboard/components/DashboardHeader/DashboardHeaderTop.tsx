@@ -4,22 +4,24 @@ import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import { memo, useCallback } from 'react'
 import { FiLogOut } from 'react-icons/fi'
-import { IoSwapVerticalSharp } from 'react-icons/io5'
+import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import { MobileWalletDialog } from 'components/MobileWalletDialog/MobileWalletDialog'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile } from 'lib/globals'
 
 import { EditAvatarButton, ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
+import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
 
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const moreIcon = <FiLogOut />
+const moreIcon = isMobile ? <FiLogOut /> : <IoEllipsisHorizontal />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -111,7 +113,11 @@ export const DashboardHeaderTop = memo(() => {
       >
         <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
       </Flex>
-      <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+      {isMobile ? (
+        <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+      ) : (
+        <DashboardDrawer isOpen={isOpen} onClose={onClose} />
+      )}
     </Container>
   )
 })

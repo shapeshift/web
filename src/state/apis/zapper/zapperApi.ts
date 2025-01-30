@@ -8,7 +8,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -23,6 +23,7 @@ import type {
   TokenInfo,
 } from 'lib/portals/types'
 import { isSome } from 'lib/utils'
+import { zeroAddress } from 'viem'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
@@ -515,15 +516,20 @@ export const zapper = createApi({
               assetReference: balance.address,
             })
             
-            // Add if missing from assets OR has zero market data
+            // Add if missing from assets OR has zero market data, and not zero address
             const asset = assets[assetId]
             const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-            if ((!asset || marketData.price === '0') && balance.platform !== 'native') {
+            if ((!asset || marketData.price === '0') && 
+                balance.platform !== 'native' && 
+                balance.address.toLowerCase() !== zeroAddress) {
               tokensDataToFetch.add(`${network}:${balance.address}`)
             }
 
             // Check underlying tokens
             balance.tokens?.forEach(tokenAddress => {
+              // Skip zero address tokens
+              if (tokenAddress.toLowerCase() === zeroAddress) return
+
               const underlyingAssetId = toAssetId({
                 chainId,
                 assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
@@ -533,8 +539,8 @@ export const zapper = createApi({
               const underlyingAsset = assets[underlyingAssetId]
               const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(state, underlyingAssetId)
               
-              // Only exclude native platform tokens
-              if ((!underlyingAsset || underlyingMarketData.price === '0') && !tokenAddress.startsWith('0x')) {
+              // Include all non-zero-address tokens that need data
+              if (!underlyingAsset || underlyingMarketData.price === '0') {
                 tokensDataToFetch.add(`${network}:${tokenAddress}`)
               }
             })
@@ -558,6 +564,9 @@ export const zapper = createApi({
             const network = balance.network as SupportedPortalsNetwork
             const chainId = portalsNetworkToChainId(network)
             if (!chainId) return
+
+            // Skip zero address
+            if (balance.address.toLowerCase() === zeroAddress) return
 
             // LP token market data
             const lpAssetId = toAssetId({
@@ -584,6 +593,9 @@ export const zapper = createApi({
 
             // Underlying tokens market data
             balance.tokens?.forEach(tokenAddress => {
+              // Skip zero address tokens
+              if (tokenAddress.toLowerCase() === zeroAddress) return
+
               const underlyingAssetId = toAssetId({
                 chainId,
                 assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),

@@ -7,7 +7,10 @@ import { useTranslate } from 'react-polyglot'
 import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT } from 'lib/fees/constant'
+import {
+  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
+  FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
+} from 'lib/fees/constant'
 import { calculateFees } from 'lib/fees/model'
 
 import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
@@ -78,6 +81,8 @@ export const FoxWifHat = () => {
   }, [discountPercent, translate])
 
   if (!isFoxWifHatEnabled) return null
+  // Don't show the fox wif hat section before the campaign starts
+  if (Date.now() < FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS) return null
 
   return (
     <>

@@ -8,6 +8,7 @@ import {
   bscChainId,
   btcChainId,
   cosmosChainId,
+  dogeChainId,
   ethChainId,
   gnosisChainId,
   ltcChainId,
@@ -170,6 +171,7 @@ export const getCoingeckoSupportedChainIds = () => {
     bchChainId,
     ltcChainId,
     solanaChainId,
+    dogeChainId,
     ...(getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
   ]
 }

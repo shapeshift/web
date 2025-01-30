@@ -75,7 +75,7 @@ const headers = {
 type GetPortalsUniV2PoolAssetIdsOutput = AssetId[]
 type GetPortalsAppTokensOutput = Record<AssetId, PortalsAssetBase>
 
-type GetPortalsAppsBalancesInput = {
+export type GetPortalsAppsBalancesInput = {
   evmAccountIds: AccountId[]
 }
 

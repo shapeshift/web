@@ -424,7 +424,7 @@ const V2AppResponse = z
     id: z.string(),
     databaseId: z.number(),
     categoryId: z.number().nullable(),
-    category: categorySchema.nullable(),
+    category: categorySchema.nullable().optional(),
     slug: z.string(),
     name: z.string(),
     description: z.string(),

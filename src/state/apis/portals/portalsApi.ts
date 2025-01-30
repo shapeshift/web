@@ -1,12 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import {
-  ASSET_NAMESPACE,
-  bscChainId,
-  ethChainId,
-  toAccountId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'

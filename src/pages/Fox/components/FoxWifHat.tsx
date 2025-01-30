@@ -10,6 +10,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import {
   FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
+  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
   FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
 } from 'lib/fees/constant'
 import { calculateFees } from 'lib/fees/model'

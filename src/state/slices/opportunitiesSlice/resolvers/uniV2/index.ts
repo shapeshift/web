@@ -1,3 +1,4 @@
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import {
   ContractType,
@@ -14,6 +15,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { portalsApi } from 'state/apis/portals/portalsApi'
+import { selectPortalsFulfilled } from 'state/apis/portals/selectors'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
@@ -22,8 +24,6 @@ import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSl
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { selectPortalsFulfilled } from 'state/apis/portals/selectors'
-import { QueryStatus } from '@reduxjs/toolkit/query'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type {
@@ -302,9 +302,9 @@ export const uniV2LpLpOpportunityIdsResolver = ({
 
   const portalsApiQueries = selectPortalsFulfilled(state)
   const uniV2AssetIds = (portalsApiQueries.find(
-    query => 
-      query?.endpointName === 'getPortalsUniV2PoolAssetIds' && 
-      query?.status === QueryStatus.fulfilled && 
+    query =>
+      query?.endpointName === 'getPortalsUniV2PoolAssetIds' &&
+      query?.status === QueryStatus.fulfilled &&
       Boolean(query?.data),
   )?.data ?? []) as LpId[]
   return Promise.resolve({ data: [...uniV2AssetIds] })

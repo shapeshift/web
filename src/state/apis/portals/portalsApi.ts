@@ -14,6 +14,7 @@ import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import qs from 'qs'
+import { zeroAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
@@ -23,7 +24,6 @@ import type {
   TokenInfo,
 } from 'lib/portals/types'
 import { isSome } from 'lib/utils'
-import { zeroAddress } from 'viem'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
@@ -516,13 +516,15 @@ export const portals = createApi({
               assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
               assetReference: balance.address,
             })
-            
+
             // Add if missing from assets OR has zero market data, and not zero address
             const asset = assets[assetId]
             const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-            if ((!asset || marketData.price === '0') && 
-                balance.platform !== 'native' && 
-                balance.address.toLowerCase() !== zeroAddress) {
+            if (
+              (!asset || marketData.price === '0') &&
+              balance.platform !== 'native' &&
+              balance.address.toLowerCase() !== zeroAddress
+            ) {
               tokensDataToFetch.add(`${network}:${balance.address}`)
             }
 
@@ -536,10 +538,13 @@ export const portals = createApi({
                 assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
                 assetReference: tokenAddress,
               })
-              
+
               const underlyingAsset = assets[underlyingAssetId]
-              const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(state, underlyingAssetId)
-              
+              const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(
+                state,
+                underlyingAssetId,
+              )
+
               // Include all non-zero-address tokens that need data
               if (!underlyingAsset || underlyingMarketData.price === '0') {
                 tokensDataToFetch.add(`${network}:${tokenAddress}`)
@@ -548,14 +553,15 @@ export const portals = createApi({
           })
 
           // Fetch all token data in one request
-          const tokenData = tokensDataToFetch.size > 0
-            ? (
-                await axios.get<{ tokens: TokenInfo[] }>(`${PORTALS_BASE_URL}/v2/tokens`, {
-                  headers: { Authorization: `Bearer ${PORTALS_API_KEY}` },
-                  params: { ids: [...tokensDataToFetch].join(',') },
-                })
-              )?.data
-            : undefined
+          const tokenData =
+            tokensDataToFetch.size > 0
+              ? (
+                  await axios.get<{ tokens: TokenInfo[] }>(`${PORTALS_BASE_URL}/v2/tokens`, {
+                    headers: { Authorization: `Bearer ${PORTALS_API_KEY}` },
+                    params: { ids: [...tokensDataToFetch].join(',') },
+                  })
+                )?.data
+              : undefined
 
           // Prepare market data upsert payload
           const marketDataUpsertPayload: Record<AssetId, MarketData> = {}
@@ -576,18 +582,21 @@ export const portals = createApi({
               assetReference: balance.address,
             })
             const lpMarketData = selectMarketDataByAssetIdUserCurrency(state, lpAssetId)
-            
+
             // Find token data from the fetched data
             const lpTokenInfo = tokenData?.tokens.find(
-              t => t.address.toLowerCase() === balance.address.toLowerCase() &&
-                   t.network.toLowerCase() === network.toLowerCase()
+              t =>
+                t.address.toLowerCase() === balance.address.toLowerCase() &&
+                t.network.toLowerCase() === network.toLowerCase(),
             )
-            
+
             if (lpMarketData.price === '0' && (balance.price || lpTokenInfo?.price)) {
               marketDataUpsertPayload[lpAssetId] = {
                 price: bnOrZero(balance.price || lpTokenInfo?.price).toString(),
                 marketCap: bnOrZero(balance.liquidity || lpTokenInfo?.liquidity).toString(),
-                volume: bnOrZero(balance.metrics?.volumeUsd1d || lpTokenInfo?.metrics?.volumeUsd1d).toString(),
+                volume: bnOrZero(
+                  balance.metrics?.volumeUsd1d || lpTokenInfo?.metrics?.volumeUsd1d,
+                ).toString(),
                 changePercent24Hr: 0,
               }
             }
@@ -602,14 +611,18 @@ export const portals = createApi({
                 assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
                 assetReference: tokenAddress,
               })
-              const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(state, underlyingAssetId)
-              
+              const underlyingMarketData = selectMarketDataByAssetIdUserCurrency(
+                state,
+                underlyingAssetId,
+              )
+
               // Find token data from the fetched data
               const tokenInfo = tokenData?.tokens.find(
-                t => t.address.toLowerCase() === tokenAddress.toLowerCase() &&
-                     t.network.toLowerCase() === network.toLowerCase()
+                t =>
+                  t.address.toLowerCase() === tokenAddress.toLowerCase() &&
+                  t.network.toLowerCase() === network.toLowerCase(),
               )
-              
+
               if (underlyingMarketData.price === '0' && tokenInfo?.price) {
                 marketDataUpsertPayload[underlyingAssetId] = {
                   price: bnOrZero(tokenInfo.price).toString(),
@@ -715,7 +728,7 @@ export const portals = createApi({
           dispatch(opportunities.actions.upsertOpportunitiesMetadata(stakingMetadataUpsertPayload))
           dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
           dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
-          
+
           // Add market data upsert
           if (Object.keys(marketDataUpsertPayload).length > 0) {
             dispatch(marketDataSlice.actions.setCryptoMarketData(marketDataUpsertPayload))

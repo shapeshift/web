@@ -9,10 +9,10 @@ import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import type { NftState } from './apis/nft/nftApi'
 import { nft, nftApi } from './apis/nft/nftApi'
+import { portals, portalsApi } from './apis/portals/portalsApi'
 import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
-import { portals, portalsApi } from './apis/portals/portalsApi'
 import {
   clearAssetsMigrations,
   clearMarketDataMigrations,

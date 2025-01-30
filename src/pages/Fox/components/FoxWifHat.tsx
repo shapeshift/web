@@ -7,8 +7,9 @@ import { useTranslate } from 'react-polyglot'
 import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import {
-  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
+  FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
   FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
 } from 'lib/fees/constant'
 import { calculateFees } from 'lib/fees/model'
@@ -25,6 +26,9 @@ export const FoxWifHat = () => {
   const [isClaimModalOpened, setIsClaimModalOpened] = useState(false)
   const [claimAccountId, setClaimAccountId] = useState<AccountId | undefined>()
   const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
+  const {
+    date: { toShortDate },
+  } = useLocaleFormatter()
 
   const handleClaimModalClose = useCallback(() => {
     setClaimAccountId(undefined)
@@ -77,8 +81,11 @@ export const FoxWifHat = () => {
   ])
 
   const discountText = useMemo(() => {
-    return translate('foxPage.foxWifHat.discount', { percent: discountPercent })
-  }, [discountPercent, translate])
+    return translate('foxPage.foxWifHat.discount', {
+      percent: discountPercent,
+      date: toShortDate(FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS),
+    })
+  }, [discountPercent, translate, toShortDate])
 
   if (!isFoxWifHatEnabled) return null
   // Don't show the fox wif hat section before the campaign starts

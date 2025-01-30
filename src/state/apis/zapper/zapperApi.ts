@@ -387,8 +387,9 @@ export const zapper = createApi({
                 const icon = balance.image ?? balance.images?.[0] ?? ''
                 const name = balance.name
 
-                // Assume all as staking for now
-                const defiType = DefiType.Staking
+                // Use #pool tag to determine if this is an LP token
+                const isLpToken = balance.metadata?.tags?.includes('#pool')
+                const defiType = isLpToken ? DefiType.LiquidityPool : DefiType.Staking
 
                 const opportunityId: StakingId = `${balance.address}#${balance.key}`
 

@@ -234,6 +234,7 @@ export const getMediaType = (mediaUrl: string | undefined): MediaType | undefine
   return 'image'
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mediaSchema = z.object({
   type: z.string(),
   originalUrl: z
@@ -286,6 +287,7 @@ const V2AppGroupResponse = z.object({
   isHiddenFromExplore: z.boolean(),
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const V2AppResponse = z
   .object({
     id: z.string(),

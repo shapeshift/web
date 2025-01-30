@@ -1005,6 +1005,7 @@
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
+    "estimatedCompletionTime": "Estimated Completion Time",
     "transactionSuccessful": "Transaction successful, waiting for confirmations",
     "temp": {
       "tradeSuccess": "Trade complete",

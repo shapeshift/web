@@ -37,42 +37,42 @@ const isUrl = (x: string) => {
   }
 }
 
-export enum SupportedZapperNetwork {
+export enum SupportedPortalsNetwork {
   Avalanche = 'avalanche',
-  BinanceSmartChain = 'binance-smart-chain',
+  BinanceSmartChain = 'bsc',
   Ethereum = 'ethereum',
   Optimism = 'optimism',
-  Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
+  Polygon = 'polygon',
   Gnosis = 'gnosis',
   Arbitrum = 'arbitrum',
   Base = 'base',
 }
 
-export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {
-  [SupportedZapperNetwork.Avalanche]: avalancheChainId,
-  [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
-  [SupportedZapperNetwork.Ethereum]: ethChainId,
-  [SupportedZapperNetwork.Optimism]: optimismChainId,
-  [SupportedZapperNetwork.Polygon]: polygonChainId,
-  [SupportedZapperNetwork.Gnosis]: gnosisChainId,
-  [SupportedZapperNetwork.Arbitrum]: arbitrumChainId,
-  [SupportedZapperNetwork.Base]: baseChainId,
+export const PORTALS_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedPortalsNetwork, ChainId> = {
+  [SupportedPortalsNetwork.Avalanche]: avalancheChainId,
+  [SupportedPortalsNetwork.BinanceSmartChain]: bscChainId,
+  [SupportedPortalsNetwork.Ethereum]: ethChainId,
+  [SupportedPortalsNetwork.Optimism]: optimismChainId,
+  [SupportedPortalsNetwork.Polygon]: polygonChainId,
+  [SupportedPortalsNetwork.Gnosis]: gnosisChainId,
+  [SupportedPortalsNetwork.Arbitrum]: arbitrumChainId,
+  [SupportedPortalsNetwork.Base]: baseChainId,
 } as const
 
-export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
-  Record<ChainId, SupportedZapperNetwork>
+export const CHAIN_ID_TO_PORTALS_NETWORK_MAP = invert(PORTALS_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
+  Record<ChainId, SupportedPortalsNetwork>
 >
 
-export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId | undefined =>
-  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[network]
+export const portalsNetworkToChainId = (network: SupportedPortalsNetwork): ChainId | undefined =>
+  PORTALS_NETWORKS_TO_CHAIN_ID_MAP[network]
 
-export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork | undefined =>
-  CHAIN_ID_TO_ZAPPER_NETWORK_MAP[chainId]
+export const chainIdToPortalsNetwork = (chainId: ChainId): SupportedPortalsNetwork | undefined =>
+  CHAIN_ID_TO_PORTALS_NETWORK_MAP[chainId]
 
-const SupportedZapperNetworks = z.enum(SupportedZapperNetwork)
+const SupportedPortalsNetworks = z.enum(SupportedPortalsNetwork)
 
-const ZapperAppIdSchema = z.string()
-const ZapperDisplayValue = z.union([
+const PortalsAppIdSchema = z.string()
+const PortalsDisplayValue = z.union([
   z.object({
     type: z.string(),
     value: z.union([z.number(), z.string(), z.undefined()]),
@@ -82,7 +82,7 @@ const ZapperDisplayValue = z.union([
 ])
 
 // optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
-const ZapperDisplayPropsSchema = z.union([
+const PortalsDisplayPropsSchema = z.union([
   z.object({
     label: z.string(),
     images: z.array(z.string()),
@@ -90,13 +90,13 @@ const ZapperDisplayPropsSchema = z.union([
       .array(
         z.object({
           label: z.string(),
-          value: ZapperDisplayValue,
+          value: PortalsDisplayValue,
         }),
       )
       .nullable()
       .optional(),
-    secondaryLabel: ZapperDisplayValue.optional(),
-    tertiaryLabel: ZapperDisplayValue.optional(),
+    secondaryLabel: PortalsDisplayValue.optional(),
+    tertiaryLabel: PortalsDisplayValue.optional(),
     balanceDisplayMode: z.string().optional(),
     labelDetailed: z.string().optional(),
   }),
@@ -104,7 +104,7 @@ const ZapperDisplayPropsSchema = z.union([
 ])
 
 // optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
-const ZapperDataPropsSchema = z.union([
+const PortalsDataPropsSchema = z.union([
   z.object(
     {
       apy: z.number().optional(),
@@ -130,31 +130,30 @@ const ZapperDataPropsSchema = z.union([
 ])
 
 // Redeclared as a type since we lose type inference on the type below because of z.lazy() recursion
-type ZapperToken = {
+type PortalsToken = {
   type: 'base-token' | 'app-token'
   metaType?: 'claimable' | 'supplied' | 'borrowed'
-  network: SupportedZapperNetwork
+  network: SupportedPortalsNetwork
   key?: string
   appId?: string
-  groupId?: string
   address: string
   price?: number
   supply?: number
   symbol: string
   decimals: string | number
-  dataProps?: Infer<typeof ZapperDataPropsSchema>
-  displayProps?: Infer<typeof ZapperDisplayPropsSchema>
+  dataProps?: Infer<typeof PortalsDataPropsSchema>
+  displayProps?: Infer<typeof PortalsDisplayPropsSchema>
   pricePerShare?: (string | number)[]
-  tokens?: ZapperToken[]
+  tokens?: PortalsToken[]
   balanceUSD?: number
   balance?: number
   balanceRaw?: string
 }
 
-const ZapperTokenSchema: Type<ZapperToken> = z
+const PortalsTokenSchema: Type<PortalsToken> = z
   .object({
     type: z.literals('base-token', 'app-token'),
-    network: SupportedZapperNetworks,
+    network: SupportedPortalsNetworks,
     address: z.string(),
     decimals: z.union([z.string(), z.number()]),
     symbol: z.string(),
@@ -164,55 +163,53 @@ const ZapperTokenSchema: Type<ZapperToken> = z
     balanceRaw: z.string().optional(),
     balanceUSD: z.number().optional(),
     key: z.string().optional(),
-    appId: ZapperAppIdSchema.optional(),
-    groupId: z.string().optional(),
+    appId: PortalsAppIdSchema.optional(),
     supply: z.number().optional(),
-    dataProps: ZapperDataPropsSchema.optional(),
-    displayProps: ZapperDisplayPropsSchema.optional(),
+    dataProps: PortalsDataPropsSchema.optional(),
+    displayProps: PortalsDisplayPropsSchema.optional(),
     pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
     // Note, we lose tsc validation here but this *does* validate at runtime
     // https://github.com/davidmdm/myzod#lazy
-    tokens: z.array(z.lazy(() => ZapperTokenSchema)).optional(),
+    tokens: z.array(z.lazy(() => PortalsTokenSchema)).optional(),
   })
   .allowUnknownKeys()
 
-const ZapperAssetBaseSchema = z
+const PortalsAssetBaseSchema = z
   .object({
     key: z.string(),
     type: z.string(),
-    appId: ZapperAppIdSchema,
-    groupId: z.string(),
-    network: SupportedZapperNetworks,
+    appId: PortalsAppIdSchema,
+    network: SupportedPortalsNetworks,
     address: z.string(),
     price: z.number().optional(),
     supply: z.number().optional(),
     symbol: z.string().optional(),
     decimals: z.union([z.number(), z.string()]).optional(),
-    dataProps: ZapperDataPropsSchema.optional(),
-    displayProps: ZapperDisplayPropsSchema.optional(),
+    dataProps: PortalsDataPropsSchema.optional(),
+    displayProps: PortalsDisplayPropsSchema.optional(),
     pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
-    tokens: z.array(ZapperTokenSchema).optional(),
+    tokens: z.array(PortalsTokenSchema).optional(),
     balance: z.number().optional(),
     balanceRaw: z.string().optional(),
     balanceUSD: z.number().optional(),
   })
   .allowUnknownKeys()
 
-const ZapperAssetWithBalancesSchema = z
+const PortalsAssetWithBalancesSchema = z
   .intersection(
-    ZapperAssetBaseSchema,
+    PortalsAssetBaseSchema,
     z.object({
-      tokens: z.array(ZapperTokenSchema),
+      tokens: z.array(PortalsTokenSchema),
     }),
   )
   .allowUnknownKeys()
 
-export type ZapperAssetWithBalancesType = Infer<typeof ZapperAssetWithBalancesSchema>
+export type PortalsAssetWithBalancesType = Infer<typeof PortalsAssetWithBalancesSchema>
 
-export const zapperAssetToMaybeAssetId = (
-  asset: ZapperAssetWithBalancesType | ZapperToken,
+export const portalsAssetToMaybeAssetId = (
+  asset: PortalsAssetWithBalancesType | PortalsToken,
 ): AssetId | undefined => {
-  const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
+  const chainId = portalsNetworkToChainId(asset.network as SupportedPortalsNetwork)
   if (!chainId) return undefined
   const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
 
@@ -225,28 +222,23 @@ export const zapperAssetToMaybeAssetId = (
   return assetId
 }
 
-const ZapperProductSchema = z.object({
+const PortalsProductSchema = z.object({
   label: z.string(),
-  assets: z.array(ZapperAssetWithBalancesSchema),
+  assets: z.array(PortalsAssetWithBalancesSchema),
   meta: z.array(z.unknown()),
 })
 
-const ZapperV2AppBalance = z.object({
+const PortalsV2AppBalance = z.object({
   key: z.string(),
   address: z.string(),
-  appId: ZapperAppIdSchema,
+  appId: PortalsAppIdSchema,
   appName: z.string(),
   appImage: z.string(),
-  network: SupportedZapperNetworks,
+  network: SupportedPortalsNetworks,
   updatedAt: z.string(),
   balanceUSD: z.number(),
-  products: z.array(ZapperProductSchema),
+  products: z.array(PortalsProductSchema),
 })
-
-export enum ZapperGroupId {
-  Pool = 'pool',
-  Farm = 'farm',
-}
 
 const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
 export type MediaFileType = (typeof MEDIA_FILETYPE)[number]
@@ -375,10 +367,10 @@ export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
+const V2BalancesAppsResponse = z.array(PortalsV2AppBalance)
 
-export type ZapperAssetBase = Infer<typeof ZapperAssetBaseSchema>
-export const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
+export type PortalsAssetBase = Infer<typeof PortalsAssetBaseSchema>
+export const V2AppTokensResponse = z.array(PortalsAssetBaseSchema)
 export type V2AppTokensResponseType = Infer<typeof V2AppTokensResponse>
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -390,19 +382,19 @@ export type V2NftCollectionType = Infer<typeof nftCollectionSchema>
 export const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
 export type V2NftBalancesCollectionsResponseType = Infer<typeof V2NftBalancesCollectionsResponse>
 
-export type V2ZapperNft = Infer<typeof tokenSchema>
+export type V2PortalsNft = Infer<typeof tokenSchema>
 
 export const V2AppsBalancesResponse = z.array(
   z.object({
     key: z.string(),
     address: z.string(),
-    appId: ZapperAppIdSchema.optional(),
+    appId: PortalsAppIdSchema.optional(),
     appName: z.string(),
     appImage: z.string(),
     network: z.string(),
     updatedAt: z.string(),
     balanceUSD: z.number(),
-    products: z.array(ZapperProductSchema),
+    products: z.array(PortalsProductSchema),
   }),
 )
 export type V2AppsBalancesResponseType = Infer<typeof V2AppsBalancesResponse>
@@ -422,13 +414,9 @@ const V2AppGroupResponse = z.object({
 const V2AppResponse = z
   .object({
     id: z.string(),
-    databaseId: z.number(),
-    categoryId: z.number().nullable(),
     category: categorySchema.nullable().optional(),
     slug: z.string(),
     name: z.string(),
-    description: z.string(),
-    url: z.string(),
     imgUrl: z.string(),
     twitterUrl: z.string().nullable(),
     farcasterUrl: z.string().nullable(),

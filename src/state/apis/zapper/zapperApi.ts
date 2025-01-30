@@ -4,7 +4,6 @@ import {
   ASSET_NAMESPACE,
   bscChainId,
   ethChainId,
-  fromAssetId,
   toAccountId,
   toAssetId,
 } from '@shapeshiftoss/caip'
@@ -16,17 +15,21 @@ import { getConfig } from 'config'
 import qs from 'qs'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import type {
+  GetPlatformsResponse,
+  GetTokensResponse,
+  Platform,
+  TokenInfo,
+} from 'lib/portals/types'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
-import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
-  AssetIdsTuple,
   DefiProviderMetadata,
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataOutput,
@@ -38,73 +41,81 @@ import type {
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { parseToNftItem } from '../nft/parsers/zapper'
-import type { NftCollectionType, NftItemWithCollection } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
-import type {
-  SupportedZapperNetwork,
-  V2AppResponseType,
-  V2NftBalancesCollectionsResponseType,
-  V2NftUserItem,
-  V2NftUserTokensResponseType,
-  ZapperAssetBase,
-} from './validators'
+import type { PortalsAssetBase, SupportedPortalsNetwork, V2AppResponseType } from './validators'
 import {
-  chainIdToZapperNetwork,
-  V2AppsBalancesResponse,
-  V2AppsResponse,
-  V2AppTokensResponse,
-  V2NftBalancesCollectionsResponse,
-  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP,
-  zapperAssetToMaybeAssetId,
-  ZapperGroupId,
-  zapperNetworkToChainId,
+  chainIdToPortalsNetwork,
+  PORTALS_NETWORKS_TO_CHAIN_ID_MAP,
+  portalsNetworkToChainId,
 } from './validators'
+import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 
-const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
-
-const authorization = `Basic ${Buffer.from(
-  `${getConfig().REACT_APP_ZAPPER_API_KEY}:`,
-  'binary',
-).toString('base64')}`
+const PORTALS_BASE_URL = getConfig().REACT_APP_PORTALS_BASE_URL
+const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
 
 const options: AxiosRequestConfig = {
   method: 'GET' as const,
-  baseURL: ZAPPER_BASE_URL,
+  baseURL: PORTALS_BASE_URL,
   headers: {
     accept: 'application/json',
-    authorization,
+    Authorization: `Bearer ${PORTALS_API_KEY}`,
   },
-  // Encode query params with arrayFormat: 'repeat' because zapper api expects it
+  // Encode query params with arrayFormat: 'repeat' because portals api expects it
   paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
 }
 
 const headers = {
   accept: 'application/json',
-  authorization,
+  Authorization: `Bearer ${PORTALS_API_KEY}`,
 }
 
 export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
-export type GetZapperAppTokensOutput = Record<AssetId, ZapperAssetBase>
-
-type GetZapperNftUserTokensInput = {
-  accountIds: AccountId[]
-}
+export type GetZapperAppTokensOutput = Record<AssetId, PortalsAssetBase>
 
 export type GetZapperAppsBalancesInput = {
   evmAccountIds: AccountId[]
-}
-
-type GetZapperCollectionsInput = {
-  accountIds: AccountId[]
-  collectionId: AssetId
 }
 
 export type GetZapperAppsBalancesOutput = {
   userData: ReadOnlyOpportunityType[]
   opportunities: Record<string, OpportunityMetadataBase>
   metadataByProvider: Record<string, DefiProviderMetadata>
+}
+
+type PortalsBalance = {
+  key: string
+  name: string
+  decimals: number
+  symbol: string
+  price: number
+  address: string
+  platform: string
+  network: string
+  images?: string[]
+  image?: string
+  tokens?: string[]
+  liquidity: number
+  metrics?: {
+    apy?: string
+    baseApy?: string
+    volumeUsd1d?: string
+  }
+  metadata?: {
+    tags?: string[]
+  }
+  reserves?: string[]
+  totalSupply?: string
+  balanceUSD: number
+  balance: number
+  rawBalance: string
+}
+
+type PortalsAccountResponse = {
+  totalQueried: number
+  balances: PortalsBalance[]
 }
 
 // https://docs.zapper.xyz/docs/apis/getting-started
@@ -114,24 +125,47 @@ export const zapperApi = createApi({
   endpoints: build => ({
     getZapperAppsOutput: build.query<Record<string, V2AppResponseType>, void>({
       queryFn: async () => {
-        const url = `/v2/apps`
-        const payload = { ...options, headers, url }
-        const { data: res } = await axios.request({ ...payload })
         try {
-          const parsedZapperV2AppsData = V2AppsResponse.parse(res)
+          if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
+          if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
 
-          const zapperV2AppsDataByAppId = parsedZapperV2AppsData.reduce<
-            Record<string, V2AppResponseType>
-          >(
-            (acc, app) => Object.assign(acc, { [app.id]: app }),
-            {} as Record<string, V2AppResponseType>,
-          )
+          const url = `${PORTALS_BASE_URL}/v2/platforms`
+          const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
+            headers: {
+              Authorization: `Bearer ${PORTALS_API_KEY}`,
+            },
+          })
 
-          return { data: zapperV2AppsDataByAppId }
+          // Group platforms by platform ID and network to match Zapper's format
+          const platformsById = platforms
+            .filter(platform => !['basic', 'native'].includes(platform.platform))
+            .reduce<Record<string, V2AppResponseType>>(
+              (acc, platform: Platform) => {
+                const id = platform.platform
+                if (!acc[id]) {
+                  acc[id] = {
+                    id,
+                    category: null,
+                    slug: id,
+                    name: platform.name,
+                    imgUrl: platform.image,
+                    twitterUrl: null,
+                    farcasterUrl: null,
+                    tags: [],
+                    token: null,
+                    groups: [],
+                  }
+                }
+
+                return acc
+              },
+              {},
+            )
+
+          return { data: platformsById }
         } catch (e) {
           console.error(e)
-
-          const message = e instanceof Error ? e.message : 'Error fetching Zapper apps data'
+          const message = e instanceof Error ? e.message : 'Error fetching Portals platforms data'
           return {
             error: {
               error: message,
@@ -143,174 +177,129 @@ export const zapperApi = createApi({
     }),
     getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
       queryFn: async () => {
-        const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
+        try {
+          if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
+          if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
 
-        // only UNI-V2 supported for now
-        const url = `/v2/apps/uniswap-v2/tokens`
-        const params = {
-          groupId: ZapperGroupId.Pool,
-          networks: evmNetworks,
-        }
-        const payload = { ...options, params, headers, url }
-        const { data: res } = await axios.request({ ...payload })
-        const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
+          const evmNetworks = [chainIdToPortalsNetwork(ethChainId)]
+          const networks = evmNetworks.map(network => network?.toLowerCase()).filter(isSome)
 
-        const { data } = zapperV2AppTokensData.reduce<{
-          data: GetZapperAppTokensOutput
-        }>(
-          (acc, appTokenData) => {
-            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
-            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
-            const chainId = zapperNetworkToChainId(appTokenData.network)
-            if (!chainId) return acc
+          const url = `${PORTALS_BASE_URL}/v2/tokens`
+          const params = {
+            platforms: ['uniswapv2'],
+            networks,
+            minLiquidity: '100000', // Same as in fetchPortalsTokens
+            limit: '250', // Max allowed by API
+          }
 
-            const assetId = toAssetId({
-              chainId,
-              assetNamespace: 'erc20', // TODO: bep20
-              assetReference: appTokenData.address,
-            })
+          const { data: res } = await axios.get<GetTokensResponse>(url, {
+            headers: {
+              Authorization: `Bearer ${PORTALS_API_KEY}`,
+            },
+            params,
+          })
 
-            acc.data[assetId] = appTokenData
+          const { data } = res.tokens.reduce<{
+            data: GetZapperAppTokensOutput
+          }>(
+            (acc: { data: GetZapperAppTokensOutput }, tokenData: TokenInfo) => {
+              const chainId = portalsNetworkToChainId(tokenData.network as SupportedPortalsNetwork)
+              if (!chainId) return acc
 
-            return acc
-          },
-          { data: {} },
-        )
+              const assetId = toAssetId({
+                chainId,
+                assetNamespace: 'erc20', // TODO: bep20
+                assetReference: tokenData.address,
+              })
 
-        return { data }
-      },
-    }),
-    getZapperNftUserTokens: build.query<NftItemWithCollection[], GetZapperNftUserTokensInput>({
-      queryFn: async ({ accountIds }) => {
-        let data: (V2NftUserItem & { ownerAddress: string })[] = []
-
-        const userAddresses = accountIdsToEvmAddresses(accountIds)
-        for (const userAddress of userAddresses) {
-          // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
-          /**
-           * docs about cursor are wrong lmeow
-           * check the length of returned items to see if there are more
-           */
-          const limit = 100
-          while (true) {
-            try {
-              const url = `/v2/nft/user/tokens`
-              const params = {
-                userAddress,
+              // Convert TokenInfo to PortalsAssetBase format
+              const PortalsAssetBase: PortalsAssetBase = {
+                type: 'app-token',
+                address: tokenData.address,
+                symbol: tokenData.symbol,
+                decimals: tokenData.decimals.toString(),
+                key: tokenData.key,
+                price: Number(tokenData.price || 0),
+                network: tokenData.network as SupportedPortalsNetwork,
+                appId: DefiProvider.UniV2,
+                tokens: (tokenData.tokens || []).map(tokenAddress => ({
+                  type: 'base-token',
+                  address: tokenAddress,
+                  network: tokenData.network as SupportedPortalsNetwork,
+                  symbol: '', // We don't have this info from Portals
+                  decimals: '18', // Default to 18, as we don't have this info from Portals
+                })),
+                dataProps: {
+                  liquidity: tokenData.liquidity,
+                  apy: tokenData.metrics?.apy ? Number(tokenData.metrics.apy) : undefined,
+                  volume: tokenData.metrics?.volumeUsd1d
+                    ? Number(tokenData.metrics.volumeUsd1d)
+                    : undefined,
+                },
+                displayProps: {
+                  label: tokenData.name,
+                  images: tokenData.images || [],
+                },
               }
-              const payload = { ...options, params, headers, url }
-              const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })
-              if (!res?.items?.length) break
-              if (res?.items?.length)
-                data = data.concat(
-                  res.items.map(item => Object.assign(item, { ownerAddress: userAddress })),
-                )
-              if (res?.items?.length < limit) break
-            } catch (e) {
-              console.error(e)
-              break
-            }
-          }
-        }
 
-        const parsedData = data
-          .filter(v2NftItem => {
-            const chainId = zapperNetworkToChainId(
-              v2NftItem.token.collection.network as SupportedZapperNetwork,
-            )
-            return Boolean(chainId)
-          })
-          .map(v2NftItem => {
-            // Actually defined since we're narrowing things down in the filter above
-            const chainId = zapperNetworkToChainId(
-              v2NftItem.token.collection.network as SupportedZapperNetwork,
-            )!
-            return parseToNftItem(v2NftItem, chainId)
-          })
-        return { data: parsedData }
-      },
-    }),
-    // We abuse the /v2/nft/balances/collections endpoint to get the collection meta
-    getZapperCollectionBalance: build.query<NftCollectionType, GetZapperCollectionsInput>({
-      queryFn: async ({ accountIds, collectionId }) => {
-        const addresses = accountIdsToEvmAddresses(accountIds)
-        const params = {
-          'addresses[]': addresses,
-          'collectionAddresses[]': [fromAssetId(collectionId).assetReference],
-        }
-        const url = `/v2/nft/balances/collections`
-        const payload = { ...options, params, headers, url }
-        const { data } = await axios.request<V2NftBalancesCollectionsResponseType>({
-          ...payload,
-        })
+              acc.data[assetId] = PortalsAssetBase
 
-        const { items: validatedData } = V2NftBalancesCollectionsResponse.parse(data)
+              return acc
+            },
+            { data: {} },
+          )
 
-        const parsedData: NftCollectionType[] = validatedData.map(item => {
-          const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
-          return {
-            assetId: collectionId,
-            chainId,
-            name: item.collection.name,
-            floorPrice: item.collection.floorPriceEth || '',
-            openseaId: item.collection.openseaId || '',
-            description: item.collection.description,
-            socialLinks: item.collection.socialLinks.map(link => ({
-              key: link.name,
-              displayName: link.label,
-              url: link.url,
-            })),
-          }
-        })
-
-        if (!parsedData[0]) {
+          return { data }
+        } catch (e) {
+          console.error(e)
+          const message = e instanceof Error ? e.message : 'Error fetching Portals tokens data'
           return {
             error: {
-              status: 404,
-              code: 'ZAPPER_COLLECTION_NOT_FOUND',
-              message: 'Collection not found',
+              error: message,
+              status: 'CUSTOM_ERROR',
             },
           }
         }
-
-        return { data: parsedData[0] }
       },
     }),
   }),
 })
 
-// https://docs.zapper.xyz/docs/apis/getting-started
 export const zapper = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapper',
   endpoints: build => ({
     getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
-      queryFn: async (_, { dispatch }) => {
-        // We already have the static assets list in the store, however we need to also fetch it here for 2 reasons
-        // 1. We still need to fetch the raw data from Zapper, which we can't store dynamically because asset ratios and APY changes
-        // 2. We have no notion of asset "tags" i.e the notion that these assets are UNI-V2 pools
-        const maybeZapperV2AppTokensData = await dispatch(
-          zapperApi.endpoints.getZapperAppTokensOutput.initiate(),
-        )
+      queryFn: async () => {
+        const evmNetworks = [chainIdToPortalsNetwork(ethChainId)]
+        const networks = evmNetworks.map(network => network?.toLowerCase()).filter(isSome)
 
-        if (!maybeZapperV2AppTokensData.data) throw new Error('No Zapper data, sadpepe.jpg')
+        const url = `/v2/tokens`
+        const params = {
+          platforms: ['uniswapv2'],
+          networks,
+          minLiquidity: '100000',
+          limit: '250',
+        }
+        const payload = { ...options, params, headers, url }
+        const { data } = await axios.request<GetTokensResponse>({ ...payload })
 
-        const zapperV2AppTokensData = Object.values(maybeZapperV2AppTokensData.data)
+        if (!data?.tokens?.length) throw new Error('No Portals data, sadpepe.jpg')
 
-        const data = zapperV2AppTokensData
-          .map(appTokenData => {
-            const chainId = zapperNetworkToChainId(appTokenData.network)
+        const assetIds = data.tokens
+          .map(tokenData => {
+            const chainId = portalsNetworkToChainId(tokenData.network as SupportedPortalsNetwork)
             if (!chainId) return undefined
 
             return toAssetId({
               chainId,
               assetNamespace: 'erc20',
-              assetReference: appTokenData.address,
+              assetReference: tokenData.address,
             })
           })
           .filter(isSome)
 
-        return { data }
+        return { data: assetIds }
       },
     }),
     getZapperAppsBalancesOutput: build.query<
@@ -331,338 +320,276 @@ export const zapper = createApi({
               },
             }
 
+          if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
+          if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
+
           const assets = selectAssets(state)
-          const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
+          const evmNetworks = evmChainIds.map(chainIdToPortalsNetwork).filter(isSome)
 
           // Get unique addresses set from EVM AccountIds
           const addresses = accountIdsToEvmAddresses(evmAccountIds)
 
-          const maybeZapperV2AppsData = await dispatch(
-            zapperApi.endpoints.getZapperAppsOutput.initiate(),
-          )
-
-          const url = `/v2/balances/apps`
+          const url = `${PORTALS_BASE_URL}/v2/account`
           const params = {
-            'addresses[]': addresses,
-            'networks[]': evmNetworks,
+            owner: addresses[0], // TODO: handle multiple addresses if needed
+            networks: evmNetworks,
           }
-          const payload = { ...options, params, headers, url }
-          const { data: res } = await axios.request({ ...payload })
-          const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
 
-          const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(
-            (acc, appAccountBalance) => {
-              const appId = appAccountBalance.appId
-              const appName = appAccountBalance.appName
-
-              // Avoids duplicates from out full-fledged opportunities
-              // Note, this assumes our DefiProvider value is the same as the AppName
-              if (Object.values(DefiProvider).includes(appName as DefiProvider)) {
-                return acc
-              }
-
-              const appImage = appAccountBalance.appImage
-              const accountId = toAccountId({
-                chainId:
-                  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[
-                    appAccountBalance.network as SupportedZapperNetwork
-                  ],
-                account: appAccountBalance.address,
-              })
-
-              const appAccountOpportunities = appAccountBalance.products
-                .flatMap(({ assets, label }) =>
-                  assets.map(asset => Object.assign(asset, { label })),
-                )
-                .map<ReadOnlyOpportunityType | undefined>(asset => {
-                  const chainId = zapperNetworkToChainId(asset.network)
-                  if (!chainId) throw new Error('chainIs is required')
-
-                  const maybeTopLevelLpAssetId = toAssetId({
-                    chainId,
-                    assetNamespace:
-                      chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-                    assetReference: asset.address,
-                  })
-                  const maybeTopLevelLpAsset = assets[maybeTopLevelLpAssetId]
-
-                  const topLevelAsset = (() => {
-                    if (maybeTopLevelLpAsset?.isPool) return asset
-                    const maybeUnderlyingLpAsset = asset.tokens.find(
-                      token => token.metaType === 'supplied' || token.metaType === 'borrowed',
-                    )
-                    if (maybeUnderlyingLpAsset) return maybeUnderlyingLpAsset
-                    return asset
-                  })()
-
-                  const stakedAmountCryptoBaseUnitAccessor = (() => {
-                    // This is a LP token, the top-level asset holds the staked amount
-                    if (maybeTopLevelLpAsset?.isPool) return asset
-                    //  Liquidity Pool of sorts
-                    const maybeLpAcesssor = asset.tokens.find(
-                      token => token.metaType === 'supplied' || token.metaType === 'borrowed',
-                    )
-                    // More general single-sided staking
-                    if (maybeLpAcesssor?.balanceRaw) return maybeLpAcesssor
-                    return asset
-                  })()
-                  // The balance itself is a positive amount, but the USD balance is negative, so we need to check for that
-                  const isNegativeStakedAmount = bnOrZero(
-                    stakedAmountCryptoBaseUnitAccessor?.balanceUSD,
-                  ).isNegative()
-                  const stakedAmountCryptoBaseUnitBase = bnOrZero(
-                    stakedAmountCryptoBaseUnitAccessor?.balanceRaw,
-                  )
-                  const stakedAmountCryptoBaseUnit = (
-                    isNegativeStakedAmount
-                      ? stakedAmountCryptoBaseUnitBase.negated()
-                      : stakedAmountCryptoBaseUnitBase
-                  ).toFixed()
-                  const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
-                  const rewardAssetIds = rewardTokens.reduce<AssetId[]>((acc, token) => {
-                    const rewardAssetId = zapperAssetToMaybeAssetId(token)
-                    // Reward AssetIds are ordered - if we can't get all of them, we return empty rewardAssetIds
-                    if (!rewardAssetId) return []
-
-                    acc.push(rewardAssetId)
-                    return acc
-                  }, []) as unknown as AssetIdsTuple
-
-                  // Upsert rewardAssetIds if they don't exist in store
-                  const rewardAssetsToUpsert = rewardTokens.reduce<UpsertAssetsPayload>(
-                    (acc, token, i) => {
-                      const rewardAssetId = zapperAssetToMaybeAssetId(token)
-                      if (!rewardAssetId) return acc
-                      if (assets[rewardAssetId]) return acc
-
-                      acc.byId[rewardAssetId] = makeAsset(assets, {
-                        assetId: rewardAssetId,
-                        symbol: token.symbol,
-                        // No dice here, there's no name property
-                        name: token.symbol,
-                        precision: bnOrZero(token.decimals).toNumber(),
-                        icon: token.displayProps?.images[i] ?? '',
-                      })
-                      acc.ids = acc.ids.concat(rewardAssetId)
-
-                      return acc
-                    },
-                    { byId: {}, ids: [] },
-                  )
-
-                  const maybeTopLevelRewardAssetToUpsert: UpsertAssetsPayload = (() => {
-                    const rewardAssetId =
-                      asset.groupId === 'claimable' ? zapperAssetToMaybeAssetId(asset) : undefined
-                    return {
-                      byId: rewardAssetId
-                        ? {
-                            [rewardAssetId]: makeAsset(assets, {
-                              assetId: rewardAssetId,
-                              symbol: asset.tokens[0].symbol ?? '',
-                              name: asset.displayProps?.label ?? '',
-                              precision: bnOrZero(asset.decimals).toNumber(),
-                              icon: asset.displayProps?.images[0] ?? '',
-                            }),
-                          }
-                        : {},
-                      ids: rewardAssetId ? [rewardAssetId] : [],
-                    }
-                  })()
-
-                  dispatch(assetsSlice.actions.upsertAssets(rewardAssetsToUpsert))
-                  dispatch(assetsSlice.actions.upsertAssets(maybeTopLevelRewardAssetToUpsert))
-
-                  const rewardsCryptoBaseUnit = {
-                    amounts: rewardTokens.map(token => token.balanceRaw),
-                    claimable: true,
-                  } as unknown as ReadOnlyOpportunityType['rewardsCryptoBaseUnit']
-
-                  const fiatAmount = bnOrZero(asset.balanceUSD).toString()
-                  const apy = bnOrZero(asset.dataProps?.apy)
-                    .div(100)
-                    .toString()
-                  const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
-                  const icon = asset.displayProps?.images?.[0] ?? ''
-                  const name = asset.displayProps?.label ?? ''
-
-                  // Assume all as staking. Zapper's heuristics simply don't allow us to discriminate
-                  // This is our best bet until we bring in the concept of an "DefiType.GenericOpportunity"
-                  const defiType = DefiType.Staking
-
-                  const assetId = zapperAssetToMaybeAssetId(topLevelAsset)
-
-                  if (!assetId) return undefined
-
-                  const opportunityId: StakingId = `${asset.address}#${asset.key}`
-
-                  if (!acc.metadataByProvider[appName]) {
-                    acc.metadataByProvider[appName] = {
-                      provider: appName,
-                      icon: appImage,
-                      color: '#000000', // TODO
-                      url:
-                        appId && maybeZapperV2AppsData.data
-                          ? maybeZapperV2AppsData.data[appId]?.url
-                          : '',
-                    }
-                  }
-                  const underlyingAssetIds = asset.tokens.map(token => {
-                    const underlyingAssetId = zapperAssetToMaybeAssetId(token)
-                    return underlyingAssetId!
-                  })
-
-                  const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-                  const assetPrice =
-                    // Claimable assets may not have a price, if that's the case, we use the price of the underlying asset they wrap
-                    asset.groupId === 'claimable'
-                      ? bnOrZero(asset.tokens[0].price).toNumber()
-                      : asset.price
-                  if (assetMarketData.price === '0' && assetPrice) {
-                    dispatch(
-                      marketDataSlice.actions.setCryptoMarketData({
-                        [assetId]: {
-                          price: bnOrZero(assetPrice).toString(),
-                          marketCap: '0',
-                          volume: bnOrZero(asset.dataProps?.volume).toString(),
-                          changePercent24Hr: 0,
-                        },
-                      }),
-                    )
-                  }
-
-                  underlyingAssetIds.forEach((underlyingAssetId, i) => {
-                    const marketData = selectMarketDataByAssetIdUserCurrency(
-                      state,
-                      underlyingAssetId,
-                    )
-                    if (marketData.price === '0') {
-                      dispatch(
-                        marketDataSlice.actions.setCryptoMarketData({
-                          [underlyingAssetId]: {
-                            price: bnOrZero(asset.tokens[i].price).toString(),
-                            marketCap: '0',
-                            volume: bnOrZero(asset.tokens[i].dataProps?.volume).toString(),
-                            changePercent24Hr: 0,
-                          },
-                        }),
-                      )
-                    }
-                  })
-
-                  const underlyingAssetId =
-                    asset.type === 'app-token' || asset.groupId === 'claimable'
-                      ? assetId
-                      : underlyingAssetIds[0]!
-
-                  // Upsert underlyingAssetIds if they don't exist in store
-                  const underlyingAssetsToUpsert = Object.values(
-                    underlyingAssetIds,
-                  ).reduce<UpsertAssetsPayload>(
-                    (acc, underlyingAssetId, i) => {
-                      if (assets[underlyingAssetId]) return acc
-
-                      acc.byId[underlyingAssetId] = makeAsset(assets, {
-                        assetId: underlyingAssetId,
-                        symbol: asset.tokens[i].symbol,
-                        // No dice here, there's no name property
-                        name: asset.tokens[i].symbol,
-                        precision: bnOrZero(asset.tokens[i].decimals).toNumber(),
-                        icon: asset.displayProps?.images[i] ?? '',
-                      })
-                      acc.ids = acc.ids.concat(underlyingAssetId)
-
-                      return acc
-                    },
-                    { byId: {}, ids: [] },
-                  )
-
-                  dispatch(assetsSlice.actions.upsertAssets(underlyingAssetsToUpsert))
-
-                  // Upsert underlyingAssetIds if they don't exist in store
-                  if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
-                    const underlyingAsset = makeAsset(assets, {
-                      assetId: underlyingAssetId,
-                      symbol: asset.symbol ?? '',
-                      name: asset.displayProps?.label ?? '',
-                      precision: Number(asset.decimals) ?? 18,
-                      icons: asset.displayProps?.images ?? [],
-                    })
-                    dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
-                  }
-
-                  const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(
-                    (reserve, i) => {
-                      const reserveBaseUnit = toBaseUnit(reserve, Number(asset.decimals) ?? 18)
-                      const totalSupplyBaseUnit =
-                        typeof asset.supply === 'number'
-                          ? toBaseUnit(asset.supply, Number(asset.decimals) ?? 18)
-                          : undefined
-                      const tokenPoolRatio = totalSupplyBaseUnit
-                        ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
-                        : undefined
-                      if (bnOrZero(tokenPoolRatio).isZero()) return '0'
-                      const ratio = toBaseUnit(
-                        tokenPoolRatio,
-                        bnOrZero(asset.tokens[i].decimals).toNumber(),
-                      )
-                      return ratio
-                    },
-                  )
-
-                  if (!acc.opportunities[opportunityId]) {
-                    acc.opportunities[opportunityId] = {
-                      apy,
-                      assetId,
-                      underlyingAssetId,
-                      underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit,
-                      id: opportunityId,
-                      icon,
-                      name,
-                      rewardAssetIds,
-                      provider: appName,
-                      tvl,
-                      type: defiType,
-                      version: asset.label,
-                      group: asset.groupId,
-                      isClaimableRewards: Boolean(rewardTokens.length),
-                      isReadOnly: true,
-                    }
-                  }
-
-                  return {
-                    accountId,
-                    provider: appName,
-                    userStakingId: serializeUserStakingId(accountId, opportunityId),
-                    opportunityId,
-                    stakedAmountCryptoBaseUnit,
-                    rewardsCryptoBaseUnit,
-                    fiatAmount,
-                    label: asset.groupId,
-                    type: defiType,
-                    version: asset.label,
-                  }
-                })
-                .filter(isSome)
-
-              acc.userData = acc.userData.concat(appAccountOpportunities)
-              return acc
+          const { data: res } = await axios.get<PortalsAccountResponse>(url, {
+            headers: {
+              Authorization: `Bearer ${PORTALS_API_KEY}`,
             },
-            { userData: [], opportunities: {}, metadataByProvider: {} },
-          )
+            params,
+          })
 
-          // Upsert metadata
+          type AccumulatorType = {
+            userData: ReadOnlyOpportunityType[]
+            opportunities: Record<string, OpportunityMetadataBase>
+            metadataByProvider: Record<string, DefiProviderMetadata>
+          }
+
+          const parsedOpportunities = res.balances
+            .filter(balance => {
+              // Only filter out basic/native tokens at the top level, but allow them as underlying assets
+              if (balance.metadata?.tags?.[0] === '#pool') return true
+              return !['basic', 'native'].includes(balance.platform)
+            })
+            .reduce<AccumulatorType>(
+              (acc: AccumulatorType, balance: PortalsBalance) => {
+                const appName = balance.platform === 'uniswapv2' ? DefiProvider.UniV2 : balance.platform
+
+                // Avoids duplicates from our full-fledged opportunities
+                if (Object.values(DefiProvider).includes(appName as DefiProvider)) {
+                  if (appName !== DefiProvider.UniV2) return acc
+                }
+
+                const appImage = balance.image ?? balance.images?.[0] ?? ''
+                const accountId = toAccountId({
+                  chainId:
+                    PORTALS_NETWORKS_TO_CHAIN_ID_MAP[balance.network as SupportedPortalsNetwork],
+                  account: addresses[0],
+                })
+
+                const chainId = portalsNetworkToChainId(balance.network as SupportedPortalsNetwork)
+                if (!chainId) return acc
+
+                const assetId = toAssetId({
+                  chainId,
+                  assetNamespace:
+                    chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                  assetReference: balance.address,
+                })
+
+                const stakedAmountCryptoBaseUnit = balance.rawBalance
+                const fiatAmount = bnOrZero(balance.balanceUSD).toString()
+                const apy = bnOrZero(balance.metrics?.apy ?? balance.metrics?.baseApy ?? 0)
+                  .div(100)
+                  .toString()
+                const tvl = bnOrZero(balance.liquidity).toString()
+                const icon = balance.image ?? balance.images?.[0] ?? ''
+                const name = balance.name
+
+                // Assume all as staking for now
+                const defiType = DefiType.Staking
+
+                const opportunityId: StakingId = `${balance.address}#${balance.key}`
+
+                if (!acc.metadataByProvider[appName]) {
+                  acc.metadataByProvider[appName] = {
+                    provider: appName,
+                    icon: appImage,
+                    color: '#000000',
+                  }
+                }
+
+                const tokens = balance.tokens ?? []
+                const underlyingAssetIds = tokens
+                  .map(tokenAddress =>
+                    toAssetId({
+                      chainId,
+                      assetNamespace:
+                        chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                      assetReference: tokenAddress as string,
+                    }),
+                  )
+
+                const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
+                if (assetMarketData.price === '0' && balance.price) {
+                  dispatch(
+                    marketDataSlice.actions.setCryptoMarketData({
+                      [assetId]: {
+                        price: bnOrZero(balance.price).toString(),
+                        marketCap: '0',
+                        volume: bnOrZero(balance.metrics?.volumeUsd1d).toString(),
+                        changePercent24Hr: 0,
+                      },
+                    }),
+                  )
+                }
+
+                // Create or update the asset if it doesn't exist
+                if (!assets[assetId]) {
+                  const icons = [...(balance.images ?? []), balance.image].filter(Boolean) as string[]
+                  const asset = makeAsset(assets, {
+                    assetId,
+                    symbol: balance.symbol,
+                    name: balance.name,
+                    precision: balance.decimals,
+                    icons,
+                  })
+                  dispatch(assetsSlice.actions.upsertAsset(asset))
+                }
+
+                const reserves = balance.reserves ?? []
+                const totalSupply = balance.totalSupply ? bnOrZero(balance.totalSupply) : bn(1)
+
+                const underlyingAssetRatiosBaseUnit = reserves
+                  .filter(reserve => reserve !== undefined && reserve !== null)
+                  .map((reserve, i) => {
+                    const tokenAddress = balance.tokens?.[i]
+                    if (!tokenAddress) return '0'
+                    
+                    const underlyingAssetId = underlyingAssetIds[i]
+                    if (!underlyingAssetId) return '0'
+
+                    const underlyingAsset = assets[underlyingAssetId]
+                    if (!underlyingAsset) return '0'
+
+                    // Calculate ratio of reserve to total supply
+                    const reserveAmount = bnOrZero(reserve)
+                    const ratio = reserveAmount.div(bnOrZero(totalSupply))
+                    
+                    // Convert ratio to base unit
+                    return toBaseUnit(ratio.toString(), underlyingAsset.precision)
+                  }) as readonly string[]
+
+                if (!acc.opportunities[opportunityId]) {
+                  acc.opportunities[opportunityId] = {
+                    apy,
+                    assetId,
+                    underlyingAssetId: assetId,
+                    underlyingAssetIds,
+                    underlyingAssetRatiosBaseUnit,
+                    id: opportunityId,
+                    icon,
+                    name,
+                    rewardAssetIds: [], // Portals doesn't provide reward info
+                    provider: appName,
+                    tvl,
+                    type: defiType,
+                    group: balance.metadata?.tags?.[0]?.replace('#', '') ?? '',
+                    isClaimableRewards: false,
+                    isReadOnly: true,
+                  }
+                }
+
+                const opportunity: ReadOnlyOpportunityType = {
+                  accountId,
+                  provider: appName,
+                  userStakingId: serializeUserStakingId(accountId, opportunityId),
+                  opportunityId,
+                  stakedAmountCryptoBaseUnit,
+                  rewardsCryptoBaseUnit: {
+                    amounts: [] as readonly [],
+                    claimable: false,
+                  },
+                  fiatAmount,
+                }
+
+                acc.userData.push(opportunity)
+                return acc
+              },
+              { userData: [], opportunities: {}, metadataByProvider: {} },
+            )
+
+          // Collect all unique token addresses that need details (excluding native tokens)
+          const missingAssetIds = Object.values(res.balances).reduce<string[]>((acc, balance) => {
+            const network = balance.network as SupportedPortalsNetwork
+            const chainId = portalsNetworkToChainId(network)
+            if (!chainId) return acc
+            
+            // Add LP token if missing
+            const assetId = toAssetId({
+              chainId,
+              assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+              assetReference: balance.address,
+            })
+            if (!assets[assetId]) acc.push(`${network}:${balance.address}`)
+            
+            // Add underlying tokens if missing (excluding native tokens)
+            balance.tokens?.forEach(token => {
+              if (balance.platform !== 'native') { // Only exclude native platform tokens
+                const underlyingAssetId = toAssetId({
+                  chainId,
+                  assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+                  assetReference: token,
+                })
+                if (!assets[underlyingAssetId]) acc.push(`${network}:${token}`)
+              }
+            })
+            return acc
+          }, [])
+
+          if (missingAssetIds.length > 0) {
+            // Fetch all missing token details in one request
+            const { data: tokenData } = await axios.get<{ tokens: TokenInfo[] }>(
+              `${PORTALS_BASE_URL}/v2/tokens`,
+              {
+                headers: { Authorization: `Bearer ${PORTALS_API_KEY}` },
+                params: { ids: missingAssetIds.join(',') }
+              }
+            )
+
+            // Convert tokens to assets and upsert them
+            const assetsToUpsert = tokenData.tokens.reduce<UpsertAssetsPayload>(
+              (acc, token) => {
+                const network = token.network as SupportedPortalsNetwork
+                const chainId = portalsNetworkToChainId(network)
+                if (!chainId) return acc
+
+                const assetId = toAssetId({
+                  chainId,
+                  assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+                  assetReference: token.address,
+                })
+
+                const icons = [...(token.images ?? []), token.image]
+                  .filter((icon): icon is string => typeof icon === 'string')
+
+                acc.byId[assetId] = makeAsset(assets, {
+                  assetId,
+                  symbol: token.symbol,
+                  name: token.name,
+                  precision: token.decimals,
+                  icons
+                })
+                acc.ids = acc.ids.concat(assetId)
+
+                return acc
+              },
+              { byId: {}, ids: [] }
+            )
+
+            if (assetsToUpsert.ids.length > 0) {
+              dispatch(assetsSlice.actions.upsertAssets(assetsToUpsert))
+            }
+          }
+
+          // Continue with existing balance processing
           const readOnlyMetadata = parsedOpportunities.opportunities
           const readOnlyUserData = parsedOpportunities.userData
+
           // Prepare the payload for accounts upsertion
           const accountUpsertPayload: GetOpportunityUserDataOutput = {
             byAccountId: {},
             type: DefiType.Staking,
           }
+
           // Prepare the payload for user staking upsertion
           const userStakingUpsertPayload: GetOpportunityUserStakingDataOutput = {
             byId: {},
           }
+
           // Prepare the payloads for upsertOpportunityMetadata
           const stakingMetadataUpsertPayload: GetOpportunityMetadataOutput = {
             byId: {},
@@ -689,7 +616,6 @@ export const zapper = createApi({
               if (!accountUpsertPayload.byAccountId[accountId]) {
                 accountUpsertPayload.byAccountId[accountId] = []
               }
-              // Here we push the opportunityId (representing StakingId) instead of userStakingId
               accountUpsertPayload.byAccountId[accountId]!.push(opportunityId)
             }
 
@@ -704,15 +630,14 @@ export const zapper = createApi({
             }
           }
 
+          debugger
           dispatch(opportunities.actions.upsertOpportunitiesMetadata(stakingMetadataUpsertPayload))
           dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
           dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
 
-          // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }
         } catch (e) {
           console.error(e)
-
           const message = e instanceof Error ? e.message : 'Error fetching read-only opportunities'
           return {
             error: {
@@ -726,5 +651,4 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperNftUserTokensQuery } = zapperApi
-export const { useGetZapperAppsBalancesOutputQuery, useGetZapperUniV2PoolAssetIdsQuery } = zapper
+export const { useGetZapperUniV2PoolAssetIdsQuery, useGetZapperAppsBalancesOutputQuery } = zapper

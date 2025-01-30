@@ -1,13 +1,16 @@
 import { Box, Container, Heading, Image, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { foxWifHatAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT } from 'lib/fees/constant'
+import { calculateFees } from 'lib/fees/model'
 
+import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 import { FoxWifHatClaimModal } from './FoxWifHatClaimModal'
 import { FoxWifHatClaimRow } from './FoxWifHatClaimRow'
@@ -32,6 +35,17 @@ export const FoxWifHat = () => {
     },
     [setClaimAccountId, setIsClaimModalOpened],
   )
+
+  const discountPercent = useMemo(() => {
+    return calculateFees({
+      tradeAmountUsd: bn(DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD),
+      foxHeld: bn(0),
+      feeModel: 'SWAPPER',
+      thorHeld: bn(0),
+      foxWifHatHeldCryptoBaseUnit: bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT),
+      isSnapshotApiQueriesRejected: false,
+    }).foxDiscountPercent.toFixed(2)
+  }, [])
 
   const claimRows = useMemo(() => {
     if (getFoxWifHatMerkleTreeQuery.isFetching) return <Skeleton height='64px' width='100%' />
@@ -59,6 +73,10 @@ export const FoxWifHat = () => {
     getFoxWifHatMerkleTreeQuery.data,
   ])
 
+  const discountText = useMemo(() => {
+    return translate('foxPage.foxWifHat.discount', { percent: discountPercent })
+  }, [discountPercent, translate])
+
   if (!isFoxWifHatEnabled) return null
 
   return (
@@ -76,7 +94,7 @@ export const FoxWifHat = () => {
             {claimRows}
           </Box>
 
-          <Text color='text.subtle' translation='foxPage.foxWifHat.discount' fontSize='sm' />
+          <Text color='text.subtle' translation={discountText} fontSize='sm' />
         </Container>
       </Box>
 

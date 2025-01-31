@@ -173,12 +173,20 @@ export const routes: Route[] = [
     priority: 2,
     main: Trade,
     category: RouteCategory.Featured,
-    routes: assetIdPaths.map(assetIdPath => ({
-      label: 'Trade Asset',
-      path: assetIdPath,
-      main: Trade,
-      hide: true,
-    })),
+    routes: [
+      {
+        label: 'Trade Assets',
+        path: '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+        main: Trade,
+        hide: true,
+      },
+      ...assetIdPaths.map(assetIdPath => ({
+        label: 'Trade Asset',
+        path: assetIdPath,
+        main: Trade,
+        hide: true,
+      })),
+    ],
   },
   {
     path: '/explore',

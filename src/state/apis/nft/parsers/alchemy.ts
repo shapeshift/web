@@ -7,7 +7,7 @@ import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alch
 import axios from 'axios'
 import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getMediaType } from 'state/apis/zapper/validators'
+import { getMediaType } from 'state/apis/portals/validators'
 
 import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
 

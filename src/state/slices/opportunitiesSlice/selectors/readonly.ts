@@ -1,31 +1,30 @@
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import { createSelector } from 'reselect'
 import type {
-  GetZapperAppsBalancesInput,
-  GetZapperAppsBalancesOutput,
-} from 'state/apis/zapper/zapperApi'
+  GetPortalsAppsBalancesInput,
+  GetPortalsAppsBalancesOutput,
+} from 'state/apis/portals/portalsApi'
 import type { ReduxState } from 'state/reducer'
 import { selectEvmAccountIds } from 'state/slices/common-selectors'
 
-// Zapper only for now, make this readOnly.endpoints.selectGetReadOnlyOpportunities
-// smooosh multiple providers into one output as we support more
-const selectZapperQueries = (state: ReduxState) => state.zapper.queries
+// Get read-only opportunities from portals API
 export const selectGetReadOnlyOpportunities = createSelector(
   selectEvmAccountIds,
-  selectZapperQueries,
+  (state: ReduxState) => state.portals?.queries ?? {},
   (evmAccountIds, queries) => {
-    const getZapperAppsBalancesQueries = Object.entries(queries)
-      .filter(([queryKey]) => queryKey.startsWith('getZapperAppsBalancesOutput'))
+    const getPortalsAppsBalancesQueries = Object.entries(queries)
+      .filter(([queryKey]) => queryKey.startsWith('getPortalsAppsBalancesOutput'))
       .map(([_queryKey, queryInfo]) => queryInfo)
 
-    const getZapperAppsBalancesOutput = getZapperAppsBalancesQueries.find(queryInfo => {
+    const getPortalsAppsBalancesOutput = getPortalsAppsBalancesQueries.find(queryInfo => {
       return (
-        queryInfo?.status === 'fulfilled' &&
+        queryInfo?.status === QueryStatus.fulfilled &&
         // Yes, arrays are references but that's absolutely fine because selector outputs *are* stable references
-        (queryInfo.originalArgs as GetZapperAppsBalancesInput).evmAccountIds === evmAccountIds
+        (queryInfo.originalArgs as GetPortalsAppsBalancesInput)?.evmAccountIds === evmAccountIds
       )
-    })?.data as GetZapperAppsBalancesOutput | undefined
+    })?.data as GetPortalsAppsBalancesOutput | undefined
 
-    if (!getZapperAppsBalancesOutput)
+    if (!getPortalsAppsBalancesOutput)
       return {
         data: {
           userData: [],
@@ -34,6 +33,6 @@ export const selectGetReadOnlyOpportunities = createSelector(
         },
       }
 
-    return { data: getZapperAppsBalancesOutput }
+    return { data: getPortalsAppsBalancesOutput }
   },
 )

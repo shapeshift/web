@@ -1000,7 +1000,7 @@
     "approvalResetFailed": "Ödenek sıfırlama sırasında bir sorun oluştu",
     "allowanceResetTxName": "Tahsisat sıfırlama tx:",
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
-    "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
+    "tradeComplete": "Artık cüzdanınızda %{chainName} üzerinde %{cryptoAmountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
     "summary": "Ticaret Özeti",
     "transactionSuccessful": "İşlem başarılı, onay bekleniyor",
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "Bir daha sorma",
       "multiAccountUnsupported": "MetaMask'ta Çoklu Zincir Snap kullanan bu zincirde çoklu hesap desteklenmiyor"
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
       "updateTitle": "Multichain Snap'i güncelle",
@@ -1793,8 +1795,7 @@
         "twelveWordSeedPhrase": "12 kelimelik tohum cümlesi",
         "keystore": "Keystore",
         "create": "Yeni bir cüzdan oluştur",
-        "load": "Kayıtlı cüzdanlar",
-        "uploadKeystore": "Keystore Dosyasını Yükle"
+        "load": "Kayıtlı cüzdanlar"
       },
       "success": {
         "encryptingWallet": "Cüzdanınız şifreleniyor... Tarayıcınız verileri kalıcı depolamada saklamak isterse, lütfen 'İzin Ver'i tıklayın.",

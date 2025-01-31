@@ -120,18 +120,29 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
     }
     return (
       <Stack>
-        {wallets?.map(wallet => (
-          <WalletCard
-            id={wallet.id}
-            key={wallet.id}
-            wallet={wallet}
-            onClick={handleWalletSelect}
-            isActive={walletInfo?.deviceId === wallet.id}
-            isEditing={isEditing}
-            onRename={handleRename}
-            onDelete={handleDelete}
-          />
-        ))}
+        {wallets?.map(wallet => {
+          const isSelected = walletInfo?.deviceId === wallet.id
+          const _hover = isSelected
+            ? { bg: 'background.button.secondary.base', opacity: '1' }
+            : undefined
+          const _active = isSelected
+            ? { bg: 'background.button.secondary.base', opacity: '1' }
+            : undefined
+          return (
+            <WalletCard
+              id={wallet.id}
+              key={wallet.id}
+              wallet={wallet}
+              onClick={isSelected ? undefined : handleWalletSelect}
+              isActive={isSelected}
+              isEditing={isEditing}
+              onRename={handleRename}
+              onDelete={handleDelete}
+              _hover={_hover}
+              _active={_active}
+            />
+          )
+        })}
       </Stack>
     )
   }, [

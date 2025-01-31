@@ -1,4 +1,5 @@
 import { CheckCircleIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
+import type { ButtonProps } from '@chakra-ui/react'
 import { Avatar, Box, Button, Flex, IconButton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -17,6 +18,8 @@ type WalletCardProps = {
   isEditing?: boolean
   onRename?: (wallet: RevocableWallet) => void
   onDelete?: (wallet: RevocableWallet) => void
+  _active?: ButtonProps['_active']
+  _hover?: ButtonProps['_hover']
 }
 
 export const WalletCard: React.FC<WalletCardProps> = ({
@@ -27,6 +30,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({
   isEditing,
   onRename,
   onDelete,
+  _active,
+  _hover,
 }) => {
   const translate = useTranslate()
   const profileImage = useMemo(() => {
@@ -72,7 +77,16 @@ export const WalletCard: React.FC<WalletCardProps> = ({
     }
   }, [handleDelete, handleRename, isActive, isEditing, translate])
   return (
-    <Button onClick={handleClick} height='auto' p={4} leftIcon={avatar} justifyContent='flex-start'>
+    <Button
+      onClick={handleClick}
+      height='auto'
+      p={4}
+      leftIcon={avatar}
+      justifyContent='flex-start'
+      colorScheme='gray'
+      _active={_active}
+      _hover={_hover}
+    >
       <Box
         as='span'
         textAlign='left'

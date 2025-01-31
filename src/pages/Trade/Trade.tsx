@@ -20,7 +20,7 @@ export const Trade = memo(() => {
         justifyContent='center'
         gap={4}
       >
-        <MultiHopTrade />
+        <MultiHopTrade isRewritingUrl />
       </Flex>
     </Main>
   )

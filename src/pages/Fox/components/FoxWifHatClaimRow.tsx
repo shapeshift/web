@@ -17,6 +17,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
 import { useFoxWifHatClaimedQueryQuery } from '../hooks/useFoxWifHatClaimedQuery'
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 
@@ -33,8 +34,6 @@ const columnDirection: StackDirection = { base: 'column', md: 'row' }
 const columnAlignItems = { md: 'center' }
 const columnJustifyContent = { md: 'space-between' }
 const columnSpacing = { base: 4, md: 12, lg: 24, xl: 48 }
-
-const DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD = 1000000
 
 export const FoxWifHatClaimRow = ({
   accountId,

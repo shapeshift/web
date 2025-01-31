@@ -6,9 +6,9 @@ import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  useGetZapperAppsBalancesOutputQuery,
-  useGetZapperUniV2PoolAssetIdsQuery,
-} from 'state/apis/zapper/zapperApi'
+  useGetPortalsAppsBalancesOutputQuery,
+  useGetPortalsUniV2PoolAssetIdsQuery,
+} from 'state/apis/portals/portalsApi'
 import {
   selectEnabledWalletAccountIds,
   selectEvmAccountIds,
@@ -30,14 +30,14 @@ export const useFetchOpportunities = () => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
-  const { isLoading: isZapperAppsBalancesOutputLoading } = useGetZapperAppsBalancesOutputQuery(
+  const { isLoading: isPortalsAppsBalancesOutputLoading } = useGetPortalsAppsBalancesOutputQuery(
     { evmAccountIds },
     {
       skip: !evmAccountIds.length,
       refetchOnMountOrArgChange: true,
     },
   )
-  const { isLoading: isZapperUniV2PoolAssetIdsLoading } = useGetZapperUniV2PoolAssetIdsQuery(
+  const { isLoading: isPortalsUniV2PoolAssetIdsLoading } = useGetPortalsUniV2PoolAssetIdsQuery(
     undefined,
     { skip: !DynamicLpAssets },
   )
@@ -63,13 +63,13 @@ export const useFetchOpportunities = () => {
       isLoading:
         isLoading ||
         portfolioLoadingStatus === 'loading' ||
-        isZapperAppsBalancesOutputLoading ||
-        isZapperUniV2PoolAssetIdsLoading,
+        isPortalsAppsBalancesOutputLoading ||
+        isPortalsUniV2PoolAssetIdsLoading,
     }),
     [
       isLoading,
-      isZapperAppsBalancesOutputLoading,
-      isZapperUniV2PoolAssetIdsLoading,
+      isPortalsAppsBalancesOutputLoading,
+      isPortalsUniV2PoolAssetIdsLoading,
       portfolioLoadingStatus,
     ],
   )

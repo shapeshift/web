@@ -178,7 +178,7 @@ const ZapperTokenSchema: Type<ZapperToken> = z
 
 const ZapperAssetBaseSchema = z
   .object({
-    key: z.string(),
+    key: z.string().optional(),
     type: z.string(),
     appId: ZapperAppIdSchema,
     groupId: z.string(),

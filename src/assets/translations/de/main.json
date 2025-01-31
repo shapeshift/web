@@ -1547,7 +1547,7 @@
           "passphrase": "Aktivieren Sie die Möglichkeit, mehrere Wallets zu haben, auf die Sie zugreifen können, indem Sie eine eindeutige Passphrase für jede Wallet verwenden.",
           "label": "Durch die Kennzeichnung der einzelnen Geräte können Sie sie leicht voneinander unterscheiden.",
           "timeout": "Ihr Gerät wechselt standardmäßig nach 10 Minuten Inaktivität in den Ruhezustand. Sie können dies jedoch ändern.",
-          "buttonPrompt": "Halten Sie die Taste auf Ihrem KeepKey gedrückt, um die %{Einstellung} des Geräts zu ändern.",
+          "buttonPrompt": "Halten Sie die Taste auf Ihrem KeepKey gedrückt, um die %{setting} des Geräts zu ändern.",
           "updateSuccess": "%{setting} erfolgreich aktualisiert!",
           "updateFailed": "Beim Aktualisieren von %{setting} ist ein Fehler aufgetreten.",
           "timeoutDuration": "%{minutes} Minuten"
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "Nicht nochmals fragen",
       "multiAccountUnsupported": "Für diese Kette werden mehrere Konten mit dem Multichain Snap auf MetaMask nicht unterstützt."
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Installieren Sie Multichain Snap",
       "updateTitle": "Aktualisiere Multichain Snap",
@@ -1793,8 +1795,7 @@
         "twelveWordSeedPhrase": "12 Wörter Wiederherstellungsphrase",
         "keystore": "Keystore",
         "create": "Erstellen Sie eine neue Wallet",
-        "load": "Gespeicherte Wallets",
-        "uploadKeystore": "Keystore Datei hochladen"
+        "load": "Gespeicherte Wallets"
       },
       "success": {
         "encryptingWallet": "Verschlüsselung Ihrer Wallet... Wenn Ihr Browser Sie auffordert, Daten zu speichern, klicken Sie bitte auf \"Zulassen\".",

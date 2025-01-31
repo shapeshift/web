@@ -274,7 +274,7 @@
     "routeTitle": "Comprar ou Vender",
     "routeTitleForGem": "Gem on Ramp",
     "title": "Compre ou venda criptomoedas",
-    "titleMessage": "A ShapeShift possui parceria com provedores de moeda fiduciária para compra e venda de criptomoedas.",
+    "titleMessage": "Você pode %{action} %{asset} usando:",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -584,7 +584,7 @@
     "staking": "Poupança",
     "itWillTake": "Vai levar",
     "toUnlock": "para desbloquear seu %{assetSymbol} depois de remover seu staking. As recompensas precisarão ser retiradas separadamente.",
-    "assetStakingBalance": "Saldo em Staking %{assetName}"
+    "assetStakingBalance": "Saldo em Staking %{assetSymbol}"
   },
   "navBar": {
     "home": "Início",
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "Não pergunte novamente",
       "multiAccountUnsupported": "Multi-contas não são suportadas para esta rede usando o Multichain Snap na MetaMask"
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Instale o Multichain Snap",
       "updateTitle": "Atualizar Multichain Snap",
@@ -1793,8 +1795,7 @@
         "twelveWordSeedPhrase": "Seed phrase de 12 palavras",
         "keystore": "Keystore",
         "create": "Criar nova carteira",
-        "load": "Carteiras salvas",
-        "uploadKeystore": "Carregar arquivo Keystore"
+        "load": "Carteiras salvas"
       },
       "success": {
         "encryptingWallet": "Criptografando sua carteira... Caso seu navegador solicitar armazenamento persistente, clique em 'Permitir'.",

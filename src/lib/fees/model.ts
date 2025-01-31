@@ -114,8 +114,6 @@ export const calculateFees: CalculateFeeBps = ({
       .times(100)
       .div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
 
-    console.log({ foxDiscountPercent, currentFoxWifHatDiscountPercent })
-
     // No discount if we cannot fetch FOX holdings and we are not eligible for the WIF HAT campaign
     if (isFallbackFees && !isFoxWifHatDiscountEligible) return bn(0)
 
@@ -157,12 +155,6 @@ export const calculateFees: CalculateFeeBps = ({
     .minus(feeBpsFloat)
     .div(feeBpsBeforeDiscountFloat)
     .times(100)
-
-  console.log({
-    foxDiscountPercent: foxDiscountPercent.toFixed(2),
-    feeBpsFloat: feeBpsFloat.toFixed(2),
-    feeBpsBeforeDiscountFloat: feeBpsBeforeDiscountFloat.toFixed(2),
-  })
 
   const feeBps = feeBpsAfterDiscount
   const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))

@@ -19,6 +19,13 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
+import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+  DialogHeaderRight,
+} from 'components/Modal/components/DialogHeader'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { Text } from 'components/Text'
 
@@ -76,61 +83,70 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
   }
 
   return (
-    <Box p={8}>
-      <form onSubmit={handleSubmit(handleForm)}>
-        <VStack spacing={8}>
-          <WalletConnectIcon fontSize='9xl' />
-          <Heading flex={1} fontSize='xl'>
-            <Text translation='plugins.walletConnectToDapps.modal.connect.title' />
-          </Heading>
-          <Link href='#' target='_blank'>
-            <Button colorScheme='blue' variant='link'>
-              {translate('plugins.walletConnectToDapps.modal.connect.howTo')}
-            </Button>
-          </Link>
+    <>
+      <DialogHeader>
+        <DialogHeaderLeft></DialogHeaderLeft>
+        <DialogHeaderMiddle></DialogHeaderMiddle>
+        <DialogHeaderRight>
+          <DialogCloseButton zIndex='1' position='absolute' color='text.subtle' />
+        </DialogHeaderRight>
+      </DialogHeader>
+      <Box p={8}>
+        <form onSubmit={handleSubmit(handleForm)}>
+          <VStack spacing={8}>
+            <WalletConnectIcon fontSize='9xl' />
+            <Heading flex={1} fontSize='xl'>
+              <Text translation='plugins.walletConnectToDapps.modal.connect.title' />
+            </Heading>
+            <Link href='#' target='_blank'>
+              <Button colorScheme='blue' variant='link'>
+                {translate('plugins.walletConnectToDapps.modal.connect.howTo')}
+              </Button>
+            </Link>
 
-          <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
-            <InputGroup size='lg'>
-              <InputRightElement>
-                <IconButton
-                  aria-label={translate('modals.send.scanQrCode')}
-                  icon={qrCodeIcon}
-                  onClick={toggleQrCodeView}
-                  size='sm'
-                  variant='ghost'
+            <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
+              <InputGroup size='lg'>
+                <InputRightElement>
+                  <IconButton
+                    aria-label={translate('modals.send.scanQrCode')}
+                    icon={qrCodeIcon}
+                    onClick={toggleQrCodeView}
+                    size='sm'
+                    variant='ghost'
+                  />
+                </InputRightElement>
+                <Input
+                  {...register('uri')}
+                  autoComplete={'off'}
+                  type='text'
+                  placeholder={translate(
+                    'plugins.walletConnectToDapps.modal.connect.linkPlaceholder',
+                  )}
+                  autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                  variant='filled'
                 />
-              </InputRightElement>
-              <Input
-                {...register('uri')}
-                autoComplete={'off'}
-                type='text'
-                placeholder={translate(
-                  'plugins.walletConnectToDapps.modal.connect.linkPlaceholder',
-                )}
-                autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-                variant='filled'
-              />
-            </InputGroup>
-            <FormErrorMessage>{formState.errors?.uri?.message}</FormErrorMessage>
-          </FormControl>
-          <Alert status='warning'>
-            <AlertDescription>
-              {translate('plugins.walletConnectToDapps.modal.connect.disclaimerBody')}
-            </AlertDescription>
-          </Alert>
-          <Button
-            isDisabled={!isValidUri}
-            colorScheme='blue'
-            size='lg'
-            width='full'
-            type='submit'
-            variant='solid'
-            isLoading={formState.isSubmitting}
-          >
-            {translate(connectTranslation)}
-          </Button>
-        </VStack>
-      </form>
-    </Box>
+              </InputGroup>
+              <FormErrorMessage>{formState.errors?.uri?.message}</FormErrorMessage>
+            </FormControl>
+            <Alert status='warning'>
+              <AlertDescription>
+                {translate('plugins.walletConnectToDapps.modal.connect.disclaimerBody')}
+              </AlertDescription>
+            </Alert>
+            <Button
+              isDisabled={!isValidUri}
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              type='submit'
+              variant='solid'
+              isLoading={formState.isSubmitting}
+            >
+              {translate(connectTranslation)}
+            </Button>
+          </VStack>
+        </form>
+      </Box>
+    </>
   )
 }

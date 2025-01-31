@@ -58,7 +58,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   const contentStyle = useMemo(() => {
     return {
       maxHeight: isFullScreen ? '100vh' : 'calc(100% - env(safe-area-inset-top))',
-      height: isFullScreen ? viewportHeight : height,
+      height: isFullScreen ? viewportHeight : height || '80vh',
       paddingTop: isFullScreen ? 'env(safe-area-inset-top)' : 0,
     }
   }, [height, isFullScreen, viewportHeight])
@@ -69,7 +69,12 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Root open={isDialogOpen} onClose={onClose} activeSnapPoint={snapPoint}>
+      <Drawer.Root
+        repositionInputs={false}
+        open={isDialogOpen}
+        onClose={onClose}
+        activeSnapPoint={snapPoint}
+      >
         <Drawer.Portal>
           <CustomDrawerOverlay />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>

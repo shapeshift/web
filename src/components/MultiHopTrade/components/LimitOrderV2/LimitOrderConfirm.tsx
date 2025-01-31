@@ -96,9 +96,10 @@ export const LimitOrderConfirm = () => {
     approvalNetworkFeeCryptoBaseUnit,
   } = useAllowanceApproval({
     activeQuote,
-    isQueryEnabled:
-      !!allowanceApproval.isInitiallyRequired &&
-      !!activeQuote &&
+    isQueryEnabled: !!allowanceApproval.isInitiallyRequired && !!activeQuote,
+    // Stop refetching when the approval tx is pending, but keep it enabled (see above) so we can leverage stale data, see
+    // https://github.com/shapeshift/web/issues/8702
+    isRefetchEnabled:
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceApproval &&
       allowanceApproval.state !== TransactionExecutionState.Pending,
   })
@@ -109,9 +110,10 @@ export const LimitOrderConfirm = () => {
     allowanceResetNetworkFeeCryptoBaseUnit,
   } = useAllowanceReset({
     activeQuote,
-    isQueryEnabled:
-      !!allowanceReset.isInitiallyRequired &&
-      !!activeQuote &&
+    isQueryEnabled: !!allowanceReset.isInitiallyRequired && !!activeQuote,
+    // Stop refetching when the reset tx is pending, but keep it enabled (see above) so we can leverage stale data, see
+    // https://github.com/shapeshift/web/issues/8702
+    isRefetchEnabled:
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset &&
       allowanceReset.state !== TransactionExecutionState.Pending,
   })

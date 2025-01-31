@@ -18,7 +18,13 @@ export const useIsAllowanceApprovalRequired = ({
   spender,
   isDisabled,
 }: UseIsApprovalRequiredProps) => {
-  const allowanceCryptoBaseUnitResult = useAllowance({ assetId, from, spender, isDisabled })
+  const allowanceCryptoBaseUnitResult = useAllowance({
+    assetId,
+    from,
+    spender,
+    isDisabled,
+    isRefetchEnabled: true,
+  })
 
   const isAllowanceApprovalRequired = useMemo(() => {
     if (!allowanceCryptoBaseUnitResult.data || !amountCryptoBaseUnit) return

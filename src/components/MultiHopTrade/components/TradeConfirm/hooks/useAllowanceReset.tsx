@@ -47,6 +47,7 @@ export const useAllowanceReset = (
     allowanceType,
     spender: tradeQuoteStep.allowanceContract,
     enabled: isInitiallyRequired && feeQueryEnabled,
+    isRefetchEnabled: true,
   })
 
   useEffect(() => {

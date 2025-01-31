@@ -138,6 +138,7 @@ export const useRfoxStake = ({
     assetId: stakingAsset?.assetId,
     spender: getStakingContract(stakingAssetId),
     from: stakingAssetAccountAddress,
+    isRefetchEnabled: true,
   })
 
   const allowanceCryptoPrecision = useMemo(() => {

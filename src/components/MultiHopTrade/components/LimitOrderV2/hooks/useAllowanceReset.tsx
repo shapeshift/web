@@ -16,10 +16,15 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 type UseAllowanceResetProps = {
   activeQuote: LimitOrderActiveQuote | undefined
   isQueryEnabled: boolean
+  isRefetchEnabled: boolean
 }
 
 // handles allowance reset tx execution, fees, and state orchestration
-export const useAllowanceReset = ({ activeQuote, isQueryEnabled }: UseAllowanceResetProps) => {
+export const useAllowanceReset = ({
+  activeQuote,
+  isQueryEnabled,
+  isRefetchEnabled,
+}: UseAllowanceResetProps) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
@@ -48,6 +53,7 @@ export const useAllowanceReset = ({ activeQuote, isQueryEnabled }: UseAllowanceR
     allowanceType: AllowanceType.Reset,
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     enabled: isQueryEnabled,
+    isRefetchEnabled,
   })
 
   useEffect(() => {

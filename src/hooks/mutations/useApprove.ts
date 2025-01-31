@@ -57,6 +57,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
     assetId: input.assetId,
     spender: input.spender,
     from: input.from,
+    isRefetchEnabled: true,
   })
 
   const isApprovalRequired = useMemo(() => {

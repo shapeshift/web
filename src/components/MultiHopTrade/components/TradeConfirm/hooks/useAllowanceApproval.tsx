@@ -47,6 +47,7 @@ export const useAllowanceApproval = (
     allowanceType,
     spender: tradeQuoteStep.allowanceContract,
     enabled: isInitiallyRequired && feeQueryEnabled,
+    isRefetchEnabled: true,
   })
   useEffect(() => {
     if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceApprovalRequired !== false) return

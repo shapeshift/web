@@ -56,6 +56,7 @@ export const useRfoxBridgeApproval = ({
     assetId: confirmedQuote.sellAssetId,
     spender: allowanceContract,
     from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+    isRefetchEnabled: true,
   })
 
   const isApprovalRequired = useMemo(

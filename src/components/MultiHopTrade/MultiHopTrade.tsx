@@ -43,8 +43,6 @@ export type TradeCardProps = {
 type MatchParams = {
   chainId?: string
   assetSubId?: string
-  fromAssetSubId?: string
-  fromChainId?: string
   sellAssetSubId?: string
   sellChainId?: string
   sellAmountCryptoBaseUnit?: string

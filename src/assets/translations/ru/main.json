@@ -1029,7 +1029,7 @@
       "slippage": "Проскальзывание: %{slippageFormatted}"
     },
     "awaitingPermit2Approval": "Ожидание передачи токена",
-    "awaitingSwap": "Ожидание обмена через %{имя обменщика}",
+    "awaitingSwap": "Ожидание обмена через %{swapperName}",
     "awaitingBridge": "Ожидание моста через %{bridgeName}",
     "awaitingApproval": "Ожидает одобрения",
     "awaitingAllowanceReset": "Ожидание сброса разрешений",
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "Больше не спрашивайте",
       "multiAccountUnsupported": "Мультиаккаунт не поддерживается для этой цепочки при использовании привязки Multichain к MetaMask"
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
       "updateTitle": "Обновление Multichain Snap",
@@ -1793,8 +1795,7 @@
         "twelveWordSeedPhrase": "Фраза из 12 слов ",
         "keystore": "Keystore",
         "create": "Создать новый кошелек",
-        "load": "Сохраненные кошельки",
-        "uploadKeystore": "Загрузка файла Keystore"
+        "load": "Сохраненные кошельки"
       },
       "success": {
         "encryptingWallet": "Шифрование кошелька... если ваш браузер запрашивает сохранение данных в постоянном хранилище, пожалуйста, нажмите Разрешить",

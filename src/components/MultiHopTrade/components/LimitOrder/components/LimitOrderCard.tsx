@@ -86,6 +86,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     // Don't fetch allowance if there is insufficient balance, because we wont display the allowance
     // warning in this case.
     isDisabled: !hasSufficientBalance || status !== OrderStatus.OPEN,
+    isRefetchEnabled: true,
   })
 
   const hasSufficientAllowance = useMemo(() => {

@@ -4,16 +4,15 @@ import { createMigrate, persistReducer } from 'redux-persist'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
-import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import type { NftState } from './apis/nft/nftApi'
 import { nft, nftApi } from './apis/nft/nftApi'
+import { portals, portalsApi } from './apis/portals/portalsApi'
 import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
-import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import {
   clearAssetsMigrations,
   clearMarketDataMigrations,
@@ -152,10 +151,9 @@ export const apiSlices = {
   foxyApi,
   fiatRampApi,
   snapshotApi,
-  zapper,
-  zapperApi,
+  portals,
+  portalsApi,
   nftApi,
-  covalentApi,
   opportunitiesApi,
   abiApi,
   limitOrderApi,
@@ -170,10 +168,9 @@ export const apiReducers = {
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [snapshotApi.reducerPath]: snapshotApi.reducer,
-  [zapperApi.reducerPath]: zapperApi.reducer,
+  [portals.reducerPath]: portals.reducer,
+  [portalsApi.reducerPath]: portalsApi.reducer,
   [nftApi.reducerPath]: nftApi.reducer,
-  [covalentApi.reducerPath]: covalentApi.reducer,
-  [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: limitOrderApi.reducer,

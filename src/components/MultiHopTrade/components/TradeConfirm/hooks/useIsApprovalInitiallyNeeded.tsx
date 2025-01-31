@@ -17,7 +17,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { isPermit2Hop } from './helpers'
+import { isPermit2Hop } from '../helpers'
 
 const useIsApprovalInitiallyNeededForHop = (
   tradeQuoteId: string | undefined,

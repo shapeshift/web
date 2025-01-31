@@ -52,8 +52,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { nft, nftApi, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
 import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
-import { getMediaType } from 'state/apis/zapper/validators'
-import { selectEnabledWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
+import { getMediaType } from 'state/apis/portals/validators'
+import { selectWalletId } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -107,12 +107,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const walletId = useAppSelector(selectWalletId)
-  const accountIds = useAppSelector(selectEnabledWalletAccountIds)
 
-  useGetNftCollectionQuery(
-    { accountIds, collectionId: nftItem.collectionId },
-    { skip: !nftItem.collectionId },
-  )
+  useGetNftCollectionQuery({ collectionId: nftItem.collectionId }, { skip: !nftItem.collectionId })
 
   const nftCollection = useAppSelector(state =>
     selectNftCollectionById(state, nftItem.collectionId),

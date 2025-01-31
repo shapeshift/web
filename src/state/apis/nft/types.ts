@@ -1,6 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-
-import type { MediaUrl } from '../zapper/validators'
+import type { MediaUrl } from 'state/apis/portals/validators'
 
 export type NftCollectionType = {
   assetId: AssetId
@@ -22,7 +21,7 @@ export type NftCollectionType = {
 }
 
 export type NftItem = {
-  // the ID of the actual token in the collection, not a Zapper/Covalent/Opensea ID internal ID, and not an AssetId either
+  // the ID of the actual token in the collection, not a Zapper/Opensea ID internal ID, and not an AssetId either
   id: string
   // The owner of the NFT item
   ownerAccountId: AccountId

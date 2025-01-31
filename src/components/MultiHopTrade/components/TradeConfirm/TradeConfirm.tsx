@@ -1,5 +1,5 @@
 import { Stepper } from '@chakra-ui/react'
-import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -15,11 +15,11 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { useIsApprovalInitiallyNeeded } from '../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
-import { ExpandableStepperSteps } from './ExpandableStepperSteps'
+import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
+import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
 import { TradeConfirmBody } from './TradeConfirmBody'
 import { TradeConfirmFooter } from './TradeConfirmFooter'
 
@@ -88,8 +88,8 @@ export const TradeConfirm = () => {
               ? 'bridge.arbitrum.success.tradeSuccess'
               : 'trade.temp.tradeSuccess'
           }
-          buttonTranslation={'trade.doAnotherTrade'}
-          summaryTranslation={'trade.summary'}
+          buttonTranslation='trade.doAnotherTrade'
+          summaryTranslation='trade.summary'
           sellAsset={activeQuote?.steps[0].sellAsset}
           buyAsset={tradeQuoteLastHop.buyAsset}
           sellAmountCryptoPrecision={fromBaseUnit(

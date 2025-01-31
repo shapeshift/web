@@ -27,7 +27,7 @@ import {
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
-import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
+import { StepperStep } from '../TradeConfirm/StepperStep'
 import { TxLabel } from '../TradeConfirm/TxLabel'
 import { useStepperSteps } from './hooks/useStepperSteps'
 

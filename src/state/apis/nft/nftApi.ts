@@ -18,8 +18,6 @@ import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioS
 import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { covalentApi } from '../covalent/covalentApi'
-import { zapperApi } from '../zapper/zapperApi'
 import { BLACKLISTED_COLLECTION_IDS, hasSpammyMedias, isSpammyNftText } from './constants'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import {
@@ -40,8 +38,6 @@ type GetNftInput = {
 
 type GetNftCollectionInput = {
   collectionId: AssetId
-  // This looks weird but is correct. We abuse the Zapper balances endpoint to get collection meta
-  accountIds: AccountId[]
 }
 
 export type NftState = {
@@ -186,23 +182,7 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const services = [
-          getAlchemyNftsUserData,
-          (accountIds: AccountId[]) =>
-            dispatch(
-              zapperApi.endpoints.getZapperNftUserTokens.initiate(
-                { accountIds },
-                { forceRefetch: true },
-              ),
-            ),
-          (accountIds: AccountId[]) =>
-            dispatch(
-              covalentApi.endpoints.getCovalentNftUserTokens.initiate(
-                { accountIds },
-                { forceRefetch: true },
-              ),
-            ),
-        ]
+        const services = [getAlchemyNftsUserData]
 
         const results = await Promise.allSettled(services.map(service => service(accountIds)))
 
@@ -210,43 +190,37 @@ export const nftApi = createApi({
           (acc, result) => {
             if (isRejected(result)) return acc
 
-            if (result.value.data) {
-              const { data } = result.value
+            const { data } = result.value
 
-              data.forEach(item => {
-                const { assetId } = item
-                if (item.collection.isSpam) return
-                if (hasSpammyMedias(item.medias)) return
-                if (
-                  [item.collection.description, item.collection.name, item.name, item.symbol].some(
-                    nftText => isSpammyNftText(nftText),
-                  )
+            data.forEach(item => {
+              const { assetId } = item
+              if (item.collection.isSpam) return
+              if (hasSpammyMedias(item.medias)) return
+              if (
+                [item.collection.description, item.collection.name, item.name, item.symbol].some(
+                  nftText => isSpammyNftText(nftText),
                 )
-                  return
-                const { assetReference, chainId } = fromAssetId(assetId)
+              )
+                return
+              const { assetReference, chainId } = fromAssetId(assetId)
 
-                const [contractAddress, id] = deserializeNftAssetReference(assetReference)
+              const [contractAddress, id] = deserializeNftAssetReference(assetReference)
 
-                const foundNftAssetId = Object.keys(acc).find(accAssetId => {
-                  const { assetReference: accAssetReference, chainId: accChainId } =
-                    fromAssetId(accAssetId)
-                  const [accContractAddress, accId] =
-                    deserializeNftAssetReference(accAssetReference)
-                  return (
-                    accContractAddress === contractAddress && accId === id && accChainId === chainId
-                  )
-                })
-
-                if (!foundNftAssetId) {
-                  acc[assetId] = item
-                } else {
-                  acc[assetId] = updateNftItem(acc[foundNftAssetId], item)
-                }
+              const foundNftAssetId = Object.keys(acc).find(accAssetId => {
+                const { assetReference: accAssetReference, chainId: accChainId } =
+                  fromAssetId(accAssetId)
+                const [accContractAddress, accId] = deserializeNftAssetReference(accAssetReference)
+                return (
+                  accContractAddress === contractAddress && accId === id && accChainId === chainId
+                )
               })
-              // An actual RTK error, different from a rejected promise i.e getAlchemyNftData rejecting
-            } else if (result.value.isError) {
-              console.error(result.value.error)
-            }
+
+              if (!foundNftAssetId) {
+                acc[assetId] = item
+              } else {
+                acc[assetId] = updateNftItem(acc[foundNftAssetId], item)
+              }
+            })
 
             return acc
           },
@@ -318,22 +292,11 @@ export const nftApi = createApi({
     }),
 
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
-      queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
+      queryFn: async ({ collectionId }, { dispatch }) => {
         try {
-          const services = [
-            getAlchemyCollectionData,
-            (collectionId: AssetId, accountIds: AccountId[]) =>
-              dispatch(
-                zapperApi.endpoints.getZapperCollectionBalance.initiate({
-                  accountIds,
-                  collectionId,
-                }),
-              ),
-          ]
+          const services = [getAlchemyCollectionData]
 
-          const results = await Promise.allSettled(
-            services.map(service => service(collectionId, accountIds)),
-          )
+          const results = await Promise.allSettled(services.map(service => service(collectionId)))
 
           const collectionData = results.reduce<NftCollectionType | null>((acc, result) => {
             if (isRejected(result)) return acc

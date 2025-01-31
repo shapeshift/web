@@ -1,5 +1,6 @@
 import type { CardProps, StackProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
+import { foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
@@ -31,6 +32,7 @@ import {
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,
 } from 'state/apis/snapshot/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
@@ -149,6 +151,9 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) 
           foxHeld: bn(debouncedFoxHolding),
           feeModel,
           isSnapshotApiQueriesRejected,
+          // This is for feeExplainer which is not supporting anything else than FOX discount for now
+          foxWifHatHeldCryptoBaseUnit: bn(0),
+          thorHeld: bn(0),
         }).feeBpsFloat.toNumber()
         return { x: trade, y: feeBps }
       })
@@ -161,6 +166,9 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) 
       foxHeld: bn(debouncedFoxHolding),
       feeModel,
       isSnapshotApiQueriesRejected,
+      // This is for feeExplainer which is not supporting anything else than FOX discount for now
+      foxWifHatHeldCryptoBaseUnit: bn(0),
+      thorHeld: bn(0),
     }).feeBpsFloat.toNumber()
 
     return [{ x: tradeSize, y: feeBps }]
@@ -262,12 +270,20 @@ type FeeOutputProps = {
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, feeModel }) => {
   const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
+
+  const foxWifHatHeld = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
+  )
+
   const { feeUsd, feeBps, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
       tradeAmountUsd: bn(tradeSizeUSD),
       foxHeld: bn(foxHolding),
       feeModel,
       isSnapshotApiQueriesRejected,
+      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
+      // @TODO: remove this when thor swap discount is removed
+      thorHeld: bn(0),
     })
 
   const basedOnFeeTranslation: TextPropTypes['translation'] = useMemo(

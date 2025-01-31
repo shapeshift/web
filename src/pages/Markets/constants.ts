@@ -8,7 +8,6 @@ export enum MarketsCategories {
   TopMovers = 'topMovers',
   RecentlyAdded = 'recentlyAdded',
   OneClickDefi = 'oneClickDefiAssets',
-  ThorchainDefi = 'thorchainDefi',
 }
 
 export const sortOptionsByCategory: Record<MarketsCategories, SortOptionsKeys[] | undefined> = {
@@ -30,11 +29,6 @@ export const sortOptionsByCategory: Record<MarketsCategories, SortOptionsKeys[] 
     SortOptionsKeys.MarketCap,
   ],
   [MarketsCategories.OneClickDefi]: [
-    SortOptionsKeys.Apy,
-    SortOptionsKeys.Volume,
-    SortOptionsKeys.MarketCap,
-  ],
-  [MarketsCategories.ThorchainDefi]: [
     SortOptionsKeys.Apy,
     SortOptionsKeys.Volume,
     SortOptionsKeys.MarketCap,

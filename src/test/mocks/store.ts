@@ -34,6 +34,7 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
 const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
   provided: {
     LimitOrder: {},
+    limitOrderQuote: {},
   },
 })
 
@@ -42,10 +43,9 @@ export const mockStore: ReduxState = {
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
-  zapperApi: mockApiFactory('zapperApi' as const),
+  portalsApi: mockApiFactory('portalsApi' as const),
+  portals: mockApiFactory('portals' as const),
   nftApi: mockApiFactory('nftApi' as const),
-  covalentApi: mockApiFactory('covalentApi' as const),
-  zapper: mockApiFactory('zapper' as const),
   swapperApi: mockSwapperApi,
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
@@ -103,7 +103,6 @@ export const mockStore: ReduxState = {
       LifiSwap: false,
       DynamicLpAssets: false,
       ReadOnlyAssets: false,
-      CovalentJaypegs: false,
       Chatwoot: false,
       AdvancedSlippage: false,
       WalletConnectV2: false,
@@ -142,7 +141,6 @@ export const mockStore: ReduxState = {
       ChainflipDca: false,
       ThorFreeFees: false,
       JupiterSwap: false,
-      NewTradeFlow: false,
       NewWalletFlow: false,
       FoxPageFoxWifHatSection: false,
       NewLimitFlow: false,

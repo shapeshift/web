@@ -1005,6 +1005,7 @@
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
+    "estimatedCompletionTime": "Estimated Completion Time",
     "transactionSuccessful": "Transaction successful, waiting for confirmations",
     "temp": {
       "tradeSuccess": "Trade complete",
@@ -2392,6 +2393,8 @@
     "pool": "Pool",
     "poolDepth": "Pool Depth",
     "poolDepthDescription": "The healthiness of the pool",
+    "status": "Status",
+    "statusDescription": "The status of the pool",
     "totalDebtBalance": "Total Debt Balance",
     "totalDebtBalanceDescription": "Cumulative Debt Balance in the lending pool",
     "totalCollateral": "Total Collateral",
@@ -2436,6 +2439,8 @@
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
     "refetchQuote": "Refetch Quote",
+    "haltedAlert": "Lending and Savers services are currently paused on THORChain. This interruption is expected to last approximately 90 days. We apologize for any inconvenience.",
+    "halterMoreDetails": "For more details, visit THORChain's Discord.",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2811,7 +2816,7 @@
     "foxWifHat": {
       "title": "FOX Wif Hat",
       "description": "Claim your FOXwifhat. Act fast - discounts decay over time. The more FOX or FOXwifhat you hold, the more you save. Stack more FOX tokens for continuous savings plus revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
-      "discount": "*The discount decreases linearly over time, expiring on XX/XX/2025. Take advantage of your XX% discount before it decreases further!",
+      "discount": "*The discount decreases linearly over time, expiring on %{date}. Take advantage of your %{percent}% discount before it decreases further!",
       "claim": "Claim",
       "claimed": "Claimed",
       "discountText": "*%{percent}% off trade fees",

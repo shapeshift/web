@@ -124,7 +124,7 @@ export const TradeSuccess = ({
 
   return (
     <>
-      <CardBody pb={0} px={0}>
+      <CardBody pb={4} px={0}>
         <SlideTransition>
           <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
             <Stack alignItems='center'>
@@ -151,7 +151,7 @@ export const TradeSuccess = ({
           <Divider />
           <CardFooter flexDir='column' gap={2} px={8}>
             <SlideTransition>
-              <HStack width='full' justifyContent='space-between' mt={4}>
+              <HStack width='full' justifyContent='space-between'>
                 <Button variant='link' onClick={handleToggle} px={2}>
                   {translate(summaryTranslation)}
                 </Button>

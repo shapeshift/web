@@ -428,9 +428,7 @@ export const portals = createApi({
 
                     // Create or update the asset if it doesn't exist
                     if (!assets[assetId]) {
-                      const icons = [...(balance.images ?? []), balance.image].filter(
-                        Boolean,
-                      ) as string[]
+                      const icons = [...(balance.images ?? []), balance.image].filter(isSome)
                       const asset = makeAsset(assets, {
                         assetId,
                         symbol: balance.symbol,

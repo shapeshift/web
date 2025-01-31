@@ -584,7 +584,7 @@
     "staking": "Staking",
     "itWillTake": "Tomará",
     "toUnlock": "para desbloquear tus %{assetSymbol} después de unstake. Las recompensas de staking deberán retirarse por separado.",
-    "assetStakingBalance": "%{assetName} Balance de Staking"
+    "assetStakingBalance": "%{assetSymbol} Balance de Staking"
   },
   "navBar": {
     "home": "Inicio",
@@ -1025,7 +1025,7 @@
     "resetTitle": "Restablecimiento Asignación de Tokens",
     "fiatAmountOnChain": "%{amountFiatFormatted} en %{chainName}",
     "quote": {
-      "cantSetSlippage": "No podemos establecer un deslizamiento personalizado (%{userslippageFormatted}) para %{swapperName}",
+      "cantSetSlippage": "No podemos establecer un deslizamiento personalizado (%{userSlippageFormatted}) para %{swapperName}",
       "slippage": "Deslizamiento: %{slippageFormatted}"
     },
     "awaitingPermit2Approval": "Esperando transferencia de token",
@@ -1219,8 +1219,8 @@
         "error": {
           "invalid": "Contraseña debe coincidir",
           "required": "Se requiere confirmación de contraseña",
-          "length": "Su contraseña debe tener al menos %{longitud} caracteres",
-          "maxLength": "El apodo debe tener %{longitud} caracteres como máximo"
+          "length": "Su contraseña debe tener al menos %{length} caracteres",
+          "maxLength": "El apodo debe tener %{length} caracteres como máximo"
         }
       },
       "backupPassphrase": {
@@ -1343,14 +1343,14 @@
     },
     "withdraw": {
       "amountToWithdraw": "Cantidad a retirar",
-      "withdrawFrom": "Retirar de %{oportunidad}",
+      "withdrawFrom": "Retirar de %{opportunity}",
       "unstakeYour": "Retire su %{opportunity}",
       "footerDisclaimer": "Esta transacción requerirá una tarifa de gas por transacción.",
       "slippageSettings": "Ajustes de Deslizamiento",
       "withdrawType": "Tipo de Retiro",
       "instant": "iInstantáneo",
       "delayed": "7 - 14 días",
-      "fee": "%{fee}% %{símbolo} tarifa",
+      "fee": "%{fee}% %{symbol} tarifa",
       "noFee": "Sin cargo de %{symbol}",
       "requestWithdraw": "Solicitar Retiro",
       "withdrawFee": "Habrá una tarifa de gas por separado para retirar.",
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "No volver a preguntar",
       "multiAccountUnsupported": "Cuentas múltiples no admitidas para esta cadena usando Snap Multicadena MetaMask"
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Instalar Snap Multicadena",
       "updateTitle": "Actualizar Snap Multicadena",
@@ -1793,8 +1795,7 @@
         "twelveWordSeedPhrase": "Frase semilla de 12 palabras",
         "keystore": "Keystore",
         "create": "Crear billetera nueva",
-        "load": "Billeteras guardadas",
-        "uploadKeystore": "Subir Archivo Keystore"
+        "load": "Billeteras guardadas"
       },
       "success": {
         "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, clic en 'Permitir'.",
@@ -2350,7 +2351,7 @@
     "description": "Descripción",
     "details": "Detalles",
     "attributes": "Atributos",
-    "aboutCollection": "Acerca de %{nombreColección}",
+    "aboutCollection": "Acerca de %{collectionName}",
     "emptyTitle": "¿Dónde fueron mis NFT?",
     "emptyBody": "No se preocupe, estamos en búsqueda de más NFT sorprendentes. Mientras tanto, sea libre de mirar este espacio blanco y reflexionar sobre el significado de la existencia.",
     "reportSpam": "Reportar Spam",

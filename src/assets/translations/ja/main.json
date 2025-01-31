@@ -1026,7 +1026,7 @@
     "fiatAmountOnChain": "%{chainName} の %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
-      "slippage": "スリッページ: %{ SlippageFormatted}"
+      "slippage": "スリッページ: %{slippageFormatted}"
     },
     "awaitingPermit2Approval": "トークン転送を待機中",
     "awaitingSwap": "%{swapperName} 経由でのスワップを待機中",
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "次回から表示しない",
       "multiAccountUnsupported": "MetaMaskのマルチチェーンスナップを使用したこのチェーンでは、マルチアカウントはサポートされていません。"
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "マルチチェーンスナップをインストールする",
       "updateTitle": "マルチチェーンスナップの更新",
@@ -1793,8 +1795,7 @@
         "twelveWordSeedPhrase": "12語のシードフレーズ",
         "keystore": "キーストア",
         "create": "新しいウォレットを作成する",
-        "load": "保存されたウォレット",
-        "uploadKeystore": "キーストアファイルをアップロード"
+        "load": "保存されたウォレット"
       },
       "success": {
         "encryptingWallet": "ウォレットを暗号化しています...ブラウザが永続ストレージにデータを保存するように要求した場合は、「許可」をクリックしてください。",
@@ -2530,7 +2531,7 @@
     "transactionSubmitted": "トランザクションが送信されました",
     "waitingForConfirmation": "確認待ち",
     "totalTokensLocked": "ロックされたトークンの総数",
-    "chainFee": "%{チェーン}手数料",
+    "chainFee": "%{chain} 手数料",
     "supplying": "供給する",
     "withdrawing": "引き出し",
     "confirmAndDeposit": "確認して入金する",

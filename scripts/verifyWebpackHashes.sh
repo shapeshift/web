@@ -20,7 +20,7 @@ find ./build/static -type f -regextype posix-extended -regex '.*\.[0-9a-f]{8}\.[
     # Take the filename ([chunkId].)([hash])(.[ext]) and get the concatenation of the first and last groups
     STRIPPEDNAME="$(printf '%s' "$NAME" | sed -r 's/^(.*\.)([0-9a-f]{8})(\.[^.]+)$/\1\3/')"
     # Take the stripped filename and build a sed s///g command, escaping all instances of '.' to '\.'
-    REPLACER="$(printf 's/%s/%s/g' "$NAME" "$STRIPPEDNAME" | sed -r 's/\./\./g')"
+    REPLACER="$(printf 's/%s/%s/g' "$NAME" "$STRIPPEDNAME" | sed -r 's/\./\\./g')"
     # On the first and last lines of the file, run the replacer command to swap NAME with STRIPPEDNAME
     # Then hash that and truncate to the first 8 characters
     NEWHASH="$(sed -r "1${REPLACER};\$${REPLACER}" "$FILE" | shasum -a 256 | cut -d ' ' -f 1 | dd bs=8 count=1 status=none)"

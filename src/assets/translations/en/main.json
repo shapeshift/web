@@ -1007,7 +1007,7 @@
     "summary": "Trade Summary",
     "estimatedCompletionTime": "Estimated Completion Time",
     "transactionSuccessful": "Transaction successful, waiting for confirmations",
-    "thorchainSwapperAcknowledgementMessage": "The THORCHain protocol is experiencing volatility. Proceed with extra caution and consider additional available routes.",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "The THORCHain protocol is experiencing volatility. Proceed with extra caution and consider additional available routes.",
     "temp": {
       "tradeSuccess": "Trade complete",
       "tradeComplete": "Successfully received %{symbol} on %{chainName}."

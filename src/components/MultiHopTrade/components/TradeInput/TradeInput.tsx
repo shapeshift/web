@@ -98,7 +98,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     useAccountIds()
   const buyAssetSearch = useModal('buyTradeAssetSearch')
 
-  const isThorchainSwapperEnabled = useFeatureFlag('ThorchainSwapperAck')
+  const isThorchainSwapperVolatilityAckEnabled = useFeatureFlag('ThorchainSwapperVolatilityAck')
 
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -106,8 +106,10 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     useState(false)
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
-  const [shouldShowThorchainSwapperAcknowledgement, setShouldShowThorchainSwapperAcknowledgement] =
-    useState(false)
+  const [
+    shouldShowThorchainSwapperVolatilityAcknowledgement,
+    setShouldShowThorchainSwapperVolatilityAcknowledgement,
+  ] = useState(false)
 
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -187,8 +189,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     // We also need to reset the streaming acknowledgement if the active quote has changed
     if (shouldShowStreamingAcknowledgement) setShouldShowStreamingAcknowledgement(false)
     if (shouldShowArbitrumBridgeAcknowledgement) setShouldShowArbitrumBridgeAcknowledgement(false)
-    if (shouldShowThorchainSwapperAcknowledgement)
-      setShouldShowThorchainSwapperAcknowledgement(false)
+    if (shouldShowThorchainSwapperVolatilityAcknowledgement)
+      setShouldShowThorchainSwapperVolatilityAcknowledgement(false)
     // We need to ignore changes to shouldShowWarningAcknowledgement or this effect will react to itself
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
@@ -217,8 +219,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     return message
   }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
-  const thorchainSwapperAcknowledgementMessage = useMemo(() => {
-    return translate('trade.thorchainSwapperAcknowledgementMessage')
+  const thorchainSwapperVolatilityAcknowledgementMessage = useMemo(() => {
+    return translate('trade.thorchainSwapperVolatilityAcknowledgementMessage')
   }, [translate])
 
   const headerRightContent = useMemo(() => {
@@ -318,8 +320,11 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         return setShouldShowStreamingAcknowledgement(true)
       if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
         return setShouldShowArbitrumBridgeAcknowledgement(true)
-      if (isThorchainSwapperEnabled && activeQuote?.steps[0]?.source === SwapperName.Thorchain) {
-        return setShouldShowThorchainSwapperAcknowledgement(true)
+      if (
+        isThorchainSwapperVolatilityAckEnabled &&
+        activeQuote?.steps[0]?.source.includes(SwapperName.Thorchain)
+      ) {
+        return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
       }
       handleFormSubmit()
     },
@@ -328,7 +333,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       activeQuote,
       isEstimatedExecutionTimeOverThreshold,
       handleFormSubmit,
-      isThorchainSwapperEnabled,
+      isThorchainSwapperVolatilityAckEnabled,
     ],
   )
 
@@ -501,10 +506,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       <WarningAcknowledgement
-        message={thorchainSwapperAcknowledgementMessage}
+        message={thorchainSwapperVolatilityAcknowledgementMessage}
         onAcknowledge={handleThorchainSwapperAcknowledgementSubmit}
-        shouldShowAcknowledgement={Boolean(walletId && shouldShowThorchainSwapperAcknowledgement)}
-        setShouldShowAcknowledgement={setShouldShowThorchainSwapperAcknowledgement}
+        shouldShowAcknowledgement={Boolean(
+          walletId && shouldShowThorchainSwapperVolatilityAcknowledgement,
+        )}
+        setShouldShowAcknowledgement={setShouldShowThorchainSwapperVolatilityAcknowledgement}
       />
       <SharedTradeInput
         bodyContent={bodyContent}

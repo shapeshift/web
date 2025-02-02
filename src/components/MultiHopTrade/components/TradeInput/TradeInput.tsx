@@ -1,6 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Asset } from '@shapeshiftoss/types'
@@ -97,12 +98,18 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     useAccountIds()
   const buyAssetSearch = useModal('buyTradeAssetSearch')
 
+  const isThorchainSwapperVolatilityAckEnabled = useFeatureFlag('ThorchainSwapperVolatilityAck')
+
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowStreamingAcknowledgement, setShouldShowStreamingAcknowledgement] =
     useState(false)
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
+  const [
+    shouldShowThorchainSwapperVolatilityAcknowledgement,
+    setShouldShowThorchainSwapperVolatilityAcknowledgement,
+  ] = useState(false)
 
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -182,6 +189,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     // We also need to reset the streaming acknowledgement if the active quote has changed
     if (shouldShowStreamingAcknowledgement) setShouldShowStreamingAcknowledgement(false)
     if (shouldShowArbitrumBridgeAcknowledgement) setShouldShowArbitrumBridgeAcknowledgement(false)
+    if (shouldShowThorchainSwapperVolatilityAcknowledgement)
+      setShouldShowThorchainSwapperVolatilityAcknowledgement(false)
     // We need to ignore changes to shouldShowWarningAcknowledgement or this effect will react to itself
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
@@ -209,6 +218,10 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     })
     return message
   }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
+
+  const thorchainSwapperVolatilityAcknowledgementMessage = useMemo(() => {
+    return translate('trade.thorchainSwapperVolatilityAcknowledgementMessage')
+  }, [translate])
 
   const headerRightContent = useMemo(() => {
     return <TradeSettingsMenu isLoading={isLoading} isCompact={isCompact} />
@@ -295,6 +308,10 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     handleFormSubmit()
   }, [activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
 
+  const handleThorchainSwapperAcknowledgementSubmit = useCallback(() => {
+    handleFormSubmit()
+  }, [handleFormSubmit])
+
   const handleTradeQuoteConfirm = useCallback(
     (e: FormEvent<unknown>) => {
       e.preventDefault()
@@ -303,10 +320,21 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         return setShouldShowStreamingAcknowledgement(true)
       if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
         return setShouldShowArbitrumBridgeAcknowledgement(true)
-
+      if (
+        isThorchainSwapperVolatilityAckEnabled &&
+        activeQuote?.steps[0]?.source.includes(SwapperName.Thorchain)
+      ) {
+        return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
+      }
       handleFormSubmit()
     },
-    [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
+    [
+      isUnsafeQuote,
+      activeQuote,
+      isEstimatedExecutionTimeOverThreshold,
+      handleFormSubmit,
+      isThorchainSwapperVolatilityAckEnabled,
+    ],
   )
 
   const handleChangeSellAmountCryptoPrecision = useCallback(
@@ -476,6 +504,14 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAcknowledge={handleWarningAcknowledgementSubmit}
         shouldShowAcknowledgement={Boolean(walletId && shouldShowWarningAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
+      <WarningAcknowledgement
+        message={thorchainSwapperVolatilityAcknowledgementMessage}
+        onAcknowledge={handleThorchainSwapperAcknowledgementSubmit}
+        shouldShowAcknowledgement={Boolean(
+          walletId && shouldShowThorchainSwapperVolatilityAcknowledgement,
+        )}
+        setShouldShowAcknowledgement={setShouldShowThorchainSwapperVolatilityAcknowledgement}
       />
       <SharedTradeInput
         bodyContent={bodyContent}

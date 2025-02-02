@@ -186,6 +186,7 @@ const validators = {
   REACT_APP_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
   REACT_APP_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

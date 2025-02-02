@@ -20,6 +20,7 @@ type UseApprovalFeesInput = {
   amountCryptoBaseUnit: string
   allowanceType: AllowanceType
   enabled: boolean
+  isRefetchEnabled: boolean
 }
 
 export const useApprovalFees = ({
@@ -29,6 +30,7 @@ export const useApprovalFees = ({
   allowanceType,
   spender,
   enabled,
+  isRefetchEnabled,
 }: UseApprovalFeesInput) => {
   const { assetReference: to, chainId } = useMemo(() => {
     return fromAssetId(assetId)
@@ -55,8 +57,8 @@ export const useApprovalFees = ({
     chainId,
     data: approveContractData,
     enabled: Boolean(enabled),
-    refetchIntervalInBackground: true,
-    refetchInterval: enabled ? 15_000 : false,
+    refetchIntervalInBackground: isRefetchEnabled ? true : false,
+    refetchInterval: isRefetchEnabled ? 15_000 : false,
   })
 
   return {

@@ -20,12 +20,14 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 type UseAllowanceApprovalProps = {
   activeQuote: LimitOrderActiveQuote | undefined
   isQueryEnabled: boolean
+  isRefetchEnabled: boolean
 }
 
 // handles allowance approval tx execution, fees, and state orchestration
 export const useAllowanceApproval = ({
   activeQuote,
   isQueryEnabled,
+  isRefetchEnabled,
 }: UseAllowanceApprovalProps) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorToast()
@@ -55,6 +57,7 @@ export const useAllowanceApproval = ({
     allowanceType: AllowanceType.Unlimited, // All limit order approvals are unlimited
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     enabled: isQueryEnabled,
+    isRefetchEnabled,
   })
 
   useEffect(() => {

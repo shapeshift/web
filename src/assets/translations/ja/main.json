@@ -1697,8 +1697,7 @@
       "dontAskAgain": "次回から表示しない",
       "multiAccountUnsupported": "MetaMaskのマルチチェーンスナップを使用したこのチェーンでは、マルチアカウントはサポートされていません。"
     },
-    "coinbaseQR": {
-    },
+    "coinbaseQR": {},
     "metaMaskSnapConfirm": {
       "title": "マルチチェーンスナップをインストールする",
       "updateTitle": "マルチチェーンスナップの更新",
@@ -2795,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*割引は時間の経過とともに直線的に減少し、2025 年 XX 月 XX 日に期限切れになります。割引がさらに減少する前に、XX% 割引をご利用ください。",
       "claim": "請求",
       "claimed": "クレーム済",
       "discountText": "*取引手数料が%{percent}%オフ"

@@ -1697,8 +1697,7 @@
       "dontAskAgain": "Больше не спрашивайте",
       "multiAccountUnsupported": "Мультиаккаунт не поддерживается для этой цепочки при использовании привязки Multichain к MetaMask"
     },
-    "coinbaseQR": {
-    },
+    "coinbaseQR": {},
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
       "updateTitle": "Обновление Multichain Snap",
@@ -2795,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*Скидка линейно уменьшается с течением времени и истекает в XX/XX/2025. Воспользуйтесь своей скидкой XX%, пока она не уменьшилась еще больше!",
       "claim": "Заявление",
       "claimed": "Заявлено",
       "discountText": "*%{percent}% скидки на торговые комиссии"

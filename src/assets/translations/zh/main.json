@@ -1778,7 +1778,6 @@
         "secretRecoveryPhraseRequired": "需要助记词",
         "secretRecoveryPhraseTooShort": "助记词太短",
         "dragAndDrop": "拖放或选择文件",
-        "keystoreImportBody": "点击 “浏览” 按钮或将文件拖放到下方来导入。",
         "importKeystore": "导入密钥库",
         "invalidKeystorePassword": "无效的密钥库密码"
       },
@@ -1801,7 +1800,6 @@
         "selectHeader": "导入钱包",
         "keystoreHeader": "密钥库钱包",
         "body": "你可以拥有多个 ShapeShift 钱包。你可以导入助记词来加载钱包或创建新钱包。",
-        "selectBody": "使用您的秘密恢复短语或加载您的密钥库文件来导入钱包。",
         "import": "导入钱包",
         "secretRecoveryPhrase": "秘密恢复短语",
         "twelveWordSeedPhrase": "12 单词助记词",
@@ -1892,7 +1890,6 @@
         "importFromKeystore": "从密钥库导入",
         "whatIsShapeshiftWallet": "什么是 ShapeShift 钱包?",
         "yourDecentralizedGateway": "您的去中心化网关。从一个安全的钱包中交易并赚取比特币、以太坊、Solana 等。",
-        "crossChainFreedom": "跨链自由。跨越多个去中心化交易所，使用最佳费率，无需中间商。",
         "selfCustody": {
           "title": "你的 ShapeShift 钱包是自我保管的",
           "subTitle": "你持有钥匙，并且你是唯一可以访问它的人。",
@@ -2810,8 +2807,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "领取您的 FOXwifhat。请快速行动 - 折扣会随时间而衰减。您持有的 FOX 或 FOXwifhat 越多，您节省的费用就越多。持有更多 FOX 代币可以持续享受折扣，还能获得收入分成、参与治理、并获得流动性耕种奖励。请在本页其余部分了解有关这些计划的更多信息。",
-      "discount": "*折扣会随时间线性递减，并于 XX/XX/2025 到期。在折扣进一步减少之前使用您的 XX% 折扣！",
       "claim": "领取",
       "claimed": "已领取",
       "discountText": "*%{percent}% 交易费折扣",
@@ -2841,7 +2836,6 @@
       "getAddress": "无法从钱包获取地址。",
       "getAccount": "无法获取 %{pubkey} 的帐户。",
       "switchChainUnsupported": "钱包不支持切换链。",
-      "switchChainFailed": "无法切换钱包链。请尝试手动将您钱包的活跃链切换为 %{chain}。",
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",

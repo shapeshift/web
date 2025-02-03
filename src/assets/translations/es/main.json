@@ -1697,8 +1697,7 @@
       "dontAskAgain": "No volver a preguntar",
       "multiAccountUnsupported": "Cuentas múltiples no admitidas para esta cadena usando Snap Multicadena MetaMask"
     },
-    "coinbaseQR": {
-    },
+    "coinbaseQR": {},
     "metaMaskSnapConfirm": {
       "title": "Instalar Snap Multicadena",
       "updateTitle": "Actualizar Snap Multicadena",
@@ -2795,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*El descuento disminuye linealmente con el tiempo y vence XX/XX/2025. ¡Aprovecha tu descuento del XX% antes que disminuya aún más!",
       "claim": "Reclamar",
       "claimed": "Reclamado",
       "discountText": "*%{percent}% descuento en tarifas de intercambio"

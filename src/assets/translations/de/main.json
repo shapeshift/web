@@ -1697,8 +1697,7 @@
       "dontAskAgain": "Nicht nochmals fragen",
       "multiAccountUnsupported": "Für diese Kette werden mehrere Konten mit dem Multichain Snap auf MetaMask nicht unterstützt."
     },
-    "coinbaseQR": {
-    },
+    "coinbaseQR": {},
     "metaMaskSnapConfirm": {
       "title": "Installieren Sie Multichain Snap",
       "updateTitle": "Aktualisiere Multichain Snap",
@@ -2795,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*Der Rabatt verringert sich mit der Zeit linear und läuft am XX.XX.2025 ab. Profitieren Sie von Ihrem XX %-Rabatt, bevor er weiter verringert wird!",
       "claim": "Beanspruchen",
       "claimed": "Beansprucht",
       "discountText": "*%{percent} % Rabatt auf Handelsgebühren"

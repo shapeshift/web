@@ -1697,8 +1697,7 @@
       "dontAskAgain": "Bir daha sorma",
       "multiAccountUnsupported": "MetaMask'ta Çoklu Zincir Snap kullanan bu zincirde çoklu hesap desteklenmiyor"
     },
-    "coinbaseQR": {
-    },
+    "coinbaseQR": {},
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
       "updateTitle": "Multichain Snap'i güncelle",
@@ -2795,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*İndirim zamanla doğrusal olarak azalır ve XX/XX/2025'te sona erer. Daha fazla azalmadan önce %XX indiriminizin avantajını yakalayın!",
       "claim": "Topla",
       "claimed": "Toplanan",
       "discountText": "*%{percent}% işlem ücretlerinde indirim"

@@ -2794,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*La remise diminue de manière linéaire au fil du temps et expire le XX/XX/2025. Profitez de votre remise de XX% avant qu'elle ne diminue davantage !",
       "claim": "Réclamer",
       "claimed": "Réclamé",
       "discountText": "*%{percent}% de réduction sur les frais d'échange"

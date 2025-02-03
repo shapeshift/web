@@ -1697,8 +1697,7 @@
       "dontAskAgain": "Não pergunte novamente",
       "multiAccountUnsupported": "Multi-contas não são suportadas para esta rede usando o Multichain Snap na MetaMask"
     },
-    "coinbaseQR": {
-    },
+    "coinbaseQR": {},
     "metaMaskSnapConfirm": {
       "title": "Instale o Multichain Snap",
       "updateTitle": "Atualizar Multichain Snap",
@@ -2795,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em XX/XX/2025. Aproveite seu desconto de XX% antes que ele diminua ainda mais!",
       "claim": "Resgate",
       "claimed": "Resgatado",
       "discountText": "*%{percent}% de desconto em taxas de trading"

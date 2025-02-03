@@ -138,6 +138,8 @@ export const GlobalSearchModal = memo(
             break
           }
           case 'Enter': {
+            e.preventDefault()
+            e.stopPropagation()
             const item = flatResults[activeIndex]
             if (!item) {
               setContext('flatResults', { flatResults })

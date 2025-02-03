@@ -68,7 +68,6 @@ const validators = {
   REACT_APP_MTPELERIN_REFERRAL_CODE: str(),
   REACT_APP_MTPELERIN_INTEGRATION_KEY: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
-  REACT_APP_ZAPPER_API_KEY: str(),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
@@ -187,6 +186,7 @@ const validators = {
   REACT_APP_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
   REACT_APP_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -1766,7 +1766,6 @@
         "secretRecoveryPhraseRequired": "La phrase secrète de récupération est requise",
         "secretRecoveryPhraseTooShort": "La phrase secrète de récupération est trop courte",
         "dragAndDrop": "Glisser-déposer ou Choisir un fichier",
-        "keystoreImportBody": "Téléchargez le fichier en cliquant sur Parcourir ou en le faisant glisser ci-dessous.",
         "importKeystore": "Importer un Keystore",
         "invalidKeystorePassword": "Mot de passe du Keystore invalide"
       },
@@ -1789,7 +1788,6 @@
         "selectHeader": "Importer un porte-monnaie",
         "keystoreHeader": "Porte-monnaie Keystore",
         "body": "Vous pouvez avoir plusieurs porte-monnaie ShapeShift. Vous pouvez charger un porte-monnaie, importer un porte-monnaie à partir d'une phrase de récupération secrète ou créer un nouveau porte-monnaie.",
-        "selectBody": "Importez votre porte-monnaie en utilisant votre phrase de récupération secrète ou en téléchargeant votre fichier Keystore.",
         "import": "Importer un porte-monnaie",
         "secretRecoveryPhrase": "Phrase de récupération secrète",
         "twelveWordSeedPhrase": "Phrase de récupération de 12 mots",
@@ -1880,7 +1878,6 @@
         "importFromKeystore": "Importer depuis un Keystore",
         "whatIsShapeshiftWallet": "Qu'est-ce qu'un porte-monnaie ShapeShift ?",
         "yourDecentralizedGateway": "Votre passerelle vers la décentralisation. Échangez et gagnez sur Bitcoin, Ethereum, Solana et plus encore à partir d'un seul porte-monnaie sécurisé.",
-        "crossChainFreedom": "Liberté entre les chaînes. Accédez aux meilleurs tarifs sur plusieurs plateformes d'échange décentralisées, sans intermédiaire",
         "selfCustody": {
           "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
           "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",
@@ -2797,7 +2794,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "C'est juste FOX avec un chapeau, ne vous prenez pas la tête. Profitez d'un programme de remises sur la chaîne à durée limitée. Au fur et à mesure que votre remise diminue, découvrez FOX sur le reste de la page et échangez à tout moment contre des FOX pour conserver votre réduction sur les frais. Le montant le plus élevé vous fait économiser de l'argent sur la plateforme ShapeShift.",
       "discount": "*La remise diminue de manière linéaire au fil du temps et expire le XX/XX/2025. Profitez de votre remise de XX% avant qu'elle ne diminue davantage !",
       "claim": "Réclamer",
       "claimed": "Réclamé",
@@ -2827,7 +2823,6 @@
       "getAddress": "Échec de l'obtention de l'adresse du porte-monnaie.",
       "getAccount": "Échec de l'obtention du compte pour : %{pubkey}.",
       "switchChainUnsupported": "Le porte-monnaie ne permet pas de changer de chaîne.",
-      "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie vers %{chain}.",
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",

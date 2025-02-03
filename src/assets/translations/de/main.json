@@ -1547,7 +1547,7 @@
           "passphrase": "Aktivieren Sie die Möglichkeit, mehrere Wallets zu haben, auf die Sie zugreifen können, indem Sie eine eindeutige Passphrase für jede Wallet verwenden.",
           "label": "Durch die Kennzeichnung der einzelnen Geräte können Sie sie leicht voneinander unterscheiden.",
           "timeout": "Ihr Gerät wechselt standardmäßig nach 10 Minuten Inaktivität in den Ruhezustand. Sie können dies jedoch ändern.",
-          "buttonPrompt": "Halten Sie die Taste auf Ihrem KeepKey gedrückt, um die %{Einstellung} des Geräts zu ändern.",
+          "buttonPrompt": "Halten Sie die Taste auf Ihrem KeepKey gedrückt, um die %{setting} des Geräts zu ändern.",
           "updateSuccess": "%{setting} erfolgreich aktualisiert!",
           "updateFailed": "Beim Aktualisieren von %{setting} ist ein Fehler aufgetreten.",
           "timeoutDuration": "%{minutes} Minuten"
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "Nicht nochmals fragen",
       "multiAccountUnsupported": "Für diese Kette werden mehrere Konten mit dem Multichain Snap auf MetaMask nicht unterstützt."
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Installieren Sie Multichain Snap",
       "updateTitle": "Aktualisiere Multichain Snap",
@@ -1766,7 +1768,6 @@
         "secretRecoveryPhraseRequired": "Geheime Wiederherstellungsphrase ist erforderlich",
         "secretRecoveryPhraseTooShort": "Geheime Wiederherstellungsphrase ist zu kurz",
         "dragAndDrop": "Drag & Drop oder Datei auswählen",
-        "keystoreImportBody": "Laden Sie die Datei hoch, indem Sie auf „Durchsuchen“ klicken oder sie unten per Drag & Drop ziehen.",
         "importKeystore": "Importiere Keystore",
         "invalidKeystorePassword": "Ungültiges Keystore Passwort"
       },
@@ -1789,14 +1790,12 @@
         "selectHeader": "Importiere Wallet",
         "keystoreHeader": "Keystore Wallet",
         "body": "Sie können mehrere ShapeShift Wallet haben. Sie können eine Wallet laden, eine aus einer geheimen Wiederherstellungsphrase importieren oder eine neue erstellen.",
-        "selectBody": "Importieren Sie die Wallet mithilfe Ihrer geheimen Wiederherstellungsphrase oder indem Sie Ihre Keystore Datei hochladen.",
         "import": "Importieren Sie eine Wallet",
         "secretRecoveryPhrase": "Geheime Wiederherstellungsphrase",
         "twelveWordSeedPhrase": "12 Wörter Wiederherstellungsphrase",
         "keystore": "Keystore",
         "create": "Erstellen Sie eine neue Wallet",
-        "load": "Gespeicherte Wallets",
-        "uploadKeystore": "Keystore Datei hochladen"
+        "load": "Gespeicherte Wallets"
       },
       "success": {
         "encryptingWallet": "Verschlüsselung Ihrer Wallet... Wenn Ihr Browser Sie auffordert, Daten zu speichern, klicken Sie bitte auf \"Zulassen\".",
@@ -1880,7 +1879,6 @@
         "importFromKeystore": "Importieren aus Keystore",
         "whatIsShapeshiftWallet": "Was ist eine ShapeShift Wallet?",
         "yourDecentralizedGateway": "Ihr Gateway zur Dezentralisierung. Handeln und verdienen Sie Bitcoin, Ethereum, Solana und mehr von einer einzigen, sicheren Wallet aus.",
-        "crossChainFreedom": "Cross-Chain-Freiheit. Zugriff auf die besten Kurse an mehreren dezentralen Börsen, kein Mittelsmann erforderlich",
         "selfCustody": {
           "title": "Ihre Shapeshift Wallet verwalten Sie",
           "subTitle": "Sie haben die Schlüssel und Sie sind der einzige, der darauf zugreifen kann.",
@@ -2797,7 +2795,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Es ist nur FOX mit Hut, denken Sie nicht zu viel darüber nach. Genießen Sie ein zeitlich begrenztes On-Chain-Rabattprogramm. Wenn Ihr Rabatt abläuft, erfahren Sie auf dem Rest der Seite mehr über FOX und wechseln Sie jederzeit zu FOX, um Ihren Gebührenrabatt beizubehalten. Je höher der Bestand ist, desto mehr Geld sparen Sie auf der ShapeShift-Plattform.",
       "discount": "*Der Rabatt verringert sich mit der Zeit linear und läuft am XX.XX.2025 ab. Profitieren Sie von Ihrem XX %-Rabatt, bevor er weiter verringert wird!",
       "claim": "Beanspruchen",
       "claimed": "Beansprucht",
@@ -2827,7 +2824,6 @@
       "getAddress": "Adresse konnte nicht aus der Wallet abgerufen werden.",
       "getAccount": "Konto konnte nicht abgerufen werden für: %{pubkey}.",
       "switchChainUnsupported": "Wallet unterstützt kein Wechseln von Ketten.",
-      "switchChainFailed": "Das Umschalten der Wallet-Kette auf %{chain} ist fehlgeschlagen.",
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",

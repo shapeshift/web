@@ -1000,7 +1000,7 @@
     "approvalResetFailed": "Ödenek sıfırlama sırasında bir sorun oluştu",
     "allowanceResetTxName": "Tahsisat sıfırlama tx:",
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
-    "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
+    "tradeComplete": "Artık cüzdanınızda %{chainName} üzerinde %{cryptoAmountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
     "summary": "Ticaret Özeti",
     "transactionSuccessful": "İşlem başarılı, onay bekleniyor",
@@ -1697,6 +1697,8 @@
       "dontAskAgain": "Bir daha sorma",
       "multiAccountUnsupported": "MetaMask'ta Çoklu Zincir Snap kullanan bu zincirde çoklu hesap desteklenmiyor"
     },
+    "coinbaseQR": {
+    },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
       "updateTitle": "Multichain Snap'i güncelle",
@@ -1766,7 +1768,6 @@
         "secretRecoveryPhraseRequired": "Gizli Kurtarma İfadesi gereklidir",
         "secretRecoveryPhraseTooShort": "Gizli Kurtarma İfadesi çok kısa",
         "dragAndDrop": "Sürükle & Bırak veya Dosya Seç",
-        "keystoreImportBody": "Gözat'a tıklayarak veya aşağıya sürükleyip bırakarak dosya yükleyin.",
         "importKeystore": "Keystore'u içe aktar",
         "invalidKeystorePassword": "Geçersiz Keystore parolası"
       },
@@ -1789,14 +1790,12 @@
         "selectHeader": "Cüzdanı içe aktar",
         "keystoreHeader": "Keystore Cüzdanı",
         "body": "Birden fazla ShapeShift cüzdanınız olabilir. Bir cüzdan yükleyebilir, bir Gizli Kurtarma ifadesinden bir cüzdan ekleyebilir veya yeni bir cüzdan oluşturabilirsiniz.",
-        "selectBody": "Gizli Kurtarma İfadenizi kullanarak veya Keystore dosyanızı yükleyerek cüzdanınızı içe aktarın.",
         "import": "Bir cüzdanı içe aktar",
         "secretRecoveryPhrase": "Gizli Kurtarma Cümlesi",
         "twelveWordSeedPhrase": "12 kelimelik tohum cümlesi",
         "keystore": "Keystore",
         "create": "Yeni bir cüzdan oluştur",
-        "load": "Kayıtlı cüzdanlar",
-        "uploadKeystore": "Keystore Dosyasını Yükle"
+        "load": "Kayıtlı cüzdanlar"
       },
       "success": {
         "encryptingWallet": "Cüzdanınız şifreleniyor... Tarayıcınız verileri kalıcı depolamada saklamak isterse, lütfen 'İzin Ver'i tıklayın.",
@@ -1880,7 +1879,6 @@
         "importFromKeystore": "Keystore'dan içe aktar",
         "whatIsShapeshiftWallet": "ShapeShift Cüzdanı Nedir?",
         "yourDecentralizedGateway": "Merkeziyetsizlik ağ geçidiniz. Tek bir güvenli cüzdandan Bitcoin, Ethereum, Solana ve daha fazlasını alıp satın ve kazanın.",
-        "crossChainFreedom": "Zincirler arası özgürlük. Birden fazla merkezi olmayan borsada en iyi oranlara erişin, aracıya gerek yok",
         "selfCustody": {
           "title": "ShapeShift Cüzdanınız kişisel velayettir",
           "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",
@@ -2797,7 +2795,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Bu sadece FOX wif a hat, fazla düşünmeyin. Sınırlı süreli zincir üstü indirim programının tadını çıkarın. İndiriminiz azaldıkça sayfanın geri kalanında FOX hakkında bilgi edinin ve ücret indiriminizi korumak için istediğiniz zaman FOX'a geçin. Hangisi daha yüksekse ShapeShift platformunda size para kazandırır.",
       "discount": "*İndirim zamanla doğrusal olarak azalır ve XX/XX/2025'te sona erer. Daha fazla azalmadan önce %XX indiriminizin avantajını yakalayın!",
       "claim": "Topla",
       "claimed": "Toplanan",
@@ -2827,7 +2824,6 @@
       "getAddress": "Cüzdandan adres alınamadı.",
       "getAccount": "%{pubkey} hesabı alınamadı.",
       "switchChainUnsupported": "Cüzdan zincir değiştirmeyi desteklemiyor.",
-      "switchChainFailed": "Cüzdan zinciri %{chain} olarak değiştirilemedi.",
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",

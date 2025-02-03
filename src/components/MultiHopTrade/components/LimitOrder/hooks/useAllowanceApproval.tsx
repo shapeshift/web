@@ -60,6 +60,7 @@ export const useAllowanceApproval = ({
     allowanceType: AllowanceType.Unlimited, // TODO: Maybe add an exact/unlimited toggle, or wait for full flow coming soon.
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     enabled: isInitiallyRequired && feeQueryEnabled,
+    isRefetchEnabled: true,
   })
   useEffect(() => {
     if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceApprovalRequired !== false) return

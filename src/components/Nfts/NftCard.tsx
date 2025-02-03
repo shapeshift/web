@@ -20,7 +20,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
-import { getMediaType } from 'state/apis/zapper/validators'
+import { getMediaType } from 'state/apis/portals/validators'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

@@ -173,12 +173,20 @@ export const routes: Route[] = [
     priority: 2,
     main: Trade,
     category: RouteCategory.Featured,
-    routes: assetIdPaths.map(assetIdPath => ({
-      label: 'Trade Asset',
-      path: assetIdPath,
-      main: Trade,
-      hide: true,
-    })),
+    routes: [
+      {
+        label: 'Trade Assets',
+        path: '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+        main: Trade,
+        hide: true,
+      },
+      ...assetIdPaths.map(assetIdPath => ({
+        label: 'Trade Asset',
+        path: assetIdPath,
+        main: Trade,
+        hide: true,
+      })),
+    ],
   },
   {
     path: '/explore',
@@ -188,16 +196,6 @@ export const routes: Route[] = [
     mobileNav: true,
     hideDesktop: true,
     priority: 6,
-  },
-  {
-    path: '/lending',
-    label: 'navBar.lending',
-    icon: <RiExchangeFundsLine />,
-    main: LendingPage,
-    category: RouteCategory.Featured,
-    priority: 4,
-    mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
   },
   {
     path: '/pools',
@@ -227,6 +225,16 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     mobileNav: true,
     priority: 4,
+  },
+  {
+    path: '/lending',
+    label: 'navBar.lending',
+    icon: <RiExchangeFundsLine />,
+    main: LendingPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
   },
   {
     path: '/buy-crypto',

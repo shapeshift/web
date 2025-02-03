@@ -20,7 +20,7 @@ export type TokenInfo = {
   tokens: string[]
 }
 
-type Platform = {
+export type Platform = {
   platform: string
   name: string
   image: string

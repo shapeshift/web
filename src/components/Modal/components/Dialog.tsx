@@ -74,6 +74,7 @@ const DialogWindow: React.FC<DialogProps> = ({
         open={isDialogOpen}
         onClose={onClose}
         activeSnapPoint={snapPoint}
+        modal={false}
       >
         <Drawer.Portal>
           <CustomDrawerOverlay />

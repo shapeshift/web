@@ -9,6 +9,7 @@ import { DialogHeader, DialogHeaderLeft } from 'components/Modal/components/Dial
 import { SlideTransition } from 'components/SlideTransition'
 import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { WalletCard } from 'pages/ConnectWallet/components/WalletCard'
 
 type ConfirmDeleteProps = {
@@ -19,18 +20,23 @@ type ConfirmDeleteProps = {
 export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) => {
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
+  const { disconnect, state } = useWallet()
 
   const handleDelete = useCallback(async () => {
     if (vault?.id) {
       try {
         await deleteWallet(vault.id)
+
+        if (state.walletInfo?.deviceId === vault.id) {
+          disconnect()
+        }
         onBack()
       } catch (e) {
         console.log(e)
         setError('walletProvider.shapeShift.load.error.delete')
       }
     }
-  }, [onBack, vault?.id])
+  }, [onBack, vault?.id, disconnect, state.walletInfo?.deviceId])
 
   return (
     <SlideTransition>

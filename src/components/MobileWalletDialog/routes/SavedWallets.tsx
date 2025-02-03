@@ -49,16 +49,14 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [onClose, feedbackSupport])
 
   const handleCreate = useCallback(() => {
-    onClose()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     create(KeyManager.Mobile)
-  }, [create, dispatch, onClose])
+  }, [create, dispatch])
 
   const handleImport = useCallback(() => {
-    onClose()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     importWallet(KeyManager.Mobile)
-  }, [dispatch, importWallet, onClose])
+  }, [dispatch, importWallet])
 
   const mobileWalletFooter = useMemo(() => {
     return (

@@ -66,7 +66,6 @@ export const WalletCard: React.FC<WalletCardProps> = ({
             aria-label={translate('common.forget')}
             variant='ghost'
             icon={deleteIcon}
-            isDisabled={isActive}
             onClick={handleDelete}
           />
         </Flex>

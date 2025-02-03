@@ -32,7 +32,6 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
   StakingId,
@@ -303,6 +302,7 @@ export const portals = createApi({
     >({
       queryFn: async ({ evmAccountIds }, { dispatch, getState }) => {
         const state = getState() as ReduxState
+        const DynamicLpAssets = selectFeatureFlag(state, 'DynamicLpAssets')
         const ReadOnlyAssets = selectFeatureFlag(state, 'ReadOnlyAssets')
 
         try {
@@ -387,11 +387,7 @@ export const portals = createApi({
                       assetReference: balance.address,
                     })
 
-                    if (
-                      balance.platform === 'uniswapv2' &&
-                      !foxEthLpAssetIds.includes(assetId as LpId)
-                    )
-                      return balanceAcc
+                    if (balance.platform === 'uniswapv2' && !DynamicLpAssets) return balanceAcc
 
                     const stakedAmountCryptoBaseUnit = balance.rawBalance
                     const fiatAmount = bnOrZero(balance.balanceUSD).toString()

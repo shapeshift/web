@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -16,17 +17,20 @@ import { WalletCard } from './WalletCard'
 type MobileWalletDialogProps = {
   footerComponent?: JSX.Element
   isEditing?: boolean
+  onErrorChange?: (error: string | null) => void
 }
 
 export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
   footerComponent,
   isEditing,
+  onErrorChange,
 }) => {
   const { dispatch, getAdapter, state } = useWallet()
   const { walletInfo } = state
   const localWallet = useLocalWallet()
   const history = useHistory()
   const [error, setError] = useState<string | null>(null)
+  const translate = useTranslate()
 
   const { isLoading, data: wallets } = useQuery({
     queryKey: ['listWallets'],
@@ -43,7 +47,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
         }
       } catch (e) {
         console.log(e)
-        setError('An error occurred while fetching wallets.')
+        setError('walletProvider.shapeShift.load.error.fetchingWallets')
       }
     },
   })
@@ -97,24 +101,28 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
 
   const handleRename = useCallback(
     (wallet: RevocableWallet) => {
-      history.push(MobileWalletDialogRoutes.RENAME, { vault: wallet })
+      history.push(MobileWalletDialogRoutes.Rename, { vault: wallet })
     },
     [history],
   )
 
   const handleDelete = useCallback(
     (wallet: RevocableWallet) => {
-      history.push(MobileWalletDialogRoutes.DELETE, { vault: wallet })
+      history.push(MobileWalletDialogRoutes.Delete, { vault: wallet })
     },
     [history],
   )
+
+  useEffect(() => {
+    onErrorChange?.(error)
+  }, [error, onErrorChange])
 
   const content = useMemo(() => {
     if (error) {
       return (
         <Alert status='error' borderRadius='md'>
           <AlertIcon />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>{translate(error)}</AlertDescription>
         </Alert>
       )
     }
@@ -151,6 +159,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
     handleRename,
     handleWalletSelect,
     isEditing,
+    translate,
     walletInfo?.deviceId,
     wallets,
   ])

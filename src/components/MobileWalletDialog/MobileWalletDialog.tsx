@@ -14,22 +14,22 @@ type MobileWalletDialogProps = {
 
 export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, onClose }) => {
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
       <MemoryRouter>
         <Route>
           {({ location }) => (
             <AnimatePresence mode='wait' initial={false}>
               <Switch key={location.key} location={location}>
-                <Route path={MobileWalletDialogRoutes.SAVED}>
+                <Route path={MobileWalletDialogRoutes.Saved}>
                   <SavedWallets onClose={onClose} />
                 </Route>
-                <Route path={MobileWalletDialogRoutes.RENAME}>
+                <Route path={MobileWalletDialogRoutes.Rename}>
                   <RenameWallet />
                 </Route>
-                <Route path={MobileWalletDialogRoutes.DELETE}>
+                <Route path={MobileWalletDialogRoutes.Delete}>
                   <DeleteWallet />
                 </Route>
-                <Redirect exact from='/' to={MobileWalletDialogRoutes.SAVED} />
+                <Redirect exact from='/' to={MobileWalletDialogRoutes.Saved} />
               </Switch>
             </AnimatePresence>
           )}

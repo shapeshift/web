@@ -19,7 +19,7 @@ export const DeleteWallet = () => {
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.SAVED)
+    history.push(MobileWalletDialogRoutes.Saved)
   }, [history])
 
   if (!vault)
@@ -43,14 +43,14 @@ export const DeleteWallet = () => {
           {({ location }) => (
             <AnimatePresence mode='wait' initial={false}>
               <Switch key={location.key} location={location}>
-                <Route path={MobileWalletDialogRoutes.BACKUP}>
+                <Route path={MobileWalletDialogRoutes.Backup}>
                   <Backup onBack={handleBack} />
                 </Route>
-                <Route path={MobileWalletDialogRoutes.CONFIRM_DELETE}>
+                <Route path={MobileWalletDialogRoutes.ConfirmDelete}>
                   <ConfirmDelete vault={vault} onBack={handleBack} />
                 </Route>
                 {/* TODO: This will change to backup in a follow up PR */}
-                <Redirect from='/' to={MobileWalletDialogRoutes.CONFIRM_DELETE} />
+                <Redirect from='/' to={MobileWalletDialogRoutes.ConfirmDelete} />
               </Switch>
             </AnimatePresence>
           )}

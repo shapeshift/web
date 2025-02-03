@@ -1,7 +1,7 @@
 import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { TbCircleArrowDown, TbCirclePlus } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
@@ -38,6 +38,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const { dispatch, create, importWallet } = useWallet()
   const [isEditing, toggleEditing] = useToggle()
+  const [error, setError] = useState<string | null>(null)
   const handleClickSettings = useCallback(() => {
     settings.open({})
     onClose()
@@ -90,13 +91,19 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
           <DialogTitle>{translate('walletProvider.shapeShift.load.header')}</DialogTitle>
         </DialogHeaderMiddle>
         <DialogHeaderRight>
-          <Button variant='unstyled' color='text.link' onClick={toggleEditing}>
-            {isEditing ? translate('common.done') : translate('common.edit')}
-          </Button>
+          {!error ? (
+            <Button variant='unstyled' color='text.link' onClick={toggleEditing}>
+              {isEditing ? translate('common.done') : translate('common.edit')}
+            </Button>
+          ) : null}
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
-        <MobileWallestList footerComponent={mobileWalletFooter} isEditing={isEditing} />
+        <MobileWallestList
+          footerComponent={mobileWalletFooter}
+          isEditing={isEditing}
+          onErrorChange={setError}
+        />
       </DialogBody>
       <DialogFooter borderTopWidth={1} borderColor='border.base' pt={4} flexDir='column'>
         {isWalletConnectToDappsV2Enabled && <WalletConnectToDappsHeaderButton />}

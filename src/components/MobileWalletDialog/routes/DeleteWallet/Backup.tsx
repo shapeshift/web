@@ -23,7 +23,7 @@ export const Backup: React.FC<BackupProps> = ({ onBack }) => {
   const backupModal = useModal('backupNativePassphrase')
 
   const handleContinue = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.CONFIRM_DELETE)
+    history.push(MobileWalletDialogRoutes.ConfirmDelete)
   }, [history])
 
   const handleBackup = useCallback(() => {

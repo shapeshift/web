@@ -31,7 +31,10 @@ export const RenameWallet = () => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting, isValid },
-  } = useForm<FormValues>({ mode: 'onChange' })
+  } = useForm<FormValues>({
+    mode: 'onChange',
+    defaultValues: { label: location.state.vault?.label },
+  })
 
   const onSubmit = useCallback(
     async (values: FormValues) => {
@@ -46,7 +49,7 @@ export const RenameWallet = () => {
     [history, location.state.vault?.id],
   )
 
-  const handleBack = useCallback(() => history.push(MobileWalletDialogRoutes.SAVED), [history])
+  const handleBack = useCallback(() => history.push(MobileWalletDialogRoutes.Saved), [history])
 
   return (
     <SlideTransition>

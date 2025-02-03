@@ -83,14 +83,6 @@ export const WalletViewsSwitch = () => {
   ])
 
   const handleBack = useCallback(async () => {
-    alert(
-      JSON.stringify({
-        pathname: history.location.pathname,
-        initialRoute,
-        isMobile,
-      }),
-    )
-
     if (initialRoute === history.location.pathname && isMobile) {
       onClose()
 

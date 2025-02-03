@@ -1769,7 +1769,8 @@
         "error": {
           "delete": "Unable to delete your wallet, sorry.",
           "noWallet": "You have no saved wallets",
-          "pair": "Unable to pair your wallet"
+          "pair": "Unable to pair your wallet",
+          "fetchingWallets": "An error occurred while fetching wallets."
         },
         "header": "Saved Wallets",
         "body": "Loading your saved wallet... Enter your password when prompted.",

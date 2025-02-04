@@ -33,6 +33,7 @@ import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
+  selectActiveQuote,
   selectConfirmedTradeExecution,
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
@@ -43,7 +44,6 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { useTradeReceiveAddress } from '../TradeInput/hooks/useTradeReceiveAddress'
 import { TwirlyToggle } from '../TwirlyToggle'
 import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
 import { YouSaved } from './components/YouSaved'
@@ -72,8 +72,8 @@ export const TradeSuccess = ({
   buyAmountCryptoPrecision,
 }: TradeSuccessProps) => {
   const translate = useTranslate()
-  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+  const tradeQuote = useAppSelector(selectActiveQuote)
+  const receiveAddress = tradeQuote!.receiveAddress
 
   const { isOpen, onToggle: handleToggle } = useDisclosure({
     defaultIsOpen: false,

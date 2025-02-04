@@ -1,4 +1,5 @@
 import { Button, ModalBody, ModalHeader, SimpleGrid, Tag } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -58,6 +59,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
   const [testCount, setTestCount] = useState<number>(0)
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
   const revoker = useMemo(() => new (Revocable(class {}))(), [])
+  const queryClient = useQueryClient()
 
   const { vault } = location.state
 
@@ -99,6 +101,8 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
       ;(async () => {
         if (vault?.label && vault?.mnemonic) {
           const newWallet = await addWallet({ label: vault.label, mnemonic: vault.mnemonic })
+
+          queryClient.invalidateQueries({ queryKey: ['listWallets'] })
           history.replace('/mobile/success', { vault: newWallet! })
         }
       })()
@@ -108,7 +112,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, vault, revoker])
+  }, [testCount, history, vault, revoker, queryClient])
 
   const handleClick = useCallback(
     (index: number) => {

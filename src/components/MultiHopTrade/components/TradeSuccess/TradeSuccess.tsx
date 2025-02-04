@@ -114,7 +114,9 @@ export const TradeSuccess = ({
     return serializeTxIndex(accountId, txHash, receiveAddress)
   }, [tradeExecution, isMultiHop, buyAsset, receiveAddress])
 
-  const transfers = useTxDetails(buyTxId ?? '')?.transfers ?? []
+  const buyTxDetails = useTxDetails(buyTxId ?? '')
+  const transfers = useMemo(() => buyTxDetails?.transfers ?? [], [buyTxDetails])
+
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers.length || !buyAsset) return undefined
 

@@ -115,13 +115,12 @@ export const TradeSuccess = ({
   }, [tradeExecution, isMultiHop, buyAsset, receiveAddress])
 
   const transfers = useTxDetails(buyTxId ?? '')?.transfers ?? []
-  const actualReceivedAmount = useMemo(() => {
+  const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers.length || !buyAsset) return undefined
-    // Find the transfer that matches our buy asset
+
     const receiveTransfer = transfers.find(
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,
     )
-    // Convert from base units to precision format
     return receiveTransfer?.value
       ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
       : undefined
@@ -131,7 +130,7 @@ export const TradeSuccess = ({
     if (!(sellAsset && buyAsset)) return null
     if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
 
-    const displayAmount = actualReceivedAmount || buyAmountCryptoPrecision
+    const displayAmount = actualBuyAmountCryptoPrecision || buyAmountCryptoPrecision
 
     return (
       <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
@@ -155,7 +154,7 @@ export const TradeSuccess = ({
     buyAsset,
     sellAmountCryptoPrecision,
     buyAmountCryptoPrecision,
-    actualReceivedAmount,
+    actualBuyAmountCryptoPrecision,
   ])
 
   // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT

@@ -3,7 +3,6 @@ import { knownChainIds } from 'constants/chains'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   useGetPortalsAppsBalancesOutputQuery,
@@ -28,7 +27,6 @@ export const useFetchOpportunities = () => {
   const evmAccountIds = useSelector(selectEvmAccountIds)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
-  const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
   const { isLoading: isPortalsAppsBalancesOutputLoading } = useGetPortalsAppsBalancesOutputQuery(
     { evmAccountIds },
@@ -37,10 +35,8 @@ export const useFetchOpportunities = () => {
       refetchOnMountOrArgChange: true,
     },
   )
-  const { isLoading: isPortalsUniV2PoolAssetIdsLoading } = useGetPortalsUniV2PoolAssetIdsQuery(
-    undefined,
-    { skip: !DynamicLpAssets },
-  )
+  const { isLoading: isPortalsUniV2PoolAssetIdsLoading } =
+    useGetPortalsUniV2PoolAssetIdsQuery(undefined)
 
   const { isLoading } = useQuery({
     ...reactQueries.opportunities.all(

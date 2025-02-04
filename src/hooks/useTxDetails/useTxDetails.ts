@@ -105,40 +105,47 @@ export const getTransfers = (tx: Tx, assets: AssetsByIdPartial): Transfer[] => {
   }, [])
 }
 
-export const useTxDetails = (txId: string): TxDetails => {
-  const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
+export const useTxDetails = (txId: string | undefined): TxDetails | undefined => {
+  const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId ?? ''))
   const assets = useAppSelector(selectAssets)
 
-  // This should never happen, but if it does we should not continue
-  if (!tx) throw Error('Transaction not found')
-
-  const accountId = useMemo(() => deserializeTxIndex(txId).accountId, [txId])
+  const accountId = useMemo(() => {
+    if (!txId || !tx) return ''
+    return deserializeTxIndex(txId).accountId
+  }, [txId, tx])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId,
     accountId,
   })
 
-  const transfers = useMemo(() => getTransfers(tx, assets), [tx, assets])
+  const transfers = useMemo(() => {
+    if (!tx) return []
+    return getTransfers(tx, assets)
+  }, [tx, assets])
 
   const fee = useMemo(() => {
     if (!tx?.fee) return
-
     return {
       ...tx.fee,
       asset: assets[tx.fee.assetId] ?? defaultAsset,
     }
   }, [tx?.fee, assets])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx?.chainId ?? ''))
 
-  const txLink = getTxLink({
-    name: tx.trade?.dexName,
-    defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-    txId: tx.txid,
-    maybeSafeTx,
-    accountId,
-  })
+  const txLink = useMemo(() => {
+    if (!tx) return
+    return getTxLink({
+      name: tx.trade?.dexName,
+      defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+      txId: tx.txid,
+      maybeSafeTx,
+      accountId,
+    })
+  }, [tx, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
+
+  if (!tx || !txLink) return
 
   return {
     tx,

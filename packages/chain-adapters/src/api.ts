@@ -81,6 +81,8 @@ export type ChainAdapter<T extends ChainId> = {
     onError?: (err: SubscribeError) => void,
   ): Promise<void>
 
+  parseTx(tx: unknown, pubkey: string): Promise<Transaction>
+
   unsubscribeTxs(input?: SubscribeTxsInput): void
 
   closeTxs(): void

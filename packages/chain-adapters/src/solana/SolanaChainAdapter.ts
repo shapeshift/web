@@ -666,7 +666,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return parsedTx.status
   }
 
-  private async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {
+  async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {
     const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
 
     return {

@@ -29,7 +29,7 @@ import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { useTxDetailsQuery } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
@@ -114,9 +114,14 @@ export const TradeSuccess = ({
     return serializeTxIndex(accountId, txHash, receiveAddress)
   }, [tradeExecution, isMultiHop, buyAsset, receiveAddress])
 
-  const transfers = useTxDetails(buyTxId ?? '')?.transfers ?? []
+  const txTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
+  const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
+
+  console.log({ txTransfers, manualReceiveAddressTransfers })
+
+  const transfers = manualReceiveAddressTransfers || txTransfers
   const actualBuyAmountCryptoPrecision = useMemo(() => {
-    if (!transfers.length || !buyAsset) return undefined
+    if (!transfers?.length || !buyAsset) return undefined
 
     const receiveTransfer = transfers.find(
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,

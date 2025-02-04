@@ -1,7 +1,10 @@
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter, TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
@@ -152,6 +155,83 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
     fee,
     transfers,
     type: getTxType(tx, transfers),
+    txLink,
+  }
+}
+
+// The same as above, but fetches from the network, allowing for *both* serialized Txids present in the store, and those that aren't to work similarly,
+// so long as you pass as a serialized TxId in.
+export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefined => {
+  const assets = useAppSelector(selectAssets)
+
+  const accountId = useMemo(() => {
+    if (!txId) return ''
+    return deserializeTxIndex(txId).accountId
+  }, [txId])
+
+  const txHash = useMemo(() => {
+    if (!txId) return
+    return deserializeTxIndex(txId).txid
+  }, [])
+
+  const chainId = accountId ? fromAccountId(accountId).chainId : ''
+
+  const adapter = getChainAdapterManager().get(chainId)
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId,
+    accountId,
+  })
+
+  const { data } = useQuery({
+    queryKey: ['txDetails', txId],
+    queryFn:
+      txHash && adapter
+        ? async () => {
+            // Casted for the sake of simplicity
+            const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
+              txid: txHash,
+            })
+
+            return adapter.parseTx(tx, fromAccountId(accountId).account)
+          }
+        : skipToken,
+  })
+
+  const transfers = useMemo(() => {
+    if (!data) return
+    return getTransfers(data, assets)
+  }, [data, assets])
+
+  const fee = useMemo(() => {
+    if (!data?.fee) return
+    return {
+      ...data.fee,
+      asset: assets[data.fee.assetId] ?? defaultAsset,
+    }
+  }, [data?.fee, assets])
+
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, data?.chainId ?? ''))
+
+  const txLink = useMemo(() => {
+    if (!data) return
+    return getTxLink({
+      name: data.trade?.dexName,
+      defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+      txId: data.txid,
+      maybeSafeTx,
+      accountId,
+    })
+  }, [data, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
+
+  console.log({data, txLink, transfers})
+  if (!data || !txLink || !transfers) return
+
+  return {
+    tx: data,
+    fee,
+    transfers,
+    type: getTxType(data, transfers),
     txLink,
   }
 }

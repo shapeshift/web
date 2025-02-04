@@ -84,12 +84,6 @@ const DialogWindow: React.FC<DialogProps> = ({
       })
     })
 
-    const drawers = document.querySelectorAll<HTMLElement>('*[data-vaul-drawer]')
-
-    drawers.forEach(e => {
-      e.removeAttribute('tabindex')
-    })
-
     return () => {
       window.cancelAnimationFrame(raf)
       document.body.style.pointerEvents = originalPointerEvents
@@ -101,7 +95,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
   useLayoutEffect(() => {
-    if (isMobile || !isLargerThanMd) return
+    if (!isMobile || isLargerThanMd) return
 
     document.addEventListener('focusin', e => e.stopImmediatePropagation())
     document.addEventListener('focusout', e => e.stopImmediatePropagation())

@@ -117,8 +117,6 @@ export const TradeSuccess = ({
   const txTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
 
-  console.log({ txTransfers, manualReceiveAddressTransfers })
-
   const transfers = manualReceiveAddressTransfers || txTransfers
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined

@@ -159,7 +159,7 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
   }
 }
 
-// The same as above, but fetches from the network, allowing for *both* serialized Txids present in the store, and those that aren't to work similarly,
+// The same as above, but fetches from the network, allowing for *both* serialized Txids present in the store, and those that aren't to yield a similar shape,
 // so long as you pass as a serialized TxId in.
 export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefined => {
   const assets = useAppSelector(selectAssets)
@@ -224,7 +224,6 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
     })
   }, [data, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
 
-  console.log({data, txLink, transfers})
   if (!data || !txLink || !transfers) return
 
   return {

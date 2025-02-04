@@ -125,7 +125,7 @@ export const TradeSuccess = ({
     return receiveTransfer?.value
       ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
       : undefined
-  }, [transfers, buyAsset, receiveAddress])
+  }, [transfers, buyAsset])
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null

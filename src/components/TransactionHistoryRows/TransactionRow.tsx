@@ -128,5 +128,8 @@ export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetail
 
 export const TransactionRow = forwardRef<TxRowProps, 'div'>((props, ref) => {
   const txDetails = useTxDetails(props.txId)
+
+  if (!txDetails) return null
+
   return <TransactionRowFromTxDetails ref={ref} {...props} txDetails={txDetails} />
 })

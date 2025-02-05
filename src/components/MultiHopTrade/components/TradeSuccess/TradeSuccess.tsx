@@ -57,7 +57,7 @@ export type TradeSuccessProps = {
   sellAsset?: Asset
   buyAsset?: Asset
   sellAmountCryptoPrecision?: string
-  buyAmountCryptoPrecision?: string
+  quoteBuyAmountCryptoPrecision?: string
 }
 
 export const TradeSuccess = ({
@@ -69,7 +69,7 @@ export const TradeSuccess = ({
   sellAmountCryptoPrecision,
   sellAsset,
   buyAsset,
-  buyAmountCryptoPrecision,
+  quoteBuyAmountCryptoPrecision,
 }: TradeSuccessProps) => {
   const translate = useTranslate()
   const tradeQuote = useAppSelector(selectActiveQuote)
@@ -130,9 +130,9 @@ export const TradeSuccess = ({
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
-    if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
+    if (!(sellAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
 
-    const displayAmount = actualBuyAmountCryptoPrecision || buyAmountCryptoPrecision
+    const displayAmount = actualBuyAmountCryptoPrecision || quoteBuyAmountCryptoPrecision
 
     return (
       <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
@@ -155,7 +155,7 @@ export const TradeSuccess = ({
     sellAsset,
     buyAsset,
     sellAmountCryptoPrecision,
-    buyAmountCryptoPrecision,
+    quoteBuyAmountCryptoPrecision,
     actualBuyAmountCryptoPrecision,
   ])
 

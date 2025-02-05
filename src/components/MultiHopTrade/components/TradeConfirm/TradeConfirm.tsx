@@ -96,7 +96,7 @@ export const TradeConfirm = () => {
             activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
             activeQuote.steps[0].sellAsset.precision,
           )}
-          buyAmountCryptoPrecision={fromBaseUnit(
+          quoteBuyAmountCryptoPrecision={fromBaseUnit(
             tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
             tradeQuoteLastHop.buyAsset.precision,
           )}

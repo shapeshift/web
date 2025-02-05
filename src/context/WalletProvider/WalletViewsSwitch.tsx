@@ -15,7 +15,6 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile } from 'lib/globals'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -83,12 +82,6 @@ export const WalletViewsSwitch = () => {
   ])
 
   const handleBack = useCallback(async () => {
-    if (initialRoute === history.location.pathname && isMobile) {
-      onClose()
-
-      return
-    }
-
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
@@ -96,9 +89,8 @@ export const WalletViewsSwitch = () => {
     if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
-
     await cancelWalletRequests()
-  }, [dispatch, history, initialRoute, onClose, cancelWalletRequests])
+  }, [cancelWalletRequests, dispatch, history])
 
   useEffect(() => {
     if (initialRoute) {

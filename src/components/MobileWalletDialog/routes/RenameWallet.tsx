@@ -63,7 +63,11 @@ export const RenameWallet = () => {
       </DialogHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogBody>
-          <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
+          <Text
+            mb={6}
+            color='text.subtle'
+            translation={'walletProvider.shapeShift.rename.mobileBody'}
+          />
           <FormControl mb={6} isInvalid={!!errors.label}>
             <Input
               size='lg'

@@ -1863,6 +1863,7 @@
         "header": "Rename your wallet",
         "walletName": "New nickname for your wallet",
         "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
+        "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
       },

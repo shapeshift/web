@@ -1,9 +1,11 @@
-import { Modal, ModalCloseButton, ModalContent, ModalOverlay, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Dialog } from 'components/Modal/components/Dialog'
+import { DialogBody } from 'components/Modal/components/DialogBody'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
@@ -14,7 +16,6 @@ type Props = {
 }
 
 const borderRadiusProp = { base: 0, md: 'xl' }
-const minWidthProp = { base: '100%', md: '500px' }
 const maxWidthProp = { base: 'full', md: '500px' }
 
 const Connect = ({ initialUri, isOpen, onClose }: Props) => {
@@ -52,20 +53,17 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>
-      <ModalOverlay />
-      <ModalContent
+    <Dialog isOpen={isOpen} onClose={onClose} isFullScreen={true}>
+      <DialogBody
         width='full'
         textAlign='center'
         p={0}
         borderRadius={borderRadiusProp}
-        minWidth={minWidthProp}
         maxWidth={maxWidthProp}
       >
-        <ModalCloseButton zIndex='1' position='absolute' color='text.subtle' />
         <ConnectContent initialUri={initialUri} handleConnect={handleConnectV2} />
-      </ModalContent>
-    </Modal>
+      </DialogBody>
+    </Dialog>
   )
 }
 

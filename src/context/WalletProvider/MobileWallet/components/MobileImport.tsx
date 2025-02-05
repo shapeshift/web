@@ -7,6 +7,7 @@ import {
   ModalHeader,
   Textarea,
 } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
 import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
@@ -25,6 +26,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
     register,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ shouldUnregister: true })
+  const queryClient = useQueryClient()
 
   const onSubmit = useCallback(
     async (values: FormValues) => {
@@ -35,12 +37,13 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
           label: values.name.trim(),
         })
         history.push('/mobile/success', { vault })
+        queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       } catch (e) {
         console.log(e)
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
       }
     },
-    [history, setError],
+    [history, queryClient, setError],
   )
 
   const translate = useTranslate()

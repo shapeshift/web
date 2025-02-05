@@ -1,7 +1,9 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
@@ -9,6 +11,7 @@ import { Equity } from 'components/Equity/Equity'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectEnabledWalletAccountIds } from 'state/slices/selectors'
 
 import { AccountBalance } from './AccountBalance'
@@ -33,10 +36,17 @@ export const AccountToken = () => {
    */
   const accountIds = useSelector(selectEnabledWalletAccountIds)
   const isCurrentAccountIdOwner = Boolean(accountIds.map(toLower).includes(toLower(accountId)))
+
+  const id = assetId ? decodeURIComponent(assetId) : null
+
+  const nativeSellAssetId = useMemo(() => {
+    if (!id) return
+    return getChainAdapterManager().get(fromAssetId(id).chainId)?.getFeeAssetId()
+  }, [id])
+
   if (!accountIds.length) return null
   if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 
-  const id = assetId ? decodeURIComponent(assetId) : null
   if (!id) return null
   return (
     <Stack alignItems='flex-start' spacing={4} width='full' direction={stackDirection}>
@@ -55,7 +65,7 @@ export const AccountToken = () => {
         gap={4}
         display={multiHopTradeDisplay}
       >
-        <MultiHopTrade isCompact defaultBuyAssetId={id} />
+        <MultiHopTrade isCompact defaultBuyAssetId={id} defaultSellAssetId={nativeSellAssetId} />
       </Flex>
     </Stack>
   )

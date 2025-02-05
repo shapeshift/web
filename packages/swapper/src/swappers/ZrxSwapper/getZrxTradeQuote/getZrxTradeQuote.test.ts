@@ -93,6 +93,7 @@ describe('getZrxTradeQuote', () => {
             transaction: {
               gas: '237315',
             },
+            route: { fills: [] },
             permit2: { eip712: {} },
           },
         } as unknown as AxiosResponse<unknown, any>),

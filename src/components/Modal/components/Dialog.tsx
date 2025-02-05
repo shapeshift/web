@@ -1,7 +1,7 @@
-import { Box, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
 import { useDialog, withDialogProvider } from 'context/DialogContextProvider/DialogContextProvider'
 import { isMobile } from 'lib/globals'
@@ -12,7 +12,6 @@ export type DialogProps = {
   onClose: () => void
   height?: string
   isFullScreen?: boolean
-  isDisablingPropagation?: boolean
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
@@ -41,7 +40,6 @@ const DialogWindow: React.FC<DialogProps> = ({
   height,
   isFullScreen,
   children,
-  isDisablingPropagation = true,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
@@ -60,7 +58,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   const contentStyle = useMemo(() => {
     return {
       maxHeight: isFullScreen ? '100vh' : 'calc(100% - env(safe-area-inset-top))',
-      height: isFullScreen ? viewportHeight : height || '80vh',
+      height: isFullScreen ? viewportHeight : height,
       paddingTop: isFullScreen ? 'env(safe-area-inset-top)' : 0,
     }
   }, [height, isFullScreen, viewportHeight])
@@ -69,62 +67,11 @@ const DialogWindow: React.FC<DialogProps> = ({
     setIsOpen(isOpen)
   }, [isOpen, setIsOpen])
 
-  // This is a workaround to prevent the body to be pointer-events: none when the dialog is open if isDisablingPropagation is false
-  useEffect(() => {
-    if (!isDialogOpen) return
-    if (isDisablingPropagation) return
-
-    const originalPointerEvents = document.body.style.pointerEvents
-    const focusGuardedElements = document.querySelectorAll<HTMLElement>('*[data-radix-focus-guard]')
-
-    const raf = window.requestAnimationFrame(() => {
-      document.body.style.pointerEvents = 'auto'
-      focusGuardedElements.forEach(element => {
-        element.style.pointerEvents = 'auto'
-      })
-    })
-
-    return () => {
-      window.cancelAnimationFrame(raf)
-      document.body.style.pointerEvents = originalPointerEvents
-      focusGuardedElements.forEach(element => {
-        element.style.pointerEvents = 'inherit'
-      })
-    }
-  }, [isDialogOpen, isDisablingPropagation])
-
-  // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
-  useLayoutEffect(() => {
-    if (!isMobile || isLargerThanMd) return
-
-    document.addEventListener('focusin', e => e.stopImmediatePropagation())
-    document.addEventListener('focusout', e => e.stopImmediatePropagation())
-
-    return () => {
-      document.removeEventListener('focusin', e => e.stopImmediatePropagation())
-      document.removeEventListener('focusout', e => e.stopImmediatePropagation())
-    }
-  }, [isLargerThanMd])
-
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Root
-        repositionInputs={false}
-        open={isDialogOpen}
-        onClose={onClose}
-        activeSnapPoint={isDisablingPropagation ? snapPoint : undefined}
-        modal={false}
-      >
+      <Drawer.Root open={isDialogOpen} onClose={onClose} activeSnapPoint={snapPoint}>
         <Drawer.Portal>
-          {!isDisablingPropagation ? (
-            <Box
-              bg='rgba(0, 0, 0, 0.8)'
-              position='fixed'
-              inset={0}
-              zIndex='var(--chakra-zIndices-modal)'
-            />
-          ) : null}
-          {isDisablingPropagation ? <CustomDrawerOverlay /> : null}
+          <CustomDrawerOverlay />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>

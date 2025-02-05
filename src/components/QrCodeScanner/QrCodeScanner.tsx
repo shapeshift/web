@@ -25,12 +25,7 @@ const isPermissionError = (
 ): error is DOMException['message'] =>
   typeof (error as DOMException['message']) === 'string' && error === PERMISSION_ERROR
 
-const boxStyle = {
-  width: '100%',
-  minHeight: '298px',
-  overflow: 'hidden',
-  borderRadius: '1rem',
-}
+const boxStyle = { width: '100%', minHeight: '298px', overflow: 'hidden', borderRadius: '1rem' }
 const qrBoxStyle = { width: 250, height: 250 }
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -94,7 +89,7 @@ export const QrCodeScanner = ({
       </DialogHeader>
       <DialogBody>
         {error ? (
-          <Flex justifyContent='center' alignItems='center' flexDirection='column' pb={4}>
+          <Flex justifyContent='center' alignItems='center' flexDirection='column'>
             <Alert status='error' borderRadius='xl'>
               <AlertIcon />
               <Text

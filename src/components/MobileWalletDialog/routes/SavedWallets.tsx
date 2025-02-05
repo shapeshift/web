@@ -58,14 +58,12 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const accountManagementPopover = useModal('manageAccounts')
 
   const handleBackupMenuItemClick = useCallback(() => {
-    onClose && onClose()
     backupNativePassphrase.open({})
-  }, [backupNativePassphrase, onClose])
+  }, [backupNativePassphrase])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
-    onClose && onClose()
     accountManagementPopover.open({})
-  }, [accountManagementPopover, onClose])
+  }, [accountManagementPopover])
 
   const handleClickSupport = useCallback(() => {
     feedbackSupport.open({})

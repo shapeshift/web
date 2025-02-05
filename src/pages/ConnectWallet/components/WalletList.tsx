@@ -127,7 +127,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
       )
     }
     return (
-      <Stack maxHeight='40vh' overflow='auto' px={4} mx={-4}>
+      <Stack maxHeight='30vh' overflow='auto' px={4} mx={-4}>
         {wallets?.map(wallet => {
           const isSelected = walletInfo?.deviceId === wallet.id
           const _hover = isSelected

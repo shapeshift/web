@@ -1,8 +1,8 @@
-import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
+import { ChatIcon, CloseIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useMemo, useState } from 'react'
-import { TbCircleArrowDown, TbCirclePlus } from 'react-icons/tb'
+import { TbCircleArrowDown, TbCirclePlus, TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
 import { DialogBody } from 'components/Modal/components/DialogBody'
@@ -24,8 +24,11 @@ import { MobileWallestList } from 'pages/ConnectWallet/components/WalletList'
 
 const addIcon = <TbCirclePlus />
 const importIcon = <TbCircleArrowDown />
+const downloadIcon = <TbDownload />
 const settingsIcon = <SettingsIcon />
 const chatIcon = <ChatIcon />
+const editIcon = <EditIcon />
+const closeIcon = <CloseIcon />
 
 type SavedWalletsProps = {
   onClose: () => void
@@ -36,13 +39,26 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const { dispatch, create, importWallet } = useWallet()
+  const { dispatch, create, importWallet, disconnect } = useWallet()
   const [isEditing, toggleEditing] = useToggle()
   const [error, setError] = useState<string | null>(null)
   const handleClickSettings = useCallback(() => {
     settings.open({})
     onClose()
   }, [onClose, settings])
+  const backupNativePassphrase = useModal('backupNativePassphrase')
+  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
+  const accountManagementPopover = useModal('manageAccounts')
+
+  const handleBackupMenuItemClick = useCallback(() => {
+    onClose && onClose()
+    backupNativePassphrase.open({})
+  }, [backupNativePassphrase, onClose])
+
+  const handleManageAccountsMenuItemClick = useCallback(() => {
+    onClose && onClose()
+    accountManagementPopover.open({})
+  }, [accountManagementPopover, onClose])
 
   const handleClickSupport = useCallback(() => {
     feedbackSupport.open({})
@@ -80,9 +96,37 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
         >
           {translate('connectWalletPage.importExisting')}
         </Button>
+
+        {isAccountManagementEnabled ? (
+          <Button
+            variant='ghost'
+            colorScheme='blue'
+            leftIcon={editIcon}
+            onClick={handleManageAccountsMenuItemClick}
+            justifyContent='flex-start'
+          >
+            {translate('accountManagement.menuTitle')}
+          </Button>
+        ) : null}
+        <Button
+          variant='ghost'
+          colorScheme='blue'
+          leftIcon={downloadIcon}
+          onClick={handleBackupMenuItemClick}
+          justifyContent='flex-start'
+        >
+          {translate('modals.shapeShift.backupPassphrase.menuItem')}
+        </Button>
       </Stack>
     )
-  }, [handleCreate, handleImport, translate])
+  }, [
+    handleImport,
+    handleCreate,
+    handleManageAccountsMenuItemClick,
+    handleBackupMenuItemClick,
+    isAccountManagementEnabled,
+    translate,
+  ])
 
   return (
     <SlideTransition>
@@ -113,12 +157,22 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
           label={translate('common.settings')}
           leftIcon={settingsIcon}
           data-test='navigation-settings-button'
+          py={1}
         />
         <MainNavLink
           size='sm'
           onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
           leftIcon={chatIcon}
+          py={1}
+        />
+        <MainNavLink
+          size='sm'
+          onClick={disconnect}
+          label={translate('connectWallet.menu.disconnect')}
+          leftIcon={closeIcon}
+          color='red.500'
+          py={1}
         />
       </DialogFooter>
     </SlideTransition>

@@ -36,6 +36,7 @@ const TradeRouteEntries = [
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
+  defaultSellAssetId?: AssetId
   isCompact?: boolean
   isRewritingUrl?: boolean
 }
@@ -55,7 +56,7 @@ const GetTradeRates = () => {
 }
 
 export const MultiHopTrade = memo(
-  ({ defaultBuyAssetId, isCompact, isRewritingUrl }: TradeCardProps) => {
+  ({ defaultBuyAssetId, defaultSellAssetId, isCompact, isRewritingUrl }: TradeCardProps) => {
     const location = useLocation()
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
@@ -67,7 +68,6 @@ export const MultiHopTrade = memo(
     const history = useHistory()
     const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
-    const hasUrlParams = Boolean(sellChainId && sellAssetSubId && chainId && assetSubId)
 
     const buyAssetId = useMemo(() => {
       if (defaultBuyAssetId) return defaultBuyAssetId
@@ -75,12 +75,13 @@ export const MultiHopTrade = memo(
       return ''
     }, [defaultBuyAssetId, chainId, assetSubId])
 
-    const routeSellAsset = useAppSelector(state =>
-      selectAssetById(
-        state,
-        sellChainId && sellAssetSubId ? `${sellChainId}/${sellAssetSubId}` : '',
-      ),
-    )
+    const sellAssetId = useMemo(() => {
+      if (defaultSellAssetId) return defaultSellAssetId
+      if (sellChainId && sellAssetSubId) return `${sellChainId}/${sellAssetSubId}`
+      return ''
+    }, [defaultSellAssetId, sellChainId, sellAssetSubId])
+
+    const routeSellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
 
     const routeBuyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
 
@@ -102,31 +103,24 @@ export const MultiHopTrade = memo(
         return
       }
 
-      if (hasUrlParams) {
-        if (routeSellAsset) {
-          dispatch(tradeInput.actions.setSellAsset(routeSellAsset))
-        }
-        if (routeBuyAsset) {
-          dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
-        }
-        if (sellAmountCryptoBaseUnit && routeSellAsset) {
-          dispatch(
-            tradeInput.actions.setSellAmountCryptoPrecision(
-              fromBaseUnit(sellAmountCryptoBaseUnit, routeSellAsset.precision),
-            ),
-          )
-        }
+      if (routeBuyAsset) {
+        dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
+      }
+
+      if (routeSellAsset) {
+        dispatch(tradeInput.actions.setSellAsset(routeSellAsset))
+      }
+
+      if (sellAmountCryptoBaseUnit && routeSellAsset) {
+        dispatch(
+          tradeInput.actions.setSellAmountCryptoPrecision(
+            fromBaseUnit(sellAmountCryptoBaseUnit, routeSellAsset.precision),
+          ),
+        )
       }
 
       setIsInitialized(true)
-    }, [
-      dispatch,
-      routeBuyAsset,
-      routeSellAsset,
-      sellAmountCryptoBaseUnit,
-      hasUrlParams,
-      isInitialized,
-    ])
+    }, [dispatch, routeBuyAsset, routeSellAsset, sellAmountCryptoBaseUnit, isInitialized])
 
     useEffect(() => {
       if (isRewritingUrl) {

@@ -29,7 +29,7 @@ import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useTxDetailsQuery } from 'hooks/useTxDetails/useTxDetails'
+import { useTxDetails, useTxDetailsQuery } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
@@ -57,7 +57,7 @@ export type TradeSuccessProps = {
   sellAsset?: Asset
   buyAsset?: Asset
   sellAmountCryptoPrecision?: string
-  buyAmountCryptoPrecision?: string
+  quoteBuyAmountCryptoPrecision?: string
 }
 
 export const TradeSuccess = ({
@@ -69,7 +69,7 @@ export const TradeSuccess = ({
   sellAmountCryptoPrecision,
   sellAsset,
   buyAsset,
-  buyAmountCryptoPrecision,
+  quoteBuyAmountCryptoPrecision,
 }: TradeSuccessProps) => {
   const translate = useTranslate()
   const tradeQuote = useAppSelector(selectActiveQuote)
@@ -114,10 +114,10 @@ export const TradeSuccess = ({
     return serializeTxIndex(accountId, txHash, receiveAddress)
   }, [tradeExecution, isMultiHop, buyAsset, receiveAddress])
 
-  const txTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
+  const txTransfers = useTxDetails(buyTxId ?? '')?.transfers
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
-
   const transfers = manualReceiveAddressTransfers || txTransfers
+
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined
 
@@ -131,9 +131,9 @@ export const TradeSuccess = ({
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
-    if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
+    if (!(sellAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
 
-    const displayAmount = actualBuyAmountCryptoPrecision || buyAmountCryptoPrecision
+    const displayAmount = actualBuyAmountCryptoPrecision || quoteBuyAmountCryptoPrecision
 
     return (
       <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
@@ -156,7 +156,7 @@ export const TradeSuccess = ({
     sellAsset,
     buyAsset,
     sellAmountCryptoPrecision,
-    buyAmountCryptoPrecision,
+    quoteBuyAmountCryptoPrecision,
     actualBuyAmountCryptoPrecision,
   ])
 

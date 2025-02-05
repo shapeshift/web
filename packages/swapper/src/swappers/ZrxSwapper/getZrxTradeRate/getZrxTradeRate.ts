@@ -57,7 +57,11 @@ export async function getZrxTradeRate(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
 
-  const { buyAmount, sellAmount, fees, totalNetworkFee } = zrxPriceResponse
+  const { buyAmount, sellAmount, fees, totalNetworkFee, route } = zrxPriceResponse
+
+  const isWrappedNative = route.fills.some(
+    fill => fill.source === 'Wrapped_Native' && fill.proportionBps === '10000',
+  )
 
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
 
@@ -81,7 +85,8 @@ export async function getZrxTradeRate(
     steps: [
       {
         estimatedExecutionTimeMs: undefined,
-        allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : PERMIT2_CONTRACT,
+        allowanceContract:
+          isNativeEvmAsset(sellAsset.assetId) || isWrappedNative ? undefined : PERMIT2_CONTRACT,
         buyAsset,
         sellAsset,
         accountNumber,

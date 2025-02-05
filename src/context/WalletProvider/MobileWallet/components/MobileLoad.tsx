@@ -23,6 +23,8 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppDispatch } from 'state/store'
 
 import { MobileConfig } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
@@ -118,6 +120,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const translate = useTranslate()
+  const appDispatch = useAppDispatch()
 
   useEffect(() => {
     ;(async () => {
@@ -193,6 +196,9 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
       if (result && wallet?.id) {
         try {
           await deleteWallet(wallet.id)
+
+          appDispatch(portfolio.actions.clearWalletPortfolioState(wallet.id))
+
           setWallets([])
         } catch (e) {
           console.log(e)
@@ -200,7 +206,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         }
       }
     },
-    [translate],
+    [translate, appDispatch],
   )
 
   const handleRename = useCallback(

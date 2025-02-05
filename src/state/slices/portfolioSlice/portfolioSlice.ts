@@ -96,7 +96,6 @@ export const portfolio = createSlice({
       // keep an index of what account ids belong to this wallet
       draftState.wallet.byId[walletId] = uniq(existingWalletAccountIds.concat(newWalletAccountIds))
     },
-
     clearWalletMetadata: (draftState, { payload }: { payload: WalletId }) => {
       const walletId = payload
       // Clear AccountIds that were previously associated with that wallet
@@ -105,6 +104,17 @@ export const portfolio = createSlice({
 
       // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
       // Theoretically, not doing so would make reloading these easier?
+    },
+    clearWalletPortfolioState: (draftState, { payload }: { payload: string }) => {
+      const walletId = payload
+
+      delete draftState.wallet.byId[walletId]
+      draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
+      delete draftState.accountMetadata.byId[walletId]
+      draftState.accountMetadata.ids = draftState.accountMetadata.ids.filter(id => id !== walletId)
+      delete draftState.accountBalances.byId[walletId]
+      draftState.accountBalances.ids = draftState.accountBalances.ids.filter(id => id !== walletId)
+      delete draftState.enabledAccountIds[walletId]
     },
     upsertPortfolio: (draftState, { payload }: { payload: Portfolio }) => {
       // upsert all

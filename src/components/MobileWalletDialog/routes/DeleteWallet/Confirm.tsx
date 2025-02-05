@@ -11,6 +11,8 @@ import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageH
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { WalletCard } from 'pages/ConnectWallet/components/WalletCard'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppDispatch } from 'state/store'
 
 type ConfirmDeleteProps = {
   vault: RevocableWallet
@@ -21,11 +23,14 @@ export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) =
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
   const { disconnect, state } = useWallet()
+  const appDispatch = useAppDispatch()
 
   const handleDelete = useCallback(async () => {
     if (vault?.id) {
       try {
         await deleteWallet(vault.id)
+
+        appDispatch(portfolio.actions.clearWalletPortfolioState(vault.id))
 
         if (state.walletInfo?.deviceId === vault.id) {
           disconnect()
@@ -36,7 +41,7 @@ export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) =
         setError('walletProvider.shapeShift.load.error.delete')
       }
     }
-  }, [onBack, vault?.id, disconnect, state.walletInfo?.deviceId])
+  }, [onBack, vault?.id, disconnect, state.walletInfo?.deviceId, appDispatch])
 
   return (
     <SlideTransition>

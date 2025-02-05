@@ -30,6 +30,13 @@ const chatIcon = <ChatIcon />
 const editIcon = <EditIcon />
 const closeIcon = <CloseIcon />
 
+const disconnectButtonSx = {
+  svg: {
+    width: '14px',
+    height: '14px',
+  },
+}
+
 type SavedWalletsProps = {
   onClose: () => void
 }
@@ -157,14 +164,15 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
           label={translate('common.settings')}
           leftIcon={settingsIcon}
           data-test='navigation-settings-button'
-          py={1}
+          height='32px'
+          mt={2}
         />
         <MainNavLink
           size='sm'
           onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
           leftIcon={chatIcon}
-          py={1}
+          height='32px'
         />
         <MainNavLink
           size='sm'
@@ -172,7 +180,8 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
           label={translate('connectWallet.menu.disconnect')}
           leftIcon={closeIcon}
           color='red.500'
-          py={1}
+          height='32px'
+          sx={disconnectButtonSx}
         />
       </DialogFooter>
     </SlideTransition>

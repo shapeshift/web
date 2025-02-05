@@ -172,7 +172,7 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
   const txHash = useMemo(() => {
     if (!txId) return
     return deserializeTxIndex(txId).txid
-  }, [])
+  }, [txId])
 
   const chainId = accountId ? fromAccountId(accountId).chainId : ''
 

@@ -1880,7 +1880,7 @@
         "whatIsShapeshiftWallet": "Was ist eine ShapeShift Wallet?",
         "yourDecentralizedGateway": "Ihr Gateway zur Dezentralisierung. Handeln und verdienen Sie Bitcoin, Ethereum, Solana und mehr von einer einzigen, sicheren Wallet aus.",
         "selfCustody": {
-          "title": "Ihre Shapeshift Wallet verwalten Sie",
+          "title": "Ihre ShapeShift Wallet verwalten Sie",
           "subTitle": "Sie haben die Schlüssel und Sie sind der einzige, der darauf zugreifen kann.",
           "body": "Eine selbstverwaltete Wallet bedeutet, dass Sie sie besitzen und nur Sie Zugriff auf Ihr Geld haben. Ihre geheime Wiederherstellungsphrase ist Ihr Schlüssel zum Zugriff darauf. Niemand kann Sie daran hindern, auf Ihr Geld zuzugreifen.",
           "cta": "Weiter"
@@ -2254,7 +2254,7 @@
           "invalidUri": "Ungültiger URI",
           "v1UriUnsupported": "WalletConnect V1 URI nicht aktiviert",
           "v2UriUnsupported": "WalletConnect V2 URI nicht aktiviert",
-          "disclaimerBody": "Shapeshift kann die Sicherheit von Anwendungen Dritter nicht gewährleisten. Durch die Nutzung von WalletConnect übernehmen Sie die volle Verantwortung für alle damit verbundenen Risiken."
+          "disclaimerBody": "ShapeShift kann die Sicherheit von Anwendungen Dritter nicht gewährleisten. Durch die Nutzung von WalletConnect übernehmen Sie die volle Verantwortung für alle damit verbundenen Risiken."
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",

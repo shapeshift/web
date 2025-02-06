@@ -4,4 +4,9 @@ export enum MobileWalletDialogRoutes {
   Delete = '/delete',
   Backup = '/delete/backup',
   ConfirmDelete = '/delete/confirm',
+  Create = '/create',
+  KeepSafe = '/create/keep-safe',
+  CreateBackup = '/create/backup',
+  CreateBackupConfirm = '/create/backup/confirm',
+  CreateBackupSuccess = '/create/backup/success',
 }

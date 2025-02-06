@@ -24,6 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { Revocable, revocable } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from 'hooks/useModal/useModal'
+import { isMobile } from 'lib/globals'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -35,14 +36,14 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
   const [revoker] = useState(new (Revocable(class {}))())
-  const { goBack: handleBackClick, ...history } = useHistory()
+  const { goBack, ...history } = useHistory()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
   }, [revealed])
-  const { props: backupNativePassphraseProps } = useModal('backupNativePassphrase')
+  const { props: backupNativePassphraseProps, close } = useModal('backupNativePassphrase')
   const preventClose = backupNativePassphraseProps?.preventClose
 
   const alertColor = useColorModeValue('blue.500', 'blue.200')
@@ -103,6 +104,16 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
     () => history.push(BackupPassphraseRoutes.Test),
     [history],
   )
+
+  const handleBackClick = useCallback(() => {
+    if (isMobile) {
+      close()
+
+      return
+    }
+
+    goBack()
+  }, [goBack, close])
 
   return (
     <SlideTransition>

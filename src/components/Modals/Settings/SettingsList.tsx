@@ -26,12 +26,13 @@ import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageH
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectCurrencyFormat,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -61,6 +62,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
+  const appDispatch = useAppDispatch()
 
   // for both locale and currency
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
@@ -91,13 +93,16 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     if (window.confirm(translate('modals.settings.deleteAccountsConfirm'))) {
       try {
         await deleteWallet('*')
+
+        appDispatch(portfolio.actions.clear())
+
         settings.close()
         disconnect()
       } catch (e) {
         console.log(e)
       }
     }
-  }, [translate, settings, disconnect])
+  }, [translate, settings, disconnect, appDispatch])
 
   const handleClearCacheClick = useCallback(
     () => history.push(SettingsRoutes.ClearCache),

@@ -2270,7 +2270,7 @@
           "invalidUri": "无效的 URI",
           "v1UriUnsupported": "WalletConnect V1 URI 未启用",
           "v2UriUnsupported": "WalletConnect V2 URI 未启用",
-          "disclaimerBody": "Shapeshift 无法确保第三方应用程序的安全性。通过使用钱包连接，您对所涉及的任何风险承担全部责任。"
+          "disclaimerBody": "ShapeShift 无法确保第三方应用程序的安全性。通过使用钱包连接，您对所涉及的任何风险承担全部责任。"
         },
         "sessionProposal": {
           "dAppInfo": "dApp 信息",

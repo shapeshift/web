@@ -62,7 +62,7 @@ export const LimitOrderConfirm = () => {
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const quoteId = useAppSelector(selectActiveQuoteId)
   const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
-  const buyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
+  const quoteBuyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
   const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
   const feeAssetRateUserCurrency = useAppSelector(selectActiveQuoteFeeAssetRateUserCurrency)
 
@@ -142,7 +142,7 @@ export const LimitOrderConfirm = () => {
           sellAsset={sellAsset}
           buyAsset={buyAsset}
           sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-          buyAmountCryptoPrecision={buyAmountCryptoPrecision}
+          quoteBuyAmountCryptoPrecision={quoteBuyAmountCryptoPrecision}
         />
       )
     }
@@ -157,7 +157,7 @@ export const LimitOrderConfirm = () => {
     )
   }, [
     buyAmountCryptoBaseUnit,
-    buyAmountCryptoPrecision,
+    quoteBuyAmountCryptoPrecision,
     buyAsset,
     handleBack,
     innerStepsRendered,
@@ -323,7 +323,7 @@ export const LimitOrderConfirm = () => {
           sellAsset,
           buyAsset,
           sellAmountCryptoPrecision,
-          buyAmountCryptoPrecision,
+          buyAmountCryptoPrecision: quoteBuyAmountCryptoPrecision,
         })
         if (mixpanel && eventData) {
           mixpanel.track(MixPanelEvent.LimitOrderPlaced, eventData)
@@ -336,7 +336,7 @@ export const LimitOrderConfirm = () => {
     activeQuote?.params.accountId,
     allowanceApprovalMutation,
     allowanceResetMutation,
-    buyAmountCryptoPrecision,
+    quoteBuyAmountCryptoPrecision,
     buyAsset,
     dispatch,
     isConnected,

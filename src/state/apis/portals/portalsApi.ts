@@ -25,6 +25,7 @@ import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
+import { foxEthLpAssetIds } from 'state/slices/opportunitiesSlice/constants'
 import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   DefiProviderMetadata,
@@ -258,7 +259,12 @@ export const portals = createApi({
   reducerPath: 'portals',
   endpoints: build => ({
     getPortalsUniV2PoolAssetIds: build.query<GetPortalsUniV2PoolAssetIdsOutput, void>({
-      queryFn: async () => {
+      queryFn: async (_input, { getState }) => {
+        const state = getState() as ReduxState
+        const DynamicLpAssets = selectFeatureFlag(state, 'DynamicLpAssets')
+
+        if (!DynamicLpAssets) return Promise.resolve({ data: [...foxEthLpAssetIds] })
+
         const evmNetworks = [chainIdToPortalsNetwork(ethChainId)]
         const networks = evmNetworks.map(network => network?.toLowerCase()).filter(isSome)
 
@@ -296,6 +302,7 @@ export const portals = createApi({
     >({
       queryFn: async ({ evmAccountIds }, { dispatch, getState }) => {
         const state = getState() as ReduxState
+        const DynamicLpAssets = selectFeatureFlag(state, 'DynamicLpAssets')
         const ReadOnlyAssets = selectFeatureFlag(state, 'ReadOnlyAssets')
 
         try {
@@ -379,6 +386,8 @@ export const portals = createApi({
                       assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
                       assetReference: balance.address,
                     })
+
+                    if (balance.platform === 'uniswapv2' && !DynamicLpAssets) return balanceAcc
 
                     const stakedAmountCryptoBaseUnit = balance.rawBalance
                     const fiatAmount = bnOrZero(balance.balanceUSD).toString()

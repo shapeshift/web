@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -15,7 +15,6 @@ import {
   selectEnabledWalletAccountIds,
   selectHighestMarketCapFeeAsset,
   selectPortfolioAccountMetadata,
-  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,17 +41,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
 
-  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
-
-  // If the user disconnects the chain for the currently selected asset, switch to the default asset
-  useEffect(() => {
-    if (!selectedAssetId) return
-    const { chainId } = fromAssetId(selectedAssetId)
-    if (!walletConnectedChainIds.includes(chainId)) {
-      setSelectedAssetId(defaultAsset?.assetId)
-    }
-  }, [defaultAsset?.assetId, selectedAssetId, walletConnectedChainIds])
 
   const {
     state: { wallet, isDemoWallet },
@@ -73,15 +62,13 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {
-      if (!wallet) return
-
       assetSearch.open({
         onAssetClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
         assets: fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets,
-        allowWalletUnsupportedAssets: false,
+        allowWalletUnsupportedAssets: true,
       })
     },
-    [wallet, assetSearch, buyAssets, sellAssets],
+    [assetSearch, buyAssets, sellAssets],
   )
 
   /**

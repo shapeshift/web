@@ -148,7 +148,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
         </MenuButton>
       </Tooltip>
 
-      <MenuList p={2} maxHeight='250px' overflowY='auto' zIndex='dropdown'>
+      <MenuList p={2} maxHeight='350px' overflowY='auto' zIndex='dropdown'>
         <MenuGroup title={translate('common.selectNetwork')} ml={3} color='text.subtle'>
           {chainIds.map(chainId => (
             <ChainMenuItem<T>

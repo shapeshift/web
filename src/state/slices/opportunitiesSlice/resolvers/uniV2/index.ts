@@ -63,7 +63,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   const assets: AssetsState = state.assets
 
   const selectGetPortalsAppTokensOutput = portalsApi.endpoints.getPortalsAppTokensOutput.select()
-  // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
+  // Undefined if the DynamicLpAssets flag is off, or if Portals rugs us
   const portalsAppTokensOutput = selectGetPortalsAppTokensOutput(state)
 
   if (!opportunityIds?.length) {

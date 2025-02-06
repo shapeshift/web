@@ -1,10 +1,12 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,6 +41,10 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
     [assetId, accountId],
   )
 
+  const nativeSellAssetId = useMemo(() => {
+    return getChainAdapterManager().get(fromAssetId(assetId).chainId)?.getFeeAssetId()
+  }, [assetId])
+
   return (
     <Main headerComponent={assetHeader} py={contentPaddingY} isSubPage>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
@@ -53,7 +59,11 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
         </Stack>
         <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={maxWidth} gap={4}>
           <Flex display={display}>
-            <MultiHopTrade isCompact defaultBuyAssetId={assetId} />
+            <MultiHopTrade
+              isCompact
+              defaultBuyAssetId={assetId}
+              defaultSellAssetId={nativeSellAssetId}
+            />
           </Flex>
           {marketData && <AssetMarketData assetId={assetId} />}
           <AssetDescription assetId={assetId} />

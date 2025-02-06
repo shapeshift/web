@@ -2270,7 +2270,7 @@
           "invalidUri": "無効なURI",
           "v1UriUnsupported": "WalletConnect V1 URIが有効になっていません",
           "v2UriUnsupported": "WalletConnect V2 URIが有効になっていません",
-          "disclaimerBody": "Shapeshift はサードパーティ アプリケーションの安全性やセキュリティを保証することはできません。WalletConnect を使用することで、関連するあらゆるリスクについて全責任を負うことになります。"
+          "disclaimerBody": "ShapeShift はサードパーティ アプリケーションの安全性やセキュリティを保証することはできません。WalletConnect を使用することで、関連するあらゆるリスクについて全責任を負うことになります。"
         },
         "sessionProposal": {
           "dAppInfo": "dApp情報",

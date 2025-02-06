@@ -2270,7 +2270,7 @@
           "invalidUri": "Geçersiz URI",
           "v1UriUnsupported": "WalletConnect V1 URI etkin değil",
           "v2UriUnsupported": "WalletConnect V2 URI etkin değil",
-          "disclaimerBody": "Shapeshift, üçüncü taraf uygulamalarının güvenliğini veya emniyetini garanti edemez. WalletConnect'i kullanarak, dahil olan tüm risklerin tüm sorumluluğunu üstlenirsiniz."
+          "disclaimerBody": "ShapeShift, üçüncü taraf uygulamalarının güvenliğini veya emniyetini garanti edemez. WalletConnect'i kullanarak, dahil olan tüm risklerin tüm sorumluluğunu üstlenirsiniz."
         },
         "sessionProposal": {
           "dAppInfo": "dApp Bilgisi",

@@ -1,5 +1,5 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { isNativeEvmAsset, SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { TextPropTypes } from 'components/Text/Text'
 import { assertUnreachable } from 'lib/utils'
 import type { ApprovalExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
@@ -153,6 +153,5 @@ export const getCurrentStepperStepIndex = (
 
 export const isPermit2Hop = (tradeQuoteStep: TradeQuoteStep | undefined) => {
   if (!tradeQuoteStep) return false
-  const isNativeSellAsset = isNativeEvmAsset(tradeQuoteStep.sellAsset.assetId)
-  return tradeQuoteStep.source === SwapperName.Zrx && !isNativeSellAsset
+  return tradeQuoteStep.source === SwapperName.Zrx && !!tradeQuoteStep.allowanceContract
 }

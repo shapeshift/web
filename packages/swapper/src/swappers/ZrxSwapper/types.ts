@@ -58,7 +58,7 @@ export type ZrxPriceResponse = {
       to: Address
       source: string
       proportionBps: string
-    }
+    }[]
     tokens: {
       address: Address
       symbol: string

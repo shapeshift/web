@@ -189,7 +189,9 @@
     "update": "Mettre à jour",
     "apy": "APY",
     "tbd": "À définir",
-    "installed": "Installé"
+    "installed": "Installé",
+    "others": "Autres",
+    "hardwareWallets": "Porte-monnaie matériels"
   },
   "consentBanner": {
     "body": {
@@ -1003,7 +1005,9 @@
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
     "doAnotherTrade": "Faire un autre échange",
     "summary": "Afficher le sommaire",
+    "estimatedCompletionTime": "Temps d'exécution estimé",
     "transactionSuccessful": "Transaction réussie, en attente de confirmations",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "Le protocole THORCHain subit une certaine volatilité actuellement. Procédez avec une prudence accrue et envisagez les autres routes disponibles.",
     "temp": {
       "tradeSuccess": "Échange terminé",
       "tradeComplete": "%{symbol} reçus avec succès sur %{chainName}."
@@ -1048,6 +1052,9 @@
     "placeOrderSuccess": "Succès !",
     "placeOrderFailed": "Quelque chose s'est mal déroulé",
     "placeOrder": "Placer l'ordre",
+    "placeAnotherOrder": "Placer un autre ordre",
+    "orderSummary": "Résumé de l'ordre",
+    "success": "Ordre à cours limité placé avec succès",
     "cancel": {
       "cancelOrder": "Annuler l'ordre à cours limité",
       "requestCancellation": "Oui, demander l'annulation",
@@ -1072,6 +1079,10 @@
     "noOpenOrders": "Aucun ordre ouvert pour le moment.",
     "noHistoricalOrders": "Aucun ordre dans l'historique pour le moment.",
     "limitPriceIsPercentLowerThanMarket": "Le prix limite est %{percent}% inférieur au prix du marché",
+    "awaitingOrderPlacement": "En attente du placement de l'ordre sur %{swapperName}",
+    "awaitingAllowanceApproval": "En attente d'autorisation de l'allocation",
+    "awaitingAllowanceReset": "En attente de réinitialisation de l'allocation",
+    "orderPlacement": "Placer l'ordre sur %{swapperName}",
     "expiryOption": {
       "oneHour": "1 heure",
       "oneDay": "1 jour",
@@ -1697,6 +1708,9 @@
       "dontAskAgain": "Ne plus demander",
       "multiAccountUnsupported": "Le multi-compte n'est pas pris en charge pour cette chaîne en utilisant le Snap Multichain avec MetaMask"
     },
+    "coinbaseQR": {
+      "name": "Coinbase Connect"
+    },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
       "updateTitle": "Mise à jour du Snap Multichain",
@@ -1766,6 +1780,7 @@
         "secretRecoveryPhraseRequired": "La phrase secrète de récupération est requise",
         "secretRecoveryPhraseTooShort": "La phrase secrète de récupération est trop courte",
         "dragAndDrop": "Glisser-déposer ou Choisir un fichier",
+        "keystoreImportBody": "Importez le fichier en cliquant sur Parcourir ou en le faisant glisser ci-dessous.",
         "importKeystore": "Importer un Keystore",
         "invalidKeystorePassword": "Mot de passe du Keystore invalide"
       },
@@ -1788,13 +1803,14 @@
         "selectHeader": "Importer un porte-monnaie",
         "keystoreHeader": "Porte-monnaie Keystore",
         "body": "Vous pouvez avoir plusieurs porte-monnaie ShapeShift. Vous pouvez charger un porte-monnaie, importer un porte-monnaie à partir d'une phrase de récupération secrète ou créer un nouveau porte-monnaie.",
+        "selectBody": "Importez votre porte-monnaie en utilisant votre phrase de récupération secrète ou en chargeant votre fichier Keystore.",
         "import": "Importer un porte-monnaie",
         "secretRecoveryPhrase": "Phrase de récupération secrète",
         "twelveWordSeedPhrase": "Phrase de récupération de 12 mots",
         "keystore": "Keystore",
         "create": "Créer un nouveau porte-monnaie",
         "load": "Porte-monnaie mémorisés",
-        "uploadKeystore": "Télécharger un fichier Keystore"
+        "importKeystore": "Importer le fichier Keystore"
       },
       "success": {
         "encryptingWallet": "Cryptage de votre porte-monnaie... si votre navigateur vous demande de stocker des données dans une mémoire persistante, veuillez cliquer sur 'Autoriser'.",
@@ -1878,6 +1894,7 @@
         "importFromKeystore": "Importer depuis un Keystore",
         "whatIsShapeshiftWallet": "Qu'est-ce qu'un porte-monnaie ShapeShift ?",
         "yourDecentralizedGateway": "Votre passerelle vers la décentralisation. Échangez et gagnez sur Bitcoin, Ethereum, Solana et plus encore à partir d'un seul porte-monnaie sécurisé.",
+        "crossChainFreedom": "Liberté inter-chaînes. Accédez aux meilleurs taux sur plusieurs plateformes d'échange décentralisées, sans intermédiaire.",
         "selfCustody": {
           "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
           "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",
@@ -2377,6 +2394,8 @@
     "pool": "Pool",
     "poolDepth": "Profondeur du pool",
     "poolDepthDescription": "Le niveau de santé du pool",
+    "status": "Statut",
+    "statusDescription": "L'état du pool",
     "totalDebtBalance": "Solde total des dettes",
     "totalDebtBalanceDescription": "Solde cumulatif de la dette dans le pool de prêts",
     "totalCollateral": "Totale des collatéraux",
@@ -2421,6 +2440,8 @@
     "repayNotice": "Pour récupérer votre collatéral, vous devrez rembourser 100 % de votre dette.",
     "feesNotice": "Les frais liés au collatéral que vous récupérerez après avoir remboursé 100 % de votre dette",
     "refetchQuote": "Actualiser le devis",
+    "haltedAlert": "Les services de Prêts et les Savers sont actuellement suspendus sur THORChain. Cette interruption devrait durer environ 90 jours. Nous nous excusons pour la gêne occasionnée.",
+    "halterMoreDetails": "Pour plus de détails, visitez le Discord de THORChain.",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2727,7 +2748,8 @@
     "emissionsPool": "Pool d'émissions %{symbol} (cette époque)",
     "emissionsPoolHelper": "Le montant total des récompenses à distribuer aux miseurs %{symbol}",
     "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
-    "pendingDistribution": "Distribution en attente"
+    "pendingDistribution": "Distribution en attente",
+    "selectRuneAddress": "Sélectionnez une adresse RUNE"
   },
   "markets": {
     "recommended": "Recommandé",
@@ -2794,10 +2816,12 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*La remise diminue de manière linéaire au fil du temps et expire le XX/XX/2025. Profitez de votre remise de XX% avant qu'elle ne diminue davantage !",
+      "description": "Réclamez votre FOXwifhat. Agissez vite : ces remises diminuent avec le temps. Plus vous détenez de FOX ou de FOXwifhat, plus vous économisez. Accumulez plus de jetons FOX pour des économies continues et des avantages en matière de partage de revenus, gouvernance et revenus de farming. Apprenez-en plus sur ces programmes sur le reste de cette page.",
+      "discount": "*Cette remise diminue de manière linéaire au fil du temps et expire le %{date}. Profitez de votre remise de %{percent}% avant qu'elle ne diminue davantage !",
       "claim": "Réclamer",
       "claimed": "Réclamé",
-      "discountText": "*%{percent}% de réduction sur les frais d'échange"
+      "discountText": "*%{percent}% de réduction sur les frais d'échange",
+      "noClaims": "Aucune réclamation disponible"
     },
     "governance": {
       "title": "Gouvernance",
@@ -2823,6 +2847,7 @@
       "getAddress": "Échec de l'obtention de l'adresse du porte-monnaie.",
       "getAccount": "Échec de l'obtention du compte pour : %{pubkey}.",
       "switchChainUnsupported": "Le porte-monnaie ne permet pas de changer de chaîne.",
+      "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie. Essayez de changer manuellement la chaîne active de votre porte-monnaie pour %{chain}.",
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",

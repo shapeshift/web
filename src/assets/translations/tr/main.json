@@ -189,7 +189,9 @@
     "update": "Güncelleme",
     "apy": "APY",
     "tbd": "Belirlenecek",
-    "installed": "Kurulu"
+    "installed": "Kurulu",
+    "others": "Diğerleri",
+    "hardwareWallets": "Donanım Cüzdanları"
   },
   "consentBanner": {
     "body": {
@@ -1003,7 +1005,9 @@
     "tradeComplete": "Artık cüzdanınızda %{chainName} üzerinde %{cryptoAmountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
     "summary": "Ticaret Özeti",
+    "estimatedCompletionTime": "Tahmini Tamamlanma Süresi",
     "transactionSuccessful": "İşlem başarılı, onay bekleniyor",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "THORCHain protokolü oynaklık yaşıyor. Ekstra dikkatli olun ve ek mevcut rotaları göz önünde bulundurun.",
     "temp": {
       "tradeSuccess": "Takas tamamlandı",
       "tradeComplete": "%{chainName} üzerinde %{symbol} başarıyla alındı."
@@ -1048,6 +1052,9 @@
     "placeOrderSuccess": "Başarılı!",
     "placeOrderFailed": "Bir Şeyler Ters Gitti",
     "placeOrder": "Emir Ver",
+    "placeAnotherOrder": "Başka Bir Emir Ver",
+    "orderSummary": "Emir Özeti",
+    "success": "Limit emri başarıyla verildi",
     "cancel": {
       "cancelOrder": "Limit Emrini İptal Et",
       "requestCancellation": "Evet, iptal talebinde bulunun",
@@ -1072,6 +1079,10 @@
     "noOpenOrders": "Henüz açık emir yok.",
     "noHistoricalOrders": "Henüz tarihi bir emir yok.",
     "limitPriceIsPercentLowerThanMarket": "Limit fiyatı piyasa fiyatından %{percent}% daha düşüktür",
+    "awaitingOrderPlacement": "%{swapperName} üzerinde emir verilmesi bekleniyor",
+    "awaitingAllowanceApproval": "Ödenek onayı bekleniyor",
+    "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
+    "orderPlacement": "%{swapperName} üzerinde emir verin",
     "expiryOption": {
       "oneHour": "1 saat",
       "oneDay": "1 gün",
@@ -1698,6 +1709,7 @@
       "multiAccountUnsupported": "MetaMask'ta Çoklu Zincir Snap kullanan bu zincirde çoklu hesap desteklenmiyor"
     },
     "coinbaseQR": {
+      "name": "Coinbase Bağlantısı"
     },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
@@ -1768,6 +1780,7 @@
         "secretRecoveryPhraseRequired": "Gizli Kurtarma İfadesi gereklidir",
         "secretRecoveryPhraseTooShort": "Gizli Kurtarma İfadesi çok kısa",
         "dragAndDrop": "Sürükle & Bırak veya Dosya Seç",
+        "keystoreImportBody": "Gözat'a tıklayarak veya aşağıya sürükleyip bırakarak içe aktarın.",
         "importKeystore": "Keystore'u içe aktar",
         "invalidKeystorePassword": "Geçersiz Keystore parolası"
       },
@@ -1790,12 +1803,14 @@
         "selectHeader": "Cüzdanı içe aktar",
         "keystoreHeader": "Keystore Cüzdanı",
         "body": "Birden fazla ShapeShift cüzdanınız olabilir. Bir cüzdan yükleyebilir, bir Gizli Kurtarma ifadesinden bir cüzdan ekleyebilir veya yeni bir cüzdan oluşturabilirsiniz.",
+        "selectBody": "Gizli Kurtarma İfadenizi kullanarak veya keystore'u yükleyerek cüzdanınızı içe aktarın.",
         "import": "Bir cüzdanı içe aktar",
         "secretRecoveryPhrase": "Gizli Kurtarma Cümlesi",
         "twelveWordSeedPhrase": "12 kelimelik tohum cümlesi",
         "keystore": "Keystore",
         "create": "Yeni bir cüzdan oluştur",
-        "load": "Kayıtlı cüzdanlar"
+        "load": "Kayıtlı cüzdanlar",
+        "importKeystore": "Keystore Dosyasını İçe Aktar"
       },
       "success": {
         "encryptingWallet": "Cüzdanınız şifreleniyor... Tarayıcınız verileri kalıcı depolamada saklamak isterse, lütfen 'İzin Ver'i tıklayın.",
@@ -1879,6 +1894,7 @@
         "importFromKeystore": "Keystore'dan içe aktar",
         "whatIsShapeshiftWallet": "ShapeShift Cüzdanı Nedir?",
         "yourDecentralizedGateway": "Merkeziyetsizlik ağ geçidiniz. Tek bir güvenli cüzdandan Bitcoin, Ethereum, Solana ve daha fazlasını alıp satın ve kazanın.",
+        "crossChainFreedom": "Zincirler arası özgürlük. Birden fazla merkezi olmayan borsada en iyi oranlara erişin, aracıya gerek yok.",
         "selfCustody": {
           "title": "ShapeShift Cüzdanınız kişisel velayettir",
           "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",
@@ -2378,6 +2394,8 @@
     "pool": "Havuz",
     "poolDepth": "Havuz Derinliği",
     "poolDepthDescription": "Havuzun sağlığı",
+    "status": "Durum",
+    "statusDescription": "Havuzun durumu",
     "totalDebtBalance": "Toplam Borç Bakiyesi",
     "totalDebtBalanceDescription": "Kredi havuzundaki kümülatif borç bakiyesi",
     "totalCollateral": "Toplam Teminat",
@@ -2422,6 +2440,8 @@
     "repayNotice": "Teminatınızı geri alabilmeniz için borcunuzun %100'ünü ödemeniz gerekecektir.",
     "feesNotice": "Borcunuzun %100'ünü ödedikten sonra geri alacağınız teminat üzerinden oluşan ücretler",
     "refetchQuote": "Teklifi Yeniden Al",
+    "haltedAlert": "Lending and Savers hizmetleri şu anda THORChain'de duraklatıldı. Bu kesintinin yaklaşık 90 gün sürmesi bekleniyor. Herhangi bir rahatsızlıktan dolayı özür dileriz.",
+    "halterMoreDetails": "Daha fazla bilgi için THORChain'in Discord sayfasını ziyaret edin.",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2728,7 +2748,8 @@
     "emissionsPool": "%{symbol} Emisyon Havuzu (Bu Dönem)",
     "emissionsPoolHelper": "Dağıtılacak toplam ödül miktarı %{symbol} staker",
     "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
-    "pendingDistribution": "Bekleyen Dağıtım"
+    "pendingDistribution": "Bekleyen Dağıtım",
+    "selectRuneAddress": "Bir RUNE adresi seçin"
   },
   "markets": {
     "recommended": "Önerilen",
@@ -2795,10 +2816,12 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*İndirim zamanla doğrusal olarak azalır ve XX/XX/2025'te sona erer. Daha fazla azalmadan önce %XX indiriminizin avantajını yakalayın!",
+      "description": "FOXwifhat'inizi talep edin. Hızlı davranın - indirimler zamanla azalır. Ne kadar çok FOX veya FOXwifhat'iniz varsa o kadar çok tasarruf edersiniz. Sürekli tasarruf artı gelir paylaşımı, yönetim ve verim çiftçiliği avantajları için daha fazla FOX token'ı biriktirin. Bu programlar hakkında daha fazla bilgiyi bu sayfanın geri kalanında bulabilirsiniz.",
+      "discount": "*İndirim zamanla doğrusal olarak azalır ve %{date} tarihinde sona erer. Daha fazla azalmadan önce %{percent}% indiriminizden yararlanın!",
       "claim": "Topla",
       "claimed": "Toplanan",
-      "discountText": "*%{percent}% işlem ücretlerinde indirim"
+      "discountText": "*%{percent}% işlem ücretlerinde indirim",
+      "noClaims": "Uygun toplanabilir yok"
     },
     "governance": {
       "title": "Yönetim",
@@ -2824,6 +2847,7 @@
       "getAddress": "Cüzdandan adres alınamadı.",
       "getAccount": "%{pubkey} hesabı alınamadı.",
       "switchChainUnsupported": "Cüzdan zincir değiştirmeyi desteklemiyor.",
+      "switchChainFailed": "Cüzdan zinciri değiştirilemedi. Cüzdan etkin zincirinizi manuel olarak %{chain} olarak değiştirmeyi deneyin.",
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",

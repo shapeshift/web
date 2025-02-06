@@ -189,7 +189,9 @@
     "update": "Обновление",
     "apy": "APY",
     "tbd": "TBD",
-    "installed": "Установлен"
+    "installed": "Установлен",
+    "others": "Другие",
+    "hardwareWallets": "Аппаратные кошельки"
   },
   "consentBanner": {
     "body": {
@@ -1003,7 +1005,9 @@
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
     "doAnotherTrade": "Совершите еще одну сделку",
     "summary": "Торговая сводка",
+    "estimatedCompletionTime": "Предполагаемое время завершения",
     "transactionSuccessful": "Транзакция прошла успешно, ожидаем подтверждений",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "Протокол THORCHain испытывает нестабильность. Действуйте с особой осторожностью и рассматривайте дополнительные доступные маршруты.",
     "temp": {
       "tradeSuccess": "Трейд завершен",
       "tradeComplete": "Успешно получен %{symbol} на %{chainName}."
@@ -1048,6 +1052,9 @@
     "placeOrderSuccess": "Успех!",
     "placeOrderFailed": "Что-то пошло не так",
     "placeOrder": "Разместить заказ",
+    "placeAnotherOrder": "Разместить другой заказ",
+    "orderSummary": "Резюме ордера",
+    "success": "Лимитный ордер успешно размещен",
     "cancel": {
       "cancelOrder": "Отменить лимитный ордер",
       "requestCancellation": "Да, запросить отмену",
@@ -1072,6 +1079,10 @@
     "noOpenOrders": "Открытых ордеров пока нет.",
     "noHistoricalOrders": "Исторических ордеров пока нет.",
     "limitPriceIsPercentLowerThanMarket": "Лимитная цена на %{percent}% ниже рыночной цены",
+    "awaitingOrderPlacement": "Ожидаем размещения ордера на %{swapperName}",
+    "awaitingAllowanceApproval": "Ожидает утверждения разрешения ",
+    "awaitingAllowanceReset": "Ожидание сброса разрешения",
+    "orderPlacement": "Разместите ордер на %{swapperName}",
     "expiryOption": {
       "oneHour": "1 час",
       "oneDay": "1 день",
@@ -1698,6 +1709,7 @@
       "multiAccountUnsupported": "Мультиаккаунт не поддерживается для этой цепочки при использовании привязки Multichain к MetaMask"
     },
     "coinbaseQR": {
+      "name": "Подключение к Coinbase"
     },
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
@@ -1768,6 +1780,7 @@
         "secretRecoveryPhraseRequired": "Требуется секретная фраза восстановления",
         "secretRecoveryPhraseTooShort": "Секретная фраза восстановления слишком короткая",
         "dragAndDrop": "Перетащите или выберите файл ",
+        "keystoreImportBody": "Импортируйте файл, нажав кнопку Обзор или перетащив его ниже.",
         "importKeystore": "Импорт Keystore",
         "invalidKeystorePassword": "Неверный пароль keystore "
       },
@@ -1790,12 +1803,14 @@
         "selectHeader": "Импортировать кошелек ",
         "keystoreHeader": "Кошелек Keystore ",
         "body": "У вас может быть несколько кошельков ShapeShift. Вы можете загрузить кошелек, импортировать кошелек из секретной фразы восстановления или создать новый кошелек.",
+        "selectBody": "Импортируйте кошелек с помощью секретной фразы восстановления или загрузив файл keystore.",
         "import": "Импорт кошелька",
         "secretRecoveryPhrase": "Секретная фраза восстановления ",
         "twelveWordSeedPhrase": "Фраза из 12 слов ",
         "keystore": "Keystore",
         "create": "Создать новый кошелек",
-        "load": "Сохраненные кошельки"
+        "load": "Сохраненные кошельки",
+        "importKeystore": "Импорт файла Keystore"
       },
       "success": {
         "encryptingWallet": "Шифрование кошелька... если ваш браузер запрашивает сохранение данных в постоянном хранилище, пожалуйста, нажмите Разрешить",
@@ -1879,6 +1894,7 @@
         "importFromKeystore": "Импорт из keystore",
         "whatIsShapeshiftWallet": "Что такое кошелек ShapeShift?",
         "yourDecentralizedGateway": "Ваш шлюз децентрализации. Торгуйте и зарабатывайте Bitcoin, Ethereum, Solana и другие криптовалюты с помощью единого и безопасного кошелька.",
+        "crossChainFreedom": "Свобода кросс-цепочек. Получите доступ к лучшим курсам на нескольких децентрализованных биржах, без посредников.",
         "selfCustody": {
           "title": "Ваш кошелек ShapeShift - это самоохрана",
           "subTitle": "Ключи находятся у вас, и только вы можете получить к ним доступ.",
@@ -2378,6 +2394,8 @@
     "pool": "Пул",
     "poolDepth": "Размер пула",
     "poolDepthDescription": "Состояние пула",
+    "status": "Статус",
+    "statusDescription": "Состояние пула",
     "totalDebtBalance": "Общий остаток задолженности",
     "totalDebtBalanceDescription": "Остаток накопленной задолженности в кредитном пуле",
     "totalCollateral": "Общее обеспечение",
@@ -2422,6 +2440,8 @@
     "repayNotice": "Для возврата залога необходимо погасить 100% долга.",
     "feesNotice": "Комиссионные, начисленные на залог, который вы получите обратно после погашения 100% долга",
     "refetchQuote": "Refetch Quote",
+    "haltedAlert": "Услуги кредитования и сбережений в настоящее время приостановлены на THORChain. Ожидается, что этот перерыв продлится около 90 дней. Мы приносим извинения за возможные неудобства.",
+    "halterMoreDetails": "Для получения более подробной информации посетите Дискорд THORChain.",
     "faq": {
       "title": "ЧАСТЫЕ ВОПРОСЫ",
       "lending": {
@@ -2728,7 +2748,8 @@
     "emissionsPool": "%{symbol} Пул эмиссии (данная эпоха)",
     "emissionsPoolHelper": "Общая сумма вознаграждений, которые будут распределены %{symbol} стакеры",
     "foxBurnAmount": "FOX Количество сжигания (эта эпоха)",
-    "pendingDistribution": "Ожидающееся распределение"
+    "pendingDistribution": "Ожидающееся распределение",
+    "selectRuneAddress": "Выберите адрес RUNE"
   },
   "markets": {
     "recommended": "Рекомендуем",
@@ -2795,10 +2816,12 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "discount": "*Скидка линейно уменьшается с течением времени и истекает в XX/XX/2025. Воспользуйтесь своей скидкой XX%, пока она не уменьшилась еще больше!",
+      "description": "Укажите свой FOXwifhat. Действуйте быстро - скидки со временем уменьшаются. Чем больше у вас FOX или FOXwifhat, тем больше вы экономите. Накапливайте больше токенов FOX для постоянной экономии, а также для разделения доходов, управления и повышения урожайности. Подробнее об этих программах читайте на этой странице.",
+      "discount": "*Скидка линейно уменьшается с течением времени и истекает в %{date}. Воспользуйтесь своей скидкой %{percent}%, пока она не уменьшилась еще больше!",
       "claim": "Заявление",
       "claimed": "Заявлено",
-      "discountText": "*%{percent}% скидки на торговые комиссии"
+      "discountText": "*%{percent}% скидки на торговые комиссии",
+      "noClaims": "Нет клейма "
     },
     "governance": {
       "title": "Управление",
@@ -2824,6 +2847,7 @@
       "getAddress": "Не удалось получить адрес из кошелька.",
       "getAccount": "Не удалось получить учетную запись для: %{pubkey}.",
       "switchChainUnsupported": "Кошелек не поддерживает переключающие сети.",
+      "switchChainFailed": "Не удалось переключить цепочку кошелька. Попробуйте вручную переключить активную цепочку вашего кошелька на %{chain}.",
       "buildTransaction": "Не удалось создать транзакцию.",
       "signTransaction": "Не удалось подписать транзакцию.",
       "signAndBroadcastTransaction": "Не удалось подписать и передать транзакцию.",

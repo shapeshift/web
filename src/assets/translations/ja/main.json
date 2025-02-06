@@ -189,7 +189,9 @@
     "update": "アップデート",
     "apy": "年利",
     "tbd": "未定",
-    "installed": "インストール済み"
+    "installed": "インストール済み",
+    "others": "その他",
+    "hardwareWallets": "ハードウェアウォレット"
   },
   "consentBanner": {
     "body": {
@@ -1003,7 +1005,9 @@
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
     "doAnotherTrade": "別の取引をする",
     "summary": "取引概要",
+    "estimatedCompletionTime": "推定完了時間",
     "transactionSuccessful": "トランザクションが成功しました。確認を待っています",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "THORCHain プロトコルは不安定な状態にあります。細心の注意を払って進め、追加の利用可能なルートを検討してください。",
     "temp": {
       "tradeSuccess": "取引完了",
       "tradeComplete": "%{chainName} で %{symbol} を正常に受信しました。"
@@ -1048,6 +1052,9 @@
     "placeOrderSuccess": "成功しました！",
     "placeOrderFailed": "問題が発生しました",
     "placeOrder": "注文する",
+    "placeAnotherOrder": "別の注文をする",
+    "orderSummary": "注文の概要",
+    "success": "指値注文が正常に行われました",
     "cancel": {
       "cancelOrder": "指値注文をキャンセル",
       "requestCancellation": "はい、キャンセルをリクエストします",
@@ -1072,6 +1079,10 @@
     "noOpenOrders": "未約定の注文はありません",
     "noHistoricalOrders": "注文履歴はまだありません。",
     "limitPriceIsPercentLowerThanMarket": "指値は市場価格より %{percent}% 低いです",
+    "awaitingOrderPlacement": "%{swapperName} での注文待ち",
+    "awaitingAllowanceApproval": "利用許可の承認待ち",
+    "awaitingAllowanceReset": "利用許可のリセット待ち",
+    "orderPlacement": "%{swapperName} で注文する",
     "expiryOption": {
       "oneHour": "1時間",
       "oneDay": "1日",
@@ -1697,7 +1708,9 @@
       "dontAskAgain": "次回から表示しない",
       "multiAccountUnsupported": "MetaMaskのマルチチェーンスナップを使用したこのチェーンでは、マルチアカウントはサポートされていません。"
     },
-    "coinbaseQR": {},
+    "coinbaseQR": {
+      "name": "コインベースコネクト"
+    },
     "metaMaskSnapConfirm": {
       "title": "マルチチェーンスナップをインストールする",
       "updateTitle": "マルチチェーンスナップの更新",
@@ -1767,6 +1780,7 @@
         "secretRecoveryPhraseRequired": "シークレットリカバリーフレーズが必要です",
         "secretRecoveryPhraseTooShort": "シークレットリカバリーフレーズが短すぎます",
         "dragAndDrop": "ドラッグ＆ドロップまたはファイルを選択",
+        "keystoreImportBody": "[参照] をクリックするか、ファイルを下にドラッグ アンド ドロップしてファイルをインポートします。",
         "importKeystore": "キーストアをインポートする",
         "invalidKeystorePassword": "キーストアのパスワードが無効です"
       },
@@ -1789,12 +1803,14 @@
         "selectHeader": "ウォレットをインポート",
         "keystoreHeader": "キーストアウォレット",
         "body": "複数のShapeShiftウォレットを持つことができます。ウォレットをロードしたり、シークレットリカバリーフレーズからウォレットをインポートしたり、新しいウォレットを作成したりできます。",
+        "selectBody": "シークレット リカバリ フレーズを使用するか、キーストア ファイルをロードしてウォレットをインポートします。",
         "import": "ウォレットをインポートする",
         "secretRecoveryPhrase": "秘密の回復フレーズ",
         "twelveWordSeedPhrase": "12語のシードフレーズ",
         "keystore": "キーストア",
         "create": "新しいウォレットを作成する",
-        "load": "保存されたウォレット"
+        "load": "保存されたウォレット",
+        "importKeystore": "キーストアファイルのインポート"
       },
       "success": {
         "encryptingWallet": "ウォレットを暗号化しています...ブラウザが永続ストレージにデータを保存するように要求した場合は、「許可」をクリックしてください。",
@@ -1878,6 +1894,7 @@
         "importFromKeystore": "キーストアからインポート",
         "whatIsShapeshiftWallet": "ShapeShift Walletとは何ですか?",
         "yourDecentralizedGateway": "あなたの分散化ゲートウェイ。単一の安全なウォレットから、Bitcoin、Ethereum、Solana などを取引して獲得できます。",
+        "crossChainFreedom": "クロスチェーンの自由。仲介者を必要とせず、複数の分散型取引所間で最良のレートにアクセスできます。",
         "selfCustody": {
           "title": "ShapeShiftウォレットはセルフカストディです",
           "subTitle": "本人のみが鍵を持っており、それにアクセスできるのは本人のみです。",
@@ -2377,6 +2394,8 @@
     "pool": "プール",
     "poolDepth": "プールの深さ",
     "poolDepthDescription": "プールの状態",
+    "status": "状態",
+    "statusDescription": "プールの状態",
     "totalDebtBalance": "総負債残高",
     "totalDebtBalanceDescription": "貸付プールの累積債務残高",
     "totalCollateral": "担保総額",
@@ -2421,6 +2440,8 @@
     "repayNotice": "担保を取り戻すには借金を100％返済する必要があります。",
     "feesNotice": "担保に対して発生した手数料は、借金を100%返済した後に返還されます。",
     "refetchQuote": "見積もりを再取得する",
+    "haltedAlert": "THORChain では、現在 Lending および Savers サービスが一時停止されています。この中断は約 90 日間続くと予想されます。ご不便をおかけして申し訳ございません。",
+    "halterMoreDetails": "詳細については、THORChain の Discord をご覧ください。",
     "faq": {
       "title": "よくある質問",
       "lending": {
@@ -2727,7 +2748,8 @@
     "emissionsPool": "%{symbol} 排出プール (この時代)",
     "emissionsPoolHelper": "%{symbol}人のステーカーに分配される報酬の合計額",
     "foxBurnAmount": "FOX バーン量 (このエポック中の)",
-    "pendingDistribution": "配布保留中"
+    "pendingDistribution": "配布保留中",
+    "selectRuneAddress": "RUNEアドレスを選択"
   },
   "markets": {
     "recommended": "推奨",
@@ -2794,9 +2816,12 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
+      "description": "FOXwifhat を請求してください。すぐに行動してください。割引は時間の経過とともに減少します。FOX または FOXwifhat を多く保有するほど、節約額が増えます。FOX トークンをさらに積み重ねると、継続的な節約に加えて、収益分配、ガバナンス、およびイールド ファーミングの特典が得られます。このページの残りの部分で、これらのプログラムについて詳しく説明します。",
+      "discount": "*割引は時間の経過とともに直線的に減少し、%{date} に期限切れになります。割引がさらに減少する前に、%{percent}% 割引をご利用ください。",
       "claim": "請求",
       "claimed": "クレーム済",
-      "discountText": "*取引手数料が%{percent}%オフ"
+      "discountText": "*取引手数料が%{percent}%オフ",
+      "noClaims": "請求できません"
     },
     "governance": {
       "title": "ガバナンス",
@@ -2822,6 +2847,7 @@
       "getAddress": "ウォレットからアドレスを取得できませんでした。",
       "getAccount": "%{pubkey} のアカウントを取得できませんでした。",
       "switchChainUnsupported": "ウォレットはチェーンの切り替えをサポートしていません。",
+      "switchChainFailed": "ウォレット チェーンの切り替えに失敗しました。ウォレットのアクティブ チェーンを手動で %{chain} に切り替えてみてください。",
       "buildTransaction": "トランザクションの構築に失敗しました。",
       "signTransaction": "トランザクションの署名に失敗しました。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",

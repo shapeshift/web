@@ -32,15 +32,24 @@ import { MobileWalletDialogRoutes } from '../../types'
 
 const copyIcon = <Icon as={FiCopy} />
 
-export const ManualBackup = () => {
+type ManualBackupProps = {
+  showContinueButton?: boolean
+}
+
+export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) => {
   const history = useHistory()
   const location = useLocation<MobileLocationState>()
   const translate = useTranslate()
   const bgColor = useColorModeValue('blue.500', 'blue.500')
 
   const handleBack = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.KeepSafe, { vault: location.state?.vault })
-  }, [history, location.state?.vault])
+    if (showContinueButton) {
+      history.push(MobileWalletDialogRoutes.KeepSafe, { vault: location.state?.vault })
+      return
+    }
+
+    history.push(MobileWalletDialogRoutes.Saved)
+  }, [history, location.state?.vault, showContinueButton])
 
   const handleContinue = useCallback(() => {
     history.push(MobileWalletDialogRoutes.CreateBackupConfirm, { vault: location.state?.vault })
@@ -71,13 +80,15 @@ export const ManualBackup = () => {
       </DialogHeader>
       <DialogBody>
         <VStack spacing={6} mb={6} alignItems='flex-start'>
-          <CText fontSize='2xl' fontWeight='bold'>
-            {translate('walletProvider.manualBackup.header')}
-          </CText>
-          <CText color='text.subtle'>{translate('walletProvider.manualBackup.subHeader')}</CText>
+          <Box>
+            <CText fontSize='2xl' fontWeight='bold'>
+              {translate('walletProvider.manualBackup.header')}
+            </CText>
+            <CText color='text.subtle'>{translate('walletProvider.manualBackup.subHeader')}</CText>
+          </Box>
 
-          <Box bg={bgColor} borderRadius='xl' p={6} width='full'>
-            <SimpleGrid columns={2} spacing={4}>
+          <Box bg={bgColor} borderRadius='xl' p={4} width='full'>
+            <SimpleGrid columns={2} spacing={2}>
               {words.map((word, index) => (
                 <Box key={index} display='flex' alignItems='center' width='full'>
                   <CText color='white' opacity={0.6} mr={2} flexShrink={0}>
@@ -115,16 +126,18 @@ export const ManualBackup = () => {
 
           <VStack spacing={2} alignItems='center'>
             <Icon as={IoShieldCheckmark} boxSize='20px' color='text.subtle' />
-            <CText color='text.subtle' textAlign='center'>
+            <CText color='text.subtle' textAlign='center' fontSize='14px'>
               {translate('walletProvider.manualBackup.nextStep')}
             </CText>
           </VStack>
         </VStack>
       </DialogBody>
       <DialogFooter>
-        <Button colorScheme='blue' size='lg' width='full' onClick={handleContinue}>
-          {translate('walletProvider.manualBackup.button')}
-        </Button>
+        {showContinueButton ? (
+          <Button colorScheme='blue' size='lg' width='full' onClick={handleContinue}>
+            {translate('walletProvider.manualBackup.button')}
+          </Button>
+        ) : null}
       </DialogFooter>
     </SlideTransition>
   )

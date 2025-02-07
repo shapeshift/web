@@ -1,6 +1,8 @@
 import { Box, Button, Icon, Text as CText, useColorModeValue, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { FiAlertTriangle, FiEye, FiLock } from 'react-icons/fi'
+import { FaLock } from 'react-icons/fa'
+import { FiAlertTriangle, FiEye } from 'react-icons/fi'
+import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { CarouselDots } from 'components/CarouselDots/CarouselDots'
@@ -50,7 +52,7 @@ export const KeepSafe = () => {
       </DialogHeader>
       <DialogBody>
         <VStack spacing={6} alignItems='flex-start' mb={6}>
-          <Icon as={FiLock} boxSize='48px' color='blue.500' />
+          <Icon as={FaLock} boxSize='34px' color='blue.500' />
           <Box mb={6}>
             <CText fontSize='2xl' fontWeight='bold' mb={2}>
               {translate('walletProvider.keepSafe.headerStart')}
@@ -65,15 +67,15 @@ export const KeepSafe = () => {
               </CText>
               {translate('walletProvider.keepSafe.headerEnd')}
             </CText>
-            <CText color='text.subtle' mb={6}>
+            <CText color='text.subtle' mb={4}>
               {translate('walletProvider.keepSafe.subHeader')}
             </CText>
             <CText color='text.subtle'>{translate('walletProvider.keepSafe.description')}</CText>
           </Box>
           <VStack spacing={4} width='full' bg={bgColor} borderRadius='xl' p={4}>
             <Box display='flex' alignItems='center' width='full' gap={3}>
-              <Icon as={FiLock} boxSize='24px' color='text.subtle' />
-              <CText>
+              <Icon as={IoShieldCheckmark} boxSize='24px' color='text.subtle' />
+              <CText fontSize='14px'>
                 {`${translate('walletProvider.keepSafe.headerStart')} ${translate(
                   'walletProvider.keepSafe.headerSecret',
                 )} ${translate('walletProvider.keepSafe.headerEnd')}`}
@@ -81,11 +83,15 @@ export const KeepSafe = () => {
             </Box>
             <Box display='flex' alignItems='center' width='full' gap={3}>
               <Icon as={FiEye} boxSize='24px' color='text.subtle' />
-              <CText>{translate('walletProvider.keepSafe.bulletPoints.share')}</CText>
+              <CText fontSize='14px'>
+                {translate('walletProvider.keepSafe.bulletPoints.share')}
+              </CText>
             </Box>
             <Box display='flex' alignItems='center' width='full' gap={3}>
               <Icon as={FiAlertTriangle} boxSize='24px' color='text.subtle' />
-              <CText>{translate('walletProvider.keepSafe.bulletPoints.lose')}</CText>
+              <CText fontSize='14px'>
+                {translate('walletProvider.keepSafe.bulletPoints.lose')}
+              </CText>
             </Box>
           </VStack>
         </VStack>

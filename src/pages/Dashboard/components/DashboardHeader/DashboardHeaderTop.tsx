@@ -113,7 +113,7 @@ export const DashboardHeaderTop = memo(() => {
       >
         <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
       </Flex>
-      {!isMobile ? (
+      {isMobile ? (
         <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
       ) : (
         <DashboardDrawer isOpen={isOpen} onClose={onClose} />

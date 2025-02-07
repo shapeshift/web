@@ -1,4 +1,7 @@
 import { Box, Button, Flex, Icon, Text as CText, useColorModeValue, VStack } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
+import * as bip39 from 'bip39'
+import { uniq } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -15,7 +18,14 @@ import {
   DialogHeaderRight,
 } from 'components/Modal/components/DialogHeader'
 import { SlideTransition } from 'components/SlideTransition'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
+import { addWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -32,6 +42,9 @@ export const CreateBackupConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.700')
   const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null)
   const [testWords, setTestWords] = useState<string[]>([])
+  const queryClient = useQueryClient()
+  const { dispatch, getAdapter } = useWallet()
+  const localWallet = useLocalWallet()
 
   const backgroundDottedSx = useMemo(
     () => ({
@@ -61,17 +74,61 @@ export const CreateBackupConfirm = () => {
     return indices.sort(() => Math.random() - 0.5).slice(0, 12)
   }, [words.length])
 
-  const generateTestWords = useCallback(
-    (targetWord: string) => {
-      const otherWords = words
-        .filter(word => word !== targetWord)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 14)
+  const generateTestWords = useCallback((targetWord: string) => {
+    let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
+    const otherWords = randomWords
+      .filter(word => word !== targetWord)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 14)
 
-      const allWords = [...otherWords, targetWord] as string[]
-      return allWords.sort(() => Math.random() - 0.5)
+    const allWords = [...otherWords, targetWord] as string[]
+    return allWords.sort(() => Math.random() - 0.5)
+  }, [])
+
+  const handleWalletSelect = useCallback(
+    async (wallet: RevocableWallet) => {
+      const adapter = await getAdapter(KeyManager.Mobile)
+      const deviceId = wallet.id
+      if (adapter && deviceId) {
+        const { name, icon } = MobileConfig
+        try {
+          const wallet = await adapter.pairDevice(deviceId)
+          await wallet?.loadDevice({ mnemonic: location.state?.vault?.mnemonic ?? '' })
+
+          if (!(await wallet?.isInitialized())) {
+            await wallet?.initialize()
+          }
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: location.state?.vault?.label },
+              connectedType: KeyManager.Mobile,
+            },
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_CONNECTOR_TYPE,
+            payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
+          })
+
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
+          localWallet.setLocalNativeWalletName(location.state?.vault?.label ?? 'label')
+        } catch (e) {
+          console.log(e)
+        }
+      }
     },
-    [words],
+    [
+      dispatch,
+      getAdapter,
+      localWallet,
+      location.state?.vault?.mnemonic,
+      location.state?.vault?.label,
+    ],
   )
 
   useEffect(() => {
@@ -89,7 +146,21 @@ export const CreateBackupConfirm = () => {
         setSelectedWordIndex(prev => {
           const next = (prev ?? -1) + 1
           if (next >= TEST_COUNT_REQUIRED) {
-            history.push(MobileWalletDialogRoutes.CreateBackupSuccess)
+            ;(async () => {
+              if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
+                const wallet = await addWallet({
+                  label: location.state.vault.label,
+                  mnemonic: location.state.vault.mnemonic,
+                })
+
+                if (!wallet) return
+
+                await handleWalletSelect(wallet)
+
+                queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+                history.push(MobileWalletDialogRoutes.CreateBackupSuccess)
+              }
+            })()
             return null
           }
           const targetWord = words[randomWordIndices[next]]
@@ -101,7 +172,16 @@ export const CreateBackupConfirm = () => {
         setTestWords(generateTestWords(targetWord ?? ''))
       }
     },
-    [randomWordIndices, selectedWordIndex, words, generateTestWords, history],
+    [
+      randomWordIndices,
+      selectedWordIndex,
+      words,
+      generateTestWords,
+      history,
+      queryClient,
+      location.state?.vault,
+      handleWalletSelect,
+    ],
   )
 
   const handleBack = useCallback(() => {

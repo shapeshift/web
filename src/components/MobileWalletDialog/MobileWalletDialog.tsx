@@ -3,6 +3,7 @@ import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
 import { Dialog } from 'components/Modal/components/Dialog'
 
 import { CreateRouter } from './routes/CreateWallet/CreateRouter'
+import { ManualBackup } from './routes/CreateWallet/ManualBackup'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
 import { RenameWallet } from './routes/RenameWallet'
 import { SavedWallets } from './routes/SavedWallets'
@@ -21,6 +22,9 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
           {({ location }) => (
             <AnimatePresence mode='wait' initial={false}>
               <Switch key={location.key} location={location}>
+                <Route path={MobileWalletDialogRoutes.Backup}>
+                  <ManualBackup showContinueButton={false} />
+                </Route>
                 <Route path={MobileWalletDialogRoutes.Saved}>
                   <SavedWallets onClose={onClose} />
                 </Route>

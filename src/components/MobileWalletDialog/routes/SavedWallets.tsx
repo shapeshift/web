@@ -17,6 +17,8 @@ import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -49,21 +51,30 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const { dispatch, importWallet, disconnect } = useWallet()
+  const { dispatch, importWallet, disconnect, state } = useWallet()
   const [isEditing, toggleEditing] = useToggle()
   const [error, setError] = useState<string | null>(null)
   const handleClickSettings = useCallback(() => {
     settings.open({})
     onClose()
   }, [onClose, settings])
-  const backupNativePassphrase = useModal('backupNativePassphrase')
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const accountManagementPopover = useModal('manageAccounts')
   const history = useHistory()
 
-  const handleBackupMenuItemClick = useCallback(() => {
-    backupNativePassphrase.open({})
-  }, [backupNativePassphrase])
+  const handleBackupMenuItemClick = useCallback(async () => {
+    const revocableWallet = createRevocableWallet({
+      id: state.walletInfo?.deviceId,
+      label: state.walletInfo?.name,
+    })
+
+    const wallet = await getWallet(state.walletInfo?.deviceId ?? '')
+    if (wallet?.mnemonic) {
+      revocableWallet.mnemonic = wallet.mnemonic
+
+      history.push(MobileWalletDialogRoutes.Backup, { vault: wallet })
+    }
+  }, [history, state])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
     accountManagementPopover.open({})

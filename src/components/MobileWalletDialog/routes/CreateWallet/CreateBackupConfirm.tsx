@@ -188,8 +188,6 @@ export const CreateBackupConfirm = () => {
     history.push(MobileWalletDialogRoutes.CreateBackup, { vault: location.state?.vault })
   }, [history, location.state?.vault])
 
-  // const isComplete = selectedWordIndex === null && randomWordIndices.length > 0
-
   return (
     <SlideTransition>
       <DialogHeader>

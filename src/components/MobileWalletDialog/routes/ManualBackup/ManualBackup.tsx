@@ -9,7 +9,8 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiCopy } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
@@ -32,6 +33,9 @@ import { MobileWalletDialogRoutes } from '../../types'
 
 const copyIcon = <Icon as={FiCopy} />
 
+const Revocable = Default.Revocable
+const revocable = Default.revocable
+
 type ManualBackupProps = {
   showContinueButton?: boolean
 }
@@ -41,6 +45,8 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
   const location = useLocation<MobileLocationState>()
   const translate = useTranslate()
   const bgColor = useColorModeValue('blue.500', 'blue.500')
+  const [revoker] = useState(new (Revocable(class {}))())
+  const revokedRef = useRef(false)
 
   const handleBack = useCallback(() => {
     if (showContinueButton) {
@@ -57,30 +63,45 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
 
   const words = useMemo(() => {
     if (!location.state?.vault) return []
-
     return location.state.vault.getWords() ?? []
   }, [location.state?.vault])
 
-  const wordsButtonList = useMemo(() => {
-    return words.map((word, index) => (
-      <Box key={index} display='flex' alignItems='center' width='full'>
-        <CText color='white' opacity={0.6} mr={2} flexShrink={0}>
-          {index + 1}
-        </CText>
-        <CText
-          color='white'
-          fontWeight='medium'
-          borderBottom='1px solid'
-          borderColor='text.subtle'
-          width='full'
-        >
-          {word}
-        </CText>
-      </Box>
-    ))
-  }, [words])
+  const { onCopy, hasCopied } = useClipboard(!revokedRef.current ? words.join(' ') : '')
 
-  const { onCopy, hasCopied } = useClipboard(words.join(' '))
+  const wordsButtonList = useMemo(() => {
+    if (revokedRef.current) return null
+
+    return words.map((word, index) =>
+      revocable(
+        <Box key={index} display='flex' alignItems='center' width='full'>
+          <CText color='white' opacity={0.6} mr={2} flexShrink={0}>
+            {index + 1}
+          </CText>
+          <CText
+            color='white'
+            fontWeight='medium'
+            borderBottom='1px solid'
+            borderColor='text.subtle'
+            width='full'
+          >
+            {word}
+          </CText>
+        </Box>,
+        revoker.addRevoker.bind(revoker),
+      ),
+    )
+  }, [words, revoker])
+
+  useEffect(() => {
+    revokedRef.current = false
+
+    return () => {
+      revokedRef.current = true
+      if (!revokedRef.current) {
+        setTimeout(() => revoker.revoke(), 250)
+      }
+    }
+  }, [revoker])
 
   return (
     <SlideTransition>

@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Icon, Text as CText, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Spinner,
+  Text as CText,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
 import { uniq } from 'lodash'
@@ -45,6 +54,7 @@ export const CreateBackupConfirm = () => {
   const queryClient = useQueryClient()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
+  const [isLoading, setIsLoading] = useState(false)
 
   const backgroundDottedSx = useMemo(
     () => ({
@@ -140,18 +150,22 @@ export const CreateBackupConfirm = () => {
   }, [selectedWordIndex, words, randomWordIndices, generateTestWords])
 
   const saveAndSelectWallet = useCallback(async () => {
+    setIsLoading(true)
     if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
       const wallet = await addWallet({
         label: location.state.vault.label,
         mnemonic: location.state.vault.mnemonic,
       })
 
-      if (!wallet) return
+      if (!wallet) {
+        setIsLoading(false)
+        return
+      }
 
       await handleWalletSelect(wallet)
-
       await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       history.push(MobileWalletDialogRoutes.CreateBackupSuccess)
+      wallet.revoke()
     }
   }, [location.state?.vault, handleWalletSelect, queryClient, history])
 
@@ -159,12 +173,13 @@ export const CreateBackupConfirm = () => {
     (word: string) => {
       const currentWordIndex = randomWordIndices[selectedWordIndex ?? 0]
       if (words[currentWordIndex] === word) {
+        if ((selectedWordIndex ?? 0) + 1 >= TEST_COUNT_REQUIRED) {
+          saveAndSelectWallet()
+          return
+        }
+
         setSelectedWordIndex(prev => {
           const next = (prev ?? -1) + 1
-          if (next >= TEST_COUNT_REQUIRED) {
-            saveAndSelectWallet()
-            return null
-          }
           const targetWord = words[randomWordIndices[next]]
           setTestWords(generateTestWords(targetWord ?? ''))
           return next
@@ -180,6 +195,17 @@ export const CreateBackupConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(MobileWalletDialogRoutes.CreateBackup, { vault: location.state?.vault })
   }, [history, location.state?.vault])
+
+  if (isLoading) {
+    return (
+      <SlideTransition>
+        <Flex direction='column' align='center' justify='center' height='100%' p={8}>
+          <Spinner size='xl' mb={4} />
+          <CText>{translate('common.loading')}</CText>
+        </Flex>
+      </SlideTransition>
+    )
+  }
 
   return (
     <SlideTransition>

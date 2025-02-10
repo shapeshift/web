@@ -35,13 +35,14 @@ export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) =
         if (state.walletInfo?.deviceId === vault.id) {
           disconnect()
         }
+        vault.revoke()
         onBack()
       } catch (e) {
         console.log(e)
         setError('walletProvider.shapeShift.load.error.delete')
       }
     }
-  }, [onBack, vault?.id, disconnect, state.walletInfo?.deviceId, appDispatch])
+  }, [onBack, disconnect, state.walletInfo?.deviceId, appDispatch, vault])
 
   return (
     <SlideTransition>

@@ -139,6 +139,22 @@ export const CreateBackupConfirm = () => {
     }
   }, [selectedWordIndex, words, randomWordIndices, generateTestWords])
 
+  const saveAndSelectWallet = useCallback(async () => {
+    if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
+      const wallet = await addWallet({
+        label: location.state.vault.label,
+        mnemonic: location.state.vault.mnemonic,
+      })
+
+      if (!wallet) return
+
+      await handleWalletSelect(wallet)
+
+      await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+      history.push(MobileWalletDialogRoutes.CreateBackupSuccess)
+    }
+  }, [location.state?.vault, handleWalletSelect, queryClient, history])
+
   const handleWordClick = useCallback(
     (word: string) => {
       const currentWordIndex = randomWordIndices[selectedWordIndex ?? 0]
@@ -146,21 +162,7 @@ export const CreateBackupConfirm = () => {
         setSelectedWordIndex(prev => {
           const next = (prev ?? -1) + 1
           if (next >= TEST_COUNT_REQUIRED) {
-            ;(async () => {
-              if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
-                const wallet = await addWallet({
-                  label: location.state.vault.label,
-                  mnemonic: location.state.vault.mnemonic,
-                })
-
-                if (!wallet) return
-
-                await handleWalletSelect(wallet)
-
-                queryClient.invalidateQueries({ queryKey: ['listWallets'] })
-                history.push(MobileWalletDialogRoutes.CreateBackupSuccess)
-              }
-            })()
+            saveAndSelectWallet()
             return null
           }
           const targetWord = words[randomWordIndices[next]]
@@ -172,16 +174,7 @@ export const CreateBackupConfirm = () => {
         setTestWords(generateTestWords(targetWord ?? ''))
       }
     },
-    [
-      randomWordIndices,
-      selectedWordIndex,
-      words,
-      generateTestWords,
-      history,
-      queryClient,
-      location.state?.vault,
-      handleWalletSelect,
-    ],
+    [randomWordIndices, selectedWordIndex, words, generateTestWords, saveAndSelectWallet],
   )
 
   const handleBack = useCallback(() => {

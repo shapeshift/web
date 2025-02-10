@@ -87,8 +87,8 @@ export const KeepSafe = () => {
                 {translate('walletProvider.keepSafe.bulletPoints.share')}
               </CText>
             </Box>
-            <Box display='flex' alignItems='center' width='full' gap={3}>
-              <Icon as={FiAlertTriangle} boxSize='24px' color='text.subtle' />
+            <Box display='flex' alignItems='center' width='full' gap={3} color='orange.500'>
+              <Icon as={FiAlertTriangle} boxSize='24px' />
               <CText fontSize='14px'>
                 {translate('walletProvider.keepSafe.bulletPoints.lose')}
               </CText>

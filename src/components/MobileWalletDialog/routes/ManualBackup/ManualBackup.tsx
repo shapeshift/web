@@ -124,12 +124,14 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
             <Box flex={1} height='1px' backgroundColor='text.subtle' />
           </Flex>
 
-          <VStack spacing={2} alignItems='center'>
-            <Icon as={IoShieldCheckmark} boxSize='20px' color='text.subtle' />
-            <CText color='text.subtle' textAlign='center' fontSize='14px'>
-              {translate('walletProvider.manualBackup.nextStep')}
-            </CText>
-          </VStack>
+          {showContinueButton ? (
+            <VStack spacing={2} alignItems='center'>
+              <Icon as={IoShieldCheckmark} boxSize='20px' color='text.subtle' />
+              <CText color='text.subtle' textAlign='center' fontSize='14px'>
+                {translate('walletProvider.manualBackup.nextStep')}
+              </CText>
+            </VStack>
+          ) : null}
         </VStack>
       </DialogBody>
       <DialogFooter>

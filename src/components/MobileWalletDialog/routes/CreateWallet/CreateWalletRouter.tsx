@@ -3,17 +3,17 @@ import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { SlideTransition } from 'components/SlideTransition'
 
+import { ManualBackup } from '../ManualBackup/ManualBackup'
 import { CreateBackupConfirm } from './CreateBackupConfirm'
 import { CreateSuccess } from './CreateSuccess'
 import { CreateWallet } from './CreateWallet'
 import { KeepSafe } from './KeepSafe'
-import { ManualBackup } from './ManualBackup'
 
-type CreateRouterProps = {
+type CreateWalletRouterProps = {
   onClose: () => void
 }
 
-export const CreateRouter = ({ onClose }: CreateRouterProps) => {
+export const CreateWalletRouter = ({ onClose }: CreateWalletRouterProps) => {
   return (
     <SlideTransition>
       <MemoryRouter>

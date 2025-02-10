@@ -61,6 +61,25 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
     return location.state.vault.getWords() ?? []
   }, [location.state?.vault])
 
+  const wordsButtonList = useMemo(() => {
+    return words.map((word, index) => (
+      <Box key={index} display='flex' alignItems='center' width='full'>
+        <CText color='white' opacity={0.6} mr={2} flexShrink={0}>
+          {index + 1}
+        </CText>
+        <CText
+          color='white'
+          fontWeight='medium'
+          borderBottom='1px solid'
+          borderColor='text.subtle'
+          width='full'
+        >
+          {word}
+        </CText>
+      </Box>
+    ))
+  }, [words])
+
   const { onCopy, hasCopied } = useClipboard(words.join(' '))
 
   return (
@@ -89,22 +108,7 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
 
           <Box bg={bgColor} borderRadius='xl' p={4} width='full'>
             <SimpleGrid columns={2} spacing={2}>
-              {words.map((word, index) => (
-                <Box key={index} display='flex' alignItems='center' width='full'>
-                  <CText color='white' opacity={0.6} mr={2} flexShrink={0}>
-                    {index + 1}
-                  </CText>
-                  <CText
-                    color='white'
-                    fontWeight='medium'
-                    borderBottom='1px solid'
-                    borderColor='text.subtle'
-                    width='full'
-                  >
-                    {word}
-                  </CText>
-                </Box>
-              ))}
+              {wordsButtonList}
             </SimpleGrid>
           </Box>
 

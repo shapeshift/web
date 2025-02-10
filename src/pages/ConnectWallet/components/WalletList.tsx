@@ -88,6 +88,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
 
           localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
+          revoker.revoke()
         } catch (e) {
           console.log(e)
           setError('walletProvider.shapeShift.load.error.pair')

@@ -4,6 +4,7 @@ import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/c
 import { useCallback, useMemo, useState } from 'react'
 import { TbCircleArrowDown, TbCirclePlus, TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
@@ -16,11 +17,15 @@ import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MobileWallestList } from 'pages/ConnectWallet/components/WalletList'
+
+import { MobileWalletDialogRoutes } from '../types'
 
 const addIcon = <TbCirclePlus />
 const importIcon = <TbCircleArrowDown />
@@ -46,20 +51,30 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const { dispatch, create, importWallet, disconnect } = useWallet()
+  const { dispatch, importWallet, disconnect, state } = useWallet()
   const [isEditing, toggleEditing] = useToggle()
   const [error, setError] = useState<string | null>(null)
   const handleClickSettings = useCallback(() => {
     settings.open({})
     onClose()
   }, [onClose, settings])
-  const backupNativePassphrase = useModal('backupNativePassphrase')
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const accountManagementPopover = useModal('manageAccounts')
+  const history = useHistory()
 
-  const handleBackupMenuItemClick = useCallback(() => {
-    backupNativePassphrase.open({})
-  }, [backupNativePassphrase])
+  const handleBackupMenuItemClick = useCallback(async () => {
+    const revocableWallet = createRevocableWallet({
+      id: state.walletInfo?.deviceId,
+      label: state.walletInfo?.name,
+    })
+
+    const wallet = await getWallet(state.walletInfo?.deviceId ?? '')
+    if (wallet?.mnemonic) {
+      revocableWallet.mnemonic = wallet.mnemonic
+
+      history.push(MobileWalletDialogRoutes.Backup, { vault: wallet })
+    }
+  }, [history, state])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
     accountManagementPopover.open({})
@@ -70,10 +85,9 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     onClose()
   }, [onClose, feedbackSupport])
 
-  const handleCreate = useCallback(() => {
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    create(KeyManager.Mobile)
-  }, [create, dispatch])
+  const handleCreateClick = useCallback(() => {
+    history.push(MobileWalletDialogRoutes.Create)
+  }, [history])
 
   const handleImport = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -87,7 +101,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
           variant='ghost'
           colorScheme='blue'
           leftIcon={addIcon}
-          onClick={handleCreate}
+          onClick={handleCreateClick}
           justifyContent='flex-start'
         >
           {translate('connectWalletPage.createANewWallet')}
@@ -126,11 +140,11 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     )
   }, [
     handleImport,
-    handleCreate,
     handleManageAccountsMenuItemClick,
     handleBackupMenuItemClick,
     isAccountManagementEnabled,
     translate,
+    handleCreateClick,
   ])
 
   return (

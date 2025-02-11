@@ -37,16 +37,7 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
   useEffect(() => {
     if (!hopExecutionMetadata || hopIndex === undefined || !tradeId) return
 
-    if (hopExecutionMetadata.swap.state === TransactionExecutionState.Complete) {
-      dispatch(
-        tradeQuoteSlice.actions.setHopProgress({
-          hopIndex,
-          tradeId,
-          progress: 100,
-          status: 'complete',
-        }),
-      )
-    } else if (hopExecutionMetadata.swap.state === TransactionExecutionState.Failed) {
+    if (hopExecutionMetadata.swap.state === TransactionExecutionState.Failed) {
       dispatch(
         tradeQuoteSlice.actions.setHopProgress({
           hopIndex,
@@ -56,10 +47,20 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
         }),
       )
     }
+
+    if (hopExecutionMetadata.swap.state === TransactionExecutionState.Complete) {
+      dispatch(
+        tradeQuoteSlice.actions.setHopProgress({
+          hopIndex,
+          tradeId,
+          progress: 100,
+          status: 'complete',
+        }),
+      )
+    }
   }, [dispatch, hopIndex, tradeId])
 
   const progress = useMemo(() => hopExecutionMetadata?.progress, [hopExecutionMetadata])
 
   return progress
 }
-

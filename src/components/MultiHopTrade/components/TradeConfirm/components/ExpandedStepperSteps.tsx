@@ -258,7 +258,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       lastHopProgress,
       lastHopSwap.sellTxHash,
       stepStatus,
-      erroredStepIndicator,
     ],
   )
 
@@ -385,7 +384,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSwap.sellTxHash,
     swapperName,
     tradeQuoteFirstHop,
-    firstHopProgress,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -485,7 +483,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     secondHopStreamingProgress,
     swapperName,
     tradeQuoteSecondHop,
-    lastHopProgress,
   ])
 
   return (

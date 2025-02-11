@@ -81,7 +81,7 @@ export const ExpandableStepperSteps = ({
   }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
 
   const swapProgressStatus = useMemo(() => {
-    if (!firstHopProgress) return 'default'
+    if (!firstHopProgress) return
     if (!isMultiHopTrade) return firstHopProgress.status
 
     if ([firstHopProgress.status, lastHopProgress?.status].includes('failed')) return 'failed'
@@ -91,11 +91,9 @@ export const ExpandableStepperSteps = ({
     return
   }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
 
-  // Set progress bar color based on status
   const colorScheme = useMemo(() => {
     if (swapProgressStatus === 'complete') return 'green'
     if (swapProgressStatus === 'failed') return 'red'
-    return 'blue'
   }, [swapProgressStatus])
 
   const summaryStepIndicator = useMemo(() => {
@@ -122,7 +120,6 @@ export const ExpandableStepperSteps = ({
     }
   }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
-  // Memoize selector arguments
   const firstHopMetadataFilter = useMemo(
     () => ({
       tradeId: activeTradeId ?? '',
@@ -139,7 +136,6 @@ export const ExpandableStepperSteps = ({
     [activeTradeId],
   )
 
-  // Get metadata for both hops
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, firstHopMetadataFilter)
   const lastHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, lastHopMetadataFilter)
 
@@ -158,7 +154,6 @@ export const ExpandableStepperSteps = ({
   const titleElement = useMemo(() => {
     if (!hopExecutionState) return null
 
-    // Fallback to summary translation if no message
     const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
       hopExecutionState,
       swapperName ?? '',
@@ -166,6 +161,7 @@ export const ExpandableStepperSteps = ({
 
     if (!stepSummaryTranslation && !currentHopMessage) return null
 
+    // Messaging always first for top-level swap status, but we may not have it/yet
     const displayText = currentHopMessage ?? stepSummaryTranslation
 
     return (

@@ -22,16 +22,14 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
   useEffect(() => {
     if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return
 
-    if (hopExecutionMetadata.swap.sellTxHash) {
-      dispatch(
-        tradeQuoteSlice.actions.setHopProgress({
-          hopIndex,
-          tradeId,
-          progress: 50,
-          status: 'default',
-        }),
-      )
-    }
+    dispatch(
+      tradeQuoteSlice.actions.setHopProgress({
+        hopIndex,
+        tradeId,
+        progress: 50,
+        status: 'default',
+      }),
+    )
   }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])
 
   useEffect(() => {

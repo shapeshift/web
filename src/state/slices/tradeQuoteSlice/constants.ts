@@ -13,7 +13,7 @@ export const initialTransactionState = {
   state: TransactionExecutionState.AwaitingConfirmation,
 }
 
-const initialHopExecutionState: HopExecutionMetadata = {
+const initialHopState: HopExecutionMetadata = {
   state: HopExecutionState.Pending,
   allowanceReset: {
     state: TransactionExecutionState.AwaitingConfirmation,
@@ -38,8 +38,8 @@ const initialHopExecutionState: HopExecutionMetadata = {
 
 export const initialTradeExecutionState = {
   state: TradeExecutionState.Initializing,
-  firstHop: initialHopExecutionState,
-  secondHop: initialHopExecutionState,
+  firstHop: initialHopState,
+  secondHop: initialHopState,
 }
 
 export const initialState: TradeQuoteSliceState = {

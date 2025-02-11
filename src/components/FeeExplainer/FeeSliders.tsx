@@ -134,11 +134,14 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
               <SliderFilledTrack bg='blue.500' />
             </SliderTrack>
             <SliderThumb />
-            <SliderMark value={200000} {...labelStyles}>
-              200k
+            <SliderMark value={150000} {...labelStyles}>
+              150k
             </SliderMark>
-            <SliderMark value={400000} {...labelStyles}>
-              400k
+            <SliderMark value={300000} {...labelStyles}>
+              300k
+            </SliderMark>
+            <SliderMark value={450000} {...labelStyles}>
+              450k
             </SliderMark>
             <SliderMark value={600000} {...labelStyles}>
               600k

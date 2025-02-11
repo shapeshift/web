@@ -1,4 +1,4 @@
-import { MoonIcon, SunIcon } from '@chakra-ui/icons'
+import { MoonIcon } from '@chakra-ui/icons'
 import {
   Divider,
   Flex,
@@ -58,7 +58,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const settings = useModal('settings')
   const { toggleColorMode } = useColorMode()
   const [clickCount, setClickCount] = useState<number>(0)
-  const isLightMode = useColorModeValue(true, false)
+  const isDarkMode = useColorModeValue(false, true)
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
@@ -109,10 +109,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     [history],
   )
 
-  const themeColorIcon = useMemo(
-    () => <Icon as={isLightMode ? SunIcon : MoonIcon} color='text.subtle' />,
-    [isLightMode],
-  )
+  const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
   const handleCurrencyClick = useCallback(
     () => history.push(SettingsRoutes.FiatCurrencies),
@@ -146,11 +143,11 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
         <Stack width='full' p={0}>
           <Divider my={1} />
           <SettingsListItem
-            label={isLightMode ? 'common.lightTheme' : 'common.darkTheme'}
+            label={'common.darkTheme'}
             onClick={toggleColorMode}
             icon={themeColorIcon}
           >
-            <Switch isChecked={isLightMode} pointerEvents='none' />
+            <Switch isChecked={isDarkMode} pointerEvents='none' />
           </SettingsListItem>
           <Divider my={1} />
           <>

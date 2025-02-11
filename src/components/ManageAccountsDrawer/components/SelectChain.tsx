@@ -26,6 +26,11 @@ export type SelectChainProps = {
   onClose: () => void
 }
 
+const buttonsStackColumns = {
+  base: 2,
+  md: 3,
+}
+
 const ChainButton = ({
   chainId,
   onClick,
@@ -104,7 +109,7 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
           placeholder={translate('accountManagement.selectChain.searchChains')}
           inputGroupProps={inputGroupProps}
         />
-        <SimpleGrid columns={3} spacing={4}>
+        <SimpleGrid columns={buttonsStackColumns} spacing={4}>
           {chainButtons}
         </SimpleGrid>
       </Stack>

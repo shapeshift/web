@@ -120,11 +120,23 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
       ))
     }, [asset, isAccountActive, otherAccountIds, ref])
 
+    const toggleSize = useMemo(
+      () => ({
+        base: 'md',
+        md: 'lg',
+      }),
+      [],
+    )
+
     return (
       <>
         <Tr opacity={isAccountActive ? '1' : '0.5'}>
           <Td>
-            <Switch size='lg' isChecked={isAccountActive} onChange={handleToggleIsAccountActive} />
+            <Switch
+              size={toggleSize}
+              isChecked={isAccountActive}
+              onChange={handleToggleIsAccountActive}
+            />
           </Td>
           <Td>
             <RawText color='text.subtle'>{accountNumber}</RawText>
@@ -397,6 +409,14 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [accounts, asset, handleToggleAccountIds])
 
+  const tableSize = useMemo(
+    () => ({
+      base: 'sm',
+      md: 'md',
+    }),
+    [],
+  )
+
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
     return null
@@ -430,7 +450,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       body={
         <>
           <TableContainer mb={4}>
-            <Table variant='simple'>
+            <Table variant='simple' size={tableSize}>
               <Tbody>
                 {accountRows}
                 {(isFetching || isLoading || autoFetching) && (

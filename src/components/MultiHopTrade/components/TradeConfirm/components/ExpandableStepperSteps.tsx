@@ -122,24 +122,57 @@ export const ExpandableStepperSteps = ({
     }
   }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
+  // Memoize selector arguments
+  const firstHopMetadataFilter = useMemo(() => ({
+    tradeId: activeTradeId ?? '',
+    hopIndex: 0,
+  }), [activeTradeId])
+
+  const lastHopMetadataFilter = useMemo(() => ({
+    tradeId: activeTradeId ?? '',
+    hopIndex: 1,
+  }), [activeTradeId])
+
+  // Get metadata for both hops
+  const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, firstHopMetadataFilter)
+  const lastHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, lastHopMetadataFilter)
+
+  const currentHopMessage = useMemo(() => {
+    if (!isMultiHopTrade) {
+      return firstHopMetadata?.swap.message
+    }
+    return currentHopIndex === 0 ? firstHopMetadata?.swap.message : lastHopMetadata?.swap.message
+  }, [currentHopIndex, firstHopMetadata?.swap.message, lastHopMetadata?.swap.message, isMultiHopTrade])
+
   const titleElement = useMemo(() => {
     if (!hopExecutionState) return null
+
+    // Fallback to summary translation if no message
     const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
       hopExecutionState,
       swapperName ?? '',
     )
-    if (!stepSummaryTranslation) return null
+
+    if (!stepSummaryTranslation && !currentHopMessage) return null
+
+    const displayText = currentHopMessage ?? stepSummaryTranslation
 
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <Text translation={stepSummaryTranslation} />
+        <Text translation={displayText} />
         <HStack mr={2}>
           <Progress value={swapProgressValue} width='100px' size='xs' colorScheme={colorScheme} />
           <ArrowUpDownIcon boxSize={3} color='gray.500' />
         </HStack>
       </Flex>
     )
-  }, [hopExecutionState, swapProgressValue, swapperName, colorScheme])
+  }, [
+    hopExecutionState,
+    swapProgressValue,
+    swapperName,
+    colorScheme,
+    currentHopMessage,
+  ])
 
   const estimatedCompletionTimeForStepMs: number = useMemo(() => {
     switch (currentTradeStep) {

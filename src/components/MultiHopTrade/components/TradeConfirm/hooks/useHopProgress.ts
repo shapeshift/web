@@ -32,7 +32,7 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
         }),
       )
     }
-  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata])
+  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])
 
   useEffect(() => {
     if (!hopExecutionMetadata || hopIndex === undefined || !tradeId) return
@@ -58,7 +58,7 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
         }),
       )
     }
-  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata])
+  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])
 
   const progress = useMemo(() => hopExecutionMetadata?.progress, [hopExecutionMetadata])
 

@@ -1,11 +1,9 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Box,
-  CircularProgress,
   Flex,
   HStack,
   Icon,
-  Progress,
   StepIndicator,
   Stepper,
   StepStatus,
@@ -18,6 +16,7 @@ import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -141,7 +140,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [activeTradeId])
 
   const {
-    state: lastHopState,
     allowanceApproval: lastHopAllowanceApproval,
     permit2: lastHopPermit2,
     allowanceReset: lastHopAllowanceReset,
@@ -229,34 +227,39 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     (step: StepperStep) => {
       switch (step) {
         case StepperStep.FirstHopSwap:
-          if (
-            !firstHopProgress ||
-            hopExecutionState === HopExecutionState.AwaitingSwap ||
-            hopExecutionState === HopExecutionState.AwaitingAllowanceApproval
-          )
-            return stepStatus
-          return firstHopProgress.status === 'complete' ? (
-            stepStatus
-          ) : (
-            <CircularProgress value={firstHopProgress.progress} size='16px' />
+          if (!firstHopProgress || !firstHopSwap.sellTxHash) return stepStatus
+          if (firstHopProgress.status === 'complete') return stepStatus
+          if (firstHopProgress.status === 'failed') return erroredStepIndicator
+          return (
+            <CircularProgress
+              value={firstHopProgress.progress}
+              size='16px'
+              isIndeterminate={false}
+            />
           )
         case StepperStep.LastHopSwap:
-          if (
-            !lastHopProgress ||
-            lastHopState === HopExecutionState.AwaitingSwap ||
-            lastHopState === HopExecutionState.AwaitingAllowanceApproval
-          )
-            return stepStatus
-          return lastHopProgress.status === 'complete' ? (
-            stepStatus
-          ) : (
-            <CircularProgress value={lastHopProgress.progress} size='16px' />
+          if (!lastHopProgress || !lastHopSwap.sellTxHash) return stepStatus
+          if (lastHopProgress.status === 'complete') return stepStatus
+          if (lastHopProgress.status === 'failed') return erroredStepIndicator
+          return (
+            <CircularProgress
+              value={lastHopProgress.progress}
+              size='16px'
+              isIndeterminate={false}
+            />
           )
         default:
           return stepStatus
       }
     },
-    [firstHopProgress, hopExecutionState, lastHopProgress, lastHopState, stepStatus],
+    [
+      firstHopProgress,
+      firstHopSwap.sellTxHash,
+      lastHopProgress,
+      lastHopSwap.sellTxHash,
+      stepStatus,
+      erroredStepIndicator,
+    ],
   )
 
   const firstHopAllowanceResetTitle = useMemo(() => {
@@ -372,19 +375,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             </VStack>
           )}
         </Flex>
-        {firstHopProgress && (
-          <Progress
-            value={firstHopProgress.progress}
-            size='xs'
-            colorScheme={
-              firstHopProgress.status === 'complete'
-                ? 'green'
-                : firstHopProgress.status === 'failed'
-                ? 'red'
-                : 'blue'
-            }
-          />
-        )}
       </VStack>
     )
   }, [
@@ -485,19 +475,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             </VStack>
           )}
         </Flex>
-        {lastHopProgress && (
-          <Progress
-            value={lastHopProgress.progress}
-            size='xs'
-            colorScheme={
-              lastHopProgress.status === 'complete'
-                ? 'green'
-                : lastHopProgress.status === 'failed'
-                ? 'red'
-                : 'blue'
-            }
-          />
-        )}
       </VStack>
     )
   }, [

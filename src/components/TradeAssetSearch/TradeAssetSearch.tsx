@@ -36,7 +36,7 @@ const assetButtonProps = {
   pr: 3,
   py: 1.5,
   size: 'sm',
-  borderRadius: 'full',
+  borderRadius: '2xl',
   height: 'auto',
 }
 

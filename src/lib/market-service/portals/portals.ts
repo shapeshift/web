@@ -120,7 +120,6 @@ export class PortalsMarketService implements MarketService {
 
       const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
       if (!network) {
-        console.error(`Unsupported chainId: ${chainId}`)
         return null
       }
 

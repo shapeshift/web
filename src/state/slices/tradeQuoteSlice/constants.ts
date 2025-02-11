@@ -15,7 +15,7 @@ export const initialTransactionState = {
 
 const initialProgressState = {
   progress: 0,
-  status: 'default',
+  status: 'pending',
 } as const
 
 const initialHopState = {

@@ -4,6 +4,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Progress,
   Stepper,
   StepStatus,
   Tag,
@@ -30,6 +31,7 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../helpers'
+import { useHopProgress } from '../hooks/useHopProgress'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { useStreamingProgress } from '../hooks/useStreamingProgress'
 import { StepperStep as StepperStepComponent } from '../StepperStep'
@@ -47,6 +49,8 @@ type ExpandedStepperStepsProps = {
 export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsProps) => {
   const translate = useTranslate()
   const rateChanged = useModal('rateChanged')
+  const firstHopProgress = useHopProgress(0, activeTradeQuote.id)
+  const lastHopProgress = useHopProgress(1, activeTradeQuote.id)
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
@@ -257,45 +261,61 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const firstHopActionTitle = useMemo(() => {
     const firstHopMessage = firstHopSwap.message
     const firstHopStatus = firstHopSwap.state
+
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <HStack>
-          <RawText>
-            {firstHopStatus === TransactionExecutionState.Pending && firstHopMessage
-              ? translate(firstHopMessage)
-              : firstHopActionTitleText}
-          </RawText>
-          {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
-            <Tag
-              minWidth='auto'
-              colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
-            >
-              {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
-            </Tag>
+      <VStack width='full' spacing={2} align='stretch'>
+        <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
+          <HStack>
+            <RawText>
+              {firstHopStatus === TransactionExecutionState.Pending && firstHopMessage
+                ? translate(firstHopMessage)
+                : firstHopActionTitleText}
+            </RawText>
+            {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
+              <Tag
+                minWidth='auto'
+                colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
+              >
+                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
+              </Tag>
+            )}
+          </HStack>
+          {tradeQuoteFirstHop && firstHopSellAccountId && (
+            <VStack>
+              {firstHopSwap.sellTxHash && (
+                <TxLabel
+                  txHash={firstHopSwap.sellTxHash}
+                  explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                  accountId={firstHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+              {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
+                <TxLabel
+                  isBuyTxHash
+                  txHash={firstHopSwap.buyTxHash}
+                  explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
+                  accountId={firstHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+            </VStack>
           )}
-        </HStack>
-        {tradeQuoteFirstHop && firstHopSellAccountId && (
-          <VStack>
-            {firstHopSwap.sellTxHash && (
-              <TxLabel
-                txHash={firstHopSwap.sellTxHash}
-                explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
-                accountId={firstHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-            {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
-              <TxLabel
-                isBuyTxHash
-                txHash={firstHopSwap.buyTxHash}
-                explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
-                accountId={firstHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-          </VStack>
+        </Flex>
+        {firstHopProgress && (
+          <Progress
+            value={firstHopProgress.progress}
+            size='xs'
+            colorScheme={
+              firstHopProgress.status === 'complete'
+                ? 'green'
+                : firstHopProgress.status === 'failed'
+                ? 'red'
+                : 'blue'
+            }
+          />
         )}
-      </Flex>
+      </VStack>
     )
   }, [
     firstHopActionTitleText,
@@ -308,6 +328,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     swapperName,
     tradeQuoteFirstHop,
     translate,
+    firstHopProgress,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -364,44 +385,60 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const lastHopActionTitle = useMemo(() => {
     const lastHopMessage = lastHopSwap.message
     const lastHopStatus = lastHopSwap.state
+
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <HStack>
-          <RawText>
-            {lastHopStatus === TransactionExecutionState.Pending && lastHopMessage
-              ? translate(lastHopMessage)
-              : lastHopActionTitleText}
-          </RawText>
-          {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
-            <Tag
-              minWidth='auto'
-              colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
-            >
-              {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
-            </Tag>
+      <VStack width='full' spacing={2} align='stretch'>
+        <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
+          <HStack>
+            <RawText>
+              {lastHopStatus === TransactionExecutionState.Pending && lastHopMessage
+                ? translate(lastHopMessage)
+                : lastHopActionTitleText}
+            </RawText>
+            {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
+              <Tag
+                minWidth='auto'
+                colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
+              >
+                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
+              </Tag>
+            )}
+          </HStack>
+          {tradeQuoteSecondHop && lastHopSellAccountId && (
+            <VStack>
+              {lastHopSwap.sellTxHash && (
+                <TxLabel
+                  txHash={lastHopSwap.sellTxHash}
+                  explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
+                  accountId={lastHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+              {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
+                <TxLabel
+                  txHash={lastHopSwap.buyTxHash}
+                  explorerBaseUrl={tradeQuoteSecondHop.buyAsset.explorerTxLink}
+                  accountId={lastHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+            </VStack>
           )}
-        </HStack>
-        {tradeQuoteSecondHop && lastHopSellAccountId && (
-          <VStack>
-            {lastHopSwap.sellTxHash && (
-              <TxLabel
-                txHash={lastHopSwap.sellTxHash}
-                explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
-                accountId={lastHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-            {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
-              <TxLabel
-                txHash={lastHopSwap.buyTxHash}
-                explorerBaseUrl={tradeQuoteSecondHop.buyAsset.explorerTxLink}
-                accountId={lastHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-          </VStack>
+        </Flex>
+        {lastHopProgress && (
+          <Progress
+            value={lastHopProgress.progress}
+            size='xs'
+            colorScheme={
+              lastHopProgress.status === 'complete'
+                ? 'green'
+                : lastHopProgress.status === 'failed'
+                ? 'red'
+                : 'blue'
+            }
+          />
         )}
-      </Flex>
+      </VStack>
     )
   }, [
     lastHopActionTitleText,
@@ -414,6 +451,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     swapperName,
     tradeQuoteSecondHop,
     translate,
+    lastHopProgress,
   ])
 
   const { tradeSteps, currentTradeStep } = useStepperSteps()

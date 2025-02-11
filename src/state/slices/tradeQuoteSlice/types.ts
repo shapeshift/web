@@ -75,6 +75,11 @@ export type SwapExecutionMetadata = {
   message?: string | [string, InterpolationOptions]
 }
 
+export type HopProgress = {
+  progress: number // 0, 50, or 100
+  status: 'default' | 'complete' | 'failed'
+}
+
 export type HopExecutionMetadata = {
   state: HopExecutionState
   allowanceReset: ApprovalExecutionMetadata
@@ -83,6 +88,7 @@ export type HopExecutionMetadata = {
     permit2Signature?: string
   }
   swap: SwapExecutionMetadata
+  progress: HopProgress
 }
 
 export type TradeExecutionMetadata = {

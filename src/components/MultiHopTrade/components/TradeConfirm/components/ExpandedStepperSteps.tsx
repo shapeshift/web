@@ -1,10 +1,12 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Box,
+  CircularProgress,
   Flex,
   HStack,
   Icon,
   Progress,
+  StepIndicator,
   Stepper,
   StepStatus,
   Tag,
@@ -13,7 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
@@ -139,6 +141,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [activeTradeId])
 
   const {
+    state: lastHopState,
     allowanceApproval: lastHopAllowanceApproval,
     permit2: lastHopPermit2,
     allowanceReset: lastHopAllowanceReset,
@@ -167,19 +170,93 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopSwap.state,
   ])
 
-  const { currentTradeStepIndex: currentStep } = useStepperSteps()
+  const { tradeSteps, currentTradeStep, currentTradeStepIndex } = useStepperSteps()
 
-  const stepIndicator = useMemo(
+  const firstHopAmountCryptoBaseUnit = useMemo(
+    () => tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit,
+    [tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit],
+  )
+  const prevFirstHopAmountCryptoBaseUnit = usePrevious(firstHopAmountCryptoBaseUnit)
+
+  useEffect(() => {
+    if (currentTradeStep !== StepperStep.FirstHopSwap) return
+
+    if (
+      !(
+        firstHopAmountCryptoBaseUnit &&
+        prevFirstHopAmountCryptoBaseUnit &&
+        firstHopAmountCryptoBaseUnit !== '0' &&
+        prevFirstHopAmountCryptoBaseUnit !== '0'
+      )
+    )
+      return
+    if (firstHopAmountCryptoBaseUnit === prevFirstHopAmountCryptoBaseUnit) return
+
+    rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
+  }, [
+    currentTradeStep,
+    firstHopAmountCryptoBaseUnit,
+    prevFirstHopAmountCryptoBaseUnit,
+    rateChanged,
+  ])
+
+  const isError = activeQuoteError || transactionExecutionStateError
+
+  const stepStatus = useMemo(
     () => (
-      <StepStatus
-        complete={completedStepIndicator}
-        incomplete={undefined}
-        active={
-          activeQuoteError || transactionExecutionStateError ? erroredStepIndicator : undefined
-        }
-      />
+      <StepIndicator
+        className={undefined}
+        sx={undefined}
+        borderWidth={0}
+        height='auto'
+        justifyContent='stretch'
+        flexDir='column'
+        boxSize='16px'
+      >
+        <StepStatus
+          complete={completedStepIndicator}
+          incomplete={undefined}
+          active={
+            activeQuoteError || transactionExecutionStateError ? erroredStepIndicator : undefined
+          }
+        />
+      </StepIndicator>
     ),
     [activeQuoteError, transactionExecutionStateError],
+  )
+
+  const getStepIndicator = useCallback(
+    (step: StepperStep) => {
+      switch (step) {
+        case StepperStep.FirstHopSwap:
+          if (
+            !firstHopProgress ||
+            hopExecutionState === HopExecutionState.AwaitingSwap ||
+            hopExecutionState === HopExecutionState.AwaitingAllowanceApproval
+          )
+            return stepStatus
+          return firstHopProgress.status === 'complete' ? (
+            stepStatus
+          ) : (
+            <CircularProgress value={firstHopProgress.progress} size='16px' />
+          )
+        case StepperStep.LastHopSwap:
+          if (
+            !lastHopProgress ||
+            lastHopState === HopExecutionState.AwaitingSwap ||
+            lastHopState === HopExecutionState.AwaitingAllowanceApproval
+          )
+            return stepStatus
+          return lastHopProgress.status === 'complete' ? (
+            stepStatus
+          ) : (
+            <CircularProgress value={lastHopProgress.progress} size='16px' />
+          )
+        default:
+          return stepStatus
+      }
+    },
+    [firstHopProgress, hopExecutionState, lastHopProgress, lastHopState, stepStatus],
   )
 
   const firstHopAllowanceResetTitle = useMemo(() => {
@@ -434,44 +511,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopProgress,
   ])
 
-  const { tradeSteps, currentTradeStep } = useStepperSteps()
-
-  const firstHopAmountCryptoBaseUnit = useMemo(
-    () => tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit,
-    [tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit],
-  )
-  const prevFirstHopAmountCryptoBaseUnit = usePrevious(firstHopAmountCryptoBaseUnit)
-
-  useEffect(() => {
-    if (currentTradeStep !== StepperStep.FirstHopSwap) return
-
-    if (
-      !(
-        firstHopAmountCryptoBaseUnit &&
-        prevFirstHopAmountCryptoBaseUnit &&
-        firstHopAmountCryptoBaseUnit !== '0' &&
-        prevFirstHopAmountCryptoBaseUnit !== '0'
-      )
-    )
-      return
-    if (firstHopAmountCryptoBaseUnit === prevFirstHopAmountCryptoBaseUnit) return
-
-    rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
-  }, [
-    currentTradeStep,
-    firstHopAmountCryptoBaseUnit,
-    prevFirstHopAmountCryptoBaseUnit,
-    rateChanged,
-  ])
-
-  const isError = activeQuoteError || transactionExecutionStateError
-
   return (
-    <Stepper variant='innerSteps' orientation='vertical' index={currentStep} gap={0}>
+    <Stepper variant='innerSteps' orientation='vertical' index={currentTradeStepIndex} gap={0}>
       {tradeSteps[StepperStep.FirstHopReset] ? (
         <StepperStepComponent
           title={firstHopAllowanceResetTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.FirstHopReset)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.FirstHopReset}
@@ -481,7 +526,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.FirstHopApproval] ? (
         <StepperStepComponent
           title={firstHopAllowanceApprovalTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.FirstHopApproval)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
@@ -491,7 +536,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.FirstHopPermit2Eip712Sign] ? (
         <StepperStepComponent
           title={firstHopPermit2SignTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.FirstHopPermit2Eip712Sign)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
@@ -500,7 +545,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       ) : null}
       <StepperStepComponent
         title={firstHopActionTitle}
-        stepIndicator={stepIndicator}
+        stepIndicator={getStepIndicator(StepperStep.FirstHopSwap)}
         stepProps={stepProps}
         useSpacer={false}
         isError={isError && currentTradeStep === StepperStep.FirstHopSwap}
@@ -509,7 +554,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.LastHopReset] ? (
         <StepperStepComponent
           title={lastHopAllowanceResetTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.LastHopReset)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.LastHopReset}
@@ -519,7 +564,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.LastHopApproval] ? (
         <StepperStepComponent
           title={lastHopAllowanceApprovalTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.LastHopApproval)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.LastHopApproval}
@@ -529,7 +574,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.LastHopSwap] ? (
         <StepperStepComponent
           title={lastHopActionTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.LastHopSwap)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.LastHopSwap}

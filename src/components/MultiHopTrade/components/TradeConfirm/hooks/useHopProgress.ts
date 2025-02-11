@@ -27,7 +27,7 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
         hopIndex,
         tradeId,
         progress: 50,
-        status: 'default',
+        status: 'pending',
       }),
     )
   }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])

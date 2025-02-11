@@ -76,8 +76,9 @@ export type SwapExecutionMetadata = {
 }
 
 export type HopProgress = {
-  progress: number // 0, 50, or 100
-  status: 'default' | 'complete' | 'failed'
+  // i.e as an int from 0 to 100
+  progress: number
+  status: 'pending' | 'complete' | 'failed'
 }
 
 export type HopExecutionMetadata = {

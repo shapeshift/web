@@ -42,8 +42,8 @@ export const KeepSafe = () => {
           <DialogBackButton onClick={handleBack} />
         </DialogHeaderLeft>
         <DialogHeaderMiddle>
-          <Box minWidth='40px'>
-            <CarouselDots length={3} activeIndex={2} />
+          <Box minWidth='50px'>
+            <CarouselDots length={4} activeIndex={2} />
           </Box>
         </DialogHeaderMiddle>
         <DialogHeaderRight>

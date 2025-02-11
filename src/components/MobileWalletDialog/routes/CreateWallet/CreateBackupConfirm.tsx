@@ -214,8 +214,8 @@ export const CreateBackupConfirm = () => {
           <DialogBackButton onClick={handleBack} />
         </DialogHeaderLeft>
         <DialogHeaderMiddle>
-          <Box minWidth='40px'>
-            <CarouselDots length={3} activeIndex={2} />
+          <Box minWidth='50px'>
+            <CarouselDots length={4} activeIndex={4} />
           </Box>
         </DialogHeaderMiddle>
         <DialogHeaderRight>

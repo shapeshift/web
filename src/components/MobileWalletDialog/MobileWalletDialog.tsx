@@ -12,9 +12,14 @@ import { MobileWalletDialogRoutes } from './types'
 type MobileWalletDialogProps = {
   isOpen: boolean
   onClose: () => void
+  defaultRoute?: MobileWalletDialogRoutes
 }
 
-export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, onClose }) => {
+export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
+  isOpen,
+  onClose,
+  defaultRoute = MobileWalletDialogRoutes.Saved,
+}) => {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
       <MemoryRouter>
@@ -37,7 +42,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
                 <Route path={MobileWalletDialogRoutes.Create}>
                   <CreateWalletRouter onClose={onClose} />
                 </Route>
-                <Redirect exact from='/' to={MobileWalletDialogRoutes.Saved} />
+                <Redirect exact from='/' to={defaultRoute} />
               </Switch>
             </AnimatePresence>
           )}

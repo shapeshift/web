@@ -35,6 +35,8 @@ import { addWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHand
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from 'state/store'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -55,6 +57,8 @@ export const CreateBackupConfirm = () => {
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [isLoading, setIsLoading] = useState(false)
+  const appDispatch = useAppDispatch()
+  const { setWelcomeModal } = preferences.actions
 
   const backgroundDottedSx = useMemo(
     () => ({
@@ -162,12 +166,20 @@ export const CreateBackupConfirm = () => {
         return
       }
 
+      appDispatch(setWelcomeModal({ show: true }))
       await handleWalletSelect(wallet)
       await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       history.push(MobileWalletDialogRoutes.CreateBackupSuccess)
       wallet.revoke()
     }
-  }, [location.state?.vault, handleWalletSelect, queryClient, history])
+  }, [
+    location.state?.vault,
+    handleWalletSelect,
+    queryClient,
+    history,
+    appDispatch,
+    setWelcomeModal,
+  ])
 
   const handleWordClick = useCallback(
     (word: string) => {

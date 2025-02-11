@@ -12,7 +12,7 @@ export const DrawerWrapper = ({ children, isOpen, onClose, variant }: DrawerWrap
     <Drawer isOpen={isOpen} size='lg' placement='right' onClose={onClose} variant={variant}>
       <DrawerOverlay zIndex='modal' />
       <DrawerContent>
-        <DrawerCloseButton />
+        <DrawerCloseButton top='calc(env(safe-area-inset-top) + 1rem)' />
         {children}
       </DrawerContent>
     </Drawer>

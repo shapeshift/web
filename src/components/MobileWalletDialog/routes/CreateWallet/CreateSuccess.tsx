@@ -1,16 +1,11 @@
-import { Box, Button, Icon, Text, VStack } from '@chakra-ui/react'
+import { Button, Icon, Text, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
-import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
-import {
-  DialogHeader,
-  DialogHeaderMiddle,
-  DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
+import { DialogHeader, DialogHeaderRight } from 'components/Modal/components/DialogHeader'
 import { SlideTransition } from 'components/SlideTransition'
 
 type CreateSuccessProps = {
@@ -26,11 +21,6 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
   return (
     <SlideTransition>
       <DialogHeader>
-        <DialogHeaderMiddle>
-          <Box minWidth='40px'>
-            <CarouselDots length={3} activeIndex={3} />
-          </Box>
-        </DialogHeaderMiddle>
         <DialogHeaderRight>
           <DialogCloseButton />
         </DialogHeaderRight>

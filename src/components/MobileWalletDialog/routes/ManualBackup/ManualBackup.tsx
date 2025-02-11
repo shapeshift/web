@@ -110,9 +110,11 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
           <DialogBackButton onClick={handleBack} />
         </DialogHeaderLeft>
         <DialogHeaderMiddle>
-          <Box minWidth='40px'>
-            <CarouselDots length={3} activeIndex={2} />
-          </Box>
+          {showContinueButton ? (
+            <Box minWidth='50px'>
+              <CarouselDots length={4} activeIndex={3} />
+            </Box>
+          ) : null}
         </DialogHeaderMiddle>
         <DialogHeaderRight>
           <DialogCloseButton />

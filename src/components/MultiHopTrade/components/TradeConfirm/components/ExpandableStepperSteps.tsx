@@ -65,12 +65,11 @@ export const ExpandableStepperSteps = ({
     swap: { state: swapTxState, sellTxHash },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
-  // Get progress from both hops
+  // Introspects both hops to determine the holistic swap progress
   const firstHopProgress = useHopProgress(0, activeTradeId)
   const lastHopProgress = useHopProgress(1, activeTradeId)
 
-  // Calculate total progress based on single vs multi-hop
-  const progressValue = useMemo(() => {
+  const swapProgressValue = useMemo(() => {
     if (!firstHopProgress) return 0
 
     if (!isMultiHopTrade) return firstHopProgress.progress
@@ -81,28 +80,23 @@ export const ExpandableStepperSteps = ({
       .toNumber()
   }, [firstHopProgress, lastHopProgress, activeTradeQuote?.steps])
 
-  // Determine overall status
-  const totalProgressStatus = useMemo(() => {
+  const swapProgressStatus = useMemo(() => {
     if (!firstHopProgress) return 'default'
-    const isMultiHop = !!activeTradeQuote?.steps[1]
+    if (!isMultiHopTrade) return firstHopProgress.status
 
-    // Single-hop trade
-    if (!isMultiHop) return firstHopProgress.status
-
-    // Multi-hop trade
-    if (firstHopProgress.status === 'failed' || lastHopProgress?.status === 'failed')
-      return 'failed'
-    if (firstHopProgress.status === 'complete' && lastHopProgress?.status === 'complete')
+    if ([firstHopProgress.status, lastHopProgress?.status].includes('failed')) return 'failed'
+    if ([firstHopProgress.status, lastHopProgress?.status].every(status => status === 'complete'))
       return 'complete'
-    return 'default'
+
+    return
   }, [firstHopProgress, lastHopProgress, activeTradeQuote?.steps])
 
   // Set progress bar color based on status
   const colorScheme = useMemo(() => {
-    if (totalProgressStatus === 'complete') return 'green'
-    if (totalProgressStatus === 'failed') return 'red'
+    if (swapProgressStatus === 'complete') return 'green'
+    if (swapProgressStatus === 'failed') return 'red'
     return 'blue'
-  }, [totalProgressStatus])
+  }, [swapProgressStatus])
 
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
@@ -140,12 +134,12 @@ export const ExpandableStepperSteps = ({
       <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
         <Text translation={stepSummaryTranslation} />
         <HStack mr={2}>
-          <Progress value={progressValue} width='100px' size='xs' colorScheme={colorScheme} />
+          <Progress value={swapProgressValue} width='100px' size='xs' colorScheme={colorScheme} />
           <ArrowUpDownIcon boxSize={3} color='gray.500' />
         </HStack>
       </Flex>
     )
-  }, [hopExecutionState, progressValue, swapperName, colorScheme])
+  }, [hopExecutionState, swapProgressValue, swapperName, colorScheme])
 
   const estimatedCompletionTimeForStepMs: number = useMemo(() => {
     switch (currentTradeStep) {

@@ -20,7 +20,7 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
   )
 
   useEffect(() => {
-    if (!hopExecutionMetadata || hopIndex === undefined || !tradeId) return
+    if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return
 
     if (hopExecutionMetadata.swap.sellTxHash) {
       dispatch(
@@ -35,7 +35,7 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
   }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])
 
   useEffect(() => {
-    if (!hopExecutionMetadata || hopIndex === undefined || !tradeId) return
+    if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return
 
     if (hopExecutionMetadata.swap.state === TransactionExecutionState.Failed) {
       dispatch(
@@ -58,7 +58,13 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
         }),
       )
     }
-  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])
+  }, [
+    dispatch,
+    hopIndex,
+    tradeId,
+    hopExecutionMetadata?.swap.sellTxHash,
+    hopExecutionMetadata?.swap.state,
+  ])
 
   const progress = useMemo(() => hopExecutionMetadata?.progress, [hopExecutionMetadata])
 

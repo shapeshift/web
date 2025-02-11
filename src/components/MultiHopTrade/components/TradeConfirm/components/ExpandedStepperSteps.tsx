@@ -259,18 +259,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [swapperName, translate])
 
   const firstHopActionTitle = useMemo(() => {
-    const firstHopMessage = firstHopSwap.message
-    const firstHopStatus = firstHopSwap.state
-
     return (
       <VStack width='full' spacing={2} align='stretch'>
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
-            <RawText>
-              {firstHopStatus === TransactionExecutionState.Pending && firstHopMessage
-                ? translate(firstHopMessage)
-                : firstHopActionTitleText}
-            </RawText>
+            <RawText>{firstHopActionTitleText}</RawText>
             {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
               <Tag
                 minWidth='auto'
@@ -322,12 +315,9 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSellAccountId,
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
-    firstHopSwap.message,
     firstHopSwap.sellTxHash,
-    firstHopSwap.state,
     swapperName,
     tradeQuoteFirstHop,
-    translate,
     firstHopProgress,
   ])
 
@@ -383,18 +373,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const lastHopActionTitle = useMemo(() => {
-    const lastHopMessage = lastHopSwap.message
-    const lastHopStatus = lastHopSwap.state
-
     return (
       <VStack width='full' spacing={2} align='stretch'>
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
-            <RawText>
-              {lastHopStatus === TransactionExecutionState.Pending && lastHopMessage
-                ? translate(lastHopMessage)
-                : lastHopActionTitleText}
-            </RawText>
+            <RawText>{lastHopActionTitleText}</RawText>
             {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
               <Tag
                 minWidth='auto'
@@ -444,13 +427,10 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopActionTitleText,
     lastHopSellAccountId,
     lastHopSwap.buyTxHash,
-    lastHopSwap.message,
     lastHopSwap.sellTxHash,
-    lastHopSwap.state,
     secondHopStreamingProgress,
     swapperName,
     tradeQuoteSecondHop,
-    translate,
     lastHopProgress,
   ])
 

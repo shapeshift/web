@@ -78,7 +78,7 @@ export const ExpandableStepperSteps = ({
       .plus(lastHopProgress?.progress ?? 0)
       .div(2)
       .toNumber()
-  }, [firstHopProgress, lastHopProgress, activeTradeQuote?.steps])
+  }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
 
   const swapProgressStatus = useMemo(() => {
     if (!firstHopProgress) return 'default'
@@ -89,7 +89,7 @@ export const ExpandableStepperSteps = ({
       return 'complete'
 
     return
-  }, [firstHopProgress, lastHopProgress, activeTradeQuote?.steps])
+  }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
 
   // Set progress bar color based on status
   const colorScheme = useMemo(() => {
@@ -123,15 +123,21 @@ export const ExpandableStepperSteps = ({
   }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
   // Memoize selector arguments
-  const firstHopMetadataFilter = useMemo(() => ({
-    tradeId: activeTradeId ?? '',
-    hopIndex: 0,
-  }), [activeTradeId])
+  const firstHopMetadataFilter = useMemo(
+    () => ({
+      tradeId: activeTradeId ?? '',
+      hopIndex: 0,
+    }),
+    [activeTradeId],
+  )
 
-  const lastHopMetadataFilter = useMemo(() => ({
-    tradeId: activeTradeId ?? '',
-    hopIndex: 1,
-  }), [activeTradeId])
+  const lastHopMetadataFilter = useMemo(
+    () => ({
+      tradeId: activeTradeId ?? '',
+      hopIndex: 1,
+    }),
+    [activeTradeId],
+  )
 
   // Get metadata for both hops
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, firstHopMetadataFilter)
@@ -142,7 +148,12 @@ export const ExpandableStepperSteps = ({
       return firstHopMetadata?.swap.message
     }
     return currentHopIndex === 0 ? firstHopMetadata?.swap.message : lastHopMetadata?.swap.message
-  }, [currentHopIndex, firstHopMetadata?.swap.message, lastHopMetadata?.swap.message, isMultiHopTrade])
+  }, [
+    currentHopIndex,
+    firstHopMetadata?.swap.message,
+    lastHopMetadata?.swap.message,
+    isMultiHopTrade,
+  ])
 
   const titleElement = useMemo(() => {
     if (!hopExecutionState) return null
@@ -166,13 +177,7 @@ export const ExpandableStepperSteps = ({
         </HStack>
       </Flex>
     )
-  }, [
-    hopExecutionState,
-    swapProgressValue,
-    swapperName,
-    colorScheme,
-    currentHopMessage,
-  ])
+  }, [hopExecutionState, swapProgressValue, swapperName, colorScheme, currentHopMessage])
 
   const estimatedCompletionTimeForStepMs: number = useMemo(() => {
     switch (currentTradeStep) {

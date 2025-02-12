@@ -109,7 +109,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   if (isMobile || !isLargerThanMd) {
     return (
       <Drawer.Root
-        repositionInputs={false}
+        repositionInputs={isFullScreen ? true : false}
         open={isDialogOpen}
         onClose={onClose}
         activeSnapPoint={isDisablingPropagation ? snapPoint : undefined}

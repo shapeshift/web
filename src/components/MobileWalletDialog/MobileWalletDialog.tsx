@@ -4,6 +4,7 @@ import { Dialog } from 'components/Modal/components/Dialog'
 
 import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
+import { ImportRouter } from './routes/ImportWallet/ImportRouter'
 import { ManualBackup } from './routes/ManualBackup/ManualBackup'
 import { RenameWallet } from './routes/RenameWallet'
 import { SavedWallets } from './routes/SavedWallets'
@@ -30,6 +31,9 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
                 <Route path={MobileWalletDialogRoutes.Backup}>
                   <ManualBackup showContinueButton={false} />
                 </Route>
+                <Route path={MobileWalletDialogRoutes.Import}>
+                  <ImportRouter onClose={onClose} defaultRoute={defaultRoute} />
+                </Route>
                 <Route path={MobileWalletDialogRoutes.Saved}>
                   <SavedWallets onClose={onClose} />
                 </Route>
@@ -40,7 +44,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
                   <DeleteWallet />
                 </Route>
                 <Route path={MobileWalletDialogRoutes.Create}>
-                  <CreateWalletRouter onClose={onClose} />
+                  <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />
                 </Route>
                 <Redirect exact from='/' to={defaultRoute} />
               </Switch>

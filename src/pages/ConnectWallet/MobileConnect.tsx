@@ -28,8 +28,6 @@ import { MobileWalletDialog } from 'components/MobileWalletDialog/MobileWalletDi
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useQuery } from 'hooks/useQuery/useQuery'
@@ -64,7 +62,7 @@ const BodyText: React.FC<TextProps> = props => (
 )
 
 export const MobileConnect = () => {
-  const { importWallet, dispatch, state } = useWallet()
+  const { dispatch, state } = useWallet()
   const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -84,9 +82,9 @@ export const MobileConnect = () => {
   }, [onOpen])
 
   const handleImport = useCallback(() => {
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    importWallet(KeyManager.Mobile)
-  }, [dispatch, importWallet])
+    setDefaultRoute(MobileWalletDialogRoutes.Import)
+    onOpen()
+  }, [setDefaultRoute, onOpen])
 
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
+import { useCallback } from 'react'
+import { MemoryRouter, Redirect, Route, Switch, useHistory } from 'react-router'
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { SlideTransition } from 'components/SlideTransition'
 
@@ -11,9 +12,16 @@ import { KeepSafe } from './KeepSafe'
 
 type CreateWalletRouterProps = {
   onClose: () => void
+  defaultRoute: MobileWalletDialogRoutes
 }
 
-export const CreateWalletRouter = ({ onClose }: CreateWalletRouterProps) => {
+export const CreateWalletRouter = ({ onClose, defaultRoute }: CreateWalletRouterProps) => {
+  const history = useHistory()
+
+  const handleRedirectToHome = useCallback(() => {
+    history.push(MobileWalletDialogRoutes.Saved)
+  }, [history])
+
   return (
     <SlideTransition>
       <MemoryRouter>
@@ -34,7 +42,11 @@ export const CreateWalletRouter = ({ onClose }: CreateWalletRouterProps) => {
                   <KeepSafe />
                 </Route>
                 <Route path={MobileWalletDialogRoutes.Create}>
-                  <CreateWallet />
+                  <CreateWallet
+                    isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Create}
+                    onClose={onClose}
+                    handleRedirectToHome={handleRedirectToHome}
+                  />
                 </Route>
                 <Redirect from='/' to={MobileWalletDialogRoutes.Create} />
               </Switch>

@@ -34,7 +34,17 @@ type FormValues = {
   label: string
 }
 
-export const CreateWallet = () => {
+type CreateWalletProps = {
+  isDefaultRoute?: boolean
+  onClose: () => void
+  handleRedirectToHome: () => void
+}
+
+export const CreateWallet = ({
+  isDefaultRoute,
+  onClose,
+  handleRedirectToHome,
+}: CreateWalletProps) => {
   const location = useLocation<MobileLocationState | undefined>()
   const history = useHistory()
   const translate = useTranslate()
@@ -62,7 +72,13 @@ export const CreateWallet = () => {
     [history, vault],
   )
 
-  const handleBack = useCallback(() => history.push(MobileWalletDialogRoutes.Saved), [history])
+  const handleBack = useCallback(() => {
+    if (isDefaultRoute) {
+      onClose()
+    } else {
+      handleRedirectToHome()
+    }
+  }, [handleRedirectToHome, isDefaultRoute, onClose])
 
   useEffect(() => {
     try {

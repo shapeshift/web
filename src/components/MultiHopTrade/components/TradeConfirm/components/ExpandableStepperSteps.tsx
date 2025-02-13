@@ -67,7 +67,7 @@ export const ExpandableStepperSteps = ({
 
   const stepsLength = useMemo(() => activeTradeQuote?.steps.length ?? 1, [activeTradeQuote])
   // Ternary to satisfy TS, if we're here, we should have a trade quote already
-  const lastHopIndex = useMemo(() => stepsLength - 1, [activeTradeQuote])
+  const lastHopIndex = useMemo(() => stepsLength - 1, [stepsLength])
 
   // Introspects both hops to determine the holistic swap progress
   const firstHopProgress = useHopProgress(0, activeTradeId)
@@ -82,7 +82,7 @@ export const ExpandableStepperSteps = ({
       .plus(lastHopProgress?.progress ?? 0)
       .div(stepsLength)
       .toNumber()
-  }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
+  }, [firstHopProgress, lastHopProgress, isMultiHopTrade, stepsLength])
 
   const swapProgressStatus = useMemo(() => {
     if (!firstHopProgress) return

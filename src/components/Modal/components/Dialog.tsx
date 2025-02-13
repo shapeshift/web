@@ -122,9 +122,10 @@ const DialogWindow: React.FC<DialogProps> = ({
               position='fixed'
               inset={0}
               zIndex='var(--chakra-zIndices-modal)'
+              onClick={onClose}
             />
           ) : null}
-          {isDisablingPropagation ? <CustomDrawerOverlay /> : null}
+          {isDisablingPropagation ? <CustomDrawerOverlay onClick={onClose} /> : null}
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>

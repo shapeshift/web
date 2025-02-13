@@ -65,11 +65,9 @@ export const ExpandableStepperSteps = ({
     swap: { state: swapTxState, sellTxHash },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
+  const stepsLength = useMemo(() => activeTradeQuote?.steps.length ?? 1, [activeTradeQuote])
   // Ternary to satisfy TS, if we're here, we should have a trade quote already
-  const lastHopIndex = useMemo(
-    () => (activeTradeQuote ? activeTradeQuote.steps.length - 1 : 0),
-    [activeTradeQuote],
-  )
+  const lastHopIndex = useMemo(() => stepsLength - 1, [activeTradeQuote])
 
   // Introspects both hops to determine the holistic swap progress
   const firstHopProgress = useHopProgress(0, activeTradeId)
@@ -82,7 +80,7 @@ export const ExpandableStepperSteps = ({
 
     return bn(firstHopProgress.progress)
       .plus(lastHopProgress?.progress ?? 0)
-      .div(2)
+      .div(stepsLength)
       .toNumber()
   }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
 

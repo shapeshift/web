@@ -12,9 +12,10 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -30,6 +31,7 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../helpers'
+import { useHopProgress } from '../hooks/useHopProgress'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { useStreamingProgress } from '../hooks/useStreamingProgress'
 import { StepperStep as StepperStepComponent } from '../StepperStep'
@@ -47,6 +49,8 @@ type ExpandedStepperStepsProps = {
 export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsProps) => {
   const translate = useTranslate()
   const rateChanged = useModal('rateChanged')
+  const firstHopProgress = useHopProgress(0, activeTradeQuote.id)
+  const lastHopProgress = useHopProgress(1, activeTradeQuote.id)
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
@@ -163,9 +167,39 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopSwap.state,
   ])
 
-  const { currentTradeStepIndex: currentStep } = useStepperSteps()
+  const { tradeSteps, currentTradeStep, currentTradeStepIndex } = useStepperSteps()
 
-  const stepIndicator = useMemo(
+  const firstHopAmountCryptoBaseUnit = useMemo(
+    () => tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit,
+    [tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit],
+  )
+  const prevFirstHopAmountCryptoBaseUnit = usePrevious(firstHopAmountCryptoBaseUnit)
+
+  useEffect(() => {
+    if (currentTradeStep !== StepperStep.FirstHopSwap) return
+
+    if (
+      !(
+        firstHopAmountCryptoBaseUnit &&
+        prevFirstHopAmountCryptoBaseUnit &&
+        firstHopAmountCryptoBaseUnit !== '0' &&
+        prevFirstHopAmountCryptoBaseUnit !== '0'
+      )
+    )
+      return
+    if (firstHopAmountCryptoBaseUnit === prevFirstHopAmountCryptoBaseUnit) return
+
+    rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
+  }, [
+    currentTradeStep,
+    firstHopAmountCryptoBaseUnit,
+    prevFirstHopAmountCryptoBaseUnit,
+    rateChanged,
+  ])
+
+  const isError = activeQuoteError || transactionExecutionStateError
+
+  const stepStatus = useMemo(
     () => (
       <StepStatus
         complete={completedStepIndicator}
@@ -176,6 +210,44 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       />
     ),
     [activeQuoteError, transactionExecutionStateError],
+  )
+
+  const getStepIndicator = useCallback(
+    (step: StepperStep) => {
+      switch (step) {
+        case StepperStep.FirstHopSwap:
+          if (!firstHopProgress || !firstHopSwap.sellTxHash) return stepStatus
+          if (firstHopProgress.status === 'complete') return stepStatus
+          if (firstHopProgress.status === 'failed') return erroredStepIndicator
+          return (
+            <CircularProgress
+              value={firstHopProgress.progress}
+              size='16px'
+              isIndeterminate={false}
+            />
+          )
+        case StepperStep.LastHopSwap:
+          if (!lastHopProgress || !lastHopSwap.sellTxHash) return stepStatus
+          if (lastHopProgress.status === 'complete') return stepStatus
+          if (lastHopProgress.status === 'failed') return erroredStepIndicator
+          return (
+            <CircularProgress
+              value={lastHopProgress.progress}
+              size='16px'
+              isIndeterminate={false}
+            />
+          )
+        default:
+          return stepStatus
+      }
+    },
+    [
+      firstHopProgress,
+      firstHopSwap.sellTxHash,
+      lastHopProgress,
+      lastHopSwap.sellTxHash,
+      stepStatus,
+    ],
   )
 
   const firstHopAllowanceResetTitle = useMemo(() => {
@@ -255,59 +327,52 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [swapperName, translate])
 
   const firstHopActionTitle = useMemo(() => {
-    const firstHopMessage = firstHopSwap.message
-    const firstHopStatus = firstHopSwap.state
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <HStack>
-          <RawText>
-            {firstHopStatus === TransactionExecutionState.Pending && firstHopMessage
-              ? translate(firstHopMessage)
-              : firstHopActionTitleText}
-          </RawText>
-          {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
-            <Tag
-              minWidth='auto'
-              colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
-            >
-              {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
-            </Tag>
+      <VStack width='full' spacing={2} align='stretch'>
+        <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
+          <HStack>
+            <RawText>{firstHopActionTitleText}</RawText>
+            {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
+              <Tag
+                minWidth='auto'
+                colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
+              >
+                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
+              </Tag>
+            )}
+          </HStack>
+          {tradeQuoteFirstHop && firstHopSellAccountId && (
+            <VStack>
+              {firstHopSwap.sellTxHash && (
+                <TxLabel
+                  txHash={firstHopSwap.sellTxHash}
+                  explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                  accountId={firstHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+              {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
+                <TxLabel
+                  isBuyTxHash
+                  txHash={firstHopSwap.buyTxHash}
+                  explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
+                  accountId={firstHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+            </VStack>
           )}
-        </HStack>
-        {tradeQuoteFirstHop && firstHopSellAccountId && (
-          <VStack>
-            {firstHopSwap.sellTxHash && (
-              <TxLabel
-                txHash={firstHopSwap.sellTxHash}
-                explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
-                accountId={firstHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-            {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
-              <TxLabel
-                isBuyTxHash
-                txHash={firstHopSwap.buyTxHash}
-                explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
-                accountId={firstHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-          </VStack>
-        )}
-      </Flex>
+        </Flex>
+      </VStack>
     )
   }, [
     firstHopActionTitleText,
     firstHopSellAccountId,
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
-    firstHopSwap.message,
     firstHopSwap.sellTxHash,
-    firstHopSwap.state,
     swapperName,
     tradeQuoteFirstHop,
-    translate,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -362,98 +427,59 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const lastHopActionTitle = useMemo(() => {
-    const lastHopMessage = lastHopSwap.message
-    const lastHopStatus = lastHopSwap.state
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <HStack>
-          <RawText>
-            {lastHopStatus === TransactionExecutionState.Pending && lastHopMessage
-              ? translate(lastHopMessage)
-              : lastHopActionTitleText}
-          </RawText>
-          {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
-            <Tag
-              minWidth='auto'
-              colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
-            >
-              {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
-            </Tag>
+      <VStack width='full' spacing={2} align='stretch'>
+        <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
+          <HStack>
+            <RawText>{lastHopActionTitleText}</RawText>
+            {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
+              <Tag
+                minWidth='auto'
+                colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
+              >
+                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
+              </Tag>
+            )}
+          </HStack>
+          {tradeQuoteSecondHop && lastHopSellAccountId && (
+            <VStack>
+              {lastHopSwap.sellTxHash && (
+                <TxLabel
+                  txHash={lastHopSwap.sellTxHash}
+                  explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
+                  accountId={lastHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+              {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
+                <TxLabel
+                  txHash={lastHopSwap.buyTxHash}
+                  explorerBaseUrl={tradeQuoteSecondHop.buyAsset.explorerTxLink}
+                  accountId={lastHopSellAccountId}
+                  swapperName={swapperName}
+                />
+              )}
+            </VStack>
           )}
-        </HStack>
-        {tradeQuoteSecondHop && lastHopSellAccountId && (
-          <VStack>
-            {lastHopSwap.sellTxHash && (
-              <TxLabel
-                txHash={lastHopSwap.sellTxHash}
-                explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
-                accountId={lastHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-            {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
-              <TxLabel
-                txHash={lastHopSwap.buyTxHash}
-                explorerBaseUrl={tradeQuoteSecondHop.buyAsset.explorerTxLink}
-                accountId={lastHopSellAccountId}
-                swapperName={swapperName}
-              />
-            )}
-          </VStack>
-        )}
-      </Flex>
+        </Flex>
+      </VStack>
     )
   }, [
     lastHopActionTitleText,
     lastHopSellAccountId,
     lastHopSwap.buyTxHash,
-    lastHopSwap.message,
     lastHopSwap.sellTxHash,
-    lastHopSwap.state,
     secondHopStreamingProgress,
     swapperName,
     tradeQuoteSecondHop,
-    translate,
   ])
-
-  const { tradeSteps, currentTradeStep } = useStepperSteps()
-
-  const firstHopAmountCryptoBaseUnit = useMemo(
-    () => tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit,
-    [tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit],
-  )
-  const prevFirstHopAmountCryptoBaseUnit = usePrevious(firstHopAmountCryptoBaseUnit)
-
-  useEffect(() => {
-    if (currentTradeStep !== StepperStep.FirstHopSwap) return
-
-    if (
-      !(
-        firstHopAmountCryptoBaseUnit &&
-        prevFirstHopAmountCryptoBaseUnit &&
-        firstHopAmountCryptoBaseUnit !== '0' &&
-        prevFirstHopAmountCryptoBaseUnit !== '0'
-      )
-    )
-      return
-    if (firstHopAmountCryptoBaseUnit === prevFirstHopAmountCryptoBaseUnit) return
-
-    rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
-  }, [
-    currentTradeStep,
-    firstHopAmountCryptoBaseUnit,
-    prevFirstHopAmountCryptoBaseUnit,
-    rateChanged,
-  ])
-
-  const isError = activeQuoteError || transactionExecutionStateError
 
   return (
-    <Stepper variant='innerSteps' orientation='vertical' index={currentStep} gap={0}>
+    <Stepper variant='innerSteps' orientation='vertical' index={currentTradeStepIndex} gap={0}>
       {tradeSteps[StepperStep.FirstHopReset] ? (
         <StepperStepComponent
           title={firstHopAllowanceResetTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.FirstHopReset)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.FirstHopReset}
@@ -463,7 +489,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.FirstHopApproval] ? (
         <StepperStepComponent
           title={firstHopAllowanceApprovalTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.FirstHopApproval)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
@@ -473,7 +499,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.FirstHopPermit2Eip712Sign] ? (
         <StepperStepComponent
           title={firstHopPermit2SignTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.FirstHopPermit2Eip712Sign)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
@@ -482,7 +508,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       ) : null}
       <StepperStepComponent
         title={firstHopActionTitle}
-        stepIndicator={stepIndicator}
+        stepIndicator={getStepIndicator(StepperStep.FirstHopSwap)}
         stepProps={stepProps}
         useSpacer={false}
         isError={isError && currentTradeStep === StepperStep.FirstHopSwap}
@@ -491,7 +517,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.LastHopReset] ? (
         <StepperStepComponent
           title={lastHopAllowanceResetTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.LastHopReset)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.LastHopReset}
@@ -501,7 +527,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.LastHopApproval] ? (
         <StepperStepComponent
           title={lastHopAllowanceApprovalTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.LastHopApproval)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.LastHopApproval}
@@ -511,7 +537,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.LastHopSwap] ? (
         <StepperStepComponent
           title={lastHopActionTitle}
-          stepIndicator={stepIndicator}
+          stepIndicator={getStepIndicator(StepperStep.LastHopSwap)}
           stepProps={stepProps}
           useSpacer={false}
           isError={isError && currentTradeStep === StepperStep.LastHopSwap}

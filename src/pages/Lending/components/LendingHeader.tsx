@@ -140,7 +140,7 @@ export const LendingHeader = () => {
               <AlertIcon />
               <AlertDescription>
                 {translate('lending.haltedAlert')}
-                <Link isExternal href='https://discord.gg/n7F4z5Cn' ml={1} color='text.link'>
+                <Link isExternal href='https://discord.gg/uhhZe9pCZj' ml={1} color='text.link'>
                   {translate('lending.halterMoreDetails')}
                 </Link>
               </AlertDescription>

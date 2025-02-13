@@ -13,12 +13,18 @@ export const initialTransactionState = {
   state: TransactionExecutionState.AwaitingConfirmation,
 }
 
+const initialProgressState = {
+  progress: 0,
+  status: 'pending',
+} as const
+
 const initialHopState = {
   state: HopExecutionState.Pending,
   allowanceReset: initialApprovalExecutionState,
   allowanceApproval: initialApprovalExecutionState,
   permit2: initialTransactionState,
   swap: initialTransactionState,
+  progress: initialProgressState,
 }
 
 export const initialTradeExecutionState = {

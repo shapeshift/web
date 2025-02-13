@@ -33,7 +33,6 @@ const chainListMaxHeight = {
   base: '220px',
   md: '400px',
 }
-
 const ConnectedChain = ({
   chainId,
   onClick,
@@ -144,7 +143,7 @@ export const ManageAccountsModal = () => {
         </VStack>
 
         {walletConnectedChainIdsSorted.length > 0 && (
-          <DialogBody maxHeight={chainListMaxHeight}>
+          <DialogBody maxHeight={chainListMaxHeight} overflowY='auto'>
             <Box mx={-4} px={4}>
               <VStack spacing={2} width='full'>
                 {connectedChains}

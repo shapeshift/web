@@ -222,7 +222,7 @@ export const MobileNavBar = memo(() => {
           />
         </Flex>
       </SimpleGrid>
-      <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+      <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
         <DialogHeader />
         <DialogBody
           pb='calc(env(safe-area-inset-bottom) + 2rem)'

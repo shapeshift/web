@@ -130,7 +130,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
           <AlertIcon />
           <AlertDescription>
             {translate('lending.haltedAlert')}
-            <Link isExternal href='https://discord.gg/jhnWUxye' ml={1} color='text.link'>
+            <Link isExternal href='https://discord.gg/uhhZe9pCZj' ml={1} color='text.link'>
               {translate('lending.halterMoreDetails')}
             </Link>
           </AlertDescription>

@@ -657,18 +657,18 @@ export const selectIsTradeQuoteRequestAborted = createSelector(
 )
 
 export const selectLoadingSwappers = createSelector(
-  selectIsSwapperResponseAvailable,
   selectIsTradeQuoteApiQueryPending,
   selectTradeQuoteDisplayCache,
-  (isSwapperQuoteAvailable, isTradeQuoteApiQueryPending, tradeQuoteDisplayCache) => {
-    return Object.entries(isSwapperQuoteAvailable)
-      .filter(
-        ([swapperName, isQuoteAvailable]) =>
-          // only include swappers that are still fetching data
-          (!isQuoteAvailable || isTradeQuoteApiQueryPending[swapperName as SwapperName]) &&
-          // filter out entries that already have data - these have been loaded and are refetching
-          !tradeQuoteDisplayCache.some(quoteData => quoteData.swapperName === swapperName),
-      )
+  (isTradeQuoteApiQueryPending, tradeQuoteDisplayCache) => {
+    return Object.entries(isTradeQuoteApiQueryPending)
+      .filter(([swapperName, isPending]) => {
+        // filter out entries that already have data - these have been loaded and are refetching
+        const hasDisplayCache = tradeQuoteDisplayCache.some(
+          quoteData => quoteData.swapperName === swapperName,
+        )
+
+        return isPending && !hasDisplayCache
+      })
       .map(([swapperName, _isQuoteAvailable]) => swapperName)
   },
 )

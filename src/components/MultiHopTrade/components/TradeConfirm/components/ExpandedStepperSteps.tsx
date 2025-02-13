@@ -4,7 +4,6 @@ import {
   Flex,
   HStack,
   Icon,
-  StepIndicator,
   Stepper,
   StepStatus,
   Tag,
@@ -202,23 +201,13 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
 
   const stepStatus = useMemo(
     () => (
-      <StepIndicator
-        className={undefined}
-        sx={undefined}
-        borderWidth={0}
-        height='auto'
-        justifyContent='stretch'
-        flexDir='column'
-        boxSize='16px'
-      >
-        <StepStatus
-          complete={completedStepIndicator}
-          incomplete={undefined}
-          active={
-            activeQuoteError || transactionExecutionStateError ? erroredStepIndicator : undefined
-          }
-        />
-      </StepIndicator>
+      <StepStatus
+        complete={completedStepIndicator}
+        incomplete={undefined}
+        active={
+          activeQuoteError || transactionExecutionStateError ? erroredStepIndicator : undefined
+        }
+      />
     ),
     [activeQuoteError, transactionExecutionStateError],
   )

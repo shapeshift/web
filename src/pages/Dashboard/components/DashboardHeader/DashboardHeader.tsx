@@ -88,7 +88,6 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         label: 'dashboard.nfts',
         path: '/wallet/nfts',
         color: 'pink',
-        rightElement: translate('common.new'),
         hide: !isNftsEnabled,
       },
       {
@@ -97,12 +96,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         color: 'blue',
       },
     ]
-  }, [
-    claimableRewardsUserCurrencyBalance,
-    isNftsEnabled,
-    portfolioTotalUserCurrencyBalance,
-    translate,
-  ])
+  }, [claimableRewardsUserCurrencyBalance, isNftsEnabled, portfolioTotalUserCurrencyBalance])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (

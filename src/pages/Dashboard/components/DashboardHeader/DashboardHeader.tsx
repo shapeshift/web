@@ -2,7 +2,6 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -40,7 +39,6 @@ const navCss = {
 export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
-  const translate = useTranslate()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
@@ -88,7 +86,6 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         label: 'dashboard.nfts',
         path: '/wallet/nfts',
         color: 'pink',
-        rightElement: translate('common.new'),
         hide: !isNftsEnabled,
       },
       {
@@ -97,12 +94,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         color: 'blue',
       },
     ]
-  }, [
-    claimableRewardsUserCurrencyBalance,
-    isNftsEnabled,
-    portfolioTotalUserCurrencyBalance,
-    translate,
-  ])
+  }, [claimableRewardsUserCurrencyBalance, isNftsEnabled, portfolioTotalUserCurrencyBalance])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (

@@ -95,7 +95,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
       }
 
       const txLink = getTxLink({
-        name: Dex.Thor,
+        stepSource: Dex.Thor,
         defaultExplorerBaseUrl: '',
         txId,
         // This can't be a SAFE Tx - it's a reward distribution on RUNE

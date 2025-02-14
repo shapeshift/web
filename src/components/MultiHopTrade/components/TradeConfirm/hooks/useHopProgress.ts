@@ -1,6 +1,7 @@
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import { getHopByIndex, SwapperName } from '@shapeshiftoss/swapper'
 import { ChainflipStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
+import { ThorchainStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import { useEffect, useMemo } from 'react'
 import {
   selectActiveQuote,
@@ -26,6 +27,24 @@ const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
     [ChainflipStatusMessage.TransactionSent]: 80,
     [ChainflipStatusMessage.SwapComplete]: 100,
     [ChainflipStatusMessage.SwapFailed]: 100,
+  },
+  [SwapperName.Thorchain]: {
+    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Waiting for deposit...'
+    '': 7,
+    [ThorchainStatusMessage.InboundObserved]: 15,
+    [ThorchainStatusMessage.InboundObservingPending]: 15,
+    [ThorchainStatusMessage.InboundConfirmationPending]: 29,
+    [ThorchainStatusMessage.InboundConfirmationCounted]: 29,
+    [ThorchainStatusMessage.InboundFinalizationPending]: 43,
+    [ThorchainStatusMessage.InboundFinalized]: 43,
+    [ThorchainStatusMessage.SwapPending]: 57,
+    [ThorchainStatusMessage.SwapCompleteAwaitingOutbound]: 71,
+    [ThorchainStatusMessage.SwapCompleteAwaitingDestination]: 71,
+    // We can't map this guy as it's actually dynamic
+    // [ThorchainStatusMessage.OutboundDelayTimeRemaining]: 85,
+    [ThorchainStatusMessage.OutboundDelayPending]: 85,
+    [ThorchainStatusMessage.OutboundScheduled]: 92,
+    [ThorchainStatusMessage.OutboundSigned]: 100,
   },
 }
 

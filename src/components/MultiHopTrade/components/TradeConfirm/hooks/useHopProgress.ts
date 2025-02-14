@@ -38,9 +38,10 @@ const getSwapperSpecificProgress = (
   const progressMap = SWAPPER_PROGRESS_MAPS[swapperName]
   if (!progressMap) return
 
-  const messageString = message as string | undefined
+  // This can technically be string | [string, InterpolationOptions] according to types but it won't
+  const _message = message as string | undefined
 
-  return progressMap[messageString ?? '']
+  return progressMap[_message ?? '']
 }
 
 export const useHopProgress = (
@@ -96,7 +97,14 @@ export const useHopProgress = (
         }),
       )
     }
-  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap, hopExecutionMetadata?.swap.message, swapperName])
+  }, [
+    dispatch,
+    hopIndex,
+    tradeId,
+    hopExecutionMetadata?.swap,
+    hopExecutionMetadata?.swap.message,
+    swapperName,
+  ])
 
   useEffect(() => {
     if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return

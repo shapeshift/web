@@ -9,6 +9,7 @@ export const lifiQuote: TradeQuote = {
   potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
+  swapperName: SwapperName.LIFI,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -61,6 +62,7 @@ export const thorQuote: TradeQuote = {
   affiliateBps: '30',
   potentialAffiliateBps: '30',
   slippageTolerancePercentageDecimal: '0',
+  swapperName: SwapperName.Thorchain,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -146,6 +148,7 @@ export const cowQuote: TradeQuote = {
   potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
+  swapperName: SwapperName.CowSwap,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -215,6 +218,7 @@ export const zrxQuote: TradeQuote = {
   potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
+  swapperName: SwapperName.Zrx,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,

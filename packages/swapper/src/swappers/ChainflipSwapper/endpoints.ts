@@ -15,6 +15,7 @@ import type {
   UtxoFeeData,
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
+import { ChainflipStatusMessage } from './constants'
 import type { ChainflipBaasSwapDepositAddress } from './models'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
@@ -298,7 +299,7 @@ export const chainflipApi: SwapperApi = {
         buyTxHash: undefined,
         status: TxStatus.Unknown,
         // assume the swap is not yet seen on that call
-        message: 'Waiting for deposit...',
+        message: ChainflipStatusMessage.WaitingForDeposit,
       }
     }
 

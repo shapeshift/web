@@ -240,6 +240,7 @@ export const getTradeQuote = async (
     receiveAddress,
     slippageTolerancePercentageDecimal,
     priceImpactPercentageDecimal: priceResponse.priceImpactPct,
+    swapperName: SwapperName.Jupiter,
     steps: [
       {
         accountNumber,

@@ -236,6 +236,7 @@ export async function getPortalsTradeQuote(
       potentialAffiliateBps,
       rate: inputOutputRate,
       slippageTolerancePercentageDecimal,
+      swapperName: SwapperName.Portals,
       steps: [
         {
           accountNumber,

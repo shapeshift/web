@@ -70,6 +70,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: '0.04357',
     expiry: 1713710808,
+    swapperName: SwapperName.Thorchain,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,
@@ -110,6 +111,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: undefined,
     expiry: 1713710808,
+    swapperName: SwapperName.Thorchain,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,

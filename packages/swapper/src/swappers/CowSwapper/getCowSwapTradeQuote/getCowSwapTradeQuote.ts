@@ -155,6 +155,7 @@ async function _getCowSwapTradeQuote(
     potentialAffiliateBps,
     rate,
     slippageTolerancePercentageDecimal,
+    swapperName: SwapperName.CowSwap,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,

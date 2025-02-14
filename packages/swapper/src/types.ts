@@ -314,6 +314,7 @@ type TradeQuoteBase = {
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
   quoteOrRate: 'quote' | 'rate'
+  swapperName: SwapperName // The swapper that generated this quote/rate
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002

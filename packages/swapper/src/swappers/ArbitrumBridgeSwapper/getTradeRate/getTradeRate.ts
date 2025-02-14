@@ -76,6 +76,7 @@ export async function getTradeRate(
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.ArbitrumBridge,
       ),
+      swapperName: SwapperName.ArbitrumBridge,
       steps: [
         {
           estimatedExecutionTimeMs,

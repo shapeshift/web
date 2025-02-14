@@ -298,6 +298,7 @@ export async function getTrade({
         },
         affiliateBps,
         potentialAffiliateBps,
+        swapperName: SwapperName.LIFI,
         steps,
         rate: netRate,
         selectedLifiRoute,

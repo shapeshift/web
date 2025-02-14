@@ -1,5 +1,5 @@
-import type { ChainFlipStatus } from '../types'
 import { ChainflipStatusMessage } from '../constants'
+import type { ChainFlipStatus } from '../types'
 
 export const getLatestChainflipStatusMessage = (status: ChainFlipStatus): string => {
   const { state, swapEgress } = status.status

@@ -25,6 +25,7 @@ export const fetchPortalsTokens = async ({
   chainIds,
   page = 0,
   accTokens = [],
+  minApy,
   sortBy,
   sortDirection,
   limit = 250,
@@ -32,6 +33,7 @@ export const fetchPortalsTokens = async ({
   chainIds: ChainId[] | undefined
   page?: number
   accTokens?: TokenInfo[]
+  minApy?: string
   sortBy?:
     | 'key'
     | 'decimals'
@@ -81,6 +83,7 @@ export const fetchPortalsTokens = async ({
       page: page.toString(),
       sortBy,
       sortDirection,
+      minApy,
     }
 
     await throttle()

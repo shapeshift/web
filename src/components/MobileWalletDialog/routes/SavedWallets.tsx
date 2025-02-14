@@ -15,8 +15,6 @@ import {
 } from 'components/Modal/components/DialogHeader'
 import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SlideTransition } from 'components/SlideTransition'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -51,7 +49,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const { dispatch, importWallet, disconnect, state } = useWallet()
+  const { disconnect, state } = useWallet()
   const [isEditing, toggleEditing] = useToggle()
   const [error, setError] = useState<string | null>(null)
   const handleClickSettings = useCallback(() => {
@@ -89,10 +87,9 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     history.push(MobileWalletDialogRoutes.Create)
   }, [history])
 
-  const handleImport = useCallback(() => {
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    importWallet(KeyManager.Mobile)
-  }, [dispatch, importWallet])
+  const handleImportClick = useCallback(() => {
+    history.push(MobileWalletDialogRoutes.Import)
+  }, [history])
 
   const mobileWalletFooter = useMemo(() => {
     return (
@@ -110,7 +107,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
           variant='ghost'
           colorScheme='blue'
           leftIcon={importIcon}
-          onClick={handleImport}
+          onClick={handleImportClick}
           justifyContent='flex-start'
         >
           {translate('connectWalletPage.importExisting')}
@@ -139,7 +136,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
       </Stack>
     )
   }, [
-    handleImport,
+    handleImportClick,
     handleManageAccountsMenuItemClick,
     handleBackupMenuItemClick,
     isAccountManagementEnabled,

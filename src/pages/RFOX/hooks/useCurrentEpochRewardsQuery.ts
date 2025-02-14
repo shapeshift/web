@@ -44,20 +44,27 @@ export const useCurrentEpochRewardsQuery = ({
         if (!stakingAssetAccountAddress) return 0n
 
         const results = _results as EpochRewardsResultTuple
-
         const [epochHistory, currentEpochRewardUnits, affiliateRevenue] = results
 
         if (!epochHistory || !currentEpochRewardUnits || !affiliateRevenue || !currentEpochMetadata)
           return 0n
 
-        const orderedEpochHistory = epochHistory.sort((a, b) => a.number - b.number)
-        const previousEpoch = orderedEpochHistory[epochHistory.length - 1]
+        const orderedEpochHistory = epochHistory.sort((a, b) => b.number - a.number)
 
-        const previousDistribution =
-          previousEpoch?.detailsByStakingContract[getStakingContract(stakingAssetId)]
-            ?.distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
+        const previousEpochRewardUnits = orderedEpochHistory.reduce(
+          (lastKnownEpochRewardUnits, epoch) => {
+            if (lastKnownEpochRewardUnits !== 0n) return lastKnownEpochRewardUnits
 
-        const previousEpochRewardUnits = BigInt(previousDistribution?.totalRewardUnits ?? '0')
+            const distribution =
+              epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
+                ?.distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
+                ?.totalRewardUnits
+
+            return distribution ? BigInt(distribution) : 0n
+          },
+          0n,
+        )
+
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 
         return calcEpochRewardForAccountRuneBaseUnit(

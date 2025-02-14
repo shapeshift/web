@@ -57,8 +57,6 @@ export const getMaxBytesLengthByChainId = (chainId: ChainId) => {
   return Infinity
 }
 
-export const THORCHAIN_FIXED_PRECISION = 8
-
 export enum ThorchainStatusMessage {
   InboundObserved = 'Inbound transaction accepted by THOR',
   InboundObservingPending = 'Inbound transaction pending',

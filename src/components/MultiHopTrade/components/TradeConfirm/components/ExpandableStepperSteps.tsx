@@ -1,5 +1,6 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatedCheck } from 'components/AnimatedCheck'
@@ -67,7 +68,7 @@ export const ExpandableStepperSteps = ({
 
   const stepsLength = useMemo(() => activeTradeQuote?.steps.length ?? 1, [activeTradeQuote])
   // Ternary to satisfy TS, if we're here, we should have a trade quote already
-  const lastHopIndex = useMemo(() => stepsLength - 1, [stepsLength])
+  const lastHopIndex = useMemo(() => stepsLength - 1, [stepsLength]) as SupportedTradeQuoteStepIndex
 
   // Introspects both hops to determine the holistic swap progress
   const firstHopProgress = useHopProgress(0, activeTradeId)

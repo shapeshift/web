@@ -1,10 +1,53 @@
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import { getHopByIndex, SwapperName } from '@shapeshiftoss/swapper'
+import { ChainflipStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
 import { useEffect, useMemo } from 'react'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveQuote,
+  selectHopExecutionMetadata,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import type { SwapExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-export const useHopProgress = (hopIndex: number | undefined, tradeId: string | undefined) => {
+type SwapperProgressMap = Record<string, number>
+type SwapperProgressMaps = Partial<Record<SwapperName, SwapperProgressMap>>
+
+const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
+  [SwapperName.Chainflip]: {
+    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Waiting for deposit...'
+    '': 1,
+    [ChainflipStatusMessage.WaitingForDeposit]: 1,
+    [ChainflipStatusMessage.DepositDetected]: 20,
+    [ChainflipStatusMessage.ProcessingSwap]: 40,
+    [ChainflipStatusMessage.OutboundTransactionInitiated]: 60,
+    [ChainflipStatusMessage.PreparingOutboundTransaction]: 60,
+    [ChainflipStatusMessage.TransactionSent]: 80,
+    [ChainflipStatusMessage.SwapComplete]: 100,
+    [ChainflipStatusMessage.SwapFailed]: 100,
+  },
+}
+
+const getSwapperSpecificProgress = (
+  swapperName: SwapperName | undefined,
+  message: SwapExecutionMetadata['message'],
+): number | undefined => {
+  if (!swapperName) return
+
+  const progressMap = SWAPPER_PROGRESS_MAPS[swapperName]
+  if (!progressMap) return
+
+  // This can technically be string | [string, InterpolationOptions] according to types but it won't
+  const _message = message as string | undefined
+
+  return progressMap[_message ?? '']
+}
+
+export const useHopProgress = (
+  hopIndex: SupportedTradeQuoteStepIndex | undefined,
+  tradeId: string | undefined,
+) => {
   const dispatch = useAppDispatch()
 
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -19,18 +62,49 @@ export const useHopProgress = (hopIndex: number | undefined, tradeId: string | u
       : undefined,
   )
 
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeStep = hopIndex !== undefined ? getHopByIndex(activeQuote, hopIndex) : undefined
+  const swapperName = activeStep?.source as SwapperName | undefined
+
   useEffect(() => {
     if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return
 
-    dispatch(
-      tradeQuoteSlice.actions.setHopProgress({
-        hopIndex,
-        tradeId,
-        progress: 50,
-        status: 'pending',
-      }),
+    const swapperSpecificProgress = getSwapperSpecificProgress(
+      swapperName,
+      hopExecutionMetadata.swap.message,
     )
-  }, [dispatch, hopIndex, tradeId, hopExecutionMetadata?.swap.sellTxHash])
+
+    // Prioritize swapper-specific progress if we're able to infer it from the hop status
+    if (swapperSpecificProgress !== undefined) {
+      dispatch(
+        tradeQuoteSlice.actions.setHopProgress({
+          hopIndex,
+          tradeId,
+          progress: swapperSpecificProgress,
+          status: swapperSpecificProgress === 100 ? 'complete' : 'pending',
+        }),
+      )
+      return
+    }
+
+    if (hopExecutionMetadata.swap.sellTxHash) {
+      dispatch(
+        tradeQuoteSlice.actions.setHopProgress({
+          hopIndex,
+          tradeId,
+          progress: 50,
+          status: 'pending',
+        }),
+      )
+    }
+  }, [
+    dispatch,
+    hopIndex,
+    tradeId,
+    hopExecutionMetadata?.swap,
+    hopExecutionMetadata?.swap.message,
+    swapperName,
+  ])
 
   useEffect(() => {
     if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return

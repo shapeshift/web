@@ -33,7 +33,7 @@ import { makeSwapErrorRight } from './utils'
 
 export const DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const QUOTE_TIMEOUT_MS = 60_000
-export const TRADE_POLL_INTERVAL_MILLISECONDS = 10_000
+export const TRADE_POLL_INTERVAL_MILLISECONDS = 5_000
 
 export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
   message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,

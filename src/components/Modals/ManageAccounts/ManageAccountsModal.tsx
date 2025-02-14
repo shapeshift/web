@@ -1,24 +1,19 @@
-import {
-  Button,
-  Flex,
-  HStack,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Tag,
-  useDisclosure,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Tag, useDisclosure, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { ManageAccountsDrawer } from 'components/ManageAccountsDrawer/ManageAccountsDrawer'
+import { Dialog } from 'components/Modal/components/Dialog'
+import { DialogBody } from 'components/Modal/components/DialogBody'
+import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import {
+  DialogHeader,
+  DialogHeaderMiddle,
+  DialogHeaderRight,
+} from 'components/Modal/components/DialogHeader'
 import { RawText } from 'components/Text'
 import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
 import { useModal } from 'hooks/useModal/useModal'
@@ -34,6 +29,10 @@ import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
+const chainListMaxHeight = {
+  base: '220px',
+  md: '400px',
+}
 const ConnectedChain = ({
   chainId,
   onClick,
@@ -110,67 +109,76 @@ export const ManageAccountsModal = () => {
 
   return (
     <>
-      <Modal
+      <Dialog
         isOpen={isOpen}
         onClose={close}
-        isCentered
-        size='md'
-        closeOnOverlayClick={!disableClose}
+        isDisablingPropagation={false}
+        isFullScreen={false}
+        height='auto'
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ManageAccountsDrawer
-            isOpen={isDrawerOpen}
-            onClose={handleDrawerClose}
-            chainId={selectedChainId}
-          />
-          <ModalHeader textAlign='left' pt={14}>
-            <RawText as='h3' fontWeight='semibold'>
-              {translate('accountManagement.manageAccounts.title')}
-            </RawText>
-            <RawText color='text.subtle' fontSize='md' fontWeight='normal'>
-              {walletConnectedChainIdsSorted.length === 0
-                ? translate('accountManagement.manageAccounts.emptyList')
-                : translate('accountManagement.manageAccounts.description')}
-            </RawText>
-          </ModalHeader>
-          <ModalCloseButton position='absolute' top={3} right={3} isDisabled={disableClose} />
-          {walletConnectedChainIdsSorted.length > 0 && (
-            <ModalBody maxH='400px' overflowY='auto'>
+        <ManageAccountsDrawer
+          isOpen={isDrawerOpen}
+          onClose={handleDrawerClose}
+          chainId={selectedChainId}
+        />
+        <DialogHeader>
+          <DialogHeaderMiddle>
+            <Box minWidth='50px'>
+              <RawText as='h3' fontWeight='semibold' textAlign='center'>
+                {translate('accountManagement.manageAccounts.title')}
+              </RawText>
+            </Box>
+          </DialogHeaderMiddle>
+          <DialogHeaderRight>
+            <DialogCloseButton isDisabled={disableClose} />
+          </DialogHeaderRight>
+        </DialogHeader>
+
+        <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
+          <RawText color='text.subtle' fontSize='md' fontWeight='normal' textAlign='center'>
+            {walletConnectedChainIdsSorted.length === 0
+              ? translate('accountManagement.manageAccounts.emptyList')
+              : translate('accountManagement.manageAccounts.description')}
+          </RawText>
+        </VStack>
+
+        {walletConnectedChainIdsSorted.length > 0 && (
+          <DialogBody maxHeight={chainListMaxHeight} overflowY='auto'>
+            <Box mx={-4} px={4}>
               <VStack spacing={2} width='full'>
                 {connectedChains}
               </VStack>
-            </ModalBody>
-          )}
-          <ModalFooter justifyContent='center' pb={6}>
-            <VStack spacing={2} width='full'>
-              <Button
-                colorScheme='blue'
-                onClick={handleClickAddChain}
-                width='full'
-                size='lg'
-                isLoading={isDrawerOpen}
-                isDisabled={disableAddChain}
-                _disabled={disabledProp}
-              >
-                {walletConnectedChainIdsSorted.length === 0
-                  ? translate('accountManagement.manageAccounts.addChain')
-                  : translate('accountManagement.manageAccounts.addAnotherChain')}
-              </Button>
-              <Button
-                size='lg'
-                colorScheme='gray'
-                onClick={close}
-                // don't allow users to close the modal until at least one chain is connected
-                isDisabled={isDrawerOpen || disableClose}
-                width='full'
-              >
-                {translate('common.done')}
-              </Button>
-            </VStack>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            </Box>
+          </DialogBody>
+        )}
+
+        <DialogFooter>
+          <VStack spacing={2} width='full' py={2} pt={4}>
+            <Button
+              colorScheme='blue'
+              onClick={handleClickAddChain}
+              width='full'
+              size='lg'
+              isLoading={isDrawerOpen}
+              isDisabled={disableAddChain}
+              _disabled={disabledProp}
+            >
+              {walletConnectedChainIdsSorted.length === 0
+                ? translate('accountManagement.manageAccounts.addChain')
+                : translate('accountManagement.manageAccounts.addAnotherChain')}
+            </Button>
+            <Button
+              size='lg'
+              colorScheme='gray'
+              onClick={close}
+              isDisabled={isDrawerOpen || disableClose}
+              width='full'
+            >
+              {translate('common.done')}
+            </Button>
+          </VStack>
+        </DialogFooter>
+      </Dialog>
     </>
   )
 }

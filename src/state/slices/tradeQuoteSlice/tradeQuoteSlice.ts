@@ -6,7 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type { StreamingSwapMetadata, TradeExecutionMetadata } from './types'
+import type { HopProgress, StreamingSwapMetadata, TradeExecutionMetadata } from './types'
 import {
   AllowanceKey,
   HopExecutionState,
@@ -448,6 +448,25 @@ export const tradeQuoteSlice = createSlice({
       const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
 
       state.tradeQuoteDisplayCache = happyQuotes.concat(errorQuotes)
+    },
+    setHopProgress: (
+      state,
+      action: PayloadAction<{
+        hopIndex: number
+        tradeId: string
+        progress: number
+        status: HopProgress['status']
+      }>,
+    ) => {
+      const { hopIndex, tradeId, progress, status } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+
+      if (!state.tradeExecution[tradeId]) return
+
+      state.tradeExecution[tradeId][hopKey].progress = {
+        progress,
+        status,
+      }
     },
   },
 })

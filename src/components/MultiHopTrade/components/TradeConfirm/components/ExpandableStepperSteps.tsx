@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatedCheck } from 'components/AnimatedCheck'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText, Text } from 'components/Text'
+import { bn } from 'lib/bignumber/bignumber'
+import { selectIsActiveQuoteMultiHop } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
@@ -19,6 +21,7 @@ import {
   StepperStep as StepperStepEnum,
 } from '../helpers'
 import { useCurrentHopIndex } from '../hooks/useCurrentHopIndex'
+import { useHopProgress } from '../hooks/useHopProgress'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { StepperStep } from '../StepperStep'
 import { ExpandedStepperSteps } from './ExpandedStepperSteps'
@@ -49,6 +52,7 @@ export const ExpandableStepperSteps = ({
   const activeTradeId = activeTradeQuote?.id
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
       tradeId: activeTradeId ?? '',
@@ -60,6 +64,41 @@ export const ExpandableStepperSteps = ({
     state: hopExecutionState,
     swap: { state: swapTxState, sellTxHash },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
+
+  const stepsLength = useMemo(() => activeTradeQuote?.steps.length ?? 1, [activeTradeQuote])
+  // Ternary to satisfy TS, if we're here, we should have a trade quote already
+  const lastHopIndex = useMemo(() => stepsLength - 1, [stepsLength])
+
+  // Introspects both hops to determine the holistic swap progress
+  const firstHopProgress = useHopProgress(0, activeTradeId)
+  const lastHopProgress = useHopProgress(lastHopIndex, activeTradeId)
+
+  const swapProgressValue = useMemo(() => {
+    if (!firstHopProgress) return 0
+
+    if (!isMultiHopTrade) return firstHopProgress.progress
+
+    return bn(firstHopProgress.progress)
+      .plus(lastHopProgress?.progress ?? 0)
+      .div(stepsLength)
+      .toNumber()
+  }, [firstHopProgress, lastHopProgress, isMultiHopTrade, stepsLength])
+
+  const swapProgressStatus = useMemo(() => {
+    if (!firstHopProgress) return
+    if (!isMultiHopTrade) return firstHopProgress.status
+
+    if ([firstHopProgress.status, lastHopProgress?.status].includes('failed')) return 'failed'
+    if ([firstHopProgress.status, lastHopProgress?.status].every(status => status === 'complete'))
+      return 'complete'
+
+    return
+  }, [firstHopProgress, lastHopProgress, isMultiHopTrade])
+
+  const colorScheme = useMemo(() => {
+    if (swapProgressStatus === 'complete') return 'green'
+    if (swapProgressStatus === 'failed') return 'red'
+  }, [swapProgressStatus])
 
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
@@ -85,34 +124,60 @@ export const ExpandableStepperSteps = ({
     }
   }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
-  const { totalSteps, currentTradeStepIndex: currentStep } = useStepperSteps()
-  const progressValue = (currentStep / (totalSteps - 1)) * 100
+  const firstHopMetadataFilter = useMemo(
+    () => ({
+      tradeId: activeTradeId ?? '',
+      hopIndex: 0,
+    }),
+    [activeTradeId],
+  )
+
+  const lastHopMetadataFilter = useMemo(
+    () => ({
+      tradeId: activeTradeId ?? '',
+      hopIndex: 1,
+    }),
+    [activeTradeId],
+  )
+
+  const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, firstHopMetadataFilter)
+  const lastHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, lastHopMetadataFilter)
+
+  const currentHopMessage = useMemo(() => {
+    if (!isMultiHopTrade) {
+      return firstHopMetadata?.swap.message
+    }
+    return currentHopIndex === 0 ? firstHopMetadata?.swap.message : lastHopMetadata?.swap.message
+  }, [
+    currentHopIndex,
+    firstHopMetadata?.swap.message,
+    lastHopMetadata?.swap.message,
+    isMultiHopTrade,
+  ])
 
   const titleElement = useMemo(() => {
     if (!hopExecutionState) return null
+
     const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
       hopExecutionState,
       swapperName ?? '',
     )
-    if (!stepSummaryTranslation) return null
+
+    if (!stepSummaryTranslation && !currentHopMessage) return null
+
+    // Messaging always first for top-level swap status, but we may not have it/yet
+    const displayText = currentHopMessage ?? stepSummaryTranslation
 
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <Text translation={stepSummaryTranslation} />
+        <Text translation={displayText} />
         <HStack mr={2}>
-          <Progress
-            value={progressValue}
-            width='100px'
-            size='xs'
-            colorScheme={
-              confirmedTradeExecutionState === TradeExecutionState.TradeComplete ? 'green' : 'blue'
-            }
-          />
+          <Progress value={swapProgressValue} width='100px' size='xs' colorScheme={colorScheme} />
           <ArrowUpDownIcon boxSize={3} color='gray.500' />
         </HStack>
       </Flex>
     )
-  }, [hopExecutionState, progressValue, swapperName, confirmedTradeExecutionState])
+  }, [hopExecutionState, swapProgressValue, swapperName, colorScheme, currentHopMessage])
 
   const estimatedCompletionTimeForStepMs: number = useMemo(() => {
     switch (currentTradeStep) {

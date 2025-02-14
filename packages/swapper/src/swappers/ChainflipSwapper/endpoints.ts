@@ -297,7 +297,8 @@ export const chainflipApi: SwapperApi = {
       return {
         buyTxHash: undefined,
         status: TxStatus.Unknown,
-        message: undefined,
+        // assume the swap is not yet seen on that call
+        message: 'Waiting for deposit...',
       }
     }
 

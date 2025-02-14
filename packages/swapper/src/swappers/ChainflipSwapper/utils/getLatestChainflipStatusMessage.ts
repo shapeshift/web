@@ -1,25 +1,26 @@
 import type { ChainFlipStatus } from '../types'
+import { ChainflipStatusMessage } from '../constants'
 
 export const getLatestChainflipStatusMessage = (status: ChainFlipStatus): string => {
   const { state, swapEgress } = status.status
 
   switch (state) {
     case 'waiting':
-      return 'Waiting for deposit...'
+      return ChainflipStatusMessage.WaitingForDeposit
     case 'receiving':
-      return 'Deposit detected, waiting for confirmation...'
+      return ChainflipStatusMessage.DepositDetected
     case 'swapping':
-      return 'Processing swap...'
+      return ChainflipStatusMessage.ProcessingSwap
     case 'sent':
-      return 'Transaction sent, waiting for confirmation...'
+      return ChainflipStatusMessage.TransactionSent
     case 'sending':
       return swapEgress?.transactionReference
-        ? 'Outbound transaction initiated...'
-        : 'Preparing outbound transaction...'
+        ? ChainflipStatusMessage.OutboundTransactionInitiated
+        : ChainflipStatusMessage.PreparingOutboundTransaction
     case 'completed':
-      return 'Swap complete'
+      return ChainflipStatusMessage.SwapComplete
     case 'failed':
-      return 'Swap failed'
+      return ChainflipStatusMessage.SwapFailed
     default:
       return 'Unknown status'
   }

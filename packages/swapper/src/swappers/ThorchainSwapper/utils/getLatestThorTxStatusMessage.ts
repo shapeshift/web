@@ -1,6 +1,7 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 
+import { ThorchainStatusMessage } from '../constants'
 import type { ThorNodeStatusResponseSuccess } from '../types'
 
 export const getLatestThorTxStatusMessage = (
@@ -22,32 +23,32 @@ export const getLatestThorTxStatusMessage = (
       case 'inbound_observed': {
         const obj = response.stages[key]
         return obj.completed
-          ? 'Inbound transaction accepted by THOR'
-          : 'Inbound transaction pending'
+          ? ThorchainStatusMessage.InboundObserved
+          : ThorchainStatusMessage.InboundObservingPending
       }
       case 'inbound_confirmation_counted': {
         const obj = response.stages[key]
         if (obj === undefined) continue
         return obj.completed
-          ? 'Inbound transaction confirmed'
-          : 'Awaiting inbound transaction confirmation'
+          ? ThorchainStatusMessage.InboundConfirmationCounted
+          : ThorchainStatusMessage.InboundConfirmationPending
       }
       case 'inbound_finalised': {
         const obj = response.stages[key]
         if (obj === undefined) continue
         return obj.completed
-          ? 'Inbound transaction finalized'
-          : 'Awaiting inbound transaction finalization'
+          ? ThorchainStatusMessage.InboundFinalized
+          : ThorchainStatusMessage.InboundFinalizationPending
       }
       case 'swap_status': {
         const obj = response.stages[key]
         if (obj === undefined) continue
 
         return obj.pending
-          ? 'Swap pending'
-          : `Swap complete, awaiting ${
-              hasOutboundTx ? 'outbound transaction' : 'destination chain'
-            }`
+          ? ThorchainStatusMessage.SwapPending
+          : hasOutboundTx
+          ? ThorchainStatusMessage.SwapCompleteAwaitingOutbound
+          : ThorchainStatusMessage.SwapCompleteAwaitingDestination
       }
       case 'swap_finalised': {
         // from thornode api docs, "to be deprecated in favor of swap_status"
@@ -58,17 +59,19 @@ export const getLatestThorTxStatusMessage = (
         const obj = response.stages[key]
         if (obj === undefined || obj.completed) continue
         return obj.remaining_delay_seconds
-          ? `Awaiting outbound delay (${prettyMilliseconds(
-              obj.remaining_delay_seconds * 100,
-            )} remaining)`
-          : 'Awaiting outbound delay'
+          ? // poor man's i18n
+            ThorchainStatusMessage.OutboundDelayTimeRemaining.replace(
+              '{timeRemaining}',
+              prettyMilliseconds(obj.remaining_delay_seconds * 100),
+            )
+          : ThorchainStatusMessage.OutboundDelayPending
       }
       case 'outbound_signed': {
         const obj = response.stages[key]
         if (obj === undefined) continue
         return obj.completed
-          ? 'Outbound transaction transmitted, waiting on destination chain...'
-          : 'Outbound transaction scheduled, waiting on destination chain...'
+          ? ThorchainStatusMessage.OutboundSigned
+          : ThorchainStatusMessage.OutboundScheduled
       }
       default:
         return assertUnreachable(key)

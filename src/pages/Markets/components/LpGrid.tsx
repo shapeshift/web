@@ -47,6 +47,7 @@ export const LpGrid: React.FC<{
     enabled: inView,
     sortBy,
     orderBy,
+    minApy: '1',
   })
 
   const filteredAssetIds = useMemo(
@@ -139,6 +140,9 @@ export const OneClickDefiAssets: React.FC<{
   const { ref, inView } = useInView()
   const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
+    sortBy,
+    orderBy,
+    minApy: '1',
     enabled: inView,
   })
 

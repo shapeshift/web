@@ -26,6 +26,7 @@ import type {
 } from '../../types'
 import { SwapperName } from '../../types'
 import { checkSafeTransactionStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
+import { CowStatusMessage } from './constants'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
 import type { CowSwapGetTradesResponse } from './types'
@@ -183,14 +184,14 @@ export const cowApi: SwapperApi = {
       return {
         status: TxStatus.Confirmed,
         buyTxHash,
-        message: 'fulfilled',
+        message: CowStatusMessage.Fulfilled,
       }
     }
 
     return {
       status: TxStatus.Pending,
       buyTxHash: undefined,
-      message: 'open',
+      message: CowStatusMessage.Open,
     }
   },
 }

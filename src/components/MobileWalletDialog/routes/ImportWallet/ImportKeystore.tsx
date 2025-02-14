@@ -12,6 +12,7 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
@@ -23,10 +24,9 @@ import {
 } from 'components/Modal/components/DialogHeader'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { createWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { addWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { FileUpload } from 'context/WalletProvider/NativeWallet/components/NativeImportKeystore'
 import type { NativeWalletValues } from 'context/WalletProvider/NativeWallet/types'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
@@ -40,14 +40,17 @@ export const ImportKeystore = () => {
   const {
     setError,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
     register,
-  } = useForm<NativeWalletValues>({ shouldUnregister: true })
+  } = useForm<NativeWalletValues>({
+    mode: 'onChange',
+    shouldUnregister: true,
+  })
 
   const onSubmit = useCallback(
     async (values: FieldValues) => {
       const { Vault } = await import('@shapeshiftoss/hdwallet-native-vault')
-      const vault = await Vault.create()
+      const vault = await Vault.create(undefined, false)
       vault.meta.set('createdAt', Date.now())
 
       if (!keystoreFile) {
@@ -57,6 +60,7 @@ export const ImportKeystore = () => {
       try {
         await vault.loadFromKeystore(keystoreFile, values.keystorePassword)
       } catch (e) {
+        alert(e)
         setError('keystorePassword', {
           type: 'manual',
           message: translate('walletProvider.shapeShift.import.invalidKeystorePassword'),
@@ -64,13 +68,20 @@ export const ImportKeystore = () => {
         return
       }
 
-      // const mobileVault = await createWallet({
-      //   label: values.label,
-      //   mnemonic: values.mnemonic,
-      // })
+      try {
+        const mnemonic = await vault.unwrap().get('#mnemonic')
 
-      history.push(NativeWalletRoutes.Password, { vault })
-      mixpanel?.track(MixPanelEvent.NativeImportKeystore)
+        const revocableVault = await addWallet({
+          mnemonic,
+          label: values.name.trim(),
+        })
+
+        vault.revoke()
+        history.push(MobileWalletDialogRoutes.ImportSuccess, { vault: revocableVault })
+        mixpanel?.track(MixPanelEvent.NativeImportKeystore)
+      } catch (e) {
+        alert(e)
+      }
     },
     [history, keystoreFile, mixpanel, setError, translate],
   )
@@ -111,20 +122,35 @@ export const ImportKeystore = () => {
               </CText>
             </Box>
             <VStack spacing={6} width='full'>
+              <FormControl isInvalid={Boolean(errors.name)}>
+                <Input
+                  size='lg'
+                  variant='filled'
+                  placeholder={translate('walletProvider.create.walletName')}
+                  {...register('name', {
+                    required: true,
+                    maxLength: {
+                      value: 64,
+                      message: translate('modals.password.error.maxLength', {
+                        length: 64,
+                      }),
+                    },
+                  })}
+                />
+                <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+              </FormControl>
               <FileUpload onFileSelect={handleFileSelect} />
-              {keystoreFile && (
-                <FormControl isInvalid={Boolean(errors.keystorePassword)}>
-                  <Input
-                    type='password'
-                    placeholder='Keystore Password'
-                    size='lg'
-                    variant='filled'
-                    data-test='wallet-native-keystore-password'
-                    {...register('keystorePassword')}
-                  />
-                  <FormErrorMessage>{errors.keystorePassword?.message}</FormErrorMessage>
-                </FormControl>
-              )}
+              <FormControl isInvalid={Boolean(errors.keystorePassword)}>
+                <Input
+                  type='password'
+                  placeholder='Keystore Password'
+                  size='lg'
+                  variant='filled'
+                  data-test='wallet-native-keystore-password'
+                  {...register('keystorePassword')}
+                />
+                <FormErrorMessage>{errors.keystorePassword?.message}</FormErrorMessage>
+              </FormControl>
             </VStack>
           </VStack>
         </DialogBody>
@@ -136,6 +162,7 @@ export const ImportKeystore = () => {
               size='lg'
               type='submit'
               isLoading={isSubmitting}
+              isDisabled={!isValid}
               data-test='wallet-native-keystore-submit'
             >
               <Text translation='walletProvider.shapeShift.import.importKeystore' />

@@ -11,4 +11,6 @@ export enum MobileWalletDialogRoutes {
   CreateBackupSuccess = '/create/backup/success',
   Import = '/import',
   ImportSuccess = '/import/success',
+  ImportKeystore = '/import/keystore',
+  ImportSeedPhrase = '/import/seed-phrase',
 }

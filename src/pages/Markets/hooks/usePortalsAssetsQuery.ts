@@ -22,11 +22,13 @@ export const usePortalsAssetsQuery = ({
   chainIds,
   sortBy,
   orderBy,
+  minApy,
 }: {
   enabled: boolean
   chainIds: ChainId[] | undefined
   sortBy?: SortOptionsKeys
   orderBy?: OrderDirection
+  minApy?: string
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
@@ -38,7 +40,7 @@ export const usePortalsAssetsQuery = ({
   })
 
   return useQuery({
-    queryKey: ['portalsAssets', { chainIds, orderBy, sortBy }],
+    queryKey: ['portalsAssets', { chainIds, orderBy, sortBy, minApy }],
     queryFn:
       enabled && portalsPlatformsData
         ? () =>
@@ -46,6 +48,7 @@ export const usePortalsAssetsQuery = ({
               limit: 10,
               chainIds,
               sortBy: sortBy === SortOptionsKeys.Volume ? 'volumeUsd1d' : 'apy',
+              minApy,
               sortDirection:
                 orderBy === OrderDirection.Ascending && sortBy !== SortOptionsKeys.MarketCap
                   ? 'asc'

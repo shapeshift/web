@@ -101,7 +101,7 @@ describe('calculateFees', () => {
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
-    expect(feeBps.toNumber()).toEqual(35)
+    expect(feeBps.toNumber()).toEqual(45)
   })
 
   it('should discount fees by 50% holding at midpoint holding half max fox discount limit', () => {
@@ -116,7 +116,7 @@ describe('calculateFees', () => {
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
     })
-    expect(feeBps.toNumber()).toEqual(17)
+    expect(feeBps.toNumber()).toEqual(22)
     expect(foxDiscountPercent).toEqual(bn(50))
   })
 

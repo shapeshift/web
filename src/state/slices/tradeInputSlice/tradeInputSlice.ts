@@ -1,5 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
@@ -14,7 +14,7 @@ export type TradeInputState = {
 } & TradeInputBaseState
 
 const initialState: TradeInputState = {
-  buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
+  buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,

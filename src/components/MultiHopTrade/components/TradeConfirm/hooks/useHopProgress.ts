@@ -17,7 +17,7 @@ type SwapperProgressMaps = Partial<Record<SwapperName, SwapperProgressMap>>
 
 const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
   [SwapperName.Chainflip]: {
-    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Waiting for deposit...'
+    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Waiting for deposit'
     '': 1,
     [ChainflipStatusMessage.WaitingForDeposit]: 1,
     [ChainflipStatusMessage.DepositDetected]: 20,
@@ -29,7 +29,7 @@ const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
     [ChainflipStatusMessage.SwapFailed]: 100,
   },
   [SwapperName.Thorchain]: {
-    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Waiting for deposit...'
+    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Inbound observed'
     '': 7,
     [ThorchainStatusMessage.InboundObserved]: 15,
     [ThorchainStatusMessage.InboundObservingPending]: 15,

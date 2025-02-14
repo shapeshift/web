@@ -225,6 +225,7 @@ export const getTradeRate = async (
     affiliateBps,
     priceImpactPercentageDecimal: priceResponse.priceImpactPct,
     slippageTolerancePercentageDecimal,
+    swapperName: SwapperName.Jupiter,
     steps: [
       {
         buyAmountBeforeFeesCryptoBaseUnit: priceResponse.outAmount,

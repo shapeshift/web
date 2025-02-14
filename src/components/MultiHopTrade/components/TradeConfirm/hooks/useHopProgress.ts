@@ -1,6 +1,7 @@
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { getHopByIndex, SwapperName } from '@shapeshiftoss/swapper'
 import { ChainflipStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
+import { LifiStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/constants'
 import { ThorchainStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import { useEffect, useMemo } from 'react'
 import {
@@ -46,20 +47,33 @@ const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
     [ThorchainStatusMessage.OutboundScheduled]: 92,
     [ThorchainStatusMessage.OutboundSigned]: 100,
   },
+  [SwapperName.LIFI]: {
+    '': 16,
+    [LifiStatusMessage.BridgeWaitingForConfirmations]: 33,
+    [LifiStatusMessage.BridgeOffChainExecution]: 66,
+    [LifiStatusMessage.BridgeComplete]: 100,
+  },
 }
 
 const getSwapperSpecificProgress = (
   swapperName: SwapperName | undefined,
   message: SwapExecutionMetadata['message'],
+  hopIndex: number | undefined,
+  activeQuote: TradeQuote | TradeRate | undefined,
 ): number | undefined => {
-  if (!swapperName) return
+  if (!swapperName || !activeQuote) return
 
   const progressMap = SWAPPER_PROGRESS_MAPS[swapperName]
   if (!progressMap) return
 
-  // This can technically be string | [string, InterpolationOptions] according to types but it won't
-  const _message = message as string | undefined
+  const isCrossChainSwap =
+    activeQuote.steps[0].sellAsset.chainId !== activeQuote.steps[0].buyAsset.chainId
+  const isFirstHop = hopIndex === 0
 
+  // For Li.Fi, only apply bridge progress for cross-chain bridges (either single or multi) and always on the first hop only.
+  if (swapperName === SwapperName.LIFI && (!isCrossChainSwap || !isFirstHop)) return
+
+  const _message = message as string | undefined
   return progressMap[_message ?? '']
 }
 
@@ -82,8 +96,7 @@ export const useHopProgress = (
   )
 
   const activeQuote = useAppSelector(selectActiveQuote)
-  const activeStep = hopIndex !== undefined ? getHopByIndex(activeQuote, hopIndex) : undefined
-  const swapperName = activeStep?.source as SwapperName | undefined
+  const swapperName = activeQuote?.swapperName
 
   useEffect(() => {
     if (!hopExecutionMetadata?.swap.sellTxHash || hopIndex === undefined || !tradeId) return
@@ -91,6 +104,8 @@ export const useHopProgress = (
     const swapperSpecificProgress = getSwapperSpecificProgress(
       swapperName,
       hopExecutionMetadata.swap.message,
+      hopIndex,
+      activeQuote,
     )
 
     // Prioritize swapper-specific progress if we're able to infer it from the hop status
@@ -123,6 +138,7 @@ export const useHopProgress = (
     hopExecutionMetadata?.swap,
     hopExecutionMetadata?.swap.message,
     swapperName,
+    activeQuote,
   ])
 
   useEffect(() => {

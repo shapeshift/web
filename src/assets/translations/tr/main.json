@@ -2438,8 +2438,6 @@
     "repayNotice": "Teminatınızı geri alabilmeniz için borcunuzun %100'ünü ödemeniz gerekecektir.",
     "feesNotice": "Borcunuzun %100'ünü ödedikten sonra geri alacağınız teminat üzerinden oluşan ücretler",
     "refetchQuote": "Teklifi Yeniden Al",
-    "haltedAlert": "Lending and Savers hizmetleri şu anda THORChain'de duraklatıldı. Bu kesintinin yaklaşık 90 gün sürmesi bekleniyor. Herhangi bir rahatsızlıktan dolayı özür dileriz.",
-    "halterMoreDetails": "Daha fazla bilgi için THORChain'in Discord sayfasını ziyaret edin.",
     "faq": {
       "title": "FAQ",
       "lending": {

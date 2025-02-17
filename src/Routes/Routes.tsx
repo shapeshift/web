@@ -16,9 +16,6 @@ import { useAppSelector } from 'state/store'
 const Flags = makeSuspenseful(
   lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
-const Yat = makeSuspenseful(
-  lazy(() => import('pages/Yat/Yat').then(({ Yat }) => ({ default: Yat }))),
-)
 const NotFound = makeSuspenseful(
   lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
@@ -141,9 +138,6 @@ export const Routes = memo(() => {
   return (
     <Switch location={locationProps}>
       <Route path='/demo'>{renderRedirect}</Route>
-      <Route path='/yat/:eid'>
-        <Yat />
-      </Route>
       <Route path='/connect-mobile-wallet'>
         <MobileConnect />
       </Route>

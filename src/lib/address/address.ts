@@ -11,9 +11,7 @@ import {
   reverseLookupUnstoppableDomain,
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
-import { resolveYat, validateYat } from 'lib/address/yat'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { store } from 'state/store'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -141,15 +139,9 @@ export const parseMaybeUrl = async ({
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
 const getVanityAddressValidatorsByChain = (): VanityAddressValidatorsByChainId => {
-  const flags = store.getState().preferences.featureFlags
-
   return {
     [btcChainId]: [validateUnstoppableDomain],
-    [ethChainId]: [
-      ...(flags.Yat ? [validateYat] : []),
-      validateEnsDomain,
-      validateUnstoppableDomain,
-    ],
+    [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
   }
 }
 
@@ -193,11 +185,9 @@ type VanityAddressResolversByChainId = {
 }
 
 const getVanityResolversByChainId = (): VanityAddressResolversByChainId => {
-  const flags = store.getState().preferences.featureFlags
-
   return {
     [btcChainId]: [resolveUnstoppableDomain],
-    [ethChainId]: [...(flags.Yat ? [resolveYat] : []), resolveEnsDomain, resolveUnstoppableDomain],
+    [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
   }
 }
 

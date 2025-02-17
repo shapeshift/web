@@ -14,22 +14,17 @@ export type ManageAccountsDrawerProps = {
 
 type ManageAccountsStep = 'selectChain' | 'importAccounts'
 
-export const ManageAccountsDrawer = ({
-  isOpen,
-  onClose,
-  chainId: parentSelectedChainId,
-}: ManageAccountsDrawerProps) => {
+export const ManageAccountsDrawer = ({ isOpen, onClose, chainId }: ManageAccountsDrawerProps) => {
   const wallet = useWallet().state.wallet
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
   const handleClose = useCallback(() => {
-    // Only reset step if there's no parent chainId
-    if (parentSelectedChainId === null) {
+    if (chainId === null) {
       setStep('selectChain')
     }
     onClose()
-  }, [onClose, parentSelectedChainId])
+  }, [onClose, chainId])
 
   const handleNext = useCallback(() => {
     if (!wallet) return
@@ -47,22 +42,22 @@ export const ManageAccountsDrawer = ({
 
   // Set the selected chainId from parent if required
   useEffect(() => {
-    setSelectedChainId(parentSelectedChainId)
-  }, [parentSelectedChainId])
+    setSelectedChainId(chainId)
+  }, [chainId])
 
   // Skip chain selection if chainId is already selected by parent
   useEffect(() => {
-    if (step === 'selectChain' && parentSelectedChainId !== null) {
+    if (step === 'selectChain' && chainId !== null) {
       handleNext()
     }
-  }, [parentSelectedChainId, handleNext, step])
+  }, [chainId, handleNext, step])
 
   // Reset the step if the parent chainId is reset
   useEffect(() => {
-    if (parentSelectedChainId === null) {
+    if (chainId === null) {
       setStep('selectChain')
     }
-  }, [parentSelectedChainId])
+  }, [chainId])
 
   const handleSelectChainId = useCallback(
     (chainId: ChainId) => {

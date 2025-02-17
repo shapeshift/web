@@ -343,7 +343,10 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     const accountMetadataByAccountId = accounts.pages.reduce((accumulator, accounts) => {
       const obj = accounts.accountIdWithActivityAndMetadata.reduce(
         (innerAccumulator, { accountId, accountMetadata }) => {
+          // Don't include accounts that are not toggled - they are either only
+          // displayed and not toggled on, or are already in the store
           if (!toggledAccountIds.has(accountId)) return innerAccumulator
+
           return { ...innerAccumulator, [accountId]: accountMetadata }
         },
         {},
@@ -362,7 +365,9 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
       dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
     }
 
+    // Reset toggled state
     setToggledAccountIds(new Set())
+
     setIsSubmitting(false)
   }, [toggledAccountIds, accounts, dispatch, walletDeviceId])
 

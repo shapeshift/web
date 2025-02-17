@@ -68,9 +68,6 @@ type TableRowAccountProps = {
 
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
-// Sane staleTime ensuring getAccount query doesn't go stale immediately, which would end up in a refetch in handleUpdateAccounts,
-// vs. leveraging the existing useQuery() call in the TableRowAccount subscriber
-
 const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])

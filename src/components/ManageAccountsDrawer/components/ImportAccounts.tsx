@@ -73,7 +73,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
-  const { data: account, isLoading: isAccountFetching } = useQuery({
+  const { data: account, isFetching: isAccountFetching } = useQuery({
     ...accountManagement.getAccount(accountId),
     staleTime: GET_ACCOUNT_STALE_TIME,
     // Never garbage collect me, I'm a special snowflake

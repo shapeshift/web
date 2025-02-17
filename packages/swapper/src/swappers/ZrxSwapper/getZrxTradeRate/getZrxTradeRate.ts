@@ -82,6 +82,7 @@ export async function getZrxTradeRate(
     // Slippage protection is always enabled for 0x api v2 unlike api v1 which was only supported on specific pairs.
     slippageTolerancePercentageDecimal,
     rate,
+    swapperName: SwapperName.Zrx,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,

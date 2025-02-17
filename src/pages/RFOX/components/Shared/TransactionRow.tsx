@@ -62,7 +62,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return getTxLink({
       defaultExplorerBaseUrl: asset.explorerTxLink,
       tradeId: txId,
-      name: SwapperName.ArbitrumBridge,
+      stepSource: SwapperName.ArbitrumBridge,
       maybeSafeTx,
       accountId: accountId ?? undefined,
     })

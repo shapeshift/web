@@ -18,6 +18,7 @@ export const setupQuote = () => {
     potentialAffiliateBps: '0',
     slippageTolerancePercentageDecimal: '0',
     rate: '1',
+    swapperName: SwapperName.Test,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,

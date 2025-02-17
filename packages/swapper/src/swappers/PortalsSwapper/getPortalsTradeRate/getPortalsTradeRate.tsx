@@ -139,6 +139,7 @@ export async function getPortalsTradeRate(
       potentialAffiliateBps,
       rate: inputOutputRate,
       slippageTolerancePercentageDecimal,
+      swapperName: SwapperName.Portals,
       steps: [
         {
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info

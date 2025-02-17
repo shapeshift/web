@@ -172,7 +172,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const handleQuoteSelection = useCallback(() => {
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
       onBack && onBack()
-    }, [dispatch, isActive, onBack, quoteData])
+    }, [dispatch, onBack, quoteData])
 
     const feeAsset = useAppSelector(state =>
       selectFeeAssetByChainId(state, sellAsset.chainId ?? ''),

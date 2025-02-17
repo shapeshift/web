@@ -78,7 +78,9 @@ const getSwapperSpecificProgress = ({
   // For Li.Fi, only apply bridge progress for cross-chain bridges (either single or multi) and always on the first hop only.
   if (swapperName === SwapperName.LIFI && (!isCrossChainSwap || !isFirstHop)) return
 
+  // This can technically be string | [string, InterpolationOptions] according to types but it won't
   const _message = message as string | undefined
+
   return progressMap[_message ?? '']
 }
 

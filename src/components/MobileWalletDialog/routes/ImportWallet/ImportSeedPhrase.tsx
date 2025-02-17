@@ -49,7 +49,6 @@ export const ImportSeedPhrase = () => {
   const onSubmit = useCallback(
     async (values: FormValues) => {
       try {
-        // Save the wallet in the mobile app
         const vault = await addWallet({
           mnemonic: values.mnemonic.toLowerCase().trim(),
           label: values.name.trim(),

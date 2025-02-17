@@ -181,7 +181,6 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   const queryClient = useQueryClient()
   const {
     state: { wallet, deviceId: walletDeviceId },
-    dispatch: walletDispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -374,7 +373,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   const handleDoneClick = useCallback(async () => {
     await handleUpdateAccounts()
     onClose()
-  }, [handleUpdateAccounts, onClose, walletDispatch])
+  }, [handleUpdateAccounts, onClose])
 
   const handleDrawerClose = useCallback(() => {
     onClose()

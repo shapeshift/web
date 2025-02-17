@@ -44,10 +44,12 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
+import { DrawerWrapper } from './DrawerWrapper'
 
 export type ImportAccountsProps = {
   chainId: ChainId
   onClose: () => void
+  isOpen: boolean
 }
 
 type TableRowProps = {
@@ -175,7 +177,7 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
   )
 }
 
-export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
+export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -324,8 +326,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
     if (isDemoWallet) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      accountManagementPopover.close()
-      onClose()
       return
     }
 
@@ -417,70 +417,81 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     [],
   )
 
+  const handleDrawerClose = useCallback(() => {
+    onClose()
+    onClose()
+
+    // Do *not* return the promise here, this is a non-async callback and should stay that way, not to slow things down visually.
+    // The accounts adding *should* run in the background.
+    handleDone()
+  }, [onClose, handleDone])
+
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
     return null
   }
 
   return (
-    <DrawerContentWrapper
-      title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
-      description={translate('accountManagement.importAccounts.description')}
-      footer={
-        <>
-          <Button
-            colorScheme='gray'
-            mr={3}
-            onClick={onClose}
-            isDisabled={isSubmitting}
-            _disabled={disabledProps}
-          >
-            {translate('common.cancel')}
-          </Button>
-          <Button
-            colorScheme='blue'
-            onClick={handleDone}
-            isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
-            _disabled={disabledProps}
-          >
-            {isDemoWallet ? translate('common.connectWallet') : translate('common.done')}
-          </Button>
-        </>
-      }
-      body={
-        <>
-          <TableContainer mb={4}>
-            <Table variant='simple' size={tableSize}>
-              <Tbody>
-                {accountRows}
-                {(isFetching || isLoading || autoFetching) && (
-                  <LoadingRow
-                    numRows={
-                      accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
-                        .length ?? 0
-                    }
-                  />
-                )}
-              </Tbody>
-            </Table>
-          </TableContainer>
-          <Tooltip
-            label={translate('accountManagement.importAccounts.loadMoreDisabled')}
-            isDisabled={supportsMultiAccount}
-          >
+    <DrawerWrapper isOpen={isOpen} onClose={handleDrawerClose}>
+      <DrawerContentWrapper
+        title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
+        description={translate('accountManagement.importAccounts.description')}
+        footer={
+          <>
             <Button
               colorScheme='gray'
-              onClick={handleLoadMore}
-              isDisabled={
-                isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
-              }
+              mr={3}
+              onClick={onClose}
+              isDisabled={isSubmitting}
               _disabled={disabledProps}
             >
-              {translate('common.loadMore')}
+              {translate('common.cancel')}
             </Button>
-          </Tooltip>
-        </>
-      }
-    />
+            <Button
+              colorScheme='blue'
+              onClick={handleDone}
+              isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
+              _disabled={disabledProps}
+            >
+              {isDemoWallet ? translate('common.connectWallet') : translate('common.done')}
+            </Button>
+          </>
+        }
+        body={
+          <>
+            <TableContainer mb={4}>
+              <Table variant='simple' size={tableSize}>
+                <Tbody>
+                  {accountRows}
+                  {(isFetching || isLoading || autoFetching) && (
+                    <LoadingRow
+                      numRows={
+                        accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
+                          .length ?? 0
+                      }
+                    />
+                  )}
+                </Tbody>
+              </Table>
+            </TableContainer>
+            <Tooltip
+              label={translate('accountManagement.importAccounts.loadMoreDisabled')}
+              isDisabled={supportsMultiAccount}
+            >
+              <Button
+                colorScheme='gray'
+                onClick={handleLoadMore}
+                isDisabled={
+                  isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
+                }
+                _disabled={disabledProps}
+              >
+                {translate('common.loadMore')}
+              </Button>
+            </Tooltip>
+          </>
+        }
+      />
+    </DrawerWrapper>
   )
 }

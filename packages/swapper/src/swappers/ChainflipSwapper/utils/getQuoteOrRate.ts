@@ -317,6 +317,7 @@ export const getQuoteOrRate = async (
         slippageTolerancePercentageDecimal:
           input.slippageTolerancePercentageDecimal ??
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
+        swapperName: SwapperName.Chainflip,
         steps: [
           {
             buyAmountBeforeFeesCryptoBaseUnit,
@@ -376,6 +377,7 @@ export const getQuoteOrRate = async (
       slippageTolerancePercentageDecimal:
         input.slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
+      swapperName: SwapperName.Chainflip,
       steps: [
         {
           buyAmountBeforeFeesCryptoBaseUnit,

@@ -431,18 +431,12 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     setIsSubmitting(false)
   }, [toggledAccountIds, accounts, dispatch, walletDeviceId])
 
-  const handleDoneClick = useCallback(async () => {
-    await handleUpdateAccounts()
+  const handleCommit = useCallback(() => {
+    // Do not await me, no need to run this on the next tick. This commits the selection in the background and should be turbo fast
+    // This is technically async, but at this stage, most underlying react-queries should already be cached
+    handleUpdateAccounts()
     onClose()
   }, [handleUpdateAccounts, onClose])
-
-  const handleDrawerClose = useCallback(() => {
-    onClose()
-    // Do *not* return the promise here, this is a non-async callback and should stay that way,
-    // not to slow things down visually.
-    // The accounts adding *should* run in the background.
-    handleUpdateAccounts()
-  }, [onClose, handleUpdateAccounts])
 
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null
@@ -476,7 +470,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   }
 
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={handleDrawerClose}>
+    <DrawerWrapper isOpen={isOpen} onClose={handleCommit}>
       <DrawerContentWrapper
         title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
         description={translate('accountManagement.importAccounts.description')}
@@ -493,7 +487,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
             </Button>
             <Button
               colorScheme='blue'
-              onClick={handleDoneClick}
+              onClick={handleCommit}
               isDisabled={isAccountsFetching || isAutoDiscovering || isSubmitting || !accounts}
               _disabled={disabledProps}
             >

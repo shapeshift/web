@@ -1,4 +1,3 @@
-import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
@@ -6,7 +5,7 @@ import axios from 'axios'
 
 type UseChainflipSwapIdArgs = {
   txHash: string | undefined
-  swapperName: SwapSource | undefined
+  swapperName: SwapperName | undefined
 }
 
 type SwapIdResponse = {
@@ -40,7 +39,7 @@ export const useChainflipSwapIdQuery = ({
   return useQuery({
     queryKey: ['chainflipSwapId', { txHash }],
     queryFn:
-      txHash && swapperName?.includes(SwapperName.Chainflip)
+      txHash && swapperName === SwapperName.Chainflip
         ? () =>
             // Yes, this is ugly, just another day in "we're doing inline raw GraphQL queries with http"
             // Note, this is undocumented but is actually the exact same query fragment CF UI uses to go from Tx hash to swap ID (though only a fragment of it,

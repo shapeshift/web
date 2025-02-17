@@ -16,7 +16,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { Dex } from '@shapeshiftoss/unchained-client'
 
 type GetTxBaseUrl = {
-  name?: Dex | SwapSource
+  stepSource?: Dex | SwapSource
   defaultExplorerBaseUrl: string
   isOrder?: boolean
 }
@@ -41,8 +41,12 @@ type GetTxLink = GetTxBaseUrl &
     maybeChainflipSwapId?: string | undefined
   }
 
-export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBaseUrl): string => {
-  switch (name) {
+export const getTxBaseUrl = ({
+  stepSource,
+  defaultExplorerBaseUrl,
+  isOrder,
+}: GetTxBaseUrl): string => {
+  switch (stepSource) {
     case Dex.CowSwap:
     case SwapperName.CowSwap:
       return isOrder ? 'https://explorer.cow.fi/orders/' : 'https://explorer.cow.fi/tx/'
@@ -63,7 +67,7 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBas
 }
 
 export const getTxLink = ({
-  name,
+  stepSource: name,
   defaultExplorerBaseUrl,
   txId,
   tradeId,
@@ -74,7 +78,7 @@ export const getTxLink = ({
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
   const isOrder = !!tradeId
-  const baseUrl = getTxBaseUrl({ name, defaultExplorerBaseUrl, isOrder })
+  const baseUrl = getTxBaseUrl({ stepSource: name, defaultExplorerBaseUrl, isOrder })
 
   if (!isSafeTxHash) {
     switch (name) {

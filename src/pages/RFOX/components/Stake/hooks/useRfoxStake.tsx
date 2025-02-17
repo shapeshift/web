@@ -293,7 +293,7 @@ export const useRfoxStake = ({
     if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountId)) return
 
     return getTxLink({
-      name: undefined,
+      stepSource: undefined,
       defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
       txId: approvalTxHash,
       accountId: stakingAssetAccountId,

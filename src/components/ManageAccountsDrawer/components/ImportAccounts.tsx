@@ -192,14 +192,14 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     [wallet],
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [autoFetching, setAutoFetching] = useState(true)
+  const [isAutoDiscovering, setIsAutoDiscovering] = useState(true)
   const [queryEnabled, setQueryEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
   useEffect(() => {
-    setAutoFetching(true)
+    setIsAutoDiscovering(true)
     setToggledAccountIds(new Set())
   }, [chainId])
 
@@ -247,7 +247,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     if (isMetaMaskMultichainWallet && !isSnapInstalled) return
 
     if (!isLedgerWallet) {
-      setAutoFetching(true)
+      setIsAutoDiscovering(true)
       setQueryEnabled(true)
       return
     }
@@ -256,7 +256,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     // is open on the device. This is to prevent the cache from creating invalid state where the app
     // on the device is not open but the cache thinks it is.
     queryClient.resetQueries({ queryKey: ['accountIdWithActivityAndMetadata'] }).then(() => {
-      setAutoFetching(true)
+      setIsAutoDiscovering(true)
       setQueryEnabled(true)
     })
   }, [queryEnabled, isLedgerWallet, isMetaMaskMultichainWallet, isSnapInstalled, queryClient])
@@ -266,7 +266,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (isAccountsFetching || !autoFetching || !accounts || !queryEnabled) return
+    if (isAccountsFetching || !isAutoDiscovering || !accounts || !queryEnabled) return
 
     // Check if the most recently fetched account has activity
     const isLastAccountActive = accounts.pages[
@@ -282,21 +282,21 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
       fetchNextPage()
     } else {
       // Stop auto-fetching and switch to manual mode
-      setAutoFetching(false)
+      setIsAutoDiscovering(false)
     }
   }, [
     accounts,
     fetchNextPage,
-    autoFetching,
+    isAutoDiscovering,
     isAccountsFetching,
     queryEnabled,
     existingAccountIdsForChain,
   ])
 
   const handleLoadMore = useCallback(() => {
-    if (isAccountsFetching || autoFetching) return
+    if (isAccountsFetching || isAutoDiscovering) return
     fetchNextPage()
-  }, [autoFetching, isAccountsFetching, fetchNextPage])
+  }, [isAutoDiscovering, isAccountsFetching, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {
@@ -433,7 +433,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
             <Button
               colorScheme='blue'
               onClick={handleDoneClick}
-              isDisabled={isAccountsFetching || autoFetching || isSubmitting || !accounts}
+              isDisabled={isAccountsFetching || isAutoDiscovering || isSubmitting || !accounts}
               _disabled={disabledProps}
             >
               {translate('common.done')}
@@ -446,7 +446,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
               <Table variant='simple' size={tableSize}>
                 <Tbody>
                   {accountRows}
-                  {(isAccountsFetching || autoFetching) && (
+                  {(isAccountsFetching || isAutoDiscovering) && (
                     <LoadingRow
                       numRows={
                         accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
@@ -465,7 +465,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
                 colorScheme='gray'
                 onClick={handleLoadMore}
                 isDisabled={
-                  isAccountsFetching || autoFetching || isSubmitting || !supportsMultiAccount
+                  isAccountsFetching || isAutoDiscovering || isSubmitting || !supportsMultiAccount
                 }
                 _disabled={disabledProps}
               >

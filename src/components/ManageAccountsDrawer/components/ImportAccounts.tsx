@@ -15,10 +15,10 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { accountManagement } from 'react-queries/queries/accountManagement'
+import { accountManagement, GET_ACCOUNT_STALE_TIME } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText } from 'components/Text'
@@ -29,6 +29,7 @@ import {
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
+import { fetchPortalsAccount } from 'lib/portals/utils'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import { assets as assetSlice } from 'state/slices/assetsSlice/assetsSlice'
@@ -67,14 +68,20 @@ type TableRowAccountProps = {
 
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
+// Sane staleTime ensuring getAccount query doesn't go stale immediately, which would end up in a refetch in handleUpdateAccounts,
+// vs. leveraging the existing useQuery() call in the TableRowAccount subscriber
+
 const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
-  const { data: account, isLoading: isAccountFetching } = useQuery(
-    accountManagement.getAccount(accountId),
-  )
+  const { data: account, isLoading: isAccountFetching } = useQuery({
+    ...accountManagement.getAccount(accountId),
+    staleTime: GET_ACCOUNT_STALE_TIME,
+    // Never garbage collect me, I'm a special snowflake
+    gcTime: Infinity,
+  })
 
   const assetBalanceCryptoPrecision = useMemo(() => {
     if (!account) return '0'
@@ -204,6 +211,26 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   // Selectors
   const nftCollectionsById = useAppSelector(selectNftCollections)
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+
+  // Prefetch Portals account data, ish. At this point, we already have querydata for all *enabled* AccountIds,
+  // so this will really fetch it for the newly toggled ones
+  useQueries({
+    queries: Array.from(toggledAccountIds).map(accountId => {
+      const { chainId, account: pubkey } = fromAccountId(accountId)
+
+      return {
+        queryFn: () => fetchPortalsAccount(chainId, pubkey),
+        queryKey: ['portalsAccount', chainId, pubkey],
+        // Assume that this is static as far as our lifecycle is concerned.
+        // This may seem like a dangerous stretch, but it pragmatically is not:
+        // This is fetched for a given account fetch, and the only flow there would be a refetch would really be if the user disabled an account, then re-enabled it.
+        // It's an uncommon enough flow that we could compromise on it and make the experience better for all other cases by leveraging cached data.
+        // Most importantly, even if a user were to do this, the worst case senario wouldn't be one: all we fetch here is LP tokens meta, which won't change
+        // the second time around and not the 420th time around either
+        staleTime: Infinity,
+      }
+    }),
+  })
 
   const chainNamespaceDisplayName = asset?.networkName ?? ''
 
@@ -344,8 +371,13 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
           return
         }
 
-        // "Fetch" the query leveraging the existing cached data from the useQuery() listener above (<TableRowAccount />)
-        const account = await queryClient.fetchQuery(accountManagement.getAccount(accountId))
+        // "Fetch" the query leveraging the existing cached data
+        const account = await queryClient.fetchQuery({
+          ...accountManagement.getAccount(accountId),
+          staleTime: GET_ACCOUNT_STALE_TIME,
+          // Never garbage collect me, I'm a special snowflake
+          gcTime: Infinity,
+        })
 
         const data = await (async (): Promise<Portfolio> => {
           const { chainId, account: pubkey } = fromAccountId(accountId)

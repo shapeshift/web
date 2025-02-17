@@ -426,7 +426,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     setToggledAccountIds(new Set())
 
     setIsSubmitting(false)
-  }, [toggledAccountIds, accounts, dispatch, walletDeviceId])
+  }, [toggledAccountIds, accounts, dispatch, walletDeviceId, nftCollectionsById, queryClient])
 
   const handleCommit = useCallback(() => {
     // Do not await me, no need to run this on the next tick. This commits the selection in the background and should be turbo fast

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 
-import { DrawerWrapper } from './components/DrawerWrapper'
 import { ImportAccounts } from './components/ImportAccounts'
 import { SelectChain } from './components/SelectChain'
 
@@ -25,9 +24,11 @@ export const ManageAccountsDrawer = ({
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
   const handleClose = useCallback(() => {
-    setStep('selectChain')
+    if (parentSelectedChainId === null) {
+      setStep('selectChain')
+    }
     onClose()
-  }, [onClose])
+  }, [onClose, parentSelectedChainId])
 
   const handleNext = useCallback(() => {
     if (!wallet) return
@@ -73,18 +74,20 @@ export const ManageAccountsDrawer = ({
   const drawerContent = useMemo(() => {
     switch (step) {
       case 'selectChain':
-        return <SelectChain onSelectChainId={handleSelectChainId} onClose={handleClose} />
+        return (
+          <SelectChain
+            onSelectChainId={handleSelectChainId}
+            onClose={handleClose}
+            isOpen={isOpen}
+          />
+        )
       case 'importAccounts':
         if (!selectedChainId) return null
-        return <ImportAccounts chainId={selectedChainId} onClose={handleClose} />
+        return <ImportAccounts chainId={selectedChainId} onClose={handleClose} isOpen={isOpen} />
       default:
         assertUnreachable(step)
     }
-  }, [step, handleSelectChainId, handleClose, selectedChainId])
+  }, [step, handleSelectChainId, handleClose, selectedChainId, isOpen])
 
-  return (
-    <DrawerWrapper isOpen={isOpen} onClose={handleClose}>
-      {drawerContent}
-    </DrawerWrapper>
-  )
+  return drawerContent
 }

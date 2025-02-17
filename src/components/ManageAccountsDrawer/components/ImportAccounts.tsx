@@ -22,12 +22,10 @@ import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -44,10 +42,12 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
+import { DrawerWrapper } from './DrawerWrapper'
 
 export type ImportAccountsProps = {
   chainId: ChainId
   onClose: () => void
+  isOpen: boolean
 }
 
 type TableRowProps = {
@@ -175,13 +175,12 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
   )
 }
 
-export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
+export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const {
-    state: { wallet, isDemoWallet, deviceId: walletDeviceId },
-    dispatch: walletDispatch,
+    state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -195,7 +194,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const [queryEnabled, setQueryEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
-  const accountManagementPopover = useModal('manageAccounts')
 
   // reset component state when chainId changes
   useEffect(() => {
@@ -231,7 +229,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   })
 
   const supportsMultiAccount = useMemo(() => {
-    if (isDemoWallet) return false
     if (!wallet?.supportsBip44Accounts()) return false
     if (!accounts) return false
     if (!isMetaMaskMultichainWallet) return true
@@ -242,7 +239,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       wallet,
       isSnapInstalled: !!isSnapInstalled,
     })
-  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled, isDemoWallet])
+  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled])
 
   useEffect(() => {
     if (queryEnabled) return
@@ -316,16 +313,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [])
 
-  const handleDone = useCallback(async () => {
+  const handleUpdateAccounts = useCallback(async () => {
     if (!walletDeviceId) {
       console.error('Missing walletDeviceId')
-      return
-    }
-
-    if (isDemoWallet) {
-      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      accountManagementPopover.close()
-      onClose()
       return
     }
 
@@ -378,18 +368,20 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     setToggledAccountIds(new Set())
 
     setIsSubmitting(false)
+  }, [toggledAccountIds, accounts, dispatch, walletDeviceId])
 
+  const handleDoneClick = useCallback(async () => {
+    await handleUpdateAccounts()
     onClose()
-  }, [
-    toggledAccountIds,
-    accounts,
-    dispatch,
-    onClose,
-    walletDeviceId,
-    isDemoWallet,
-    walletDispatch,
-    accountManagementPopover,
-  ])
+  }, [handleUpdateAccounts, onClose])
+
+  const handleDrawerClose = useCallback(() => {
+    onClose()
+    // Do *not* return the promise here, this is a non-async callback and should stay that way,
+    // not to slow things down visually.
+    // The accounts adding *should* run in the background.
+    handleUpdateAccounts()
+  }, [onClose, handleUpdateAccounts])
 
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null
@@ -423,64 +415,66 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }
 
   return (
-    <DrawerContentWrapper
-      title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
-      description={translate('accountManagement.importAccounts.description')}
-      footer={
-        <>
-          <Button
-            colorScheme='gray'
-            mr={3}
-            onClick={onClose}
-            isDisabled={isSubmitting}
-            _disabled={disabledProps}
-          >
-            {translate('common.cancel')}
-          </Button>
-          <Button
-            colorScheme='blue'
-            onClick={handleDone}
-            isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
-            _disabled={disabledProps}
-          >
-            {isDemoWallet ? translate('common.connectWallet') : translate('common.done')}
-          </Button>
-        </>
-      }
-      body={
-        <>
-          <TableContainer mb={4}>
-            <Table variant='simple' size={tableSize}>
-              <Tbody>
-                {accountRows}
-                {(isFetching || isLoading || autoFetching) && (
-                  <LoadingRow
-                    numRows={
-                      accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
-                        .length ?? 0
-                    }
-                  />
-                )}
-              </Tbody>
-            </Table>
-          </TableContainer>
-          <Tooltip
-            label={translate('accountManagement.importAccounts.loadMoreDisabled')}
-            isDisabled={supportsMultiAccount}
-          >
+    <DrawerWrapper isOpen={isOpen} onClose={handleDrawerClose}>
+      <DrawerContentWrapper
+        title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
+        description={translate('accountManagement.importAccounts.description')}
+        footer={
+          <>
             <Button
               colorScheme='gray'
-              onClick={handleLoadMore}
-              isDisabled={
-                isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
-              }
+              mr={3}
+              onClick={onClose}
+              isDisabled={isSubmitting}
               _disabled={disabledProps}
             >
-              {translate('common.loadMore')}
+              {translate('common.cancel')}
             </Button>
-          </Tooltip>
-        </>
-      }
-    />
+            <Button
+              colorScheme='blue'
+              onClick={handleDoneClick}
+              isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
+              _disabled={disabledProps}
+            >
+              {translate('common.done')}
+            </Button>
+          </>
+        }
+        body={
+          <>
+            <TableContainer mb={4}>
+              <Table variant='simple' size={tableSize}>
+                <Tbody>
+                  {accountRows}
+                  {(isFetching || isLoading || autoFetching) && (
+                    <LoadingRow
+                      numRows={
+                        accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
+                          .length ?? 0
+                      }
+                    />
+                  )}
+                </Tbody>
+              </Table>
+            </TableContainer>
+            <Tooltip
+              label={translate('accountManagement.importAccounts.loadMoreDisabled')}
+              isDisabled={supportsMultiAccount}
+            >
+              <Button
+                colorScheme='gray'
+                onClick={handleLoadMore}
+                isDisabled={
+                  isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
+                }
+                _disabled={disabledProps}
+              >
+                {translate('common.loadMore')}
+              </Button>
+            </Tooltip>
+          </>
+        }
+      />
+    </DrawerWrapper>
   )
 }

@@ -57,7 +57,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const tradeQuoteFirstHop = activeTradeQuote.steps[0]
   const tradeQuoteSecondHop = activeTradeQuote.steps[1]
   const activeTradeId = activeTradeQuote.id
-  const swapperName = tradeQuoteFirstHop?.source
+  const stepSource = tradeQuoteFirstHop?.source
 
   const firstHopStreamingProgress = useStreamingProgress({
     hopIndex: 0,
@@ -89,12 +89,16 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
 
     return isFirstHopBridge
-      ? translate('trade.transactionTitle.bridge', { sellChainName, buyChainName, swapperName })
-      : translate('trade.transactionTitle.swap', { sellChainName, swapperName })
+      ? translate('trade.transactionTitle.bridge', {
+          sellChainName,
+          buyChainName,
+          swapperName: stepSource,
+        })
+      : translate('trade.transactionTitle.swap', { sellChainName, swapperName: stepSource })
   }, [
     chainAdapterManager,
     isFirstHopBridge,
-    swapperName,
+    stepSource,
     tradeQuoteFirstHop?.buyAsset.chainId,
     tradeQuoteFirstHop?.sellAsset.chainId,
     translate,
@@ -106,12 +110,16 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
     const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
     return isLastHopBridge
-      ? translate('trade.transactionTitle.bridge', { sellChainName, buyChainName, swapperName })
-      : translate('trade.transactionTitle.swap', { sellChainName, swapperName })
+      ? translate('trade.transactionTitle.bridge', {
+          sellChainName,
+          buyChainName,
+          swapperName: stepSource,
+        })
+      : translate('trade.transactionTitle.swap', { sellChainName, swapperName: stepSource })
   }, [
     chainAdapterManager,
     isLastHopBridge,
-    swapperName,
+    stepSource,
     tradeQuoteSecondHop?.buyAsset.chainId,
     tradeQuoteSecondHop?.sellAsset.chainId,
     translate,
@@ -259,12 +267,18 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             txHash={firstHopAllowanceReset.txHash}
             explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
             accountId={firstHopSellAccountId}
-            swapperName={undefined} // no swapper base URL here, this is an allowance Tx
+            stepSource={undefined} // no swapper base URL here, this is an allowance Tx
+            quoteSwapperName={activeTradeQuote.swapperName}
           />
         )}
       </Flex>
     )
-  }, [firstHopAllowanceReset.txHash, firstHopSellAccountId, tradeQuoteFirstHop])
+  }, [
+    firstHopAllowanceReset.txHash,
+    firstHopSellAccountId,
+    tradeQuoteFirstHop,
+    activeTradeQuote.swapperName,
+  ])
 
   const firstHopAllowanceApprovalTitle = useMemo(() => {
     const content = (() => {
@@ -293,7 +307,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
               txHash={firstHopAllowanceApproval.txHash}
               explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
               accountId={firstHopSellAccountId}
-              swapperName={undefined} // no swapper base URL here, this is an allowance Tx
+              stepSource={undefined} // no swapper base URL here, this is an allowance Tx
+              quoteSwapperName={activeTradeQuote.swapperName}
             />
           )}
         </>
@@ -310,6 +325,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSellAccountId,
     hopExecutionState,
     tradeQuoteFirstHop,
+    activeTradeQuote.swapperName,
     translate,
   ])
 
@@ -317,14 +333,14 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         <Text translation='trade.permit2Eip712.title' />
-        <Tooltip label={translate('trade.permit2Eip712.tooltip', { swapperName })}>
+        <Tooltip label={translate('trade.permit2Eip712.tooltip', { swapperName: stepSource })}>
           <Box ml={1}>
             <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
           </Box>
         </Tooltip>
       </Flex>
     )
-  }, [swapperName, translate])
+  }, [stepSource, translate])
 
   const firstHopActionTitle = useMemo(() => {
     return (
@@ -348,7 +364,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   txHash={firstHopSwap.sellTxHash}
                   explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
                   accountId={firstHopSellAccountId}
-                  swapperName={swapperName}
+                  stepSource={stepSource}
+                  quoteSwapperName={activeTradeQuote.swapperName}
                 />
               )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
@@ -357,7 +374,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   txHash={firstHopSwap.buyTxHash}
                   explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
                   accountId={firstHopSellAccountId}
-                  swapperName={swapperName}
+                  stepSource={stepSource}
+                  quoteSwapperName={activeTradeQuote.swapperName}
                 />
               )}
             </VStack>
@@ -371,7 +389,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
     firstHopSwap.sellTxHash,
-    swapperName,
+    stepSource,
+    activeTradeQuote.swapperName,
     tradeQuoteFirstHop,
   ])
 
@@ -384,12 +403,18 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             txHash={lastHopAllowanceReset.txHash}
             explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
             accountId={lastHopSellAccountId}
-            swapperName={undefined} // no swapper base URL here, this is an allowance Tx
+            stepSource={undefined} // no swapper base URL here, this is an allowance Tx
+            quoteSwapperName={activeTradeQuote.swapperName}
           />
         )}
       </Flex>
     )
-  }, [lastHopAllowanceReset.txHash, lastHopSellAccountId, tradeQuoteSecondHop])
+  }, [
+    lastHopAllowanceReset.txHash,
+    lastHopSellAccountId,
+    tradeQuoteSecondHop,
+    activeTradeQuote.swapperName,
+  ])
 
   const lastHopAllowanceApprovalTitle = useMemo(() => {
     return (
@@ -411,7 +436,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                 txHash={lastHopAllowanceApproval.txHash}
                 explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
-                swapperName={undefined} // no swapper base URL here, this is an allowance Tx
+                stepSource={undefined} // no swapper base URL here, this is an allowance Tx
+                quoteSwapperName={activeTradeQuote.swapperName}
               />
             )}
           </>
@@ -423,6 +449,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopPermit2.isRequired,
     lastHopSellAccountId,
     tradeQuoteSecondHop,
+    activeTradeQuote.swapperName,
     translate,
   ])
 
@@ -448,7 +475,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   txHash={lastHopSwap.sellTxHash}
                   explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
                   accountId={lastHopSellAccountId}
-                  swapperName={swapperName}
+                  stepSource={stepSource}
+                  quoteSwapperName={activeTradeQuote.swapperName}
                 />
               )}
               {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
@@ -456,7 +484,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   txHash={lastHopSwap.buyTxHash}
                   explorerBaseUrl={tradeQuoteSecondHop.buyAsset.explorerTxLink}
                   accountId={lastHopSellAccountId}
-                  swapperName={swapperName}
+                  stepSource={stepSource}
+                  quoteSwapperName={activeTradeQuote.swapperName}
                 />
               )}
             </VStack>
@@ -470,7 +499,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopSwap.buyTxHash,
     lastHopSwap.sellTxHash,
     secondHopStreamingProgress,
-    swapperName,
+    stepSource,
+    activeTradeQuote.swapperName,
     tradeQuoteSecondHop,
   ])
 

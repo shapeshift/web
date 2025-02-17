@@ -30,8 +30,11 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { isUtxoAccountId } from 'lib/utils/utxo'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+import { selectNftCollections } from 'state/apis/nft/selectors'
+import { assets as assetSlice } from 'state/slices/assetsSlice/assetsSlice'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { accountIdToLabel, accountToPortfolio, makeAssets } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdsByChainId,
   selectFeeAssetByChainId,
@@ -178,24 +181,31 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
 }
 
 export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps) => {
+  // State
+  const [isAutoDiscovering, setIsAutoDiscovering] = useState(true)
+  const [queryEnabled, setQueryEnabled] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
+
+  // Misc
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const {
     state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
-  const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const { isSnapInstalled } = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const isMetaMaskMultichainWallet = useMemo(
     () => wallet instanceof MetaMaskMultiChainHDWallet,
     [wallet],
   )
+
+  // Selectors
+  const nftCollectionsById = useAppSelector(selectNftCollections)
+  const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [isAutoDiscovering, setIsAutoDiscovering] = useState(true)
-  const [queryEnabled, setQueryEnabled] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
   useEffect(() => {
@@ -333,9 +343,28 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
         if (isEnabled) {
           return
         }
-        await dispatch(
-          portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }),
-        )
+
+        // "Fetch" the query leveraging the existing cached data from the useQuery() listener above (<TableRowAccount />)
+        const account = await queryClient.fetchQuery(accountManagement.getAccount(accountId))
+
+        const data = await (async (): Promise<Portfolio> => {
+          const { chainId, account: pubkey } = fromAccountId(accountId)
+          const state = store.getState()
+          const portfolioAccounts = { [pubkey]: account }
+          const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
+          const assetIds = state.assets.ids
+
+          // upsert placeholder assets
+          if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
+
+          return accountToPortfolio({
+            portfolioAccounts,
+            assetIds: assetIds.concat(assets?.ids ?? []),
+            nftCollectionsById,
+          })
+        })()
+
+        dispatch(portfolio.actions.upsertPortfolio(data))
       }),
     )
 

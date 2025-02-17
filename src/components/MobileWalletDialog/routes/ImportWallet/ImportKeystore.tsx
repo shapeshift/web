@@ -60,7 +60,6 @@ export const ImportKeystore = () => {
       try {
         await vault.loadFromKeystore(keystoreFile, values.keystorePassword)
       } catch (e) {
-        alert(e)
         setError('keystorePassword', {
           type: 'manual',
           message: translate('walletProvider.shapeShift.import.invalidKeystorePassword'),

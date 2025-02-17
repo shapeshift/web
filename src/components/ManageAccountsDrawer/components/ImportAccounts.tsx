@@ -69,7 +69,9 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
-  const { data: account, isLoading } = useQuery(accountManagement.getAccount(accountId))
+  const { data: account, isLoading: isAccountFetching } = useQuery(
+    accountManagement.getAccount(accountId),
+  )
 
   const assetBalanceCryptoPrecision = useMemo(() => {
     if (!account) return '0'
@@ -88,7 +90,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
         </InlineCopyButton>
       </Td>
       <Td textAlign='right'>
-        {isLoading ? (
+        {isAccountFetching ? (
           <Skeleton height='24px' width='100%' />
         ) : (
           <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
@@ -205,8 +207,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   const {
     data: accounts,
     fetchNextPage,
-    isLoading,
-    isFetching,
+    isFetching: isAccountsFetching,
   } = useInfiniteQuery({
     queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
     queryFn: async ({ pageParam: accountNumber }) => {
@@ -265,7 +266,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (isFetching || isLoading || !autoFetching || !accounts || !queryEnabled) return
+    if (isAccountsFetching || !autoFetching || !accounts || !queryEnabled) return
 
     // Check if the most recently fetched account has activity
     const isLastAccountActive = accounts.pages[
@@ -287,16 +288,15 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     accounts,
     fetchNextPage,
     autoFetching,
-    isFetching,
-    isLoading,
+    isAccountsFetching,
     queryEnabled,
     existingAccountIdsForChain,
   ])
 
   const handleLoadMore = useCallback(() => {
-    if (isFetching || isLoading || autoFetching) return
+    if (isAccountsFetching || autoFetching) return
     fetchNextPage()
-  }, [autoFetching, isFetching, isLoading, fetchNextPage])
+  }, [autoFetching, isAccountsFetching, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {
@@ -433,7 +433,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
             <Button
               colorScheme='blue'
               onClick={handleDoneClick}
-              isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
+              isDisabled={isAccountsFetching || autoFetching || isSubmitting || !accounts}
               _disabled={disabledProps}
             >
               {translate('common.done')}
@@ -446,7 +446,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
               <Table variant='simple' size={tableSize}>
                 <Tbody>
                   {accountRows}
-                  {(isFetching || isLoading || autoFetching) && (
+                  {(isAccountsFetching || autoFetching) && (
                     <LoadingRow
                       numRows={
                         accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
@@ -465,7 +465,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
                 colorScheme='gray'
                 onClick={handleLoadMore}
                 isDisabled={
-                  isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
+                  isAccountsFetching || autoFetching || isSubmitting || !supportsMultiAccount
                 }
                 _disabled={disabledProps}
               >

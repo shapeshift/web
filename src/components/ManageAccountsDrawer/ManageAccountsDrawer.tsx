@@ -24,9 +24,12 @@ export const ManageAccountsDrawer = ({
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
   const handleClose = useCallback(() => {
-    setStep('selectChain')
+    // Only reset step if there's no parent chainId
+    if (parentSelectedChainId === null) {
+      setStep('selectChain')
+    }
     onClose()
-  }, [onClose])
+  }, [onClose, parentSelectedChainId])
 
   const handleNext = useCallback(() => {
     if (!wallet) return

@@ -488,7 +488,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
             <Button
               colorScheme='blue'
               onClick={handleCommit}
-              isDisabled={isAccountsFetching || isAutoDiscovering || isSubmitting || !accounts}
+              isDisabled={isSubmitting || !accounts}
               _disabled={disabledProps}
             >
               {translate('common.done')}

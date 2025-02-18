@@ -14,12 +14,9 @@ import { useAppSelector } from 'state/store'
 import { GlobalFilter } from './GlobalFilter'
 import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
-import type { ProviderTableProps } from './ProviderTable'
-import { WalletProviderTable } from './WalletProviderTable'
 
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
-  providerTableProps?: Omit<ProviderTableProps, 'searchQuery'>
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
   header?: JSX.Element
@@ -36,7 +33,6 @@ const tabListPaddingLeft = { base: 6, md: 0 }
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
   positionTableProps,
-  providerTableProps,
   includeEarnBalances,
   includeRewardsBalances,
   header,
@@ -66,9 +62,6 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
         >
           <Flex flex={flexPropsMd1} width={widthBaseFull}>
             <TabList m={0} width={widthMdAuto} pl={tabListPaddingLeft}>
-              <Tab flex={flexPropsMdAuto} me={2}>
-                {translate('defi.byProvider')}
-              </Tab>
               <Tab flex={flexPropsMdAuto}>{translate('defi.byAsset')}</Tab>
             </TabList>
           </Flex>
@@ -84,14 +77,6 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           </Flex>
         </Flex>
         <TabPanels>
-          <TabPanel px={0}>
-            <WalletProviderTable
-              chainId={selectedChainId}
-              searchQuery={searchQuery}
-              includeEarnBalances={Boolean(includeEarnBalances)}
-              includeRewardsBalances={Boolean(includeRewardsBalances)}
-            />
-          </TabPanel>
           <TabPanel px={0}>
             <PositionTable
               chainId={selectedChainId}

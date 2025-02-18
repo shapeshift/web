@@ -1,6 +1,8 @@
 import type { Keystore } from '@shapeshiftoss/hdwallet-native-vault'
-import { decoder, encoder } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
 import { blake2bHex } from 'blakejs'
+
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
 
 export async function decryptFromKeystore(keystore: Keystore, password: string): Promise<string> {
   const { cipher, cipherparams, ciphertext, kdf, kdfparams, mac } = keystore.crypto

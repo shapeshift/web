@@ -195,6 +195,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   >()
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowInfoAcknowledgement, setShouldShowInfoAcknowledgement] = useState(false)
+  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
 
   // Virtual as in, these are the amounts if depositing symetrically. But a user may deposit asymetrically, so these are not the *actual* amounts
   // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
@@ -1608,6 +1609,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         {incompleteAlert}
         {maybeOpportunityNotSupportedExplainer}
         {maybeAlert}
+        {isThorchainPoolsInstable ? (
+          <Alert status='warning' variant='subtle' mx={-2} width='auto'>
+            <AlertIcon />
+            <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
+          </Alert>
+        ) : null}
 
         <ButtonWalletPredicate
           isValidWallet={Boolean(walletSupportsOpportunity)}

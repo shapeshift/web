@@ -7,7 +7,6 @@ import {
   Icon,
   ModalBody,
   ModalHeader,
-  Tag,
   Text as CText,
   useColorModeValue,
   VStack,

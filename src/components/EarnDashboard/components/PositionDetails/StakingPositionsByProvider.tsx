@@ -171,6 +171,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                   {subText.join(' • ')}
                 </RawText>
               </Flex>
+              {row.original.isReadOnly && <ExternalLinkIcon boxSize={3} />}
             </Flex>
           )
         },

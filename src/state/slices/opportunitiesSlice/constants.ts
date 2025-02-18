@@ -118,6 +118,6 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     provider: DefiProvider.ThorchainSavers,
     icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/thorchain/info/logo.png',
     color: '#0CDBE0',
-    url: 'https://app.shapeshift.com',
+    url: 'https://x.com/thorchain',
   },
 }

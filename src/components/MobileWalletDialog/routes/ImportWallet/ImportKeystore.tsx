@@ -12,7 +12,9 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { FileUpload } from 'components/FileUpload/FileUpload'
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
+import { decryptFromKeystore } from 'components/MobileWalletDialog/utils'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
@@ -25,7 +27,6 @@ import {
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { addWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { FileUpload } from 'context/WalletProvider/NativeWallet/components/NativeImportKeystore'
 import type { NativeWalletValues } from 'context/WalletProvider/NativeWallet/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -49,37 +50,25 @@ export const ImportKeystore = () => {
 
   const onSubmit = useCallback(
     async (values: FieldValues) => {
-      const { Vault } = await import('@shapeshiftoss/hdwallet-native-vault')
-      const vault = await Vault.create(undefined, false)
-      vault.meta.set('createdAt', Date.now())
-
       if (!keystoreFile) {
         throw new Error('No keystore uploaded')
       }
+      const parsedKeystore = JSON.parse(keystoreFile)
 
       try {
-        await vault.loadFromKeystore(keystoreFile, values.keystorePassword)
-      } catch (e) {
-        setError('keystorePassword', {
-          type: 'manual',
-          message: translate('walletProvider.shapeShift.import.invalidKeystorePassword'),
-        })
-        return
-      }
-
-      try {
-        const mnemonic = await vault.unwrap().get('#mnemonic')
+        const mnemonic = await decryptFromKeystore(parsedKeystore, values.keystorePassword)
 
         const revocableVault = await addWallet({
           mnemonic,
           label: values.name.trim(),
         })
-
-        vault.revoke()
         history.push(MobileWalletDialogRoutes.ImportSuccess, { vault: revocableVault })
         mixpanel?.track(MixPanelEvent.NativeImportKeystore)
       } catch (e) {
-        alert(e)
+        setError('keystorePassword', {
+          type: 'manual',
+          message: translate('walletProvider.shapeShift.import.invalidKeystorePassword'),
+        })
       }
     },
     [history, keystoreFile, mixpanel, setError, translate],

@@ -27,7 +27,7 @@ const alignItems = { base: 'flex-start', md: 'center' }
 export const PoolsHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
-  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarnings')
+  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
   const plusIcon = useMemo(() => <FaPlus />, [])
   const NavItems: TabItem[] = useMemo(() => {
     return [

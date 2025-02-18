@@ -78,7 +78,7 @@ export type FeatureFlags = {
   FoxPageFoxWifHatSection: boolean
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
-  ThorchainPoolsInstabilityWarnings: boolean
+  ThorchainPoolsInstabilityWarning: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -180,7 +180,7 @@ const initialState: Preferences = {
     FoxPageFoxWifHatSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
     NewLimitFlow: getConfig().REACT_APP_FEATURE_NEW_LIMIT_FLOW,
     ThorchainSwapperVolatilityAck: getConfig().REACT_APP_FEATURE_THORCHAIN_SWAPPER_ACK,
-    ThorchainPoolsInstabilityWarnings:
+    ThorchainPoolsInstabilityWarning:
       getConfig().REACT_APP_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS,
   },
   selectedLocale: simpleLocale(),

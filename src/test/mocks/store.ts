@@ -144,7 +144,7 @@ export const mockStore: ReduxState = {
       FoxPageFoxWifHatSection: false,
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
-      ThorchainPoolsInstabilityWarnings: false,
+      ThorchainPoolsInstabilityWarning: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

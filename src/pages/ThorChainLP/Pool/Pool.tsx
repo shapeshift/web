@@ -101,7 +101,7 @@ export const Pool = () => {
   const params = useParams<MatchParams>()
   const translate = useTranslate()
   const history = useHistory()
-  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarnings')
+  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
 
   const assetId = useMemo(() => {
     return poolAssetIdToAssetId(params.poolAssetId ?? '')

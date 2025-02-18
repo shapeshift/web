@@ -18,7 +18,7 @@ import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
@@ -46,10 +46,11 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const dottedTitleBackground = useColorModeValue('#f7fafc', '#2e3236')
   const [testState, setTestState] = useState<TestState | null>(null)
   const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
-  const [testCount, setTestCount] = useState<number>(0)
+  const testCount = useRef(0)
   const [revoker] = useState(new (Revocable(class {}))())
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
+  const isInitiallyShuffled = useRef(false)
 
   const backgroundDottedSx = useMemo(
     () => ({
@@ -78,13 +79,13 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const { vault, isLegacyWallet } = location.state
 
   const shuffleMnemonic = useCallback(async () => {
-    if (testCount >= TEST_COUNT_REQUIRED) return
+    if (testCount.current >= TEST_COUNT_REQUIRED) return
     try {
       const mnemonic = await vault.unwrap().get('#mnemonic')
       const words = mnemonic.split(' ')
       let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
-      const targetWordIndex = shuffledNumbers[testCount]
+      const targetWordIndex = shuffledNumbers[testCount.current]
       const targetWord = words[targetWordIndex]
       randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
       randomWords.push(targetWord)
@@ -109,26 +110,29 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   }, [setTestState, shuffledNumbers, vault, revoker, testCount])
 
   useEffect(() => {
-    shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
+    if (!isInitiallyShuffled.current) {
+      shuffleMnemonic()
+      isInitiallyShuffled.current = true
+    }
   }, [shuffleMnemonic])
 
-  useEffect(() => {
-    // If we've passed the required number of tests, then we can proceed
-    if (testCount >= TEST_COUNT_REQUIRED) {
-      vault.seal()
-      history.replace('/native/password', { vault })
-      return () => {
-        // Make sure the component is completely unmounted before we revoke the mnemonic
-        setTimeout(() => revoker.revoke(), 250)
-      }
-    }
-  }, [testCount, history, revoker, vault])
+  const handleBackupComplete = useCallback(() => {
+    vault.seal()
+    history.replace('/native/password', { vault })
+    setTimeout(() => revoker.revoke(), 250)
+  }, [history, revoker, vault])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
-      setTestCount(testCount + 1)
+      testCount.current++
+
+      if (testCount.current >= TEST_COUNT_REQUIRED) {
+        handleBackupComplete()
+      } else {
+        shuffleMnemonic()
+      }
     } else {
-      shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
+      shuffleMnemonic()
     }
   }
 
@@ -217,7 +221,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
                 w='16px'
                 h='16px'
                 borderRadius='full'
-                bg={index < testCount ? 'blue.500' : 'transparent'}
+                bg={index < testCount.current ? 'blue.500' : 'transparent'}
                 borderWidth={1}
                 borderStyle='dashed'
                 borderColor={borderColor}
@@ -225,7 +229,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
                 alignItems='center'
                 justifyContent='center'
               >
-                {index < testCount && <Icon as={FaCheck} boxSize='8px' color='white' />}
+                {index < testCount.current && <Icon as={FaCheck} boxSize='8px' color='white' />}
               </Box>
             ))}
           </Flex>

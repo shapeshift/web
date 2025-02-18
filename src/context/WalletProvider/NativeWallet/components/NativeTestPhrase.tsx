@@ -144,7 +144,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   return !testState ? null : (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.testPhrase.header'} />
+        <Text translation={'modals.shapeShift.backupPassphrase.title'} />
       </ModalHeader>
       <ModalBody>
         <Text
@@ -168,14 +168,14 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
               bg={dottedTitleBackground}
             >
               <Text as='span' translation={'walletProvider.shapeShift.testPhrase.body'} />{' '}
-              <Tag colorScheme='blue'>
+              <Box as='span' color='blue.500' fontWeight='bold'>
                 {translate(
                   `walletProvider.shapeShift.testPhrase.${
                     testState.targetWordIndex + 1
                   }${ordinalSuffix(testState.targetWordIndex + 1)}`,
                 )}
-                <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
-              </Tag>
+              </Box>
+              <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
             </CText>
 
             <Box

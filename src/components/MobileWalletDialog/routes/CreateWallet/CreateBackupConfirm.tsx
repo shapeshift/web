@@ -25,7 +25,7 @@ const makeOrdinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
 }
 
-const TEST_COUNT_REQUIRED = 4
+const TEST_COUNT_REQUIRED = 3
 
 export const CreateBackupConfirm = () => {
   const history = useHistory()

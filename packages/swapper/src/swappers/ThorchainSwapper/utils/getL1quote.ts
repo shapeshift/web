@@ -283,6 +283,7 @@ export const getL1Quote = async (
               vault,
               expiry: quote.expiry,
               tradeType: tradeType ?? TradeType.L1ToL1,
+              swapperName: SwapperName.Thorchain,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -395,6 +396,7 @@ export const getL1Quote = async (
                 ? undefined
                 : slippageTolerancePercentageDecimal,
               rate,
+              swapperName: SwapperName.Thorchain,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -490,6 +492,7 @@ export const getL1Quote = async (
                 : slippageTolerancePercentageDecimal,
               rate,
               tradeType: tradeType ?? TradeType.L1ToL1,
+              swapperName: SwapperName.Thorchain,
               steps: [
                 {
                   estimatedExecutionTimeMs,

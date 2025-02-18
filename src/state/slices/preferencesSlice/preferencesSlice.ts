@@ -23,7 +23,6 @@ export type FeatureFlags = {
   Base: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
-  Yat: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
   SaversVaults: boolean
@@ -126,7 +125,6 @@ const initialState: Preferences = {
     Base: getConfig().REACT_APP_FEATURE_BASE,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
-    Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,

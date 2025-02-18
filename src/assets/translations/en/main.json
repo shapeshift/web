@@ -1899,7 +1899,7 @@
         "skip": "Skip",
         "shapeshiftWallet": "ShapeShift Wallet",
         "createNewWallet": "Create a new wallet",
-        "shapeshiftNative": "ShapeShift Native",
+        "shapeshiftNative": "ShapeShift Wallet",
         "addNewWallet": "Add new wallet",
         "comingFromThorswap": "Coming from THORSwap?",
         "importExisting": "Import existing",
@@ -2347,23 +2347,6 @@
       }
     }
   },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Get a Yat",
-        "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
-      },
-      "modal": {
-        "title": "Successfully linked Yat"
-      },
-      "linkedYat": "Linked Yat",
-      "yatConnected": "Yat Connected!",
-      "usdcAddress": "Yat USDC address",
-      "ethAddress": "Yat ETH address",
-      "noAddressFound": "No %{symbol} address found",
-      "viewInApp": "View in ShapeShift Mobile App"
-    }
-  },
   "gasInput": {
     "duration": {
       "slow": "~ 10 mins",
@@ -2485,8 +2468,7 @@
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
     "refetchQuote": "Refetch Quote",
-    "haltedAlert": "Lending and Savers services are currently paused on THORChain. This interruption is expected to last approximately 90 days. We apologize for any inconvenience.",
-    "halterMoreDetails": "For more details, visit THORChain's Discord.",
+    "haltedAlert": "THORFi services (Lending, Savers and RUNEPool) are currently paused on THORChain. We apologize for any inconvenience.",
     "faq": {
       "title": "FAQ",
       "lending": {

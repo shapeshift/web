@@ -1886,7 +1886,6 @@
         "skip": "スキップ",
         "shapeshiftWallet": "ShapeShiftウォレット",
         "createNewWallet": "新しいウォレットを作成する",
-        "shapeshiftNative": "シェイプシフトネイティブ",
         "addNewWallet": "新しいウォレットを追加",
         "comingFromThorswap": "THORSwapから来ましたか?",
         "importExisting": "既存のインポート",
@@ -2439,8 +2438,6 @@
     "repayNotice": "担保を取り戻すには借金を100％返済する必要があります。",
     "feesNotice": "担保に対して発生した手数料は、借金を100%返済した後に返還されます。",
     "refetchQuote": "見積もりを再取得する",
-    "haltedAlert": "THORChain では、現在 Lending および Savers サービスが一時停止されています。この中断は約 90 日間続くと予想されます。ご不便をおかけして申し訳ございません。",
-    "halterMoreDetails": "詳細については、THORChain の Discord をご覧ください。",
     "faq": {
       "title": "よくある質問",
       "lending": {

@@ -1886,7 +1886,6 @@
         "skip": "Sauter",
         "shapeshiftWallet": "Porte-monnaie ShapeShift",
         "createNewWallet": "Créer un nouveau porte-monnaie",
-        "shapeshiftNative": "ShapeShift Natif",
         "addNewWallet": "Ajouter un nouveau porte-monnaie",
         "comingFromThorswap": "Vous venez de THORSwap ?",
         "importExisting": "Importer un existant",
@@ -2439,8 +2438,6 @@
     "repayNotice": "Pour récupérer votre collatéral, vous devrez rembourser 100 % de votre dette.",
     "feesNotice": "Les frais liés au collatéral que vous récupérerez après avoir remboursé 100 % de votre dette",
     "refetchQuote": "Actualiser le devis",
-    "haltedAlert": "Les services de Prêts et les Savers sont actuellement suspendus sur THORChain. Cette interruption devrait durer environ 90 jours. Nous nous excusons pour la gêne occasionnée.",
-    "halterMoreDetails": "Pour plus de détails, visitez le Discord de THORChain.",
     "faq": {
       "title": "FAQ",
       "lending": {

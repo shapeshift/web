@@ -322,7 +322,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         return setShouldShowArbitrumBridgeAcknowledgement(true)
       if (
         isThorchainSwapperVolatilityAckEnabled &&
-        activeQuote?.steps[0]?.source.includes(SwapperName.Thorchain)
+        activeQuote?.swapperName === SwapperName.Thorchain
       ) {
         return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
       }

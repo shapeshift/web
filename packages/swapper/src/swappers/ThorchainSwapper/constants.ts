@@ -56,3 +56,19 @@ export const getMaxBytesLengthByChainId = (chainId: ChainId) => {
   if (isUtxoChainId(chainId)) return BTC_MAXIMUM_BYTES_LENGTH
   return Infinity
 }
+
+export enum ThorchainStatusMessage {
+  InboundObserved = 'Inbound transaction accepted by THOR',
+  InboundObservingPending = 'Inbound transaction pending',
+  InboundConfirmationCounted = 'Inbound transaction confirmed',
+  InboundConfirmationPending = 'Awaiting inbound transaction confirmation',
+  InboundFinalized = 'Inbound transaction finalized',
+  InboundFinalizationPending = 'Awaiting inbound transaction finalization',
+  SwapPending = 'Swap pending',
+  SwapCompleteAwaitingOutbound = 'Swap complete, awaiting outbound transaction',
+  SwapCompleteAwaitingDestination = 'Swap complete, awaiting destination chain',
+  OutboundDelayTimeRemaining = 'Awaiting outbound delay ({timeRemaining} remaining)',
+  OutboundDelayPending = 'Awaiting outbound delay',
+  OutboundSigned = 'Outbound transaction transmitted, waiting on destination chain...',
+  OutboundScheduled = 'Outbound transaction scheduled, waiting on destination chain...',
+}

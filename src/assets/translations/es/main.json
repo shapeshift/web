@@ -1886,7 +1886,6 @@
         "skip": "Saltar",
         "shapeshiftWallet": "Billetera ShapeShift",
         "createNewWallet": "Crear una billetera nueva",
-        "shapeshiftNative": "Billetera Nativa ShapeShift",
         "addNewWallet": "Agregar nueva billetera",
         "comingFromThorswap": "¿Vienes de THORSwap?",
         "importExisting": "Importar existente",
@@ -2439,8 +2438,6 @@
     "repayNotice": "Para recuperar su garantía colateral deberá pagar el 100% de su deuda.",
     "feesNotice": "Se produjeron tarifas sobre la garantía que recibirá después de pagar 100% de su deuda.",
     "refetchQuote": "Recuperar Cotización",
-    "haltedAlert": "Los servicios de préstamos y Savers están actualmente suspendidos en THORChain. Se espera que esta interrupción dure aproximadamente 90 días. Pedimos disculpas por cualquier inconveniente.",
-    "halterMoreDetails": "Para obtener más detalles, visita el Discord de THORChain.",
     "faq": {
       "title": "Preguntas más frecuentes",
       "lending": {

@@ -19,7 +19,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
-import { DefiType } from '../types'
+import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from './../../marketDataSlice/selectors'
@@ -241,8 +241,27 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
     const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
 
+    // Filter out THORChain Savers with zero balance at the view layer only
+    const filterThorchainSaversZeroBalance = (opportunities: AggregatedOpportunitiesByAssetIdReturn[]) => {
+      return opportunities.filter(opportunity => {
+        // THORChain Savers are LP, we can bail already
+        if (opportunity.opportunities.lp.length > 0) return true
+        
+        // Keep me if thre's at least one non-savers opportunity
+        // or if it's a savers only one with non-zero balance
+        const hasValidStakingOpportunity = opportunity.opportunities.staking.some(opportunityId => {
+          const maybeOpportunity = combined.find(opp => opp.id === opportunityId)
+          if (!maybeOpportunity) return true 
+          if (maybeOpportunity.provider !== DefiProvider.ThorchainSavers) return true
+          return !bnOrZero(maybeOpportunity.fiatAmount).isZero()
+        })
+        
+        return hasValidStakingOpportunity
+      })
+    }
+
     if (!includeEarnBalances && !includeRewardsBalances)
-      return sortedOpportunitiesByFiatAmountAndApy
+      return filterThorchainSaversZeroBalance(sortedOpportunitiesByFiatAmountAndApy)
 
     const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
       Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
@@ -251,7 +270,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return withEarnBalances.concat(withRewardsBalances)
+    return filterThorchainSaversZeroBalance(withEarnBalances.concat(withRewardsBalances))
   },
 )
 

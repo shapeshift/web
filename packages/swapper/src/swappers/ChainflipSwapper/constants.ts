@@ -67,3 +67,14 @@ export const usdcAsset: Asset = {
   relatedAssetKey: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   symbol: 'USDC',
 }
+
+export enum ChainflipStatusMessage {
+  WaitingForDeposit = 'Waiting for deposit...',
+  DepositDetected = 'Deposit detected, waiting for confirmation...',
+  ProcessingSwap = 'Processing swap...',
+  OutboundTransactionInitiated = 'Outbound transaction initiated...',
+  PreparingOutboundTransaction = 'Preparing outbound transaction...',
+  TransactionSent = 'Transaction sent, waiting for confirmation...',
+  SwapComplete = 'Swap complete',
+  SwapFailed = 'Swap failed',
+}

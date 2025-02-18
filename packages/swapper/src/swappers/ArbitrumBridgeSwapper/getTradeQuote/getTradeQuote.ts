@@ -97,6 +97,7 @@ export async function getTradeQuote(
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.ArbitrumBridge,
       ),
+      swapperName: SwapperName.ArbitrumBridge,
       steps: [
         {
           estimatedExecutionTimeMs,

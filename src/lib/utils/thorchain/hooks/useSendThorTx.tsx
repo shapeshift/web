@@ -405,7 +405,7 @@ export const useSendThorTx = ({
     const _txIdLink = getTxLink({
       defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
       txId: _txId ?? '',
-      name: SwapperName.Thorchain,
+      stepSource: SwapperName.Thorchain,
       maybeSafeTx,
       accountId,
     })

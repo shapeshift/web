@@ -8,7 +8,6 @@ import {
   Container,
   Flex,
   Heading,
-  Link,
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
@@ -138,12 +137,7 @@ export const LendingHeader = () => {
           {!isLendingActive && !isMimirLoading ? (
             <Alert status='warning' variant='subtle'>
               <AlertIcon />
-              <AlertDescription>
-                {translate('lending.haltedAlert')}
-                <Link isExternal href='https://discord.gg/uhhZe9pCZj' ml={1} color='text.link'>
-                  {translate('lending.halterMoreDetails')}
-                </Link>
-              </AlertDescription>
+              <AlertDescription>{translate('lending.haltedAlert')}</AlertDescription>
             </Alert>
           ) : null}
         </Container>

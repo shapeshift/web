@@ -241,23 +241,40 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
     const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
 
-    // Filter out THORChain Savers with zero balance at the view layer only
-    const filterThorchainSaversZeroBalance = (opportunities: AggregatedOpportunitiesByAssetIdReturn[]) => {
-      return opportunities.filter(opportunity => {
-        // THORChain Savers are LP, we can bail already
-        if (opportunity.opportunities.lp.length > 0) return true
-        
-        // Keep me if thre's at least one non-savers opportunity
-        // or if it's a savers only one with non-zero balance
-        const hasValidStakingOpportunity = opportunity.opportunities.staking.some(opportunityId => {
-          const maybeOpportunity = combined.find(opp => opp.id === opportunityId)
-          if (!maybeOpportunity) return true 
-          if (maybeOpportunity.provider !== DefiProvider.ThorchainSavers) return true
-          return !bnOrZero(maybeOpportunity.fiatAmount).isZero()
-        })
-        
-        return hasValidStakingOpportunity
-      })
+    const filterThorchainSaversZeroBalance = (
+      opportunities: AggregatedOpportunitiesByAssetIdReturn[],
+    ) => {
+      return (
+        opportunities
+          .map(opportunity => {
+            // Individual opportunities - all but savers
+            const filteredStakingOpportunities = opportunity.opportunities.staking.filter(
+              opportunityId => {
+                const maybeOpportunity = combined.find(opp => opp.id === opportunityId)
+                if (!maybeOpportunity) return true
+                if (maybeOpportunity.provider !== DefiProvider.ThorchainSavers) return true
+                return !bnOrZero(maybeOpportunity.fiatAmount).isZero()
+              },
+            )
+
+            return {
+              ...opportunity,
+              opportunities: {
+                // LP stays as-is, savers are OpportunityType.Staking
+                ...opportunity.opportunities,
+                staking: filteredStakingOpportunities,
+              },
+            }
+          })
+          // Second pass on the actual aggregate. These are *not* indivial opportunities but an aggregation of many.
+          // We want to filter savers out, but keep the rest
+          .filter(aggregate => {
+            // Filter out the entire aggregate if it has no opportunities left after filtering savers out
+            return (
+              aggregate.opportunities.staking.length > 0 || aggregate.opportunities.lp.length > 0
+            )
+          })
+      )
     }
 
     if (!includeEarnBalances && !includeRewardsBalances)

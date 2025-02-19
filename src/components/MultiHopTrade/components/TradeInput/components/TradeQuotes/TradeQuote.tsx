@@ -170,14 +170,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
 
     const handleQuoteSelection = useCallback(() => {
-      if (!isActive) {
-        dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
-        onBack && onBack()
-      } else if (!isBest) {
-        // don't allow un-selecting of best quote as it gets re-selected in this case
-        dispatch(tradeQuoteSlice.actions.setActiveQuote(undefined))
-      }
-    }, [dispatch, isActive, isBest, onBack, quoteData])
+      dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+      onBack && onBack()
+    }, [dispatch, onBack, quoteData])
 
     const feeAsset = useAppSelector(state =>
       selectFeeAssetByChainId(state, sellAsset.chainId ?? ''),

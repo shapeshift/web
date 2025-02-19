@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { matchSorter } from 'match-sorter'
-import { accountManagement, GET_ACCOUNT_STALE_TIME } from 'react-queries/queries/accountManagement'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
@@ -45,7 +45,7 @@ export const getAccountIdsWithActivityAndMetadata = async (
     Object.entries(accountIdsAndMetadata).map(async ([accountId, accountMetadata]) => {
       const account = await queryClient.fetchQuery({
         ...accountManagement.getAccount(accountId),
-        staleTime: GET_ACCOUNT_STALE_TIME,
+        staleTime: Infinity,
         // Never garbage collect me, I'm a special snowflake
         gcTime: Infinity,
       })

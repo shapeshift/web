@@ -6,7 +6,7 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
-import { accountManagement, GET_ACCOUNT_STALE_TIME } from 'react-queries/queries/accountManagement'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -186,7 +186,7 @@ export const portfolioApi = createApi({
           const portfolioAccounts = {
             [pubkey]: await queryClient.fetchQuery({
               ...accountManagement.getAccount(accountId),
-              staleTime: GET_ACCOUNT_STALE_TIME,
+              staleTime: Infinity,
               // Never garbage collect me, I'm a special snowflake
               gcTime: Infinity,
             }),

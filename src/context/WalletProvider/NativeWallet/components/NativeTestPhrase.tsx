@@ -21,10 +21,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-<<<<<<< HEAD
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
-=======
->>>>>>> origin/develop
 
 import type { NativeSetupProps } from '../types'
 

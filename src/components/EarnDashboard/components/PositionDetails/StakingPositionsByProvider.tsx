@@ -159,7 +159,9 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           if (row.original.version) subText.push(row.original.provider)
           if (row.original.opportunityName) subText.push(row.original.opportunityName)
           const isRunePool = row.original.assetId === thorchainAssetId
-          const providerName = isRunePool ? 'RUNEPool' : row.original.version ?? row.original.provider
+          const providerName = isRunePool
+            ? 'RUNEPool'
+            : row.original.version ?? row.original.provider
           return (
             <Flex gap={4} alignItems='center'>
               <LazyLoadAvatar

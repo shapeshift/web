@@ -51,7 +51,7 @@ export const NativeCreate = () => {
     setRevealed(!revealed)
   }, [revealed])
 
-  const [vault, setVault] = useState<Vault | null>(location.state?.vault)
+  const [vault, setVault] = useState<Vault | null>(null)
   const [words, setWords] = useState<ReactNode[] | null>(null)
   const revokerRef = useRef(new (Revocable(class {}))())
 
@@ -84,10 +84,10 @@ export const NativeCreate = () => {
   }, [history, isLegacyWallet, mixpanel, vault])
 
   useEffect(() => {
-    if (vault || location.state?.vault) return
+    if (vault) return
     ;(async () => {
       try {
-        const vault = await getVault()
+        const vault = location.state?.vault ?? (await getVault())
         setVault(vault)
       } catch (e) {
         console.error(e)
@@ -129,7 +129,6 @@ export const NativeCreate = () => {
 
     return () => {
       revokerRef.current.revoke()
-      setWords(null)
     }
   }, [setWords, vault])
 

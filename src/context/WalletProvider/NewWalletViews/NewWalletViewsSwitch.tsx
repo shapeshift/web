@@ -133,11 +133,7 @@ export const NewWalletViewsSwitch = () => {
   const handleBack = useCallback(async () => {
     const { pathname } = history.location
 
-    if (
-      location.state?.vault &&
-      (pathname === NativeWalletRoutes.CreateTest || pathname === NativeWalletRoutes.Password)
-    ) {
-      console.log('vault', location.state.vault)
+    if (location.state?.vault && pathname === NativeWalletRoutes.CreateTest) {
       history.replace({
         pathname: NativeWalletRoutes.Create,
         state: { vault: location.state.vault },

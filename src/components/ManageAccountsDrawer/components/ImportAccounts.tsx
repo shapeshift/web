@@ -185,13 +185,11 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
 }
 
 export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps) => {
-  // State
   const [isAutoDiscovering, setIsAutoDiscovering] = useState(true)
   const [queryEnabled, setQueryEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
-  // Misc
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -205,7 +203,6 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     [wallet],
   )
 
-  // Selectors
   const nftCollectionsById = useAppSelector(selectNftCollections)
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
 

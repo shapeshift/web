@@ -247,15 +247,6 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
   opportunities: Record<DefiType, OpportunityId[]>
 }
 
-export type AggregatedOpportunitiesByProviderReturn = {
-  provider: string
-  apy: string | undefined
-  fiatAmount: string
-  fiatRewardsAmount: string
-  netProviderFiatAmount: string
-  opportunities: Record<DefiType, OpportunityId[]>
-}
-
 // Mapping types
 
 export type MetadataResolverFunction = (

@@ -528,8 +528,6 @@
     "poolValue": "Pool Value",
     "yearn": "Yearn Finance",
     "totalValue": "Total Value",
-    "byAsset": "By Asset",
-    "byProvider": "By Provider",
     "claimableRewards": "Claimable Rewards",
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",

@@ -3,6 +3,8 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetChainAdapter } from 'lib/utils'
 
+export const GET_ACCOUNT_STALE_TIME = 5 * 60 * 1000 // 5 minutes
+
 export const accountManagement = createQueryKeys('accountManagement', {
   getAccount: (accountId: AccountId) => ({
     queryKey: ['getAccount', accountId],

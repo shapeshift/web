@@ -15,10 +15,10 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { accountManagement } from 'react-queries/queries/accountManagement'
+import { accountManagement, GET_ACCOUNT_STALE_TIME } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText } from 'components/Text'
@@ -29,9 +29,13 @@ import {
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
+import { fetchPortalsAccount } from 'lib/portals/utils'
 import { isUtxoAccountId } from 'lib/utils/utxo'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+import { selectNftCollections } from 'state/apis/nft/selectors'
+import { assets as assetSlice } from 'state/slices/assetsSlice/assetsSlice'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { accountIdToLabel, accountToPortfolio, makeAssets } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdsByChainId,
   selectFeeAssetByChainId,
@@ -69,7 +73,12 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
-  const { data: account, isLoading } = useQuery(accountManagement.getAccount(accountId))
+  const { data: account, isFetching: isAccountFetching } = useQuery({
+    ...accountManagement.getAccount(accountId),
+    staleTime: GET_ACCOUNT_STALE_TIME,
+    // Never garbage collect me, I'm a special snowflake
+    gcTime: Infinity,
+  })
 
   const assetBalanceCryptoPrecision = useMemo(() => {
     if (!account) return '0'
@@ -88,7 +97,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
         </InlineCopyButton>
       </Td>
       <Td textAlign='right'>
-        {isLoading ? (
+        {isAccountFetching ? (
           <Skeleton height='24px' width='100%' />
         ) : (
           <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
@@ -176,28 +185,52 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
 }
 
 export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps) => {
+  const [isAutoDiscovering, setIsAutoDiscovering] = useState(true)
+  const [queryEnabled, setQueryEnabled] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
+
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const {
     state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
-  const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const { isSnapInstalled } = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const isMetaMaskMultichainWallet = useMemo(
     () => wallet instanceof MetaMaskMultiChainHDWallet,
     [wallet],
   )
+
+  const nftCollectionsById = useAppSelector(selectNftCollections)
+  const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+
+  // Prefetch Portals account data, ish. At this point, we already have querydata for all *enabled* AccountIds,
+  // so this will really fetch it for the newly toggled ones
+  useQueries({
+    queries: Array.from(toggledAccountIds).map(accountId => {
+      const { chainId, account: pubkey } = fromAccountId(accountId)
+
+      return {
+        queryFn: () => fetchPortalsAccount(chainId, pubkey),
+        queryKey: ['portalsAccount', chainId, pubkey],
+        // Assume that this is static as far as our lifecycle is concerned.
+        // This may seem like a dangerous stretch, but it pragmatically is not:
+        // This is fetched for a given account fetch, and the only flow there would be a refetch would really be if the user disabled an account, then re-enabled it.
+        // It's an uncommon enough flow that we could compromise on it and make the experience better for all other cases by leveraging cached data.
+        // Most importantly, even if a user were to do this, the worst case senario wouldn't be one: all we fetch here is LP tokens meta, which won't change
+        // the second time around and not the 420th time around either
+        staleTime: Infinity,
+      }
+    }),
+  })
+
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [autoFetching, setAutoFetching] = useState(true)
-  const [queryEnabled, setQueryEnabled] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
   useEffect(() => {
-    setAutoFetching(true)
+    setIsAutoDiscovering(true)
     setToggledAccountIds(new Set())
   }, [chainId])
 
@@ -205,8 +238,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   const {
     data: accounts,
     fetchNextPage,
-    isLoading,
-    isFetching,
+    isFetching: isAccountsFetching,
   } = useInfiniteQuery({
     queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
     queryFn: async ({ pageParam: accountNumber }) => {
@@ -246,7 +278,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     if (isMetaMaskMultichainWallet && !isSnapInstalled) return
 
     if (!isLedgerWallet) {
-      setAutoFetching(true)
+      setIsAutoDiscovering(true)
       setQueryEnabled(true)
       return
     }
@@ -255,7 +287,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     // is open on the device. This is to prevent the cache from creating invalid state where the app
     // on the device is not open but the cache thinks it is.
     queryClient.resetQueries({ queryKey: ['accountIdWithActivityAndMetadata'] }).then(() => {
-      setAutoFetching(true)
+      setIsAutoDiscovering(true)
       setQueryEnabled(true)
     })
   }, [queryEnabled, isLedgerWallet, isMetaMaskMultichainWallet, isSnapInstalled, queryClient])
@@ -265,7 +297,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (isFetching || isLoading || !autoFetching || !accounts || !queryEnabled) return
+    if (isAccountsFetching || !isAutoDiscovering || !accounts || !queryEnabled) return
 
     // Check if the most recently fetched account has activity
     const isLastAccountActive = accounts.pages[
@@ -281,22 +313,21 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
       fetchNextPage()
     } else {
       // Stop auto-fetching and switch to manual mode
-      setAutoFetching(false)
+      setIsAutoDiscovering(false)
     }
   }, [
     accounts,
     fetchNextPage,
-    autoFetching,
-    isFetching,
-    isLoading,
+    isAutoDiscovering,
+    isAccountsFetching,
     queryEnabled,
     existingAccountIdsForChain,
   ])
 
   const handleLoadMore = useCallback(() => {
-    if (isFetching || isLoading || autoFetching) return
+    if (isAccountsFetching || isAutoDiscovering) return
     fetchNextPage()
-  }, [autoFetching, isFetching, isLoading, fetchNextPage])
+  }, [isAutoDiscovering, isAccountsFetching, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {
@@ -333,9 +364,33 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
         if (isEnabled) {
           return
         }
-        await dispatch(
-          portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }),
-        )
+
+        // "Fetch" the query leveraging the existing cached data
+        const account = await queryClient.fetchQuery({
+          ...accountManagement.getAccount(accountId),
+          staleTime: GET_ACCOUNT_STALE_TIME,
+          // Never garbage collect me, I'm a special snowflake
+          gcTime: Infinity,
+        })
+
+        const data = await (async (): Promise<Portfolio> => {
+          const { chainId, account: pubkey } = fromAccountId(accountId)
+          const state = store.getState()
+          const portfolioAccounts = { [pubkey]: account }
+          const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
+          const assetIds = state.assets.ids
+
+          // upsert placeholder assets
+          if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
+
+          return accountToPortfolio({
+            portfolioAccounts,
+            assetIds: assetIds.concat(assets?.ids ?? []),
+            nftCollectionsById,
+          })
+        })()
+
+        dispatch(portfolio.actions.upsertPortfolio(data))
       }),
     )
 
@@ -368,20 +423,14 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     setToggledAccountIds(new Set())
 
     setIsSubmitting(false)
-  }, [toggledAccountIds, accounts, dispatch, walletDeviceId])
+  }, [toggledAccountIds, accounts, dispatch, walletDeviceId, nftCollectionsById, queryClient])
 
-  const handleDoneClick = useCallback(async () => {
-    await handleUpdateAccounts()
+  const handleCommit = useCallback(() => {
+    // Do not await me, no need to run this on the next tick. This commits the selection in the background and should be turbo fast
+    // This is technically async, but at this stage, most underlying react-queries should already be cached
+    handleUpdateAccounts()
     onClose()
   }, [handleUpdateAccounts, onClose])
-
-  const handleDrawerClose = useCallback(() => {
-    onClose()
-    // Do *not* return the promise here, this is a non-async callback and should stay that way,
-    // not to slow things down visually.
-    // The accounts adding *should* run in the background.
-    handleUpdateAccounts()
-  }, [onClose, handleUpdateAccounts])
 
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null
@@ -415,7 +464,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
   }
 
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={handleDrawerClose}>
+    <DrawerWrapper isOpen={isOpen} onClose={handleCommit}>
       <DrawerContentWrapper
         title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
         description={translate('accountManagement.importAccounts.description')}
@@ -432,8 +481,8 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
             </Button>
             <Button
               colorScheme='blue'
-              onClick={handleDoneClick}
-              isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
+              onClick={handleCommit}
+              isDisabled={isSubmitting || !accounts}
               _disabled={disabledProps}
             >
               {translate('common.done')}
@@ -446,7 +495,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
               <Table variant='simple' size={tableSize}>
                 <Tbody>
                   {accountRows}
-                  {(isFetching || isLoading || autoFetching) && (
+                  {(isAccountsFetching || isAutoDiscovering) && (
                     <LoadingRow
                       numRows={
                         accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
@@ -465,7 +514,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
                 colorScheme='gray'
                 onClick={handleLoadMore}
                 isDisabled={
-                  isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
+                  isAccountsFetching || isAutoDiscovering || isSubmitting || !supportsMultiAccount
                 }
                 _disabled={disabledProps}
               >

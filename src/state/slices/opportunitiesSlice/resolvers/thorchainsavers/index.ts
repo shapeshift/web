@@ -289,7 +289,8 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,
-      isReadOnly: true,
+      // RUNEPool is not *yet* dead at protocol-level per se and can still be managed
+      isReadOnly: false,
     }
   }
 

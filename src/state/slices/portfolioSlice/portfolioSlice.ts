@@ -182,7 +182,13 @@ export const portfolioApi = createApi({
         try {
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-          // "Fetch" the query leveraging the existing cached data
+          // We want the query to be Infinity staleTime and gcTime for later use, but we also want it to always refetch
+          // This is consumed by TransactionProvider and failure to do so means portfolio will *not* be updated
+          await queryClient.invalidateQueries({
+            queryKey: accountManagement.getAccount(accountId).queryKey,
+            refetchType: 'all',
+            exact: true,
+          })
           const portfolioAccounts = {
             [pubkey]: await queryClient.fetchQuery({
               ...accountManagement.getAccount(accountId),

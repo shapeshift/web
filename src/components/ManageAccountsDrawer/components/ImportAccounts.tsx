@@ -73,11 +73,13 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
-  const { data: account, isFetching: isAccountFetching } = useQuery({
+  const { data: account } = useQuery({
     ...accountManagement.getAccount(accountId),
     staleTime: Infinity,
     // Never garbage collect me, I'm a special snowflake
     gcTime: Infinity,
+    // Yes, we do refetch on mount despite having an Infinity stale time. Stale then fresh FTW.
+    refetchOnMount: 'always',
   })
 
   const assetBalanceCryptoPrecision = useMemo(() => {
@@ -97,11 +99,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
         </InlineCopyButton>
       </Td>
       <Td textAlign='right'>
-        {isAccountFetching ? (
-          <Skeleton height='24px' width='100%' />
-        ) : (
-          <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
-        )}
+        <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
       </Td>
     </>
   )

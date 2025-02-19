@@ -18,6 +18,7 @@ export interface LocationState {
   error?: {
     message: string
   }
+  from?: string
 }
 
 export type NativeSetupProps = RouteComponentProps<{}, any, LocationState>

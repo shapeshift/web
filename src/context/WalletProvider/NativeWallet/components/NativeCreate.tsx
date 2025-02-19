@@ -50,11 +50,12 @@ export const NativeCreate = () => {
     revealedOnce.current = true
     setRevealed(!revealed)
   }, [revealed])
-  const [vault, setVault] = useState<Vault | null>(null)
-  const [words, setWords] = useState<ReactNode[] | null>(null)
-  const [revoker] = useState(new (Revocable(class {}))())
 
-  const isLegacyWallet = !!location.state?.vault
+  const [vault, setVault] = useState<Vault | null>(location.state?.vault)
+  const [words, setWords] = useState<ReactNode[] | null>(null)
+  const revokerRef = useRef(new (Revocable(class {}))())
+
+  const isLegacyWallet = location.state?.isLegacyWallet
 
   const placeholders = useMemo(() => {
     return range(1, 13).map(i => (
@@ -83,36 +84,40 @@ export const NativeCreate = () => {
   }, [history, isLegacyWallet, mixpanel, vault])
 
   useEffect(() => {
+    if (vault || location.state?.vault) return
     ;(async () => {
       try {
-        // If the vault is already passed from the legacy wallet flow, use it.
-        const vault = isLegacyWallet ? location.state.vault : await getVault()
+        const vault = await getVault()
         setVault(vault)
       } catch (e) {
         console.error(e)
       }
     })()
-  }, [setVault, location.state?.vault, isLegacyWallet])
+  }, [setVault, vault, location.state?.vault])
 
   useEffect(() => {
     if (!vault) return
     ;(async () => {
       try {
+        revokerRef.current.revoke()
+        revokerRef.current = new (Revocable(class {}))()
+
+        const mnemonic = await vault.unwrap().get('#mnemonic')
         setWords(
-          (await vault.unwrap().get('#mnemonic')).split(' ').map((word: string, index: number) =>
+          mnemonic.split(' ').map((word: string, index: number) =>
             revocable(
               <Tag
                 p={2}
                 flexBasis='31%'
                 justifyContent='flex-start'
                 fontSize='md'
-                key={word}
+                key={`${word}-${index}`}
                 colorScheme='blue'
               >
                 <Code mr={2}>{index + 1}</Code>
                 {word}
               </Tag>,
-              revoker.addRevoker.bind(revocable),
+              revokerRef.current.addRevoker.bind(revocable),
             ),
           ),
         )
@@ -123,9 +128,10 @@ export const NativeCreate = () => {
     })()
 
     return () => {
-      revoker.revoke()
+      revokerRef.current.revoke()
+      setWords(null)
     }
-  }, [setWords, vault, revoker])
+  }, [setWords, vault])
 
   return (
     <>

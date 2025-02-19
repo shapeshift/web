@@ -194,22 +194,34 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
       {
         Header: () => null,
         id: 'expander',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex gap={4} justifyContent='flex-end' width='full'>
-            <Button
-              variant='ghost'
-              width={expanderButtonWidth}
-              size='sm'
-              colorScheme='blue'
-              rightIcon={row.original.isReadOnly ? <ExternalLinkIcon boxSize={3} /> : undefined}
-              // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleClick(row, DefiAction.Overview)}
-            >
-              {translate(row.original.isReadOnly ? 'common.view' : 'common.manage')}
-            </Button>
-          </Flex>
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const url = getMetadataForProvider(row.original.provider)?.url
+          const translation = (() => {
+            if (!row.original.isReadOnly) return 'common.manage'
+            return url ? 'common.view' : undefined
+          })()
+
+          return (
+            <Flex gap={4} justifyContent='flex-end' width='full'>
+              {translation && (
+                <Button
+                  variant='ghost'
+                  width={expanderButtonWidth}
+                  size='sm'
+                  colorScheme='blue'
+                  rightIcon={
+                    row.original.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined
+                  }
+                  // we need to pass an arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
+                  onClick={() => handleClick(row, DefiAction.Overview)}
+                >
+                  {translate(translation)}
+                </Button>
+              )}
+            </Flex>
+          )
+        },
       },
     ],
     [assetId, assets, handleClick, marketDataUserCurrency, translate],

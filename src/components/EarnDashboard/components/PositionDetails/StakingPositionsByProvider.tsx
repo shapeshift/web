@@ -101,6 +101,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       if (opportunity.isReadOnly) {
         const url = getMetadataForProvider(opportunity.provider)?.url
         url && window.open(url, '_blank')
+        return
       }
 
       const {
@@ -171,7 +172,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                   {subText.join(' • ')}
                 </RawText>
               </Flex>
-              {row.original.isReadOnly && <ExternalLinkIcon boxSize={3} />}
             </Flex>
           )
         },
@@ -292,7 +292,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
-              {translate('common.manage')}
+              {translate(row.original.isReadOnly ? 'common.view' : 'common.manage')}
             </Button>
           </Flex>
         ),

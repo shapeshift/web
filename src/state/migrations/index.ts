@@ -17,6 +17,7 @@ export const clearTxHistoryMigrations = {
 export const clearOpportunitiesMigrations = {
   0: clearOpportunities,
   1: clearOpportunities,
+  2: clearOpportunities,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearPortfolioMigrations = {

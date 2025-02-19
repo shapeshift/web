@@ -21,7 +21,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
 
 import type { NativeSetupProps } from '../types'
 
@@ -118,7 +117,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
 
   const handleBackupComplete = useCallback(() => {
     vault.seal()
-    history.replace('/native/password', { vault, from: NativeWalletRoutes.CreateTest })
+    history.replace('/native/password', { vault })
     setTimeout(() => revoker.revoke(), 250)
   }, [history, revoker, vault])
 
@@ -137,7 +136,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   }
 
   const handleSkipClick = useCallback(
-    () => history.push('/native/password', { vault, from: NativeWalletRoutes.CreateTest }),
+    () => history.push('/native/password', { vault }),
     [history, vault],
   )
 

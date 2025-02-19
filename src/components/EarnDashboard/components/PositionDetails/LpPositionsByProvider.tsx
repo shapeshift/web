@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
@@ -74,6 +75,12 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         highestBalanceAccountAddress,
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
+
+      if (opportunity.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+        return
+      }
 
       if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -194,11 +201,12 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
               width={expanderButtonWidth}
               size='sm'
               colorScheme='blue'
+              rightIcon={row.original.isReadOnly ? <ExternalLinkIcon boxSize={3} /> : undefined}
               // we need to pass an arg here, so we need an anonymous function wrapper
               // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
-              {translate('common.manage')}
+              {translate(row.original.isReadOnly ? 'common.view' : 'common.manage')}
             </Button>
           </Flex>
         ),

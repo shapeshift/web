@@ -19,7 +19,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
-import { DefiProvider, DefiType } from '../types'
+import { DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from './../../marketDataSlice/selectors'

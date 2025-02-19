@@ -2438,8 +2438,6 @@
     "repayNotice": "Para recuperar sua garantia, você precisará pagar 100% de sua dívida.",
     "feesNotice": "Taxas cobradas sobre a garantia que você recebeu de volta após pagar 100% de sua dívida",
     "refetchQuote": "Atualizar",
-    "haltedAlert": "Os serviços de Lending and Savers estão atualmente pausados no THORChain. Espera-se que essa interrupção dure aproximadamente 90 dias. Pedimos desculpas por qualquer inconveniente.",
-    "halterMoreDetails": "Para mais detalhes, visite o Discord do THORChain.",
     "faq": {
       "title": "FAQ",
       "lending": {

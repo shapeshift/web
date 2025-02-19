@@ -528,8 +528,6 @@
     "poolValue": "Pool Value",
     "yearn": "Yearn Finance",
     "totalValue": "Total Value",
-    "byAsset": "By Asset",
-    "byProvider": "By Provider",
     "claimableRewards": "Claimable Rewards",
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",
@@ -2468,8 +2466,7 @@
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
     "refetchQuote": "Refetch Quote",
-    "haltedAlert": "Lending and Savers services are currently paused on THORChain. This interruption is expected to last approximately 90 days. We apologize for any inconvenience.",
-    "halterMoreDetails": "For more details, visit THORChain's Discord.",
+    "haltedAlert": "THORFi services (Lending, Savers and RUNEPool) are currently paused on THORChain. We apologize for any inconvenience.",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2566,6 +2563,7 @@
     "unsupportedDemoWalletExplainer": "The demo wallet is not supported, please connect to a wallet to use this feature.",
     "unsupportedNetworkExplainer": "Your wallet isn't connected to %{network}. Please connect this chain or switch to a wallet that supports this network.",
     "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
+    "instabilityWarning": "Users are currently experiencing refunds while depositing to THORChain pools. Please proceed with caution.",
     "shareOfPool": "Share of Pool",
     "assetDepositAmount": "%{asset} Deposit Amount",
     "totalLiquidity": "Total Liquidity",

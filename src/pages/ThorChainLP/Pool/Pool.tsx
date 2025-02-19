@@ -1,6 +1,9 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   Card,
   CardBody,
@@ -26,6 +29,7 @@ import { Display } from 'components/Display'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 
 import { Faq } from '../components/Faq'
@@ -97,6 +101,8 @@ export const Pool = () => {
   const params = useParams<MatchParams>()
   const translate = useTranslate()
   const history = useHistory()
+  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
+  const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
   const assetId = useMemo(() => {
     return poolAssetIdToAssetId(params.poolAssetId ?? '')
@@ -145,6 +151,12 @@ export const Pool = () => {
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
+      {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
+        <Alert status='warning' variant='subtle' mb={4}>
+          <AlertIcon />
+          <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
+        </Alert>
+      ) : null}
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Flex

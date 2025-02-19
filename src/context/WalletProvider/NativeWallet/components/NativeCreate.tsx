@@ -4,7 +4,6 @@ import {
   AlertIcon,
   Button,
   Code,
-  Link,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -13,11 +12,10 @@ import {
 } from '@chakra-ui/react'
 import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import { useQuery } from '@tanstack/react-query'
 import { range } from 'lodash'
-import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
@@ -43,18 +41,24 @@ export const NativeCreate = () => {
   const history = useHistory()
   const location = useLocation<LocationState>()
   const [revealed, setRevealed] = useState<boolean>(false)
-  const translate = useTranslate()
   const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
   const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
   }, [revealed])
-  const [vault, setVault] = useState<Vault | null>(null)
-  const [words, setWords] = useState<ReactNode[] | null>(null)
-  const [revoker] = useState(new (Revocable(class {}))())
 
-  const isLegacyWallet = !!location.state?.vault
+  const revokerRef = useRef(new (Revocable(class {}))())
+  const initiatedWordsRef = useRef(false)
+
+  const { data: vault } = useQuery({
+    queryKey: ['native-create-vault', location.state?.vault],
+    queryFn: async () => {
+      return location.state?.vault ?? (await getVault())
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
 
   const placeholders = useMemo(() => {
     return range(1, 13).map(i => (
@@ -76,75 +80,57 @@ export const NativeCreate = () => {
     if (vault) {
       history.push(NativeWalletRoutes.CreateTest, {
         vault,
-        isLegacyWallet,
       })
       mixpanel?.track(MixPanelEvent.NativeCreate)
     }
-  }, [history, isLegacyWallet, mixpanel, vault])
+  }, [history, mixpanel, vault])
+
+  const { data: words } = useQuery({
+    queryKey: ['native-create-words', vault],
+    queryFn: async () => {
+      if (!vault) return []
+
+      revokerRef.current?.revoke()
+      revokerRef.current = new (Revocable(class {}))()
+
+      const mnemonic = await vault.unwrap().get('#mnemonic')
+
+      initiatedWordsRef.current = true
+
+      return mnemonic.split(' ').map((word: string, index: number) =>
+        revocable(
+          <Tag
+            p={2}
+            flexBasis='31%'
+            justifyContent='flex-start'
+            fontSize='md'
+            key={`${word}-${index}`}
+            colorScheme='blue'
+          >
+            <Code mr={2}>{index + 1}</Code>
+            {word}
+          </Tag>,
+          revokerRef.current.addRevoker.bind(revokerRef.current),
+        ),
+      )
+    },
+    enabled: !!vault,
+    staleTime: 0,
+    gcTime: 0,
+  })
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        // If the vault is already passed from the legacy wallet flow, use it.
-        const vault = isLegacyWallet ? location.state.vault : await getVault()
-        setVault(vault)
-      } catch (e) {
-        console.error(e)
-      }
-    })()
-  }, [setVault, location.state?.vault, isLegacyWallet])
-
-  useEffect(() => {
-    if (!vault) return
-    ;(async () => {
-      try {
-        setWords(
-          (await vault.unwrap().get('#mnemonic')).split(' ').map((word: string, index: number) =>
-            revocable(
-              <Tag
-                p={2}
-                flexBasis='31%'
-                justifyContent='flex-start'
-                fontSize='md'
-                key={word}
-                colorScheme='blue'
-              >
-                <Code mr={2}>{index + 1}</Code>
-                {word}
-              </Tag>,
-              revoker.addRevoker.bind(revocable),
-            ),
-          ),
-        )
-      } catch (e) {
-        console.error(e)
-        setWords(null)
-      }
-    })()
-
     return () => {
-      revoker.revoke()
+      if (initiatedWordsRef.current) {
+        revokerRef.current?.revoke()
+        initiatedWordsRef.current = false
+      }
     }
-  }, [setWords, vault, revoker])
+  }, [])
 
   return (
     <>
       <ModalHeader>
-        {isLegacyWallet && (
-          <Alert status='error' mb={4}>
-            <AlertIcon />
-            <AlertDescription fontSize='md'>
-              <Text translation={'walletProvider.shapeShift.legacy.deprecatedWarning'} />
-              <Link
-                href={'https://shapeshift.zendesk.com/hc/en-us/articles/6161030693517'}
-                fontWeight='normal'
-                isExternal
-              >
-                {translate('walletProvider.shapeShift.legacy.learnMore')}
-              </Link>
-            </AlertDescription>
-          </Alert>
-        )}
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>

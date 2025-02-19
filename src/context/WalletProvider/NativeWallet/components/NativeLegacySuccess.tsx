@@ -12,7 +12,6 @@ export const NativeLegacySuccess = () => {
   const handleContinue = useCallback(() => {
     history.push(NativeWalletRoutes.Create, {
       vault: location.state.vault,
-      isLegacyWallet: true,
     })
   }, [history, location.state])
 

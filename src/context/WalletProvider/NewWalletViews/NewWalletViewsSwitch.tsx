@@ -139,10 +139,10 @@ export const NewWalletViewsSwitch = () => {
         state: { vault: location.state.vault },
       })
 
-      // Add this at the end of the callstack so we can store the vault in the state
+      // Queue navigation in the next tick to ensure state is updated
       setTimeout(() => {
         history.goBack()
-      }, 250)
+      }, 0)
     } else {
       history.goBack()
     }

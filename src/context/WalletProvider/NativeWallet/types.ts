@@ -14,7 +14,6 @@ export type NativeWalletValues = {
 
 export interface LocationState {
   vault: Vault
-  isLegacyWallet?: boolean
   error?: {
     message: string
   }

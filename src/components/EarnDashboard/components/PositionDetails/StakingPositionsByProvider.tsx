@@ -2,7 +2,7 @@ import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -158,6 +158,8 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const subText = []
           if (row.original.version) subText.push(row.original.provider)
           if (row.original.opportunityName) subText.push(row.original.opportunityName)
+          const isRunePool = row.original.assetId === thorchainAssetId
+          const providerName = isRunePool ? 'RUNEPool' : row.original.version ?? row.original.provider
           return (
             <Flex gap={4} alignItems='center'>
               <LazyLoadAvatar
@@ -167,7 +169,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                 key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>
-                <RawText>{row.original.version ?? row.original.provider}</RawText>
+                <RawText>{providerName}</RawText>
                 <RawText textTransform='capitalize' variant='sub-text' size='xs'>
                   {subText.join(' • ')}
                 </RawText>

@@ -11,10 +11,12 @@
     "and": "と",
     "balance": "残高",
     "next": "次へ",
+    "edit": "編集",
     "error": "エラー",
     "show": "表示する",
     "account": "アカウント",
     "address": "アドレス",
+    "noThanks": "結構です",
     "done": "完了",
     "cancel": "キャンセルする",
     "close": "閉じる",
@@ -1237,6 +1239,13 @@
         "menuItem": "ウォレットをバックアップしてください",
         "enterPassword": "続行するにはパスワードを入力してください",
         "testTitle": "シークレットリカバリーフレーズを確認する",
+        "title": "バックアップの確認",
+        "description": "この簡単なテストを完了して、すべてが正しく保存されたことを確認してください。",
+        "confirm": {
+          "title": "ウォレットをバックアップ",
+          "body": "ウォレットを忘れる前に、秘密の回復フレーズをバックアップしますか?",
+          "backupNow": "今すぐバックアップ"
+        },
         "info": {
           "title": "シークレットリカバリーフレーズ",
           "description": "これら12の単語を書き留めて、オフラインで安全に保存してください。この12語のフレーズは、ウォレットの秘密鍵を復元するために使用されます。",
@@ -1763,12 +1772,15 @@
         "error": {
           "delete": "ウォレットを削除できません。",
           "noWallet": "保存されたウォレットがありません",
-          "pair": "ウォレットをペアリングできません"
+          "pair": "ウォレットをペアリングできません",
+          "fetchingWallets": "ウォレットの取得中にエラーが発生しました。"
         },
         "header": "保存されたウォレット",
         "body": "保存したウォレットをロード中... プロンプトが表示されたら、パスワードを入力します。",
         "button": "次へ",
-        "confirmForget": "%{wallet} を忘れてもよろしいですか?"
+        "forgetWallet": "ウォレットを忘れた",
+        "confirmForget": "%{wallet} を忘れてもよろしいですか?",
+        "confirmForgetBody": "バックアップしていない場合、ウォレットにアクセスすることはできません。"
       },
       "import": {
         "header": "ウォレットをインポートする",
@@ -1852,6 +1864,7 @@
         "header": "ウォレットの名前を変更する",
         "walletName": "ウォレットの新しいニックネーム",
         "body": "ウォレットの新しいニックネームとパスワードを入力してウォレットを復号化します。",
+        "mobileBody": "ウォレットの新しいニックネームを入力してください。",
         "button": "次へ",
         "confirmDelete": "このウォレットのニックネームを削除してもよろしいですか?"
       },
@@ -1886,6 +1899,7 @@
         "skip": "スキップ",
         "shapeshiftWallet": "ShapeShiftウォレット",
         "createNewWallet": "新しいウォレットを作成する",
+        "shapeshiftNative": "ShapeShiftウォレット",
         "addNewWallet": "新しいウォレットを追加",
         "comingFromThorswap": "THORSwapから来ましたか?",
         "importExisting": "既存のインポート",
@@ -1941,6 +1955,39 @@
           "noWallet": "保存されたウォレットがありません",
           "pair": "ウォレットをペアリングできません"
         }
+      }
+    },
+    "create": {
+      "header": "ウォレットに名前を付ける",
+      "subHeader": "ウォレットのニックネームを選択してください",
+      "walletName": "私の新しいウォレット",
+      "saveLocally": "ニックネームはデバイスにローカルに保存されます。",
+      "visibleToYou": "あなただけに表示されます。",
+      "button": "続ける"
+    },
+    "keepSafe": {
+      "headerStart": "あなたの",
+      "headerSecret": "秘密",
+      "headerEnd": "リカバリフレーズを補完",
+      "subHeader": "秘密回復フレーズの安全性を確保することは非常に重要です。",
+      "description": "秘密のリカバリーフレーズは、最も貴重な所有物として扱い、常に安全に保管してください。パスワード マネージャーは優れたセキュリティ対策ですが、単語を書き留めておくとさらに効果的です。",
+      "bulletPoints": {
+        "share": "他の人と共有しないでください\n",
+        "lose": "紛失した場合、復旧することはできません"
+      },
+      "button": "バックアップを続行"
+    },
+    "manualBackup": {
+      "header": "手動バックアップ",
+      "subHeader": "秘密の回復フレーズを、自分だけが管理できる安全な場所に保存します。",
+      "copyToClipboard": "クリップボードにコピー",
+      "copied": "コピーしました！",
+      "nextStep": "次に、秘密の回復フレーズ内の特定の単語の位置を確認するように求められます。",
+      "button": "バックアップを続行",
+      "success": {
+        "title": "手動バックアップが完了しました",
+        "description": "ウォレットのバックアップが正常に完了しました。",
+        "viewWallet": "ウォレットを表示"
       }
     }
   },
@@ -2298,23 +2345,6 @@
           "prevPage": "前のページ"
         }
       }
-    }
-  },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Yatを入手",
-        "description": "Yatとは：ユニバーサル絵文字のユーザー名、WebサイトのURL、支払いアドレスなど"
-      },
-      "modal": {
-        "title": "Yatのリンクに成功しました"
-      },
-      "linkedYat": "リンクされたYat",
-      "yatConnected": "Yatが接続されました",
-      "usdcAddress": "Yat USDCアドレス",
-      "ethAddress": "Yat ETHアドレス",
-      "noAddressFound": "%{symbol} アドレスが見つかりません",
-      "viewInApp": "ShapeShiftモバイルアプリで表示"
     }
   },
   "gasInput": {

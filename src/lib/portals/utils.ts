@@ -255,6 +255,8 @@ export const getPortalTokens = async (
   const portalsPlatforms = await queryClient.fetchQuery({
     queryFn: () => fetchPortalsPlatforms(),
     queryKey: ['portalsPlatforms'],
+    // This should effectively be considered static as far as the lifecycle of the app/our usage is concerned
+    staleTime: Infinity,
   })
   const chainId = nativeAsset.chainId
 

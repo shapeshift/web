@@ -251,7 +251,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             const filteredStakingOpportunities = opportunity.opportunities.staking.filter(
               opportunityId => {
                 const maybeOpportunity = combined.find(opp => opp.id === opportunityId)
-                if (!maybeOpportunity) return true
+                if (!maybeOpportunity) return false
                 if (maybeOpportunity.provider !== DefiProvider.ThorchainSavers) return true
                 return !bnOrZero(maybeOpportunity.fiatAmount).isZero()
               },

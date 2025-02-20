@@ -140,6 +140,7 @@
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now",
     "manage": "Manage",
+    "view": "View",
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
     "wallet": "Wallet",

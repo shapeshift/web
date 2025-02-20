@@ -23,9 +23,7 @@ import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/u
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { middleEllipsis } from 'lib/utils'
-import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import {
@@ -117,7 +115,6 @@ export const TradeConfirmSummary = () => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const [showFeeModal, setShowFeeModal] = useState(false)
-  const thorVotingPower = useAppSelector(selectThorVotingPower)
   const receiveAddress = activeQuote?.receiveAddress
   const swapSource = tradeQuoteFirstHop?.source
   const rate = tradeQuoteFirstHop?.rate
@@ -144,18 +141,9 @@ export const TradeConfirmSummary = () => {
     return fromBaseUnit(secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision ?? 0)
   }, [secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
 
-  const isThorFreeTrade = useMemo(
-    () =>
-      bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
-      new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
-    [thorVotingPower],
-  )
-
   const toggleFeeModal = useCallback(() => {
-    if (isThorFreeTrade) return
-
     setShowFeeModal(!showFeeModal)
-  }, [showFeeModal, isThorFreeTrade])
+  }, [showFeeModal])
 
   const [showMore, toggleShowMore] = useToggle(false)
 
@@ -265,10 +253,7 @@ export const TradeConfirmSummary = () => {
           <Row.Label>
             <Text translation='trade.shapeShiftFee' />
           </Row.Label>
-          <Row.Value
-            onClick={toggleFeeModal}
-            _hover={!isThorFreeTrade ? shapeShiftFeeModalRowHover : undefined}
-          >
+          <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
             <Flex alignItems='center' gap={2}>
               {bnOrZero(affiliateFeeAfterDiscountUserCurrency).gt(0) ? (
                 <>
@@ -278,7 +263,7 @@ export const TradeConfirmSummary = () => {
               ) : (
                 <>
                   <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                  {!isThorFreeTrade && <QuestionIcon color={greenColor} />}
+                  <QuestionIcon color={greenColor} />
                 </>
               )}
             </Flex>

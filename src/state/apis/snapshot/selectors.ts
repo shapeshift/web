@@ -48,9 +48,6 @@ export const selectThorchainLpVotingPower = (state: ReduxState) =>
 export const selectSwapperVotingPower = (state: ReduxState) =>
   state.snapshot.votingPowerByModel['SWAPPER']
 
-export const selectThorVotingPower = (state: ReduxState) =>
-  state.snapshot.votingPowerByModel['THORSWAP']
-
 export const selectProposals = (state: ReduxState) => state.snapshot.proposals
 
 type AffiliateFeesProps = {
@@ -63,23 +60,14 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
     (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
     (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
     selectVotingPower,
-    selectThorVotingPower,
     selectIsSnapshotApiQueriesRejected,
     selectPortfolioAssetBalancesBaseUnit,
-    (
-      feeModel,
-      inputAmountUsd,
-      votingPower,
-      thorVotingPower,
-      isSnapshotApiQueriesRejected,
-      assetBalances,
-    ) => {
+    (feeModel, inputAmountUsd, votingPower, isSnapshotApiQueriesRejected, assetBalances) => {
       const foxWifHatHeld = assetBalances[foxWifHatAssetId]
 
       const fees: CalculateFeeBpsReturn = calculateFees({
         tradeAmountUsd: bnOrZero(inputAmountUsd),
         foxHeld: bnOrZero(votingPower),
-        thorHeld: bnOrZero(thorVotingPower),
         foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel,
         isSnapshotApiQueriesRejected,
@@ -91,13 +79,11 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
 
 export const selectIsVotingPowerLoading = createSelector(
   selectIsSnapshotApiQueriesPending,
-  selectThorVotingPower,
   selectSwapperVotingPower,
   selectThorchainLpVotingPower,
-  (isSnapshotApiQueriesPending, thorVotingPower, swapperVotingPower, thorchainLpVotingPower) => {
+  (isSnapshotApiQueriesPending, swapperVotingPower, thorchainLpVotingPower) => {
     return (
-      isSnapshotApiQueriesPending &&
-      ![thorVotingPower, swapperVotingPower, thorchainLpVotingPower].every(isSome)
+      isSnapshotApiQueriesPending && ![swapperVotingPower, thorchainLpVotingPower].every(isSome)
     )
   },
 )

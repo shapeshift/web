@@ -49,7 +49,6 @@ export const FoxWifHat = () => {
       tradeAmountUsd: bn(DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD),
       foxHeld: bn(0),
       feeModel: 'SWAPPER',
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT),
       isSnapshotApiQueriesRejected: false,
     }).foxDiscountPercent.toFixed(2)

@@ -2862,10 +2862,6 @@
       "noClosedProposals": "No closed proposals available"
     }
   },
-  "thorFees": {
-    "title": "Here from THORSwap?",
-    "description": "THOR holders trade for free through 2024."
-  },
   "chainAdapters": {
     "errors": {
       "unsupportedAddress": "Address %{address} not supported.",

@@ -1,10 +1,19 @@
+import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
-import type { Route } from 'Routes/helpers'
 
-export const MobileNavLink = memo(({ label, shortLabel, path, icon, priority }: Route) => {
+type MobileNavLinkProps = {
+  label: string
+  shortLabel?: string
+  path: string
+  icon?: JSX.Element
+  order?: number
+} & ButtonProps
+
+export const MobileNavLink = memo((props: MobileNavLinkProps) => {
+  const { label, shortLabel, path, icon, order, ...rest } = props
   const translate = useTranslate()
   const location = useLocation()
   const isActive = useMemo(() => {
@@ -30,7 +39,7 @@ export const MobileNavLink = memo(({ label, shortLabel, path, icon, priority }: 
       fontSize='24px'
       gap={2}
       height='auto'
-      order={priority}
+      order={order}
       variant='nav-link'
       isActive={isActive}
       fontWeight='medium'
@@ -39,6 +48,7 @@ export const MobileNavLink = memo(({ label, shortLabel, path, icon, priority }: 
       pt={6}
       flex={1}
       zIndex='sticky'
+      {...rest}
     >
       {icon}
       <Flex flexDir='column' fontSize='11px' letterSpacing='-0.020em'>

@@ -11,10 +11,12 @@
     "and": "und",
     "balance": "Kontostand",
     "next": "Weiter",
+    "edit": "Bearbeiten",
     "error": "Fehler",
     "show": "Zeige",
     "account": "Konto",
     "address": "Adresse",
+    "noThanks": "Nein danke",
     "done": "Erledigt",
     "cancel": "Abbrechen",
     "close": "Schließen",
@@ -1237,6 +1239,13 @@
         "menuItem": "Meine Wallet sichern",
         "enterPassword": "Geben Sie Ihr Passwort ein, um fortzufahren",
         "testTitle": "Überprüfen Sie Ihre geheime Wiederherstellungsphrase",
+        "title": "Sicherung bestätigen",
+        "description": "Führen Sie diesen Kurztest durch, um zu bestätigen, dass Sie alles richtig gespeichert haben.",
+        "confirm": {
+          "title": "Wallet sichern",
+          "body": "Bevor Sie Ihre Wallet abmelden, möchten Sie Ihre geheime Wiederherstellungsphrase sichern?",
+          "backupNow": "Jetzt sichern"
+        },
         "info": {
           "title": "Ihre geheime Wiederherstellungsphrase",
           "description": "Schreiben Sie diese 12 Wörter auf und speichern Sie sie sicher offline. Diese 12-Wort-Phrase wird verwendet, um Ihre privaten Wallet Schlüssel wiederherzustellen.",
@@ -1763,12 +1772,15 @@
         "error": {
           "delete": "Ihre Wallet konnte nicht gelöscht werden, tut uns leid.",
           "noWallet": "Sie haben keine gespeicherten Wallets",
-          "pair": "Wallet kann nicht gekoppelt werden"
+          "pair": "Wallet kann nicht gekoppelt werden",
+          "fetchingWallets": "Beim Abrufen der Wallets ist ein Fehler aufgetreten."
         },
         "header": "Gespeicherte Wallets",
         "body": "Ihre gespeicherte Wallet wird geladen... Geben Sie Ihr Passwort ein, wenn Sie dazu aufgefordert werden.",
         "button": "Fortsetzen",
-        "confirmForget": "Möchten Sie %{wallet} wirklich vergessen?"
+        "forgetWallet": "Wallet abmelden",
+        "confirmForget": "Möchten Sie %{wallet} wirklich vergessen?",
+        "confirmForgetBody": "Wenn Sie keine Sicherung Ihrer Wallet erstellt haben, können Sie nicht darauf zugreifen."
       },
       "import": {
         "header": "Importieren Sie Ihre Wallet",
@@ -1852,6 +1864,7 @@
         "header": "Wallet umbenennen",
         "walletName": "Neuer Spitzname für Ihre Wallet ",
         "body": "Geben Sie den neuen Spitznamen Ihrer Wallet und Ihr Passwort ein, um Ihre Wallet zu entschlüsseln.",
+        "mobileBody": "Geben Sie den neuen Spitznamen Ihrer Wallet ein.",
         "button": "Weiter",
         "confirmDelete": "Möchten Sie den Spitznamen dieser Wallet wirklich löschen?"
       },
@@ -1886,6 +1899,7 @@
         "skip": "Überspringen",
         "shapeshiftWallet": "ShapeShift Wallet",
         "createNewWallet": "Erstellen Sie eine neue Wallet",
+        "shapeshiftNative": "ShapeShift Wallet",
         "addNewWallet": "Neue Wallet hinzufügen",
         "comingFromThorswap": "Kommen Sie von THORSwap?",
         "importExisting": "Vorhandene importieren",
@@ -1941,6 +1955,39 @@
           "noWallet": "Sie haben keine gespeicherten Wallets",
           "pair": "Ihre Wallet konnte nicht gekoppelt werden"
         }
+      }
+    },
+    "create": {
+      "header": "Geben Sie Ihrer Wallet einen Namen",
+      "subHeader": "Wählen Sie einen Spitznamen für Ihre Wallet",
+      "walletName": "Meine neue Wallet",
+      "saveLocally": "Ihr Spitzname wird lokal auf Ihrem Gerät gespeichert.",
+      "visibleToYou": "Es ist nur für Sie sichtbar.",
+      "button": "Weitermachen"
+    },
+    "keepSafe": {
+      "headerStart": "Behalten Sie Ihre",
+      "headerSecret": "geheime",
+      "headerEnd": "Wiederherstellungsphrase sicher",
+      "subHeader": "Es ist äußerst wichtig, die Sicherheit Ihrer geheimen Wiederherstellungsphrase zu gewährleisten.",
+      "description": "Behandeln Sie Ihre geheime Wiederherstellungsphrase wie Ihren wertvollsten Besitz – bewahren Sie sie stets sicher auf. Ein Passwortmanager bietet eine hervorragende Sicherheit, die Wörter aufzuschreiben ist sogar noch besser.",
+      "bulletPoints": {
+        "share": "Geben Sie sie nicht an andere weiter",
+        "lose": "Wenn Sie sie verlieren, können wir sie nicht wiederherstellen"
+      },
+      "button": "Weiter zur Datensicherung"
+    },
+    "manualBackup": {
+      "header": "Manuelle Sicherung",
+      "subHeader": "Speichern Sie Ihre geheime Wiederherstellungsphrase an einem sicheren Ort, über den nur Sie Kontrolle haben.",
+      "copyToClipboard": "In die Zwischenablage kopieren",
+      "copied": "Kopiert!",
+      "nextStep": "Als Nächstes werden Sie aufgefordert, die Positionen bestimmter Wörter in Ihrer geheimen Wiederherstellungsphrase zu bestätigen.",
+      "button": "Sicherung fortsetzen",
+      "success": {
+        "title": "Manuelle Sicherung abgeschlossen",
+        "description": "Ihr Wallet wurde erfolgreich gesichert.",
+        "viewWallet": "Wallet anzeigen"
       }
     }
   },
@@ -2298,23 +2345,6 @@
           "prevPage": "Vorherige Seite"
         }
       }
-    }
-  },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Holen Sie sich Yat",
-        "description": "Yat ist Ihr universeller Emoji-Benutzername, Webseiten-URL, Zahlungsadresse und mehr."
-      },
-      "modal": {
-        "title": "Yat erfolgreich verlinkt"
-      },
-      "linkedYat": "Verlinktes Yat",
-      "yatConnected": "Yat verbunden!",
-      "usdcAddress": "Yat USDC-Adresse",
-      "ethAddress": "Yat ETH-Adresse",
-      "noAddressFound": "Keine %{symbol} Adresse gefunden",
-      "viewInApp": "In der mobilen ShapeShift-App anzeigen"
     }
   },
   "gasInput": {

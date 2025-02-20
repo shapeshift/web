@@ -2,7 +2,7 @@ import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -101,6 +101,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       if (opportunity.isReadOnly) {
         const url = getMetadataForProvider(opportunity.provider)?.url
         url && window.open(url, '_blank')
+        return
       }
 
       const {
@@ -157,6 +158,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const subText = []
           if (row.original.version) subText.push(row.original.provider)
           if (row.original.opportunityName) subText.push(row.original.opportunityName)
+          const isRunePool = row.original.assetId === thorchainAssetId
+          const providerName = isRunePool
+            ? 'RUNEPool'
+            : row.original.version ?? row.original.provider
           return (
             <Flex gap={4} alignItems='center'>
               <LazyLoadAvatar
@@ -166,7 +171,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                 key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>
-                <RawText>{row.original.version ?? row.original.provider}</RawText>
+                <RawText>{providerName}</RawText>
                 <RawText textTransform='capitalize' variant='sub-text' size='xs'>
                   {subText.join(' • ')}
                 </RawText>
@@ -239,6 +244,9 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             marketDataUserCurrency,
           })
           const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
+
+          const handleClaimClick = useCallback(() => handleClick(row, DefiAction.Claim), [row])
+
           return hasRewardsBalance && row.original.isClaimableRewards ? (
             <Button
               isDisabled={!hasRewardsBalance}
@@ -250,9 +258,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               borderRadius='lg'
               px={2}
               rightIcon={arrowForwardIcon}
-              // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleClick(row, DefiAction.Claim)}
+              onClick={handleClaimClick}
             >
               <Amount.Fiat value={fiatAmount} />
             </Button>
@@ -279,22 +285,36 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       {
         Header: () => null,
         id: 'expander',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex justifyContent='flex-end' width='full'>
-            <Button
-              variant='ghost'
-              size='sm'
-              colorScheme='blue'
-              width={widthMdAuto}
-              rightIcon={row.original.isReadOnly ? <ExternalLinkIcon boxSize={3} /> : undefined}
-              // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleClick(row, DefiAction.Overview)}
-            >
-              {translate('common.manage')}
-            </Button>
-          </Flex>
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const url = getMetadataForProvider(row.original.provider)?.url
+          const translation = (() => {
+            if (!row.original.isReadOnly) return 'common.manage'
+            return url ? 'common.view' : undefined
+          })()
+          const handleOverviewClick = useCallback(
+            () => handleClick(row, DefiAction.Overview),
+            [row],
+          )
+
+          return (
+            <Flex justifyContent='flex-end' width='full'>
+              {translation && (
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  colorScheme='blue'
+                  width={widthMdAuto}
+                  rightIcon={
+                    row.original.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined
+                  }
+                  onClick={handleOverviewClick}
+                >
+                  {translate(translation)}
+                </Button>
+              )}
+            </Flex>
+          )
+        },
       },
     ],
     [assetId, assets, handleClick, marketDataUserCurrency, translate],

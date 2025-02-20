@@ -25,7 +25,7 @@ describe('opportunitiesSlice', () => {
       ...initialState,
       _persist: {
         rehydrated: true,
-        version: 1,
+        version: 2,
       },
     })
   })

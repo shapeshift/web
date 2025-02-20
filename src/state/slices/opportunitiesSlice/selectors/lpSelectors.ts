@@ -193,15 +193,16 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
 
     if (!portfolioAssetBalancesById) return opportunities
 
-    for (const [lpId, opportunityMetadata] of Object.entries(lpOpportunitiesById)) {
+    for (const opportunityMetadata of Object.values(lpOpportunitiesById)) {
       if (!opportunityMetadata) continue
+      const underlyingAssetId = opportunityMetadata.underlyingAssetId
 
-      const lpAsset = assets[lpId as AssetId]
+      const lpAsset = assets[underlyingAssetId]
 
       if (!lpAsset) continue
 
-      const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
-      const aggregatedLpAssetBalance = portfolioAssetBalancesById[lpId]
+      const marketDataPrice = marketDataUserCurrency[underlyingAssetId]?.price
+      const aggregatedLpAssetBalance = portfolioAssetBalancesById[underlyingAssetId]
 
       /* Get amounts of each underlying token (in base units, eg. wei) */
       /* TODO:(pastaghost) Generalize this (and LpEarnOpportunityType) so that number of underlying assets is not assumed to be 2. */
@@ -218,7 +219,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
       const opportunity: LpEarnOpportunityType = {
         ...opportunityMetadata,
         isLoaded: true,
-        chainId: fromAssetId(lpId as AssetId).chainId,
+        chainId: fromAssetId(underlyingAssetId).chainId,
         underlyingToken0AmountCryptoBaseUnit,
         underlyingToken1AmountCryptoBaseUnit,
         cryptoAmountPrecision: bnOrZero(aggregatedLpAssetBalance)

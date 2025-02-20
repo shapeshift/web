@@ -715,9 +715,19 @@ export const portals = createApi({
             type: DefiType.Staking,
           }
 
+          const lpMetadataUpsertPayload: GetOpportunityMetadataOutput = {
+            byId: {},
+            type: DefiType.LiquidityPool,
+          }
+
           // Populate read only metadata payload
           for (const id in readOnlyMetadata) {
-            stakingMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
+            const metadata = readOnlyMetadata[id]
+            if (metadata.type === DefiType.LiquidityPool) {
+              lpMetadataUpsertPayload.byId[id] = metadata
+            } else {
+              stakingMetadataUpsertPayload.byId[id] = metadata
+            }
           }
 
           // Populate read only userData payload
@@ -751,6 +761,7 @@ export const portals = createApi({
 
           // Make all dispatches at the end
           dispatch(opportunities.actions.upsertOpportunitiesMetadata(stakingMetadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(lpMetadataUpsertPayload))
           dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
           dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
 

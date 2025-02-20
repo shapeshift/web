@@ -13,6 +13,7 @@ type SidebarLinkProps = {
   to?: NavLinkProps['to']
   isCompact?: boolean
   isNew?: boolean
+  isViewOnly?: boolean
   isActive?: boolean
 } & ButtonProps
 
@@ -25,9 +26,9 @@ const activeProp = {
 }
 
 export const MainNavLink = memo((props: SidebarLinkProps) => {
-  const { isCompact, onClick, isNew, label, isActive, buttonProps } = useMemo(() => {
-    const { isCompact, onClick, isNew, label, isActive, ...buttonProps } = props
-    return { isCompact, onClick, isNew, label, isActive, buttonProps }
+  const { isCompact, onClick, isNew, isViewOnly, label, isActive, buttonProps } = useMemo(() => {
+    const { isCompact, onClick, isNew, isViewOnly, label, isActive, ...buttonProps } = props
+    return { isCompact, onClick, isNew, isViewOnly, label, isActive, buttonProps }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
 
@@ -88,6 +89,11 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
               display={displayProp3}
             />
           </>
+        )}
+        {isViewOnly && (
+          <Tag ml='auto' size='sm' colorScheme='blue' display={displayProp1}>
+            {translate('common.viewOnly')}
+          </Tag>
         )}
       </Button>
     </Tooltip>

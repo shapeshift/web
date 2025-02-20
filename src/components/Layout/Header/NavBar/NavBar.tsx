@@ -82,6 +82,7 @@ export const NavBar = (props: NavBarProps) => {
               href={item.path}
               to={item.path}
               isNew={item.isNew}
+              isViewOnly={item.isViewOnly}
               size='lg'
               onClick={onClick}
               label={translate(item.label)}

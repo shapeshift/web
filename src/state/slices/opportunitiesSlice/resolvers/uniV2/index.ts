@@ -132,13 +132,13 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = bnOrZero(portalsAppBalanceData.tokens?.[0].decimals!).toNumber()
-      token1Decimals = bnOrZero(portalsAppBalanceData.tokens?.[1].decimals!).toNumber()
-      token0Reserves = bnOrZero(portalsAppBalanceData.dataProps?.reserves?.[0])!
-      token1Reserves = bnOrZero(portalsAppBalanceData.dataProps?.reserves?.[1])!
-      token0Address = getAddress(portalsAppBalanceData?.tokens?.[0].address!)
-      token1Address = getAddress(portalsAppBalanceData?.tokens?.[1].address!)
-      apr = bnOrZero(portalsAppBalanceData.dataProps?.apy!).toFixed()
+      token0Decimals = bnOrZero(portalsAppBalanceData.tokens?.[0].decimals).toNumber()
+      token1Decimals = bnOrZero(portalsAppBalanceData.tokens?.[1].decimals).toNumber()
+      token0Reserves = bnOrZero(portalsAppBalanceData.dataProps?.reserves?.[0])
+      token1Reserves = bnOrZero(portalsAppBalanceData.dataProps?.reserves?.[1])
+      token0Address = getAddress(portalsAppBalanceData?.tokens?.[0].address ?? '')
+      token1Address = getAddress(portalsAppBalanceData?.tokens?.[1].address ?? '')
+      apr = bnOrZero(portalsAppBalanceData.dataProps?.apy).toFixed()
       return {
         token0Decimals,
         token1Decimals,

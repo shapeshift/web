@@ -201,6 +201,11 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
             return url ? 'common.view' : undefined
           })()
 
+          const handleOverviewClick = useCallback(
+            () => handleClick(row, DefiAction.Overview),
+            [row],
+          )
+
           return (
             <Flex gap={4} justifyContent='flex-end' width='full'>
               {translation && (
@@ -212,9 +217,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
                   rightIcon={
                     row.original.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined
                   }
-                  // we need to pass an arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
-                  onClick={() => handleClick(row, DefiAction.Overview)}
+                  onClick={handleOverviewClick}
                 >
                   {translate(translation)}
                 </Button>

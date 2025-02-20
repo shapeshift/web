@@ -240,6 +240,9 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             marketDataUserCurrency,
           })
           const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
+
+          const handleClaimClick = useCallback(() => handleClick(row, DefiAction.Claim), [row])
+
           return hasRewardsBalance && row.original.isClaimableRewards ? (
             <Button
               isDisabled={!hasRewardsBalance}
@@ -251,9 +254,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               borderRadius='lg'
               px={2}
               rightIcon={arrowForwardIcon}
-              // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleClick(row, DefiAction.Claim)}
+              onClick={handleClaimClick}
             >
               <Amount.Fiat value={fiatAmount} />
             </Button>
@@ -287,6 +288,11 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             return url ? 'common.view' : undefined
           })()
 
+          const handleOverviewClick = useCallback(
+            () => handleClick(row, DefiAction.Overview),
+            [row],
+          )
+
           return (
             <Flex justifyContent='flex-end' width='full'>
               {translation && (
@@ -298,9 +304,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                   rightIcon={
                     row.original.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined
                   }
-                  // we need to pass an arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
-                  onClick={() => handleClick(row, DefiAction.Overview)}
+                  onClick={handleOverviewClick}
                 >
                   {translate(translation)}
                 </Button>

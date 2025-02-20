@@ -11,10 +11,12 @@
     "and": "e",
     "balance": "Saldo",
     "next": "Avançar",
+    "edit": "Editar",
     "error": "Erro",
     "show": "Mostrar",
     "account": "Conta",
     "address": "Endereço",
+    "noThanks": "Não, obrigado",
     "done": "Feito",
     "cancel": "Cancelar",
     "close": "Fechar",
@@ -1237,6 +1239,13 @@
         "menuItem": "Fazer backup da minha carteira",
         "enterPassword": "Entre com sua senha para continuar.",
         "testTitle": "Verificar Sua Frase de Recuperação Secreta. ",
+        "title": "Confirmar backup",
+        "description": "Conclua este teste rápido para confirmar se você salvou tudo corretamente.",
+        "confirm": {
+          "title": "Carteira de backup",
+          "body": "Antes de esquecer sua carteira, você gostaria de fazer um backup de sua frase secreta de recuperação?",
+          "backupNow": "Faça backup agora"
+        },
         "info": {
           "title": "Sua Frase de Recuperação Secreta",
           "description": "Anote essas 12 palavras e armazene-as offline com segurança. Esta frase de 12 palavras é usada para recuperar as chaves privadas da sua carteira.",
@@ -1763,12 +1772,15 @@
         "error": {
           "delete": "Não foi possível excluir sua carteira.",
           "noWallet": "Você não tem carteiras salvas",
-          "pair": "Não foi possível emparelhar sua carteira"
+          "pair": "Não foi possível emparelhar sua carteira",
+          "fetchingWallets": "Ocorreu um erro ao obter carteiras."
         },
         "header": "Carteiras salvas",
         "body": "Carregando sua carteira... Digite sua senha quando solicitado.",
         "button": "Continuar",
-        "confirmForget": "Tem certeza que deseja esquecer %{wallet}?"
+        "forgetWallet": "Esqueça a carteira",
+        "confirmForget": "Tem certeza que deseja esquecer %{wallet}?",
+        "confirmForgetBody": "Você não conseguirá acessar sua carteira se não tiver feito um backup dela."
       },
       "import": {
         "header": "Importe sua carteira",
@@ -1852,6 +1864,7 @@
         "header": "Renomeie sua carteira",
         "walletName": "Novo apelido para sua carteira",
         "body": "Digite o novo apelido de sua carteira e sua senha para descriptografar sua carteira.",
+        "mobileBody": "Digite o novo apelido da sua carteira.",
         "button": "Avançar",
         "confirmDelete": "Tem certeza de que deseja excluir o apelido desta carteira?"
       },
@@ -1886,6 +1899,7 @@
         "skip": "Pular",
         "shapeshiftWallet": "Carteira ShapeShift",
         "createNewWallet": "Criar uma nova carteira",
+        "shapeshiftNative": "Carteira ShapeShift",
         "addNewWallet": "Adicionar nova carteira",
         "comingFromThorswap": "Vindo do THORSwap?",
         "importExisting": "Importar existente",
@@ -1941,6 +1955,39 @@
           "noWallet": "Você não tem carteiras salvas",
           "pair": "Não foi possível conectar sua carteira, desculpe."
         }
+      }
+    },
+    "create": {
+      "header": "Dê um nome à sua carteira",
+      "subHeader": "Escolha um apelido para sua carteira",
+      "walletName": "Minha Nova Carteira",
+      "saveLocally": "Seu apelido é salvo localmente no seu dispositivo.",
+      "visibleToYou": "Só será visível para você.",
+      "button": "Continuar"
+    },
+    "keepSafe": {
+      "headerStart": "Mantenha o seu",
+      "headerSecret": "Segredo",
+      "headerEnd": "Frase de recuperação segura",
+      "subHeader": "Garantir a segurança da sua Frase Secreta de Recuperação é crucial.",
+      "description": "Trate sua Frase Secreta de Recuperação como se fosse seu bem mais valioso – mantenha-a segura o tempo todo. Um gerenciador de senhas é uma ótima segurança, escrever as palavras é ainda melhor.",
+      "bulletPoints": {
+        "share": "Não compartilhe com mais ninguém",
+        "lose": "Se você perder, não poderemos recuperá-lo"
+      },
+      "button": "Continuar para backup"
+    },
+    "manualBackup": {
+      "header": "Backup manual",
+      "subHeader": "Salve sua Frase Secreta de Recuperação em um lugar seguro que só você controla.",
+      "copyToClipboard": "Copiar para área de transferência",
+      "copied": "Copiado!",
+      "nextStep": "Em seguida, você será solicitado a confirmar as posições de certas palavras na sua Frase Secreta de Recuperação.",
+      "button": "Continuar backup",
+      "success": {
+        "title": "Backup manual concluído",
+        "description": "O backup da sua carteira foi feito com sucesso.",
+        "viewWallet": "Ver carteira"
       }
     }
   },
@@ -2298,23 +2345,6 @@
           "prevPage": "Página anterior"
         }
       }
-    }
-  },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Pegue um Yat",
-        "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
-      },
-      "modal": {
-        "title": "Yat vinculado com sucesso"
-      },
-      "linkedYat": "Yat conectado",
-      "yatConnected": "Yat Conectado!",
-      "usdcAddress": "Endereço USDC do Yat",
-      "ethAddress": "Endereço ETH do Yat",
-      "noAddressFound": "Nenhum %{symbol} endereço encontrado",
-      "viewInApp": "Olhe no aplicativo mobile da ShapeShift"
     }
   },
   "gasInput": {

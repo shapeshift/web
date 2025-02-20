@@ -73,7 +73,7 @@ export const TradeSuccess = ({
 }: TradeSuccessProps) => {
   const translate = useTranslate()
   const tradeQuote = useAppSelector(selectActiveQuote)
-  const receiveAddress = tradeQuote!.receiveAddress
+  const receiveAddress = tradeQuote?.receiveAddress
 
   const { isOpen, onToggle: handleToggle } = useDisclosure({
     defaultIsOpen: false,

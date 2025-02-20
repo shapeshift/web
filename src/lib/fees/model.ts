@@ -9,6 +9,7 @@ import {
 } from './constant'
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
+import { FeeDiscountType } from './types'
 
 export const THORSWAP_UNIT_THRESHOLD = 1
 export const THORSWAP_MAXIMUM_YEAR_TRESHOLD = 2025
@@ -32,6 +33,7 @@ type CalculateFeeBpsArgs = {
  * @property {BigNumber} foxDiscountUsd - The USD value of the fox discount.
  * @property {BigNumber} feeUsdBeforeDiscount - The gross USD value of the fee (i.e., excluding the fox discount).
  * @property {BigNumber} feeBpsBeforeDiscount - The gross fee bps (i.e., excluding the fox discount).
+ * @property {FeeDiscountType} appliedDiscount - The type of discount applied to the fee.
  */
 export type CalculateFeeBpsReturn = {
   feeBps: BigNumber
@@ -41,6 +43,7 @@ export type CalculateFeeBpsReturn = {
   foxDiscountUsd: BigNumber
   feeUsdBeforeDiscount: BigNumber
   feeBpsBeforeDiscount: BigNumber
+  appliedDiscountType: FeeDiscountType
 }
 type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
 
@@ -162,6 +165,25 @@ export const calculateFees: CalculateFeeBps = ({
   const feeUsd = feeUsdBeforeDiscount.minus(feeUsdDiscount)
   const foxDiscountUsd = feeUsdBeforeDiscount.times(foxDiscountPercent.div(100))
 
+  const appliedDiscountType = (() => {
+    if (isFree) return FeeDiscountType.UNDER_THRESHOLD
+    if (isThorFree) return FeeDiscountType.THOR_HOLDER
+
+    const foxDiscountAmount = bnOrZero(foxHeld)
+      .times(100)
+      .div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
+
+    if (isFoxWifHatDiscountEligible && currentFoxWifHatDiscountPercent.gt(foxDiscountAmount)) {
+      return FeeDiscountType.FOX_WIF_HAT
+    }
+
+    if (foxDiscountAmount.gt(0)) {
+      return FeeDiscountType.FOX_HOLDER
+    }
+
+    return FeeDiscountType.NONE
+  })()
+
   return {
     feeBps,
     feeBpsFloat,
@@ -170,5 +192,6 @@ export const calculateFees: CalculateFeeBps = ({
     foxDiscountUsd,
     feeUsdBeforeDiscount,
     feeBpsBeforeDiscount,
+    appliedDiscountType,
   }
 }

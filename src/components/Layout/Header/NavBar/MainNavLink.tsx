@@ -32,8 +32,6 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
 
-  console.log({ label, isViewOnly })
-
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
   const translate = useTranslate()
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(

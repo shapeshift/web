@@ -269,22 +269,29 @@ type FeeOutputProps = {
 }
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, feeModel }) => {
+  const translate = useTranslate()
   const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
 
   const foxWifHatHeld = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
   )
 
-  const { feeUsd, feeBps, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
-    calculateFees({
-      tradeAmountUsd: bn(tradeSizeUSD),
-      foxHeld: bn(foxHolding),
-      feeModel,
-      isSnapshotApiQueriesRejected,
-      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
-      // @TODO: remove this when thor swap discount is removed
-      thorHeld: bn(0),
-    })
+  const {
+    feeUsd,
+    feeBps,
+    foxDiscountPercent,
+    feeUsdBeforeDiscount,
+    feeBpsBeforeDiscount,
+    appliedDiscountType,
+  } = calculateFees({
+    tradeAmountUsd: bn(tradeSizeUSD),
+    foxHeld: bn(foxHolding),
+    feeModel,
+    isSnapshotApiQueriesRejected,
+    foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
+    // @TODO: remove this when thor swap discount is removed
+    thorHeld: bn(0),
+  })
 
   const basedOnFeeTranslation: TextPropTypes['translation'] = useMemo(
     () => [
@@ -297,6 +304,14 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
   )
 
   const isFree = useMemo(() => bnOrZero(feeUsd).lte(0), [feeUsd])
+
+  const discountTypeTranslation = useMemo(() => {
+    return translate(appliedDiscountType)
+  }, [appliedDiscountType, translate])
+
+  const discountLabelTranslation: TextPropTypes['translation'] = useMemo(() => {
+    return [`foxDiscounts.discountLabel`, { discountType: discountTypeTranslation }]
+  }, [discountTypeTranslation])
 
   return (
     <Flex fontWeight='medium' pb={0}>
@@ -325,7 +340,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
             )}
           </Box>
           <Box flex={1} textAlign='center'>
-            <Text color='text.subtle' translation='foxDiscounts.foxPowerDiscount' />
+            <Text color='text.subtle' translation={discountLabelTranslation} />
             <Amount.Percent
               fontSize='3xl'
               value={foxDiscountPercent.div(100).toNumber()}

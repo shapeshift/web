@@ -423,10 +423,21 @@ export const makeAssets = async ({
     const account = portfolioAccounts[pubkey] as Account<EvmChainId>
     const assetNamespace = chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20
 
-    const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
+    const maybePortalsAccounts = await queryClient.fetchQuery({
+      queryFn: () => fetchPortalsAccount(chainId, pubkey),
+      queryKey: ['portalsAccount', chainId, pubkey],
+      // Assume that this is static as far as our lifecycle is concerned.
+      // This may seem like a dangerous stretch, but it pragmatically is not:
+      // This is fetched for a given account fetch, and the only flow there would be a refetch would really be if the user disabled an account, then re-enabled it.
+      // It's an uncommon enough flow that we could compromise on it and make the experience better for all other cases by leveraging cached data.
+      // Most importantly, even if a user were to do this, the worst case senario wouldn't be one: all we fetch here is LP tokens meta, which won't change
+      // the second time around and not the 420th time around either
+      staleTime: Infinity,
+    })
     const maybePortalsPlatforms = await queryClient.fetchQuery({
       queryFn: () => fetchPortalsPlatforms(),
       queryKey: ['portalsPlatforms'],
+      staleTime: Infinity,
     })
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(

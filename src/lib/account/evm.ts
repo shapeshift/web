@@ -25,8 +25,8 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { canAddMetaMaskAccount } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { isSmartContractAddress } from 'lib/address/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -72,7 +72,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
   for (const accountId of Object.keys(result)) {
     const { chainId, account } = fromAccountId(accountId)
-    if (await isSmartContractAddress(account, chainId)) {
+    if (await fetchIsSmartContractAddressQuery(account, chainId)) {
       maybeWalletConnectV2SmartContractAccountId = accountId
       break
     }

@@ -28,6 +28,7 @@ export const PoolsHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
   const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
+  const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
   const plusIcon = useMemo(() => <FaPlus />, [])
   const NavItems: TabItem[] = useMemo(() => {
     return [
@@ -96,7 +97,7 @@ export const PoolsHeader = () => {
           </Container>
         </Display.Desktop>
         <Container maxWidth='container.4xl'>
-          {isThorchainPoolsInstable ? (
+          {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
             <Alert status='warning' variant='subtle'>
               <AlertIcon />
               <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>

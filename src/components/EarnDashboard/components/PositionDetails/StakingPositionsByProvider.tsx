@@ -287,7 +287,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             if (!row.original.isReadOnly) return 'common.manage'
             return url ? 'common.view' : undefined
           })()
-
           const handleOverviewClick = useCallback(
             () => handleClick(row, DefiAction.Overview),
             [row],

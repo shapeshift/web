@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
@@ -74,6 +75,12 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         highestBalanceAccountAddress,
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
+
+      if (opportunity.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+        return
+      }
 
       if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -187,21 +194,37 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
       {
         Header: () => null,
         id: 'expander',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex gap={4} justifyContent='flex-end' width='full'>
-            <Button
-              variant='ghost'
-              width={expanderButtonWidth}
-              size='sm'
-              colorScheme='blue'
-              // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleClick(row, DefiAction.Overview)}
-            >
-              {translate('common.manage')}
-            </Button>
-          </Flex>
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const url = getMetadataForProvider(row.original.provider)?.url
+          const translation = (() => {
+            if (!row.original.isReadOnly) return 'common.manage'
+            return url ? 'common.view' : undefined
+          })()
+
+          const handleOverviewClick = useCallback(
+            () => handleClick(row, DefiAction.Overview),
+            [row],
+          )
+
+          return (
+            <Flex gap={4} justifyContent='flex-end' width='full'>
+              {translation && (
+                <Button
+                  variant='ghost'
+                  width={expanderButtonWidth}
+                  size='sm'
+                  colorScheme='blue'
+                  rightIcon={
+                    row.original.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined
+                  }
+                  onClick={handleOverviewClick}
+                >
+                  {translate(translation)}
+                </Button>
+              )}
+            </Flex>
+          )
+        },
       },
     ],
     [assetId, assets, handleClick, marketDataUserCurrency, translate],

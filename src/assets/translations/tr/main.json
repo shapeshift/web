@@ -11,10 +11,12 @@
     "and": "ve",
     "balance": "Bakiye",
     "next": "Sonraki",
+    "edit": "Düzenle",
     "error": "Hata",
     "show": "Göster",
     "account": "Hesap",
     "address": "Adres",
+    "noThanks": "Hayır, teşekkürler",
     "done": "Tamamlandı",
     "cancel": "İptal",
     "close": "Kapat",
@@ -1237,6 +1239,13 @@
         "menuItem": "Cüzdanımı yedekle",
         "enterPassword": "Devam etmek için şifrenizi girin",
         "testTitle": "Gizli Kurtarma İfadenizi Doğrulayın",
+        "title": "Yedeklemeyi Onayla",
+        "description": "Her şeyi doğru şekilde kaydettiğinizi doğrulamak için bu kısa testi tamamlayın.",
+        "confirm": {
+          "title": "Cüzdan yedekle",
+          "body": "Cüzdanınızı unutmadan önce gizli kurtarma cümlenizi yedeklemek ister misiniz?",
+          "backupNow": "Şimdi Yedekle"
+        },
         "info": {
           "title": "Gizli Kurtarma İfadeniz",
           "description": "Bu 12 kelimeyi bir yere yazın ve çevrimdışı olarak güvenli bir şekilde saklayın. Bu 12 kelimelik cümle, cüzdan özel anahtarlarınızı kurtarmak için kullanılır.",
@@ -1763,12 +1772,15 @@
         "error": {
           "delete": "Cüzdanınız silinemiyor, üzgünüz.",
           "noWallet": "Kayıtlı cüzdanınız yok",
-          "pair": "Cüzdanınız eşleştirilemiyor"
+          "pair": "Cüzdanınız eşleştirilemiyor",
+          "fetchingWallets": "Cüzdanlar getirilirken bir hata oluştu."
         },
         "header": "Kayıtlı Cüzdanlar",
         "body": "Kayıtlı cüzdanınız yükleniyor... İstendiğinde şifrenizi girin.",
         "button": "Devam et",
-        "confirmForget": "%{wallet}'ı unutmak istediğinizden emin misiniz?"
+        "forgetWallet": "Cüzdanı Unut",
+        "confirmForget": "%{wallet}'ı unutmak istediğinizden emin misiniz?",
+        "confirmForgetBody": "Cüzdanınızı yedeklemediyseniz, cüzdanınıza erişim sağlayamazsınız."
       },
       "import": {
         "header": "Cüzdanınızı içe aktarın",
@@ -1852,6 +1864,7 @@
         "header": "Cüzdanını yeniden adlandır",
         "walletName": "Cüzdanınız için yeni takma ad",
         "body": "Cüzdanınızın şifresini çözmek için cüzdanınızın yeni takma adını ve şifrenizi girin.",
+        "mobileBody": "Cüzdanınızın yeni takma adını girin.",
         "button": "Sonraki",
         "confirmDelete": "Bu cüzdanın takma adını silmek istediğinizden emin misiniz?"
       },
@@ -1886,6 +1899,7 @@
         "skip": "Geç",
         "shapeshiftWallet": "ShapeShift Cüzdanı",
         "createNewWallet": "Yeni bir cüzdan oluştur",
+        "shapeshiftNative": "ShapeShift Cüzdanı",
         "addNewWallet": "Yeni cüzdan ekle",
         "comingFromThorswap": "THORSwap'tan mı geliyorsunuz?",
         "importExisting": "Mevcut olanı içe aktar",
@@ -1941,6 +1955,39 @@
           "noWallet": "Kayıtlı cüzdanınız yok",
           "pair": "Cüzdanınız eşleştirilemiyor"
         }
+      }
+    },
+    "create": {
+      "header": "Cüzdanınıza bir isim verin",
+      "subHeader": "Cüzdanınız için bir takma ad seçin",
+      "walletName": "Yeni Cüzdanım",
+      "saveLocally": "Takma adınız yerel olarak cihazınıza kaydedilir.",
+      "visibleToYou": "Sadece siz görebileceksiniz.",
+      "button": "Devam"
+    },
+    "keepSafe": {
+      "headerStart": "Gizli",
+      "headerSecret": "Kurtarma",
+      "headerEnd": "Kurtarma İfadenizi Güvende Tutun",
+      "subHeader": "Gizli Kurtarma Cümlenizin güvenliğini sağlamak hayati önem taşır.",
+      "description": "Gizli Kurtarma Cümlenize en değerli eşyanız gibi davranın - her zaman güvende tutun. Bir parola yöneticisi harika bir güvenliktir, kelimeleri yazmak daha da iyidir.",
+      "bulletPoints": {
+        "share": "Başka kimseyle paylaşmayın",
+        "lose": "Kaybederseniz, onu geri alamayız"
+      },
+      "button": "Yedeklemeye Devam Et"
+    },
+    "manualBackup": {
+      "header": "Manuel Yedekleme",
+      "subHeader": "Gizli Kurtarma Cümlenizi yalnızca sizin kontrolünüzde olan güvenli bir yerde saklayın.",
+      "copyToClipboard": "Panoya kopyala",
+      "copied": "Kopyalandı!",
+      "nextStep": "Daha sonra Gizli Kurtarma Cümlenizdeki belirli kelimelerin yerlerini onaylamanız istenecek.",
+      "button": "Yedeklemeye devam et",
+      "success": {
+        "title": "Manuel Yedekleme Tamamlandı",
+        "description": "Cüzdanınız başarıyla yedeklendi.",
+        "viewWallet": "Cüzdanı Görüntüle"
       }
     }
   },
@@ -2298,23 +2345,6 @@
           "prevPage": "Önceki sayfa"
         }
       }
-    }
-  },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Yat Alın",
-        "description": "Yat'ınız evrensel emoji kullanıcı adınız, web sitesi URL'niz, ödeme adresiniz ve daha fazlasıdır."
-      },
-      "modal": {
-        "title": "Yat başarıyla bağlandı"
-      },
-      "linkedYat": "Yat bağla",
-      "yatConnected": "Yat Bağlandı!",
-      "usdcAddress": "Yat USDC adresi",
-      "ethAddress": "Yat ETH adresi",
-      "noAddressFound": "%{symbol} adresi bulunamadı",
-      "viewInApp": "ShapeShift Mobil Uygulamasında Görüntüle"
     }
   },
   "gasInput": {

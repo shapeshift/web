@@ -22,6 +22,7 @@ import type { FC } from 'react'
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
@@ -153,10 +154,13 @@ const MenuOptions = ({
 
         return (
           <React.Fragment key={accountNumber}>
-            <AccountSegment
-              title={translate('accounts.accountNumber', { accountNumber })}
-              subtitle={isUtxo ? asset.name : accountIdToLabel(firstAccountId)}
-            />
+            <Flex px={2} py={2}>
+              <AccountSegment
+                title={translate('accounts.accountNumber', { accountNumber })}
+                subtitle={isUtxo ? asset.name : accountIdToLabel(firstAccountId)}
+              />
+              {!isUtxo && <InlineCopyButton value={fromAccountId(firstAccountId).account} />}
+            </Flex>
             {sortedAccountIds.map((iterAccountId, index) => (
               <AccountChildOption
                 accountId={iterAccountId}

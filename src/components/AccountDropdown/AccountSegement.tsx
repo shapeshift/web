@@ -10,12 +10,11 @@ type AccountGroupProps = {
 export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
   <Stack
     direction='row'
-    px={4}
-    py={2}
     color='text.subtle'
     fontSize='sm'
     alignItems='center'
     justifyContent='space-between'
+    width='full'
   >
     <RawText>{title}</RawText>
     {subtitle && (

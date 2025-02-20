@@ -18,13 +18,14 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
-import { Route, Switch, useHistory } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { KeyManager } from '../KeyManager'
+import type { LocationState } from '../NativeWallet/types'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
@@ -96,6 +97,7 @@ export const NewWalletViewsSwitch = () => {
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
 
   const history = useHistory()
+  const location = useLocation<LocationState>()
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -129,15 +131,29 @@ export const NewWalletViewsSwitch = () => {
   }, [toast, translate, wallet])
 
   const handleBack = useCallback(async () => {
-    history.goBack()
+    const { pathname } = history.location
+
+    if (location.state?.vault && pathname === NativeWalletRoutes.CreateTest) {
+      history.replace({
+        pathname: NativeWalletRoutes.Create,
+        state: { vault: location.state.vault },
+      })
+
+      // Queue navigation in the next tick to ensure state is updated
+      setTimeout(() => {
+        history.goBack()
+      }, 0)
+    } else {
+      history.goBack()
+    }
+
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
-    const { pathname } = history.location
     if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()
-  }, [cancelWalletRequests, dispatch, history])
+  }, [cancelWalletRequests, dispatch, history, location.state])
 
   const handleRouteReset = useCallback(() => {
     history.replace(INITIAL_WALLET_MODAL_ROUTE)

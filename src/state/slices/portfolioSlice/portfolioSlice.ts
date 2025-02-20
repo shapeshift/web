@@ -6,8 +6,11 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -179,8 +182,26 @@ export const portfolioApi = createApi({
         try {
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-          const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
+          // We want the query to be Infinity staleTime and gcTime for later use, but we also want it to always refetch
+          // This is consumed by TransactionProvider and failure to do so means portfolio will *not* be updated
+          await queryClient.invalidateQueries({
+            queryKey: accountManagement.getAccount(accountId).queryKey,
+            refetchType: 'all',
+            exact: true,
+          })
+          const portfolioAccounts = {
+            [pubkey]: await queryClient.fetchQuery({
+              ...accountManagement.getAccount(accountId),
+              staleTime: Infinity,
+              // Never garbage collect me, I'm a special snowflake
+              gcTime: Infinity,
+            }),
+          }
+
           const nftCollectionsById = selectNftCollections(state)
+
+          // Prefetch smart contract checks - do *not* await/.then() me, this is only for the purpose of having this cached later
+          fetchIsSmartContractAddressQuery(pubkey, chainId)
 
           const data = await (async (): Promise<Portfolio> => {
             const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })

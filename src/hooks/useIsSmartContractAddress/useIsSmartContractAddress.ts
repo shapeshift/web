@@ -21,6 +21,8 @@ export const fetchIsSmartContractAddressQuery = (userAddress: string, chainId: C
     queryFn: () => isSmartContractAddress(userAddress, chainId),
     // Assume if an address isn't a sc, it never will be in the lifetime of a tab
     staleTime: Infinity,
+    // And don't garbage collect me either, this isn't guaranteed to have listeners
+    gcTime: Infinity,
   })
 }
 export const useIsSmartContractAddress = (address: string, chainId: ChainId) => {
@@ -41,6 +43,8 @@ export const useIsSmartContractAddress = (address: string, chainId: ChainId) => 
         : skipToken,
     // Assume if an address isn't a sc, it never will be in the lifetime of a tab
     staleTime: Infinity,
+    // Seriously. It never will.
+    gcTime: Infinity,
   })
 
   return query

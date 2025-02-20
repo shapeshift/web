@@ -13,7 +13,6 @@ export type RevocableObject<T> = T & crypto.Isolation.Engines.Default.Revocable
 export interface MobileLocationState {
   // This is passed between setup screens and then revoked when done
   vault?: RevocableWallet
-  isLegacyWallet?: boolean
   error?: {
     message: string
   }

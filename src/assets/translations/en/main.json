@@ -141,6 +141,7 @@
     "buyNow": "Buy Now",
     "manage": "Manage",
     "view": "View",
+    "viewOnly": "View-Only",
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
     "wallet": "Wallet",
@@ -193,7 +194,8 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "viewOnly": "View-Only"
   },
   "consentBanner": {
     "body": {
@@ -589,6 +591,8 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "Home",
     "activity": "Activity",
     "myWallet": "My Wallet",
@@ -623,7 +627,7 @@
     "lending": "Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
-    "foxBenefits": "FOX Benefits",
+    "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
     "actionMenu": {
       "send": {

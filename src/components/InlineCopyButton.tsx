@@ -34,31 +34,25 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   // Hide the copy button if it is disabled
   if (isDisabled) return <>{children}</>
 
+  const buttonProps = {
+    icon: isCopied ? checkIcon : copyIcon,
+    colorScheme: isCopied ? 'green' : 'gray',
+    size: 'xs',
+    variant: 'ghost',
+    fontSize: 'sm',
+    'aria-label': 'Copy value',
+    onClick: handleCopyClick,
+  }
+
   return (
     <Flex gap={2} alignItems='center'>
       {children}
       {translate ? (
         <TooltipWithTouch label={translate(isCopied ? 'common.copied' : 'common.copy')}>
-          <IconButton
-            icon={isCopied ? checkIcon : copyIcon}
-            colorScheme={isCopied ? 'green' : 'gray'}
-            size='sm'
-            variant='ghost'
-            fontSize='xl'
-            aria-label='Copy value'
-            onClick={handleCopyClick}
-          />
+          <IconButton {...buttonProps} />
         </TooltipWithTouch>
       ) : (
-        <IconButton
-          icon={isCopied ? checkIcon : copyIcon}
-          colorScheme={isCopied ? 'green' : 'gray'}
-          size='sm'
-          variant='ghost'
-          fontSize='xl'
-          aria-label='Copy value'
-          onClick={handleCopyClick}
-        />
+        <IconButton {...buttonProps} />
       )}
     </Flex>
   )

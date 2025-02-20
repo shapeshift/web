@@ -25,6 +25,7 @@ import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import type { ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -93,7 +94,6 @@ const MenuOptions = ({
   onClick,
 }: MenuOptionsProps) => {
   const { assetId, chainId } = asset
-
   const translate = useTranslate()
   const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
@@ -149,13 +149,13 @@ const MenuOptions = ({
         // the account sub title uses an account id which is then converted to a chainId and pubkey
         // so for convenience and simplicity we can safely use the first account id here
         const [firstAccountId] = accountIds
-        const subtitle = accountIdToLabel(firstAccountId)
+        const isUtxo = isUtxoAccountId(firstAccountId)
 
         return (
           <React.Fragment key={accountNumber}>
             <AccountSegment
               title={translate('accounts.accountNumber', { accountNumber })}
-              subtitle={subtitle}
+              subtitle={isUtxo ? asset.name : accountIdToLabel(firstAccountId)}
             />
             {sortedAccountIds.map((iterAccountId, index) => (
               <AccountChildOption

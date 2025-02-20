@@ -1,8 +1,6 @@
 import {
   Box,
   Button,
-  Checkbox,
-  Divider,
   Flex,
   Icon,
   ModalBody,
@@ -44,7 +42,6 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const borderColor = useColorModeValue('gray.300', 'whiteAlpha.200')
   const dottedTitleBackground = useColorModeValue('#f7fafc', '#2e3236')
   const [testState, setTestState] = useState<TestState | null>(null)
-  const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const testCount = useRef(0)
   const [revoker] = useState(new (Revocable(class {}))())
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
@@ -69,13 +66,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
     [borderColor],
   )
 
-  const onCheck = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    // Check the captcha in case the captcha has been validated
-    setHasAlreadySaved(e.target.checked)
-    return
-  }, [])
-
-  const { vault, isLegacyWallet } = location.state
+  const { vault } = location.state
 
   const shuffleMnemonic = useCallback(async () => {
     if (testCount.current >= TEST_COUNT_REQUIRED) return
@@ -134,11 +125,6 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
       shuffleMnemonic()
     }
   }
-
-  const handleSkipClick = useCallback(
-    () => history.push('/native/password', { vault }),
-    [history, vault],
-  )
 
   return !testState ? null : (
     <>
@@ -233,37 +219,6 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
             ))}
           </Flex>
         </Flex>
-
-        {isLegacyWallet && (
-          <Box>
-            <Box position='relative' mb={8} mt={10}>
-              <Divider />
-              <Text
-                translation={'common.or'}
-                transform='translate(-50%, -50%)'
-                left='50%'
-                position='absolute'
-                color='text.subtle'
-              />
-            </Box>
-            <Checkbox mb={4} spacing={4} onChange={onCheck} isChecked={hasAlreadySaved}>
-              <Text
-                fontSize='sm'
-                translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
-              />
-            </Checkbox>
-            <Button
-              colorScheme='blue'
-              width='full'
-              size='md'
-              isDisabled={!hasAlreadySaved}
-              data-test='wallet-native-login-skip'
-              onClick={handleSkipClick}
-            >
-              <Text translation={'common.skip'} />
-            </Button>
-          </Box>
-        )}
       </ModalBody>
     </>
   )

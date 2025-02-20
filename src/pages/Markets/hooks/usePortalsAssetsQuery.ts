@@ -36,6 +36,7 @@ export const usePortalsAssetsQuery = ({
   const { data: portalsPlatformsData } = useQuery({
     queryKey: ['portalsPlatforms'],
     queryFn: enabled ? () => fetchPortalsPlatforms() : skipToken,
+    // This should effectively be considered static as far as the lifecycle of the app/our usage is concerned
     staleTime: Infinity,
   })
 

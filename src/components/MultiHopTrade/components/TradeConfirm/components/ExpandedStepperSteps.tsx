@@ -19,6 +19,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
+import { bn } from 'lib/bignumber/bignumber'
 import {
   selectFirstHopSellAccountId,
   selectSecondHopSellAccountId,
@@ -195,7 +196,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       )
     )
       return
-    if (firstHopAmountCryptoBaseUnit === prevFirstHopAmountCryptoBaseUnit) return
+    if (bn(firstHopAmountCryptoBaseUnit).gte(prevFirstHopAmountCryptoBaseUnit)) return
 
     rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
   }, [

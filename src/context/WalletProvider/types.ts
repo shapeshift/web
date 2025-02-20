@@ -35,8 +35,6 @@ export enum NativeWalletRoutes {
   CreateTest = '/native/create-test',
   Success = '/native/success',
   EnterPassword = '/native/enter-password',
-  LegacyLogin = '/native/legacy/login',
-  LegacyLoginSuccess = '/native/legacy/login/success',
 }
 
 export type GetAdapter = <K extends keyof AdaptersByKeyManager>(

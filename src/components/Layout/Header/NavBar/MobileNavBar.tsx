@@ -208,8 +208,8 @@ export const MobileNavBar = memo(() => {
         display={displayProp}
         className='mobile-nav'
       >
-        {allRoutes.map(route => (
-          <MobileNavLink key={route.path} {...route} />
+        {allRoutes.map((route, index) => (
+          <MobileNavLink key={route.path} {...route} order={index < 2 ? index + 1 : index + 2} />
         ))}
         <Flex alignItems='center' justifyContent='center' order={3}>
           <IconButton

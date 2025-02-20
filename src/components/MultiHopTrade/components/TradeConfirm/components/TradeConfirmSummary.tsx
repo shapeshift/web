@@ -13,7 +13,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
-import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
+import { BigNumber, bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -257,7 +257,12 @@ export const TradeConfirmSummary = () => {
             <Flex alignItems='center' gap={2}>
               {bnOrZero(affiliateFeeAfterDiscountUserCurrency).gt(0) ? (
                 <>
-                  <Amount.Fiat value={affiliateFeeAfterDiscountUserCurrency} />
+                  <Amount.Fiat
+                    value={bnOrZero(affiliateFeeAfterDiscountUserCurrency).toFixed(
+                      2,
+                      BigNumber.ROUND_HALF_UP,
+                    )}
+                  />
                   <QuestionIcon />
                 </>
               ) : (

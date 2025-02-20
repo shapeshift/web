@@ -77,6 +77,36 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
     },
   )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
 
+export const selectAppliedDiscountType = createCachedSelector(
+  (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
+  (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
+  selectVotingPower,
+  selectThorVotingPower,
+  selectIsSnapshotApiQueriesRejected,
+  selectPortfolioAssetBalancesBaseUnit,
+  (
+    feeModel,
+    inputAmountUsd,
+    votingPower,
+    thorVotingPower,
+    isSnapshotApiQueriesRejected,
+    assetBalances,
+  ) => {
+    const foxWifHatHeld = assetBalances[foxWifHatAssetId]
+
+    const fees = calculateFees({
+      tradeAmountUsd: bnOrZero(inputAmountUsd),
+      foxHeld: bnOrZero(votingPower),
+      thorHeld: bnOrZero(thorVotingPower),
+      foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
+      feeModel,
+      isSnapshotApiQueriesRejected,
+    })
+
+    return fees.appliedDiscountType
+  },
+)((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
+
 export const selectIsVotingPowerLoading = createSelector(
   selectIsSnapshotApiQueriesPending,
   selectSwapperVotingPower,

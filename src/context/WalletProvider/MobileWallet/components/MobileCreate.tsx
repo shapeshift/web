@@ -117,7 +117,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
       try {
         setIsSaving(true)
         vault.label = label
-        history.push('/mobile/create-test', { vault, isLegacyWallet: false })
+        history.push('/mobile/create-test', { vault })
       } catch (e) {
         console.log(e)
       } finally {

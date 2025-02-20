@@ -50,7 +50,6 @@ export type FeatureFlags = {
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
-  ShapeShiftMobileWallet: boolean
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
@@ -152,7 +151,6 @@ const initialState: Preferences = {
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
-    ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,

@@ -154,7 +154,6 @@ export const calculateFees: CalculateFeeBps = ({
 
   const appliedDiscountType = (() => {
     if (isFree) return FeeDiscountType.UNDER_THRESHOLD
-    if (isThorFree) return FeeDiscountType.THOR_HOLDER
 
     const foxDiscountAmount = bnOrZero(foxHeld)
       .times(100)

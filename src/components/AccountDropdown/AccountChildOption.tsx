@@ -17,10 +17,11 @@ export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
   ({ accountId, title, cryptoBalance, symbol, children, onOptionClick, ...props }, ref) => {
     const color = useColorModeValue('black', 'white')
     const handleClick = useCallback(() => onOptionClick(accountId), [accountId, onOptionClick])
+
     return (
       <MenuItemOption ref={ref} color={color} onClick={handleClick} {...props}>
-        <Stack direction='row' justifyContent='space-between' fontSize='sm' spacing={4}>
-          <RawText fontWeight='bold' whiteSpace='nowrap'>
+        <Stack direction='row' fontSize='sm' spacing={4} width='full'>
+          <RawText fontWeight='bold' whiteSpace='nowrap' flex={1}>
             {title}
           </RawText>
           <Amount.Crypto

@@ -18,7 +18,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { accountManagement, GET_ACCOUNT_STALE_TIME } from 'react-queries/queries/accountManagement'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText } from 'components/Text'
@@ -73,11 +73,13 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
-  const { data: account, isFetching: isAccountFetching } = useQuery({
+  const { data: account } = useQuery({
     ...accountManagement.getAccount(accountId),
-    staleTime: GET_ACCOUNT_STALE_TIME,
+    staleTime: Infinity,
     // Never garbage collect me, I'm a special snowflake
     gcTime: Infinity,
+    // Yes, we do refetch on mount despite having an Infinity stale time. Stale then fresh FTW.
+    refetchOnMount: 'always',
   })
 
   const assetBalanceCryptoPrecision = useMemo(() => {
@@ -97,11 +99,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
         </InlineCopyButton>
       </Td>
       <Td textAlign='right'>
-        {isAccountFetching ? (
-          <Skeleton height='24px' width='100%' />
-        ) : (
-          <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
-        )}
+        <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
       </Td>
     </>
   )
@@ -368,7 +366,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
         // "Fetch" the query leveraging the existing cached data
         const account = await queryClient.fetchQuery({
           ...accountManagement.getAccount(accountId),
-          staleTime: GET_ACCOUNT_STALE_TIME,
+          staleTime: Infinity,
           // Never garbage collect me, I'm a special snowflake
           gcTime: Infinity,
         })

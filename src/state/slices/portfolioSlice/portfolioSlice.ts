@@ -6,7 +6,7 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
-import { accountManagement, GET_ACCOUNT_STALE_TIME } from 'react-queries/queries/accountManagement'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -182,11 +182,17 @@ export const portfolioApi = createApi({
         try {
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-          // "Fetch" the query leveraging the existing cached data
+          // We want the query to be Infinity staleTime and gcTime for later use, but we also want it to always refetch
+          // This is consumed by TransactionProvider and failure to do so means portfolio will *not* be updated
+          await queryClient.invalidateQueries({
+            queryKey: accountManagement.getAccount(accountId).queryKey,
+            refetchType: 'all',
+            exact: true,
+          })
           const portfolioAccounts = {
             [pubkey]: await queryClient.fetchQuery({
               ...accountManagement.getAccount(accountId),
-              staleTime: GET_ACCOUNT_STALE_TIME,
+              staleTime: Infinity,
               // Never garbage collect me, I'm a special snowflake
               gcTime: Infinity,
             }),

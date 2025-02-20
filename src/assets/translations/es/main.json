@@ -11,10 +11,12 @@
     "and": "y",
     "balance": "Balance",
     "next": "Siguiente",
+    "edit": "Editar",
     "error": "Error",
     "show": "Mostrar",
     "account": "Cuenta",
     "address": "Dirección",
+    "noThanks": "No, gracias",
     "done": "Finalizado",
     "cancel": "Cancelar",
     "close": "Cerrar",
@@ -1237,6 +1239,13 @@
         "menuItem": "Hacer una copia de seguridad de mi billetera",
         "enterPassword": "Ingrese su contraseña para continuar",
         "testTitle": "Verifique su Frase Secreta de Recuperación",
+        "title": "Confirmar copia de seguridad",
+        "description": "Complete esta prueba rápida para confirmar que ha guardado todo correctamente.",
+        "confirm": {
+          "title": "Respaldar Billetera",
+          "body": "Antes de olvidar tu billetera, ¿te gustaría respaldar tu frase de recuperación secreta?",
+          "backupNow": "Copia de seguridad ahora"
+        },
         "info": {
           "title": "Su Frase Secreta de Recuperación",
           "description": "Escriba estas 12 palabras y guárdelas de forma segura fuera de línea. Esta frase de 12 palabras se usa para recuperar las claves privadas de su billetera.",
@@ -1763,12 +1772,15 @@
         "error": {
           "delete": "No se puede eliminar tu billetera, lo siento.",
           "noWallet": "No tienes billeteras guardados",
-          "pair": "No se puede emparejar su billetera"
+          "pair": "No se puede emparejar su billetera",
+          "fetchingWallets": "Se produjo un error al obtener las billeteras."
         },
         "header": "Billeteras Guardadas",
         "body": "Cargando su billetera guardada... Ingrese su contraseña cuando se le solicite.",
         "button": "Continuar",
-        "confirmForget": "¿Estás seguro de que quieres olvidar %{wallet}?"
+        "forgetWallet": "Olvidar Billetera",
+        "confirmForget": "¿Estás seguro de que quieres olvidar %{wallet}?",
+        "confirmForgetBody": "No podrás acceder a tu billetera si no realizas una copia de seguridad de la misma."
       },
       "import": {
         "header": "Importa tu billetera",
@@ -1852,6 +1864,7 @@
         "header": "Cambia el nombre de tu billetera",
         "walletName": "Nuevo apodo para tu billetera",
         "body": "Ingrese el nuevo apodo de su billetera y su contraseña para descifrar su billetera.",
+        "mobileBody": "Ingresa el nuevo apodo de tu billetera.",
         "button": "Siguiente",
         "confirmDelete": "¿Está seguro de que desea eliminar el apodo de esta billetera?"
       },
@@ -1886,6 +1899,7 @@
         "skip": "Saltar",
         "shapeshiftWallet": "Billetera ShapeShift",
         "createNewWallet": "Crear una billetera nueva",
+        "shapeshiftNative": "Billetera ShapeShift",
         "addNewWallet": "Agregar nueva billetera",
         "comingFromThorswap": "¿Vienes de THORSwap?",
         "importExisting": "Importar existente",
@@ -1941,6 +1955,39 @@
           "noWallet": "No hay billeteras guardadas",
           "pair": "No se puede emparejar billetera"
         }
+      }
+    },
+    "create": {
+      "header": "Dale un nombre a tu billetera",
+      "subHeader": "Elige un apodo para tu billetera",
+      "walletName": "Mi Nueva Billetera",
+      "saveLocally": "Su apodo se guarda localmente en su dispositivo.",
+      "visibleToYou": "Sólo será visible para usted.",
+      "button": "Continuar"
+    },
+    "keepSafe": {
+      "headerStart": "Mantén",
+      "headerSecret": "Secreta",
+      "headerEnd": "y Segura Tu Frase de Recuperación",
+      "subHeader": "Garantizar la seguridad de su Frase Secreta de Recuperación es crucial.",
+      "description": "Trate su Frase Secreta de Recuperación como si fuera su posesión más valiosa: manténgala segura en todo momento. Un administrador de contraseñas es una excelente medida de seguridad, pero escribir las palabras es aún mejor.",
+      "bulletPoints": {
+        "share": "No la compartas con nadie más",
+        "lose": "Si la pierdes, no podemos recuperarla"
+      },
+      "button": "Continuar con la copia de seguridad"
+    },
+    "manualBackup": {
+      "header": "Copia de seguridad Manual",
+      "subHeader": "Guarde su Frase Secreta de Recuperación en un lugar seguro que sólo usted controle.",
+      "copyToClipboard": "Copiar al portapapeles",
+      "copied": "Copiado!",
+      "nextStep": "A continuación se le pedirá confirmar posiciones de ciertas palabras en su Frase Secreta de Recuperación.",
+      "button": "Continuar copia de seguridad",
+      "success": {
+        "title": "Copia de Seguridad Manual Completa",
+        "description": "Su billetera ha sido respaldada exitosamente.",
+        "viewWallet": "Ver Billetera"
       }
     }
   },
@@ -2298,23 +2345,6 @@
           "prevPage": "Pagina Anterior"
         }
       }
-    }
-  },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Consigue un Yat",
-        "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
-      },
-      "modal": {
-        "title": "Yat vinculado con éxito"
-      },
-      "linkedYat": "Yat vinculado",
-      "yatConnected": "Yat conectado!",
-      "usdcAddress": "Dirección Yat USDC",
-      "ethAddress": "Dirección Yat ETH",
-      "noAddressFound": "No %{symbol} dirección encontrada",
-      "viewInApp": "Ver en la App Móvil ShapeShift"
     }
   },
   "gasInput": {

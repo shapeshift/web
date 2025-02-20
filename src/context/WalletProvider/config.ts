@@ -68,11 +68,6 @@ const NativePassword = lazy(() =>
     default: NativePassword,
   })),
 )
-const NativeLegacySuccess = lazy(() =>
-  import('./NativeWallet/components/NativeLegacySuccess').then(({ NativeLegacySuccess }) => ({
-    default: NativeLegacySuccess,
-  })),
-)
 const NativeLoad = lazy(() =>
   import('./NativeWallet/components/NativeLoad').then(({ NativeLoad }) => ({
     default: NativeLoad,
@@ -94,11 +89,6 @@ const NativeImportKeystore = lazy(() =>
   })),
 )
 
-const NativeLegacyLogin = lazy(() =>
-  import('./NativeWallet/components/NativeLegacyLogin').then(({ NativeLegacyLogin }) => ({
-    default: NativeLegacyLogin,
-  })),
-)
 const EnterPassword = lazy(() =>
   import('./NativeWallet/components/EnterPassword').then(({ EnterPassword }) => ({
     default: EnterPassword,
@@ -281,21 +271,6 @@ const MobileImport = lazy(() =>
     default: MobileImport,
   })),
 )
-const MobileLegacyCreate = lazy(() =>
-  import('./MobileWallet/components/MobileLegacyCreate').then(({ MobileLegacyCreate }) => ({
-    default: MobileLegacyCreate,
-  })),
-)
-const MobileLegacyLogin = lazy(() =>
-  import('./MobileWallet/components/MobileLegacyLogin').then(({ MobileLegacyLogin }) => ({
-    default: MobileLegacyLogin,
-  })),
-)
-const MobileLegacySuccess = lazy(() =>
-  import('./MobileWallet/components/MobileLegacySuccess').then(({ MobileLegacySuccess }) => ({
-    default: MobileLegacySuccess,
-  })),
-)
 const MobileLoad = lazy(() =>
   import('./MobileWallet/components/MobileLoad').then(({ MobileLoad }) => ({
     default: MobileLoad,
@@ -358,10 +333,6 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/mobile/create', component: MobileCreate },
       { path: '/mobile/create-test', component: MobileCreateTest },
       { path: '/mobile/success', component: MobileSuccess },
-      { path: '/mobile/legacy/login', component: MobileLegacyLogin },
-      { path: '/mobile/legacy/login/success', component: MobileLegacySuccess },
-      // WalletProvider.create looks for the first path that ends in "create"
-      { path: '/mobile/legacy/create', component: MobileLegacyCreate },
     ],
     connectedMenuComponent: NativeMenu,
   },
@@ -379,8 +350,6 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: NativeWalletRoutes.CreateTest, component: NativeTestPhrase },
       { path: NativeWalletRoutes.Success, component: NativeSuccess },
       { path: NativeWalletRoutes.EnterPassword, component: EnterPassword },
-      { path: NativeWalletRoutes.LegacyLogin, component: NativeLegacyLogin },
-      { path: NativeWalletRoutes.LegacyLoginSuccess, component: NativeLegacySuccess },
     ],
     connectedMenuComponent: NativeMenu,
   },

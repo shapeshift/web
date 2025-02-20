@@ -59,6 +59,7 @@ export const NavBar = (props: NavBarProps) => {
   const renderNavGroups = useMemo(() => {
     return navItemGroups.map((group, id) => {
       const [name, values] = group
+      console.log({ values })
       return (
         <Stack key={id}>
           {name && name !== RouteCategory.Featured && isLargerThanMd && (
@@ -82,6 +83,7 @@ export const NavBar = (props: NavBarProps) => {
               href={item.path}
               to={item.path}
               isNew={item.isNew}
+              isViewOnly={item.isViewOnly}
               size='lg'
               onClick={onClick}
               label={translate(item.label)}

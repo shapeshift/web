@@ -138,6 +138,8 @@
     "needAsset": "Brauchen Sie %{asset}?",
     "buyNow": "Kaufe jetzt",
     "manage": "Verwalten",
+    "view": "Ansicht",
+    "viewOnly": "Nur Ansicht",
     "selectedAccount": "Ausgewähltes Konto",
     "allChains": "All Blockchains",
     "wallet": "Wallet",
@@ -337,7 +339,7 @@
           "risks": "Gibt es Risiken?"
         },
         "bodies": {
-          "rateFluctuationInfo": "Der Betrag von %{assetName}, den Sie verdienen, die jährliche prozentuale Rendite (APR), schwankt normalerweise zwischen 7 % und 20 %.",
+          "rateFluctuationInfo": "Der Betrag von %{assetName}, den Sie verdienen, die jährliche prozentuale Rendite (APR), schwankt normalerweise zwischen 7 % und 20 %.",
           "amountStakingInfo": "Sie können einen beliebigen Betrag von %{assetName} einsetzen und erhalten sofort Belohnungen.",
           "withdrawInfo": "Sie können Ihre Prämien jederzeit abheben, wofür eine geringe Transfergebühr von ca. 0,01 $ anfällt.",
           "unbondingInfo": "Wenn Sie Ihre Token aus Staking entfernen, bleiben sie für %{unbondingDays} Tage gesperrt, während dieser Zeit erhalten sie keine Belohnungen. Nach %{unbondingDays} Tagen wird Ihr %{assetName} zu Ihrem primären Wallet übertragen.",
@@ -752,7 +754,7 @@
         "approve": "Genehmige",
         "approveSymbol": "Genehmige %{symbol}",
         "revoke": "Widerrufe",
-        "revokeSymbol": "Widerrufe %{symbol} Genehmigung ",
+        "revokeSymbol": "Widerrufe %{symbol} Genehmigung ",
         "infinite": "Unendlich ∞",
         "amountUnavailable": "Nicht verfügbar"
       },

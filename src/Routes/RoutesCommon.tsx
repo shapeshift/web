@@ -268,6 +268,7 @@ export const routes: Route[] = [
     priority: 2,
     mobileNav: false,
     disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    isViewOnly: true,
   },
   {
     path: '/assets',

@@ -141,6 +141,7 @@
     "buyNow": "Buy Now",
     "manage": "Manage",
     "view": "View",
+    "viewOnly": "View-Only",
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
     "wallet": "Wallet",
@@ -193,7 +194,8 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "viewOnly": "View-Only"
   },
   "consentBanner": {
     "body": {

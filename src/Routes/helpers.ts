@@ -32,6 +32,7 @@ export type Route = {
   hideDesktop?: boolean
   breadcrumb?: string | React.ReactNode
   isNew?: boolean
+  isViewOnly?: boolean
   category?: RouteCategory
 } & (
   | {

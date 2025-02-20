@@ -76,7 +76,7 @@ export const AssetSummaryStep = ({
       )
     )
       return
-    if (amountCryptoBaseUnit === prevAmountCryptoBaseUnit) return
+    if (bn(amountCryptoBaseUnit).gte(prevAmountCryptoBaseUnit)) return
 
     rateChanged.open({ prevAmountCryptoBaseUnit })
   }, [amountCryptoBaseUnit, isLastStep, prevAmountCryptoBaseUnit, rateChanged])

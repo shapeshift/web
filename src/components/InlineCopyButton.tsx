@@ -1,7 +1,7 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Flex, IconButton } from '@chakra-ui/react'
 import type { MouseEvent, PropsWithChildren } from 'react'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useCopyToClipboard } from 'hooks/useCopyToClipboard'
 
@@ -31,18 +31,21 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
     [copyToClipboard, value],
   )
 
+  const buttonProps = useMemo(
+    () => ({
+      icon: isCopied ? checkIcon : copyIcon,
+      colorScheme: isCopied ? 'green' : 'gray',
+      size: 'xs',
+      variant: 'ghost',
+      fontSize: 'sm',
+      'aria-label': 'Copy value',
+      onClick: handleCopyClick,
+    }),
+    [handleCopyClick, isCopied],
+  )
+
   // Hide the copy button if it is disabled
   if (isDisabled) return <>{children}</>
-
-  const buttonProps = {
-    icon: isCopied ? checkIcon : copyIcon,
-    colorScheme: isCopied ? 'green' : 'gray',
-    size: 'xs',
-    variant: 'ghost',
-    fontSize: 'sm',
-    'aria-label': 'Copy value',
-    onClick: handleCopyClick,
-  }
 
   return (
     <Flex gap={2} alignItems='center'>

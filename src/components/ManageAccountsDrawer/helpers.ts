@@ -1,10 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { matchSorter } from 'match-sorter'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { assertGetChainAdapter, isSome } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { checkAccountHasActivity } from 'state/slices/portfolioSlice/utils'
 
 export const filterChainIdsBySearchTerm = (search: string, chainIds: ChainId[]) => {
@@ -42,9 +43,13 @@ export const getAccountIdsWithActivityAndMetadata = async (
 
   return Promise.all(
     Object.entries(accountIdsAndMetadata).map(async ([accountId, accountMetadata]) => {
-      const { account: pubkey } = fromAccountId(accountId)
-      const adapter = assertGetChainAdapter(chainId)
-      const account = await adapter.getAccount(pubkey)
+      const account = await queryClient.fetchQuery({
+        ...accountManagement.getAccount(accountId),
+        staleTime: Infinity,
+        // Never garbage collect me, I'm a special snowflake
+        gcTime: Infinity,
+      })
+
       const hasActivity = checkAccountHasActivity(account)
 
       return { accountId, accountMetadata, hasActivity }

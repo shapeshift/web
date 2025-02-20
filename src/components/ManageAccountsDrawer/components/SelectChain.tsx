@@ -18,12 +18,14 @@ import { useAppSelector } from 'state/store'
 
 import { filterChainIdsBySearchTerm } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
+import { DrawerWrapper } from './DrawerWrapper'
 
 const inputGroupProps = { size: 'lg' }
 
 export type SelectChainProps = {
   onSelectChainId: (chainId: ChainId) => void
   onClose: () => void
+  isOpen: boolean
 }
 
 const buttonsStackColumns = {
@@ -58,7 +60,7 @@ const ChainButton = ({
   )
 }
 
-export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
+export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainProps) => {
   const translate = useTranslate()
   const [searchTermChainIds, setSearchTermChainIds] = useState<ChainId[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -117,11 +119,13 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   }, [chainButtons, searchQuery, translate])
 
   return (
-    <DrawerContentWrapper
-      title={translate('accountManagement.selectChain.title')}
-      description={translate('accountManagement.selectChain.description')}
-      footer={footer}
-      body={body}
-    />
+    <DrawerWrapper isOpen={isOpen} onClose={onClose}>
+      <DrawerContentWrapper
+        title={translate('accountManagement.selectChain.title')}
+        description={translate('accountManagement.selectChain.description')}
+        footer={footer}
+        body={body}
+      />
+    </DrawerWrapper>
   )
 }

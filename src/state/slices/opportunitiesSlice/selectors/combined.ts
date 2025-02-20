@@ -1,10 +1,8 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import isEmpty from 'lodash/isEmpty'
 import partition from 'lodash/partition'
-import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
@@ -13,13 +11,10 @@ import {
   selectChainIdParamFromFilter,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
-  selectSearchQueryFromFilter,
 } from 'state/selectors'
-import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
-  AggregatedOpportunitiesByProviderReturn,
   LpEarnOpportunityType,
   OpportunityId,
   StakingEarnOpportunityType,
@@ -246,8 +241,44 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
     const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
 
+    const filterThorchainSaversZeroBalance = (
+      opportunities: AggregatedOpportunitiesByAssetIdReturn[],
+    ) => {
+      return (
+        opportunities
+          .map(opportunity => {
+            // Individual opportunities - all but savers
+            const filteredStakingOpportunities = opportunity.opportunities.staking.filter(
+              opportunityId => {
+                const maybeOpportunity = combined.find(opp => opp.id === opportunityId)
+                if (!maybeOpportunity) return false
+                if (maybeOpportunity.provider !== DefiProvider.ThorchainSavers) return true
+                return !bnOrZero(maybeOpportunity.fiatAmount).isZero()
+              },
+            )
+
+            return {
+              ...opportunity,
+              opportunities: {
+                // LP stays as-is, savers are OpportunityType.Staking
+                ...opportunity.opportunities,
+                staking: filteredStakingOpportunities,
+              },
+            }
+          })
+          // Second pass on the actual aggregate. These are *not* indivial opportunities but an aggregation of many.
+          // We want to filter savers out, but keep the rest
+          .filter(aggregate => {
+            // Filter out the entire aggregate if it has no opportunities left after filtering savers out
+            return (
+              aggregate.opportunities.staking.length > 0 || aggregate.opportunities.lp.length > 0
+            )
+          })
+      )
+    }
+
     if (!includeEarnBalances && !includeRewardsBalances)
-      return sortedOpportunitiesByFiatAmountAndApy
+      return filterThorchainSaversZeroBalance(sortedOpportunitiesByFiatAmountAndApy)
 
     const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
       Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
@@ -256,7 +287,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return withEarnBalances.concat(withRewardsBalances)
+    return filterThorchainSaversZeroBalance(withEarnBalances.concat(withRewardsBalances))
   },
 )
 
@@ -295,264 +326,3 @@ export const selectClaimableRewards = createDeepEqualOutputSelector(
 
 export const selectOpportunityApiPending = (state: ReduxState) =>
   Object.values(state.opportunitiesApi.queries).some(query => query?.status === QueryStatus.pending)
-
-export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutputSelector(
-  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAggregatedEarnUserLpOpportunities,
-  selectMarketDataUserCurrency,
-  selectAssets,
-  selectIncludeEarnBalancesParamFromFilter,
-  selectIncludeRewardsBalancesParamFromFilter,
-  selectChainIdParamFromFilter,
-  selectSearchQueryFromFilter,
-  (
-    userStakingOpportunites,
-    userLpOpportunities,
-    marketDataUserCurrency,
-    assets,
-    includeEarnBalances,
-    includeRewardsBalances,
-    chainId,
-    searchQuery,
-  ): AggregatedOpportunitiesByProviderReturn[] => {
-    if (isEmpty(marketDataUserCurrency)) return []
-    const totalFiatAmountByProvider: Record<string, BN> = {}
-    const projectedAnnualizedYieldByProvider: Record<string, BN> = {}
-    const combined = userStakingOpportunites.concat(userLpOpportunities)
-
-    /**
-     * we want to be able to search on...
-     * - provider "thorch" for THORChain, "unis" for Uniswap
-     * - asset name (vault/underlying/rewards) e.g. fox for FOXy
-     * - chain "opt" for Optimism
-     *
-     * https://github.com/kentcdodds/match-sorter#advanced-options
-     *
-     * we are using the function style advanced filtering of match-sorter to map
-     * - assetId -> asset name
-     * - chainId -> chain name
-     * - rewardAssetIds[] - asset name[]
-     * - underlyingAssetIds[] - asset name[]
-     *
-     * - if we include a search term, we want to match on any of these
-     * - if we don't include a search term, return all
-     *
-     * the search should resolve more broadly than narrowly, e.g.
-     * i search for "compound" - i should see all compound vaults, not just the one i'm looking for
-     */
-
-    const searchOpportunities = <T extends LpEarnOpportunityType | StakingEarnOpportunityType>(
-      searchQuery: string | undefined,
-      combined: T[],
-      assets: AssetsByIdPartial,
-    ): T[] => {
-      if (!searchQuery) return combined
-
-      return matchSorter(combined, searchQuery, {
-        keys: [
-          'name',
-          'provider',
-          'opportunityName',
-          'version',
-          ({ assetId }) => [assets[assetId]?.name, assets[assetId]?.symbol].join(' '),
-          ({ underlyingAssetId }) =>
-            [assets[underlyingAssetId]?.name, assets[underlyingAssetId]?.symbol].join(' '),
-          ({ chainId }) => {
-            const maybeFeeAsset = getFeeAssetByChainId(assets, chainId)
-            if (!maybeFeeAsset) return ''
-            const { name, symbol, networkName } = maybeFeeAsset
-            return [name, symbol, networkName].join(' ')
-          },
-          item =>
-            item.rewardAssetIds
-              .map((id: AssetId) => {
-                const maybeAsset = assets[id]
-                if (!maybeAsset) return ''
-                const { name, symbol } = maybeAsset
-                return [name, symbol].join(' ')
-              })
-              .join(' '),
-          item =>
-            item.underlyingAssetIds
-              .map((id: AssetId) => {
-                const maybeAsset = assets[id]
-                if (!maybeAsset) return ''
-                const { name, symbol } = maybeAsset
-                return [name, symbol].join(' ')
-              })
-              .join(' '),
-          item => (item?.tags ?? []).join(' '),
-        ],
-        threshold: matchSorter.rankings.CONTAINS,
-      })
-    }
-
-    const filtered = searchOpportunities(searchQuery, combined, assets)
-
-    const makeEmptyPayload = (provider: string): AggregatedOpportunitiesByProviderReturn => ({
-      provider,
-      apy: undefined,
-      fiatAmount: '0',
-      fiatRewardsAmount: '0',
-      netProviderFiatAmount: '0',
-      opportunities: {
-        lp: [],
-        staking: [],
-      },
-    })
-
-    const initial = {
-      [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
-      [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
-      [DefiProvider.rFOX]: makeEmptyPayload(DefiProvider.rFOX),
-      [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
-      [DefiProvider.CosmosSdk]: makeEmptyPayload(DefiProvider.CosmosSdk),
-      [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
-    } as const
-
-    const isActiveStakingByFilter = filtered.reduce<Record<string, boolean>>(
-      (acc, cur) => {
-        const { provider } = cur
-
-        if (chainId && chainId !== cur.chainId) return acc
-
-        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
-          maybeStakingOpportunity: cur,
-          marketDataUserCurrency,
-          assets,
-        })
-
-        const isActiveOpportunityByFilter =
-          (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-          (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
-
-        if (isActiveOpportunityByFilter) {
-          acc[provider] = true
-          return acc
-        }
-
-        return acc
-      },
-      {} as Record<DefiProvider, boolean>,
-    )
-
-    const byProvider = filtered.reduce<Record<string, AggregatedOpportunitiesByProviderReturn>>(
-      (acc, cur) => {
-        const { provider } = cur
-        if (!acc[provider]) {
-          acc[provider] = makeEmptyPayload(provider)
-        }
-        const isActiveProvider = isActiveStakingByFilter[provider]
-
-        if (chainId && chainId !== cur.chainId) return acc
-
-        const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
-          {
-            maybeStakingOpportunity: cur,
-            marketDataUserCurrency,
-            assets,
-          },
-        )
-
-        const isActiveOpportunityByFilter =
-          (!includeEarnBalances && !includeRewardsBalances) ||
-          (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
-        // No active staking for the current provider, show the highest APY
-        if (!isActiveProvider) {
-          if (cur.apy || acc[provider].apy) {
-            acc[provider].apy = BigNumber.maximum(
-              acc[provider].apy ?? '0',
-              cur.apy ?? '0',
-            ).toFixed()
-          }
-        } else if (isActiveOpportunityByFilter) {
-          totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
-            BigNumber.max(cur.fiatAmount, 0),
-          )
-
-          if (cur.apy) {
-            projectedAnnualizedYieldByProvider[provider] = bnOrZero(
-              projectedAnnualizedYieldByProvider[provider],
-            ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy))
-          }
-        }
-
-        if (cur.type === DefiType.LiquidityPool) {
-          acc[provider].opportunities.lp.push(cur.id)
-        }
-
-        if (cur.type === DefiType.Staking && isActiveOpportunityByFilter) {
-          acc[provider].opportunities.staking.push(cur.id)
-        }
-        const userCurrencyRewardsAmount = bnOrZero(maybeStakingRewardsAmountUserCurrency)
-          .plus(acc[provider].fiatRewardsAmount)
-          .toFixed(2)
-        acc[provider].fiatRewardsAmount = userCurrencyRewardsAmount
-        const fiatAmount = bnOrZero(acc[provider].fiatAmount)
-          .plus(bnOrZero(cur.fiatAmount))
-          .toFixed(2)
-        acc[provider].fiatAmount = fiatAmount
-
-        acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount)
-          .plus(userCurrencyRewardsAmount)
-          .toFixed(2)
-
-        return acc
-      },
-      initial,
-    )
-
-    for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
-      // Use the highest APY for inactive opportunities
-      if (!isActiveStakingByFilter[provider as DefiProvider]) continue
-      if (!projectedAnnualizedYieldByProvider[provider as DefiProvider]) continue
-
-      const apy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
-        totalVirtualFiatAmount,
-      )
-
-      byProvider[provider as DefiProvider].apy = apy.toFixed()
-    }
-
-    const aggregatedEarnOpportunitiesByProvider = Object.values(byProvider).reduce<
-      AggregatedOpportunitiesByProviderReturn[]
-    >((acc, cur) => {
-      if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
-      return acc
-    }, [])
-
-    const sortedListByFiatAmount = aggregatedEarnOpportunitiesByProvider.sort((a, b) =>
-      bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
-    )
-
-    const [activeOpportunities, inactiveOpportunities] = partition(
-      sortedListByFiatAmount,
-      opportunity => !bnOrZero(opportunity.netProviderFiatAmount).isZero(),
-    )
-    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
-
-    const sortedListByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
-
-    // No further filtering needed, we want to show all opportunities
-    if (!includeEarnBalances && !includeRewardsBalances) return sortedListByFiatAmountAndApy
-
-    const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
-      opportunity => Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
-    )
-    const withRewardsBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
-      opportunity =>
-        Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
-    )
-
-    const results = withEarnBalances.concat(withRewardsBalances)
-
-    const sortedResultsByNetProviderFiatAmount = results.sort((a, b) =>
-      bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
-    )
-
-    // No sorting by APY needed for the inactive chunks, since there are no active opportunities
-    return sortedResultsByNetProviderFiatAmount
-  },
-)

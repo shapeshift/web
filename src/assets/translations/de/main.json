@@ -2468,8 +2468,6 @@
     "repayNotice": "Um Ihre Sicherheiten zurückzuerhalten, müssen Sie 100 % Ihrer Schulden zurückzahlen.",
     "feesNotice": "Für die Sicherheiten, die Sie nach vollständiger Rückzahlung Ihrer Schulden zurückerhalten, fallen Gebühren an",
     "refetchQuote": "Angebot erneut abrufen",
-    "haltedAlert": "Die Kredit- und Sparangebote auf THORChain sind derzeit ausgesetzt. Diese Unterbrechung wird voraussichtlich etwa 90 Tage dauern. Wir entschuldigen uns für etwaige Unannehmlichkeiten.",
-    "halterMoreDetails": "Weitere Einzelheiten finden Sie auf THORChains Discord.",
     "faq": {
       "title": "FAQ",
       "lending": {

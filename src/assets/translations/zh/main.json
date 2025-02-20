@@ -2468,8 +2468,6 @@
     "repayNotice": "要拿回抵押品，你需要偿还 100% 的债务。",
     "feesNotice": "偿还 100% 债务后你将收到的抵押品费用",
     "refetchQuote": "重新获取报价",
-    "haltedAlert": "THORChain 上的借贷和储户服务现已暂停。此次中断预计将持续约 90 天。对于为您带来的任何不便，我们深表歉意。",
-    "halterMoreDetails": "请访问 THORChain 的 Discord 了解详情。",
     "faq": {
       "title": "常见问题",
       "lending": {

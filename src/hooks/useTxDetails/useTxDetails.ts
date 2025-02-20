@@ -140,7 +140,7 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
   const txLink = useMemo(() => {
     if (!tx) return
     return getTxLink({
-      name: tx.trade?.dexName,
+      stepSource: tx.trade?.dexName,
       defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
       txId: tx.txid,
       maybeSafeTx,
@@ -216,7 +216,7 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
   const txLink = useMemo(() => {
     if (!data) return
     return getTxLink({
-      name: data.trade?.dexName,
+      stepSource: data.trade?.dexName,
       defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
       txId: data.txid,
       maybeSafeTx,

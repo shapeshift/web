@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "Descuento poder FOX",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
-    "simulateFee": "Simular FOX Descuento",
+    "simulateFee": "Simular Descuento",
     "freeUnderThreshold": "%{feature} por debajo de %{threshold} siempre son GRATIS",
     "breakdownHeader": "Su descuento de Poder FOX",
     "breakdownBody": "Abajo se muestra un desglose de tarifas %{featureLowerCase} y descuento FOX Power correspondiente. Descubra cuánto más puede ahorrar en pestaña de simulación.",

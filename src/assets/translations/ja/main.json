@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "FOXパワー割引",
     "basedOnFee": "料金に基づく: %{fee}",
     "feeSummary": "料金概要",
-    "simulateFee": "FOX割引をシミュレーションする",
+    "simulateFee": "割引をシミュレーションする",
     "freeUnderThreshold": "%{threshold} 未満の %{feature} は常に無料です",
     "breakdownHeader": "FOX割引",
     "breakdownBody": "以下は、%{featureLowerCase} 料金の内訳と、適用される対応する FOX電力割引です。 「シミュレート」タブでさらにどれくらい節約できるかを確認してください。",

@@ -10,7 +10,7 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { useAppSelector } from 'state/store'
@@ -98,7 +98,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               <Flex alignItems='center' gap={2}>
                 {bnOrZero(affiliateFeeAfterDiscountUserCurrency).gt(0) ? (
                   <>
-                    <Amount.Fiat value={affiliateFeeAfterDiscountUserCurrency} />
+                    <Amount.Fiat
+                      value={bnOrZero(affiliateFeeAfterDiscountUserCurrency).toFixed(
+                        2,
+                        BigNumber.ROUND_HALF_UP,
+                      )}
+                    />
                     <QuestionIcon />
                   </>
                 ) : (

@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "Знижка FOX Power",
     "basedOnFee": "На основі комісії: %{fee}",
     "feeSummary": "Підсумок вартості газу",
-    "simulateFee": "Змоделювати FOX знижку",
+    "simulateFee": "Змоделювати знижку",
     "freeUnderThreshold": "%{feature} до %{threshold} завжди БЕЗКОШТОВНІ",
     "breakdownHeader": "Ваша знижка сили FOX",
     "breakdownBody": "Нижче наведено розбивку ваших комісій %{featureLowerCase} та відповідну знижку FOX Power, що застосовується. Дізнайтеся, скільки ще ви можете заощадити на вкладці \"Моделювання\".",

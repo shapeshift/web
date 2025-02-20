@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "Remise Puissance FOX",
     "basedOnFee": "Basé sur des frais de : %{fee}",
     "feeSummary": "Résumé des frais",
-    "simulateFee": "Simuler les remises FOX",
+    "simulateFee": "Simuler les remises",
     "freeUnderThreshold": "%{feature} en dessous de %{threshold} sont toujours GRATUITS",
     "breakdownHeader": "Votre remise Puissance FOX",
     "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais pour un %{featureLowerCase} et de la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet Simulation.",

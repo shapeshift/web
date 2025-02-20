@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "FOX Power Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
-    "simulateFee": "FOX Rabatt simulieren",
+    "simulateFee": "Rabatt simulieren",
     "freeUnderThreshold": "%{feature} unter %{threshold} sind immer KOSTENLOS",
     "breakdownHeader": "Ihr FOX Power Rabatt",
     "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer %{featureLowerCase}-Gebühren und des entsprechenden angewendeten FOX Power-Rabatts. Erfahren Sie, wie viel mehr Sie sparen können in der Registerkarte „Simulieren“ .",

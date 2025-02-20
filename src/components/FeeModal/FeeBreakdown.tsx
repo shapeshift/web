@@ -1,4 +1,5 @@
 import { Divider, Heading, Stack } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
@@ -6,7 +7,7 @@ import { RawText } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
+import { selectAppliedDiscountType, selectCalculatedFees } from 'state/apis/snapshot/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
@@ -25,6 +26,17 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
     foxDiscountUsd,
     feeUsdBeforeDiscount,
   } = useAppSelector(state => selectCalculatedFees(state, { feeModel, inputAmountUsd }))
+  const appliedDiscountType = useAppSelector(state =>
+    selectAppliedDiscountType(state, { feeModel, inputAmountUsd }),
+  )
+
+  const discountTypeTranslation = useMemo(() => {
+    return translate(`foxDiscounts.${appliedDiscountType}`)
+  }, [appliedDiscountType, translate])
+
+  const discountLabelTranslation = useMemo(() => {
+    return translate(`foxDiscounts.discountLabel`, { discountType: discountTypeTranslation })
+  }, [discountTypeTranslation, translate])
 
   return (
     <Stack spacing={0}>
@@ -49,7 +61,7 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
           </Row.Value>
         </Row>
         <Row>
-          <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
+          <Row.Label>{discountLabelTranslation}</Row.Label>
           <Row.Value textAlign='right'>
             <Amount.Fiat
               fiatType='USD'

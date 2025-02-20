@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "FOX Power İndirimi",
     "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
     "feeSummary": "Ücret Özeti",
-    "simulateFee": "İndirim Simülasyonu",
+    "simulateFee": "FOX İndirim Simülasyonu",
     "freeUnderThreshold": "%{threshold} altındaki %{feature} her zaman ÜCRETSİZDİR",
     "breakdownHeader": "FOX Power İndiriminiz",
     "breakdownBody": "Aşağıda %{featureLowerCase} ücretlerinizin ve uygulanan FOX Güç İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",

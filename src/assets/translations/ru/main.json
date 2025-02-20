@@ -2488,7 +2488,7 @@
     "foxPowerDiscount": "Скидка FOX Power",
     "basedOnFee": "На основе вознаграждения в размере: %{fee}",
     "feeSummary": "Сводка расходов за газ",
-    "simulateFee": "Имитировать скидку",
+    "simulateFee": "Имитировать FOX скидку",
     "freeUnderThreshold": "%{feature} ниже %{threshold} всегда БЕСПЛАТНО",
     "breakdownHeader": "Ваша скидка силы FOX ",
     "breakdownBody": "Ниже приведена разбивка ваших %{featureLowerCase} расходов и соответствующей примененной скидки FOX Power Discount. Узнайте, сколько еще вы можете сэкономить на вкладке \"Моделирование\".",

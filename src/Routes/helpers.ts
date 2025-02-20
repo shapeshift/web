@@ -14,8 +14,9 @@ import type React from 'react'
 
 export enum RouteCategory {
   Featured = 'featured',
-  Wallet = 'wallet',
   Explore = 'explore',
+  Fox = 'fox',
+  Thorchain = 'thorchain',
 }
 
 export type Route = {

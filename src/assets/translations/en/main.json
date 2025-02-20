@@ -589,6 +589,8 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "Home",
     "activity": "Activity",
     "myWallet": "My Wallet",
@@ -623,7 +625,7 @@
     "lending": "Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
-    "foxBenefits": "FOX Benefits",
+    "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
     "actionMenu": {
       "send": {

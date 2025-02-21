@@ -5,14 +5,15 @@ import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useMipdProviders } from 'lib/mipd'
-import { selectWalletType } from 'state/slices/localWalletSlice/selectors'
-import { store } from 'state/store'
 
 import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
 import { useLocalWallet } from './local-wallet'
 import type { IWalletContext } from './WalletContext'
+
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { store } from '@/state/store'
 
 export const useEip1993EventHandler = ({
   state,

@@ -1,14 +1,13 @@
 import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftmonorepo/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
   UtxoChainAdapter,
-} from '@shapeshiftoss/chain-adapters'
-import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
-import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftmonorepo/chain-adapters'
+import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftmonorepo/chain-adapters/dist/solana/SolanaChainAdapter'
 import type {
   AccountMetadata,
   Asset,
@@ -20,8 +19,9 @@ import type {
   PartialRecord,
   UtxoAccountType,
   UtxoChainId,
-} from '@shapeshiftoss/types'
-import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+} from '@shapeshiftmonorepo/types'
+import type { evm, TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'

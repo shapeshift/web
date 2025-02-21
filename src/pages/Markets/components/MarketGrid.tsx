@@ -1,9 +1,10 @@
 import { SimpleGrid } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useParams } from 'react-router'
-import { Display } from 'components/Display'
 
 import type { MarketsCategories } from '../constants'
+
+import { Display } from '@/components/Display'
 
 export const MarketGrid: React.FC<PropsWithChildren> = ({ children }) => {
   const params: { category?: MarketsCategories } = useParams()

@@ -1,13 +1,9 @@
 import { Box, Container, Heading, Image, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { foxWifHatAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
+import { bn, bnOrZero } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import FoxWifHatIcon from 'assets/foxwifhat-logo.png'
-import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import {
   FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
   FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
@@ -19,6 +15,11 @@ import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 import { FoxWifHatClaimModal } from './FoxWifHatClaimModal'
 import { FoxWifHatClaimRow } from './FoxWifHatClaimRow'
+
+import FoxWifHatIcon from '@/assets/foxwifhat-logo.png'
+import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 export const FoxWifHat = () => {
   const translate = useTranslate()

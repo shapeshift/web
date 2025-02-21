@@ -1,17 +1,18 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { TransferType } from '@shapeshiftoss/unchained-client'
+import { TransferType } from '@shapeshiftmonorepo/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
-import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssets, selectTxs } from 'state/slices/selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
+
+import { Text } from '@/components/Text'
+import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
+import { selectAssets, selectTxs } from '@/state/slices/selectors'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type ReportRow = {
   txid: TxId

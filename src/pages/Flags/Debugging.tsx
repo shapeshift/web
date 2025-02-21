@@ -2,9 +2,10 @@ import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Stack } from '
 import { getCurrentScope } from '@sentry/react'
 import axios from 'axios'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Row } from 'components/Row/Row'
-import { showDeveloperModal } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile } from 'lib/globals'
+
+import { Row } from '@/components/Row/Row'
+import { showDeveloperModal } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
 export const Debugging = () => {
   type BuildMetadata = {

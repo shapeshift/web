@@ -1,13 +1,17 @@
 import { useMediaQuery } from '@chakra-ui/react'
-import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftmonorepo/swapper'
 import { useMemo } from 'react'
-import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { SlippagePopover } from '../../SlippagePopover'
 import { CountdownSpinner } from './TradeQuotes/components/CountdownSpinner'
+
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import {
+  selectActiveQuote,
+  selectActiveSwapperName,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type TradeSettingsMenuProps = {
   isCompact: boolean | undefined

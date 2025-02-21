@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/errors",
+  "name": "@shapeshiftmonorepo/errors",
   "version": "1.1.3",
   "description": "Common set of typed errors",
   "repository": "https://github.com/shapeshift/web",

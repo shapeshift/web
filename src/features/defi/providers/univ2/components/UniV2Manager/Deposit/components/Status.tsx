@@ -1,42 +1,43 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { Summary } from 'features/defi/components/Summary'
-import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
+
+import { UniV2DepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { StatusTextEnum } from '@/components/RouteSteps/RouteSteps'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { Summary } from '@/features/defi/components/Summary'
+import { TxStatus as TransactionStatus } from '@/features/defi/components/TxStatus/TxStatus'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import type { LpId } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import { UniV2DepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type StatusProps = { accountId: AccountId | undefined }
 

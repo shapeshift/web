@@ -1,21 +1,14 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createAsyncThunk, createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftoss/caip'
-import type { PartialRecord } from '@shapeshiftoss/types'
-import { makeAsset } from '@shapeshiftoss/utils'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { PartialRecord } from '@shapeshiftmonorepo/types'
+import { makeAsset } from '@shapeshiftmonorepo/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isRejected } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { BLACKLISTED_COLLECTION_IDS, hasSpammyMedias, isSpammyNftText } from './constants'
@@ -27,6 +20,14 @@ import {
   updateNftCollection,
   updateNftItem,
 } from './utils'
+
+import type { ReduxState } from '@/state/reducer'
+import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from '@/state/slices/assetsSlice/selectors'
+import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio, WalletId } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import { initialState as initialPortfolioState } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]

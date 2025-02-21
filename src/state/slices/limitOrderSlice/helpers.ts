@@ -1,6 +1,6 @@
-import type { Asset, OrderCreation } from '@shapeshiftoss/types'
-import { SigningScheme } from '@shapeshiftoss/types'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import type { Asset, OrderCreation } from '@shapeshiftmonorepo/types'
+import { SigningScheme } from '@shapeshiftmonorepo/types'
+import { bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 
 import type { LimitOrderActiveQuote } from './types'
 

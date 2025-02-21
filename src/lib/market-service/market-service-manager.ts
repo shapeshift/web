@@ -1,13 +1,13 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { isNft } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
-import type { ethers } from 'ethers'
+} from '@shapeshiftmonorepo/types'
+import type { ethers } from 'ethers6'
 import type { AssetService } from 'lib/asset-service'
 import { getAssetService } from 'lib/asset-service'
 

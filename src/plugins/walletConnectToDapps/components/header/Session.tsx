@@ -16,13 +16,14 @@ import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
 import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback, useMemo } from 'react'
-import { RawText, Text } from 'components/Text'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AddressLinks } from './AddressLinks'
 import { DappAvatar } from './DappAvatar'
 import { Networks } from './Networks'
+
+import { RawText, Text } from '@/components/Text'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const checkIcon = <CheckIcon />
 const smallCloseIcon = <SmallCloseIcon />

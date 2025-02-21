@@ -11,21 +11,13 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import React, { useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
-import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import type {
@@ -37,11 +29,20 @@ import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { fromQuote } from '../utils'
 import { PoolIcon } from './PoolIcon'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText } from '@/components/Text'
+import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ReusableLpConfirmProps = {
   handleBack: () => void

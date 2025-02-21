@@ -1,9 +1,9 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   RFOX_PROXY_CONTRACT,
   RFOX_REWARD_RATE,
   RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
-} from '@shapeshiftoss/contracts'
+} from '@shapeshiftmonorepo/contracts'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { getStakingContract } from '../helpers'

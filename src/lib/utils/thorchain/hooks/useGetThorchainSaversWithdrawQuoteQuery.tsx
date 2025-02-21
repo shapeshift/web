@@ -1,18 +1,19 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { PartialFields } from 'lib/types'
+
 import {
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
-import { store } from 'state/store'
+} from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
+import { selectEarnUserStakingOpportunityByUserStakingId } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 type FetchThorchainWithdrawQuoteInput = {
   asset: Asset

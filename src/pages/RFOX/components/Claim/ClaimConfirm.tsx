@@ -10,23 +10,15 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import type { RowProps } from 'components/Row/Row'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { firstFourLastFour } from 'lib/utils'
@@ -35,18 +27,27 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { getStakingContract } from 'pages/RFOX/helpers'
+
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import type { RowProps } from '@/components/Row/Row'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getStakingContract } from '@/pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   claimQuote: RfoxClaimQuote

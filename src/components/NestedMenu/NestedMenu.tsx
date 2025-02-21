@@ -2,8 +2,9 @@ import { Box, Button, Container, HStack, useColorModeValue } from '@chakra-ui/re
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, NavLink, useLocation, useParams } from 'react-router-dom'
-import type { Route } from 'Routes/helpers'
-import { pathTo } from 'Routes/helpers'
+
+import type { Route } from '@/Routes/helpers'
+import { pathTo } from '@/Routes/helpers'
 
 type MenuLinkProps = {
   index: number

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type {
   ProtocolFee,
   SupportedTradeQuoteStepIndex,
@@ -6,19 +6,20 @@ import type {
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
-} from '@shapeshiftoss/swapper'
-import { getHopByIndex } from '@shapeshiftoss/swapper'
-import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/swapper'
+import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
+import type { Asset, MarketData, PartialRecord } from '@shapeshiftmonorepo/types'
 import { orderBy } from 'lodash'
 import partition from 'lodash/partition'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ActiveQuoteMeta } from './types'
+
+import type { ApiQuote } from '@/state/apis/swapper/types'
+import { sumProtocolFeesToDenom } from '@/state/slices/tradeQuoteSlice/utils'
 
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,

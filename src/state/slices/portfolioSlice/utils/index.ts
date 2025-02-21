@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -25,9 +25,12 @@ import {
   thorchainChainId,
   toAccountId,
   toAssetId,
-} from '@shapeshiftoss/caip'
-import type { Account } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+} from '@shapeshiftmonorepo/caip'
+import type { Account } from '@shapeshiftmonorepo/chain-adapters'
+import { evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftmonorepo/types'
+import type { MinimalAsset } from '@shapeshiftmonorepo/utils'
+import { makeAsset } from '@shapeshiftmonorepo/utils'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -45,21 +48,13 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
-import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { makeAsset } from '@shapeshiftoss/utils'
 import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
 import { assertUnreachable, firstFourLastFour } from 'lib/utils'
-import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
-import type { NftCollectionType } from 'state/apis/nft/types'
-import type { ReduxState } from 'state/reducer'
-import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 
 import type {
   Portfolio,
@@ -67,6 +62,12 @@ import type {
   PortfolioAccounts as PortfolioSliceAccounts,
 } from '../portfolioSliceCommon'
 import { initialState } from '../portfolioSliceCommon'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { isSpammyNftText, isSpammyTokenText } from '@/state/apis/nft/constants'
+import type { NftCollectionType } from '@/state/apis/nft/types'
+import type { ReduxState } from '@/state/reducer'
+import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountId): string => {

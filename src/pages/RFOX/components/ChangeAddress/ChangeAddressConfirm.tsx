@@ -10,39 +10,40 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
-import { Amount } from 'components/Amount/Amount'
-import type { RowProps } from 'components/Row/Row'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { getStakingContract } from 'pages/RFOX/helpers'
+
+import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
+import { ChangeAddressRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import type { RowProps } from '@/components/Row/Row'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText } from '@/components/Text'
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getStakingContract } from '@/pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
-import { ChangeAddressRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />

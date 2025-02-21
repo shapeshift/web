@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { fromChainId, toAssetId } from '@shapeshiftmonorepo/caip'
 import {
   UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
   UNISWAP_V2_FACTORY_CONTRACT_MAINNET,
@@ -7,10 +7,16 @@ import {
   UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
   UNIV2_STAKING_REWARDS_ABI,
   WETH_TOKEN_CONTRACT,
-} from '@shapeshiftoss/contracts'
+} from '@shapeshiftmonorepo/contracts'
 import assert from 'assert'
-import type { JsonRpcProvider } from 'ethers'
-import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
+import type { JsonRpcProvider } from 'ethers6'
+import {
+  Contract,
+  getAddress,
+  getCreate2Address,
+  Interface,
+  solidityPackedKeccak256,
+} from 'ethers6'
 import { erc20Abi } from 'viem'
 
 import type { Tx } from '../../../generated/ethereum'

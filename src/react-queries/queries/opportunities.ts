@@ -1,5 +1,5 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -12,14 +12,15 @@ import {
   fromAccountId,
   ltcChainId,
   thorchainChainId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
+
 import {
   fetchAllOpportunitiesIdsByChainId,
   fetchAllOpportunitiesMetadataByChainId,
   fetchAllOpportunitiesUserDataByAccountId,
-} from 'state/slices/opportunitiesSlice/thunks'
-import type { PortfolioAccount } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import type { AppDispatch } from 'state/store'
+} from '@/state/slices/opportunitiesSlice/thunks'
+import type { PortfolioAccount } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AppDispatch } from '@/state/store'
 
 type FetchAllArgs = {
   dispatch: AppDispatch

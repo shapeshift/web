@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
 import { useMemo } from 'react'

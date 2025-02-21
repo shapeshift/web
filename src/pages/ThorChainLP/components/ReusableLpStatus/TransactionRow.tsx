@@ -9,24 +9,17 @@ import {
   Link,
   Skeleton,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftmonorepo/caip'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { selectInboundAddressData } from 'react-queries/selectors'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Row } from 'components/Row/Row'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -45,15 +38,23 @@ import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
-import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import { fromQuote } from 'pages/ThorChainLP/utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Row } from '@/components/Row/Row'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import { fromQuote } from '@/pages/ThorChainLP/utils'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
+import { selectInboundAddressData } from '@/react-queries/selectors'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectPortfolioAccountMetadataByAccountId,
   selectTxById,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TransactionRowProps = {
   assetId: AssetId

@@ -1,21 +1,16 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, erc20Abi } from 'viem'
-import type { EvmFees } from 'hooks/queries/useEvmFees'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
@@ -25,18 +20,24 @@ import {
   createBuildCustomTxInput,
   isGetFeesWithWalletEIP1559SupportArgs,
 } from 'lib/utils/evm'
-import { getStakingContract } from 'pages/RFOX/helpers'
+
+import type { StakeInputValues } from '../types'
+
+import type { EvmFees } from '@/hooks/queries/useEvmFees'
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getStakingContract } from '@/pages/RFOX/helpers'
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectTxById,
-} from 'state/slices/selectors'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import type { StakeInputValues } from '../types'
+} from '@/state/slices/selectors'
+import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type UseRfoxStakeProps = {
   runeAddress: string | undefined

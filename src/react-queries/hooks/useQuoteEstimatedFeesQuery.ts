@@ -1,10 +1,9 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { toHex } from 'viem'
-import { estimateFees } from 'components/Modals/Send/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
@@ -12,8 +11,10 @@ import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
-import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { estimateFees } from '@/components/Modals/Send/utils'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseQuoteEstimatedFeesProps = {
   enabled?: boolean

@@ -17,17 +17,18 @@ import { isWalletConnectV2Uri } from 'plugins/walletConnectToDapps/components/mo
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { QRCodeIcon } from 'components/Icons/QRCode'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+
+import { QRCodeIcon } from '@/components/Icons/QRCode'
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
-import { Text } from 'components/Text'
+} from '@/components/Modal/components/DialogHeader'
+import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
+import { Text } from '@/components/Text'
 
 type FormValues = {
   uri: string

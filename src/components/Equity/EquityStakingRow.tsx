@@ -1,21 +1,24 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
-import {
-  DefiAction,
-  DefiTypeDisplayName,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+
+import { EquityRow } from './EquityRow'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
+import {
+  DefiAction,
+  DefiTypeDisplayName,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { OpportunityId } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
@@ -23,10 +26,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunityApiPending,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { EquityRow } from './EquityRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EquityStakingRowProps = {
   opportunityId: OpportunityId

@@ -21,11 +21,12 @@ import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapp
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { RawText, Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { RawText, Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 

@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { AmountCard } from 'plugins/walletConnectToDapps/components/modals/AmountCard'
 import { ContractInteractionBreakdown } from 'plugins/walletConnectToDapps/components/modals/ContractInteractionBreakdown'
@@ -33,14 +33,15 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { fromHex, isHex } from 'viem'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Text } from 'components/Text'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { Text } from '@/components/Text'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 const faGasPumpIcon = <FaGasPump />

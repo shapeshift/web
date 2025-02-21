@@ -1,22 +1,23 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { isNft } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { ChainList } from 'components/TradeAssetSearch/Chains/ChainList'
-import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { sortChainIdsByDisplayName } from 'lib/utils'
-import { selectWalletConnectedChainIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AssetList } from './components/AssetList'
+
+import { ChainList } from '@/components/TradeAssetSearch/Chains/ChainList'
+import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { selectWalletConnectedChainIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const minHeight = { base: '100%', md: '400px' }
 

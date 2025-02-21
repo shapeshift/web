@@ -1,16 +1,17 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { getConfig } from 'config'
 import pDebounce from 'p-debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getSnapVersion } from 'utils/snaps'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from 'lib/mipd'
-import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
+import { getSnapVersion } from '@/utils/snaps'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapVersion = getConfig().REACT_APP_SNAP_VERSION

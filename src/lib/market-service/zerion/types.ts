@@ -1,4 +1,4 @@
-import type { ZerionChainId } from '@shapeshiftoss/types'
+import type { ZerionChainId } from '@shapeshiftmonorepo/types'
 
 export type ZerionMarketData = {
   price: number | null

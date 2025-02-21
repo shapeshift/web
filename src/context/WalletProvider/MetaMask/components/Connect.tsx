@@ -6,24 +6,25 @@ import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
-import { getSnapVersion } from 'utils/snaps'
-import type { ActionTypes } from 'context/WalletProvider/actions'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import {
-  checkIsMetaMaskDesktop,
-  checkIsMetaMaskMobileWebView,
-  checkIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { METAMASK_RDNS, staticMipdProviders, useMipdProviders } from 'lib/mipd'
-import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import type { LocationState } from '../../NativeWallet/types'
 import { MetaMaskConfig } from '../config'
+
+import type { ActionTypes } from '@/context/WalletProvider/actions'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import {
+  checkIsMetaMaskDesktop,
+  checkIsMetaMaskMobileWebView,
+  checkIsSnapInstalled,
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectShowSnapsModal } from '@/state/slices/selectors'
+import { getSnapVersion } from '@/utils/snaps'
 
 export interface MetaMaskSetupProps
   extends RouteComponentProps<

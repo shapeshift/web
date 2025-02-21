@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 
 export const arbitrumBridgeSupportedChainIds = [
   KnownChainIds.EthereumMainnet,

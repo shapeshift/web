@@ -1,40 +1,41 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
-import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { TxStatus as TxStatusType } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { StatusTextEnum } from '@/components/RouteSteps/RouteSteps'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { Summary } from '@/features/defi/components/Summary'
+import { TxStatus } from '@/features/defi/components/TxStatus/TxStatus'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { ThorchainSaversDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type StatusProps = {
   accountId: AccountId | undefined

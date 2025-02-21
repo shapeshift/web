@@ -1,24 +1,25 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId } from '@shapeshiftmonorepo/caip'
+import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import type { DeepPartialSkipArrayKey, UseFormReturn } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { ethereum as mockEthereum } from 'test/mocks/assets'
-import { TestProviders } from 'test/TestProviders'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { IWalletContext } from 'context/WalletProvider/WalletContext'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import type { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
+import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { ReduxState } from '@/state/reducer'
+import { ethereum as mockEthereum } from '@/test/mocks/assets'
+import { TestProviders } from '@/test/TestProviders'
+
 vi.mock('react-hook-form')
-vi.mock('hooks/useWallet/useWallet')
-vi.mock('state/slices/selectors', () => ({
-  ...vi.importActual('state/slices/selectors'),
+vi.mock('@/hooks/useWallet/useWallet')
+vi.mock('@/state/slices/selectors', () => ({
+  ...vi.importActual('@/state/slices/selectors'),
   selectUserCurrencyToUsdRate: () => '1',
   selectMarketDataUsd: vi.fn(() => ({})),
   selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,

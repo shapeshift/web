@@ -9,18 +9,19 @@ import {
   MenuList,
   MenuOptionGroup,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { bn } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { IconCircle } from 'components/IconCircle'
-import { GridIcon } from 'components/Icons/GridIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ChainRow } from './ChainRow'
+
+import { Amount } from '@/components/Amount/Amount'
+import { IconCircle } from '@/components/IconCircle'
+import { GridIcon } from '@/components/Icons/GridIcon'
+import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ChainDropdownProps = {
   chainId?: ChainId

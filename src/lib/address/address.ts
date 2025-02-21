@@ -1,10 +1,14 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import {
+  bchChainId,
+  btcChainId,
+  dogeChainId,
+  ethChainId,
+  ltcChainId,
+} from '@shapeshiftmonorepo/caip'
 import bip21 from 'bip21'
-import { knownChainIds } from 'constants/chains'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
   resolveUnstoppableDomain,
@@ -14,6 +18,9 @@ import {
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { ensReverseLookupShim } from './ens'
+
+import { knownChainIds } from '@/constants/chains'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]

@@ -1,9 +1,9 @@
-import { JUPITER_API_URL } from 'constants/urls'
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
 
+import { JUPITER_API_URL } from './constants/urls'
 import env from './env'
 
 const { cleanEnv, str, url } = envalid

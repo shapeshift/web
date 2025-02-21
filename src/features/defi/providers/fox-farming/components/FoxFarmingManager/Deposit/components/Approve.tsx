@@ -1,38 +1,39 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { usePoll } from 'hooks/usePoll/usePoll'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+
+import { FoxFarmingDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { Approve as ReusableApprove } from '@/features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from '@/features/defi/components/Approve/ApprovePreFooter'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { canCoverTxFees } from '@/features/defi/helpers/utils'
+import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from '@/hooks/usePoll/usePoll'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
+import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { FoxFarmingDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type FoxFarmingApproveProps = {
   accountId: AccountId | undefined

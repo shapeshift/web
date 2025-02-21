@@ -1,17 +1,18 @@
 import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { useEffect } from 'react'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { useAppDispatch } from 'state/store'
 
 import { MobileConfig } from '../config'
 import type { MobileSetupProps } from '../types'
+
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useStateIfMounted } from '@/hooks/useStateIfMounted/useStateIfMounted'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from '@/state/store'
 
 export const MobileSuccess = ({ location }: MobileSetupProps) => {
   const appDispatch = useAppDispatch()

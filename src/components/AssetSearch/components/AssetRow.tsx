@@ -1,22 +1,23 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import type { ListChildComponentProps } from 'react-window'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+
+import type { AssetData } from './AssetList'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import type { AssetData } from './AssetList'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const focus = {
   shadow: 'outline-inset',

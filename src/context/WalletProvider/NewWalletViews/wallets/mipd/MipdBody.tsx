@@ -5,21 +5,22 @@ import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { getSnapVersion } from 'utils/snaps'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { MetaMaskConfig } from 'context/WalletProvider/MetaMask/config'
+import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
+
+import { PairBody } from '../../components/PairBody'
+
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { MetaMaskConfig } from '@/context/WalletProvider/MetaMask/config'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskMobileWebView,
   checkIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
-
-import { PairBody } from '../../components/PairBody'
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getSnapVersion } from '@/utils/snaps'
 
 type MipdBodyProps = {
   rdns: string

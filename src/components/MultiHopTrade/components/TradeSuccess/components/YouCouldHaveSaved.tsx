@@ -1,16 +1,17 @@
 import { Button, Card, HStack } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectAssetById } from 'state/slices/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useSelectorWithArgs } from 'state/store'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectAssetById } from '@/state/slices/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useSelectorWithArgs } from '@/state/store'
 
 const foxIcon = <FoxIcon w='full' h='full' />
 

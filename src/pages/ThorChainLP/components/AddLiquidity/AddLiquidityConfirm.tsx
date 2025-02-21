@@ -1,4 +1,4 @@
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'

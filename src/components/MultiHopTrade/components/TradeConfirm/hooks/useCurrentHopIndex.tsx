@@ -1,11 +1,12 @@
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftmonorepo/swapper'
+
 import {
   selectActiveQuote,
   selectHopExecutionMetadata,
   selectIsActiveQuoteMultiHop,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 /**
  * Returns the index of the currently executing hop (0 or 1).

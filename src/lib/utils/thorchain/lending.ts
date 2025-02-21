@@ -1,8 +1,8 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { convertDecimalPercentageToBasisPoints } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -10,8 +10,6 @@ import { getConfig } from 'config'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn } from 'lib/bignumber/bignumber'
 import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
-import { selectAssetById } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'
 import type {
@@ -23,6 +21,9 @@ import type {
   LendingWithdrawQuoteResponse,
   LendingWithdrawQuoteResponseSuccess,
 } from './lending/types'
+
+import { selectAssetById } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
 // but we might need e.g min_out and affiliate_bps

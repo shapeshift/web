@@ -1,20 +1,21 @@
 import { Button, CardBody, CardFooter, Link } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { StatusBody } from 'components/MultiHopTrade/components/StatusBody'
-import { SlideTransition } from 'components/SlideTransition'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { StatusBody } from '@/components/MultiHopTrade/components/StatusBody'
+import { SlideTransition } from '@/components/SlideTransition'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ClaimStatusProps = {
   activeClaim: ClaimDetails

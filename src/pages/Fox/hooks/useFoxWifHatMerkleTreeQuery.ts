@@ -1,12 +1,13 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { IPFS_GATEWAY } from 'pages/RFOX/constants'
-import { selectAccountIdsByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { IPFS_GATEWAY } from '@/pages/RFOX/constants'
+import { selectAccountIdsByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type FoxWifHatClaim = { index: bigint; amount: string; proof: `0x${string}`[] }
 

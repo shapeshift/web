@@ -1,8 +1,9 @@
 import type { OhlcData, SeriesType, SingleValueData, Time } from 'lightweight-charts'
 import { ColorType, createChart } from 'lightweight-charts'
 import { useEffect, useRef } from 'react'
-import { selectSelectedCurrency } from 'state/slices/selectors'
-import { store } from 'state/store'
+
+import { selectSelectedCurrency } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 type SimpleChartProps<T extends Time> = {
   data: (SingleValueData<T> | OhlcData<T>)[]

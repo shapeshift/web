@@ -12,8 +12,9 @@ import {
 import type { ConfirmData } from 'plugins/walletConnectToDapps/types'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Text } from 'components/Text'
+
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Text } from '@/components/Text'
 
 export const TransactionAdvancedParameters = () => {
   const translate = useTranslate()

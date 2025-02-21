@@ -17,21 +17,21 @@ import {
   useColorModeValue,
   usePrevious,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   foxWifHatAssetId,
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
   thorchainChainId,
-} from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
+} from '@shapeshiftmonorepo/caip'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -39,29 +39,7 @@ import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
-import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { FeeModal } from 'components/FeeModal/FeeModal'
-import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
@@ -83,18 +61,47 @@ import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
-import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
-import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { Opportunity } from 'pages/ThorChainLP/utils'
-import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
+
+import type { AmountsByPosition } from '../LpType'
+import { LpType } from '../LpType'
+import { ReadOnlyAsset } from '../ReadOnlyAsset'
+import { PoolSummary } from './components/PoolSummary'
+import { AddLiquidityRoutePaths } from './types'
+
+import { InfoAcknowledgement } from '@/components/Acknowledgement/InfoAcknowledgement'
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { Amount } from '@/components/Amount/Amount'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { FeeModal } from '@/components/FeeModal/FeeModal'
+import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippagePopover'
+import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { usePools } from '@/pages/ThorChainLP/queries/hooks/usePools'
+import { useUserLpData } from '@/pages/ThorChainLP/queries/hooks/useUserLpData'
+import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { Opportunity } from '@/pages/ThorChainLP/utils'
+import { fromOpportunityId, toOpportunityId } from '@/pages/ThorChainLP/utils'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectIsSnapshotApiQueriesRejected,
   selectIsVotingPowerLoading,
   selectVotingPower,
-} from 'state/apis/snapshot/selectors'
-import { snapshotApi } from 'state/apis/snapshot/snapshot'
+} from '@/state/apis/snapshot/selectors'
+import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountIdsByChainId,
@@ -108,15 +115,9 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import type { AmountsByPosition } from '../LpType'
-import { LpType } from '../LpType'
-import { ReadOnlyAsset } from '../ReadOnlyAsset'
-import { PoolSummary } from './components/PoolSummary'
-import { AddLiquidityRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const UNSAFE_SLIPPAGE_DECIMAL_PERCENT = 0.05 // 5%
 

@@ -1,24 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
-import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftmonorepo/chain-adapters'
+import type { PartialRecord, UtxoAccountType } from '@shapeshiftmonorepo/types'
 import orderBy from 'lodash/orderBy'
 import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from 'lib/utils'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+
+import { getRelatedAssetIds, serializeTxIndex } from './utils'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import {
   BLACKLISTED_COLLECTION_IDS,
   isSpammyNftText,
   isSpammyTokenText,
-} from 'state/apis/nft/constants'
-import type { State } from 'state/apis/types'
-import type { Nominal } from 'types/common'
-
-import { getRelatedAssetIds, serializeTxIndex } from './utils'
+} from '@/state/apis/nft/constants'
+import type { State } from '@/state/apis/types'
+import type { Nominal } from '@/types/common'
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }

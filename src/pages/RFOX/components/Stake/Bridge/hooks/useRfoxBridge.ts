@@ -1,25 +1,21 @@
 import type { HDWallet } from '@keepkey/hdwallet-core'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftmonorepo/contracts'
+import type { SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
+import { arbitrumBridgeApi } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
+import { getTradeQuoteWithWallet } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/types'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
-import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/types'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { useEffect, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
-import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swapper'
-import { swapper } from 'react-queries/queries/swapper'
-import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -30,17 +26,22 @@ import {
 } from 'lib/utils/evm'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+
+import type { RfoxBridgeQuote } from '../types'
+
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { ArbitrumBridgeTradeQuoteInput } from '@/react-queries/queries/swapper'
+import { swapper } from '@/react-queries/queries/swapper'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import type { RfoxBridgeQuote } from '../types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type UseRfoxBridgeProps = { confirmedQuote: RfoxBridgeQuote }
 type UseRfoxBridgeReturn = {

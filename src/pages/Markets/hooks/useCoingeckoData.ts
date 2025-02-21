@@ -1,10 +1,7 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
-import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetsByIdPartial, MarketData } from '@shapeshiftmonorepo/types'
+import { bnOrZero, makeAsset } from '@shapeshiftmonorepo/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { OrderDirection } from 'components/OrderDropdown/types'
-import { SortOptionsKeys } from 'components/SortDropdown/types'
 import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
 import {
   getCoingeckoMarkets,
@@ -13,17 +10,21 @@ import {
   getCoingeckoTrending,
 } from 'lib/coingecko/utils'
 import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
+
+import { marketDataBySortKey, MarketsCategories } from '../constants'
+
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import type { AppDispatch } from 'state/store'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
-
-import { marketDataBySortKey, MarketsCategories } from '../constants'
+} from '@/state/slices/selectors'
+import type { AppDispatch } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const selectCoingeckoAssets = (
   data: CoingeckoAsset[],

@@ -1,31 +1,32 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Link } from '@chakra-ui/react'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftmonorepo/swapper'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { getTxLink } from 'lib/getTxLink'
-import { selectActiveQuote } from 'state/slices/limitOrderSlice/selectors'
-import type { LimitOrderActiveQuote } from 'state/slices/limitOrderSlice/types'
-import {
-  selectAssetById,
-  selectFeeAssetById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StatusBody } from '../../StatusBody'
 import { WithBackButton } from '../../WithBackButton'
 import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
 import { LimitOrderRoutePaths } from '../types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceResetRequired'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { selectActiveQuote } from '@/state/slices/limitOrderSlice/selectors'
+import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const cardBorderRadius = { base: '2xl' }
 

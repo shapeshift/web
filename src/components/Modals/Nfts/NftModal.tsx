@@ -26,7 +26,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   arbitrumChainId,
   baseChainId,
@@ -34,32 +34,33 @@ import {
   fromAssetId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { FaExclamationTriangle, FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import Placeholder from 'assets/placeholder.png'
-import PlaceholderDrk from 'assets/placeholder-drk.png'
-import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
-import { DiamondIcon } from 'components/Icons/DiamondIcon'
-import { RawText } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
-import { useModal } from 'hooks/useModal/useModal'
-import { nft, nftApi, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
-import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
-import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
-import { getMediaType } from 'state/apis/portals/validators'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { NftCollection } from './components/NftCollection'
 import { NftOverview } from './components/NftOverview'
+
+import Placeholder from '@/assets/placeholder.png'
+import PlaceholderDrk from '@/assets/placeholder-drk.png'
+import { ArrowRightUp } from '@/components/Icons/ArrowRightUp'
+import { DiamondIcon } from '@/components/Icons/DiamondIcon'
+import { RawText } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { ordinalSuffix } from '@/context/WalletProvider/NativeWallet/components/NativeTestPhrase'
+import { useModal } from '@/hooks/useModal/useModal'
+import { nft, nftApi, useGetNftCollectionQuery } from '@/state/apis/nft/nftApi'
+import { selectNftById, selectNftCollectionById } from '@/state/apis/nft/selectors'
+import { chainIdToOpenseaNetwork } from '@/state/apis/nft/utils'
+import { getMediaType } from '@/state/apis/portals/validators'
+import { selectWalletId } from '@/state/slices/common-selectors'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const NftTab: React.FC<TabProps> = props => {
   const activeTabColor = useColorModeValue('blue.500', 'white')

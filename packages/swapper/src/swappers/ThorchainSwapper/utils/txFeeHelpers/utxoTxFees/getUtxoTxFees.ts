@@ -1,8 +1,8 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import type { UtxoChainId } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { GetFeeDataInput, UtxoBaseAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { bn } from '@shapeshiftmonorepo/utils'
 
 import type { ProtocolFee, QuoteFeeData } from '../../../../../types'
 import type { ThorUtxoSupportedChainId } from '../../../types'

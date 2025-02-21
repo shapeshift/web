@@ -3,8 +3,9 @@ import { useCallback, useMemo } from 'react'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
-import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { selectCurrencyFormat, selectSelectedCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const CRYPTO_PRECISION = 8
 const MAXIMUM_LARGE_NUMBER_CHARS = 18

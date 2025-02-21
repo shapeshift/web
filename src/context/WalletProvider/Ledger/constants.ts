@@ -8,7 +8,7 @@ import {
   ltcAssetId,
   solAssetId,
   thorchainAssetId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 import { uniq } from 'lodash'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 

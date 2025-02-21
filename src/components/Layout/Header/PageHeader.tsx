@@ -5,7 +5,8 @@ import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
 import { useHistory } from 'react-router'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 const arrowBack = <ArrowBackIcon />
 const paddingX = { base: 4, xl: 8 }

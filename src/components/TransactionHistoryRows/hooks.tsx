@@ -1,16 +1,17 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { Dex, TransferType } from '@shapeshiftoss/unchained-client'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { Dex, TransferType } from '@shapeshiftmonorepo/unchained-client'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
-import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { useFindPriceHistoryByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { FindPriceHistoryByAssetIdArgs } from 'state/slices/marketDataSlice/types'
-import { selectCryptoPriceHistoryTimeframe } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { TradeFees } from './utils'
 import { getTradeFees } from './utils'
+
+import type { TxDetails } from '@/hooks/useTxDetails/useTxDetails'
+import { useFindPriceHistoryByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
+import type { FindPriceHistoryByAssetIdArgs } from '@/state/slices/marketDataSlice/types'
+import { selectCryptoPriceHistoryTimeframe } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
   const cryptoPriceHistoryData = useAppSelector(state =>

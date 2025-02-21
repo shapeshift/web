@@ -1,35 +1,36 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   bchChainId,
   cosmosChainId,
   fromAccountId,
   fromAssetId,
   thorchainChainId,
-} from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+} from '@shapeshiftmonorepo/caip'
 import type {
   MidgardActionsResponse,
   ThornodeStatusResponse,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
-import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { thorService } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
+import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import axios from 'axios'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
 import { assertGetUtxoChainAdapter, isUtxoAccountId, isUtxoChainId } from '../utxo'
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 const getThorchainTransactionStatus = async ({
   txHash,

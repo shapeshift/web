@@ -1,14 +1,15 @@
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { toAddressNList } from '@shapeshiftmonorepo/chain-adapters'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import assert from 'assert'
 import { useCallback, useMemo } from 'react'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import { selectHopSellAccountId } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 // handles allowance approval tx execution, fees, and state orchestration
 export const useSignPermit2 = (

@@ -20,12 +20,13 @@ import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
+
+import { Text } from '@/components/Text'
 
 const registryItems: RegistryItem[] = require('../registry.json')
 

@@ -1,6 +1,6 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import type { AxiosInstance } from 'axios'
-import { ethers } from 'ethers'
+import { ethers } from 'ethers6'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 

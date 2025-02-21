@@ -3,14 +3,14 @@ import type {
   ChildToParentTransactionRequest,
   ParentToChildTransactionRequest,
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { getEthersV5Provider } from '@shapeshiftoss/contracts'
-import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from '@shapeshiftoss/utils'
-import { BigNumber } from 'ethers5'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { getEthersV5Provider } from '@shapeshiftmonorepo/contracts'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { assertUnreachable } from '@shapeshiftmonorepo/utils'
+import { BigNumber } from 'ethers'
 import { arbitrum } from 'viem/chains'
 
 import { BRIDGE_TYPE } from '../types'

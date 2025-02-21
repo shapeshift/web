@@ -1,11 +1,12 @@
 import { Box, Button, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { CoinbaseIcon } from 'components/Icons/CoinbaseIcon'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { Text } from 'components/Text'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { useMipdProviders } from 'lib/mipd'
+
+import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { Text } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const WalletConnectOption = ({
   connect,

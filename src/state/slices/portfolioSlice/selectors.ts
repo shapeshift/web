@@ -1,12 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import type {
   AccountMetadata,
   AccountMetadataById,
   Bip44Params,
   PartialRecord,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -16,7 +16,6 @@ import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isMobile } from 'lib/globals'
@@ -25,28 +24,6 @@ import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
 import { hashCode } from 'lib/utils'
 import { isValidAccountNumber } from 'lib/utils/accounts'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectAccountIdParamFromFilter,
-  selectAccountNumberParamFromFilter,
-  selectAssetIdParamFromFilter,
-  selectChainIdParamFromFilter,
-} from 'state/selectors'
-import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
-import {
-  selectAggregatedEarnUserStakingOpportunities,
-  selectAllEarnUserStakingOpportunitiesByFilter,
-  selectStakingOpportunitiesById,
-  selectUserStakingOpportunitiesById,
-} from 'state/slices/opportunitiesSlice/selectors/stakingSelectors'
-import {
-  genericBalanceIncludingStakingByFilter,
-  getFirstAccountIdByChainId,
-  getHighestUserCurrencyBalanceAccountByAssetId,
-} from 'state/slices/portfolioSlice/utils'
-import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
 import {
@@ -80,6 +57,30 @@ import type {
 } from './portfolioSliceCommon'
 import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import {
+  selectAccountIdParamFromFilter,
+  selectAccountNumberParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectChainIdParamFromFilter,
+} from '@/state/selectors'
+import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectAllEarnUserLpOpportunitiesByFilter } from '@/state/slices/opportunitiesSlice/selectors/lpSelectors'
+import {
+  selectAggregatedEarnUserStakingOpportunities,
+  selectAllEarnUserStakingOpportunitiesByFilter,
+  selectStakingOpportunitiesById,
+  selectUserStakingOpportunitiesById,
+} from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'
+import {
+  genericBalanceIncludingStakingByFilter,
+  getFirstAccountIdByChainId,
+  getHighestUserCurrencyBalanceAccountByAssetId,
+} from '@/state/slices/portfolioSlice/utils'
+import { selectBalanceThreshold } from '@/state/slices/preferencesSlice/selectors'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,

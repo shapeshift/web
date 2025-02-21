@@ -1,8 +1,8 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, toAssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds, ZerionChainId } from '@shapeshiftoss/types'
-import { zerionChainIdToChainId } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { adapters, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { KnownChainIds, ZerionChainId } from '@shapeshiftmonorepo/types'
+import { zerionChainIdToChainId } from '@shapeshiftmonorepo/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftmonorepo/utils'
 
 import type { ZerionImplementation } from './validators/fungible'
 

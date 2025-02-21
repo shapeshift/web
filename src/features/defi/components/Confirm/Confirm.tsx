@@ -2,8 +2,8 @@ import type { StackProps } from '@chakra-ui/react'
 import { Button, Stack } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type ConfirmProps = {
   onCancel(): void

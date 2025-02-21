@@ -5,7 +5,7 @@
     "declaration": true,
     "noEmit": false,
     "module": "commonjs",
-    "noImplicitReturns": false,
+    "noImplicitReturns": false
   },
   "include": [],
   "exclude": [],
@@ -33,6 +33,6 @@
     },
     {
       "path": "./packages/swapper"
-    },
+    }
   ]
 }

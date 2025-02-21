@@ -1,5 +1,5 @@
-import { fromChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { fromChainId } from '@shapeshiftmonorepo/caip'
+import { evm } from '@shapeshiftmonorepo/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 

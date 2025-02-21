@@ -1,31 +1,32 @@
-import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftmonorepo/caip'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftmonorepo/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   swappers,
-} from '@shapeshiftoss/swapper'
+} from '@shapeshiftmonorepo/swapper'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectConfirmedTradeExecution,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useTradeNetworkFeeCryptoBaseUnit = ({
   hopIndex,

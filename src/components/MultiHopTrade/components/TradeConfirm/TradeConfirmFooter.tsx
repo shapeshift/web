@@ -1,21 +1,9 @@
 import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text/Text'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import {
-  selectHopExecutionMetadata,
-  selectIsActiveSwapperQuoteLoading,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeConfirmSummary } from './components/TradeConfirmSummary'
@@ -25,6 +13,19 @@ import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useStepperSteps } from './hooks/useStepperSteps'
 import { useTradeNetworkFeeCryptoBaseUnit } from './hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { TradeFooterButton } from './TradeFooterButton'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text/Text'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import {
+  selectHopExecutionMetadata,
+  selectIsActiveSwapperQuoteLoading,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type TradeConfirmFooterProps = {
   tradeQuoteStep: TradeQuoteStep

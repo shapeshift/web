@@ -1,19 +1,20 @@
 import { Avatar } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory } from 'react-router-dom'
-import { AccountsIcon } from 'components/Icons/Accounts'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
+
+import { EquityRow } from './EquityRow'
+
+import { AccountsIcon } from '@/components/Icons/Accounts'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { EquityRow } from './EquityRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EquityAccountRowProps = {
   accountId: AccountId

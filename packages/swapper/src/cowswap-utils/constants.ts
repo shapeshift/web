@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { zeroAddress } from 'viem'
 
 import type { SupportedChainIds } from '../types'

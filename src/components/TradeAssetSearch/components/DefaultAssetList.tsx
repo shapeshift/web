@@ -1,11 +1,12 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useMemo } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectIsPortfolioLoading } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { useGetPopularAssetsQuery } from '../hooks/useGetPopularAssetsQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectIsPortfolioLoading } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type DefaultAssetListProps = {
   portfolioAssetsSortedByBalance: Asset[]

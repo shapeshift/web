@@ -1,6 +1,6 @@
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
-import { KeplrIcon } from 'components/Icons/KeplrIcon'
-import type { SupportedWalletInfo } from 'context/WalletProvider/config'
+import { KeplrIcon } from '@/components/Icons/KeplrIcon'
+import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type KeplrConfigType = Omit<SupportedWalletInfo<typeof KeplrAdapter>, 'routes'>
 

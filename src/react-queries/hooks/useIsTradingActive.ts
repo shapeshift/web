@@ -1,13 +1,14 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { InboundAddressResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { SwapErrorRight } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { InboundAddressResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Result } from '@sniptt/monads'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+
+import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
 
 export const useIsTradingActive = ({
   assetId,

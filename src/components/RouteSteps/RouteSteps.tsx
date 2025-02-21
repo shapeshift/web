@@ -3,9 +3,10 @@ import { Box, useColorModeValue } from '@chakra-ui/react'
 import type { Location } from 'history'
 import type { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
+
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { VerticalStepper } from '@/components/VerticalStepper/VerticalStepper'
 
 export type RouteConfig = {
   step?: number

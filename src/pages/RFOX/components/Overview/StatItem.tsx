@@ -1,10 +1,11 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { ChangeTag } from 'components/ChangeTag/ChangeTag'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Text } from 'components/Text'
+
+import { Amount } from '@/components/Amount/Amount'
+import { ChangeTag } from '@/components/ChangeTag/ChangeTag'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Text } from '@/components/Text'
 
 type StatItemProps = {
   description: string

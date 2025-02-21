@@ -1,16 +1,17 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { ReduxState } from 'state/reducer'
-import { selectOnlyConnectedChainsParamFromFilter } from 'state/selectors'
 
 import { selectAssetByFilter, selectAssets } from './assetsSlice/selectors'
 import {
   selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from './common-selectors'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { ReduxState } from '@/state/reducer'
+import { selectOnlyConnectedChainsParamFromFilter } from '@/state/selectors'
 
 /**
  * Selects all related assetIds, inclusive of the asset being queried.

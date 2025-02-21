@@ -18,9 +18,10 @@ import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
 
 import type { NativeSetupProps } from '../types'
+
+import { Text } from '@/components/Text'
 
 const Revocable = Default.Revocable
 const revocable = Default.revocable

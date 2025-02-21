@@ -1,18 +1,19 @@
 import { QuestionIcon } from '@chakra-ui/icons'
 import { Flex, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
 import type { FC } from 'react'
 import { memo, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { FeeModal } from 'components/FeeModal/FeeModal'
-import type { RowProps } from 'components/Row/Row'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SwapperIcon } from '../../../TradeInput/components/SwapperIcon/SwapperIcon'
+
+import { Amount } from '@/components/Amount/Amount'
+import { FeeModal } from '@/components/FeeModal/FeeModal'
+import type { RowProps } from '@/components/Row/Row'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean

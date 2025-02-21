@@ -1,7 +1,7 @@
 import { useColorModeValue } from '@chakra-ui/color-mode'
 import { Stack as CStack } from '@chakra-ui/react'
 import { useToken } from '@chakra-ui/system'
-import type { HistoryData } from '@shapeshiftoss/types'
+import type { HistoryData } from '@shapeshiftmonorepo/types'
 import { scaleLinear } from '@visx/scale'
 import type { AxisScale } from '@visx/xychart'
 import type { BaseAreaSeriesProps } from '@visx/xychart/lib/components/series/private/BaseAreaSeries'
@@ -10,15 +10,16 @@ import type { Numeric } from 'd3-array'
 import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
 import { lazy, useCallback, useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { RawText } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { colors } from 'theme/colors'
 
 import { MaxPrice } from '../MaxPrice'
 import { MinPrice } from '../MinPrice'
+
+import { Amount } from '@/components/Amount/Amount'
+import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { colors } from '@/theme/colors'
 
 const LinearGradient = lazy(() =>
   import('@visx/gradient').then(({ LinearGradient }) => ({ default: LinearGradient })),

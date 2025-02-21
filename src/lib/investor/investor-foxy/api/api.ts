@@ -1,11 +1,11 @@
-import type { ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import type { ChainReference } from '@shapeshiftmonorepo/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
 import type {
   EvmBaseAdapter,
   FeeDataEstimate,
   GetFeeDataInput,
-} from '@shapeshiftoss/chain-adapters'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+} from '@shapeshiftmonorepo/chain-adapters'
+import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
 import {
   FOXY_ABI,
   FOXY_STAKING_ABI,
@@ -13,18 +13,17 @@ import {
   TOKE_MANAGER_ABI,
   TOKE_POOL_ABI,
   TOKE_REWARD_HASH_ABI,
-} from '@shapeshiftoss/contracts'
-import type { EvmChainId } from '@shapeshiftoss/types'
-import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/contracts'
+import type { EvmChainId } from '@shapeshiftmonorepo/types'
+import { KnownChainIds, WithdrawType } from '@shapeshiftmonorepo/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
-import type { TransactionReceipt } from 'ethers'
-import { ethers } from 'ethers'
+import type { TransactionReceipt } from 'ethers6'
+import { ethers } from 'ethers6'
 import { toLower } from 'lodash'
 import { erc20Abi, getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/investor/constants/allowance'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import { tokeManagerAddress, tokePoolAddress, tokeRewardHashAddress } from '../constants'
 import type {
@@ -52,6 +51,8 @@ import type {
   WithdrawInfo,
   WithdrawInput,
 } from './foxy-types'
+
+import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export * from './foxy-types'
 

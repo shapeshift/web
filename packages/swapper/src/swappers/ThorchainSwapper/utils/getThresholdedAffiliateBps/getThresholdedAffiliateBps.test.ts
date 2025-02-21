@@ -1,4 +1,4 @@
-import { bn } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftmonorepo/utils'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'

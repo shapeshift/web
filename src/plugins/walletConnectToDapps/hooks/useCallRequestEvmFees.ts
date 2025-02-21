@@ -1,15 +1,16 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/types'
 import { getFeesForTx } from 'plugins/walletConnectToDapps/utils'
 import { useEffect, useMemo, useState } from 'react'
-import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import type { FeePrice } from '@/components/Modals/Send/views/Confirm'
+import { selectAssets, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export function useCallRequestEvmFees(state: WalletConnectState) {
   const [fees, setFees] = useState<FeePrice | undefined>()

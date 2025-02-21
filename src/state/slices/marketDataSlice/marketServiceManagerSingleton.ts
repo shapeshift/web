@@ -1,6 +1,6 @@
 // do not directly use or export, singleton
-import { getEthersProvider } from '@shapeshiftoss/contracts'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { getEthersProvider } from '@shapeshiftmonorepo/contracts'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { getConfig } from 'config'
 import { MarketServiceManager } from 'lib/market-service'
 

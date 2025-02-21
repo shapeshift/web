@@ -1,21 +1,22 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
-import { selectAssetById, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
-import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
 
 import type { MultiStepStatusStep } from './SharedMultiStepStatus'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { selectAssetById, selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
+import { deserializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type TransactionRowProps = {
   assetId: AssetId

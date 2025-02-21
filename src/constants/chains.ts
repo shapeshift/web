@@ -1,6 +1,7 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { selectFeatureFlags } from 'state/slices/selectors'
-import { store } from 'state/store'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
+
+import { selectFeatureFlags } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 const enabledFlags = selectFeatureFlags(store.getState())
 

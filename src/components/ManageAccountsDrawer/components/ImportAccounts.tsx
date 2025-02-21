@@ -10,43 +10,48 @@ import {
   Tooltip,
   Tr,
 } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { accountManagement } from 'react-queries/queries/accountManagement'
-import { Amount } from 'components/Amount/Amount'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { RawText } from 'components/Text'
-import {
-  canAddMetaMaskAccount,
-  useIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { fetchPortalsAccount } from 'lib/portals/utils'
 import { isUtxoAccountId } from 'lib/utils/utxo'
-import { selectNftCollections } from 'state/apis/nft/selectors'
-import { assets as assetSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { Portfolio } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { accountIdToLabel, accountToPortfolio, makeAssets } from 'state/slices/portfolioSlice/utils'
+
+import { getAccountIdsWithActivityAndMetadata } from '../helpers'
+import { DrawerContentWrapper } from './DrawerContent'
+import { DrawerWrapper } from './DrawerWrapper'
+
+import { Amount } from '@/components/Amount/Amount'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { RawText } from '@/components/Text'
+import {
+  canAddMetaMaskAccount,
+  useIsSnapInstalled,
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { accountManagement } from '@/react-queries/queries/accountManagement'
+import { selectNftCollections } from '@/state/apis/nft/selectors'
+import { assets as assetSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import {
+  accountIdToLabel,
+  accountToPortfolio,
+  makeAssets,
+} from '@/state/slices/portfolioSlice/utils'
 import {
   selectAccountIdsByChainId,
   selectFeeAssetByChainId,
   selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
-} from 'state/slices/selectors'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
-
-import { getAccountIdsWithActivityAndMetadata } from '../helpers'
-import { DrawerContentWrapper } from './DrawerContent'
-import { DrawerWrapper } from './DrawerWrapper'
+} from '@/state/slices/selectors'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export type ImportAccountsProps = {
   chainId: ChainId

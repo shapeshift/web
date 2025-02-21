@@ -1,7 +1,8 @@
 import { getConfig } from 'config'
 import type React from 'react'
 import { useEffect } from 'react'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 export const ChatwootWidget: React.FC = () => {
   const chatWoodEnabled = useFeatureFlag('Chatwoot')

@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { btcChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { btcChainId } from '@shapeshiftmonorepo/caip'
+import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -44,10 +44,10 @@ vi.mock('../utils/helpers/helpers', async () => {
   }
 })
 
-vi.mock('@shapeshiftoss/chain-adapters', async () => {
-  const { KnownChainIds } = require('@shapeshiftoss/types')
+vi.mock('@shapeshiftmonorepo/chain-adapters', async () => {
+  const { KnownChainIds } = require('@shapeshiftmonorepo/types')
 
-  const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
+  const actual = await vi.importActual('@shapeshiftmonorepo/chain-adapters')
 
   return {
     ...actual,

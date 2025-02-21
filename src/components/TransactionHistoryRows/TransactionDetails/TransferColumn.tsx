@@ -1,14 +1,15 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Box, Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo, useState } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
-import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
 import { Address } from './Address'
 import { Amount } from './Amount'
 import { NftId } from './NftId'
 import { Row } from './Row'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 
 type AddressesProps = {
   addresses: string[]

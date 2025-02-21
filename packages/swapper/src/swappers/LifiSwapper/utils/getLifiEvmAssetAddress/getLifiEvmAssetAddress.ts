@@ -1,5 +1,5 @@
-import { fromAssetId, isAssetReference } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { fromAssetId, isAssetReference } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { Address } from 'viem'
 
 import { isNativeEvmAsset } from '../../../utils/helpers/helpers'

@@ -1,42 +1,43 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET } from '@shapeshiftmonorepo/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getAddress } from 'viem'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { usePoll } from 'hooks/usePoll/usePoll'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+
+import { UniV2WithdrawActionType } from '../WithdrawCommon'
+import { WithdrawContext } from '../WithdrawContext'
+
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { Approve as ReusableApprove } from '@/features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from '@/features/defi/components/Approve/ApprovePreFooter'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { canCoverTxFees } from '@/features/defi/helpers/utils'
+import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from '@/hooks/usePoll/usePoll'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { LpId } from '@/state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { UniV2WithdrawActionType } from '../WithdrawCommon'
-import { WithdrawContext } from '../WithdrawContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UniV2ApproveProps = StepComponentProps & {
   accountId: AccountId | undefined

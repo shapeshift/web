@@ -1,10 +1,11 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryData } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { HistoryData } from '@shapeshiftmonorepo/types'
 import intersection from 'lodash/intersection'
 import { useSelector } from 'react-redux'
-import { selectAssets } from 'state/slices/selectors'
 
 import type { BalanceChartData } from './useBalanceChartData'
+
+import { selectAssets } from '@/state/slices/selectors'
 
 /**
  * these assets have events that modify a balance that we can't currently detect

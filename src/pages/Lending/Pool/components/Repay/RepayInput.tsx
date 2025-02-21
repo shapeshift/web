@@ -14,31 +14,17 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { assertAndProcessMemo } from '@shapeshiftmonorepo/swapper'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { useApprove } from 'hooks/mutations/useApprove'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -46,9 +32,27 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
-import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
-import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
+
+import { LoanSummary } from '../LoanSummary'
+import { RepayRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { useApprove } from '@/hooks/mutations/useApprove'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useLendingQuoteCloseQuery } from '@/pages/Lending/hooks/useLendingCloseQuery'
+import { useLendingPositionData } from '@/pages/Lending/hooks/useLendingPositionData'
+import { useLendingSupportedAssets } from '@/pages/Lending/hooks/useLendingSupportedAssets'
+import { selectInboundAddressData } from '@/react-queries/selectors'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -57,12 +61,9 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { store, useAppSelector } from 'state/store'
-
-import { LoanSummary } from '../LoanSummary'
-import { RepayRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { store, useAppSelector } from '@/state/store'
 const formControlProps = {
   borderRadius: 0,
   background: 'transparent',

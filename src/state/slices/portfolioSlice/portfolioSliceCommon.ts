@@ -1,6 +1,7 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { AccountMetadataById, PartialRecord } from '@shapeshiftoss/types'
-import type { Nominal } from 'types/common'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountMetadataById, PartialRecord } from '@shapeshiftmonorepo/types'
+
+import type { Nominal } from '@/types/common'
 
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */

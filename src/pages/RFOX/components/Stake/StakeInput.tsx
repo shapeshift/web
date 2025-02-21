@@ -1,47 +1,20 @@
 import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
-} from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName, isSome } from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getChainShortName, isSome } from '@shapeshiftmonorepo/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
-import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { FormDivider } from 'components/FormDivider'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { selectRuneAddress } from 'pages/RFOX/helpers'
-import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  selectAssetById,
-  selectAssets,
-  selectFeeAssetByChainId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectMarketDataByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
@@ -52,6 +25,34 @@ import { StakeSummary } from './components/StakeSummary'
 import { useRfoxStake } from './hooks/useRfoxStake'
 import type { RfoxStakingQuote, StakeInputValues, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
+
+import { InfoAcknowledgement } from '@/components/Acknowledgement/InfoAcknowledgement'
+import { Amount } from '@/components/Amount/Amount'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { FormDivider } from '@/components/FormDivider'
+import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { selectRuneAddress } from '@/pages/RFOX/helpers'
+import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectAssetById,
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const formControlProps = {
   borderRadius: 0,

@@ -9,27 +9,28 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import SaversVaultTop from 'assets/savers-vault-top.png'
-import { AssetIcon } from 'components/AssetIcon'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
+
+import SaversVaultTop from '@/assets/savers-vault-top.png'
+import { AssetIcon } from '@/components/AssetIcon'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
+import { EmptyOverview } from '@/features/defi/components/EmptyOverview/EmptyOverview'
+import { useModal } from '@/hooks/useModal/useModal'
+import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletConnectedChainIdsSorted,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ThorchainSaversEmptyProps = {
   assetId: AssetId

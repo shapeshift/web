@@ -1,10 +1,11 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvent, TrackOpportunityProps } from './types'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 // Returns an altered path when necessary or null if the path should not be tracked for privacy
 export const mapMixpanelPathname = (pathname: string, assets: AssetsByIdPartial): string | null => {

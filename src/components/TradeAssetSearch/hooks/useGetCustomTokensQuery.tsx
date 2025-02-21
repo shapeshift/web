@@ -1,19 +1,20 @@
 import { Metaplex } from '@metaplex-foundation/js'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { solanaChainId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { Connection, PublicKey } from '@solana/web3.js'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
 import { getConfig } from 'config'
 import { useCallback, useMemo } from 'react'
-import { mergeQueryOutputs } from 'react-queries/helpers'
 import { isAddress } from 'viem'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 
 import { isSolanaAddress } from '../helpers/customAssetSearch'
+
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 type TokenMetadata = TokenMetadataResponse & {
   chainId: ChainId

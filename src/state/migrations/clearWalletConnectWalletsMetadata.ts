@@ -1,5 +1,6 @@
 import type { PersistPartial } from 'redux-persist/es/persistReducer'
-import type { Portfolio } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+
+import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 
 export const clearWalletConnectWalletsMetadata = (state: Portfolio): Portfolio & PersistPartial => {
   const updatedWalletIds = state.wallet.ids.filter(id => !id.startsWith('wc:'))

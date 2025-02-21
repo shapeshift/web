@@ -2,8 +2,9 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Skeleton } from '@chakra-ui/react'
 import type { TagProps } from '@chakra-ui/tag'
 import { Tag } from '@chakra-ui/tag'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { Amount } from 'components/Amount/Amount'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+
+import { Amount } from '@/components/Amount/Amount'
 
 export type ChangeTagProps = {
   percentChangeDecimal: string | number | undefined

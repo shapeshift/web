@@ -1,31 +1,32 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
-import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { ReactTable } from 'components/ReactTable/ReactTable'
-import { RawText } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+
+import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { ReactTable } from '@/components/ReactTable/ReactTable'
+import { RawText } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { LpEarnOpportunityType, OpportunityId } from '@/state/slices/opportunitiesSlice/types'
+import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
   selectMarketDataUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type LpPositionsByProviderProps = {
   ids: OpportunityId[]

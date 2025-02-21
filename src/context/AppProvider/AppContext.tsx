@@ -1,26 +1,29 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
-import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
-import { emitter } from '@shapeshiftoss/chain-adapters'
+import type { LedgerOpenAppEventArgs } from '@shapeshiftmonorepo/chain-adapters'
+import { emitter } from '@shapeshiftmonorepo/chain-adapters'
 import { useQueries } from '@tanstack/react-query'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
-import { useModal } from 'hooks/useModal/useModal'
-import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { snapshotApi } from 'state/apis/snapshot/snapshot'
+
+import { useAccountsFetchQuery } from './hooks/useAccountsFetchQuery'
+
+import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import {
   marketApi,
   marketData,
   useFindAllQuery,
-} from 'state/slices/marketDataSlice/marketDataSlice'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+} from '@/state/slices/marketDataSlice/marketDataSlice'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
   selectAssetIds,
@@ -29,11 +32,9 @@ import {
   selectSelectedCurrency,
   selectSelectedLocale,
   selectWalletId,
-} from 'state/slices/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { useAccountsFetchQuery } from './hooks/useAccountsFetchQuery'
+} from '@/state/slices/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,

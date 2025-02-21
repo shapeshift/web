@@ -11,10 +11,11 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import { FeeBreakdown } from './FeeBreakdown'
+
+import { FeeExplainer } from '@/components/FeeExplainer/FeeExplainer'
 
 export type FeeModalProps = {
   inputAmountUsd: string | undefined

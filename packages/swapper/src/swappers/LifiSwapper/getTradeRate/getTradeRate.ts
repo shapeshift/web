@@ -1,5 +1,5 @@
 import type { ChainKey } from '@lifi/sdk'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import type { Result } from '@sniptt/monads'
 
 import type {

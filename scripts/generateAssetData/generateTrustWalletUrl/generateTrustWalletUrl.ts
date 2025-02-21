@@ -1,5 +1,5 @@
-import type { AssetId, ChainNamespace } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainNamespace } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftmonorepo/caip'
 import { getAddress } from 'viem'
 
 export const generateTrustWalletUrl = (assetId: AssetId) => {

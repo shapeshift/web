@@ -1,18 +1,19 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { bn } from '@shapeshiftmonorepo/chain-adapters'
 import { useMemo } from 'react'
-import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
-import { useAffiliateRevenueQuery } from 'pages/RFOX/hooks/useAffiliateRevenueQuery'
-import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { EmissionsPool } from './EmissionsPool'
 import { StatItem } from './StatItem'
 import { TotalStaked } from './TotalStaked'
+
+import { Text } from '@/components/Text'
+import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const gridColumns = { base: 1, md: 2 }
 

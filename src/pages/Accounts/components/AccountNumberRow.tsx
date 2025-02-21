@@ -15,28 +15,29 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { MdOutlineMoreVert } from 'react-icons/md'
 import { RiWindow2Line } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Amount } from 'components/Amount/Amount'
-import { NestedList } from 'components/NestedList'
-import { RawText } from 'components/Text'
-import { useCopyToClipboard } from 'hooks/useCopyToClipboard'
 import { getAccountTitle } from 'lib/utils/accounts'
 import { isUtxoAccountId, isUtxoChainId } from 'lib/utils/utxo'
+
+import { AccountEntryRow } from './AccountEntryRow'
+
+import { Amount } from '@/components/Amount/Amount'
+import { NestedList } from '@/components/NestedList'
+import { RawText } from '@/components/Text'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import {
   selectAssets,
   selectFeeAssetByChainId,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { AccountEntryRow } from './AccountEntryRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AccountNumberRowProps = {
   accountNumber: number

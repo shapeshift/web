@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 import { describe, expect, it, vi } from 'vitest'

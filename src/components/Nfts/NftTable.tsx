@@ -1,22 +1,23 @@
 import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { matchSorter } from 'match-sorter'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { NarwhalIcon } from 'components/Icons/Narwhal'
-import { SEO } from 'components/Layout/Seo'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
-import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
-import { selectPortfolioNftItemsWithCollectionExcludeSpams } from 'state/apis/nft/selectors'
-import type { NftItemWithCollection } from 'state/apis/nft/types'
-import { useAppSelector } from 'state/store'
 
 import { useNfts } from './hooks/useNfts'
 import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
+
+import { NarwhalIcon } from '@/components/Icons/Narwhal'
+import { SEO } from '@/components/Layout/Seo'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
+import { SearchEmpty } from '@/components/StakingVaults/SearchEmpty'
+import { selectPortfolioNftItemsWithCollectionExcludeSpams } from '@/state/apis/nft/selectors'
+import type { NftItemWithCollection } from '@/state/apis/nft/types'
+import { useAppSelector } from '@/state/store'
 
 const gridTemplateColumns = {
   base: 'repeat(auto-fit, minmax(150px, 1fr))',

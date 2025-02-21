@@ -1,10 +1,11 @@
 import { Center } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftmonorepo/caip'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { RawText } from 'components/Text'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { RawText } from '@/components/Text'
 
 export const ConnectWallet: FC = () => {
   const translate = useTranslate()

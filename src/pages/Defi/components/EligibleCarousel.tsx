@@ -1,20 +1,21 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, Flex, Heading } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
+import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import { uniqBy } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
-import { Carousel } from 'components/Carousel/Carousel'
-import type { CarouselHeaderProps } from 'components/Carousel/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
-import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FeaturedCard } from './FeaturedCards/FeaturedCard'
+
+import { Carousel } from '@/components/Carousel/Carousel'
+import type { CarouselHeaderProps } from '@/components/Carousel/types'
+import { useIsLendingActive } from '@/pages/Lending/hooks/useIsLendingActive'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { selectAggregatedEarnUserStakingEligibleOpportunities } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EligibleCarouselProps = CardProps
 

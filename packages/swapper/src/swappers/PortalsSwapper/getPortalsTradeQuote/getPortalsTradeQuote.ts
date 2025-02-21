@@ -1,14 +1,14 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { evm } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import {
   BigNumber,
   bn,
   bnOrZero,
   convertBasisPointsToDecimalPercentage,
-} from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'

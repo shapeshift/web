@@ -1,9 +1,9 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
+import type { AccountMetadata, EvmChainId } from '@shapeshiftmonorepo/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata, EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { PartialFields } from 'lib/types'
@@ -12,10 +12,11 @@ import type { GetFeesWithWalletEip1559SupportArgs } from 'lib/utils/evm'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import { GetAllowanceErr } from '../types'
+
+import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 export const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (

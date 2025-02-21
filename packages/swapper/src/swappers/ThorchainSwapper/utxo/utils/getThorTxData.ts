@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 import { getInboundAddressDataForChain } from '../../../../thorchain-utils'
 import type { SwapperConfig } from '../../../../types'

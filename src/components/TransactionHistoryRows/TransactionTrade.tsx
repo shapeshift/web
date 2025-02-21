@@ -1,10 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Center, Flex, HStack } from '@chakra-ui/react'
-import { TransferType } from '@shapeshiftoss/unchained-client'
+import { TransferType } from '@shapeshiftmonorepo/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 
 import { useTradeFees } from './hooks'
@@ -21,6 +19,9 @@ import type { TransactionRowProps } from './TransactionRow'
 import { TransactionTag } from './TransactionTag'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { RawText } from '@/components/Text'
 
 const dividerStyle = { borderWidth: 0 }
 

@@ -1,6 +1,6 @@
-import type { AssetNamespace } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetNamespace } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE } from '@shapeshiftmonorepo/caip'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 
 import { assertUnreachable } from './assertUnreachable'
 

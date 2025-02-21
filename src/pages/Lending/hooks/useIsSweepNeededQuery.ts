@@ -1,11 +1,12 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { PartialFields } from 'lib/types'
 import { isUtxoChainId } from 'lib/utils/utxo'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 type GetIsSwepNeededInput = {
   assetId: AssetId

@@ -3,9 +3,13 @@ import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
-import { useDialog, withDialogProvider } from 'context/DialogContextProvider/DialogContextProvider'
 import { isMobile } from 'lib/globals'
-import { breakpoints } from 'theme/theme'
+
+import {
+  useDialog,
+  withDialogProvider,
+} from '@/context/DialogContextProvider/DialogContextProvider'
+import { breakpoints } from '@/theme/theme'
 
 export type DialogProps = {
   isOpen: boolean

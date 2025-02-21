@@ -1,5 +1,5 @@
-import type { HistoryData, MarketData } from '@shapeshiftoss/types'
-import { getHistoryTimeframeBounds } from '@shapeshiftoss/utils'
+import type { HistoryData, MarketData } from '@shapeshiftmonorepo/types'
+import { getHistoryTimeframeBounds } from '@shapeshiftmonorepo/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import { getConfig } from 'config'

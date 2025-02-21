@@ -13,33 +13,19 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { FeeDataKey, isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { toHex } from 'viem'
-import { Amount } from 'components/Amount/Amount'
-import { AssetToAsset } from 'components/AssetToAsset/AssetToAsset'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import type { SendInput } from 'components/Modals/Send/Form'
-import { handleSend } from 'components/Modals/Send/utils'
-import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { useInterval } from 'hooks/useInterval/useInterval'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -48,7 +34,25 @@ import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
-import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+
+import { LoanSummary } from '../LoanSummary'
+import { BorrowRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetToAsset } from '@/components/AssetToAsset/AssetToAsset'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import type { SendInput } from '@/components/Modals/Send/Form'
+import { handleSend } from '@/components/Modals/Send/utils'
+import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { useInterval } from '@/hooks/useInterval/useInterval'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useLendingQuoteOpenQuery } from '@/pages/Lending/hooks/useLendingQuoteQuery'
+import { useQuoteEstimatedFeesQuery } from '@/react-queries/hooks/useQuoteEstimatedFeesQuery'
 import {
   selectAssetById,
   selectAssets,
@@ -56,11 +60,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
-
-import { LoanSummary } from '../LoanSummary'
-import { BorrowRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type BorrowConfirmProps = {
   collateralAssetId: AssetId

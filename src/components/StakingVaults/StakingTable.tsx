@@ -2,17 +2,18 @@ import { Skeleton, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
-import { Amount } from 'components/Amount/Amount'
-import { ReactTable } from 'components/ReactTable/ReactTable'
-import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
-import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AssetCell } from './Cells'
+
+import { Amount } from '@/components/Amount/Amount'
+import { ReactTable } from '@/components/ReactTable/ReactTable'
+import { RawText } from '@/components/Text'
+import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
+import { DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from '@/state/slices/opportunitiesSlice/utils'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type StakingTableProps = {
   data: EarnOpportunityType[]

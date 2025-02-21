@@ -3,16 +3,17 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
-import { getWallet, listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { WalletCard } from './WalletCard'
+
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { MobileConfig } from '@/context/WalletProvider/MobileWallet/config'
+import { getWallet, listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type MobileWalletDialogProps = {
   footerComponent?: JSX.Element

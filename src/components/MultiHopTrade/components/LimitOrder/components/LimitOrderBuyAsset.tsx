@@ -1,19 +1,20 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { useModal } from 'hooks/useModal/useModal'
 import { positiveOrZero } from 'lib/bignumber/bignumber'
+
+import { TradeAssetInput } from '../../TradeAssetInput'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { useModal } from '@/hooks/useModal/useModal'
 import {
   selectBuyAmountCryptoPrecision,
   selectBuyAmountUserCurrency,
   selectManualReceiveAddress,
-} from 'state/slices/limitOrderInputSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { TradeAssetInput } from '../../TradeAssetInput'
+} from '@/state/slices/limitOrderInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type TradeAmountInputFormValues = {
   amountFieldInput: string

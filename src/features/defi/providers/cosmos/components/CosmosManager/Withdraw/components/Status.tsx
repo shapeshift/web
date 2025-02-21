@@ -1,36 +1,37 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+
+import { WithdrawContext } from '../WithdrawContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { StatusTextEnum } from '@/components/RouteSteps/RouteSteps'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { Summary } from '@/features/defi/components/Summary'
+import { TxStatus } from '@/features/defi/components/TxStatus/TxStatus'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { toValidatorId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { WithdrawContext } from '../WithdrawContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type StatusProps = { accountId: AccountId | undefined }
 const externalLinkIcon = <ExternalLinkIcon />

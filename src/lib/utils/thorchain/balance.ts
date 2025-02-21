@@ -1,16 +1,7 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { getIsSweepNeeded, isGetSweepNeededInput } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
@@ -18,6 +9,19 @@ import type { GetThorchainSaversDepositQuoteQueryKey } from './hooks/useGetThorc
 import { fetchThorchainDepositQuote } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import type { GetThorchainSaversWithdrawQuoteQueryKey } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 import { fetchThorchainWithdrawQuote } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import type { EstimatedFeesQueryKey } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { queryFn as getEstimatedFeesQueryFn } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
+import type { IsSweepNeededQueryKey } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import {
+  getIsSweepNeeded,
+  isGetSweepNeededInput,
+} from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import type { ThorchainSaversWithdrawQuoteResponseSuccess } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
 // the current workaround is to not do fee deduction for non-UTXO chains,

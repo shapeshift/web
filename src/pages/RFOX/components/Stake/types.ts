@@ -1,6 +1,7 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
-import type { AddressSelectionValues } from 'pages/RFOX/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+
+import type { TradeAmountInputFormValues } from '@/components/MultiHopTrade/components/TradeAmountInput'
+import type { AddressSelectionValues } from '@/pages/RFOX/types'
 
 export enum StakeRoutePaths {
   Input = '/add/input',

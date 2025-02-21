@@ -1,22 +1,23 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { evm } from '@shapeshiftmonorepo/chain-adapters'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
-import { selectEvmFees } from 'react-queries/selectors'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import type { MaybeGetFeesWithWalletEip1559Args } from 'lib/utils/evm'
 import {
   assertGetEvmChainAdapter,
   getFeesWithWalletEIP1559Support,
   isGetFeesWithWalletEIP1559SupportArgs,
 } from 'lib/utils/evm'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectEvmFees } from '@/react-queries/selectors'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseEvmFeesProps = {
   from: string | undefined

@@ -1,4 +1,4 @@
-import type * as unchained from '@shapeshiftoss/unchained-client'
+import type * as unchained from '@shapeshiftmonorepo/unchained-client'
 
 import type { TransferType } from '../types'
 

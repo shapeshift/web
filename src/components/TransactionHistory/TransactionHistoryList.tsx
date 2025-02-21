@@ -1,13 +1,14 @@
 import { Button } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
-import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
-import { selectIsAnyTxHistoryApiQueryPending } from 'state/slices/selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
+import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
+import { selectIsAnyTxHistoryApiQueryPending } from '@/state/slices/selectors'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 type TransactionHistoryListProps = {
   txIds: TxId[]

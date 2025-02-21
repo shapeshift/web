@@ -5,7 +5,7 @@ import type {
   TradeQuote,
   TradeQuoteError as SwapperTradeQuoteError,
   TradeRate,
-} from '@shapeshiftoss/swapper'
+} from '@shapeshiftmonorepo/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 
 // The following are errors that affect all quotes.

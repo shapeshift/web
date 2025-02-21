@@ -1,15 +1,16 @@
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import { useMemo } from 'react'
-import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { AllowanceType } from 'hooks/queries/useApprovalFees'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector } from 'state/store'
 
 import { useAllowanceApproval } from './useAllowanceApproval'
 import { useAllowanceReset } from './useAllowanceReset'
 import { useCurrentHopIndex } from './useCurrentHopIndex'
 import { useSignPermit2 } from './useSignPermit2'
+
+import { useGetTradeQuotes } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { AllowanceType } from '@/hooks/queries/useApprovalFees'
+import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector } from '@/state/store'
 
 type UseSignAllowanceApprovalProps = {
   tradeQuoteStep: TradeQuoteStep

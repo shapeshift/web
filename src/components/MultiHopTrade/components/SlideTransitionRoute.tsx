@@ -3,11 +3,12 @@ import { Box, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
-import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
-import type { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { breakpoints } from 'theme/theme'
 
 import type { LimitOrderRoutePaths } from './LimitOrder/types'
+
+import { TradeSlideTransition } from '@/components/MultiHopTrade/TradeSlideTransition'
+import type { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { breakpoints } from '@/theme/theme'
 
 type SlideTransitionComponentProps = {
   onBack?: () => void

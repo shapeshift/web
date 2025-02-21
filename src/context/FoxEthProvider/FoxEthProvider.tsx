@@ -1,14 +1,15 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { fetchAllStakingOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectStakingAccountIds, selectTxById } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { fetchAllStakingOpportunitiesUserDataByAccountId } from '@/state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
+import { selectAssetById, selectStakingAccountIds, selectTxById } from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type FoxEthProviderProps = {
   children: React.ReactNode

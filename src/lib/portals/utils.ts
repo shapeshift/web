@@ -1,12 +1,11 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { createThrottle, isSome } from '@shapeshiftoss/utils'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { createThrottle, isSome } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { localAssetData } from 'lib/asset-service'
 
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
@@ -17,6 +16,8 @@ import type {
   PlatformsById,
   TokenInfo,
 } from './types'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 const PORTALS_BASE_URL = getConfig().REACT_APP_PORTALS_BASE_URL
 const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY

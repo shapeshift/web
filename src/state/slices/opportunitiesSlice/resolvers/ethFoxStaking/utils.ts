@@ -1,4 +1,4 @@
-import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftoss/contracts'
+import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftmonorepo/contracts'
 import { memoize } from 'lodash'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 

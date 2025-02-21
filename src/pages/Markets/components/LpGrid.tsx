@@ -1,28 +1,29 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
 import { useHistory } from 'react-router'
-import { OrderDirection } from 'components/OrderDropdown/types'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import type { SortOptionsKeys } from 'components/SortDropdown/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
-import { store, useAppDispatch } from 'state/store'
 
 import { marketDataBySortKey } from '../constants'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
 import { LoadingGrid } from './LoadingGrid'
 import { LpGridItem } from './LpCard'
 import { MarketGrid } from './MarketGrid'
+
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import type { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { thorchainSaversOpportunityIdsResolver } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectStakingOpportunityByFilter,
+} from '@/state/slices/selectors'
+import { store, useAppDispatch } from '@/state/store'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 

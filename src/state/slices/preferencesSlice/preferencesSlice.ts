@@ -1,14 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { getConfig } from 'config'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 
 dayjs.extend(localizedFormat)
 

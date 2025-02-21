@@ -1,7 +1,7 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import type { AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { reactQueries } from 'react-queries'
@@ -12,9 +12,10 @@ import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMi
 import { getPoolShare } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type GetPositionArgs = {
   pool: ThornodePoolResponse

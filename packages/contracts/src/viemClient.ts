@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'
 import { createPublicClient, fallback, http } from 'viem'

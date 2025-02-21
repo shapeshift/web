@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import { assertUnreachable } from 'lib/utils'
-import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
+
+import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
 import {
   selectActiveQuoteId,
   selectLimitOrderSubmissionMetadata,
-} from 'state/slices/limitOrderSlice/selectors'
-import type { ApprovalExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
+} from '@/state/slices/limitOrderSlice/selectors'
+import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 enum StepperStep {
   AllowanceReset = 'allowanceReset',

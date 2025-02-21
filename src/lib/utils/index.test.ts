@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import {
   cosmosAssetId,
   cosmosChainId,
@@ -7,16 +7,8 @@ import {
   foxAssetId,
   foxyAssetId,
   fromAssetId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 import { describe, expect, it, test, vi } from 'vitest'
-import { fauxmesAccountId } from 'state/slices/opportunitiesSlice/mocks'
-import type {
-  LpId,
-  OpportunityId,
-  StakingId,
-  ValidatorId,
-} from 'state/slices/opportunitiesSlice/types'
-import { opportunityIdToChainId } from 'state/slices/opportunitiesSlice/utils'
 
 import {
   assertIsDefined,
@@ -34,6 +26,15 @@ import {
   sha256,
   upsertArray,
 } from '.'
+
+import { fauxmesAccountId } from '@/state/slices/opportunitiesSlice/mocks'
+import type {
+  LpId,
+  OpportunityId,
+  StakingId,
+  ValidatorId,
+} from '@/state/slices/opportunitiesSlice/types'
+import { opportunityIdToChainId } from '@/state/slices/opportunitiesSlice/utils'
 
 describe('lib/utils', () => {
   describe('opportunityIdToChainId', () => {

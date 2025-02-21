@@ -18,7 +18,8 @@ import { Fragment, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Cell, Column, ColumnInstance, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]

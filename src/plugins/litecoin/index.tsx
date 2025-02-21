@@ -1,6 +1,6 @@
-import { litecoin } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import { litecoin } from '@shapeshiftmonorepo/chain-adapters'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import * as unchained from '@shapeshiftmonorepo/unchained-client'
 import { getConfig } from 'config'
 import type { Plugins } from 'plugins/types'
 

@@ -1,9 +1,9 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import type { AccountMetadata } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { arbitrumChainId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { TxTransfer } from '@shapeshiftmonorepo/chain-adapters'
+import type { AccountMetadata } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -13,8 +13,14 @@ import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { getTimeFrameBounds, isSome } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
+
+import { selectAssets } from '../assetsSlice/selectors'
+import { selectEnabledWalletAccountIds } from '../common-selectors'
+import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
+import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
+
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
@@ -23,12 +29,7 @@ import {
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
-} from 'state/selectors'
-
-import { selectAssets } from '../assetsSlice/selectors'
-import { selectEnabledWalletAccountIds } from '../common-selectors'
-import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
-import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
+} from '@/state/selectors'
 
 const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
 export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector(

@@ -1,13 +1,14 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
-import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { isThorTradeRate } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AmountDisplayMeta } from '@shapeshiftmonorepo/swapper'
+import { isExecutableTradeQuote } from '@shapeshiftmonorepo/swapper'
+import { isThorTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { isThorTradeRate } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
+import { bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { chainIdToChainDisplayName } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
+
+import type { ReduxState } from '@/state/reducer'
+import { selectAssets, selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -19,8 +20,8 @@ import {
   selectQuoteSellAmountUserCurrency,
   selectTradeQuoteAffiliateFeeAfterDiscountUsd,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { store } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { store } from '@/state/store'
 
 export const getMixpanelEventData = () => {
   const state = store.getState() as ReduxState

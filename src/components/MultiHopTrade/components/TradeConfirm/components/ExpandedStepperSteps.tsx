@@ -11,25 +11,11 @@ import {
   usePrevious,
   VStack,
 } from '@chakra-ui/react'
-import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useModal } from 'hooks/useModal/useModal'
 import { bn } from 'lib/bignumber/bignumber'
-import {
-  selectFirstHopSellAccountId,
-  selectSecondHopSellAccountId,
-} from 'state/slices/tradeInputSlice/selectors'
-import {
-  selectActiveQuoteErrors,
-  selectHopExecutionMetadata,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../helpers'
 import { useHopProgress } from '../hooks/useHopProgress'
@@ -37,6 +23,21 @@ import { useStepperSteps } from '../hooks/useStepperSteps'
 import { useStreamingProgress } from '../hooks/useStreamingProgress'
 import { StepperStep as StepperStepComponent } from '../StepperStep'
 import { TxLabel } from '../TxLabel'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RawText, Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useModal } from '@/hooks/useModal/useModal'
+import {
+  selectFirstHopSellAccountId,
+  selectSecondHopSellAccountId,
+} from '@/state/slices/tradeInputSlice/selectors'
+import {
+  selectActiveQuoteErrors,
+  selectHopExecutionMetadata,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />

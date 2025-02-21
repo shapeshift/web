@@ -1,4 +1,4 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -6,8 +6,8 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import omit from 'lodash/omit'

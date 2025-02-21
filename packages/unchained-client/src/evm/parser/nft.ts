@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ethers } from 'ethers'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ethers } from 'ethers6'
 
 import type { BaseTxMetadata } from '../../types'
 import type { Api } from '..'

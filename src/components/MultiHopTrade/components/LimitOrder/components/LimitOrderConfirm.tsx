@@ -9,25 +9,31 @@ import {
   HStack,
   Stack,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { CowSwapError } from '@shapeshiftoss/types'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { CowSwapError } from '@shapeshiftmonorepo/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
-import { useActions } from 'hooks/useActions'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
+
+import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { WithBackButton } from '../../WithBackButton'
+import { getMixpanelLimitOrderEventData } from '../helpers'
+import { LimitOrderRoutePaths } from '../types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetToAssetCard } from '@/components/AssetToAssetCard/AssetToAssetCard'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
+import { useActions } from '@/hooks/useActions'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
@@ -40,13 +46,8 @@ import {
   selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAmountUserCurrency,
   selectActiveQuoteSellAsset,
-} from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
-import { WithBackButton } from '../../WithBackButton'
-import { getMixpanelLimitOrderEventData } from '../helpers'
-import { LimitOrderRoutePaths } from '../types'
+} from '@/state/slices/limitOrderSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const cardBorderRadius = { base: '2xl' }
 

@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import type { AxiosInstance } from 'axios'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'

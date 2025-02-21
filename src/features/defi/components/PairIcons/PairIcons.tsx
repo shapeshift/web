@@ -1,7 +1,8 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
 import { Avatar, Center, Flex } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold' }
 

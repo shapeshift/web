@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { OrderCreation } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { OrderCreation } from '@shapeshiftmonorepo/types'
 
 export type CowSwapGetTradesResponse = {
   txHash: string

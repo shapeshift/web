@@ -1,5 +1,5 @@
-import { ethChainId } from '@shapeshiftoss/caip'
-import type { OrderQuoteResponse } from '@shapeshiftoss/types'
+import { ethChainId } from '@shapeshiftmonorepo/caip'
+import type { OrderQuoteResponse } from '@shapeshiftmonorepo/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -46,7 +46,7 @@ vi.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: vi.fn(),
 }))
 
-vi.mock('state/slices/assetsSlice/selectors', async () => {
+vi.mock('@/state/slices/assetsSlice/selectors', async () => {
   const {
     BTC,
     ETH,
@@ -59,7 +59,7 @@ vi.mock('state/slices/assetsSlice/selectors', async () => {
     USDC_ARBITRUM,
   } = require('lib/swapper/swappers/utils/test-data/assets')
 
-  const actual = await vi.importActual('state/slices/assetsSlice/selectors')
+  const actual = await vi.importActual('@/state/slices/assetsSlice/selectors')
   return {
     ...actual,
     selectAssets: vi.fn(() => ({

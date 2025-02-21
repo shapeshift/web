@@ -1,6 +1,6 @@
-import { solanaChainId, toAccountId } from '@shapeshiftoss/caip'
+import { solanaChainId, toAccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountMetadataById } from '@shapeshiftmonorepo/types'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 
 import type { DeriveAccountIdsAndMetadata } from './account'

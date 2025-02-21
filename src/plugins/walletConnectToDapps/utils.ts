@@ -1,12 +1,12 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import type {
   EvmBaseAdapter,
   FeeDataEstimate,
   FeeDataKey,
   GetFeeDataInput,
-} from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/chain-adapters'
+import type { EvmChainId } from '@shapeshiftmonorepo/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type {
   ConfirmData,

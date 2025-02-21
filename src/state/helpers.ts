@@ -1,4 +1,4 @@
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import { assertUnreachable } from 'lib/utils'
 
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'

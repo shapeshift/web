@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 import { formatSecondsToDuration } from 'lib/utils/time'

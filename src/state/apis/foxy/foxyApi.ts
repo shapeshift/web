@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'

@@ -11,7 +11,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
@@ -20,23 +20,24 @@ import { Controller, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Amount } from 'components/Amount/Amount'
-import { Balance } from 'components/DeFi/components/Balance'
-import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOptionsButtonGroup'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
+
+import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
+import { Balance } from '@/components/DeFi/components/Balance'
+import { PercentOptionsButtonGroup } from '@/components/DeFi/components/PercentOptionsButtonGroup'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { colors } from 'theme/colors'
-
-import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { colors } from '@/theme/colors'
 
 export type TradeAmountInputFormValues = {
   amountFieldInput: string

@@ -35,12 +35,13 @@ import { approveCosmosRequest } from 'plugins/walletConnectToDapps/utils/CosmosR
 import { approveEIP155Request } from 'plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
 import type { Dispatch, FC } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 

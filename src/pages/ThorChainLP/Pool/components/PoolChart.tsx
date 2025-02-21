@@ -3,15 +3,16 @@ import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData, UTCTimestamp } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
-import { ChartSkeleton } from 'components/SimpleChart/LoadingChart'
-import { SimpleChart } from 'components/SimpleChart/SimpleChart'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
-import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
-import { store } from 'state/store'
+
+import { ChartSkeleton } from '@/components/SimpleChart/LoadingChart'
+import { SimpleChart } from '@/components/SimpleChart/SimpleChart'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 type ChartIntervalKey = 'day' | 'week' | 'month' | 'all'
 type ChartIntervalValue = 'hour' | 'day' | 'month'

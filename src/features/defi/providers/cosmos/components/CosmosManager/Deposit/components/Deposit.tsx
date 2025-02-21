@@ -1,38 +1,39 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { Deposit as ReusableDeposit, Field } from 'features/defi/components/Deposit/Deposit'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { toAssetId } from '@shapeshiftmonorepo/caip'
 import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { estimateFees } from 'components/Modals/Send/utils'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+
+import { CosmosDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { estimateFees } from '@/components/Modals/Send/utils'
+import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit, Field } from '@/features/defi/components/Deposit/Deposit'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { toValidatorId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { CosmosDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type DepositProps = StepComponentProps & {
   accountId: AccountId | undefined

@@ -21,39 +21,40 @@ import {
   fromAssetId,
   thorchainAssetId,
   uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { RFOXIcon } from 'components/Icons/RFOX'
-import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
-import { useAffiliateRevenueQuery } from 'pages/RFOX/hooks/useAffiliateRevenueQuery'
-import { useCurrentApyQuery } from 'pages/RFOX/hooks/useCurrentApyQuery'
-import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { useCurrentEpochRewardsQuery } from 'pages/RFOX/hooks/useCurrentEpochRewardsQuery'
-import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuery'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
-import type { AbiStakingInfo } from 'pages/RFOX/types'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import type { Filter } from './FoxTokenFilterButton'
 import { FoxTokenFilterButton } from './FoxTokenFilterButton'
 import { RFOXSimulator } from './RFOXSimulator'
+
+import { Amount } from '@/components/Amount/Amount'
+import { RFOXIcon } from '@/components/Icons/RFOX'
+import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
+import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
+import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
+import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
+import { useLifetimeRewardsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
+import type { AbiStakingInfo } from '@/pages/RFOX/types'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const hstackProps: StackProps = {
   flexWrap: {

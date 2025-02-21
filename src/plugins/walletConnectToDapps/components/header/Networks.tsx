@@ -1,10 +1,11 @@
 import { AvatarGroup, HStack } from '@chakra-ui/react'
-import { accountIdToChainId } from '@shapeshiftoss/caip'
+import { accountIdToChainId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
-import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { isSome } from 'lib/utils'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 type NetworksProps = {
   accountIds: string[]

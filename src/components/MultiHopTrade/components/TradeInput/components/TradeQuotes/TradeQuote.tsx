@@ -1,46 +1,47 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   swappers,
   TradeQuoteError as SwapperTradeQuoteError,
-} from '@shapeshiftoss/swapper'
+} from '@shapeshiftmonorepo/swapper'
 import type { FC } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { SlippageIcon } from 'components/Icons/Slippage'
-import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { RawText } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import { TradeQuoteValidationError } from 'state/apis/swapper/types'
+
+import { CountdownSpinner } from './components/CountdownSpinner'
+import { TradeQuoteCard } from './components/TradeQuoteCard'
+import { TradeQuoteContent } from './components/TradeQuoteContent'
+
+import { Amount } from '@/components/Amount/Amount'
+import { SlippageIcon } from '@/components/Icons/Slippage'
+import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
+import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import type { ApiQuote } from '@/state/apis/swapper/types'
+import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/tradeInputSlice/selectors'
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
-} from 'state/slices/tradeQuoteSlice/helpers'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
-
-import { CountdownSpinner } from './components/CountdownSpinner'
-import { TradeQuoteCard } from './components/TradeQuoteCard'
-import { TradeQuoteContent } from './components/TradeQuoteContent'
+} from '@/state/slices/tradeQuoteSlice/helpers'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type TradeQuoteProps = {
   isActive: boolean

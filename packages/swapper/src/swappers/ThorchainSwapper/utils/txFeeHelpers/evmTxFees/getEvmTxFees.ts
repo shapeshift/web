@@ -1,5 +1,5 @@
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { evm } from '@shapeshiftmonorepo/chain-adapters'
 
 import { THOR_EVM_GAS_LIMIT } from '../../constants'
 

@@ -1,13 +1,13 @@
-import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { ToAssetIdArgs } from '@shapeshiftmonorepo/caip'
+import {
+  ethChainId,
+  foxyAssetId,
+  fromAccountId,
+  fromAssetId,
+  toAssetId,
+} from '@shapeshiftmonorepo/caip'
 import dayjs from 'dayjs'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { foxyApi } from 'state/apis/foxy/foxyApi'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectBip44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -23,6 +23,13 @@ import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
 } from '../types'
+
+import { foxyApi } from '@/state/apis/foxy/foxyApi'
+import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectBip44ParamsByAccountId } from '@/state/slices/portfolioSlice/selectors'
 
 export const foxyStakingOpportunitiesMetadataResolver = async ({
   defiType,

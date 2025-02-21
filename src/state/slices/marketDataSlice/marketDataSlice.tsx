@@ -1,8 +1,8 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -11,15 +11,16 @@ import type {
   SupportedFiatCurrencies,
 } from 'lib/market-service'
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from 'lib/market-service'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
-import type {
-  FindPriceHistoryByAssetIdArgs,
-  MarketDataState,
-} from 'state/slices/marketDataSlice/types'
 
 import type { MarketDataById } from './types'
 import { trimOutOfBoundsMarketData } from './utils'
+
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
+import { getMarketServiceManager } from '@/state/slices/marketDataSlice/marketServiceManagerSingleton'
+import type {
+  FindPriceHistoryByAssetIdArgs,
+  MarketDataState,
+} from '@/state/slices/marketDataSlice/types'
 
 export const initialState: MarketDataState = {
   crypto: {

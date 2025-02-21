@@ -1,7 +1,7 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import type { BoxProps, ThemeTypings } from '@chakra-ui/react'
 import { Box, Grid, IconButton, useBreakpointValue, useToken } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import type { PropsWithChildren } from 'react'
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

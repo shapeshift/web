@@ -1,8 +1,8 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { isSome } from '@shapeshiftmonorepo/utils'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import { isSome } from '@shapeshiftoss/utils'
 
 import type {
   BuyAssetBySellIdInput,

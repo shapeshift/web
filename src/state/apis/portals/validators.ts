@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -9,9 +9,9 @@ import {
   optimismChainId,
   polygonChainId,
   toAssetId,
-} from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/caip'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftmonorepo/utils'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'

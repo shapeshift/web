@@ -13,12 +13,13 @@ import {
 } from '@chakra-ui/react'
 import React, { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { enableShapeShiftSnap } from 'utils/snaps'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText } from 'components/Text'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RawText } from '@/components/Text'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { enableShapeShiftSnap } from '@/utils/snaps'
 
 type SnapConfirmProps = {
   onClose: () => void

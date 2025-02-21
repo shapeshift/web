@@ -1,24 +1,25 @@
 import { ArrowDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Avatar, Box, Button, Divider, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import { Summary } from 'features/defi/components/Summary'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
-import { Address } from 'components/TransactionHistoryRows/TransactionDetails/Address'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
+import { Address } from '@/components/TransactionHistoryRows/TransactionDetails/Address'
+import { DefiModalHeader } from '@/features/defi/components/DefiModal/DefiModalHeader'
+import { Summary } from '@/features/defi/components/Summary'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 type DustProps = {
   accountId: AccountId | undefined

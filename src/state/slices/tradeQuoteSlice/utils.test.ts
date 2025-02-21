@@ -1,12 +1,17 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee } from '@shapeshiftoss/swapper'
-import { BTC, ETH, FOX_MAINNET } from '@shapeshiftoss/swapper/dist/swappers/utils/test-data/assets'
-import { marketDataByAssetIdUsd } from '@shapeshiftoss/swapper/dist/swappers/utils/test-data/cryptoMarketDataById'
-import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { ProtocolFee } from '@shapeshiftmonorepo/swapper'
+import {
+  BTC,
+  ETH,
+  FOX_MAINNET,
+} from '@shapeshiftmonorepo/swapper/dist/swappers/utils/test-data/assets'
+import { marketDataByAssetIdUsd } from '@shapeshiftmonorepo/swapper/dist/swappers/utils/test-data/cryptoMarketDataById'
+import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftmonorepo/utils'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
 import { bn, convertPrecision } from 'lib/bignumber/bignumber'
-import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
+
+import { sumProtocolFeesToDenom } from '@/state/slices/tradeQuoteSlice/utils'
 
 describe('sumProtocolFeesToDenom', () => {
   it("returns '0' for empty object", () => {

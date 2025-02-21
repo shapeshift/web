@@ -1,9 +1,10 @@
-import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { store } from 'state/store'
+
+import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)

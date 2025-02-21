@@ -1,16 +1,17 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../../Form'
 import type { FeePrice } from '../../views/Confirm'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useSendFees = () => {
   const [fees, setFees] = useState<FeePrice | null>(null)

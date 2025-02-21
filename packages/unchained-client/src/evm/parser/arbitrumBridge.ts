@@ -1,5 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { arbitrumChainId, ethAssetId, ethChainId, toAssetId } from '@shapeshiftmonorepo/caip'
 import {
   ARB_OUTBOX_ABI,
   ARB_OUTBOX_CONTRACT,
@@ -16,8 +16,8 @@ import {
   L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT,
   L2_ARBITRUM_GATEWAY_ABI,
   L2_ARBITRUM_GATEWAY_CONTRACT,
-} from '@shapeshiftoss/contracts'
-import { ethers } from 'ethers'
+} from '@shapeshiftmonorepo/contracts'
+import { ethers } from 'ethers6'
 
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'

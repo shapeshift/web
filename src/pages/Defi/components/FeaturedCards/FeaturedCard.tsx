@@ -8,22 +8,23 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
+import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
+import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from '@/state/slices/opportunitiesSlice/utils'
+import { selectAssetById, selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const scrollSnapAlign = { base: 'center', md: 'start' }
 const cardBorderRadius = { base: 'xl' }

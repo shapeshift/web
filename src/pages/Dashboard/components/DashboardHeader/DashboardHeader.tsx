@@ -3,18 +3,19 @@ import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import {
-  selectClaimableRewards,
-  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { DashboardTab } from '../DashboardTab'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
 import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
+
+import { Amount } from '@/components/Amount/Amount'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import {
+  selectClaimableRewards,
+  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const paddingTop = { base: 'env(safe-area-inset-top)', md: '4.5rem' }
 const marginTop = { base: 0, md: '-4.5rem' }

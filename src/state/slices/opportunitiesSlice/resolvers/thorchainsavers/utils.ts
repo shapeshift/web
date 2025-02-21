@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   avalancheAssetId,
   bchAssetId,
@@ -12,15 +12,14 @@ import {
   fromAssetId,
   ltcAssetId,
   thorchainAssetId,
-} from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/caip'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import uniq from 'lodash/uniq'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
@@ -37,6 +36,8 @@ import type {
   ThorchainSaversWithdrawQuoteResponse,
   ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0

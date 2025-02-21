@@ -1,23 +1,24 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
 import { middleEllipsis } from 'lib/utils'
 import { isUtxoAccountId } from 'lib/utils/utxo'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-} from 'state/slices/portfolioSlice/selectors'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/portfolioSlice/selectors'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
+import { selectAccountNumberByAccountId, selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AccountEntryRowProps = {
   accountId: AccountId

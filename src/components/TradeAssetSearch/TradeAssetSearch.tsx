@@ -1,30 +1,31 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { knownChainIds } from 'constants/chains'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
-import { AllChainMenu } from 'components/ChainMenu'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { sortChainIdsByDisplayName } from 'lib/utils'
-import {
-  selectAssetsSortedByMarketCap,
-  selectPortfolioFungibleAssetsSortedByBalance,
-  selectWalletConnectedChainIds,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
+
+import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
+import { AllChainMenu } from '@/components/ChainMenu'
+import { knownChainIds } from '@/constants/chains'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import {
+  selectAssetsSortedByMarketCap,
+  selectPortfolioFungibleAssetsSortedByBalance,
+  selectWalletConnectedChainIds,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const buttonProps = {
   rightIcon: <ChevronDownIcon />,

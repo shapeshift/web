@@ -1,11 +1,10 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
-import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -14,15 +13,17 @@ import type {
   LendingQuoteClose,
   LendingWithdrawQuoteResponseSuccess,
 } from 'lib/utils/thorchain/lending/types'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+
+import { useLendingPositionData } from './useLendingPositionData'
+
+import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/marketDataSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
-
-import { useLendingPositionData } from './useLendingPositionData'
+} from '@/state/slices/marketDataSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type UseLendingQuoteCloseQueryProps = {
   repaymentAssetId: AssetId

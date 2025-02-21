@@ -11,8 +11,8 @@ import {
   Tr,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import type { VirtualItem } from '@tanstack/react-virtual'
@@ -22,16 +22,17 @@ import { memo, useCallback, useMemo, useRef } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { Display } from 'components/Display'
-import { AssetCell } from 'components/StakingVaults/Cells'
-import { Text } from 'components/Text'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { SparkLine } from 'pages/Buy/components/Sparkline'
-import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
-import { selectMarketDataUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Display } from '@/components/Display'
+import { AssetCell } from '@/components/StakingVaults/Cells'
+import { Text } from '@/components/Text'
+import { SparkLine } from '@/pages/Buy/components/Sparkline'
+import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
+import { selectMarketDataUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const ROW_HEIGHT = 70
 

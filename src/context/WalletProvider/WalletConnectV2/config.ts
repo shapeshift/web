@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { getConfig } from 'config'
 import type { Chain } from 'viem/chains'
@@ -13,10 +13,11 @@ import {
   optimism,
   polygon,
 } from 'viem/chains'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 import type { EthereumProviderOptions } from './constants'
+
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type WalletConnectV2ConfigType = Omit<SupportedWalletInfo<typeof WalletConnectV2Adapter>, 'routes'>
 

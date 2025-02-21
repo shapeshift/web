@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import type { Eip1193Provider } from 'ethers'
+import type { Eip1193Provider } from 'ethers6'
 import { METAMASK_RDNS, mipdStore } from 'lib/mipd'
 
 type GetSnapsResult = Record<

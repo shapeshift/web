@@ -1,8 +1,7 @@
 import { Card } from '@chakra-ui/react'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { TradeInputTab } from 'components/MultiHopTrade/types'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -10,6 +9,8 @@ import { ClaimSelect } from './ClaimSelect'
 import { ClaimStatus } from './ClaimStatus'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
+
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 

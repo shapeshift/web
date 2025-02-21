@@ -1,12 +1,13 @@
 import { Box, Button, Flex, Image, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
-import { Text } from 'components/Text'
-import type { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { useMipdProviders } from 'lib/mipd'
 
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
+
+import { Text } from '@/components/Text'
+import type { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const MipdProviderSelectItem = ({
   provider,

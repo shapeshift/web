@@ -1,7 +1,7 @@
 import type { CardProps, StackProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
-import { foxWifHatAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
 import { ParentSize, ScaleSVG } from '@visx/responsive'
@@ -19,24 +19,25 @@ import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
+
+import { CHART_TRADE_SIZE_MAX_USD } from './common'
+import { FeeSliders } from './FeeSliders'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import {
   selectIsSnapshotApiQueriesPending,
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,
-} from 'state/apis/snapshot/selectors'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
-
-import { CHART_TRADE_SIZE_MAX_USD } from './common'
-import { FeeSliders } from './FeeSliders'
+} from '@/state/apis/snapshot/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 type FeeChartProps = {
   tradeSize: number

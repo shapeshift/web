@@ -20,29 +20,18 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftmonorepo/caip'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import { convertPercentageToBasisPoints } from '@shapeshiftmonorepo/utils'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -55,12 +44,28 @@ import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { usePool } from 'pages/ThorChainLP/queries/hooks/usePool'
-import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
-import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { OpportunityType } from 'pages/ThorChainLP/utils'
-import { fromOpportunityId } from 'pages/ThorChainLP/utils'
+
+import { LpType } from '../LpType'
+import { ReadOnlyAsset } from '../ReadOnlyAsset'
+import { RemoveLiquidityRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippagePopover'
+import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { usePool } from '@/pages/ThorChainLP/queries/hooks/usePool'
+import { useUserLpData } from '@/pages/ThorChainLP/queries/hooks/useUserLpData'
+import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { OpportunityType } from '@/pages/ThorChainLP/utils'
+import { fromOpportunityId } from '@/pages/ThorChainLP/utils'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -69,12 +74,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { LpType } from '../LpType'
-import { ReadOnlyAsset } from '../ReadOnlyAsset'
-import { RemoveLiquidityRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const INITIAL_REMOVAL_PERCENTAGE = 50
 

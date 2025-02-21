@@ -1,20 +1,26 @@
 import { Box, CardBody } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
-import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import {
+  fromAccountId,
+  thorchainAssetId,
+  thorchainChainId,
+  toAccountId,
+} from '@shapeshiftmonorepo/caip'
+import { Dex, TransferType, TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useMemo } from 'react'
-import { Text } from 'components/Text'
-import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { getTxLink } from 'lib/getTxLink'
-import type { RewardDistributionWithMetadata } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
-import { useLifetimeRewardDistributionsQuery } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { selectAssetById } from 'state/slices/selectors'
-import type { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
 
 import { RewardTransactionList } from './RewardTransactionList'
+
+import { Text } from '@/components/Text'
+import type { TxDetails } from '@/hooks/useTxDetails/useTxDetails'
+import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
+import { useLifetimeRewardDistributionsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { selectAssetById } from '@/state/slices/selectors'
+import type { Tx, TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type RewardsContentProps = {
   stakingAssetAccountId: AccountId

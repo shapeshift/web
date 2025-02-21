@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset, AssetsById } from '@shapeshiftmonorepo/types'
 
 import { assertUnreachable } from '../assertUnreachable'
 import { FIELDS } from './constants'

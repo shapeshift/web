@@ -3,14 +3,15 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { lazy, memo, Suspense, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
-import { breakpoints } from 'theme/theme'
 
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
+
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
+import { breakpoints } from '@/theme/theme'
 
 const WalletConnectToDappsHeaderButton = lazy(() =>
   import('plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(

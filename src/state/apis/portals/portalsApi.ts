@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds, MarketData } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { ethChainId, toAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds, MarketData } from '@shapeshiftmonorepo/types'
+import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftmonorepo/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -18,27 +18,6 @@ import type {
   TokenInfo,
 } from 'lib/portals/types'
 import { isSome } from 'lib/utils'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { ReduxState } from 'state/reducer'
-import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { foxEthLpAssetIds } from 'state/slices/opportunitiesSlice/constants'
-import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
-import type {
-  DefiProviderMetadata,
-  GetOpportunityMetadataOutput,
-  GetOpportunityUserDataOutput,
-  GetOpportunityUserStakingDataOutput,
-  OpportunityMetadataBase,
-  ReadOnlyOpportunityType,
-  StakingId,
-} from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
-import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { PortalsAssetBase, SupportedPortalsNetwork, V2AppResponseType } from './validators'
@@ -47,6 +26,28 @@ import {
   PORTALS_NETWORKS_TO_CHAIN_ID_MAP,
   portalsNetworkToChainId,
 } from './validators'
+
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
+import type { ReduxState } from '@/state/reducer'
+import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from '@/state/slices/assetsSlice/selectors'
+import { marketData as marketDataSlice } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { foxEthLpAssetIds } from '@/state/slices/opportunitiesSlice/constants'
+import { opportunities } from '@/state/slices/opportunitiesSlice/opportunitiesSlice'
+import type {
+  DefiProviderMetadata,
+  GetOpportunityMetadataOutput,
+  GetOpportunityUserDataOutput,
+  GetOpportunityUserStakingDataOutput,
+  OpportunityMetadataBase,
+  ReadOnlyOpportunityType,
+  StakingId,
+} from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId } from '@/state/slices/opportunitiesSlice/utils'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 
 const PORTALS_BASE_URL = getConfig().REACT_APP_PORTALS_BASE_URL
 const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY

@@ -6,16 +6,17 @@ import { memo, useCallback } from 'react'
 import { FiLogOut } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { QRCodeIcon } from 'components/Icons/QRCode'
-import { MobileWalletDialog } from 'components/MobileWalletDialog/MobileWalletDialog'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile } from 'lib/globals'
 
 import { EditAvatarButton, ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
+
+import { QRCodeIcon } from '@/components/Icons/QRCode'
+import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />

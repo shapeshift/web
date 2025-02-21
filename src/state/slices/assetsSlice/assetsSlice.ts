@@ -1,10 +1,11 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftmonorepo/types'
 import { getAssetService } from 'lib/asset-service'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components

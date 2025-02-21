@@ -1,12 +1,13 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountMetadata } from '@shapeshiftmonorepo/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { reactQueries } from 'react-queries'
-import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import type { getThorchainLendingPosition } from '../lending'
+
+import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 type UseThorchainFromAddressArgs = {
   accountId: AccountId | undefined

@@ -1,16 +1,17 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Fees } from '@shapeshiftoss/chain-adapters/dist/evm/types'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { InboundAddressResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { isRune } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/isRune/isRune'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Fees } from '@shapeshiftmonorepo/chain-adapters/dist/evm/types'
+import type { SwapErrorRight } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { InboundAddressResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { isRune } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/isRune/isRune'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+
+import type { EvmFees } from '@/hooks/queries/useEvmFees'
 
 export const selectInboundAddressData = (
   data: Result<InboundAddressResponse[], SwapErrorRight>,

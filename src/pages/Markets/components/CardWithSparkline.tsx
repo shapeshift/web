@@ -1,22 +1,23 @@
 import { Box, Button, Card, CardBody, Flex, Text } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import noop from 'lodash/noop'
 import { useCallback } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { WatchAssetButton } from 'components/AssetHeader/WatchAssetButton'
-import { AssetIcon } from 'components/AssetIcon'
-import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
-import { PriceChart } from 'components/PriceChart/PriceChart'
 import { markdownLinkToHTML } from 'lib/utils'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+
+import { Amount } from '@/components/Amount/Amount'
+import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
+import { AssetIcon } from '@/components/AssetIcon'
+import { ParsedHtml } from '@/components/ParsedHtml/ParsedHtml'
+import { PriceChart } from '@/components/PriceChart/PriceChart'
+import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedLocale,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const CardWithSparkline: React.FC<{
   assetId: AssetId

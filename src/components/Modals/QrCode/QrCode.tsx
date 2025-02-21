@@ -1,10 +1,11 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { MemoryRouter } from 'react-router-dom'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { useModal } from 'hooks/useModal/useModal'
 
 import { SendRoutes } from '../Send/SendCommon'
 import { Form } from './Form'
+
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { useModal } from '@/hooks/useModal/useModal'
 
 export const entries = Object.values(SendRoutes)
 

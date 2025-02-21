@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isKeepKeyHDWallet, isNativeHDWallet } from 'lib/utils'
 
 export const useIsWalletConnectToDappsSupportedWallet = () => {

@@ -1,40 +1,41 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
-import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId, solAssetId } from '@shapeshiftmonorepo/caip'
+import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftmonorepo/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
   getTradeRates,
   SwapperName,
-} from '@shapeshiftoss/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
+} from '@shapeshiftmonorepo/swapper'
+import type { ThorEvmTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { TradeType } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote, TradeQuoteOrRateRequest } from 'state/apis/swapper/types'
-import { TradeQuoteValidationError } from 'state/apis/swapper/types'
-import { getEnabledSwappers } from 'state/helpers'
-import type { ReduxState } from 'state/reducer'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
+import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
+import type { ApiQuote, TradeQuoteOrRateRequest } from '@/state/apis/swapper/types'
+import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
+import { getEnabledSwappers } from '@/state/helpers'
+import type { ReduxState } from '@/state/reducer'
+import { selectAssets } from '@/state/slices/assetsSlice/selectors'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

@@ -1,5 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId } from '@shapeshiftmonorepo/caip'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'

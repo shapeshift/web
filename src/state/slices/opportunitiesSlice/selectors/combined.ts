@@ -1,17 +1,10 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import BigNumber from 'bignumber.js'
 import partition from 'lodash/partition'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectChainIdParamFromFilter,
-  selectIncludeEarnBalancesParamFromFilter,
-  selectIncludeRewardsBalancesParamFromFilter,
-} from 'state/selectors'
 
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
@@ -28,6 +21,14 @@ import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from './stakingSelectors'
+
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import {
+  selectChainIdParamFromFilter,
+  selectIncludeEarnBalancesParamFromFilter,
+  selectIncludeRewardsBalancesParamFromFilter,
+} from '@/state/selectors'
 
 const makeClaimableStakingRewardsAmountUserCurrency = ({
   assets,

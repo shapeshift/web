@@ -1,5 +1,5 @@
 import { Box, Card, HStack, Step, Stepper } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 import { AssetSummaryStep } from './AssetSummaryStep'
 

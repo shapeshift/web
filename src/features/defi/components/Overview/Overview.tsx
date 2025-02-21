@@ -9,23 +9,24 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Amount } from 'components/Amount/Amount'
-import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTeaser'
-import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
-import { AssetIcon } from 'components/AssetIcon'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { RawText, Text } from 'components/Text'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
 import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
 import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
+import type { AssetDescriptionTeaserProps } from '@/components/AssetDescriptionTeaser'
+import { AssetDescriptionTeaser } from '@/components/AssetDescriptionTeaser'
+import { AssetIcon } from '@/components/AssetIcon'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { RawText, Text } from '@/components/Text'
 
 export type AssetWithBalance = {
   cryptoBalancePrecision: string

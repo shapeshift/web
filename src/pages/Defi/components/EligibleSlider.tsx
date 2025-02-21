@@ -1,16 +1,17 @@
 import type { BoxProps } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftoss/contracts'
+import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
-import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FeaturedCard } from './FeaturedCards/FeaturedCard'
 import { FeaturedList } from './FeaturedCards/FeaturedList/FeaturedList'
+
+import { useIsLendingActive } from '@/pages/Lending/hooks/useIsLendingActive'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { selectAggregatedEarnUserStakingEligibleOpportunities } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EligibleSliderProps = {
   slidesToShow?: number

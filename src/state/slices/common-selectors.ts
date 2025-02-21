@@ -1,7 +1,7 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, isNft } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import { matchSorter } from 'match-sorter'
@@ -10,13 +10,6 @@ import { createSelector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  selectSearchQueryFromFilter,
-} from 'state/selectors'
 
 import { selectAssets, selectAssetsSortedByMarketCap } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
@@ -27,6 +20,14 @@ import {
 } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
+
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectSearchQueryFromFilter,
+} from '@/state/selectors'
 
 export const selectWalletId = (state: ReduxState) => state.portfolio.connectedWallet?.id
 export const selectWalletName = (state: ReduxState) => state.portfolio.connectedWallet?.name

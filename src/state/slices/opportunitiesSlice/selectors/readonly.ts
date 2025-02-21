@@ -1,11 +1,12 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { createSelector } from 'reselect'
+
 import type {
   GetPortalsAppsBalancesInput,
   GetPortalsAppsBalancesOutput,
-} from 'state/apis/portals/portalsApi'
-import type { ReduxState } from 'state/reducer'
-import { selectEvmAccountIds } from 'state/slices/common-selectors'
+} from '@/state/apis/portals/portalsApi'
+import type { ReduxState } from '@/state/reducer'
+import { selectEvmAccountIds } from '@/state/slices/common-selectors'
 
 // Get read-only opportunities from portals API
 export const selectGetReadOnlyOpportunities = createSelector(

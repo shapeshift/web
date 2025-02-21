@@ -1,7 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import {
   assertGetCowNetwork,
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -10,8 +9,8 @@ import {
   signCowMessage,
   signCowOrder,
   signCowOrderCancellation,
-} from '@shapeshiftoss/swapper'
-import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
+} from '@shapeshiftmonorepo/swapper'
+import { isNativeEvmAsset } from '@shapeshiftmonorepo/swapper/dist/swappers/utils/helpers/helpers'
 import type {
   CowSwapError,
   Order,
@@ -23,7 +22,7 @@ import type {
   OrderStatus,
   QuoteId,
   Trade,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
 import {
   EcdsaSigningScheme,
   OrderClass,
@@ -31,7 +30,8 @@ import {
   PriceQuality,
   SellTokenSource,
   SigningScheme,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -39,11 +39,12 @@ import type { TypedData } from 'eip-712'
 import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import type { ReduxState } from 'state/reducer'
-import { selectConfirmedLimitOrder } from 'state/slices/limitOrderSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+
+import type { ReduxState } from '@/state/reducer'
+import { selectConfirmedLimitOrder } from '@/state/slices/limitOrderSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 
 export type LimitOrderQuoteParams = {
   sellAssetId: AssetId

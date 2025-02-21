@@ -12,20 +12,21 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { DynamicComponent } from 'components/DynamicComponent'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
-import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { DynamicComponent } from '@/components/DynamicComponent'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { RawText, Text } from '@/components/Text'
+import { useIsLendingActive } from '@/pages/Lending/hooks/useIsLendingActive'
+import { usePoolDataQuery } from '@/pages/Lending/hooks/usePoolDataQuery'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const labelProps = { fontSize: 'sm ' }
 const responsiveFlex = { base: 'auto', lg: 1 }

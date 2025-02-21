@@ -17,12 +17,11 @@ import {
   solanaChainId,
   thorchainChainId,
   toAssetId,
-} from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/caip'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
 import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
@@ -37,6 +36,8 @@ import type {
   TrendingCoin,
   TrendingResponse,
 } from './types'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 

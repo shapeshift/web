@@ -1,21 +1,19 @@
-import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import type {
   FoxEthStakingContract,
   FoxEthStakingContractAbi,
   KnownContractAddress,
-} from '@shapeshiftoss/contracts'
+} from '@shapeshiftmonorepo/contracts'
 import {
   ETH_FOX_POOL_CONTRACT,
   fetchUniV2PairData,
   getOrCreateContractByAddress,
-} from '@shapeshiftoss/contracts'
-import type { MarketData } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/contracts'
+import type { MarketData } from '@shapeshiftmonorepo/types'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -33,6 +31,9 @@ import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { makeTotalLpApr, rewardRatePerToken } from './utils'
+
+import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 
 export const ethFoxStakingMetadataResolver = async ({
   opportunityId,

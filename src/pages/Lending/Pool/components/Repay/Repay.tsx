@@ -1,12 +1,13 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 
 import { RepayRoutePaths } from './types'
+
+import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 
 const RepayEntries = [RepayRoutePaths.Input, RepayRoutePaths.Confirm]
 

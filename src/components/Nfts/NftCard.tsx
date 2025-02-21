@@ -8,21 +8,22 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo, useState } from 'react'
-import Placeholder from 'assets/placeholder.png'
-import PlaceholderDrk from 'assets/placeholder-drk.png'
-import { Amount } from 'components/Amount/Amount'
-import { DiamondIcon } from 'components/Icons/DiamondIcon'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
-import { getMediaType } from 'state/apis/portals/validators'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import Placeholder from '@/assets/placeholder.png'
+import PlaceholderDrk from '@/assets/placeholder-drk.png'
+import { Amount } from '@/components/Amount/Amount'
+import { DiamondIcon } from '@/components/Icons/DiamondIcon'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useModal } from '@/hooks/useModal/useModal'
+import { selectNftById, selectNftCollectionById } from '@/state/apis/nft/selectors'
+import { getMediaType } from '@/state/apis/portals/validators'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type NftCardProps = {
   nftAssetId: AssetId

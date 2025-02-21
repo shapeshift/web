@@ -12,12 +12,13 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
-import { useModal } from 'hooks/useModal/useModal'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { store } from 'state/store'
 
 import { OnboardPager } from './components/OnboardPager'
 import { OnboardingRoutes } from './config'
+
+import { useModal } from '@/hooks/useModal/useModal'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { store } from '@/state/store'
 
 export const NativeOnboarding = () => {
   const { isOpen, close: closeModal } = useModal('nativeOnboard')

@@ -1,5 +1,5 @@
+import type { CosmosSdkChainId } from '@shapeshiftmonorepo/types'
 import type { SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
-import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TransactionInstruction } from '@solana/web3.js'
 
 import type * as types from '../types'

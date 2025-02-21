@@ -10,21 +10,22 @@ import {
   useBreakpointValue,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type * as CSS from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { AssetIcon } from 'components/AssetIcon'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { middleEllipsis } from 'lib/utils'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { useAppDispatch } from 'state/store'
+
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { AssetIcon } from '@/components/AssetIcon'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { useAppDispatch } from '@/state/store'
 
 const externalLinkIcon = <ExternalLinkIcon paddingLeft={'4px'} />
 

@@ -1,25 +1,26 @@
-import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftoss/contracts'
-import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
+import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftmonorepo/contracts'
+import { viemEthMainnetClient } from '@shapeshiftmonorepo/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
+
+import { TRADING_FEE_RATE } from '@/state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,
   getToken0Volume24Hr,
-} from 'state/slices/opportunitiesSlice/resolvers/uniV2/utils'
+} from '@/state/slices/opportunitiesSlice/resolvers/uniV2/utils'
 
 const tokenAmount = '1000000'
 const mockAmount0Out = '97000000000000000000000'
 const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
-vi.mock('@shapeshiftoss/contracts', async () => {
-  const { KnownChainIds } = require('@shapeshiftoss/types')
+vi.mock('@shapeshiftmonorepo/contracts', async () => {
+  const { KnownChainIds } = require('@shapeshiftmonorepo/types')
 
-  const actual = await vi.importActual('@shapeshiftoss/contracts')
+  const actual = await vi.importActual('@shapeshiftmonorepo/contracts')
 
   const viemEthMainnetClient = {
     createEventFilter: vi.fn(() => ({})),

@@ -1,7 +1,7 @@
 import type { Draft, PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export interface TradeInputBaseState {

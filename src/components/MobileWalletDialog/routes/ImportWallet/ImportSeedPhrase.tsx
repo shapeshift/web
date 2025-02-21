@@ -14,19 +14,19 @@ import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { addWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+} from '@/components/Modal/components/DialogHeader'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { addWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
 type FormValues = { mnemonic: string; name: string }
 

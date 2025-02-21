@@ -5,25 +5,26 @@ import { useCallback, useMemo, useState } from 'react'
 import { TbCircleArrowDown, TbCirclePlus, TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
+
+import { MobileWalletDialogRoutes } from '../types'
+
+import { MainNavLink } from '@/components/Layout/Header/NavBar/MainNavLink'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
-import { SlideTransition } from 'components/SlideTransition'
-import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { MobileWallestList } from 'pages/ConnectWallet/components/WalletList'
-
-import { MobileWalletDialogRoutes } from '../types'
+} from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { SlideTransition } from '@/components/SlideTransition'
+import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { MobileWallestList } from '@/pages/ConnectWallet/components/WalletList'
 
 const addIcon = <TbCirclePlus />
 const importIcon = <TbCircleArrowDown />

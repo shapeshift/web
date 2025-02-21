@@ -1,11 +1,12 @@
 import { Card, CardBody, CardHeader, Grid, Heading, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
-import { selectAccountIdsByAssetIdAboveBalanceThreshold } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AssetAccountRow } from './AssetAccountRow'
+
+import { Text } from '@/components/Text'
+import { selectAccountIdsByAssetIdAboveBalanceThreshold } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetAccountsProps = {
   assetId: AssetId

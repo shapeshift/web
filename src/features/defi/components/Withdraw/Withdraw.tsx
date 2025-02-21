@@ -11,22 +11,23 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import type { PropsWithChildren, ReactNode } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import type { ControllerProps, FieldValues } from 'react-hook-form'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { AssetInput } from 'components/DeFi/components/AssetInput'
-import { FormField } from 'components/DeFi/components/FormField'
-import { SliderIcon } from 'components/Icons/Slider'
-import { Slippage } from 'components/Slippage/Slippage'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { AssetInput } from '@/components/DeFi/components/AssetInput'
+import { FormField } from '@/components/DeFi/components/FormField'
+import { SliderIcon } from '@/components/Icons/Slider'
+import { Slippage } from '@/components/Slippage/Slippage'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type InputDefaultValue = {
   cryptoAmount: string

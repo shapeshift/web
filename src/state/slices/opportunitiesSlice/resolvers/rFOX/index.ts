@@ -1,14 +1,11 @@
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
-import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
-import type { MarketData } from '@shapeshiftoss/types'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { bn } from '@shapeshiftmonorepo/chain-adapters'
+import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
+import type { MarketData } from '@shapeshiftmonorepo/types'
+import { fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
-import { getStakingInfoQueryFn } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 
 import { rFOXStakingIds } from '../../constants'
 import type {
@@ -19,6 +16,10 @@ import type {
 import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+
+import { selectStakingBalance } from '@/pages/RFOX/helpers'
+import { getStakingInfoQueryFn } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 
 const client = viemClientByNetworkId[arbitrum.id]
 

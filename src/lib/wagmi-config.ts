@@ -1,4 +1,4 @@
-import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
 import {
   arbitrum,
   arbitrumNova,

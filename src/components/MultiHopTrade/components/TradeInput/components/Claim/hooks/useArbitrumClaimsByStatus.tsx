@@ -1,17 +1,18 @@
 import type { ChildToParentMessageReader, ChildToParentTransactionEvent } from '@arbitrum/sdk'
 import { ChildToParentMessageStatus, ChildTransactionReceipt } from '@arbitrum/sdk'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
-import { getEthersV5Provider } from '@shapeshiftoss/contracts'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { arbitrumChainId, ethAssetId, ethChainId, toAccountId } from '@shapeshiftmonorepo/caip'
+import { getEthersV5Provider } from '@shapeshiftmonorepo/contracts'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ClaimStatus } from 'components/ClaimRow/types'
 import { assertUnreachable } from 'lib/utils'
-import { selectArbitrumWithdrawTxs, selectAssetById } from 'state/slices/selectors'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+
+import { ClaimStatus } from '@/components/ClaimRow/types'
+import { selectArbitrumWithdrawTxs, selectAssetById } from '@/state/slices/selectors'
+import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 

@@ -1,18 +1,19 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import {
   DialogHeader,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import type { TradeAssetSearchProps } from 'components/TradeAssetSearch/TradeAssetSearch'
-import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
-import { useModal } from 'hooks/useModal/useModal'
+} from '@/components/Modal/components/DialogHeader'
+import type { TradeAssetSearchProps } from '@/components/TradeAssetSearch/TradeAssetSearch'
+import { TradeAssetSearch } from '@/components/TradeAssetSearch/TradeAssetSearch'
+import { useModal } from '@/hooks/useModal/useModal'
 
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string

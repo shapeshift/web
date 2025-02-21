@@ -2,12 +2,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getFoxWifHatClaimedQueryKey } from 'pages/Fox/hooks/useFoxWifHatClaimedQuery'
-import { useFoxWifHatMerkleTreeQuery } from 'pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
 
 import type { FoxWifHatClaimRouteProps } from './types'
 import { FoxWifHatClaimRoutePaths } from './types'
+
+import { getFoxWifHatClaimedQueryKey } from '@/pages/Fox/hooks/useFoxWifHatClaimedQuery'
+import { useFoxWifHatMerkleTreeQuery } from '@/pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 

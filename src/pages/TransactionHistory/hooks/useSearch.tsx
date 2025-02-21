@@ -1,10 +1,11 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
-import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { isSome } from 'lib/utils'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useSearch = () => {
   const assetsById = useAppSelector(selectAssets)

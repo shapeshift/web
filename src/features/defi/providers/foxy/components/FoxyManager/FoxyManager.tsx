@@ -1,18 +1,19 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
 import { FoxyClaim } from './Overview/Claim/Claim'
 import { FoxyOverview } from './Overview/FoxyOverview'
 import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export const FoxyManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

@@ -7,22 +7,23 @@ import {
   IconButton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { useModal } from 'hooks/useModal/useModal'
 import { isToken } from 'lib/utils'
+
+import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
+
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useModal } from '@/hooks/useModal/useModal'
 import {
   selectHighestMarketCapFeeAsset,
   selectIsAccountMetadataLoadingByAccountId,
   selectWalletConnectedChainIds,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const arrowDownIcon = <ArrowDownIcon />
 

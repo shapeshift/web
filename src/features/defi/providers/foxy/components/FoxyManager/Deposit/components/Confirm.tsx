@@ -1,33 +1,34 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
-import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { Summary } from 'features/defi/components/Summary'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import type { TransactionReceipt, TransactionReceiptParams } from 'ethers6'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { usePoll } from 'hooks/usePoll/usePoll'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
-  selectBip44ParamsByAccountId,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { Confirm as ReusableConfirm } from '@/features/defi/components/Confirm/Confirm'
+import { Summary } from '@/features/defi/components/Summary'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { usePoll } from '@/hooks/usePoll/usePoll'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
+import {
+  selectBip44ParamsByAccountId,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 

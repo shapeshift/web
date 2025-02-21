@@ -1,15 +1,16 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { PluginManager } from 'plugins'
 import { activePlugins } from 'plugins/activePlugins'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import type { Route } from 'Routes/helpers'
 import { partitionCompareWith } from 'lib/utils'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { getChainAdapterManager } from './chainAdapterSingleton'
+
+import type { Route } from '@/Routes/helpers'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
 
 type PluginProviderProps = {
   children: React.ReactNode

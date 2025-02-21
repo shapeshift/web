@@ -1,10 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import type {
   MultiHopTradeQuote,
   MultiHopTradeRate,
   TradeQuote,
   TradeRate,
-} from '@shapeshiftoss/swapper'
+} from '@shapeshiftmonorepo/swapper'
 
 // All chains currently support Tx history, but that might not be the case as we support more chains
 export const chainSupportsTxHistory = (_chainId: ChainId): boolean => true

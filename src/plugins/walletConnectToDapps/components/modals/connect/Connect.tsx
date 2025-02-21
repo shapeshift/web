@@ -4,10 +4,11 @@ import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/c
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogBody } from 'components/Modal/components/DialogBody'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 
 type Props = {
   initialUri?: string

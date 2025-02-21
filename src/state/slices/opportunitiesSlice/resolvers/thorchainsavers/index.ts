@@ -1,12 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { isSome, toBaseUnit } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { thornode } from 'react-queries/queries/thornode'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import {
@@ -14,9 +12,6 @@ import {
   selectRunePoolMaturityTime,
 } from 'lib/utils/thorchain/selectors'
 import type { ThorchainMimir } from 'lib/utils/thorchain/types'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -40,6 +35,12 @@ import type {
   ThorchainRunepoolReservePositionsResponse,
 } from './types'
 import { getMidgardPools, getThorchainSaversPosition } from './utils'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { thornode } from '@/react-queries/queries/thornode'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput

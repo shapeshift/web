@@ -1,25 +1,12 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset } from '@shapeshiftoss/types'
-import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { canCoverTxFees } from 'features/defi/helpers/utils'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftmonorepo/contracts'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback, useContext, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { usePoll } from 'hooks/usePoll/usePoll'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -33,8 +20,25 @@ import {
 } from 'lib/utils/evm'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { Approve as ReusableApprove } from '@/features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from '@/features/defi/components/Approve/ApprovePreFooter'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { canCoverTxFees } from '@/features/defi/helpers/utils'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { usePoll } from '@/hooks/usePoll/usePoll'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -42,11 +46,8 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ThorchainSaversDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined; isReset?: boolean }
 

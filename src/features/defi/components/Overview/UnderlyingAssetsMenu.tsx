@@ -1,11 +1,12 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Box, Flex, Popover, PopoverBody, PopoverContent, PopoverTrigger } from '@chakra-ui/react'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 import type { AssetWithBalance } from './Overview'
 import { UnderlyingAssetTag } from './UnderlyingAssetsTags'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
 
 type UnderlyingAssetsMenuProps = {
   lpAsset: AssetWithBalance

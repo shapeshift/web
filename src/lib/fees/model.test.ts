@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
-import { selectIsSnapshotApiQueriesRejected } from 'state/apis/snapshot/selectors'
-import { store } from 'state/store'
 
 import { calculateFees } from './model'
 import { swapperParameters } from './parameters/swapper'
+
+import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
+import { store } from '@/state/store'
 
 const {
   FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD,
@@ -20,7 +21,7 @@ const mocks = vi.hoisted(() => {
   }
 })
 
-vi.mock('state/apis/snapshot/selectors', async importActual => {
+vi.mock('@/state/apis/snapshot/selectors', async importActual => {
   const actual: Record<any, any> = await importActual()
   return {
     ...actual,

@@ -4,13 +4,14 @@ import { useCallback } from 'react'
 import { FaGreaterThanEqual } from 'react-icons/fa'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import {
   allowedDecimalSeparators,
   preferences,
-} from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectBalanceThreshold } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+} from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectBalanceThreshold } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const InputComponent = (props: InputProps) => (
   <Input

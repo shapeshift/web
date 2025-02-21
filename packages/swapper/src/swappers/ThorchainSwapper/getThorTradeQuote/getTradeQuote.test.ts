@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { omit } from 'lodash'

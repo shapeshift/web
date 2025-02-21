@@ -1,9 +1,8 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { mergeQueryOutputs } from 'react-queries/helpers'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { multicall } from 'viem/actions'
@@ -17,6 +16,8 @@ import {
   getUnstakingRequestCountQueryKey,
 } from './useGetUnstakingRequestCountQuery'
 import { useRFOXContext } from './useRfoxContext'
+
+import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 const getContractFnParams = (
   stakingAssetAccountAddress: string | undefined,

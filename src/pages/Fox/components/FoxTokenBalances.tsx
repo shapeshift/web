@@ -1,17 +1,18 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, ButtonGroup, Card, CardBody, HStack, List } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo, useState } from 'react'
-import { Text } from 'components/Text'
 import { chainIdToChainDisplayName } from 'lib/utils'
-import { AccountEntryRow } from 'pages/Accounts/components/AccountEntryRow'
-import { selectRelatedAssetIds } from 'state/slices/related-assets-selectors'
-import { selectAccountIdsByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import type { Filter } from './FoxTokenFilterButton'
 import { FoxTokenFilterButton } from './FoxTokenFilterButton'
+
+import { Text } from '@/components/Text'
+import { AccountEntryRow } from '@/pages/Accounts/components/AccountEntryRow'
+import { selectRelatedAssetIds } from '@/state/slices/related-assets-selectors'
+import { selectAccountIdsByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const hstackProps: StackProps = {
   flexWrap: {

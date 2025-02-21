@@ -1,6 +1,6 @@
-import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftmonorepo/caip'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import type { evm } from '@shapeshiftoss/common-api'
-import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'

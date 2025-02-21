@@ -1,25 +1,26 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import dayjs from 'dayjs'
+import { useMemo } from 'react'
+import { FaArrowDown } from 'react-icons/fa'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+
+import { Amount } from '@/components/Amount/Amount'
+import { IconCircle } from '@/components/IconCircle'
+import { Text } from '@/components/Text'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useMemo } from 'react'
-import { FaArrowDown } from 'react-icons/fa'
-import { Amount } from 'components/Amount/Amount'
-import { IconCircle } from 'components/IconCircle'
-import { Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import {
   serializeUserStakingId,
   supportsUndelegations,
   toValidatorId,
-} from 'state/slices/opportunitiesSlice/utils'
-import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/opportunitiesSlice/utils'
+import { selectUserStakingOpportunityByUserStakingId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type WithdrawCardProps = {
   asset: Asset

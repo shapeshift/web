@@ -1,5 +1,5 @@
-import type { StandardTx } from '@shapeshiftoss/unchained-client'
-import { assertUnreachable } from '@shapeshiftoss/utils'
+import type { StandardTx } from '@shapeshiftmonorepo/unchained-client'
+import { assertUnreachable } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 
 import type { SwapperConfig } from '../../../types'

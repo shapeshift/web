@@ -1,26 +1,31 @@
 import { Button, Flex, List, Stat, Tag } from '@chakra-ui/react'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetCell } from 'components/StakingVaults/Cells'
-import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  LpEarnOpportunityType,
-  StakingEarnOpportunityType,
-} from 'state/slices/opportunitiesSlice/types'
-import {
-  getRewardBalances,
-  getUnderlyingAssetIdsBalances,
-} from 'state/slices/opportunitiesSlice/utils'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
-import { selectAssetById, selectAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { NestedAsset } from './NestedAsset'
 import { opportunityRowGrid } from './OpportunityTableHeader'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetCell } from '@/components/StakingVaults/Cells'
+import { RawText, Text } from '@/components/Text'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  LpEarnOpportunityType,
+  StakingEarnOpportunityType,
+} from '@/state/slices/opportunitiesSlice/types'
+import {
+  getRewardBalances,
+  getUnderlyingAssetIdsBalances,
+} from '@/state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataUserCurrency,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type OpportunityRowProps<T extends StakingEarnOpportunityType | LpEarnOpportunityType> = {
   onClick: (opportunity: T, action: DefiAction) => void

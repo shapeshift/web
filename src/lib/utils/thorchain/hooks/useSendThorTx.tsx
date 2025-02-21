@@ -1,27 +1,22 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import type { FeeDataEstimate } from '@shapeshiftmonorepo/chain-adapters'
+import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import {
   assertAndProcessMemo,
   depositWithExpiry,
   fetchSafeTransactionInfo,
   SwapperName,
-} from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/swapper'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress, zeroAddress } from 'viem'
-import type { SendInput } from 'components/Modals/Send/Form'
-import { estimateFees, handleSend } from 'components/Modals/Send/utils'
-import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -36,18 +31,24 @@ import {
   THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT,
   THORCHAIN_POOL_MODULE_ADDRESS,
 } from 'lib/utils/thorchain/constants'
-import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+
+import { fromThorBaseUnit, getThorchainTransactionType } from '..'
+
+import type { SendInput } from '@/components/Modals/Send/Form'
+import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { selectInboundAddressData } from '@/react-queries/selectors'
+import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectSelectedCurrency,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import { fromThorBaseUnit, getThorchainTransactionType } from '..'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type Action =
   | 'swap'

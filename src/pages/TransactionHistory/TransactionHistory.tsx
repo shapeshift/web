@@ -2,11 +2,7 @@ import { Flex, Stack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router'
-import { SEO } from 'components/Layout/Seo'
-import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { isSome } from 'lib/utils'
-import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { DownloadButton } from './DownloadButton'
 import { useFilters } from './hooks/useFilters'
@@ -14,6 +10,11 @@ import { useSearch } from './hooks/useSearch'
 import { SingleTransaction } from './SingleTransaction'
 import { TransactionHistoryFilter } from './TransactionHistoryFilter'
 import { TransactionHistorySearch } from './TransactionHistorySearch'
+
+import { SEO } from '@/components/Layout/Seo'
+import { TransactionHistoryList } from '@/components/TransactionHistory/TransactionHistoryList'
+import { selectTxIdsBasedOnSearchTermAndFilters } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const headingPadding = [2, 3, 6]
 const stackMargin = { base: 0, xl: -4, '2xl': -6 }

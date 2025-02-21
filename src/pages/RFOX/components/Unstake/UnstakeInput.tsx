@@ -1,38 +1,13 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { isSome } from '@shapeshiftoss/utils'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { isSome } from '@shapeshiftmonorepo/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { Amount } from 'components/Amount/Amount'
-import { AmountSlider } from 'components/AmountSlider'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { FormDivider } from 'components/FormDivider'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
-import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import {
-  selectAssetById,
-  selectAssets,
-  selectFeeAssetByChainId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
@@ -40,6 +15,32 @@ import { UnstakeSummary } from './components/UnstakeSummary'
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
+
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { Amount } from '@/components/Amount/Amount'
+import { AmountSlider } from '@/components/AmountSlider'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { FormDivider } from '@/components/FormDivider'
+import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { selectStakingBalance } from '@/pages/RFOX/helpers'
+import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import {
+  selectAssetById,
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const formControlProps = {
   borderRadius: 0,

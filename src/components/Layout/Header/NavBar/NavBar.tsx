@@ -4,14 +4,15 @@ import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
-import type { Route } from 'Routes/helpers'
-import { RouteCategory } from 'Routes/helpers'
-import { routes } from 'Routes/RoutesCommon'
-import { Text } from 'components/Text'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { breakpoints } from 'theme/theme'
 
 import { MainNavLink } from './MainNavLink'
+
+import { Text } from '@/components/Text'
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import type { Route } from '@/Routes/helpers'
+import { RouteCategory } from '@/Routes/helpers'
+import { routes } from '@/Routes/RoutesCommon'
+import { breakpoints } from '@/theme/theme'
 
 type NavBarProps = {
   isCompact?: boolean

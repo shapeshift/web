@@ -1,24 +1,27 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Tag } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails/PositionDetails'
-import { DefiIcon } from 'components/Icons/DeFi'
-import { ReactTable } from 'components/ReactTable/ReactTable'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import { RawText } from 'components/Text'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
+
+import { SearchEmpty } from './SearchEmpty'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { PositionDetails } from '@/components/EarnDashboard/components/PositionDetails/PositionDetails'
+import { DefiIcon } from '@/components/Icons/DeFi'
+import { ReactTable } from '@/components/ReactTable/ReactTable'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { RawText } from '@/components/Text'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByChainId,
   selectAggregatedEarnOpportunitiesByAssetId,
@@ -26,10 +29,8 @@ import {
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { SearchEmpty } from './SearchEmpty'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 

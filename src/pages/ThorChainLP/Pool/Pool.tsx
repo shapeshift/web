@@ -15,21 +15,15 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory, useParams } from 'react-router'
-import { Display } from 'components/Display'
-import { SwapIcon } from 'components/Icons/SwapIcon'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import { Main } from 'components/Layout/Main'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 
 import { Faq } from '../components/Faq'
@@ -38,6 +32,13 @@ import { PoolInfo } from '../components/PoolInfo'
 import { usePool } from '../queries/hooks/usePool'
 import { PairRates } from './components/PairRates'
 import { PoolChart } from './components/PoolChart'
+
+import { Display } from '@/components/Display'
+import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { Main } from '@/components/Layout/Main'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 type MatchParams = {
   poolAssetId: string

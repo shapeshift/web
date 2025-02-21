@@ -1,8 +1,14 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import {
+  CHAIN_NAMESPACE,
+  fromAssetId,
+  fromChainId,
+  isNft,
+  toAssetId,
+} from '@shapeshiftmonorepo/caip'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
+import { getNativeFeeAssetReference, makeAsset } from '@shapeshiftmonorepo/utils'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
-import { getNativeFeeAssetReference, makeAsset } from '@shapeshiftoss/utils'
 
 import type { UpsertAssetsPayload } from './assetsSlice'
 

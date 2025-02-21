@@ -1,4 +1,4 @@
-import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   ASSET_NAMESPACE,
   avalancheAssetId,
@@ -24,9 +24,9 @@ import {
   thorchainAssetId,
   thorchainChainId,
   toAssetId,
-} from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { getAddress, isAddress } from 'viem'
 
 import type { AssetIdPair } from '.'

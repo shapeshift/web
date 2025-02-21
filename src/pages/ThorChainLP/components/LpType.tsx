@@ -1,20 +1,21 @@
 import type { RadioProps, TextProps } from '@chakra-ui/react'
 import { Box, Flex, HStack, Skeleton, Tooltip, useRadio, useRadioGroup } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle, BiSolidPlusCircle, BiSolidXCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetSymbol } from 'components/AssetSymbol'
-import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { fromOpportunityId } from '../utils'
 import { PoolIcon } from './PoolIcon'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetSymbol } from '@/components/AssetSymbol'
+import { RawText } from '@/components/Text'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const checked = {
   bg: 'background.surface.raised.pressed',

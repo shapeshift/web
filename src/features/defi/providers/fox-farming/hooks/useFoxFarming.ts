@@ -1,13 +1,11 @@
-import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
-import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
-import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
+import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import { CONTRACT_INTERACTION, evm } from '@shapeshiftmonorepo/chain-adapters'
+import type { FoxEthStakingContractAddress } from '@shapeshiftmonorepo/contracts'
+import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftmonorepo/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
 import {
@@ -16,9 +14,12 @@ import {
   createBuildCustomTxInput,
   getFeesWithWalletEIP1559Support,
 } from 'lib/utils/evm'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
+import { selectAccountNumberByAccountId, selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseFoxFarmingOptions = {
   skip?: boolean

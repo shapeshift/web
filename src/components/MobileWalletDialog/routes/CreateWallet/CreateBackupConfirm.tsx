@@ -5,19 +5,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
-import { CarouselDots } from 'components/CarouselDots/CarouselDots'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import { CarouselDots } from '@/components/CarouselDots/CarouselDots'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { SlideTransition } from 'components/SlideTransition'
-import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
+} from '@/components/Modal/components/DialogHeader'
+import { SlideTransition } from '@/components/SlideTransition'
+import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 import { MobileWalletDialogRoutes } from '../../types'
 

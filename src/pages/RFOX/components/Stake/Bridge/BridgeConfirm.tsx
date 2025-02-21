@@ -9,28 +9,29 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from '@shapeshiftoss/utils'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getChainShortName } from '@shapeshiftmonorepo/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
-import type { RowProps } from 'components/Row/Row'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
 import { useRfoxBridgeApproval } from './hooks/useRfoxBridgeApproval'
 import type { BridgeRouteProps, RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetToAssetCard } from '@/components/AssetToAssetCard/AssetToAssetCard'
+import type { RowProps } from '@/components/Row/Row'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type BridgeConfirmProps = {
   confirmedQuote: RfoxBridgeQuote

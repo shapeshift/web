@@ -1,25 +1,26 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { Property } from 'csstype'
 import dayjs from 'dayjs'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
-import { Amount } from 'components/Amount/Amount'
-import { IconCircle } from 'components/IconCircle'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers/foxy/types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { IconCircle } from '@/components/IconCircle'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { UserUndelegation } from '@/state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
   asset: Asset

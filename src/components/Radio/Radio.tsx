@@ -2,13 +2,14 @@ import { CheckIcon } from '@chakra-ui/icons'
 import type { ButtonGroupProps, ButtonProps, UseRadioProps } from '@chakra-ui/react'
 import { Button, ButtonGroup, useId, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { ThemeTypings } from '@chakra-ui/styled-system'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
 
 interface RadioCardProps extends UseRadioProps {
   label: string | [string, number | Polyglot.InterpolationOptions]

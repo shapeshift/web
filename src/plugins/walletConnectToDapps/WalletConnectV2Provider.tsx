@@ -13,7 +13,8 @@ import {
 } from 'plugins/walletConnectToDapps/walletUtils'
 import type { FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined)
 

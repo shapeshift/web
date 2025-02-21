@@ -10,23 +10,24 @@ import {
   Heading,
   Stack,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectTxById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { RfoxBridgeQuote } from '../Stake/Bridge/types'
 import { TransactionRow } from './TransactionRow'
+
+import { Amount } from '@/components/Amount/Amount'
+import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { selectAssetById, selectTxById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type MultiStepStatusStep = {
   asset: Asset

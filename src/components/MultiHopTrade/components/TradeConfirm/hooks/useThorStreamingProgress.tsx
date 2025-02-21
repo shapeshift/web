@@ -1,17 +1,18 @@
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useMemo, useRef } from 'react'
-import { usePoll } from 'hooks/usePoll/usePoll'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+
+import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from '../types'
+
+import { usePoll } from '@/hooks/usePoll/usePoll'
+import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
-} from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from '../types'
+} from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 

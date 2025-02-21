@@ -1,7 +1,21 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
-import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
+import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import { ChainAdapterError, toAddressNList } from '@shapeshiftmonorepo/chain-adapters'
+import type {
+  EvmTransactionRequest,
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+} from '@shapeshiftmonorepo/swapper'
+import {
+  getHopByIndex,
+  isExecutableTradeQuote,
+  SolanaLogsError,
+  SwapperName,
+  TradeExecutionEvent,
+} from '@shapeshiftmonorepo/swapper'
+import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftmonorepo/swapper/dist/swappers/LifiSwapper/LifiSwapper'
+import type { CosmosSdkChainId } from '@shapeshiftmonorepo/types'
 import type {
   BTCSignTx,
   ETHSignTypedData,
@@ -9,26 +23,10 @@ import type {
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type {
-  EvmTransactionRequest,
-  SupportedTradeQuoteStepIndex,
-  TradeQuote,
-} from '@shapeshiftoss/swapper'
-import {
-  getHopByIndex,
-  isExecutableTradeQuote,
-  SolanaLogsError,
-  SwapperName,
-  TradeExecutionEvent,
-} from '@shapeshiftoss/swapper'
-import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
-import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
@@ -36,18 +34,24 @@ import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+
+import { useMixpanel } from './useMixpanel'
+
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import {
+  selectAssetById,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectHopExecutionMetadata,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { useMixpanel } from './useMixpanel'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,

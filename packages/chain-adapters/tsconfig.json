@@ -2,13 +2,12 @@
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "module": "esnext",
+    "target": "ESNext",
+    "moduleResolution": "Node"
   },
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],
-  "references": [
-    { "path": "../caip" },
-    { "path": "../types" },
-    { "path": "../unchained-client" },
-  ]
+  "references": [{ "path": "../caip" }, { "path": "../types" }, { "path": "../unchained-client" }]
 }

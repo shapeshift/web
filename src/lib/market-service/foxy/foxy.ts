@@ -1,13 +1,13 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftmonorepo/chain-adapters'
 import type {
   HistoryData,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
-import type { ethers } from 'ethers'
+} from '@shapeshiftmonorepo/types'
+import * as unchained from '@shapeshiftmonorepo/unchained-client'
+import type { ethers } from 'ethers6'
 import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 
 import type { MarketService } from '../api'

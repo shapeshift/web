@@ -1,12 +1,9 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { Asset, HistoryData } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { ethereum, fox } from 'test/mocks/assets'
-import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset, HistoryData } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
 import type { Bucket } from './useBalanceChartData'
 import {
@@ -15,6 +12,10 @@ import {
   makeBuckets,
   timeframeMap,
 } from './useBalanceChartData'
+
+import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
+import { ethereum, fox } from '@/test/mocks/assets'
+import { ethereumTransactions, FOXSend } from '@/test/mocks/txs'
 
 const mockedDate = '2021-11-20T00:00:00Z'
 

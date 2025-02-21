@@ -1,27 +1,6 @@
-import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { Bip44Params } from '@shapeshiftoss/types'
-import {
-  assetIds,
-  btcAddresses,
-  btcPubKeys,
-  ethPubKeys,
-  mockBtcAccount,
-  mockBtcAddress,
-  mockEthAccount,
-  mockEthAndBtcAccounts,
-  mockEthToken,
-  unknown1AssetId,
-  unknown2AssetId,
-  unknown3AssetId,
-  usdcAssetId,
-  yvusdcAssetId,
-  zeroAssetId,
-} from 'test/mocks/accounts'
-import { mockAssetState } from 'test/mocks/assets'
-import { mockMarketData } from 'test/mocks/marketData'
-import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
+import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
+import type { Bip44Params } from '@shapeshiftmonorepo/types'
 import { afterAll, describe, expect, it, vi } from 'vitest'
-import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
@@ -38,7 +17,29 @@ import {
   selectPortfolioUserCurrencyBalanceByFilter,
 } from './selectors'
 
-vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+import { createStore } from '@/state/store'
+import {
+  assetIds,
+  btcAddresses,
+  btcPubKeys,
+  ethPubKeys,
+  mockBtcAccount,
+  mockBtcAddress,
+  mockEthAccount,
+  mockEthAndBtcAccounts,
+  mockEthToken,
+  unknown1AssetId,
+  unknown2AssetId,
+  unknown3AssetId,
+  usdcAssetId,
+  yvusdcAssetId,
+  zeroAssetId,
+} from '@/test/mocks/accounts'
+import { mockAssetState } from '@/test/mocks/assets'
+import { mockMarketData } from '@/test/mocks/marketData'
+import { mockChainAdapters, mockUpsertPortfolio } from '@/test/mocks/portfolio'
+
+vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
 

@@ -4,7 +4,8 @@ import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 const faCodeIcon = <FaCode />
 

@@ -22,12 +22,13 @@ import React, {
 } from 'react'
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import type { RadioOption } from 'components/Radio/Radio'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { poll } from 'lib/poll/poll'
 import { isKeepKeyHDWallet } from 'lib/utils'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
+
+import type { RadioOption } from '@/components/Radio/Radio'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export enum DeviceTimeout {
   TenMinutes = '600000',

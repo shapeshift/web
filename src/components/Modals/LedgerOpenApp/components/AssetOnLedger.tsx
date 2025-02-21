@@ -1,11 +1,12 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Box, Center } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
-import { defaultClipPath } from 'components/AssetIcon'
-import { LedgerIcon } from 'components/Icons/LedgerIcon'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { defaultClipPath } from '@/components/AssetIcon'
+import { LedgerIcon } from '@/components/Icons/LedgerIcon'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetOnLedgerProps = {
   assetId: AssetId

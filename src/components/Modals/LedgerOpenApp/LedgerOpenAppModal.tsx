@@ -10,17 +10,18 @@ import {
   Spinner,
   VStack,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { getLedgerAppName, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId } from '@shapeshiftmonorepo/caip'
+import { getLedgerAppName, isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AssetOnLedger } from './components/AssetOnLedger'
+
+import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type LedgerOpenAppModalProps = {
   chainId: ChainId

@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { Address, TypedData } from 'viem'
 
 export const zrxSupportedChainIds = [

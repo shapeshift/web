@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/chain-adapters",
+  "name": "@shapeshiftmonorepo/chain-adapters",
   "version": "11.2.2",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -17,10 +17,10 @@
     "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/types": "workspace:^",
-    "@shapeshiftoss/unchained-client": "workspace:^",
-    "@shapeshiftoss/utils": "workspace:^",
+    "@shapeshiftmonorepo/caip": "workspace:^",
+    "@shapeshiftmonorepo/types": "workspace:^",
+    "@shapeshiftmonorepo/unchained-client": "workspace:^",
+    "@shapeshiftmonorepo/utils": "workspace:^",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "bech32": "^2.0.0",

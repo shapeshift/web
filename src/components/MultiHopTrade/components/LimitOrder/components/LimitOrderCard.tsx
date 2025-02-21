@@ -1,26 +1,27 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Center, Flex, Progress, Tag, TagLabel, Tooltip } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
-import { OrderStatus } from '@shapeshiftoss/types'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftmonorepo/swapper'
+import { OrderStatus } from '@shapeshiftmonorepo/types'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
-import { SwapBoldIcon } from 'components/Icons/SwapBold'
-import { RawText, Text } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertGetChainAdapter } from 'lib/utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { SwapBoldIcon } from '@/components/Icons/SwapBold'
+import { RawText, Text } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import {
   selectAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useSelectorWithArgs } from 'state/store'
+} from '@/state/slices/selectors'
+import { useSelectorWithArgs } from '@/state/store'
 
 export type LimitOrderCardProps = {
   uid: string

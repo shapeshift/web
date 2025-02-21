@@ -1,15 +1,16 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { BorrowRoutePaths } from './types'
+
+import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const BorrowInput = lazy(() =>
   import('./BorrowInput').then(({ BorrowInput }) => ({ default: BorrowInput })),

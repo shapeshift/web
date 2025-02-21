@@ -1,25 +1,26 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+
+import { FiatRampAction } from '../FiatRampsCommon'
+import { Overview } from './Overview'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectEnabledWalletAccountIds,
   selectHighestMarketCapFeeAsset,
   selectPortfolioAccountMetadata,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { FiatRampAction } from '../FiatRampsCommon'
-import { Overview } from './Overview'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputReturn>>
 

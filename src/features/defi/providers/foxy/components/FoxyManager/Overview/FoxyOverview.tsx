@@ -1,41 +1,42 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE, fromAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
 import dayjs from 'dayjs'
-import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import { Overview } from 'features/defi/components/Overview/Overview'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+
+import { WithdrawCard } from './WithdrawCard'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
+import { Overview } from '@/features/defi/components/Overview/Overview'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
+import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
+import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
 import {
   makeDefiProviderDisplayName,
   serializeUserStakingId,
   supportsUndelegations,
-} from 'state/slices/opportunitiesSlice/utils'
+} from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedLocale,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { WithdrawCard } from './WithdrawCard'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type FoxyOverviewProps = {
   accountId: AccountId | undefined

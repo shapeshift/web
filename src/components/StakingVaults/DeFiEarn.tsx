@@ -1,18 +1,19 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { knownChainIds } from 'constants/chains'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import type { Property } from 'csstype'
 import { useState } from 'react'
-import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
-import { useQuery } from 'hooks/useQuery/useQuery'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectWalletConnectedChainIdsSorted } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { GlobalFilter } from './GlobalFilter'
 import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
+
+import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
+import { knownChainIds } from '@/constants/chains'
+import { useQuery } from '@/hooks/useQuery/useQuery'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectWalletConnectedChainIdsSorted } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>

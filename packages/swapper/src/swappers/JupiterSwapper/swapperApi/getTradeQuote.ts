@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   ASSET_NAMESPACE,
   CHAIN_NAMESPACE,
@@ -7,10 +7,10 @@ import {
   solAssetId,
   toAssetId,
   wrappedSolAssetId,
-} from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/caip'
+import type { GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { PublicKey } from '@solana/web3.js'

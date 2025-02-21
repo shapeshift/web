@@ -1,16 +1,17 @@
 import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
-import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type { TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { BsLayers } from 'react-icons/bs'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { MdOfflineBolt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { RawText, Text } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+
+import { Amount } from '@/components/Amount/Amount'
+import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { RawText, Text } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean

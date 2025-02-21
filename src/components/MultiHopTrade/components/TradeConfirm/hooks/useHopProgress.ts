@@ -1,17 +1,22 @@
-import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { ChainflipStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
-import { LifiStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/constants'
-import { ThorchainStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+import type {
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { ChainflipStatusMessage } from '@shapeshiftmonorepo/swapper/dist/swappers/ChainflipSwapper/constants'
+import { LifiStatusMessage } from '@shapeshiftmonorepo/swapper/dist/swappers/LifiSwapper/constants'
+import { ThorchainStatusMessage } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
 import { useEffect, useMemo } from 'react'
+
 import {
   selectActiveQuote,
   selectHopExecutionMetadata,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import type { SwapExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
-import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import type { SwapExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
+import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type SwapperProgressMap = Record<string, number>
 type SwapperProgressMaps = Partial<Record<SwapperName, SwapperProgressMap>>

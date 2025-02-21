@@ -1,15 +1,16 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
+import type { FoxEthStakingContractAddress } from '@shapeshiftmonorepo/contracts'
 import {
   ETH_FOX_STAKING_EVERGREEN_CONTRACT,
   foxEthStakingContractAddresses,
-} from '@shapeshiftoss/contracts'
+} from '@shapeshiftmonorepo/contracts'
 import { getTypeGuardAssertion } from 'lib/utils'
-import { RFOX_STAKING_ASSET_IDS } from 'pages/RFOX/constants'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
 import { DefiProvider } from './types'
+
+import { RFOX_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
 
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02
 export const uniswapV2Router02AssetId: AssetId =

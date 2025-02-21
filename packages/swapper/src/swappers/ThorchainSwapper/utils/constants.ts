@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
 import { Token } from '@uniswap/sdk-core'
 
 export const THOR_MINIMUM_PADDING = 1.2

@@ -1,7 +1,8 @@
 import dayjs from 'dayjs'
-import { RawText } from 'components/Text'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { RawText } from '@/components/Text'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TransactionTimeProps = {
   blockTime: number

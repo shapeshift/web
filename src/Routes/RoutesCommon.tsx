@@ -3,26 +3,27 @@ import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { AssetsIcon } from 'components/Icons/Assets'
-import { DefiIcon } from 'components/Icons/DeFi'
-import { ExploreIcon } from 'components/Icons/Explore'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { HomeIcon } from 'components/Icons/Home'
-import { PoolsIcon } from 'components/Icons/Pools'
-import { RFOXIcon } from 'components/Icons/RFOX'
-import { SwapIcon } from 'components/Icons/SwapIcon'
-import { WalletIcon } from 'components/Icons/WalletIcon'
-import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { FoxPage } from 'pages/Fox/FoxPage'
-import { RFOX } from 'pages/RFOX/RFOX'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
+import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { FoxPage } from '@/pages/Fox/FoxPage'
+import { RFOX } from '@/pages/RFOX/RFOX'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
+import { AssetsIcon } from '@/components/Icons/Assets'
+import { DefiIcon } from '@/components/Icons/DeFi'
+import { ExploreIcon } from '@/components/Icons/Explore'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { HomeIcon } from '@/components/Icons/Home'
+import { PoolsIcon } from '@/components/Icons/Pools'
+import { RFOXIcon } from '@/components/Icons/RFOX'
+import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { WalletIcon } from '@/components/Icons/WalletIcon'
+
 const Home = makeSuspenseful(
   lazy(() =>
-    import('pages/Home/Home').then(({ Home }) => ({
+    import('@/pages/Home/Home').then(({ Home }) => ({
       default: Home,
     })),
   ),
@@ -30,7 +31,7 @@ const Home = makeSuspenseful(
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
-    import('pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
+    import('@/pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
       default: Dashboard,
     })),
   ),
@@ -38,7 +39,7 @@ const Dashboard = makeSuspenseful(
 
 const Asset = makeSuspenseful(
   lazy(() =>
-    import('pages/Assets/Asset').then(({ Asset }) => ({
+    import('@/pages/Assets/Asset').then(({ Asset }) => ({
       default: Asset,
     })),
   ),
@@ -46,7 +47,7 @@ const Asset = makeSuspenseful(
 
 const Assets = makeSuspenseful(
   lazy(() =>
-    import('pages/Assets/Assets').then(({ Assets }) => ({
+    import('@/pages/Assets/Assets').then(({ Assets }) => ({
       default: Assets,
     })),
   ),
@@ -54,7 +55,7 @@ const Assets = makeSuspenseful(
 
 const Buy = makeSuspenseful(
   lazy(() =>
-    import('pages/Buy/Buy').then(({ Buy }) => ({
+    import('@/pages/Buy/Buy').then(({ Buy }) => ({
       default: Buy,
     })),
   ),
@@ -62,7 +63,7 @@ const Buy = makeSuspenseful(
 
 const Flags = makeSuspenseful(
   lazy(() =>
-    import('pages/Flags/Flags').then(({ Flags }) => ({
+    import('@/pages/Flags/Flags').then(({ Flags }) => ({
       default: Flags,
     })),
   ),
@@ -70,7 +71,7 @@ const Flags = makeSuspenseful(
 
 const Explore = makeSuspenseful(
   lazy(() =>
-    import('pages/Explore/Explore').then(({ Explore }) => ({
+    import('@/pages/Explore/Explore').then(({ Explore }) => ({
       default: Explore,
     })),
   ),
@@ -78,7 +79,7 @@ const Explore = makeSuspenseful(
 
 const StakingVaults = makeSuspenseful(
   lazy(() =>
-    import('pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
+    import('@/pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
       default: StakingVaults,
     })),
   ),
@@ -86,7 +87,7 @@ const StakingVaults = makeSuspenseful(
 
 const LendingPage = makeSuspenseful(
   lazy(() =>
-    import('pages/Lending/LendingPage').then(({ LendingPage }) => ({
+    import('@/pages/Lending/LendingPage').then(({ LendingPage }) => ({
       default: LendingPage,
     })),
   ),
@@ -94,7 +95,7 @@ const LendingPage = makeSuspenseful(
 
 const PoolsPage = makeSuspenseful(
   lazy(() =>
-    import('pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
+    import('@/pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
       default: PoolsPage,
     })),
   ),
@@ -102,7 +103,7 @@ const PoolsPage = makeSuspenseful(
 
 const MarketsPage = makeSuspenseful(
   lazy(() =>
-    import('pages/Markets/MarketsPage').then(({ MarketsPage }) => ({
+    import('@/pages/Markets/MarketsPage').then(({ MarketsPage }) => ({
       default: MarketsPage,
     })),
   ),
@@ -110,7 +111,7 @@ const MarketsPage = makeSuspenseful(
 
 const Trade = makeSuspenseful(
   lazy(() =>
-    import('pages/Trade/Trade').then(({ Trade }) => ({
+    import('@/pages/Trade/Trade').then(({ Trade }) => ({
       default: Trade,
     })),
   ),

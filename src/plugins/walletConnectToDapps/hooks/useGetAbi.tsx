@@ -1,11 +1,12 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { getEthersProvider } from '@shapeshiftoss/contracts'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { ethers, Fragment } from 'ethers'
+import { getEthersProvider } from '@shapeshiftmonorepo/contracts'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { ethers, Fragment } from 'ethers6'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/types'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
-import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
+
+import { useGetContractAbiQuery } from '@/state/apis/abi/abiApi'
 
 /*
   If the root contract is a proxy and you need its implementation contract ABI, we currently

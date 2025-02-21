@@ -1,20 +1,21 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { Route } from 'Routes/helpers'
-import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
-import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { isUtxoAccountId } from 'lib/utils/utxo'
-import { AccountBalance } from 'pages/Accounts/AccountToken/AccountBalance'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { Equity } from './Equity/Equity'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
+
+import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
+import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
+import { AccountBalance } from '@/pages/Accounts/AccountToken/AccountBalance'
+import type { Route } from '@/Routes/helpers'
 
 type AccountDetailsProps = {
   assetId: AssetId

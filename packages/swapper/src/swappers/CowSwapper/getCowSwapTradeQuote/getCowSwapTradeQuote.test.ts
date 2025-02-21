@@ -1,5 +1,5 @@
-import type { OrderQuoteResponse } from '@shapeshiftoss/types'
-import { BuyTokenDestination, KnownChainIds, SellTokenSource } from '@shapeshiftoss/types'
+import type { OrderQuoteResponse } from '@shapeshiftmonorepo/types'
+import { BuyTokenDestination, KnownChainIds, SellTokenSource } from '@shapeshiftmonorepo/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -23,7 +23,7 @@ import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
-vi.mock('@shapeshiftoss/chain-adapters')
+vi.mock('@shapeshiftmonorepo/chain-adapters')
 
 const mockedCowService = vi.mocked(cowService)
 

@@ -1,25 +1,26 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, IconButton } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftmonorepo/caip'
 import { useSteps } from 'chakra-ui-steps'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import rewards from 'assets/rewards.svg'
-import risk from 'assets/risk.svg'
-import withdraw from 'assets/withdraw.svg'
-import { CarouselDots } from 'components/CarouselDots/CarouselDots'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectAssetNameById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import rewards from '@/assets/rewards.svg'
+import risk from '@/assets/risk.svg'
+import withdraw from '@/assets/withdraw.svg'
+import { CarouselDots } from '@/components/CarouselDots/CarouselDots'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { selectAssetNameById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {

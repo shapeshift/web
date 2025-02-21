@@ -1,15 +1,16 @@
 import { Box, Center, useToken } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryData } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { HistoryData } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { curveNatural } from '@visx/curve'
 import { LineSeries, XYChart } from '@visx/xychart'
 import { useMemo } from 'react'
+
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type SparkLineProps = {
   assetId: AssetId

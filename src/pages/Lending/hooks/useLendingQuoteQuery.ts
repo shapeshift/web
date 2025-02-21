@@ -1,16 +1,13 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import { assertAndProcessMemo } from '@shapeshiftmonorepo/swapper'
+import type { MarketData } from '@shapeshiftmonorepo/types'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
-import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -20,13 +17,17 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+
+import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
+import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/marketDataSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+} from '@/state/slices/marketDataSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type UseLendingQuoteQueryProps = {
   collateralAssetId: AssetId

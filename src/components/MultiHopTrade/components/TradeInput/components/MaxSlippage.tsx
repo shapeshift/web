@@ -1,26 +1,27 @@
 import { Divider, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import type { AmountDisplayMeta, SwapSource } from '@shapeshiftmonorepo/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
-} from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
-import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectUserSlippagePercentage } from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type MaxSlippageProps = {
   swapSource?: SwapSource

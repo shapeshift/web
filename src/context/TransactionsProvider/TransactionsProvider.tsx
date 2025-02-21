@@ -1,44 +1,45 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   ethChainId,
   foxAssetId,
   foxatarAssetId,
   fromAccountId,
   fromAssetId,
-} from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+} from '@shapeshiftmonorepo/caip'
+import type { Transaction } from '@shapeshiftmonorepo/chain-adapters'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { nftApi } from 'state/apis/nft/nftApi'
-import { snapshotApi } from 'state/apis/snapshot/snapshot'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+
+import { usePlugins } from '../PluginProvider/PluginProvider'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { nftApi } from '@/state/apis/nft/nftApi'
+import { snapshotApi } from '@/state/apis/snapshot/snapshot'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from '@/state/slices/assetsSlice/utils'
+import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
+import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+} from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { fetchAllOpportunitiesUserDataByAccountId } from '@/state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
+import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectEnabledWalletAccountIds,
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
   selectStakingOpportunitiesById,
-} from 'state/slices/selectors'
-import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch } from 'state/store'
-
-import { usePlugins } from '../PluginProvider/PluginProvider'
+} from '@/state/slices/selectors'
+import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppDispatch } from '@/state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode

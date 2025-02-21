@@ -9,27 +9,28 @@ import {
   Stepper,
   StepStatus,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import type Polyglot from 'node-polyglot'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AnimatedCheck } from 'components/AnimatedCheck'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
-import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
-import { selectSellAccountId } from 'state/slices/limitOrderInputSlice/selectors'
-import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
-import {
-  selectActiveQuoteId,
-  selectActiveQuoteSellAsset,
-  selectLimitOrderSubmissionMetadata,
-} from 'state/slices/limitOrderSlice/selectors'
-import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../TradeConfirm/StepperStep'
 import { TxLabel } from '../TradeConfirm/TxLabel'
 import { useStepperSteps } from './hooks/useStepperSteps'
+
+import { AnimatedCheck } from '@/components/AnimatedCheck'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
+import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
+import { selectSellAccountId } from '@/state/slices/limitOrderInputSlice/selectors'
+import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
+import {
+  selectActiveQuoteId,
+  selectActiveQuoteSellAsset,
+  selectLimitOrderSubmissionMetadata,
+} from '@/state/slices/limitOrderSlice/selectors'
+import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const collapseStyle = { width: '100%' }
 const stepProps = { py: 0, pr: 2, pl: 0 }

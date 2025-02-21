@@ -9,18 +9,18 @@ import {
   init as initSentry,
   setUser,
 } from '@sentry/react'
-import { App } from 'App'
-import { AppProviders } from 'AppProviders'
 import { isAxiosError } from 'axios'
-import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { httpClientIntegration } from 'utils/sentry/httpclient'
 import { v4 as uuid } from 'uuid'
-import { renderConsoleArt } from 'lib/consoleArt'
-import { reportWebVitals } from 'lib/reportWebVitals'
 
+import { App } from './App'
+import { AppProviders } from './AppProviders'
+import { getConfig } from './config'
+import { renderConsoleArt } from './lib/consoleArt'
+import { reportWebVitals } from './lib/reportWebVitals'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
+import { httpClientIntegration } from './utils/sentry/httpclient'
 
 // Remove this condition to test sentry locally
 if (window.location.hostname !== 'localhost') {

@@ -1,4 +1,4 @@
-import { adapters, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { adapters, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -6,7 +6,7 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'

@@ -1,20 +1,21 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
-import { SlideTransition } from 'components/SlideTransition'
+
+import { ClaimConfirm } from './ClaimConfirm'
+import { ClaimStatus } from './ClaimStatus'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import {
   makeTotalUndelegationsCryptoBaseUnit,
   serializeUserStakingId,
   supportsUndelegations,
   toOpportunityId,
-} from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ClaimConfirm } from './ClaimConfirm'
-import { ClaimStatus } from './ClaimStatus'
+} from '@/state/slices/opportunitiesSlice/utils'
+import { selectEarnUserStakingOpportunityByUserStakingId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ClaimRouteProps = {
   accountId: AccountId | undefined

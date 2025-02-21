@@ -1,11 +1,12 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { isNft } from '@shapeshiftmonorepo/caip'
 import { createSelector } from 'reselect'
-import type { ReduxState } from 'state/reducer'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
+
+import type { ReduxState } from '@/state/reducer'
+import { selectWalletId } from '@/state/slices/common-selectors'
+import { selectPortfolioAssetIds } from '@/state/slices/selectors'
 
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
 export const selectNftCollections = (state: ReduxState) => state.nft.collections.byId

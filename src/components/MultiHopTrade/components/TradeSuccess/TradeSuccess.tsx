@@ -18,20 +18,25 @@ import {
   foxOnGnosisAssetId,
   fromAssetId,
   toAccountId,
-} from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { TransferType } from '@shapeshiftoss/unchained-client'
+} from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { TransferType } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AnimatedCheck } from 'components/AnimatedCheck'
-import { AssetIcon } from 'components/AssetIcon'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { useTxDetails, useTxDetailsQuery } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+
+import { TwirlyToggle } from '../TwirlyToggle'
+import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
+import { YouSaved } from './components/YouSaved'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AnimatedCheck } from '@/components/AnimatedCheck'
+import { AssetIcon } from '@/components/AssetIcon'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -40,13 +45,9 @@ import {
   selectLastHop,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeQuoteAffiliateFeeDiscountUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import { TwirlyToggle } from '../TwirlyToggle'
-import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
-import { YouSaved } from './components/YouSaved'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 export type TradeSuccessProps = {
   handleBack: () => void

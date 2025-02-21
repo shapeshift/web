@@ -1,13 +1,14 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { AssetHeader } from 'components/AssetHeader/AssetHeader'
-import { Main } from 'components/Layout/Main'
-import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { MatchParams } from './Account'
+
+import { AssetHeader } from '@/components/AssetHeader/AssetHeader'
+import { Main } from '@/components/Layout/Main'
+import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const AccountTxHistory: React.FC = () => {
   const { accountId } = useParams<MatchParams>()

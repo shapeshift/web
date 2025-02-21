@@ -1,5 +1,5 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import axios from 'axios'
 
 import { ChainIdToSafeBaseUrl } from './constants'

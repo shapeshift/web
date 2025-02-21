@@ -1,4 +1,4 @@
-import { cosmosChainId, ethChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, ethChainId } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it } from 'vitest'
 
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'

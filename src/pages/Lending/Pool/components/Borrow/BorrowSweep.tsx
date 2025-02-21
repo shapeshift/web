@@ -1,19 +1,20 @@
 import { CardHeader, Flex, Heading } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { SlideTransition } from 'components/SlideTransition'
-import { Sweep } from 'components/Sweep'
-import { Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { BorrowRoutePaths } from './types'
+
+import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Sweep } from '@/components/Sweep'
+import { Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type BorrowSweepProps = {
   collateralAssetId: AssetId

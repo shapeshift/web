@@ -1,20 +1,21 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getStakingContract, selectLastEpoch } from 'pages/RFOX/helpers'
-import { useEpochHistoryQuery } from 'pages/RFOX/hooks/useEpochHistoryQuery'
-import { useTotalStakedQuery } from 'pages/RFOX/hooks/useGetTotalStaked'
-import { selectAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { RFOXSliders } from './RFOXSliders'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import { getStakingContract, selectLastEpoch } from '@/pages/RFOX/helpers'
+import { useEpochHistoryQuery } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
+import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const stackFlexDir: FlexProps['flexDir'] = { base: 'column', md: 'row' }
 const rfoxSimulatorCardBody = { base: 4, md: 8 }

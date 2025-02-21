@@ -1,8 +1,9 @@
 import { useTranslate } from 'react-polyglot'
-import type { AcknowledgementProps } from 'components/Acknowledgement/Acknowledgement'
-import { Acknowledgement } from 'components/Acknowledgement/Acknowledgement'
-import { StreamIcon } from 'components/Icons/Stream'
 import { formatSecondsToDuration } from 'lib/utils/time'
+
+import type { AcknowledgementProps } from '@/components/Acknowledgement/Acknowledgement'
+import { Acknowledgement } from '@/components/Acknowledgement/Acknowledgement'
+import { StreamIcon } from '@/components/Icons/Stream'
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
   estimatedTimeMs: number

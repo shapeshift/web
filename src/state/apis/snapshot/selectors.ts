@@ -1,6 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import { ethChainId, foxWifHatAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { ethChainId, foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
+import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
@@ -8,10 +8,11 @@ import type { CalculateFeeBpsReturn } from 'lib/fees/model'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { selectFeeModelParamFromFilter } from 'state/selectors'
-import { selectPortfolioAssetBalancesBaseUnit } from 'state/slices/common-selectors'
-import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
+
+import type { ReduxState } from '@/state/reducer'
+import { selectFeeModelParamFromFilter } from '@/state/selectors'
+import { selectPortfolioAssetBalancesBaseUnit } from '@/state/slices/common-selectors'
+import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
 

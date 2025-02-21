@@ -5,13 +5,14 @@ import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import { SupportedFiatCurrenciesList } from 'lib/market-service'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedCurrency } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectSelectedCurrency } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
 

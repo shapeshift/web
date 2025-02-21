@@ -1,4 +1,4 @@
-import { ZRX_OPTIMISM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { ZRX_OPTIMISM_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 
 import type { Tx } from '../../../generated/optimism'
 import type { BaseTransactionParserArgs } from '../../parser'

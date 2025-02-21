@@ -1,9 +1,9 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { sellSupportedChainIds } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
-import type { MidgardPoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { sellSupportedChainIds } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
+import type { MidgardPoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -14,8 +14,9 @@ import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { selectAssets, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type Pool = MidgardPoolResponse & {
   assetId: AssetId

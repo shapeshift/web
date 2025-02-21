@@ -1,14 +1,15 @@
 import { Divider, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-import { selectAppliedDiscountType, selectCalculatedFees } from 'state/apis/snapshot/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { selectAppliedDiscountType, selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import { useAppSelector } from '@/state/store'
 
 const divider = <Divider />
 

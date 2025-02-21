@@ -1,9 +1,10 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftmonorepo/caip'
+import type { UtxoChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { utxoChainIds } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds, UtxoChainId } from '@shapeshiftmonorepo/types'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isUtxoChainAdapter = (chainAdapter: unknown): chainAdapter is UtxoChainAdapter => {
   return utxoChainIds.includes((chainAdapter as UtxoChainAdapter).getChainId() as UtxoChainId)

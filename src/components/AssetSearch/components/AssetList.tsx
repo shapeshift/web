@@ -1,16 +1,17 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { Size } from 'react-virtualized-auto-sizer'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
-import { Text } from 'components/Text'
-import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
-import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 
 import { AssetRow } from './AssetRow'
+
+import { Text } from '@/components/Text'
+import { useRefCallback } from '@/hooks/useRefCallback/useRefCallback'
+import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 
 export type AssetData = {
   assets: Asset[]

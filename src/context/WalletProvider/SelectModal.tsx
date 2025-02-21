@@ -19,18 +19,19 @@ import type { ReactElement } from 'react'
 import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 import { staticMipdProviders, useMipdProviders } from 'lib/mipd'
-import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './NewWalletViews/constants'
 import type { WalletInfo } from './WalletProvider'
+
+import { RawText, Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const gridTemplateColumnsProp = { base: '1fr', md: '1fr 1fr' }
 const flexDirProp: ResponsiveArray<Property.FlexDirection> = ['column', 'row']

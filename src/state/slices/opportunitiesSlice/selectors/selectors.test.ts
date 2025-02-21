@@ -1,13 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { mockStore } from 'test/mocks/store'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it } from 'vitest'
-import type {
-  OpportunitiesState,
-  OpportunityId,
-  OpportunityMetadata,
-} from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import { foxEthLpAssetId, foxEthPair, foxEthStakingAssetIdV5 } from '../constants'
 import {
@@ -27,6 +20,14 @@ import {
   selectUserStakingOpportunityByUserStakingId,
 } from '../selectors'
 import { serializeUserStakingId } from '../utils'
+
+import type {
+  OpportunitiesState,
+  OpportunityId,
+  OpportunityMetadata,
+} from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { mockStore } from '@/test/mocks/store'
 
 describe('opportunitiesSlice selectors', () => {
   const walletId = 'walletId'

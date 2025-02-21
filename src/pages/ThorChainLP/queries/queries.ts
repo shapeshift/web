@@ -1,12 +1,11 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { getAddress, isAddress } from 'viem'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getAccountAddresses } from 'lib/utils/thorchain'
 import type {
   MidgardEarningsHistoryResponse,
@@ -15,6 +14,8 @@ import type {
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from 'lib/utils/utxo'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 

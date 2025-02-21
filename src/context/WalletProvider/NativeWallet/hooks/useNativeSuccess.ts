@@ -1,15 +1,16 @@
 import type { crypto, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { useAppDispatch } from 'state/store'
 
 import { NativeConfig } from '../config'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useStateIfMounted } from '@/hooks/useStateIfMounted/useStateIfMounted'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from '@/state/store'
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
 

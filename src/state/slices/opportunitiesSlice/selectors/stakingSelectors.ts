@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
@@ -9,17 +8,6 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  selectDefiProviderParamFromFilter,
-  selectDefiTypeParamFromFilter,
-  selectStakingIdParamFromFilter,
-  selectUserStakingIdParamFromFilter,
-  selectValidatorIdParamFromFilter,
-} from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
@@ -50,6 +38,19 @@ import {
   serializeUserStakingId,
   supportsUndelegations,
 } from '../utils'
+
+import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
+  selectStakingIdParamFromFilter,
+  selectUserStakingIdParamFromFilter,
+  selectValidatorIdParamFromFilter,
+} from '@/state/selectors'
 
 export const selectStakingIds = createDeepEqualOutputSelector(
   (state: ReduxState) => state.opportunities.staking.ids,

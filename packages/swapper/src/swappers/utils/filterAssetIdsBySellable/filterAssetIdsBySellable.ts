@@ -1,6 +1,6 @@
-import { arbitrumNovaChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import { arbitrumNovaChainId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 export function filterEvmAssetIdsBySellable(assets: Asset[]): Asset[] {
   return assets.filter(asset => {

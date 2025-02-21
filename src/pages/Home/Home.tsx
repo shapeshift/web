@@ -30,7 +30,6 @@ export const Home = () => {
       width='full'
       flexDir='column'
       pageProps={pageProps}
-      hideBreadcrumbs
     >
       <DashboardHeaderWrapper position='relative'>
         <Flex

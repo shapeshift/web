@@ -118,16 +118,27 @@ export default defineConfig(({ mode }) => {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-chakra': ['@chakra-ui/react'],
-            'vendor-ethers': ['ethers'],
+          manualChunks: id => {
+            // Vendor chunks
+            if (id.includes('node_modules')) {
+              if (id.includes('react')) return 'vendor-react'
+              if (id.includes('@chakra-ui')) return 'vendor-chakra'
+              if (id.includes('ethers')) return 'vendor-ethers'
+              if (id.includes('@shapeshiftoss/hdwallet')) return 'vendor-wallets'
+              if (id.includes('node_modules')) return 'vendor-other'
+            }
+            // Application code chunks
+            if (id.includes('src/')) {
+              if (id.includes('src/pages')) return 'pages'
+              if (id.includes('src/components')) return 'components'
+              if (id.includes('src/lib')) return 'lib'
+            }
+            return null
           },
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
-        // Ensure chunks are smaller than 25MB to be safe
         chunkSizeWarningLimit: 25000,
       },
       minify: mode === 'development' ? false : 'esbuild',

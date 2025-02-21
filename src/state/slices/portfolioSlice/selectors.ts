@@ -736,7 +736,7 @@ export const selectAccountIdsByChainId = createDeepEqualOutputSelector(
     Object.keys(accounts).reduce<Record<ChainId, AccountId[]>>((acc, accountId) => {
       const chainId = fromAccountId(accountId).chainId
       if (!acc[chainId]) acc[chainId] = []
-      acc[chainId]!.push(accountId)
+      acc[chainId].push(accountId)
       return acc
     }, {}),
 )

@@ -170,8 +170,8 @@ export const BorrowInput = ({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,
-      accountMetadata: collateralAccountMetadata!,
-      wallet: wallet!,
+      accountMetadata: collateralAccountMetadata,
+      wallet,
     }),
     enabled: Boolean(collateralAccountMetadata && wallet),
   })
@@ -278,7 +278,7 @@ export const BorrowInput = ({
   } = useGetEstimatedFeesQuery({
     amountCryptoPrecision: '0',
     assetId: collateralAssetId,
-    feeAssetId: collateralFeeAsset?.assetId!,
+    feeAssetId: collateralFeeAsset?.assetId,
     to: fromAddress ?? '',
     sendMax: true,
     accountId: collateralAccountId,

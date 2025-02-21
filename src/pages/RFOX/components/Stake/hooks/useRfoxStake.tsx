@@ -165,7 +165,7 @@ export const useRfoxStake = ({
       from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       to: fromAssetId(stakingAssetId).assetReference,
-      data: approvalCallData!,
+      data: approvalCallData,
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
     [approvalCallData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],

@@ -331,7 +331,7 @@ export const yearnVaultDeposit: Tx = {
   txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083',
 }
 
-export const createMockEthTxs = (account: string): Tx[] => {
+export const createMockEthTxs = (account: string) => {
   // UNI -> yvUNI
   const deposit: Tx = {
     pubkey: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',

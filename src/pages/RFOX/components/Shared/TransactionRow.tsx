@@ -69,11 +69,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [accountId, asset, maybeSafeTx, txId])
 
   const handleSignTx = useCallback(async () => {
-    if (!isActionable) return
+    if (!isActionable || !onSignAndBroadcast) return
 
     setIsSubmitting(true)
 
-    await onSignAndBroadcast!()
+    await onSignAndBroadcast()
 
     onStart()
   }, [isActionable, onSignAndBroadcast, onStart])

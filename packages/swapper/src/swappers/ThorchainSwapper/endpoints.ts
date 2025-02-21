@@ -434,7 +434,7 @@ export const thorchainApi: SwapperApi = {
 
     return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
       value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub: xpub!,
+      xpub,
       to: vault,
       accountNumber,
       // skip address validation for thorchain vault addresses as they may exceed the risk score threshold, but are still valid for use
@@ -475,7 +475,7 @@ export const thorchainApi: SwapperApi = {
       to: vault,
       value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
-        pubkey: xpub!,
+        pubkey: xpub,
         opReturnData,
       },
       sendMax: false,

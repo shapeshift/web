@@ -128,12 +128,12 @@ export const getQuoteOrRate = async (
 
     if (
       cause.message.includes('code 400') &&
-      cause.response!.data.detail.includes('Amount outside asset bounds')
+      cause.response?.data.detail.includes('Amount outside asset bounds')
     ) {
       return Err(
         createTradeAmountTooSmallErr({
           assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: cause.response!.data.errors.minimalAmountNative[0],
+          minAmountCryptoBaseUnit: cause.response?.data.errors.minimalAmountNative[0],
         }),
       )
     }
@@ -215,10 +215,13 @@ export const getQuoteOrRate = async (
   const getProtocolFees = (singleQuoteResponse: ChainflipBaasQuoteQuote) => {
     const protocolFees: Record<AssetId, ProtocolFee> = {}
 
-    for (const fee of singleQuoteResponse.includedFees!) {
+    for (const fee of singleQuoteResponse.includedFees ?? []) {
       if (fee.type === 'broker') continue
 
-      const asset = getFeeAsset(fee)!
+      const asset = getFeeAsset(fee)
+
+      if (!asset) continue
+
       if (!(asset.assetId in protocolFees)) {
         protocolFees[asset.assetId] = {
           amountCryptoBaseUnit: '0',
@@ -228,7 +231,7 @@ export const getQuoteOrRate = async (
       }
 
       protocolFees[asset.assetId].amountCryptoBaseUnit = (
-        BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative!)
+        BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative ?? '0')
       ).toString()
     }
 
@@ -291,17 +294,21 @@ export const getQuoteOrRate = async (
 
     if (!singleQuoteResponse.type) throw new Error('Missing quote type')
 
-    if (singleQuoteResponse.boostQuote) {
+    if (
+      singleQuoteResponse.boostQuote &&
+      singleQuoteResponse.boostQuote.ingressAmountNative &&
+      singleQuoteResponse.boostQuote.egressAmountNative
+    ) {
       const boostRate = getChainflipQuoteRate(
-        singleQuoteResponse.boostQuote.ingressAmountNative!,
-        singleQuoteResponse.boostQuote.egressAmountNative!,
+        singleQuoteResponse.boostQuote.ingressAmountNative,
+        singleQuoteResponse.boostQuote.egressAmountNative,
       )
 
       // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
       // prorated to the buy asset price to determine price impact
       const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
-        bnOrZero(singleQuoteResponse.boostQuote.ingressAmount!).times(
-          singleQuoteResponse.estimatedPrice!,
+        bnOrZero(singleQuoteResponse.boostQuote.ingressAmount).times(
+          bnOrZero(singleQuoteResponse.estimatedPrice),
         ),
         buyAsset.precision,
       )
@@ -321,9 +328,9 @@ export const getQuoteOrRate = async (
         steps: [
           {
             buyAmountBeforeFeesCryptoBaseUnit,
-            buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+            buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative,
             sellAmountIncludingProtocolFeesCryptoBaseUnit:
-              singleQuoteResponse.boostQuote.ingressAmountNative!,
+              singleQuoteResponse.boostQuote.ingressAmountNative,
             feeData: {
               protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
               ...feeData,
@@ -335,9 +342,8 @@ export const getQuoteOrRate = async (
             accountNumber,
             allowanceContract: '0x0', // Chainflip does not use contracts
             estimatedExecutionTimeMs:
-              (singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.deposit! +
-                singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.swap!) *
-              1000,
+              (singleQuoteResponse.boostQuote.estimatedDurationsSeconds?.deposit ?? 0) +
+              (singleQuoteResponse.boostQuote.estimatedDurationsSeconds?.swap ?? 0) * 1000,
             chainflipSpecific: {
               chainflipNumberOfChunks: isStreaming
                 ? singleQuoteResponse.boostQuote.numberOfChunks ?? undefined
@@ -354,15 +360,20 @@ export const getQuoteOrRate = async (
       ratesOrQuotes.push(boostTradeRateOrQuote)
     }
 
-    const rate = getChainflipQuoteRate(
-      singleQuoteResponse.ingressAmountNative!,
-      singleQuoteResponse.egressAmountNative!,
-    )
+    const rate =
+      singleQuoteResponse.ingressAmountNative && singleQuoteResponse.egressAmountNative
+        ? getChainflipQuoteRate(
+            singleQuoteResponse.ingressAmountNative,
+            singleQuoteResponse.egressAmountNative,
+          )
+        : '0'
 
     // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
     // prorated to the buy asset price to determine price impact
     const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
-      bnOrZero(singleQuoteResponse.ingressAmount!).times(singleQuoteResponse.estimatedPrice!),
+      bnOrZero(singleQuoteResponse.ingressAmount).times(
+        bnOrZero(singleQuoteResponse.estimatedPrice),
+      ),
       buyAsset.precision,
     )
 
@@ -381,8 +392,8 @@ export const getQuoteOrRate = async (
       steps: [
         {
           buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
+          buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative,
           feeData: {
             protocolFees: getProtocolFees(singleQuoteResponse),
             ...feeData,
@@ -394,8 +405,8 @@ export const getQuoteOrRate = async (
           accountNumber,
           allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
           estimatedExecutionTimeMs:
-            (singleQuoteResponse.estimatedDurationsSeconds!.deposit! +
-              singleQuoteResponse.estimatedDurationsSeconds!.swap!) *
+            ((singleQuoteResponse.estimatedDurationsSeconds?.deposit ?? 0) +
+              (singleQuoteResponse.estimatedDurationsSeconds?.swap ?? 0)) *
             1000,
           chainflipSpecific: {
             chainflipNumberOfChunks: isStreaming

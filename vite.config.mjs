@@ -113,13 +113,22 @@ export default defineConfig(({ mode }) => {
         include: [/node_modules/, /packages/, /@shapeshiftoss\/hdwallet-core/],
       },
       rollupOptions: {
+        treeshake: true,
         input: {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
-          experimentalMinChunkSize: 6 * 1024 * 1024,
-          hashFunction: 'sha256',
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-chakra': ['@chakra-ui/react'],
+            'vendor-ethers': ['ethers'],
+          },
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
         },
+        // Ensure chunks are smaller than 25MB to be safe
+        chunkSizeWarningLimit: 25000,
       },
       minify: mode === 'development' ? false : 'esbuild',
       sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,

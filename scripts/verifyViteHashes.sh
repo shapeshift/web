@@ -4,7 +4,7 @@
 # This script verifies the content hashes of generated files to ensure deterministic builds.
 
 # Find all files with a hash in the name (excluding source maps and manifests)
-find ./dist/assets -type f -regextype posix-extended -regex '.*\.[a-zA-Z0-9]{8,}\.(?:js|css|woff2?|png|jpg|jpeg|gif|svg|ico)$' \
+find ./build/assets -type f -regextype posix-extended -regex '.*\.[a-zA-Z0-9]{8,}\.(?:js|css|woff2?|png|jpg|jpeg|gif|svg|ico)$' \
   -not -name "*.map" | {
   GOOD=0
   BAD=0

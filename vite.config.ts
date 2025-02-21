@@ -102,19 +102,26 @@ export default defineConfig(async ({ mode }) => {
       },
       headers,
     },
+    root: './',
+    publicDir: 'public',
     build: {
       commonjsOptions: {
         transformMixedEsModules: true,
         include: [/node_modules/, /packages/, /@shapeshiftoss\/hdwallet-core/],
       },
       rollupOptions: {
+        input: {
+          main: './public/index.html',
+        },
         output: {
-          experimentalMinChunkSize: 6 * 1024 * 1024, // 6MB chunk size limit
+          experimentalMinChunkSize: 6 * 1024 * 1024,
           hashFunction: 'sha256',
         },
       },
       minify: mode === 'development' ? false : 'esbuild',
       sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
+      outDir: 'build',
+      emptyOutDir: true,
     },
     define: {
       'process.env': JSON.stringify(env),

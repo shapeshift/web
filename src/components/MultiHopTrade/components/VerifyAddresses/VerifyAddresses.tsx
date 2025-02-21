@@ -149,15 +149,20 @@ export const VerifyAddresses = () => {
       accountMetadata: sellAccountMetadata,
       pubKey: fromAccountId(sellAssetAccountId).account,
     })
-    const fetchedOrManualBuyAddress = shouldVerifyBuyAddress
-      ? await getReceiveAddress({
-          asset: buyAsset,
-          wallet,
-          deviceId,
-          accountMetadata: buyAccountMetadata!,
-          pubKey: fromAccountId(buyAssetAccountId!).account,
-        })
-      : maybeManualReceiveAddress
+
+    const fetchedOrManualBuyAddress = await (() => {
+      if (!shouldVerifyBuyAddress) return maybeManualReceiveAddress
+
+      if (!buyAssetAccountId || !buyAccountMetadata) throw new Error('Missing buy account metadata')
+
+      return getReceiveAddress({
+        asset: buyAsset,
+        wallet,
+        deviceId,
+        accountMetadata: buyAccountMetadata,
+        pubKey: fromAccountId(buyAssetAccountId).account,
+      })
+    })()
 
     setSellAddress(fetchedSellAddress)
     setBuyAddress(fetchedOrManualBuyAddress)

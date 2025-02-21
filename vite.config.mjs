@@ -119,19 +119,47 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           manualChunks: id => {
-            // Vendor chunks
+            // Vendor chunks - more granular splitting
             if (id.includes('node_modules')) {
+              // UI related
               if (id.includes('react')) return 'vendor-react'
               if (id.includes('@chakra-ui')) return 'vendor-chakra'
+              if (id.includes('@emotion/')) return 'vendor-emotion'
+              if (id.includes('framer-motion')) return 'vendor-framer'
+
+              // Blockchain related
               if (id.includes('ethers')) return 'vendor-ethers'
               if (id.includes('@shapeshiftoss/hdwallet')) return 'vendor-wallets'
-              if (id.includes('node_modules')) return 'vendor-other'
+              if (id.includes('web3')) return 'vendor-web3'
+              if (id.includes('@web3-onboard')) return 'vendor-web3-onboard'
+              if (id.includes('bitcoinjs')) return 'vendor-bitcoin'
+
+              // Data handling
+              if (id.includes('lodash')) return 'vendor-lodash'
+              if (id.includes('dayjs')) return 'vendor-dayjs'
+              if (id.includes('axios')) return 'vendor-axios'
+              if (id.includes('query')) return 'vendor-query'
+              if (id.includes('redux')) return 'vendor-redux'
+              if (id.includes('zustand')) return 'vendor-state'
+
+              // Utils and polyfills
+              if (id.includes('buffer')) return 'vendor-buffer'
+              if (id.includes('crypto-')) return 'vendor-crypto'
+              if (id.includes('stream-')) return 'vendor-stream'
+              if (id.includes('browserify-')) return 'vendor-browserify'
+
+              // Split remaining node_modules into smaller chunks
+              return 'vendor-other-' + id.split('node_modules/')[1].split('/')[0]
             }
+
             // Application code chunks
             if (id.includes('src/')) {
               if (id.includes('src/pages')) return 'pages'
               if (id.includes('src/components')) return 'components'
               if (id.includes('src/lib')) return 'lib'
+              if (id.includes('src/features')) return 'features'
+              if (id.includes('src/hooks')) return 'hooks'
+              if (id.includes('src/context')) return 'context'
             }
             return null
           },

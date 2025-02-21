@@ -12,7 +12,6 @@ import { HomeIcon } from 'components/Icons/Home'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { RFOXIcon } from 'components/Icons/RFOX'
 import { SwapIcon } from 'components/Icons/SwapIcon'
-import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from 'pages/Fox/FoxPage'
@@ -117,14 +116,6 @@ const Trade = makeSuspenseful(
   ),
 )
 
-const TransactionHistory = makeSuspenseful(
-  lazy(() =>
-    import('pages/TransactionHistory/TransactionHistory').then(({ TransactionHistory }) => ({
-      default: TransactionHistory,
-    })),
-  ),
-)
-
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need
  * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
@@ -202,14 +193,6 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     mobileNav: true,
     priority: 5,
-    routes: [
-      {
-        path: '/transaction-history',
-        label: 'navBar.transactionHistory',
-        icon: <TxHistoryIcon />,
-        main: TransactionHistory,
-      },
-    ],
   },
   {
     path: '/earn',

@@ -36,7 +36,6 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -51,7 +50,6 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -66,7 +64,6 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -81,7 +78,6 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -96,7 +92,6 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -111,7 +106,6 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -127,7 +121,6 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,
@@ -145,7 +138,6 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      thorHeld: bn(0),
       foxWifHatHeldCryptoBaseUnit: bn(0),
       feeModel: 'SWAPPER',
       isSnapshotApiQueriesRejected,

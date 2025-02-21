@@ -73,7 +73,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
 }
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const thorVotingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORSWAP' }
 
 const getMixPanelDataFromApiRates = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
@@ -169,7 +168,6 @@ export const useGetTradeRates = () => {
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
     [isSnapshotApiQueriesPending, votingPower],
@@ -199,7 +197,6 @@ export const useGetTradeRates = () => {
         sellAccountMetadata,
         votingPower,
         foxWifHatHeld,
-        thorVotingPower,
         receiveAccountMetadata,
         sellAccountId,
         isVotingPowerLoading,
@@ -231,7 +228,6 @@ export const useGetTradeRates = () => {
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
         foxHeld: bnOrZero(votingPower),
-        thorHeld: bnOrZero(thorVotingPower),
         foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
         feeModel: 'SWAPPER',
         isSnapshotApiQueriesRejected,

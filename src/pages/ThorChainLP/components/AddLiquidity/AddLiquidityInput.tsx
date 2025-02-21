@@ -1026,8 +1026,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: bnOrZero(votingPower),
       foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
-      // @TODO: remove this when thor swap discount is removed
-      thorHeld: bn(0),
       feeModel: 'THORCHAIN_LP',
       isSnapshotApiQueriesRejected,
     })

@@ -194,8 +194,7 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets",
-    "viewOnly": "View-Only"
+    "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
     "body": {
@@ -2869,10 +2868,6 @@
       "noActiveProposals": "No active proposals available",
       "noClosedProposals": "No closed proposals available"
     }
-  },
-  "thorFees": {
-    "title": "Here from THORSwap?",
-    "description": "THOR holders trade for free through 2024."
   },
   "chainAdapters": {
     "errors": {

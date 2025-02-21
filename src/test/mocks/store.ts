@@ -137,7 +137,6 @@ export const mockStore: ReduxState = {
       ChainflipSwap: false,
       SolanaSwapper: false,
       ChainflipDca: false,
-      ThorFreeFees: false,
       JupiterSwap: false,
       NewWalletFlow: false,
       FoxPageFoxWifHatSection: false,
@@ -289,10 +288,8 @@ export const mockStore: ReduxState = {
     votingPowerByModel: {
       SWAPPER: undefined,
       THORCHAIN_LP: undefined,
-      THORSWAP: undefined,
     },
     strategies: undefined,
-    thorStrategies: undefined,
     proposals: undefined,
   },
   localWalletSlice: {

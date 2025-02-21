@@ -28,7 +28,7 @@ import { FlagRow } from './FlagRow'
 
 const FlagHeader = () => {
   return (
-    <Stack pb={4}>
+    <Stack px={8} py={4}>
       <Heading>Flags</Heading>
       <RawText color='red.500' fontStyle='italic'>
         These features are <strong>experimental</strong> and in <strong>active development</strong>.
@@ -77,7 +77,7 @@ export const Flags = () => {
   }, [dispatch])
 
   return (
-    <Main titleComponent={flagHeader}>
+    <Main headerComponent={flagHeader}>
       <Stack direction={stackDirection} spacing={6}>
         <Card flex={1}>
           <CardHeader>

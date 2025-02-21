@@ -194,8 +194,7 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets",
-    "viewOnly": "View-Only"
+    "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
     "body": {

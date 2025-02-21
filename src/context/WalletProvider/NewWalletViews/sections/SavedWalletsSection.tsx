@@ -145,6 +145,7 @@ export const SavedWalletsSection = ({
         <Box
           as={Button}
           variant='ghost'
+          whiteSpace='normal'
           px={4}
           ml={-4}
           py={6}

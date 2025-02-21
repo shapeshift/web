@@ -1,4 +1,5 @@
 import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
+
 import { LedgerIcon } from '@/components/Icons/LedgerIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 

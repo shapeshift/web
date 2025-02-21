@@ -11,6 +11,15 @@ import {
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
+import type { Dispatch, FC } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
+
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertUnreachable } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
@@ -33,15 +42,6 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
-import type { Dispatch, FC } from 'react'
-import { useCallback, useMemo, useRef } from 'react'
-import { assertUnreachable } from '@/lib/utils'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-
-import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
-import { Text } from '@/components/Text'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 

@@ -11,14 +11,15 @@ import type {
 } from 'lightweight-charts'
 import { createChart, CrosshairMode, LineStyle, LineType } from 'lightweight-charts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { selectSelectedCurrency } from '@/state/slices/selectors'
-import { store } from '@/state/store'
-import { semanticTokens } from '@/theme/semanticTokens'
-import { opacify } from '@/theme/utils'
 
 import { ChartHeader } from './ChartHeader'
 import type { ChartInterval } from './utils'
 import { formatHistoryDuration, formatTickMarks } from './utils'
+
+import { selectSelectedCurrency } from '@/state/slices/selectors'
+import { store } from '@/state/store'
+import { semanticTokens } from '@/theme/semanticTokens'
+import { opacify } from '@/theme/utils'
 
 type SimpleChartProps<T extends Time> = {
   data: (SingleValueData<T> | OhlcData<T>)[]

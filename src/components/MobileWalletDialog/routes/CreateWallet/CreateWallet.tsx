@@ -11,6 +11,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
+
+import { MobileWalletDialogRoutes } from '../../types'
+
 import { CarouselDots } from '@/components/CarouselDots/CarouselDots'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -27,8 +30,6 @@ import { Text } from '@/components/Text'
 import { createWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
-
-import { MobileWalletDialogRoutes } from '../../types'
 
 type FormValues = {
   label: string

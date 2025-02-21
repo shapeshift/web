@@ -15,6 +15,9 @@ import { FiCopy } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
+
+import { MobileWalletDialogRoutes } from '../../types'
+
 import { CarouselDots } from '@/components/CarouselDots/CarouselDots'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -28,8 +31,6 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
-
-import { MobileWalletDialogRoutes } from '../../types'
 
 const copyIcon = <Icon as={FiCopy} />
 

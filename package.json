@@ -197,7 +197,7 @@
     "react-number-format": "^4.9.3",
     "react-polyglot": "^0.7.2",
     "react-redux": "^7.2.8",
-    "react-router": "^5.3.3",
+    "react-router": "^5.3.4",
     "react-router-breadcrumbs-hoc": "^4.1.0",
     "react-router-dom": "^5.3.3",
     "react-swipeable-views": "^0.14.0",

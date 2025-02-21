@@ -5,11 +5,11 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
 import axios from 'axios'
-import { http as v1HttpApi } from '@/plugins/polygon'
 
 import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { http as v1HttpApi } from '@/plugins/polygon'
 import { getMediaType } from '@/state/apis/portals/validators'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {

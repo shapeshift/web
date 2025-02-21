@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 

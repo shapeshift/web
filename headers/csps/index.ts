@@ -1,4 +1,3 @@
-// Base CSP
 // Service CSPs
 import { csp as alchemy } from './alchemy'
 // Asset Service CSPs
@@ -49,7 +48,7 @@ import { csp as metamask } from './wallets/metamask'
 import { csp as walletConnect } from './wallets/walletConnect'
 import { csp as walletMigration } from './wallets/walletMigration'
 
-export default [
+export const csps = [
   // Base CSP (should be first as it contains default rules)
   base,
 

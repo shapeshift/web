@@ -5,6 +5,7 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteProps } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'react-router-dom'
+
 import {
   useMenuRoutes,
   WalletConnectedRoutes,

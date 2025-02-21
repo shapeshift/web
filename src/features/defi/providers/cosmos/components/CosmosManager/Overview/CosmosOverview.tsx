@@ -6,7 +6,6 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
@@ -21,6 +20,7 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   getDefaultValidatorAddressFromChainId,

@@ -1,4 +1,4 @@
-import csps from './csps'
+import { csps } from './csps'
 import type { Csp, CspEntry } from './types'
 
 /**

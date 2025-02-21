@@ -5,6 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
+
+import { MobileWalletDialogRoutes } from '../../types'
+
 import { CarouselDots } from '@/components/CarouselDots/CarouselDots'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -18,8 +21,6 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
-
-import { MobileWalletDialogRoutes } from '../../types'
 
 const makeOrdinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'

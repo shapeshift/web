@@ -13047,7 +13047,7 @@ __metadata:
     react-number-format: ^4.9.3
     react-polyglot: ^0.7.2
     react-redux: ^7.2.8
-    react-router: ^5.3.3
+    react-router: ^5.3.4
     react-router-breadcrumbs-hoc: ^4.1.0
     react-router-dom: ^5.3.3
     react-scripts: ^5.0.1
@@ -35737,7 +35737,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-router@npm:5.3.3, react-router@npm:^5.3.3":
+"react-router@npm:5.3.3":
   version: 5.3.3
   resolution: "react-router@npm:5.3.3"
   dependencies:
@@ -35754,6 +35754,25 @@ pvutils@latest:
   peerDependencies:
     react: ">=15"
   checksum: 52a9f28fa97577fda18a8ed2922b658704eafe873e444fe07202640d55d9e81e67c03efd2b2a5b80e3a80e8be8352df826a227ce5f42b33b91bef853c74d4841
+  languageName: node
+  linkType: hard
+
+"react-router@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "react-router@npm:5.3.4"
+  dependencies:
+    "@babel/runtime": ^7.12.13
+    history: ^4.9.0
+    hoist-non-react-statics: ^3.1.0
+    loose-envify: ^1.3.1
+    path-to-regexp: ^1.7.0
+    prop-types: ^15.6.2
+    react-is: ^16.6.0
+    tiny-invariant: ^1.0.2
+    tiny-warning: ^1.0.0
+  peerDependencies:
+    react: ">=15"
+  checksum: 892d4e274a23bf4f39abc2efca54472fb646d3aed4b584020cf49654d2f50d09a2bacebe7c92b4ec7cb8925077376dfcd0664bad6442a73604397cefec9f01f9
   languageName: node
   linkType: hard
 

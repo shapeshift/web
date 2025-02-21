@@ -3,12 +3,13 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router'
+
+import { ConfirmDelete } from './Confirm'
+
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { SlideTransition } from '@/components/SlideTransition'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
-
-import { ConfirmDelete } from './Confirm'
 
 export const DeleteWallet = () => {
   const {

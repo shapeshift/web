@@ -14,6 +14,7 @@ import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'

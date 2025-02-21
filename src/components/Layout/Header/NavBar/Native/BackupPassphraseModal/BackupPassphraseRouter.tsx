@@ -2,8 +2,6 @@ import { useUnmountEffect } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
-import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseInfo } from './BackupPassphraseInfo'
@@ -11,6 +9,9 @@ import { BackupPassphrasePassword } from './BackupPassphrasePassword'
 import { BackupPassphraseStart } from './BackupPassphraseStart'
 import { BackupPassphraseSuccess } from './BackupPassphraseSuccess'
 import { BackupPassphraseTest } from './BackupPassphraseTest'
+
+import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const BackupPassphraseRouter = () => {
   const location = useLocation()

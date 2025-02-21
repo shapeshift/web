@@ -17,10 +17,11 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Text } from '@/components/Text'
-import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 import type { NativeSetupProps, NativeWalletValues } from '../types'
+
+import { Text } from '@/components/Text'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()

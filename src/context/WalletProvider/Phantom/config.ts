@@ -1,4 +1,5 @@
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
+
 import { PhantomIcon } from '@/components/Icons/PhantomIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 

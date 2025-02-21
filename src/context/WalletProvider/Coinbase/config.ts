@@ -1,4 +1,5 @@
 import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
+
 import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 

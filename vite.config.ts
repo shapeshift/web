@@ -114,7 +114,7 @@ export default defineConfig(async ({ mode }) => {
       },
       rollupOptions: {
         input: {
-          main: './public/index.html',
+          main: resolve(__dirname, 'index.html'),
         },
         output: {
           experimentalMinChunkSize: 6 * 1024 * 1024,

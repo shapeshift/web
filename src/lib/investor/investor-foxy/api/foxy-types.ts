@@ -2,7 +2,7 @@ import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftmonorepo/c
 import type { Bip44Params, KnownChainIds, WithdrawType } from '@shapeshiftmonorepo/types'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BigNumber } from 'bignumber.js'
-import type { Contract } from 'ethers'
+import type { Contract } from 'ethers6'
 
 export type FoxyAddressesType = {
   staking: string

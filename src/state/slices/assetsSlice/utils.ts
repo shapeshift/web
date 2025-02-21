@@ -6,9 +6,9 @@ import {
   isNft,
   toAssetId,
 } from '@shapeshiftmonorepo/caip'
+import type { Transaction } from '@shapeshiftmonorepo/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import { getNativeFeeAssetReference, makeAsset } from '@shapeshiftmonorepo/utils'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
 
 import type { UpsertAssetsPayload } from './assetsSlice'
 

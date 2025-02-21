@@ -1,6 +1,7 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
-import type { RouteComponentProps, StaticContext } from 'react-router-dom'
+import type { StaticContext } from 'react-router'
+import type { RouteComponentProps } from 'react-router-dom'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'

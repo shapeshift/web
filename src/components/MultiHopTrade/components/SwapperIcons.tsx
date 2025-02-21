@@ -1,14 +1,15 @@
 import { Center } from '@chakra-ui/react'
-import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
 import { AnimatePresence } from 'framer-motion'
-import { StreamIcon } from 'components/Icons/Stream'
-import { SlideTransitionX } from 'components/SlideTransitionX'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
+
+import { StreamIcon } from '@/components/Icons/Stream'
+import { SlideTransitionX } from '@/components/SlideTransitionX'
 
 type SwapperIconsProps = {
   swapSource: SwapSource | undefined

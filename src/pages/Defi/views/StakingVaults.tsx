@@ -1,12 +1,13 @@
 import { useTranslate } from 'react-polyglot'
-import { Display } from 'components/Display'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
-import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
-import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpportunities'
 
 import { EligibleSlider } from '../components/EligibleSlider'
+
+import { Display } from '@/components/Display'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { Main } from '@/components/Layout/Main'
+import { SEO } from '@/components/Layout/Seo'
+import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
+import { useFetchOpportunities } from '@/components/StakingVaults/hooks/useFetchOpportunities'
 
 const DefiHeader = () => {
   const translate = useTranslate()

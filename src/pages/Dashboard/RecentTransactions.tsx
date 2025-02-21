@@ -1,16 +1,17 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { TxMetadata } from '@shapeshiftmonorepo/chain-adapters'
+import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { selectTxIdsByFilter } from 'state/slices/selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+
+import { Text } from '@/components/Text'
+import { TransactionHistoryList } from '@/components/TransactionHistory/TransactionHistoryList'
+import { selectTxIdsByFilter } from '@/state/slices/selectors'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 type RecentTransactionFilter = {
   acccountId?: AccountId

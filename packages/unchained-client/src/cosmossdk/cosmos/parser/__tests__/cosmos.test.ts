@@ -1,4 +1,4 @@
-import { cosmosAssetId, cosmosChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'

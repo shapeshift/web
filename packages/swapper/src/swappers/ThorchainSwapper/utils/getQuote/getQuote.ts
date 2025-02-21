@@ -1,7 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { bchAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { bn, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { bchAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { bn, fromBaseUnit, toBaseUnit } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
@@ -60,7 +60,7 @@ const _getQuote = async (
       ? receiveAddress.replace('bitcoincash:', '')
       : receiveAddress
 
-  const daemonUrl = deps.config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
 
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),

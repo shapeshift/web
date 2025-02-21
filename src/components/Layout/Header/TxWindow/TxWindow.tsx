@@ -16,15 +16,16 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import React, { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { TxHistoryIcon } from 'components/Icons/TxHistory'
-import { RawText } from 'components/Text'
-import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { TxHistoryIcon } from '@/components/Icons/TxHistory'
+import { RawText } from '@/components/Text'
+import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
+import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
 const selectedProp = { color: 'text.base' }

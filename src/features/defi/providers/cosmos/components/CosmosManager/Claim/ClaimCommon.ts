@@ -1,4 +1,4 @@
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 
 export enum TxStatus {
   PENDING = 'pending',

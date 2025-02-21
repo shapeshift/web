@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { reactQueries } from 'react-queries'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+
+import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { reactQueries } from '@/react-queries'
 
 export const useIsLendingActive = () => {
   const { data: mimir, isLoading: isMimirLoading } = useQuery({

@@ -1,6 +1,12 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryData, HistoryTimeframe, MarketData, PartialRecord } from '@shapeshiftoss/types'
-import type { SupportedFiatCurrencies } from 'lib/market-service'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type {
+  HistoryData,
+  HistoryTimeframe,
+  MarketData,
+  PartialRecord,
+} from '@shapeshiftmonorepo/types'
+
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
 
 export type PriceHistoryData<T extends SupportedFiatCurrencies | AssetId> = PartialRecord<
   T,

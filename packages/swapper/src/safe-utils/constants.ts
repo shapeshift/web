@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -8,7 +8,7 @@ import {
   gnosisChainId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 
 export const ChainIdToSafeBaseUrl: Partial<Record<ChainId, string>> = {
   [ethChainId]: 'https://safe-transaction-mainnet.safe.global',

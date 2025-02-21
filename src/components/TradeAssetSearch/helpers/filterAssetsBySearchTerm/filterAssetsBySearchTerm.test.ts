@@ -1,5 +1,5 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { describe, expect, it } from 'vitest'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'

@@ -1,14 +1,15 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
-import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
 import { ClaimRoutePaths } from './types'
+
+import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 

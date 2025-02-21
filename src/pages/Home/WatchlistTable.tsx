@@ -1,14 +1,15 @@
 import { Button } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback, useMemo } from 'react'
 import { FaStar } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { Row } from 'react-table'
-import { MarketsTable } from 'components/MarketsTable'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import { selectAssetsSortedByMarketCap, selectWatchedAssetIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { MarketsTable } from '@/components/MarketsTable'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { selectAssetsSortedByMarketCap, selectWatchedAssetIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const starFilled = <FaStar />
 const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue' }

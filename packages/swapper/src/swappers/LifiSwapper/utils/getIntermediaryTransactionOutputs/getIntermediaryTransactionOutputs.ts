@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { isSome, makeAsset } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { isSome, makeAsset } from '@shapeshiftmonorepo/utils'
 
 import type { AmountDisplayMeta } from '../../../../types'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'

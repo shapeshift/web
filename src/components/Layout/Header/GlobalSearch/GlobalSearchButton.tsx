@@ -2,9 +2,10 @@ import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Button, IconButton, Kbd, useDisclosure, useEventListener } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { isMobile as isMobileApp } from 'lib/globals'
 
 import { GlobalSearchModal } from './GlobalSearchModal'
+
+import { isMobile as isMobileApp } from '@/lib/globals'
 
 const mrProp = { base: 0, md: 'auto' }
 const widthProp = { base: 'auto', md: 'full' }

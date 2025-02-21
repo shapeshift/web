@@ -1,6 +1,6 @@
-import { arbitrumNovaChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { arbitrumNova, unfreeze } from '@shapeshiftoss/utils'
+import { arbitrumNovaChainId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { arbitrumNova, unfreeze } from '@shapeshiftmonorepo/utils'
 
 import * as coingecko from '../coingecko'
 

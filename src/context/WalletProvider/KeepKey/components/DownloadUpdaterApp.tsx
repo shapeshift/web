@@ -1,10 +1,11 @@
 import { Button, Icon, Link, ModalBody, ModalHeader, Text as CText } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
 
 import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from '../helpers'
+
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 
 export const KeepKeyDownloadUpdaterApp = () => {
   const platform = useMemo(() => getPlatform(), [])

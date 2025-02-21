@@ -1,13 +1,13 @@
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
-import { SlideTransition } from 'components/SlideTransition'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { SlideTransition } from '@/components/SlideTransition'
+import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 import { Claim } from './Claim/Claim'
 import { FoxFarmingDeposit } from './Deposit/FoxFarmingDeposit'

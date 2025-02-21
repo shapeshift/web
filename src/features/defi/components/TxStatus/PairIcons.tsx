@@ -1,5 +1,6 @@
 import { Flex } from '@chakra-ui/react'
-import { AssetIcon } from 'components/AssetIcon'
+
+import { AssetIcon } from '@/components/AssetIcon'
 
 export const PairIcons = ({ icons }: { icons: string[] }) => {
   return (

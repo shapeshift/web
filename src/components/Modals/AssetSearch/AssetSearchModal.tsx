@@ -1,17 +1,18 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+
+import type { AssetSearchProps } from '@/components/AssetSearch/AssetSearch'
+import { AssetSearch } from '@/components/AssetSearch/AssetSearch'
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import {
   DialogHeader,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { useModal } from 'hooks/useModal/useModal'
+} from '@/components/Modal/components/DialogHeader'
+import { useModal } from '@/hooks/useModal/useModal'
 
 export type AssetSearchModalProps = AssetSearchProps & {
   title?: string

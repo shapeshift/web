@@ -1,16 +1,17 @@
 import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { NestedListItem } from 'components/List/NestedListItem'
-import { AssetCell } from 'components/StakingVaults/Cells'
-import { RawText, Text } from 'components/Text'
-import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { opportunityRowGrid } from './OpportunityTableHeader'
+
+import { Amount } from '@/components/Amount/Amount'
+import { NestedListItem } from '@/components/List/NestedListItem'
+import { AssetCell } from '@/components/StakingVaults/Cells'
+import { RawText, Text } from '@/components/Text'
+import type { UnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type NestedAssetProps = {
   assetId: AssetId

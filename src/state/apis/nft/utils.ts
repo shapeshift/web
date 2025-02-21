@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -10,18 +10,19 @@ import {
   fromAssetId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+} from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import cloneDeep from 'lodash/cloneDeep'
 import invert from 'lodash/invert'
-import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
-import { isFulfilled } from 'lib/utils'
 
 import {
   parseAlchemyNftContractToCollectionItem,
   parseAlchemyNftToNftItem,
 } from './parsers/alchemy'
 import type { NftCollectionType, NftItemWithCollection } from './types'
+
+import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
+import { isFulfilled } from '@/lib/utils'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>

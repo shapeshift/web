@@ -1,4 +1,4 @@
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 
 import type { BaseTxMetadata, StandardTx } from '../../../types'
 import type { SubParser, Tx, TxSpecific } from '../../parser'

@@ -6,8 +6,8 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
-} from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import merge from 'lodash/merge'
 
 export const rune: Asset = {

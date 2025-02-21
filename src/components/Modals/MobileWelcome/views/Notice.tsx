@@ -2,12 +2,13 @@ import { ArrowForwardIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, ModalBody, ModalFooter, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AccountsIcon } from 'components/Icons/Accounts'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { store } from 'state/store'
+
+import { AccountsIcon } from '@/components/Icons/Accounts'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { store } from '@/state/store'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 

@@ -1,10 +1,11 @@
 import { Tag } from '@chakra-ui/react'
-import type { TransferType } from '@shapeshiftoss/chain-adapters'
+import type { TransferType } from '@shapeshiftmonorepo/chain-adapters'
 import { useMemo } from 'react'
-import type { Transfer, TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { getStakingAssetId } from 'pages/RFOX/helpers'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import type { Transfer, TxDetails } from '@/hooks/useTxDetails/useTxDetails'
+import { getStakingAssetId } from '@/pages/RFOX/helpers'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TransactionTagProps = {
   txDetails: TxDetails

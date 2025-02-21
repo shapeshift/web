@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 
 import type { LpId, StakingId } from './types'
 

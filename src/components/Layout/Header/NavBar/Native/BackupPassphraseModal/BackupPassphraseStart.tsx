@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'

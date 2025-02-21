@@ -1,11 +1,12 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { Text } from 'components/Text'
-import { KeepKeyConfig } from 'context/WalletProvider/KeepKey/config'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { LedgerConfig } from 'context/WalletProvider/Ledger/config'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { Text } from '@/components/Text'
+import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const LedgerIcon = LedgerConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon

@@ -1,7 +1,7 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { CowSwapError, OrderQuoteResponse } from '@shapeshiftoss/types'
-import { OrderKind } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { CowSwapError, OrderQuoteResponse } from '@shapeshiftmonorepo/types'
+import { OrderKind } from '@shapeshiftmonorepo/types'
+import { bn } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -89,7 +89,7 @@ async function _getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<OrderQuoteResponse>(
-    `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
+    `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
       buyToken,

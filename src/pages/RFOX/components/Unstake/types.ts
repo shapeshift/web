@@ -1,5 +1,6 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+
+import type { TradeAmountInputFormValues } from '@/components/MultiHopTrade/components/TradeAmountInput'
 
 export enum UnstakeRoutePaths {
   Input = '/remove/input',

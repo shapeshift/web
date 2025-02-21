@@ -1,6 +1,7 @@
 import { Button, Link } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 
 const hover = { bg: 'transparent' }
 

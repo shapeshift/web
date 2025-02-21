@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftmonorepo/caip'
 import {
   assertUnreachable,
   bn,
@@ -10,7 +10,7 @@ import {
   isFulfilled,
   isRejected,
   toBaseUnit,
-} from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -95,7 +95,7 @@ export const getL1Rate = async (
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
   const swapQuote = maybeSwapQuote.unwrap()
 
-  const maybeStreamingSwapQuote = deps.config.REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
+  const maybeStreamingSwapQuote = deps.config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS
     ? await getQuote(
         {
           sellAsset,

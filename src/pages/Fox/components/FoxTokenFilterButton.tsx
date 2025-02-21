@@ -1,10 +1,11 @@
 import { Button, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type Filter = {
   label: string

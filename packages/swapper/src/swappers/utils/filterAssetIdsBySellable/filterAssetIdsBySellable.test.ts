@@ -1,13 +1,13 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   avalancheAssetId,
   btcAssetId,
   ethAssetId,
   optimismAssetId,
   thorchainAssetId,
-} from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { describe, expect, test } from 'vitest'
 
 import { filterEvmAssetIdsBySellable } from './filterAssetIdsBySellable'

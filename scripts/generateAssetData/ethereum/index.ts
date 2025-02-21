@@ -1,15 +1,16 @@
-import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { ethereum, unfreeze } from '@shapeshiftoss/utils'
+import { ethChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { ethereum, unfreeze } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
-import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
+
+import { getPortalTokens } from '@/lib/portals/utils'
 
 const foxyToken: Asset = {
   assetId: toAssetId({

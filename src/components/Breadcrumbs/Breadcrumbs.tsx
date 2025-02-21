@@ -1,16 +1,17 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react'
-import type { PartialRecord } from '@shapeshiftoss/types'
+import type { PartialRecord } from '@shapeshiftmonorepo/types'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 import type { BreadcrumbsRoute, Options } from 'react-router-breadcrumbs-hoc'
 import withBreadcrumbs from 'react-router-breadcrumbs-hoc'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-import { AccountLabel } from 'components/AssetHeader/AccountLabel'
-import { Text } from 'components/Text/Text'
-import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { AccountLabel } from '@/components/AssetHeader/AccountLabel'
+import { Text } from '@/components/Text/Text'
+import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const GetTranslatedPathPart = ({ match }: { match: RouteComponentProps['match'] }) => {
   // a hack to gain the ability to translate the breadcrumbs

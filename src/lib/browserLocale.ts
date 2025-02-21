@@ -1,4 +1,4 @@
-import { translations } from 'assets/translations'
+import { translations } from '@/assets/translations'
 
 function assumeLocale() {
   if (typeof window === 'undefined' || typeof window.navigator === 'undefined') {

@@ -1,7 +1,8 @@
-import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import type { PartialRecord } from '@shapeshiftoss/types'
+import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
+import type { PartialRecord } from '@shapeshiftmonorepo/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { ApiQuote } from 'state/apis/swapper/types'
+
+import type { ApiQuote } from '@/state/apis/swapper/types'
 
 export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
 

@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 import { SUPPORTED_CHAIN_IDS } from '../../../cowswap-utils/constants'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'

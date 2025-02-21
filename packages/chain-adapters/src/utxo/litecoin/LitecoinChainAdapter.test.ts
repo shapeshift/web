@@ -1,9 +1,9 @@
-import { ltcAssetId, ltcChainId } from '@shapeshiftoss/caip'
+import { ltcAssetId, ltcChainId } from '@shapeshiftmonorepo/caip'
+import type { Bip44Params, UtxoChainId } from '@shapeshiftmonorepo/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftmonorepo/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { Bip44Params, UtxoChainId } from '@shapeshiftoss/types'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'

@@ -1,9 +1,9 @@
-import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftmonorepo/caip'
 import {
   RFOX_PROXY_CONTRACT,
   RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
   ZRX_ETHEREUM_PROXY_CONTRACT,
-} from '@shapeshiftoss/contracts'
+} from '@shapeshiftmonorepo/contracts'
 
 import type { Tx } from '../../../generated/arbitrum'
 import type { BaseTransactionParserArgs } from '../../parser'

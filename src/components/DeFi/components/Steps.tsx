@@ -1,6 +1,6 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useState } from 'react'
 
 import { StepRow } from './StepRow'

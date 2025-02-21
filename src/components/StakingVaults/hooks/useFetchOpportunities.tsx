@@ -1,21 +1,22 @@
 import { useQuery } from '@tanstack/react-query'
-import { knownChainIds } from 'constants/chains'
 import { useMemo } from 'react'
-import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { knownChainIds } from '@/constants/chains'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { reactQueries } from '@/react-queries'
 import {
   useGetPortalsAppsBalancesOutputQuery,
   useGetPortalsUniV2PoolAssetIdsQuery,
-} from 'state/apis/portals/portalsApi'
+} from '@/state/apis/portals/portalsApi'
 import {
   selectEnabledWalletAccountIds,
   selectEvmAccountIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-} from 'state/slices/selectors'
-import { useAppDispatch } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppDispatch } from '@/state/store'
 
 export const useFetchOpportunities = () => {
   const {

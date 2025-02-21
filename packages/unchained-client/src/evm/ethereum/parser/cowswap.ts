@@ -1,4 +1,4 @@
-import { COWSWAP_SETTLEMENT_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
+import { COWSWAP_SETTLEMENT_CONTRACT_MAINNET } from '@shapeshiftmonorepo/contracts'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'

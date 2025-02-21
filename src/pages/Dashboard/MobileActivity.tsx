@@ -1,8 +1,9 @@
 import { Stack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { TxsByStatus } from 'components/Layout/Header/TxWindow/TxWindow'
+
+import { TxsByStatus } from '@/components/Layout/Header/TxWindow/TxWindow'
 
 export const MobileActivity = memo(() => {
   const translate = useTranslate()

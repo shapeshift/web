@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type * as unchained from '@shapeshiftmonorepo/unchained-client'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type * as unchained from '@shapeshiftoss/unchained-client'
 
 import type * as common from '../types'
 

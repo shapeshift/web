@@ -1,6 +1,6 @@
-import { optimismAssetId, optimismChainId } from '@shapeshiftoss/caip'
+import { optimismAssetId, optimismChainId } from '@shapeshiftmonorepo/caip'
+import { ZRX_OPTIMISM_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import type { evm } from '@shapeshiftoss/common-api'
-import { ZRX_OPTIMISM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
@@ -21,7 +21,7 @@ import zrxTradeOpToEth from './mockData/zrxTradeOpToEth'
 import zrxTradeUsdcToOp from './mockData/zrxTradeUsdcToOp'
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 const mockedApi = vi.mocked(new V1Api())

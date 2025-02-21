@@ -1,6 +1,6 @@
 import { lazy } from 'react'
 import { Route, Switch, useRouteMatch } from 'react-router'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const AvailablePools = makeSuspenseful(
   lazy(() =>

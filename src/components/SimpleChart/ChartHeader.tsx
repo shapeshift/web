@@ -1,13 +1,14 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import type { UTCTimestamp } from 'lightweight-charts'
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react'
 import { useTranslate } from 'react-polyglot'
 import styled from 'styled-components'
-import { Row } from 'components/Row/Row'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 import { useHeaderDateFormatter } from './hooks'
+
+import { Row } from '@/components/Row/Row'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 const ChartHeaderWrapper = (props: PropsWithChildren) => (
   <Flex position='absolute' width='full' gap={4} alignItems='flex-start' zIndex='4' {...props} />

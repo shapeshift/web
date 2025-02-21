@@ -1,5 +1,6 @@
 import { DrawerBody, DrawerFooter, DrawerHeader } from '@chakra-ui/react'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 export type DrawerContentWrapperProps = {
   title?: string

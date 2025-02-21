@@ -1,16 +1,17 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { coingeckoUrl } from '@shapeshiftoss/caip/src/adapters'
-import { fetchData, parseData } from '@shapeshiftoss/caip/src/adapters/coingecko/utils'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { coingeckoUrl } from '@shapeshiftmonorepo/caip/src/adapters'
+import { fetchData, parseData } from '@shapeshiftmonorepo/caip/src/adapters/coingecko/utils'
+import type { Asset, AssetsById } from '@shapeshiftmonorepo/types'
 import assert from 'assert'
 import { intersection } from 'lodash'
 import difference from 'lodash/difference'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
-import { getCoingeckoMarketsRaw } from 'lib/coingecko/utils'
-import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
 import blacklist from '../blacklist.json'
+
+import { getCoingeckoMarketsRaw } from '@/lib/coingecko/utils'
+import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
 
 // blacklist wormhole assets as well - users can't hold a balance and we don't support wormholes
 export const filterOutBlacklistedAssets = (unfilteredAssetData: Asset[]) =>

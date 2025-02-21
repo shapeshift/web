@@ -13,9 +13,10 @@ import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
-import { Text } from 'components/Text'
 
 import { addWallet } from '../mobileMessageHandlers'
+
+import { Text } from '@/components/Text'
 
 type FormValues = { mnemonic: string; name: string }
 

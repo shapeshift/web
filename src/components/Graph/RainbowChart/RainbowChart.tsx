@@ -10,12 +10,13 @@ import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 import React, { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import type { RainbowData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { selectAssets, selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { colors } from 'theme/colors'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import type { RainbowData } from '@/hooks/useBalanceChartData/useBalanceChartData'
+import { selectAssets, selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { colors } from '@/theme/colors'
 
 export type RainbowChartProps = {
   data: RainbowData[]

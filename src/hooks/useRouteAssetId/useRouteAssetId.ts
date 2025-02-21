@@ -1,8 +1,9 @@
-import type { AccountId, AssetId, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
-import { toChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainNamespace, ChainReference } from '@shapeshiftmonorepo/caip'
+import { toChainId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
 import { matchPath, useLocation } from 'react-router'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 // Make sure this array remains ordered from most to least specific to avoid early matching
 export const assetIdPaths = [

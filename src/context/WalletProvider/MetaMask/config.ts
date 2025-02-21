@@ -1,6 +1,6 @@
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
-import type { SupportedWalletInfo } from 'context/WalletProvider/config'
+import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
+import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type MetaMaskConfigType = Omit<SupportedWalletInfo<typeof MetaMaskAdapter>, 'routes'>
 

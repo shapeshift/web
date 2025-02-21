@@ -1,7 +1,7 @@
-import type { EvmChainId, OrderCreation } from '@shapeshiftoss/types'
-import { BuyTokenDestination, SellTokenSource, SigningScheme } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bn } from '@shapeshiftoss/utils'
+import type { EvmChainId, OrderCreation } from '@shapeshiftmonorepo/types'
+import { BuyTokenDestination, SellTokenSource, SigningScheme } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { bn } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
@@ -172,7 +172,7 @@ export const cowApi: SwapperApi = {
     // order uid to fetch the trades and use their existence as indicating "complete"
     // https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/6.-checking-order-status
     const maybeTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
-      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/trades`,
+      `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/trades`,
       { params: { orderUid: txHash } },
     )
 

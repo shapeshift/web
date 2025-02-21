@@ -14,8 +14,9 @@ import { Fragment } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
-import { Text } from 'components/Text'
-import { useToggle } from 'hooks/useToggle/useToggle'
+
+import { Text } from '@/components/Text'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 
 export type Option = [string, string, (ReactElement | string | number)?]
 

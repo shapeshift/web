@@ -1,14 +1,15 @@
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import axios from 'axios'
-import { getConfig } from 'config'
+import { useEffect, useState } from 'react'
+import semverGte from 'semver/functions/gte'
+
+import { getConfig } from '@/config'
 import {
   MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_EIP712,
   MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN,
-} from 'constants/Config'
-import { useEffect, useState } from 'react'
-import semverGte from 'semver/functions/gte'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isKeepKeyHDWallet } from 'lib/utils'
+} from '@/constants/Config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from '@/lib/utils'
 
 interface VersionUrl {
   version: string
@@ -68,7 +69,7 @@ export const useKeepKeyVersions = () => {
     ;(async () => {
       const features = await wallet.getFeatures()
       const { data: releases } = await axios.get<FirmwareReleases>(
-        getConfig().REACT_APP_KEEPKEY_VERSIONS_URL,
+        getConfig().VITE_KEEPKEY_VERSIONS_URL,
         {
           headers: {
             Accept: 'application/json',

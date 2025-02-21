@@ -1,21 +1,25 @@
 import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
 import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata, TypedDataTypes, UnsignedOrderCreation } from '@shapeshiftoss/types'
-import { CowNetwork, KnownChainIds, TypedDataPrimaryType } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE, fromChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { EvmChainAdapter, SignTypedDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import { toAddressNList } from '@shapeshiftmonorepo/chain-adapters'
+import type {
+  AccountMetadata,
+  TypedDataTypes,
+  UnsignedOrderCreation,
+} from '@shapeshiftmonorepo/types'
+import { CowNetwork, KnownChainIds, TypedDataPrimaryType } from '@shapeshiftmonorepo/types'
 import {
   bnOrZero,
   convertDecimalPercentageToBasisPoints,
   getNativeFeeAssetReference,
-} from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/utils'
+import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TypedData } from 'eip-712'
-import type { TypedDataDomain } from 'ethers'
-import { ethers } from 'ethers'
+import type { TypedDataDomain } from 'ethers6'
+import { ethers } from 'ethers6'
 import type { Address } from 'viem'
 import { keccak256, stringToBytes } from 'viem'
 

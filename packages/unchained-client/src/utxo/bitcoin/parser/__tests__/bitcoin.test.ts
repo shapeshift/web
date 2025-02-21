@@ -1,4 +1,4 @@
-import { btcAssetId, btcChainId } from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade } from '../../../../types'

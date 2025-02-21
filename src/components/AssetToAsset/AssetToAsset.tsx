@@ -1,10 +1,11 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Circle, Divider, Flex, Spinner, useColorModeValue } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
+
+import { AssetIcon } from '@/components/AssetIcon'
 
 type AssetToAssetProps = {
   buyIcon: string

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   adapters,
   baseAssetId,
@@ -13,7 +13,7 @@ import {
   polygonAssetId,
   solAssetId,
   thorchainAssetId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 
 export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, AssetId>> = {
   bitcoin: btcAssetId,

@@ -1,14 +1,13 @@
 import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftmonorepo/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
   UtxoChainAdapter,
-} from '@shapeshiftoss/chain-adapters'
-import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
-import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftmonorepo/chain-adapters'
+import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftmonorepo/chain-adapters/dist/solana/SolanaChainAdapter'
 import type {
   AccountMetadata,
   Asset,
@@ -20,8 +19,9 @@ import type {
   PartialRecord,
   UtxoAccountType,
   UtxoChainId,
-} from '@shapeshiftoss/types'
-import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+} from '@shapeshiftmonorepo/types'
+import type { evm, TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
@@ -33,28 +33,28 @@ import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
-  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
-  REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
-  REACT_APP_THORCHAIN_NODE_URL: string
-  REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
-  REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
-  REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
-  REACT_APP_MIDGARD_URL: string
-  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: string
-  REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: string
-  REACT_APP_UNCHAINED_LITECOIN_HTTP_URL: string
-  REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: string
-  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: string
-  REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
-  REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
-  REACT_APP_UNCHAINED_BASE_HTTP_URL: string
-  REACT_APP_COWSWAP_BASE_URL: string
-  REACT_APP_PORTALS_BASE_URL: string
-  REACT_APP_ZRX_BASE_URL: string
-  REACT_APP_CHAINFLIP_API_KEY: string
-  REACT_APP_CHAINFLIP_API_URL: string
-  REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA: boolean
-  REACT_APP_JUPITER_API_URL: string
+  VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
+  VITE_UNCHAINED_COSMOS_HTTP_URL: string
+  VITE_THORCHAIN_NODE_URL: string
+  VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
+  VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
+  VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
+  VITE_MIDGARD_URL: string
+  VITE_UNCHAINED_BITCOIN_HTTP_URL: string
+  VITE_UNCHAINED_DOGECOIN_HTTP_URL: string
+  VITE_UNCHAINED_LITECOIN_HTTP_URL: string
+  VITE_UNCHAINED_BITCOINCASH_HTTP_URL: string
+  VITE_UNCHAINED_ETHEREUM_HTTP_URL: string
+  VITE_UNCHAINED_AVALANCHE_HTTP_URL: string
+  VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
+  VITE_UNCHAINED_BASE_HTTP_URL: string
+  VITE_COWSWAP_BASE_URL: string
+  VITE_PORTALS_BASE_URL: string
+  VITE_ZRX_BASE_URL: string
+  VITE_CHAINFLIP_API_KEY: string
+  VITE_CHAINFLIP_API_URL: string
+  VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
+  VITE_JUPITER_API_URL: string
 }
 
 export enum SwapperName {

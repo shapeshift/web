@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
-import { ethers } from 'ethers'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { toAssetId } from '@shapeshiftmonorepo/caip'
+import { ethers } from 'ethers6'
 import { erc20Abi } from 'viem'
 
 import type { BaseTxMetadata } from '../../types'

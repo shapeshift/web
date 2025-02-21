@@ -1,4 +1,4 @@
-import { bn, convertPrecision, fromBaseUnit } from '@shapeshiftoss/utils'
+import { bn, convertPrecision, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'

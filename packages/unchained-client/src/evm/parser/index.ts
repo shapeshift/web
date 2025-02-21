@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import {
   ASSET_NAMESPACE,
   ASSET_REFERENCE,
@@ -6,9 +6,9 @@ import {
   optimismChainId,
   polygonChainId,
   toAssetId,
-} from '@shapeshiftoss/caip'
+} from '@shapeshiftmonorepo/caip'
 import { BigNumber } from 'bignumber.js'
-import { getAddress, JsonRpcProvider } from 'ethers'
+import { getAddress, JsonRpcProvider } from 'ethers6'
 
 import type { Token, TxStatus } from '../../types'
 import { TransferType } from '../../types'

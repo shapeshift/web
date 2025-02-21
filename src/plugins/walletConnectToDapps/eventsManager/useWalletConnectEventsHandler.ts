@@ -1,17 +1,18 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
+import { useCallback } from 'react'
+
 import type {
   SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/types'
+} from '@/plugins/walletConnectToDapps/types'
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
-} from 'plugins/walletConnectToDapps/types'
-import { useCallback } from 'react'
+} from '@/plugins/walletConnectToDapps/types'
 
 export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],

@@ -1,12 +1,13 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
-import { SolanaLogsError } from '@shapeshiftoss/swapper'
+import { ChainAdapterError } from '@shapeshiftmonorepo/chain-adapters'
+import { SolanaLogsError } from '@shapeshiftmonorepo/swapper'
 import camelCase from 'lodash/camelCase'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { RawText } from 'components/Text'
+
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { RawText } from '@/components/Text'
 
 const defaultErrorMsgTranslation = 'common.generalError'
 

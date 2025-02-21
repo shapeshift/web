@@ -1,14 +1,11 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
-import type { Account } from '@shapeshiftoss/chain-adapters'
-import type { Asset, CosmosSdkChainId, MarketData } from '@shapeshiftoss/types'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { cosmosChainId, fromAccountId, toAccountId } from '@shapeshiftmonorepo/caip'
+import type { Account } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset, CosmosSdkChainId, MarketData } from '@shapeshiftmonorepo/types'
 import dayjs from 'dayjs'
 import flatMapDeep from 'lodash/flatMapDeep'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 
 import type {
   OpportunitiesState,
@@ -21,6 +18,10 @@ import type {
 import { serializeUserStakingId, supportsUndelegations, toValidatorId } from '../../utils'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'
 import type { UserUndelegation } from './types'
+
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
 
 export const makeUniqueValidatorAccountIds = ({
   cosmosSdkAccounts,

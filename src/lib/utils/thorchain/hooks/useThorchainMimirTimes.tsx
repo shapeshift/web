@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { reactQueries } from 'react-queries'
 
 import { thorchainBlockTimeMs } from '../constants'
 import { selectLiquidityLockupTime, selectRunePoolMaturityTime } from '../selectors'
+
+import { reactQueries } from '@/react-queries'
 
 export const useThorchainMimirTimes = () => {
   return useQuery({

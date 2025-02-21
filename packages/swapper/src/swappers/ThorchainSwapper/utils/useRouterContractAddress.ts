@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 
 import { getInboundAddressDataForChain } from '../../../thorchain-utils'
@@ -14,7 +14,7 @@ export const fetchRouterContractAddress = async (
   excludeHalted: boolean,
   config: SwapperConfig,
 ) => {
-  const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const maybeInboundAddressData = await getInboundAddressDataForChain(
     daemonUrl,
     assetId,

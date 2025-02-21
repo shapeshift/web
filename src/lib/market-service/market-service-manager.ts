@@ -1,15 +1,13 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { isNft } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
-import type { ethers } from 'ethers'
-import type { AssetService } from 'lib/asset-service'
-import { getAssetService } from 'lib/asset-service'
+} from '@shapeshiftmonorepo/types'
+import type { ethers } from 'ethers6'
 
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
@@ -18,6 +16,9 @@ import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
 import { PortalsMarketService } from './portals/portals'
 import { ZerionMarketService } from './zerion/zerion'
+
+import type { AssetService } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 

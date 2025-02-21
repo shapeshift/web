@@ -1,12 +1,13 @@
 import { createContext, lazy } from 'react'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
 
 import { CLOSE_MODAL, OPEN_MODAL } from './constants'
 import type { ModalActions, ModalContextType, Modals, ModalState } from './types'
 
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
+
 const ReceiveModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/Receive/Receive').then(({ ReceiveModal }) => ({
+    import('@/components/Modals/Receive/Receive').then(({ ReceiveModal }) => ({
       default: ReceiveModal,
     })),
   ),
@@ -14,7 +15,7 @@ const ReceiveModal = makeSuspenseful(
 
 const QrCodeModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/QrCode/QrCode').then(({ QrCodeModal }) => ({
+    import('@/components/Modals/QrCode/QrCode').then(({ QrCodeModal }) => ({
       default: QrCodeModal,
     })),
   ),
@@ -22,7 +23,7 @@ const QrCodeModal = makeSuspenseful(
 
 const SendModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/Send/Send').then(({ SendModal }) => ({
+    import('@/components/Modals/Send/Send').then(({ SendModal }) => ({
       default: SendModal,
     })),
   ),
@@ -30,7 +31,7 @@ const SendModal = makeSuspenseful(
 
 const PopupWindowModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/PopupWindowModal').then(({ PopupWindowModal }) => ({
+    import('@/components/Modals/PopupWindowModal').then(({ PopupWindowModal }) => ({
       default: PopupWindowModal,
     })),
   ),
@@ -38,7 +39,7 @@ const PopupWindowModal = makeSuspenseful(
 
 const FiatRampsModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/FiatRamps/FiatRampsModal').then(({ FiatRampsModal }) => ({
+    import('@/components/Modals/FiatRamps/FiatRampsModal').then(({ FiatRampsModal }) => ({
       default: FiatRampsModal,
     })),
   ),
@@ -46,7 +47,7 @@ const FiatRampsModal = makeSuspenseful(
 
 const SettingsModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/Settings/Settings').then(({ SettingsModal }) => ({
+    import('@/components/Modals/Settings/Settings').then(({ SettingsModal }) => ({
       default: SettingsModal,
     })),
   ),
@@ -54,7 +55,7 @@ const SettingsModal = makeSuspenseful(
 
 const WipeModal = makeSuspenseful(
   lazy(() =>
-    import('components/Layout/Header/NavBar/KeepKey/Modals/Wipe').then(({ WipeModal }) => ({
+    import('@/components/Layout/Header/NavBar/KeepKey/Modals/Wipe').then(({ WipeModal }) => ({
       default: WipeModal,
     })),
   ),
@@ -63,7 +64,7 @@ const WipeModal = makeSuspenseful(
 const BackupPassphraseModal = makeSuspenseful(
   lazy(() =>
     import(
-      'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
+      '@/components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
     ).then(({ BackupPassphraseModal }) => ({
       default: BackupPassphraseModal,
     })),
@@ -72,15 +73,17 @@ const BackupPassphraseModal = makeSuspenseful(
 
 const MobileWelcomeModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/MobileWelcome/MobileWelcomeModal').then(({ MobileWelcomeModal }) => ({
-      default: MobileWelcomeModal,
-    })),
+    import('@/components/Modals/MobileWelcome/MobileWelcomeModal').then(
+      ({ MobileWelcomeModal }) => ({
+        default: MobileWelcomeModal,
+      }),
+    ),
   ),
 )
 
 const AddAccountModal = makeSuspenseful(
   lazy(() =>
-    import('pages/Accounts/AddAccountModal').then(({ AddAccountModal }) => ({
+    import('@/pages/Accounts/AddAccountModal').then(({ AddAccountModal }) => ({
       default: AddAccountModal,
     })),
   ),
@@ -88,7 +91,7 @@ const AddAccountModal = makeSuspenseful(
 
 const AssetSearchModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/AssetSearch/AssetSearchModal').then(({ AssetSearchModal }) => ({
+    import('@/components/Modals/AssetSearch/AssetSearchModal').then(({ AssetSearchModal }) => ({
       default: AssetSearchModal,
     })),
   ),
@@ -96,7 +99,7 @@ const AssetSearchModal = makeSuspenseful(
 
 const BuyAssetSearchModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/AssetSearch/AssetSearchModal').then(({ BuyAssetSearchModal }) => ({
+    import('@/components/Modals/AssetSearch/AssetSearchModal').then(({ BuyAssetSearchModal }) => ({
       default: BuyAssetSearchModal,
     })),
   ),
@@ -104,7 +107,7 @@ const BuyAssetSearchModal = makeSuspenseful(
 
 const SellAssetSearchModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/AssetSearch/AssetSearchModal').then(({ SellAssetSearchModal }) => ({
+    import('@/components/Modals/AssetSearch/AssetSearchModal').then(({ SellAssetSearchModal }) => ({
       default: SellAssetSearchModal,
     })),
   ),
@@ -112,7 +115,7 @@ const SellAssetSearchModal = makeSuspenseful(
 
 const BuyTradeAssetSearchModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
+    import('@/components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
       ({ BuyTradeAssetSearchModal }) => ({
         default: BuyTradeAssetSearchModal,
       }),
@@ -122,7 +125,7 @@ const BuyTradeAssetSearchModal = makeSuspenseful(
 
 const SellTradeAssetSearchModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
+    import('@/components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
       ({ SellTradeAssetSearchModal }) => ({
         default: SellTradeAssetSearchModal,
       }),
@@ -132,15 +135,17 @@ const SellTradeAssetSearchModal = makeSuspenseful(
 
 const NativeOnboarding = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/NativeOnboarding/NativeOnboarding').then(({ NativeOnboarding }) => ({
-      default: NativeOnboarding,
-    })),
+    import('@/components/Modals/NativeOnboarding/NativeOnboarding').then(
+      ({ NativeOnboarding }) => ({
+        default: NativeOnboarding,
+      }),
+    ),
   ),
 )
 
 const NftModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/Nfts/NftModal').then(({ NftModal }) => ({
+    import('@/components/Modals/Nfts/NftModal').then(({ NftModal }) => ({
       default: NftModal,
     })),
   ),
@@ -148,7 +153,7 @@ const NftModal = makeSuspenseful(
 
 const RateChangedModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/RateChanged/RateChanged').then(({ RateChangedModal }) => ({
+    import('@/components/Modals/RateChanged/RateChanged').then(({ RateChangedModal }) => ({
       default: RateChangedModal,
     })),
   ),
@@ -156,15 +161,17 @@ const RateChangedModal = makeSuspenseful(
 
 const FeedbackAndSupport = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/FeedbackSupport/FeedbackSupport').then(({ FeedbackAndSupport }) => ({
-      default: FeedbackAndSupport,
-    })),
+    import('@/components/Modals/FeedbackSupport/FeedbackSupport').then(
+      ({ FeedbackAndSupport }) => ({
+        default: FeedbackAndSupport,
+      }),
+    ),
   ),
 )
 
 const Snaps = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/Snaps/Snaps').then(({ Snaps }) => ({
+    import('@/components/Modals/Snaps/Snaps').then(({ Snaps }) => ({
       default: Snaps,
     })),
   ),
@@ -172,7 +179,7 @@ const Snaps = makeSuspenseful(
 
 const ManageAccountsModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/ManageAccounts/ManageAccountsModal').then(
+    import('@/components/Modals/ManageAccounts/ManageAccountsModal').then(
       ({ ManageAccountsModal }) => ({
         default: ManageAccountsModal,
       }),
@@ -182,9 +189,11 @@ const ManageAccountsModal = makeSuspenseful(
 
 const LedgerOpenAppModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/LedgerOpenApp/LedgerOpenAppModal').then(({ LedgerOpenAppModal }) => ({
-      default: LedgerOpenAppModal,
-    })),
+    import('@/components/Modals/LedgerOpenApp/LedgerOpenAppModal').then(
+      ({ LedgerOpenAppModal }) => ({
+        default: LedgerOpenAppModal,
+      }),
+    ),
   ),
 )
 

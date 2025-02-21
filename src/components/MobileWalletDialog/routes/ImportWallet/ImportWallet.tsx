@@ -3,18 +3,19 @@ import { Button, HStack, Stack, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { FaFile, FaKey } from 'react-icons/fa'
 import { useHistory } from 'react-router'
-import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
+
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
+} from '@/components/Modal/components/DialogHeader'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 

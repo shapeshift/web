@@ -1,7 +1,8 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { bn } from '@shapeshiftmonorepo/chain-adapters'
 import { useMemo } from 'react'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
+
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
 
 export type UseIsApprovalRequiredProps = {
   assetId?: AssetId

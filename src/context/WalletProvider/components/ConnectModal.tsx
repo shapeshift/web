@@ -9,7 +9,8 @@ import {
 } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { ReactNode } from 'react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 export type ConnectModalProps = {
   headerText: string | [string, InterpolationOptions]

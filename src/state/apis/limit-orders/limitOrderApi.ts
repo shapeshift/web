@@ -1,7 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import {
   assertGetCowNetwork,
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -10,8 +9,8 @@ import {
   signCowMessage,
   signCowOrder,
   signCowOrderCancellation,
-} from '@shapeshiftoss/swapper'
-import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
+} from '@shapeshiftmonorepo/swapper'
+import { isNativeEvmAsset } from '@shapeshiftmonorepo/swapper/dist/swappers/utils/helpers/helpers'
 import type {
   CowSwapError,
   Order,
@@ -23,7 +22,7 @@ import type {
   OrderStatus,
   QuoteId,
   Trade,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
 import {
   EcdsaSigningScheme,
   OrderClass,
@@ -31,19 +30,21 @@ import {
   PriceQuality,
   SellTokenSource,
   SigningScheme,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
-import { getConfig } from 'config'
 import type { TypedData } from 'eip-712'
 import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import type { ReduxState } from 'state/reducer'
-import { selectConfirmedLimitOrder } from 'state/slices/limitOrderSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+
+import { getConfig } from '@/config'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import type { ReduxState } from '@/state/reducer'
+import { selectConfirmedLimitOrder } from '@/state/slices/limitOrderSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 
 export type LimitOrderQuoteParams = {
   sellAssetId: AssetId
@@ -74,7 +75,7 @@ export const limitOrderApi = createApi({
           recipientAddress,
         } = params
         const config = getConfig()
-        const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+        const baseUrl = config.VITE_COWSWAP_BASE_URL
         const network = assertGetCowNetwork(chainId)
 
         // Limit orders request 0 slippage.
@@ -158,7 +159,7 @@ export const limitOrderApi = createApi({
         const limitOrder: OrderCreation = { ...unsignedOrderCreation, signature }
 
         const config = getConfig()
-        const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+        const baseUrl = config.VITE_COWSWAP_BASE_URL
         const network = assertGetCowNetwork(chainId)
 
         try {
@@ -190,7 +191,7 @@ export const limitOrderApi = createApi({
       queryFn: async ({ accountId, order, wallet }, { getState }) => {
         const state = getState() as ReduxState
         const config = getConfig()
-        const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+        const baseUrl = config.VITE_COWSWAP_BASE_URL
         const { chainId } = fromAccountId(accountId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 
@@ -225,7 +226,7 @@ export const limitOrderApi = createApi({
     getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({
       queryFn: async ({ orderId, chainId }) => {
         const config = getConfig()
-        const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+        const baseUrl = config.VITE_COWSWAP_BASE_URL
         const network = assertGetCowNetwork(chainId)
         const result = await axios.get<OrderStatus>(
           `${baseUrl}/${network}/api/v1/orders/${orderId}/status`,
@@ -236,7 +237,7 @@ export const limitOrderApi = createApi({
     getTrades: build.query<Trade[], { chainId: ChainId } & { owner: string }>({
       queryFn: async ({ owner, chainId }) => {
         const config = getConfig()
-        const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+        const baseUrl = config.VITE_COWSWAP_BASE_URL
         const network = assertGetCowNetwork(chainId)
         const result = await axios.get<Trade[]>(
           `${baseUrl}/${network}/api/v1/trades?owner=${owner}`,

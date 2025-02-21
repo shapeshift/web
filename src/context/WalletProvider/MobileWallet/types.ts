@@ -1,10 +1,11 @@
 import type { crypto } from '@shapeshiftoss/hdwallet-native'
 import type React from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
-import type { ActionTypes } from 'context/WalletProvider/actions'
 
 import type { NativeWalletValues } from '../NativeWallet/types'
 import type { RevocableWallet } from './RevocableWallet'
+
+import type { ActionTypes } from '@/context/WalletProvider/actions'
 
 export type { NativeWalletValues }
 

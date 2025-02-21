@@ -1,20 +1,21 @@
 import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import { useCallback, useEffect } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { RewardsIcon } from 'components/Icons/RewardsIcon'
-import { SwapIcon } from 'components/Icons/SwapIcon'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { RewardsIcon } from '@/components/Icons/RewardsIcon'
+import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapIcon = <SwapIcon />
 const rewardsIcon = <RewardsIcon />

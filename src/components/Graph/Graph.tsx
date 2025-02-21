@@ -3,9 +3,10 @@ import { ParentSize } from '@visx/responsive'
 import type { ParentSizeProvidedProps } from '@visx/responsive/lib/components/ParentSize'
 import { isEmpty } from 'lodash'
 import { lazy, Suspense, useCallback } from 'react'
-import type { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
+
+import type { BalanceChartData } from '@/hooks/useBalanceChartData/useBalanceChartData'
 
 const RainbowChart = lazy(() =>
   import('./RainbowChart/RainbowChart').then(({ RainbowChart }) => ({ default: RainbowChart })),

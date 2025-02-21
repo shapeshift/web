@@ -82,9 +82,9 @@ export async function unregister() {
  * Register the service worker
  */
 export function register(callbacks?: ServiceWorkerCallbacks) {
-  // @TODO: process.env.NODE_ENV === 'production'
+  // @TODO: import.meta.env.NODE_ENV === 'production'
   if ('serviceWorker' in navigator) {
-    const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href)
+    const publicUrl = new URL(import.meta.env.PUBLIC_URL, window.location.href)
 
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
@@ -94,7 +94,7 @@ export function register(callbacks?: ServiceWorkerCallbacks) {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`
+      const swUrl = `${import.meta.env.PUBLIC_URL}/service-worker.js`
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
         void checkValidServiceWorker(swUrl, callbacks)

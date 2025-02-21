@@ -1,4 +1,4 @@
-import { THORCHAIN_ROUTER_ABI } from '@shapeshiftoss/contracts'
+import { THORCHAIN_ROUTER_ABI } from '@shapeshiftmonorepo/contracts'
 import type { Address } from 'viem'
 import { encodeFunctionData } from 'viem'
 

@@ -3,11 +3,12 @@ import { Box, Container, HStack, Stack } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { memo, useEffect, useRef, useState } from 'react'
-import { Breadcrumbs } from 'components/Breadcrumbs/Breadcrumbs'
-import { NestedMenu } from 'components/NestedMenu/NestedMenu'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { Page } from './Page'
+
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
+import { NestedMenu } from '@/components/NestedMenu/NestedMenu'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 const contentPaddingX = { base: 0, xl: 4, '2xl': 8 }
 

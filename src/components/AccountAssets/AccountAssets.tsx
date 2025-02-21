@@ -1,11 +1,12 @@
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { Text } from 'components/Text'
-import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftmonorepo/caip'
 
 import { AccountAssetsList } from './AccountAssetsList'
+
+import { Text } from '@/components/Text'
+import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AccountAssetsProps = {
   assetId: AssetId

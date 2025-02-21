@@ -1,20 +1,21 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftmonorepo/contracts'
 import {
   ContractType,
   getOrCreateContractByType,
   viemEthMainnetClient,
-} from '@shapeshiftoss/contracts'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/contracts'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'
 import type { GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, parseAbiItem } from 'viem'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { TRADING_FEE_RATE } from './constants'
+
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const getToken0Volume24Hr = async ({
   blockNumber,

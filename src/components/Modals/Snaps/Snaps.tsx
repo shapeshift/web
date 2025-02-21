@@ -1,9 +1,10 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
 
 import { SnapContent } from './SnapContent'
+
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
 
 export type SnapsModalProps = {
   isRemoved?: boolean

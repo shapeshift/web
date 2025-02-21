@@ -1,8 +1,8 @@
 // Wallets relating to the ShapeShift DAO Treasury
 // https://forum.shapeshift.com/thread/dao-treasuries-and-multisigs-43646
 
-import type { ChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 
 export const evmTreasuryChainIds = [
   KnownChainIds.EthereumMainnet,

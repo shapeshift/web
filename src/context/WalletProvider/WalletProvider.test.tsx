@@ -3,14 +3,15 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { act, renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
-import { TestProviders } from 'test/TestProviders'
 import { describe, expect, it, vi } from 'vitest'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
 import { WalletProvider } from './WalletProvider'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { TestProviders } from '@/test/TestProviders'
 
 vi.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   WebUSBKeepKeyAdapter: {

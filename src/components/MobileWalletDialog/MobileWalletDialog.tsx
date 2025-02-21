@@ -1,6 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
 import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
-import { Dialog } from 'components/Modal/components/Dialog'
 
 import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
@@ -9,6 +8,8 @@ import { ManualBackup } from './routes/ManualBackup/ManualBackup'
 import { RenameWallet } from './routes/RenameWallet'
 import { SavedWallets } from './routes/SavedWallets'
 import { MobileWalletDialogRoutes } from './types'
+
+import { Dialog } from '@/components/Modal/components/Dialog'
 
 type MobileWalletDialogProps = {
   isOpen: boolean

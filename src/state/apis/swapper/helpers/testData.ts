@@ -1,5 +1,5 @@
-import type { TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { TradeQuote } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
 
 export const lifiQuote: TradeQuote = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',

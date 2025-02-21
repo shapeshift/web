@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 import { getInboundAddressDataForChain } from '../../../../thorchain-utils'
 import type { SwapperConfig } from '../../../../types'
@@ -21,7 +21,7 @@ export const getThorTxInfo = async ({
   memo,
   config,
 }: GetThorTxInfoArgs): GetThorTxInfoReturn => {
-  const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const maybeInboundAddress = await getInboundAddressDataForChain(
     daemonUrl,
     sellAsset.assetId,

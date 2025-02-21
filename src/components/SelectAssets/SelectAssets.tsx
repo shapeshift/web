@@ -1,17 +1,18 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
+} from '@/components/Modal/components/DialogHeader'
+import { TradeAssetSearch } from '@/components/TradeAssetSearch/TradeAssetSearch'
 
 type SelectAssetsProps = {
   onClick(assetId: AssetId): void

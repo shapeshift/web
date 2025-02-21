@@ -1,15 +1,9 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { getConfig } from 'config'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
-import { selectAssetById } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import type {
   Borrower,
@@ -20,6 +14,13 @@ import type {
   LendingWithdrawQuoteResponse,
   LendingWithdrawQuoteResponseSuccess,
 } from './types'
+
+import { getConfig } from '@/config'
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getAccountAddresses, toThorBaseUnit } from '@/lib/utils/thorchain'
+import { selectAssetById } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
 // but we might need e.g min_out and affiliate_bps
@@ -48,11 +49,11 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   const to_asset = assetIdToPoolAssetId({ assetId: receiveAssetId })
   if (!to_asset) return Err(`Pool asset not found for assetId ${receiveAssetId}`)
 
-  const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
-  if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
+  const { VITE_THORCHAIN_NODE_URL } = getConfig()
+  if (!VITE_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
   const url =
-    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
+    `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
@@ -92,11 +93,11 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   const to_asset = assetIdToPoolAssetId({ assetId: collateralAssetId })
   if (!to_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
 
-  const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
-  if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
+  const { VITE_THORCHAIN_NODE_URL } = getConfig()
+  if (!VITE_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
   const url =
-    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
+    `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
@@ -120,7 +121,7 @@ export const getAllThorchainLendingPositions = async (
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
   const { data } = await axios.get<BorrowersResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}/borrowers`,
+    `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}/borrowers`,
   )
 
   if (!data || 'error' in data) return []
@@ -149,9 +150,9 @@ export const getThorchainLendingPosition = async ({
   return accountPosition || null
 }
 export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePoolResponse> => {
-  const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
+  const { VITE_THORCHAIN_NODE_URL } = getConfig()
 
-  if (!REACT_APP_THORCHAIN_NODE_URL) {
+  if (!VITE_THORCHAIN_NODE_URL) {
     throw new Error('THORChain node URL is not configured')
   }
 
@@ -159,7 +160,7 @@ export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePo
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
   const { data } = await axios.get<ThornodePoolResponse>(
-    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+    `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
   )
 
   if (!data) {

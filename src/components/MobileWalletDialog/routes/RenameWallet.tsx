@@ -3,19 +3,19 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderMiddle,
-} from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { updateWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
+} from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { updateWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 import { MobileWalletDialogRoutes } from '../types'
 

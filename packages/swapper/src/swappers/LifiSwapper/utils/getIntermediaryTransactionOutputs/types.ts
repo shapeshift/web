@@ -1,5 +1,5 @@
 import type { LiFiStep, Step } from '@lifi/types'
-import type { DeepPick } from '@shapeshiftoss/types'
+import type { DeepPick } from '@shapeshiftmonorepo/types'
 
 export type LifiStepSubset = Pick<LiFiStep, 'type'> & { includedSteps: OtherStepSubset[] }
 export type OtherStepSubset = DeepPick<Step, 'type' | 'estimate.toAmountMin' | 'action.toToken'>

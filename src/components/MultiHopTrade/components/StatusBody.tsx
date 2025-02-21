@@ -1,11 +1,12 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Center, Heading, Stack } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { SlideTransitionY } from 'components/SlideTransitionY'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { SlideTransitionY } from '@/components/SlideTransitionY'
 
 type StatusBodyProps = {
   txStatus: TxStatus

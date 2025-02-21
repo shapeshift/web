@@ -1,5 +1,5 @@
 import { Card, Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import React from 'react'
 
 import { FoxWifHatClaim } from './FoxWifHatClaim/FoxWifHatClaim'

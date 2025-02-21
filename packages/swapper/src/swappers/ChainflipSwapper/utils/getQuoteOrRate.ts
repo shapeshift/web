@@ -1,8 +1,8 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftmonorepo/caip'
+import type { GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { assertUnreachable, bnOrZero, toBaseUnit } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -97,8 +97,8 @@ export const getQuoteOrRate = async (
     )
   }
 
-  const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
+  const apiKey = deps.config.VITE_CHAINFLIP_API_KEY
 
   const sourceAsset = await getChainFlipIdFromAssetId({
     assetId: sellAsset.assetId,
@@ -285,7 +285,7 @@ export const getQuoteOrRate = async (
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
 
-    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA) continue
+    if (isStreaming && !deps.config.VITE_FEATURE_CHAINFLIP_SWAP_DCA) continue
 
     const feeData = await getFeeData()
 

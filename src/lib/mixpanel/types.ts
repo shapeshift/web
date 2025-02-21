@@ -1,10 +1,11 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type Mixpanel from 'mixpanel-browser'
+
 import type {
   LpEarnOpportunityType,
   OpportunityMetadata,
   StakingEarnOpportunityType,
-} from 'state/slices/opportunitiesSlice/types'
+} from '@/state/slices/opportunitiesSlice/types'
 
 export type MixPanelType = typeof Mixpanel
 

@@ -1,15 +1,16 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, forwardRef, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
-import { TradeType } from '@shapeshiftoss/unchained-client'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { TradeType } from '@shapeshiftmonorepo/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo, useState } from 'react'
-import { TransactionCommon } from 'components/TransactionHistoryRows/TransactionCommon'
-import { TransactionMethod } from 'components/TransactionHistoryRows/TransactionMethod'
-import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
-import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+
+import { TransactionCommon } from '@/components/TransactionHistoryRows/TransactionCommon'
+import { TransactionMethod } from '@/components/TransactionHistoryRows/TransactionMethod'
+import { TransactionTrade } from '@/components/TransactionHistoryRows/TransactionTrade'
+import type { TxDetails } from '@/hooks/useTxDetails/useTxDetails'
+import { useTxDetails } from '@/hooks/useTxDetails/useTxDetails'
 
 dayjs.extend(relativeTime)
 

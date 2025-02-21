@@ -3,8 +3,8 @@ import { Button, HStack, ModalBody, ModalHeader, Stack, VStack } from '@chakra-u
 import { useCallback } from 'react'
 import { FaFile, FaKey } from 'react-icons/fa'
 import type { RouteComponentProps } from 'react-router'
-import { Text } from 'components/Text'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
+import { Text } from '@/components/Text'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 

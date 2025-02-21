@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/types",
+  "name": "@shapeshiftmonorepo/types",
   "version": "8.6.0",
   "description": "Common types shared across packages",
   "repository": "https://github.com/shapeshift/web",
@@ -18,6 +18,6 @@
     "dev": "yarn run -T tsc --build --watch"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftmonorepo/caip": "workspace:^"
   }
 }

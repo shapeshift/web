@@ -2,9 +2,10 @@ import { Box, Checkbox, Link } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AcknowledgementProps } from 'components/Acknowledgement/Acknowledgement'
-import { Acknowledgement } from 'components/Acknowledgement/Acknowledgement'
-import { RawText } from 'components/Text/Text'
+
+import type { AcknowledgementProps } from '@/components/Acknowledgement/Acknowledgement'
+import { Acknowledgement } from '@/components/Acknowledgement/Acknowledgement'
+import { RawText } from '@/components/Text/Text'
 
 type ArbitrumAcknowledgementProps = Omit<AcknowledgementProps, 'message'>
 

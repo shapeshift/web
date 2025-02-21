@@ -1,9 +1,10 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { SafeTxInfo } from '@shapeshiftoss/swapper'
-import { fetchSafeTransactionInfo } from '@shapeshiftoss/swapper'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { SafeTxInfo } from '@shapeshiftmonorepo/swapper'
+import { fetchSafeTransactionInfo } from '@shapeshiftmonorepo/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 
 type UseSafeTxQueryArgs = {
   accountId: AccountId | undefined

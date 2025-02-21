@@ -1,4 +1,4 @@
-import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
+import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/ManageAccountsMenuItem'
 
 type KeepKeyConnectedMenuItemsProps = {
   onClose?: () => void

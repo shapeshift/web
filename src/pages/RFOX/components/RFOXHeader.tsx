@@ -1,19 +1,20 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Display } from 'components/Display'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import { SEO } from 'components/Layout/Seo'
-import { Text } from 'components/Text'
-import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { Display } from '@/components/Display'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { SEO } from '@/components/Layout/Seo'
+import { Text } from '@/components/Text'
+import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const RFOXHeader = () => {
   const translate = useTranslate()

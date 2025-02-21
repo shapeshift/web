@@ -1,8 +1,9 @@
 import { Card, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { FormDivider } from 'components/FormDivider'
+import type { Asset } from '@shapeshiftmonorepo/types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { FormDivider } from '@/components/FormDivider'
 
 type AssetToAssetCardProps = {
   sellAsset: Asset | undefined

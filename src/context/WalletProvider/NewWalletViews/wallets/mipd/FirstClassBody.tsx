@@ -2,14 +2,15 @@ import { Alert, AlertDescription, AlertIcon, Button, Flex, Image, Spinner } from
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import type { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useMipdProviders } from 'lib/mipd'
 
 import { FIRST_CLASS_KEYMANAGER_TO_RDNS } from '../../constants'
+
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import type { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useMipdProviders } from '@/lib/mipd'
 
 const spinner = <Spinner color='white' />
 

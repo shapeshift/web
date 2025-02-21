@@ -1,7 +1,8 @@
 import type { ButtonGroupProps } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { memo } from 'react'
-import { Radio } from 'components/Radio/Radio'
+
+import { Radio } from '@/components/Radio/Radio'
 
 type TimeControlsProps = {
   onChange: (arg: HistoryTimeframe) => void

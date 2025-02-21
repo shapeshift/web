@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
 
 import {
   getMetadataResolversByDefiProviderAndDefiType,
@@ -23,6 +22,8 @@ import type {
 } from './types'
 import { DefiProvider } from './types'
 import { deserializeUserStakingId, opportunityIdToChainId } from './utils'
+
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 
 // tsc is drunk, extracting this makes it happy
 const getOpportunityIds = (

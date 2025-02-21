@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { viemClientByChainId } from '@shapeshiftoss/contracts'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import { viemClientByChainId } from '@shapeshiftmonorepo/contracts'
 import { getAddress, isAddress } from 'viem'
 
 export const isEthAddress = (address: string): boolean => /^0x[0-9A-Fa-f]{40}$/.test(address)

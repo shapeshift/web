@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 

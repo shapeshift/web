@@ -1,9 +1,10 @@
 import { Card, Center } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useParams } from 'react-router'
-import { Main } from 'components/Layout/Main'
 
 import { AddLiquidity } from './components/AddLiquidity/AddLiquidity'
+
+import { Main } from '@/components/Layout/Main'
 
 type MatchParams = {
   poolAssetId?: string

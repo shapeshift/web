@@ -1,16 +1,17 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getUnstakingRequestCountQueryKey } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
-import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
-import { getStakingBalanceOfQueryKey } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { getStakingInfoQueryKey } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
+
+import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 

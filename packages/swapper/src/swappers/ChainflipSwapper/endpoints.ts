@@ -73,10 +73,12 @@ export const chainflipApi: SwapperApi = {
       chainSpecific: {
         gasLimit: fees.chainSpecific.gasLimit,
         contractAddress: isTokenSend ? assetReference : undefined,
-        ...(supportsEIP1559
+        ...(supportsEIP1559 &&
+        fees.chainSpecific.maxFeePerGas &&
+        fees.chainSpecific.maxPriorityFeePerGas
           ? {
-              maxFeePerGas: fees.chainSpecific.maxFeePerGas!,
-              maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas!,
+              maxFeePerGas: fees.chainSpecific.maxFeePerGas,
+              maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas,
             }
           : {
               gasPrice: fees.chainSpecific.gasPrice,
@@ -150,7 +152,7 @@ export const chainflipApi: SwapperApi = {
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub: xpub!,
+      xpub,
       to: step.chainflipSpecific.chainflipDepositAddress,
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
@@ -177,7 +179,7 @@ export const chainflipApi: SwapperApi = {
       to: step.chainflipSpecific.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
-        pubkey: xpub!,
+        pubkey: xpub,
       },
       sendMax: false,
     }

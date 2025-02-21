@@ -254,7 +254,8 @@ export const ConfirmSummary = ({
           tradeQuoteError.error === TradeQuoteError.FinalQuoteExecutionReverted):
         return 'trade.previewTrade'
       case !!tradeQuoteError:
-        return getQuoteErrorTranslation(tradeQuoteError!)
+        // TS pls
+        return tradeQuoteError ? getQuoteErrorTranslation(tradeQuoteError) : 'common.error'
       case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:
         return 'trade.noRateAvailable'
       case !isConnected || isDemoWallet:

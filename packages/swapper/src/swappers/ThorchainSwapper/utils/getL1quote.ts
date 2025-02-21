@@ -294,7 +294,7 @@ export const getL1Quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber: accountNumber!,
+                  accountNumber,
                   allowanceContract: router,
                   feeData: {
                     networkFeeCryptoBaseUnit,
@@ -360,7 +360,7 @@ export const getL1Quote = async (
 
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
-              xpub: (input as GetUtxoTradeQuoteInput).xpub!,
+              xpub: (input as GetUtxoTradeQuoteInput).xpub,
               memo,
               config: deps.config,
             })

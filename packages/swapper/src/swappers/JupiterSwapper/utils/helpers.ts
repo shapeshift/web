@@ -223,10 +223,10 @@ export const createSwapInstructions = async ({
     buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference
 
   const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
-    contractAddress && isCrossAccountTrade
+    contractAddress && isCrossAccountTrade && receiveAddress
       ? await adapter.createAssociatedTokenAccountInstruction({
           from: sendAddress,
-          to: receiveAddress!,
+          to: receiveAddress,
           tokenId: contractAddress,
         })
       : { instruction: undefined, destinationTokenAccount: undefined }
@@ -277,7 +277,7 @@ export const createSwapInstructions = async ({
   if (maybeSwapResponse.isErr()) {
     const error = maybeSwapResponse.unwrapErr()
     const cause = error.cause as AxiosError<any, any>
-    throw Error(cause.response!.data.detail)
+    throw Error(cause.response?.data.detail)
   }
 
   const { data: swapResponse } = maybeSwapResponse.unwrap()

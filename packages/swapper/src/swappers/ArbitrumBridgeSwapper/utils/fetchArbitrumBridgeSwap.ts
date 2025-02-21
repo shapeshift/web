@@ -99,8 +99,10 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
                 parentProvider,
                 childProvider,
                 amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-                from: sendAddress!,
-                destinationAddress: receiveAddress!,
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !sendAddress)` above
+                from: sendAddress ?? '',
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !receiveAddress)` above
+                destinationAddress: receiveAddress ?? '',
               })
               .catch(e => {
                 console.error('Error getting ETH deposit request', e)
@@ -125,8 +127,10 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
           ? await bridger
               .getWithdrawalRequest({
                 amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-                from: sendAddress!,
-                destinationAddress: receiveAddress!,
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !sendAddress)` above
+                from: sendAddress ?? '',
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !receiveAddress)` above
+                destinationAddress: receiveAddress ?? '',
               })
               .catch(e => {
                 console.error('Error getting ETH withdraw request', e)
@@ -159,8 +163,9 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
                 parentProvider,
                 childProvider,
                 erc20ParentAddress,
-                from: sendAddress!,
-                destinationAddress: receiveAddress!,
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !sendAddress)` above
+                from: sendAddress ?? '',
+                destinationAddress: receiveAddress,
                 retryableGasOverrides: {
                   // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L159
                   // the gas limit may vary by about 20k due to SSTORE (zero vs nonzero)
@@ -193,8 +198,10 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
               .getWithdrawalRequest({
                 amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
                 erc20ParentAddress,
-                from: sendAddress!,
-                destinationAddress: receiveAddress!,
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !sendAddress)` above
+                from: sendAddress ?? '',
+                // This is actually guarded against in if `(quoteOrRate === 'quote' && !receiveAddress)` above
+                destinationAddress: receiveAddress ?? '',
               })
               .catch(e => {
                 console.error('Error getting ERC20 withdraw request', e)

@@ -95,7 +95,11 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = tradeQuote.id
-      const firstHop = getHopByIndex(tradeQuote, 0)!
+      const firstHop = getHopByIndex(tradeQuote, 0)
+      if (!firstHop) {
+        console.error('No first hop found in trade quote')
+        return []
+      }
       tradeQuoteMetadata.set(id, {
         sellAssetId: firstHop.sellAsset.assetId,
         chainId: firstHop.sellAsset.chainId as EvmChainId,
@@ -111,7 +115,12 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     return tradeRateResult.map(tradeQuote => {
       const id = tradeQuote.id
-      const firstHop = getHopByIndex(tradeQuote, 0)!
+      const firstHop = getHopByIndex(tradeQuote, 0)
+      if (!firstHop) {
+        console.error('No first hop found in trade rate')
+        return []
+      }
+
       tradeQuoteMetadata.set(id, {
         sellAssetId: firstHop.sellAsset.assetId,
         chainId: firstHop.sellAsset.chainId as EvmChainId,

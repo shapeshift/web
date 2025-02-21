@@ -118,7 +118,17 @@ export const getL1ToLongtailQuote = async (
   const promises = await Promise.allSettled(
     thorchainQuotes.map(async quote => {
       // A quote always has a first step
-      const onlyStep = getHopByIndex(quote, 0)!
+      const onlyStep = getHopByIndex(quote, 0)
+
+      // Or well... it should.
+      if (!onlyStep) {
+        return Err(
+          makeSwapErrorRight({
+            message: `[getL1ToLongtailQuote] - First hop not found`,
+            code: TradeQuoteError.InternalError,
+          }),
+        )
+      }
 
       const maybeBestAggregator = await getBestAggregator(
         buyAssetFeeAsset,

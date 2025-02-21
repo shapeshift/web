@@ -44,9 +44,9 @@ export const cowApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       // A quote always has a first step
-      const firstStep = getHopByIndex(tradeQuote, 0)!
+      const firstStep = getHopByIndex(tradeQuote, 0)
       const id = uuid()
-      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, { chainId: firstStep?.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
     })
   },
@@ -58,9 +58,9 @@ export const cowApi: SwapperApi = {
 
     return tradeRateResult.map(tradeRate => {
       // A rate always has a first step
-      const firstStep = getHopByIndex(tradeRate, 0)!
+      const firstStep = getHopByIndex(tradeRate, 0)
       const id = uuid()
-      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, { chainId: firstStep?.sellAsset.chainId as EvmChainId })
       return [tradeRate]
     })
   },

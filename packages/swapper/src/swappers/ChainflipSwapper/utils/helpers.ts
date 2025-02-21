@@ -51,9 +51,11 @@ export const isSupportedAssetId = (
   chainId: ChainId,
   assetId: AssetId,
 ): chainId is ChainflipSupportedChainId => {
-  return ChainflipSupportedAssetIdsByChainId[chainId as ChainflipSupportedChainId]!.includes(
-    assetId,
-  )
+  const supportedAssetIds =
+    ChainflipSupportedAssetIdsByChainId[chainId as ChainflipSupportedChainId]
+  if (!supportedAssetIds) return false
+
+  return supportedAssetIds.includes(assetId)
 }
 
 export const calculateChainflipMinPrice = ({

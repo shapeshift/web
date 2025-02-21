@@ -103,11 +103,17 @@ type GetCommitMessagesReturn = {
 }
 type GetCommitMessages = (branch: GetCommitMessagesArgs) => Promise<GetCommitMessagesReturn>
 const getCommits: GetCommitMessages = async branch => {
+  // Get the last release tag
+  const latestTag = await getLatestSemverTag()
+
+  // If we have a last release tag, base the diff on that
+  const range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
+
   const { all, total } = await git().log([
     '--oneline',
     '--first-parent',
     '--pretty=format:%s', // no hash, just conventional commit style
-    `origin/main..origin/${branch}`,
+    range,
   ])
 
   const messages = all.map(({ hash }) => hash)

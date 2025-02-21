@@ -1,9 +1,17 @@
 import type { Csp } from '../../types'
 
+const REACT_APP_MTPELERIN_ASSETS_API = process.env.REACT_APP_MTPELERIN_ASSETS_API
+const REACT_APP_MTPELERIN_BUY_URL = process.env.REACT_APP_MTPELERIN_BUY_URL
+const REACT_APP_MTPELERIN_SELL_URL = process.env.REACT_APP_MTPELERIN_SELL_URL
+
+if (!REACT_APP_MTPELERIN_ASSETS_API) throw new Error('REACT_APP_MTPELERIN_ASSETS_API is required')
+if (!REACT_APP_MTPELERIN_BUY_URL) throw new Error('REACT_APP_MTPELERIN_BUY_URL is required')
+if (!REACT_APP_MTPELERIN_SELL_URL) throw new Error('REACT_APP_MTPELERIN_SELL_URL is required')
+
 export const csp: Csp = {
   'connect-src': [
-    process.env.REACT_APP_MTPELERIN_ASSETS_API!,
-    process.env.REACT_APP_MTPELERIN_BUY_URL!,
-    process.env.REACT_APP_MTPELERIN_SELL_URL!,
+    REACT_APP_MTPELERIN_ASSETS_API,
+    REACT_APP_MTPELERIN_BUY_URL,
+    REACT_APP_MTPELERIN_SELL_URL,
   ],
 }

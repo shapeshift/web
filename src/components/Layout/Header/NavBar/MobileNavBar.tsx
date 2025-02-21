@@ -15,6 +15,7 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import type { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import { SendIcon } from 'components/Icons/SendIcon'
@@ -141,14 +142,16 @@ export const MobileNavBar = memo(() => {
   const qrCode = useModal('qrCode')
   const { routes: pluginRoutes } = usePlugins()
   const history = useHistory()
-  const allRoutes = useMemo(
-    () =>
-      union(routes, pluginRoutes)
-        .filter(route => !route.disable && !route.hide && route.mobileNav)
-        // route mobileNav discriminated union narrowing is lost by the Array.prototype.sort() call
-        .sort((a, b) => bnOrZero(a.priority!).minus(b.priority!).toNumber()),
-    [pluginRoutes],
-  )
+  const allRoutes = useMemo(() => {
+    return union(routes, pluginRoutes)
+      .filter(
+        (
+          route,
+        ): route is Extract<Route, { priority: number }> & Extract<Route, { label: string }> =>
+          !route.disable && !route.hide && !!route.mobileNav,
+      )
+      .sort((a, b) => bnOrZero(a.priority).minus(b.priority).toNumber())
+  }, [pluginRoutes])
   useLayoutEffect(() => {
     const body = document.body
     const nav = document.querySelector('.mobile-nav')

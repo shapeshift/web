@@ -35,19 +35,20 @@ export const NavBar = (props: NavBarProps) => {
   const { pathname } = useLocation()
 
   const navItemGroups = useMemo(() => {
-    const allRoutes = union(routes, pluginRoutes).filter(route =>
-      isLargerThanMd
-        ? !route.disable && !route.hide && !route.hideDesktop
-        : !route.disable && !route.hide && !route.mobileNav,
-    )
-    const groups = allRoutes.reduce(
-      (entryMap, currentRoute) =>
-        entryMap.set(currentRoute.category, [
-          ...(entryMap.get(currentRoute.category) || []),
-          currentRoute,
-        ]),
-      new Map(),
-    )
+    const groups = union(routes, pluginRoutes)
+      .filter((route): route is Extract<Route, { label: string }> =>
+        isLargerThanMd
+          ? !route.disable && !route.hide && !route.hideDesktop
+          : !route.disable && !route.hide && !route.mobileNav,
+      )
+      .reduce(
+        (entryMap, currentRoute) =>
+          entryMap.set(currentRoute.category, [
+            ...(entryMap.get(currentRoute.category) || []),
+            currentRoute,
+          ]),
+        new Map<RouteCategory | undefined, Extract<Route, { label: string }>[]>(),
+      )
     return Array.from(groups.entries())
   }, [isLargerThanMd, pluginRoutes])
 
@@ -73,7 +74,7 @@ export const NavBar = (props: NavBarProps) => {
               translation={`navBar.${name}`}
             />
           )}
-          {values.map((item: Route, id: number) => (
+          {values.map((item, id) => (
             <MainNavLink
               isCompact={isCompact}
               as={ReactRouterLink}

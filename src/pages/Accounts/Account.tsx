@@ -7,8 +7,6 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountToken } from './AccountToken/AccountToken'
-import { AccountTokenTxHistory } from './AccountToken/AccountTokenTxHistory'
-import { AccountTxHistory } from './AccountTxHistory'
 
 export type MatchParams = {
   accountId: AccountId
@@ -30,14 +28,8 @@ export const Account = () => {
         <Route exact path={`${path}`}>
           <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
         </Route>
-        <Route exact path={`${path}/transactions`}>
-          <AccountTxHistory />
-        </Route>
         <Route exact path={`${path}/:assetId`}>
           <AccountToken />
-        </Route>
-        <Route exact path={`${path}/:assetId/transactions`}>
-          <AccountTokenTxHistory />
         </Route>
       </Switch>
     </Flex>

@@ -1,8 +1,8 @@
 import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
 import { cosmosChainId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 

@@ -12,11 +12,11 @@ import {
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { Property } from 'csstype'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

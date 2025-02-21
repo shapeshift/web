@@ -28,7 +28,7 @@ vi.mock('@shapeshiftmonorepo/chain-adapters')
 const mockedCowService = vi.mocked(cowService)
 
 const MOCK_COWSWAP_CONFIG = {
-  REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+  VITE_COWSWAP_BASE_URL: 'https://api.cow.fi',
 } as SwapperConfig
 
 const mocks = vi.hoisted(() => ({

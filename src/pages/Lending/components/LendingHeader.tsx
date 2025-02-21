@@ -14,7 +14,6 @@ import {
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 import { useIsLendingActive } from '../hooks/useIsLendingActive'
@@ -27,6 +26,7 @@ import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeade
 import type { TabItem } from '@/components/TabMenu/TabMenu'
 import { TabMenu } from '@/components/TabMenu/TabMenu'
 import { Text } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const responsiveFlex = { base: 'auto', lg: 1 }

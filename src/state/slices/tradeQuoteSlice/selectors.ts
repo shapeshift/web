@@ -15,8 +15,6 @@ import {
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
 import { selectIsWalletConnected, selectWalletConnectedChainIds } from '../common-selectors'
 import {
@@ -28,6 +26,8 @@ import { selectFeatureFlags } from '../preferencesSlice/selectors'
 import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'

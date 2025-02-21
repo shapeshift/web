@@ -9,18 +9,18 @@ import {
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'
-import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
-import {
-  resolveUnstoppableDomain,
-  reverseLookupUnstoppableDomain,
-  validateUnstoppableDomain,
-} from 'lib/address/unstoppable-domains'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { ensReverseLookupShim } from './ens'
 
 import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
+import {
+  resolveUnstoppableDomain,
+  reverseLookupUnstoppableDomain,
+  validateUnstoppableDomain,
+} from '@/lib/address/unstoppable-domains'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]

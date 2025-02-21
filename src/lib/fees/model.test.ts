@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { bn } from 'lib/bignumber/bignumber'
 
 import { calculateFees } from './model'
 import { swapperParameters } from './parameters/swapper'
 
+import { bn } from '@/lib/bignumber/bignumber'
 import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
 import { store } from '@/state/store'
 

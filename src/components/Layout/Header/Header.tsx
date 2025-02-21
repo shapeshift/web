@@ -8,7 +8,6 @@ import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { METAMASK_RDNS } from 'lib/mipd'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -24,6 +23,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -36,7 +36,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const WalletConnectToDappsHeaderButton = lazy(() =>
-  import('plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
+  import('@/plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
     ({ WalletConnectToDappsHeaderButton }) => ({ default: WalletConnectToDappsHeaderButton }),
   ),
 )

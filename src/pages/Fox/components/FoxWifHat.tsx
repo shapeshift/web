@@ -4,12 +4,6 @@ import { foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
 import { bn, bnOrZero } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import {
-  FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
-  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
-  FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
-} from 'lib/fees/constant'
-import { calculateFees } from 'lib/fees/model'
 
 import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
@@ -20,6 +14,12 @@ import FoxWifHatIcon from '@/assets/foxwifhat-logo.png'
 import { Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import {
+  FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
+  FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS,
+  FOX_WIF_HAT_MINIMUM_AMOUNT_BASE_UNIT,
+} from '@/lib/fees/constant'
+import { calculateFees } from '@/lib/fees/model'
 
 export const FoxWifHat = () => {
   const translate = useTranslate()

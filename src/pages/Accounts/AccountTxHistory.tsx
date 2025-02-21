@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 
 import type { MatchParams } from './Account'
 
 import { AssetHeader } from '@/components/AssetHeader/AssetHeader'
 import { Main } from '@/components/Layout/Main'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
+import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

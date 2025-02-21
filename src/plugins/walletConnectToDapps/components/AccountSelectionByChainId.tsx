@@ -1,12 +1,12 @@
 import { Checkbox } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { Account } from 'plugins/walletConnectToDapps/components/Account'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
+import { Account } from '@/plugins/walletConnectToDapps/components/Account'
 import { selectPortfolioAccountsGroupedByNumberByChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 

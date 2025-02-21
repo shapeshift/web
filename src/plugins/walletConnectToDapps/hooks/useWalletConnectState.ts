@@ -1,21 +1,21 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
-import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
+import { useMemo } from 'react'
+
+import { useIsInteractingWithContract } from '@/plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
 import {
   isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
   isTransactionParamsArray,
-} from 'plugins/walletConnectToDapps/typeGuards'
-import type { KnownSigningMethod, WalletConnectState } from 'plugins/walletConnectToDapps/types'
+} from '@/plugins/walletConnectToDapps/typeGuards'
+import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
-} from 'plugins/walletConnectToDapps/utils'
-import { useMemo } from 'react'
-
+} from '@/plugins/walletConnectToDapps/utils'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 

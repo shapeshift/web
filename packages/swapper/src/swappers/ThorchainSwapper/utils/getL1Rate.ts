@@ -95,7 +95,7 @@ export const getL1Rate = async (
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
   const swapQuote = maybeSwapQuote.unwrap()
 
-  const maybeStreamingSwapQuote = deps.config.REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
+  const maybeStreamingSwapQuote = deps.config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS
     ? await getQuote(
         {
           sellAsset,

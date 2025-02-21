@@ -5,9 +5,6 @@ import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLink } from 'lib/getTxLink'
-import { fromBaseUnit } from 'lib/math'
 
 import { DepositContext } from '../DepositContext'
 
@@ -26,6 +23,9 @@ import type {
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
 
 const externalLinkIcon = <ExternalLinkIcon />
 

@@ -1,7 +1,7 @@
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftmonorepo/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
-import { assertUnreachable } from 'lib/utils'
 
+import { assertUnreachable } from '@/lib/utils'
 import type { ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 

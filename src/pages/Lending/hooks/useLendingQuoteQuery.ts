@@ -8,19 +8,19 @@ import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
-import { getMaybeThorchainLendingOpenQuote } from 'lib/utils/thorchain/lending'
-import type {
-  LendingDepositQuoteResponseSuccess,
-  LendingQuoteOpen,
-} from 'lib/utils/thorchain/lending/types'
 
 import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { BASE_BPS_POINTS } from '@/lib/utils/thorchain/constants'
+import { getMaybeThorchainLendingOpenQuote } from '@/lib/utils/thorchain/lending'
+import type {
+  LendingDepositQuoteResponseSuccess,
+  LendingQuoteOpen,
+} from '@/lib/utils/thorchain/lending/types'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,

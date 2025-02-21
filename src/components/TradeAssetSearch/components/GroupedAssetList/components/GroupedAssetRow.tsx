@@ -3,15 +3,15 @@ import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
-import { middleEllipsis } from 'lib/utils'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from '@/lib/math'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,

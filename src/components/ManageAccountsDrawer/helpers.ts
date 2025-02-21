@@ -1,11 +1,11 @@
 import type { ChainId } from '@shapeshiftmonorepo/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { matchSorter } from 'match-sorter'
-import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { isSome } from 'lib/utils'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
+import { isSome } from '@/lib/utils'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
 import { checkAccountHasActivity } from '@/state/slices/portfolioSlice/utils'
 

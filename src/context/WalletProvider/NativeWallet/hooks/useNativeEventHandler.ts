@@ -2,12 +2,12 @@ import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { NativeEvents } from '@shapeshiftoss/hdwallet-native'
 import type { Dispatch } from 'react'
 import { useEffect } from 'react'
-import { isMobile as isMobileApp } from 'lib/globals'
-import { assertUnreachable } from 'lib/utils'
 
 import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
+import { isMobile as isMobileApp } from '@/lib/globals'
+import { assertUnreachable } from '@/lib/utils'
 
 export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
   const { keyring, modal, modalType } = state

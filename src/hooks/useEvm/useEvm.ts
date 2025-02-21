@@ -4,9 +4,9 @@ import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
 import { useAppSelector } from '@/state/store'
 

@@ -8,15 +8,6 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
-import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
-import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import type {
-  EthPersonalSignCallRequest,
-  EthSignCallRequest,
-} from 'plugins/walletConnectToDapps/types'
-import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,6 +15,15 @@ import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
+import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
+import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
+import type {
+  EthPersonalSignCallRequest,
+  EthSignCallRequest,
+} from '@/plugins/walletConnectToDapps/types'
+import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

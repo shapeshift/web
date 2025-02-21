@@ -24,7 +24,6 @@ import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory, useParams } from 'react-router'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
 
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
@@ -38,6 +37,7 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 type MatchParams = {

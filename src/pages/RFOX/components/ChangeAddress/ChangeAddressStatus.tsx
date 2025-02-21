@@ -3,7 +3,6 @@ import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
-import { getTxLink } from 'lib/getTxLink'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
@@ -13,6 +12,7 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
+import { getTxLink } from '@/lib/getTxLink'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

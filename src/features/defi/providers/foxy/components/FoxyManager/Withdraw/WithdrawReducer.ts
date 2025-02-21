@@ -1,9 +1,9 @@
 import { KnownChainIds, WithdrawType } from '@shapeshiftmonorepo/types'
-import { bn } from 'lib/bignumber/bignumber'
 
 import type { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
 import { FoxyWithdrawActionType } from './WithdrawCommon'
 
+import { bn } from '@/lib/bignumber/bignumber'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export const initialState: FoxyWithdrawState = {

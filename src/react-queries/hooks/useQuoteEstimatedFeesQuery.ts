@@ -4,15 +4,15 @@ import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { toHex } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
-import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+
+import { estimateFees } from '@/components/Modals/Send/utils'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getSupportedEvmChainIds } from '@/lib/utils/evm'
+import type { LendingQuoteClose, LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/types'
-
-import { estimateFees } from '@/components/Modals/Send/utils'
+} from '@/lib/utils/thorchain/lp/types'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

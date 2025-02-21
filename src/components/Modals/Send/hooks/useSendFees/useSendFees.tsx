@@ -3,13 +3,13 @@ import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import type { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { SendInput } from '../../Form'
 import type { FeePrice } from '../../views/Confirm'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

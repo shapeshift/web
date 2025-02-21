@@ -4,10 +4,6 @@ import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip
 import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { isSome, isToken } from 'lib/utils'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
@@ -40,6 +36,10 @@ import {
 } from '../utils'
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { isSome, isToken } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {

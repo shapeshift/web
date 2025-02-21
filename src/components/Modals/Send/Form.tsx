@@ -5,8 +5,6 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -17,6 +15,8 @@ import { Status } from './views/Status'
 
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedCurrency,

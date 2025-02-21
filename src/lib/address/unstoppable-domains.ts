@@ -1,20 +1,21 @@
 import { btcChainId, ethChainId } from '@shapeshiftmonorepo/caip'
 import { Resolution } from '@unstoppabledomains/resolution'
-import { getConfig } from 'config'
+
+import { getConfig } from '@/config'
 import type {
   ResolveVanityAddress,
   ReverseLookupVanityAddress,
   ValidateVanityAddress,
-} from 'lib/address/address'
+} from '@/lib/address/address'
 
 let _resolution: Resolution | undefined
 
 const getResolution = (): Resolution => {
-  const ethereumProviderUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
+  const ethereumProviderUrl = getConfig().VITE_ETHEREUM_NODE_URL
 
-  const polygonProviderUrl = getConfig().REACT_APP_ALCHEMY_POLYGON_URL
+  const polygonProviderUrl = getConfig().VITE_ALCHEMY_POLYGON_URL
   if (!polygonProviderUrl)
-    console.error('No Polygon provider URL found in REACT_APP_ALCHEMY_POLYGON_URL')
+    console.error('No Polygon provider URL found in VITE_ALCHEMY_POLYGON_URL')
 
   if (!_resolution)
     _resolution = new Resolution({

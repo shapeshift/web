@@ -19,14 +19,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { firstFourLastFour } from 'lib/utils'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from 'lib/utils/evm'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
 import { ClaimRoutePaths } from './types'
@@ -39,6 +31,14 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { firstFourLastFour } from '@/lib/utils'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from '@/lib/utils/evm'
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,

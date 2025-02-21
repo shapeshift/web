@@ -1,14 +1,14 @@
 import { union } from 'lodash'
 import React, { useEffect, useMemo } from 'react'
 import { matchPath, useHistory, useLocation, useParams } from 'react-router-dom'
-import { mapMixpanelPathname } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import { BrowserRouterContext } from './BrowserRouterContext'
 
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useQuery } from '@/hooks/useQuery/useQuery'
+import { mapMixpanelPathname } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { generateAppRoutes } from '@/Routes/helpers'
 import { routes } from '@/Routes/RoutesCommon'
 import { selectAssets } from '@/state/slices/selectors'

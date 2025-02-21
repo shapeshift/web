@@ -1,4 +1,4 @@
-import 'lib/polyfills'
+import '@/lib/polyfills'
 
 import type { RenderHookResult } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'

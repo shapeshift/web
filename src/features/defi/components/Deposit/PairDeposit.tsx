@@ -2,12 +2,10 @@ import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip/dist/accountId/accountId'
 import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import get from 'lodash/get'
-import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useCallback, useMemo } from 'react'
 import type { ControllerProps } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
@@ -18,6 +16,8 @@ import { AssetInput } from '@/components/DeFi/components/AssetInput'
 import { FormField } from '@/components/DeFi/components/FormField'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { calculateYearlyYield } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
 import type { LpEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 
 type DepositProps = {

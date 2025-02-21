@@ -4,7 +4,6 @@ import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
 import type { FC } from 'react'
 import { memo, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SwapperIcon } from '../../../TradeInput/components/SwapperIcon/SwapperIcon'
 
@@ -14,6 +13,7 @@ import type { RowProps } from '@/components/Row/Row'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean

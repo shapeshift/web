@@ -12,6 +12,7 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+
 import { FileUpload } from '@/components/FileUpload/FileUpload'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { decryptFromKeystore } from '@/components/MobileWalletDialog/utils'
@@ -28,8 +29,8 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { addWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { NativeWalletValues } from '@/context/WalletProvider/NativeWallet/types'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 export const ImportKeystore = () => {
   const history = useHistory()

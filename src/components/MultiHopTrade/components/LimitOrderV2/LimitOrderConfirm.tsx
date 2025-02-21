@@ -3,8 +3,6 @@ import { bn, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
@@ -25,6 +23,8 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useActions } from '@/hooks/useActions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { limitOrderApi, usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
 import {
   selectBuyAmountCryptoBaseUnit,

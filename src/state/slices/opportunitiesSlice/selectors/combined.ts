@@ -3,8 +3,6 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import BigNumber from 'bignumber.js'
 import partition from 'lodash/partition'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
@@ -22,6 +20,8 @@ import {
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from './stakingSelectors'
 
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {

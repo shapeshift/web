@@ -12,14 +12,11 @@ import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { fromAssetId } from '@shapeshiftmonorepo/caip/dist/assetId/assetId'
 import { CHAIN_NAMESPACE } from '@shapeshiftmonorepo/caip/dist/constants'
 import type { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
-import { getConfig } from 'config'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
@@ -39,6 +36,9 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -73,7 +73,7 @@ export const Confirm = () => {
     control,
   }) as Partial<SendInput>
   const { fees } = useSendFees()
-  const allowCustomSendNonce = getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE
+  const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const showMemoRow = useMemo(

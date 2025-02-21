@@ -1,8 +1,4 @@
 import { cosmosChainId, fromAccountId } from '@shapeshiftmonorepo/caip'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isFulfilled, isRejected, isSome } from 'lib/utils'
-import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
 import type {
   GetOpportunityIdsOutput,
@@ -20,6 +16,10 @@ import type {
 } from '../types'
 import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { isFulfilled, isRejected, isSome } from '@/lib/utils'
+import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import type { ReduxState } from '@/state/reducer'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'

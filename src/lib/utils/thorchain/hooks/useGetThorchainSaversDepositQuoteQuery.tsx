@@ -1,10 +1,10 @@
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { PartialFields } from 'lib/types'
 
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { PartialFields } from '@/lib/types'
 import type { ThorchainSaversDepositQuoteResponseSuccess } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { getMaybeThorchainSaversDepositQuote } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 

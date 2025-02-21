@@ -14,11 +14,11 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getAccountTitle } from 'lib/utils/accounts'
-import { isUtxoChainId } from 'lib/utils/utxo'
 
 import { ChainIcon } from '@/components/ChainMenu'
 import { RawText, Text } from '@/components/Text'
+import { getAccountTitle } from '@/lib/utils/accounts'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAccountNumberByAccountId,
   selectAssets,

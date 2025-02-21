@@ -2,7 +2,6 @@ import { assertGetViemClient } from '@shapeshiftmonorepo/contracts'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftmonorepo/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
 
 import {
@@ -13,6 +12,7 @@ import {
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { reactQueries } from '@/react-queries'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import { selectAccountNumberByAccountId } from '@/state/slices/selectors'

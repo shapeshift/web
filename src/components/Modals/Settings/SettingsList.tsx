@@ -19,7 +19,6 @@ import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
-import { isMobile as isMobileApp } from 'lib/globals'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -31,6 +30,7 @@ import { RawText } from '@/components/Text'
 import { deleteWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from '@/lib/globals'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectCurrencyFormat,

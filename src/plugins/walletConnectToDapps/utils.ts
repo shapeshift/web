@@ -8,6 +8,10 @@ import type {
 } from '@shapeshiftmonorepo/chain-adapters'
 import type { EvmChainId } from '@shapeshiftmonorepo/types'
 import type { SessionTypes } from '@walletconnect/types'
+import { hexToString, isAddress, isHex, toHex } from 'viem'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
 import type {
   ConfirmData,
   CosmosSignAminoCallRequestParams,
@@ -16,10 +20,7 @@ import type {
   EthSignParams,
   TransactionParams,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/types'
-import { hexToString, isAddress, isHex, toHex } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
+} from '@/plugins/walletConnectToDapps/types'
 
 /**
  * Converts hex to utf8 string if it is valid bytes

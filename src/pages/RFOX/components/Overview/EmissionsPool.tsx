@@ -3,10 +3,10 @@ import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { bn } from '@shapeshiftmonorepo/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { fromBaseUnit } from 'lib/math'
 
 import { StatItem } from './StatItem'
 
+import { fromBaseUnit } from '@/lib/math'
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'

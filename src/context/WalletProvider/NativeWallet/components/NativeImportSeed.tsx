@@ -12,12 +12,13 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
-import { Text } from '@/components/Text'
-import { NativeWalletRoutes } from '@/context/WalletProvider/types'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { NativeWalletValues } from '../types'
+
+import { Text } from '@/components/Text'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 export const NativeImportSeed = ({ history }: RouteComponentProps) => {
   const mixpanel = getMixPanel()

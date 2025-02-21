@@ -15,7 +15,6 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { MobileNavLink } from './MobileNavLink'
 
@@ -29,6 +28,7 @@ import { RawText } from '@/components/Text'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { routes } from '@/Routes/RoutesCommon'
 
 const displayProp = { base: 'grid', md: 'none' }

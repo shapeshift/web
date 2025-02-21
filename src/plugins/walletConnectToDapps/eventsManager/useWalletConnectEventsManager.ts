@@ -1,17 +1,18 @@
 import type { PairingJsonRpcTypes, SignClientTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
-import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsHandler'
+import { useEffect } from 'react'
+
+import { useWalletConnectEventsHandler } from '@/plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsHandler'
 import type {
   SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/types'
+} from '@/plugins/walletConnectToDapps/types'
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
-} from 'plugins/walletConnectToDapps/types'
-import { useEffect } from 'react'
+} from '@/plugins/walletConnectToDapps/types'
 
 // any type ok here because we're only pulling out the topic
 type PairingEvent = Pick<PairingJsonRpcTypes.EventCallback<any>, 'topic'>

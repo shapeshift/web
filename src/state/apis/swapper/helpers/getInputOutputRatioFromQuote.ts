@@ -7,10 +7,10 @@ import type {
 } from '@shapeshiftmonorepo/swapper'
 import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type { ReduxState } from '@/state/reducer'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import {

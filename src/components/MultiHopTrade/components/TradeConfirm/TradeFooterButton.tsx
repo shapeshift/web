@@ -13,8 +13,6 @@ import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable } from 'lib/utils'
 
 import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
 import { useStreamingProgress } from './hooks/useStreamingProgress'
@@ -25,6 +23,8 @@ import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation
 import { chainSupportsTxHistory } from '@/components/MultiHopTrade/utils'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { assertUnreachable } from '@/lib/utils'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,

@@ -2,9 +2,9 @@ import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { isSmartContractAddress } from 'lib/address/utils'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { isSmartContractAddress } from '@/lib/address/utils'
 
 // For use outside of react-query, while still leveraging caching
 export const fetchIsSmartContractAddressQuery = (userAddress: string, chainId: ChainId) => {

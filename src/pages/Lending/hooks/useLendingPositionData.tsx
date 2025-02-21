@@ -1,9 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { getThorchainLendingPosition } from '@/lib/utils/thorchain/lending'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,

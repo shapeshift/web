@@ -1,14 +1,15 @@
 import { polygon } from '@shapeshiftmonorepo/chain-adapters'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import * as unchained from '@shapeshiftmonorepo/unchained-client'
-import { getConfig } from 'config'
-import type { Plugins } from 'plugins/types'
+
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
 
 // I'm an unchained-client wrapper around `/api/v1/` endpoints
 // If you ever need to consume endpoints which are not abstracted by chain-adapters, consume me
 export const http = new unchained.polygon.V1Api(
   new unchained.polygon.Configuration({
-    basePath: getConfig().REACT_APP_UNCHAINED_POLYGON_HTTP_URL,
+    basePath: getConfig().VITE_UNCHAINED_POLYGON_HTTP_URL,
   }),
 )
 
@@ -26,12 +27,12 @@ export default function register(): Plugins {
               KnownChainIds.PolygonMainnet,
               () => {
                 const ws = new unchained.ws.Client<unchained.polygon.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_POLYGON_WS_URL,
+                  getConfig().VITE_UNCHAINED_POLYGON_WS_URL,
                 )
 
                 return new polygon.ChainAdapter({
                   providers: { http, ws },
-                  rpcUrl: getConfig().REACT_APP_POLYGON_NODE_URL,
+                  rpcUrl: getConfig().VITE_POLYGON_NODE_URL,
                 })
               },
             ],

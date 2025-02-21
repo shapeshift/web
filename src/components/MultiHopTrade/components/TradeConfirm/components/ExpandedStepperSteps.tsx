@@ -15,7 +15,6 @@ import type { TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { bn } from 'lib/bignumber/bignumber'
 
 import { StepperStep } from '../helpers'
 import { useHopProgress } from '../hooks/useHopProgress'
@@ -28,6 +27,7 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { RawText, Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
+import { bn } from '@/lib/bignumber/bignumber'
 import {
   selectFirstHopSellAccountId,
   selectSecondHopSellAccountId,

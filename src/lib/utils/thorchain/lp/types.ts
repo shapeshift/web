@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import type { BN } from 'lib/bignumber/bignumber'
 
+import type { BN } from '@/lib/bignumber/bignumber'
 import type { OpportunityType } from '@/pages/ThorChainLP/utils'
 
 export type ThornodeLiquidityProvider = {

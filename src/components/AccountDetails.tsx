@@ -4,7 +4,6 @@ import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { ethAssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -14,6 +13,7 @@ import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { AccountBalance } from '@/pages/Accounts/AccountToken/AccountBalance'
 import type { Route } from '@/Routes/helpers'
 

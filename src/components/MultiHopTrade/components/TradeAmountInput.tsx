@@ -20,7 +20,6 @@ import { Controller, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
@@ -30,6 +29,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Balance } from '@/components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from '@/components/DeFi/components/PercentOptionsButtonGroup'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,

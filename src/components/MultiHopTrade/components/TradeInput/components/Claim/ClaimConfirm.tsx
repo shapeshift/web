@@ -16,9 +16,6 @@ import { getChainShortName } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { firstFourLastFour } from 'lib/utils'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimTx } from './hooks/useArbitrumClaimTx'
@@ -28,6 +25,9 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { firstFourLastFour } from '@/lib/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,

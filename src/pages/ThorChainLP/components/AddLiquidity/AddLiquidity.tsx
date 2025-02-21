@@ -3,12 +3,12 @@ import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityRoutePaths } from './types'
 
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { LpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/types'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>

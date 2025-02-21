@@ -20,16 +20,16 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftmonorepo/swapper'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
-import { getConfig } from 'config'
 import EventEmitter from 'events'
-import { poll } from 'lib/poll/poll'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
+import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { poll } from '@/lib/poll/poll'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
 

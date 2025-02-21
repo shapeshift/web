@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { assertUnreachable } from 'lib/utils'
 
+import { assertUnreachable } from '@/lib/utils'
 import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
 import {
   selectActiveQuoteId,

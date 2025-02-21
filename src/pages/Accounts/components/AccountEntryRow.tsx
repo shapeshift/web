@@ -6,12 +6,12 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import { middleEllipsis } from 'lib/utils'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { middleEllipsis } from '@/lib/utils'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,

@@ -38,29 +38,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import {
-  assertUnreachable,
-  chainIdToChainDisplayName,
-  isNonEmptyString,
-  isSome,
-  isToken,
-} from 'lib/utils'
-import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
-import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
-import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
-import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { formatSecondsToDuration } from 'lib/utils/time'
 
 import type { AmountsByPosition } from '../LpType'
 import { LpType } from '../LpType'
@@ -89,12 +67,34 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import {
+  assertUnreachable,
+  chainIdToChainDisplayName,
+  isNonEmptyString,
+  isSome,
+  isToken,
+} from '@/lib/utils'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
+import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import { estimateAddThorchainLiquidityPosition } from '@/lib/utils/thorchain/lp'
+import type { LpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/types'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
+import { formatSecondsToDuration } from '@/lib/utils/time'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from '@/pages/ThorChainLP/queries/hooks/usePools'
 import { useUserLpData } from '@/pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import type { Opportunity } from '@/pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from '@/pages/ThorChainLP/utils'
+import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectIsSnapshotApiQueriesRejected,

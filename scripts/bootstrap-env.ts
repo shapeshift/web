@@ -77,7 +77,7 @@ const getSerializedEnvVars = (environment: Environment) => {
  * - `yarn env` will try and read the branch name from process.env and map it to an environment
  *
  * this script can be called one of two ways
- * without args - `yarn env` in CI in GitHub Actions - where we inject process.env.CURRENT_BRANCH_NAME
+ * without args - `yarn env` in CI in GitHub Actions - where we inject import.meta.env.CURRENT_BRANCH_NAME
  * see cloudflare.yml for more details
  * we have develop | main | release | private | yeet branches configured
  * and these branches map to the environments in BRANCH_TO_ENVIRONMENT above
@@ -87,7 +87,7 @@ const getSerializedEnvVars = (environment: Environment) => {
  */
 const getSpecifiedEnvironment = (): Environment => {
   const args = process.argv.slice(2)
-  const branch = process.env.CURRENT_BRANCH_NAME // set by cloudflare.yml
+  const branch = import.meta.env.CURRENT_BRANCH_NAME // set by cloudflare.yml
 
   // we're in a CI environment - we called the script as `yarn env` and hope the branch is set
   if (branch) {

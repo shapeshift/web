@@ -3,7 +3,6 @@ import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset, HistoryData } from '@shapeshiftmonorepo/types'
 import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { bn } from 'lib/bignumber/bignumber'
 
 import type { Bucket } from './useBalanceChartData'
 import {
@@ -13,6 +12,7 @@ import {
   timeframeMap,
 } from './useBalanceChartData'
 
+import { bn } from '@/lib/bignumber/bignumber'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import { ethereum, fox } from '@/test/mocks/assets'
 import { ethereumTransactions, FOXSend } from '@/test/mocks/txs'

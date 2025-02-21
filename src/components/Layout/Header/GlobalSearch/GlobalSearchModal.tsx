@@ -15,13 +15,13 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { generatePath, useHistory } from 'react-router'
 import scrollIntoView from 'scroll-into-view-if-needed'
-import { parseAddressInput } from 'lib/address/address'
 
 import { SearchResults } from './SearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
+import { parseAddressInput } from '@/lib/address/address'
 import type { GlobalSearchResult, SendResult } from '@/state/slices/search-selectors'
 import {
   GlobalSearchResultType,

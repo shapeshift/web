@@ -1,9 +1,9 @@
 import { IconButton, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { memo, useCallback, useMemo } from 'react'
-import { chainIdToFeeAssetId } from 'lib/utils'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { chainIdToFeeAssetId } from '@/lib/utils'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'

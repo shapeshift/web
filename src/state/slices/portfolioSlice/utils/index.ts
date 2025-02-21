@@ -51,10 +51,6 @@ import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
-import { assertUnreachable, firstFourLastFour } from 'lib/utils'
 
 import type {
   Portfolio,
@@ -64,6 +60,10 @@ import type {
 import { initialState } from '../portfolioSliceCommon'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
+import { assertUnreachable, firstFourLastFour } from '@/lib/utils'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/apis/nft/constants'
 import type { NftCollectionType } from '@/state/apis/nft/types'
 import type { ReduxState } from '@/state/reducer'

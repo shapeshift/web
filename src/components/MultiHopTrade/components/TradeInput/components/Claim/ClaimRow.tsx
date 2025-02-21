@@ -1,12 +1,12 @@
 import { fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { formatSecondsToDuration } from 'lib/utils/time'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 
 import { ClaimRow as ReusableClaimRow } from '@/components/ClaimRow/ClaimRow'
 import { ClaimStatus } from '@/components/ClaimRow/types'
+import { formatSecondsToDuration } from '@/lib/utils/time'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

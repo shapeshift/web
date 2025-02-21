@@ -1,6 +1,7 @@
 import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftmonorepo/contracts'
 import { memoize } from 'lodash'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
   bnOrZero(foxRewardRatePerToken) // Fox Rewards per second for 1 staked LP token

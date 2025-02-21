@@ -24,8 +24,6 @@ import { TransferType } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
 import { TwirlyToggle } from '../TwirlyToggle'
 import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
@@ -37,6 +35,8 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,

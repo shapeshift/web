@@ -1,7 +1,5 @@
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
@@ -11,6 +9,8 @@ import type { GetThorchainSaversWithdrawQuoteQueryKey } from './hooks/useGetThor
 import { fetchThorchainWithdrawQuote } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import type { EstimatedFeesQueryKey } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from '@/pages/Lending/hooks/useIsSweepNeededQuery'

@@ -3,11 +3,11 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import type { FC } from 'react'
 import { useCallback } from 'react'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 
 interface IProps {

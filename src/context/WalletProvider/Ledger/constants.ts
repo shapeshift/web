@@ -10,7 +10,8 @@ import {
   thorchainAssetId,
 } from '@shapeshiftmonorepo/caip'
 import { uniq } from 'lodash'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
+
+import { getSupportedEvmChainIds } from '@/lib/utils/evm'
 
 export const LEDGER_DEVICE_ID = '0001'
 

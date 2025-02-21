@@ -2,12 +2,9 @@ import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { ethAssetId } from '@shapeshiftmonorepo/caip'
 import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
@@ -20,6 +17,9 @@ import { Status } from '../Send/views/Status'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,

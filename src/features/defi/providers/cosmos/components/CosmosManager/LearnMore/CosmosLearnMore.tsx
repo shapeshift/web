@@ -2,8 +2,6 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, IconButton } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftmonorepo/caip'
 import { useSteps } from 'chakra-ui-steps'
-import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
-import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -19,6 +17,8 @@ import type {
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { DefiModalHeader } from '@/plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
+import { assetIdToUnbondingDays } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
 import { selectAssetNameById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

@@ -12,12 +12,12 @@ import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 
 import { usePlugins } from '../PluginProvider/PluginProvider'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { waitForThorchainUpdate } from '@/lib/utils/thorchain'
 import { nftApi } from '@/state/apis/nft/nftApi'
 import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'

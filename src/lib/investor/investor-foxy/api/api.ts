@@ -22,8 +22,6 @@ import type { TransactionReceipt } from 'ethers6'
 import { ethers } from 'ethers6'
 import { toLower } from 'lodash'
 import { erc20Abi, getAddress } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { MAX_ALLOWANCE } from 'lib/investor/constants/allowance'
 
 import { tokeManagerAddress, tokePoolAddress, tokeRewardHashAddress } from '../constants'
 import type {
@@ -52,6 +50,8 @@ import type {
   WithdrawInput,
 } from './foxy-types'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { MAX_ALLOWANCE } from '@/lib/investor/constants/allowance'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export * from './foxy-types'

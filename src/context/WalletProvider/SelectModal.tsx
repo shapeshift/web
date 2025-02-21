@@ -11,7 +11,6 @@ import {
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import uniqBy from 'lodash/uniqBy'
 import type { EIP6963ProviderDetail } from 'mipd'
@@ -19,8 +18,6 @@ import type { ReactElement } from 'react'
 import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { isMobile as isMobileApp } from 'lib/globals'
-import { staticMipdProviders, useMipdProviders } from 'lib/mipd'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -28,8 +25,11 @@ import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './NewWalletViews/constants'
 import type { WalletInfo } from './WalletProvider'
 
 import { RawText, Text } from '@/components/Text'
+import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from '@/lib/globals'
+import { staticMipdProviders, useMipdProviders } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -72,10 +72,10 @@ const WalletSelectItem = ({
 
   if (!isSupported) return null
 
-  const isPhantomEnabled = getConfig().REACT_APP_FEATURE_PHANTOM_WALLET
+  const isPhantomEnabled = getConfig().VITE_FEATURE_PHANTOM_WALLET
   if (walletType === KeyManager.Phantom && !isPhantomEnabled) return null
 
-  const isWalletConnectV2Enabled = getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2
+  const isWalletConnectV2Enabled = getConfig().VITE_FEATURE_WALLET_CONNECT_V2
   if (walletType === KeyManager.WalletConnectV2 && !isWalletConnectV2Enabled) return null
 
   const activeWallet = walletInfo?.name === option.name

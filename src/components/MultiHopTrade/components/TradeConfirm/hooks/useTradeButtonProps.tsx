@@ -1,7 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { assertUnreachable } from 'lib/utils'
 
 import { getHopExecutionStateButtonTranslation } from '../helpers'
 import { useActiveTradeAllowance } from './useActiveTradeAllowance'
@@ -9,6 +8,7 @@ import { useTradeExecution } from './useTradeExecution'
 
 import { useGetTradeQuotes } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { assertUnreachable } from '@/lib/utils'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,

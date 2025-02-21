@@ -2,7 +2,6 @@ import { Button, Flex, List, Stat, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { NestedAsset } from './NestedAsset'
 import { opportunityRowGrid } from './OpportunityTableHeader'
@@ -11,6 +10,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { RawText, Text } from '@/components/Text'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type {
   LpEarnOpportunityType,
   StakingEarnOpportunityType,

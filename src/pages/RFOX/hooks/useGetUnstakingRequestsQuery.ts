@@ -8,7 +8,6 @@ import { getAddress } from 'viem'
 import { multicall } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import { serialize } from 'wagmi'
-import { isSome } from 'lib/utils'
 
 import { getStakingAssetId, getStakingContract } from '../helpers'
 import {
@@ -17,6 +16,7 @@ import {
 } from './useGetUnstakingRequestCountQuery'
 import { useRFOXContext } from './useRfoxContext'
 
+import { isSome } from '@/lib/utils'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 const getContractFnParams = (

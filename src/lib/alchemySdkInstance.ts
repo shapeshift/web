@@ -7,7 +7,8 @@ import {
   polygonChainId,
 } from '@shapeshiftmonorepo/caip'
 import { Alchemy, Network } from 'alchemy-sdk'
-import { getConfig } from 'config'
+
+import { getConfig } from '@/config'
 
 const alchemyInstanceMap: Map<ChainId, Alchemy> = new Map()
 
@@ -29,7 +30,7 @@ export const getAlchemyInstanceByChainId = (chainId: ChainId): Alchemy => {
       case optimismChainId:
       case arbitrumChainId:
       case baseChainId:
-        return getConfig().REACT_APP_ALCHEMY_API_KEY
+        return getConfig().VITE_ALCHEMY_API_KEY
       default:
         return undefined
     }

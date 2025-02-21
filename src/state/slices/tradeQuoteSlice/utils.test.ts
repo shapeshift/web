@@ -9,8 +9,8 @@ import { marketDataByAssetIdUsd } from '@shapeshiftmonorepo/swapper/dist/swapper
 import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftmonorepo/utils'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
-import { bn, convertPrecision } from 'lib/bignumber/bignumber'
 
+import { bn, convertPrecision } from '@/lib/bignumber/bignumber'
 import { sumProtocolFeesToDenom } from '@/state/slices/tradeQuoteSlice/utils'
 
 describe('sumProtocolFeesToDenom', () => {

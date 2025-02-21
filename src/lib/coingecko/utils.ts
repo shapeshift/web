@@ -21,9 +21,6 @@ import {
 import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { getAssetNamespaceFromChainId } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
-import { getConfig } from 'config'
-import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
-import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
 import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'
 import type {
@@ -37,7 +34,10 @@ import type {
   TrendingResponse,
 } from './types'
 
+import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import type { CoinGeckoSortKey } from '@/lib/market-service/coingecko/coingecko'
+import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
 
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
@@ -173,6 +173,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ltcChainId,
     solanaChainId,
     dogeChainId,
-    ...(getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
+    ...(getConfig().VITE_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
   ]
 }

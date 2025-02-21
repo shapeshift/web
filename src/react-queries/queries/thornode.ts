@@ -8,10 +8,11 @@ import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/
 import { thorService } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
 import { Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { getConfig } from 'config'
-import type { ThorchainBlock, ThorchainMimir } from 'lib/utils/thorchain/types'
 
-const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+import { getConfig } from '@/config'
+import type { ThorchainBlock, ThorchainMimir } from '@/lib/utils/thorchain/types'
+
+const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
 // Feature-agnostic, abstracts away THORNode endpoints
 export const thornode = createQueryKeys('thornode', {

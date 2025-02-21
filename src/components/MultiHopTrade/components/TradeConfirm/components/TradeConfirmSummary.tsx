@@ -16,7 +16,6 @@ import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
 import { BigNumber, bnOrZero, fromBaseUnit, isSome } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { middleEllipsis } from 'lib/utils'
 
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
@@ -30,6 +29,7 @@ import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
+import { middleEllipsis } from '@/lib/utils'
 import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {

@@ -1,12 +1,7 @@
-import { getConfig } from 'config'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
-import { makeSuspenseful } from '@/utils/makeSuspenseful'
-import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
-import { FoxPage } from '@/pages/Fox/FoxPage'
-import { RFOX } from '@/pages/RFOX/RFOX'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
@@ -20,6 +15,11 @@ import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { getConfig } from '@/config'
+import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { FoxPage } from '@/pages/Fox/FoxPage'
+import { RFOX } from '@/pages/RFOX/RFOX'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const Home = makeSuspenseful(
   lazy(() =>
@@ -168,7 +168,7 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     priority: 3,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_MARKETS,
+    disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
     path: '/buy-crypto',
@@ -221,7 +221,7 @@ export const routes: Route[] = [
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
-    disable: !getConfig().REACT_APP_FEATURE_RFOX,
+    disable: !getConfig().VITE_FEATURE_RFOX,
   },
   {
     path: '/fox',
@@ -231,7 +231,7 @@ export const routes: Route[] = [
     category: RouteCategory.Fox,
     priority: 2,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_FOX_PAGE,
+    disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {
     path: '/pools',
@@ -241,7 +241,7 @@ export const routes: Route[] = [
     category: RouteCategory.Thorchain,
     priority: 1,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
+    disable: !getConfig().VITE_FEATURE_THORCHAIN_LP,
   },
   {
     path: '/lending',
@@ -251,7 +251,7 @@ export const routes: Route[] = [
     category: RouteCategory.Thorchain,
     priority: 2,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    disable: !getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     isViewOnly: true,
   },
   {
@@ -282,7 +282,7 @@ export const routes: Route[] = [
     icon: <FaFlag />,
     hide:
       window.location.hostname !== 'localhost' &&
-      window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
+      window.location.hostname !== getConfig().VITE_LOCAL_IP,
     main: Flags,
   },
 ]

@@ -4,20 +4,20 @@ import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
-import { getConfig } from 'config'
 import { getAddress, isAddress } from 'viem'
-import { getAccountAddresses } from 'lib/utils/thorchain'
+
+import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { getAccountAddresses } from '@/lib/utils/thorchain'
 import type {
   MidgardEarningsHistoryResponse,
   MidgardMember,
   MidgardMembersList,
-} from 'lib/utils/thorchain/lp/types'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { isUtxoChainId } from 'lib/utils/utxo'
+} from '@/lib/utils/thorchain/lp/types'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
-
-const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+const midgardUrl = getConfig().VITE_MIDGARD_URL
 
 const liquidityMember = (address: string) => ({
   queryKey: ['thorchainLiquidityMember', { address }] as [string, { address: string }],

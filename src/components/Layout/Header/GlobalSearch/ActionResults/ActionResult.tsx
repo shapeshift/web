@@ -2,12 +2,12 @@ import { ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
-import { firstFourLastFour } from 'lib/utils'
 
 import { ResultButton } from '../ResultButton'
 
 import { IconCircle } from '@/components/IconCircle'
 import { RawText } from '@/components/Text'
+import { firstFourLastFour } from '@/lib/utils'
 import type { GlobalSearchResult } from '@/state/slices/search-selectors'
 import { GlobalSearchResultType } from '@/state/slices/search-selectors'
 

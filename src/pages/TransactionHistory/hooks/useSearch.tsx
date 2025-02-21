@@ -1,9 +1,9 @@
 import type { Asset } from '@shapeshiftmonorepo/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
-import { isSome } from 'lib/utils'
 
 import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { isSome } from '@/lib/utils'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

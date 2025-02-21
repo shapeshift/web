@@ -2,13 +2,13 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import { Amount } from '@/components/Amount/Amount'
 import { opportunityRowGrid } from '@/components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 
 type EquityRowBaseProps = {

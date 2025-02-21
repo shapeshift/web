@@ -1,8 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+
 import type {
   CoinGeckoMarketCap,
   CoinGeckoMarketData,
-} from 'lib/market-service/coingecko/coingecko-types'
+} from '@/lib/market-service/coingecko/coingecko-types'
 
 // Non-exhaustive types, refer to https://docs.coingecko.com/reference/coins-id and other endpoints for full response schema
 export type CoingeckoAssetDetails = {

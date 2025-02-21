@@ -8,8 +8,6 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftmonorepo/types'
 import type { ethers } from 'ethers6'
-import type { AssetService } from 'lib/asset-service'
-import { getAssetService } from 'lib/asset-service'
 
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
@@ -18,6 +16,9 @@ import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
 import { PortalsMarketService } from './portals/portals'
 import { ZerionMarketService } from './zerion/zerion'
+
+import type { AssetService } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 

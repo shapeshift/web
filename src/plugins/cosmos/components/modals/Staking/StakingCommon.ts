@@ -1,7 +1,8 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { cosmosAssetId } from '@shapeshiftmonorepo/caip'
 import type { cosmos } from '@shapeshiftmonorepo/chain-adapters'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export enum StakingAction {
   Stake = 'stake',

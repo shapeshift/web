@@ -19,11 +19,6 @@ import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bn } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { isSome } from 'lib/utils'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
 import { FeeSliders } from './FeeSliders'
@@ -31,6 +26,11 @@ import { FeeSliders } from './FeeSliders'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { bn } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from '@/lib/fees/parameters'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { isSome } from '@/lib/utils'
 import {
   selectIsSnapshotApiQueriesPending,
   selectIsSnapshotApiQueriesRejected,

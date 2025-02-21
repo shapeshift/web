@@ -1,4 +1,3 @@
-import { getConfig } from 'config'
 import uniqBy from 'lodash/uniqBy'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -6,13 +5,13 @@ import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
-import { METAMASK_RDNS, staticMipdProviders, useMipdProviders } from 'lib/mipd'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import type { LocationState } from '../../NativeWallet/types'
 import { MetaMaskConfig } from '../config'
 
+import { getConfig } from '@/config'
 import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -23,6 +22,7 @@ import {
   checkIsSnapInstalled,
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { METAMASK_RDNS, staticMipdProviders, useMipdProviders } from '@/lib/mipd'
 import { selectShowSnapsModal } from '@/state/slices/selectors'
 import { getSnapVersion } from '@/utils/snaps'
 
@@ -135,7 +135,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
           const snapVersion = await getSnapVersion()
 
-          const isCorrectVersion = snapVersion === getConfig().REACT_APP_SNAP_VERSION
+          const isCorrectVersion = snapVersion === getConfig().VITE_SNAP_VERSION
 
           if (isSnapInstalled && !isCorrectVersion && showSnapModal) {
             return history.push('/metamask/snap/update')

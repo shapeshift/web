@@ -3,12 +3,12 @@ import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
-import { isMobile } from 'lib/globals'
 
 import {
   useDialog,
   withDialogProvider,
 } from '@/context/DialogContextProvider/DialogContextProvider'
+import { isMobile } from '@/lib/globals'
 import { breakpoints } from '@/theme/theme'
 
 export type DialogProps = {

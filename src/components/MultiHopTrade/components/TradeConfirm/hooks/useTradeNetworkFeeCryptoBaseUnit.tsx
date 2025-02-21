@@ -9,15 +9,15 @@ import {
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { assertUnreachable } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
+import { getConfig } from '@/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertUnreachable } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectActiveQuote,

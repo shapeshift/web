@@ -48,7 +48,7 @@ export const getThresholdedAffiliateBps = async ({
   const outboundFeeSellAssetThorUnit = await (async () => {
     if (isRune(sellAsset.assetId)) return THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT
 
-    const midgardUrl = config.REACT_APP_MIDGARD_URL
+    const midgardUrl = config.VITE_MIDGARD_URL
     const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
     // get pool data for the sell asset

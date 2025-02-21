@@ -5,9 +5,10 @@ import { UtxoAccountType } from '@shapeshiftmonorepo/types'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
+
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args

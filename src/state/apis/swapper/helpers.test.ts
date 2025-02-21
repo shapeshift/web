@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { selectIsTradingActive } from '@/react-queries/selectors'
 
-vi.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
+vi.mock('@/lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
   const actual: typeof getInboundAddressDataForChain = await importActual()
 
   return {

@@ -6,7 +6,6 @@ import { memo, useCallback } from 'react'
 import { FiLogOut } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { isMobile } from 'lib/globals'
 
 import { EditAvatarButton, ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
@@ -17,6 +16,7 @@ import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWallet
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />

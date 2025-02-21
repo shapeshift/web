@@ -1,5 +1,5 @@
 import './wdyr'
-import 'lib/polyfills'
+import '@/lib/polyfills'
 
 import {
   breadcrumbsIntegration,
@@ -46,7 +46,7 @@ if (window.location.hostname !== 'localhost') {
   })()
   initSentry({
     environment,
-    dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
+    dsn: getConfig().VITE_SENTRY_DSN_URL,
     attachStacktrace: true,
     // This is the default value, but we're setting it explicitly to make it clear that we're using it
     autoSessionTracking: true,

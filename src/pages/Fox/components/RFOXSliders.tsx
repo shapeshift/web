@@ -13,10 +13,10 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Text } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

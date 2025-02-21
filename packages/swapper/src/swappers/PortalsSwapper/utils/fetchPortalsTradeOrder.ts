@@ -103,7 +103,7 @@ export const fetchPortalsTradeOrder = async ({
   validate,
   swapperConfig,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
-  const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal`
+  const url = `${swapperConfig.VITE_PORTALS_BASE_URL}/v2/portal`
 
   const params = new URLSearchParams({
     partner,
@@ -147,7 +147,7 @@ export const fetchPortalsTradeEstimate = async ({
   slippageTolerancePercentage,
   swapperConfig,
 }: PortalsTradeOrderEstimateParams): Promise<PortalsTradeOrderEstimateResponse> => {
-  const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal/estimate`
+  const url = `${swapperConfig.VITE_PORTALS_BASE_URL}/v2/portal/estimate`
 
   const params = new URLSearchParams({
     inputToken,

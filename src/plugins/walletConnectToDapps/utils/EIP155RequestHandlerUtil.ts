@@ -9,18 +9,19 @@ import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { getSdkError } from '@walletconnect/utils'
+
+import { assertIsDefined } from '@/lib/utils'
 import type {
   CustomTransactionData,
   SupportedSessionRequest,
-} from 'plugins/walletConnectToDapps/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
+} from '@/plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
 import {
   convertNumberToHex,
   getFeesForTx,
   getGasData,
   getSignParamsMessage,
-} from 'plugins/walletConnectToDapps/utils'
-import { assertIsDefined } from 'lib/utils'
+} from '@/plugins/walletConnectToDapps/utils'
 
 type ApproveEIP155RequestArgs = {
   requestEvent: SupportedSessionRequest

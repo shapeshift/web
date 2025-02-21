@@ -2,10 +2,10 @@ import { Card, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
-import { bn } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { bn } from '@/lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

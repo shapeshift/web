@@ -21,8 +21,6 @@ import { useCallback, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { BigNumber, bn } from 'lib/bignumber/bignumber'
-import { assertUnreachable } from 'lib/utils'
 
 import { AmountInput } from '../../TradeAmountInput'
 
@@ -31,6 +29,8 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { BigNumber, bn } from '@/lib/bignumber/bignumber'
+import { assertUnreachable } from '@/lib/utils'
 import {
   ExpiryOption,
   LimitPriceMode,

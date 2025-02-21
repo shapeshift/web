@@ -3,9 +3,10 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import { bnbsmartchain, unfreeze } from '@shapeshiftmonorepo/utils'
 import { partition } from 'lodash'
 import uniqBy from 'lodash/uniqBy'
-import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
+
+import { getPortalTokens } from '@/lib/portals/utils'
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([

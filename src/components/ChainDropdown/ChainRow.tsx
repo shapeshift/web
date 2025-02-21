@@ -1,10 +1,10 @@
 import { Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
-import { chainIdToFeeAssetId } from 'lib/utils'
 
 import { Amount } from '@/components/Amount/Amount'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { chainIdToFeeAssetId } from '@/lib/utils'
 import {
   selectAssetById,
   selectPortfolioTotalChainIdBalanceIncludeStaking,

@@ -1,10 +1,10 @@
 import { cosmos } from '@shapeshiftmonorepo/chain-adapters'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import * as unchained from '@shapeshiftmonorepo/unchained-client'
-import { getConfig } from 'config'
-import type { Plugins } from 'plugins/types'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
@@ -23,18 +23,18 @@ export default function register(): Plugins {
               () => {
                 const http = new unchained.cosmos.V1Api(
                   new unchained.cosmos.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+                    basePath: getConfig().VITE_UNCHAINED_COSMOS_HTTP_URL,
                   }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.cosmossdk.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL,
+                  getConfig().VITE_UNCHAINED_COSMOS_WS_URL,
                 )
 
                 return new cosmos.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Cosmos',
-                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_MIDGARD_URL,
                 })
               },
             ],

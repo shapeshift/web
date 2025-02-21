@@ -36,7 +36,6 @@ import {
   polygonChainId,
 } from '@shapeshiftmonorepo/caip'
 import axios from 'axios'
-import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { FaExclamationTriangle, FaSync } from 'react-icons/fa'
@@ -50,6 +49,7 @@ import PlaceholderDrk from '@/assets/placeholder-drk.png'
 import { ArrowRightUp } from '@/components/Icons/ArrowRightUp'
 import { DiamondIcon } from '@/components/Icons/DiamondIcon'
 import { RawText } from '@/components/Text'
+import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from '@/context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -165,24 +165,24 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
     const alchemyUri = (() => {
       switch (chainId) {
         case polygonChainId:
-          return `${getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_API_KEY
+          return `${getConfig().VITE_ALCHEMY_POLYGON_JAYPEGS_BASE_URL}/${
+            getConfig().VITE_ALCHEMY_API_KEY
           }`
         case ethChainId:
-          return `${getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_API_KEY
+          return `${getConfig().VITE_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL}/${
+            getConfig().VITE_ALCHEMY_API_KEY
           }`
         case optimismChainId:
-          return `${getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_API_KEY
+          return `${getConfig().VITE_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL}/${
+            getConfig().VITE_ALCHEMY_API_KEY
           }`
         case arbitrumChainId:
-          return `${getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_API_KEY
+          return `${getConfig().VITE_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL}/${
+            getConfig().VITE_ALCHEMY_API_KEY
           }`
         case baseChainId:
-          return `${getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_API_KEY
+          return `${getConfig().VITE_ALCHEMY_BASE_JAYPEGS_BASE_URL}/${
+            getConfig().VITE_ALCHEMY_API_KEY
           }`
         default:
           return undefined

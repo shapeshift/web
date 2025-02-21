@@ -30,7 +30,7 @@ export const cowSwapper: Swapper = {
     const network = assertGetCowNetwork(chainId)
 
     const maybeOrdersResponse = await cowService.post<string>(
-      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
+      `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
       {
         ...orderToSign,
         signingScheme: SigningScheme.EIP712,

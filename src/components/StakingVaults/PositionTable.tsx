@@ -6,8 +6,6 @@ import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
-import { isEthAddress } from 'lib/address/utils'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SearchEmpty } from './SearchEmpty'
 
@@ -21,6 +19,8 @@ import { RawText } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { isEthAddress } from '@/lib/address/utils'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByChainId,

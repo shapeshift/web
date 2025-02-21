@@ -6,7 +6,6 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
@@ -20,6 +19,7 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { UserUndelegation } from '@/state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {

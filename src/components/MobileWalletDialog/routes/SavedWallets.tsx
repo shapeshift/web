@@ -1,6 +1,5 @@
 import { ChatIcon, CloseIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
-import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useMemo, useState } from 'react'
 import { TbCircleArrowDown, TbCirclePlus, TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -25,6 +24,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { MobileWallestList } from '@/pages/ConnectWallet/components/WalletList'
+import { WalletConnectToDappsHeaderButton } from '@/plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 
 const addIcon = <TbCirclePlus />
 const importIcon = <TbCircleArrowDown />

@@ -3,10 +3,10 @@ import type { TransferType, TxMetadata } from '@shapeshiftmonorepo/chain-adapter
 import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import { memoize } from 'lodash'
 import { maxUint256 } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtDate } from 'lib/charts'
 
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { priceAtDate } from '@/lib/charts'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 
 export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {

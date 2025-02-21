@@ -2,20 +2,20 @@ import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import type { AssetsByIdPartial, MarketData } from '@shapeshiftmonorepo/types'
 import { bnOrZero, makeAsset } from '@shapeshiftmonorepo/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
-import {
-  getCoingeckoMarkets,
-  getCoingeckoRecentlyAdded,
-  getCoingeckoTopMovers,
-  getCoingeckoTrending,
-} from 'lib/coingecko/utils'
-import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
 
 import { marketDataBySortKey, MarketsCategories } from '../constants'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import type { CoingeckoAsset, CoingeckoList } from '@/lib/coingecko/types'
+import {
+  getCoingeckoMarkets,
+  getCoingeckoRecentlyAdded,
+  getCoingeckoTopMovers,
+  getCoingeckoTrending,
+} from '@/lib/coingecko/utils'
+import type { CoinGeckoSortKey } from '@/lib/market-service/coingecko/coingecko'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {

@@ -6,7 +6,6 @@ import { fromAssetId, isNft } from '@shapeshiftmonorepo/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { isToken, middleEllipsis } from 'lib/utils'
 
 import { AssetActions } from './AssetActions'
 import { WatchAssetButton } from './WatchAssetButton'
@@ -20,6 +19,7 @@ import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { isToken, middleEllipsis } from '@/lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,

@@ -3,8 +3,8 @@ import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorep
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { IPFS_GATEWAY } from '@/pages/RFOX/constants'
 import { selectAccountIdsByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

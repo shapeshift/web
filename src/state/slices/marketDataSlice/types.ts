@@ -5,7 +5,8 @@ import type {
   MarketData,
   PartialRecord,
 } from '@shapeshiftmonorepo/types'
-import type { SupportedFiatCurrencies } from 'lib/market-service'
+
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
 
 export type PriceHistoryData<T extends SupportedFiatCurrencies | AssetId> = PartialRecord<
   T,

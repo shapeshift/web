@@ -3,10 +3,10 @@ import { CardBody, CardHeader, Flex, IconButton } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Sweep } from '@/components/Sweep'
+import type { LpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/types'
 import { fromOpportunityId } from '@/pages/ThorChainLP/utils'
 
 type AddLiquiditySweepProps = {

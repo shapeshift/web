@@ -19,33 +19,33 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { getTxLink } from 'lib/getTxLink'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { sleep } from 'lib/poll/poll'
-import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
-import type {
-  LpConfirmedDepositQuote,
-  LpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/types'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import {
-  isLpConfirmedDepositQuote,
-  isLpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/utils'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { sleep } from '@/lib/poll/poll'
+import { waitForThorchainUpdate } from '@/lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
+import type {
+  LpConfirmedDepositQuote,
+  LpConfirmedWithdrawalQuote,
+} from '@/lib/utils/thorchain/lp/types'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
+import {
+  isLpConfirmedDepositQuote,
+  isLpConfirmedWithdrawalQuote,
+} from '@/lib/utils/thorchain/lp/utils'
 import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import { fromQuote } from '@/pages/ThorChainLP/utils'
+import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import { selectInboundAddressData } from '@/react-queries/selectors'
 import {

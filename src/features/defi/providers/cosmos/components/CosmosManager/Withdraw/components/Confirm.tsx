@@ -1,20 +1,8 @@
 import { Alert, AlertDescription, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { toAssetId } from '@shapeshiftmonorepo/caip'
-import {
-  assetIdToUnbondingDays,
-  StakingAction,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { walletCanEditMemo } from 'lib/utils'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -35,6 +23,18 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { walletCanEditMemo } from '@/lib/utils'
+import {
+  assetIdToUnbondingDays,
+  StakingAction,
+} from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
+import { useStakingAction } from '@/plugins/cosmos/hooks/useStakingAction/useStakingAction'
+import { getFeeData } from '@/plugins/cosmos/utils'
 import { toValidatorId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,

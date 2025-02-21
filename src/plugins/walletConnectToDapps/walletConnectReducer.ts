@@ -1,7 +1,8 @@
 import type { PartialRecord } from '@shapeshiftmonorepo/types'
 import type { SessionTypes } from '@walletconnect/types'
-import type { WalletConnectAction, WalletConnectState } from 'plugins/walletConnectToDapps/types'
-import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
+
+import type { WalletConnectAction, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
+import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 
 export const walletConnectReducer = (
   state: WalletConnectState,

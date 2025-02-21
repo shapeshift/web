@@ -1,8 +1,8 @@
 import type { TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import { assertUnreachable } from 'lib/utils'
 
 import type { TextPropTypes } from '@/components/Text/Text'
+import { assertUnreachable } from '@/lib/utils'
 import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
 import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 

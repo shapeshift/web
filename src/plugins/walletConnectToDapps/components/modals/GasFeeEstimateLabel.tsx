@@ -1,15 +1,15 @@
 import { HStack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import type { FeePrice } from '@/components/Modals/Send/views/Confirm'
 import { RawText } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { ConfirmData } from '@/plugins/walletConnectToDapps/types'
 
 type GasFeeEstimateLabelProps = {
   fees: FeePrice | undefined

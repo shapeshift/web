@@ -3,7 +3,6 @@ import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftmonorepo/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
 
 import {
   getHopExecutionStateSummaryStepTranslation,
@@ -18,6 +17,7 @@ import { ExpandedStepperSteps } from './ExpandedStepperSteps'
 import { AnimatedCheck } from '@/components/AnimatedCheck'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { RawText, Text } from '@/components/Text'
+import { bn } from '@/lib/bignumber/bignumber'
 import { selectIsActiveQuoteMultiHop } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,

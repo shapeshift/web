@@ -2,11 +2,11 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
 
 import { Amount } from '@/components/Amount/Amount'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,

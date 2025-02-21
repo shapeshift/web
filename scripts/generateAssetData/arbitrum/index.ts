@@ -3,9 +3,10 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import { arbitrum, unfreeze } from '@shapeshiftmonorepo/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
-import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
+
+import { getPortalTokens } from '@/lib/portals/utils'
 
 const uniV2EthFoxAsset: Readonly<Asset> = Object.freeze({
   assetId: uniV2EthFoxArbitrumAssetId,

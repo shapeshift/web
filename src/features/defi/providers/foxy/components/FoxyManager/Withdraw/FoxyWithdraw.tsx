@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { getAddress } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -31,6 +30,7 @@ import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvid
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,

@@ -14,14 +14,14 @@ import {
 import type { ThorTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { getChainShortName } from '@shapeshiftmonorepo/utils'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 
 import type { ErrorWithMeta, TradeQuoteError } from '../types'
 import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,

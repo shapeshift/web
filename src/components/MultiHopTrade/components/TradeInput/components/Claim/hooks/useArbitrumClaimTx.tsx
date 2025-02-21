@@ -12,16 +12,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address, Hash, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from 'lib/utils/evm'
 
 import type { ClaimDetails } from './useArbitrumClaimsByStatus'
 
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from '@/lib/utils/evm'
 import { selectBip44ParamsByAccountId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

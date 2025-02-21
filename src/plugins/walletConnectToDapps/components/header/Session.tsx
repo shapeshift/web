@@ -12,9 +12,6 @@ import {
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
-import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
-import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback, useMemo } from 'react'
 
 import { AddressLinks } from './AddressLinks'
@@ -22,6 +19,9 @@ import { DappAvatar } from './DappAvatar'
 import { Networks } from './Networks'
 
 import { RawText, Text } from '@/components/Text'
+import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
+import { extractConnectedAccounts } from '@/plugins/walletConnectToDapps/utils'
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

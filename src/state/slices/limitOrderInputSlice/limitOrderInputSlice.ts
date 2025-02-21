@@ -3,7 +3,6 @@ import { foxAssetId, usdcAssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { assertUnreachable, bn, bnOrZero } from '@shapeshiftmonorepo/utils'
 import pick from 'lodash/pick'
-import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type {
@@ -13,6 +12,8 @@ import type {
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { ExpiryOption, LimitPriceMode, PriceDirection } from './constants'
 import { getOppositePriceDirection } from './helpers'
+
+import { localAssetData } from '@/lib/asset-service'
 
 export type LimitOrderInputState = {
   limitPriceDirection: PriceDirection

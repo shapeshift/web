@@ -1,6 +1,7 @@
-import { getConfig } from 'config'
 import type { Eip1193Provider } from 'ethers6'
-import { METAMASK_RDNS, mipdStore } from 'lib/mipd'
+
+import { getConfig } from '@/config'
+import { METAMASK_RDNS, mipdStore } from '@/lib/mipd'
 
 type GetSnapsResult = Record<
   string,
@@ -20,8 +21,8 @@ export const enableShapeShiftSnap = async (): Promise<void> => {
 
   const provider = mipdProvider.provider as Eip1193Provider
 
-  const snapVersion = getConfig().REACT_APP_SNAP_VERSION
-  const snapId = getConfig().REACT_APP_SNAP_ID
+  const snapVersion = getConfig().VITE_SNAP_VERSION
+  const snapId = getConfig().VITE_SNAP_ID
 
   await provider.request({
     method: 'wallet_requestSnaps',
@@ -34,7 +35,7 @@ export const enableShapeShiftSnap = async (): Promise<void> => {
 }
 
 export const getSnapVersion = async (): Promise<string | null> => {
-  const snapId = getConfig().REACT_APP_SNAP_ID
+  const snapId = getConfig().VITE_SNAP_ID
   const mipdProvider = mipdStore
     .getProviders()
     .find(provider => provider.info.rdns === METAMASK_RDNS)

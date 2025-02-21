@@ -3,7 +3,6 @@ import { Center, Flex, HStack } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftmonorepo/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { fromBaseUnit } from 'lib/math'
 
 import { useTradeFees } from './hooks'
 import { TransactionDate } from './TransactionDate'
@@ -22,6 +21,7 @@ import { getTransfersByType } from './utils'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RawText } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 
 const dividerStyle = { borderWidth: 0 }
 

@@ -55,3 +55,9 @@ import '@formatjs/intl-pluralrules/locale-data/tr'
 import '@formatjs/intl-pluralrules/locale-data/uk'
 import '@formatjs/intl-pluralrules/locale-data/vi'
 import '@formatjs/intl-pluralrules/locale-data/zh'
+
+import { Buffer } from 'buffer'
+import Process from 'process'
+
+globalThis.Buffer = Buffer
+globalThis.process = Process

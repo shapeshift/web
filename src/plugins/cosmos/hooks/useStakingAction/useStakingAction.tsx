@@ -1,10 +1,6 @@
 import type { cosmossdk } from '@shapeshiftmonorepo/chain-adapters'
 import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
 import type { Asset, Bip44Params } from '@shapeshiftmonorepo/types'
-import {
-  isStakingChainAdapter,
-  StakingAction,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import {
@@ -12,6 +8,10 @@ import {
   checkIsSnapInstalled,
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import {
+  isStakingChainAdapter,
+  StakingAction,
+} from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
 const shapeshiftValidators = [SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS]

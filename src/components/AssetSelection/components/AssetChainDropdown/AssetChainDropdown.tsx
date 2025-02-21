@@ -13,13 +13,13 @@ import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { assertGetChainAdapter } from 'lib/utils'
 
 import { AssetRowLoading } from '../AssetRowLoading'
 import { AssetChainRow } from './AssetChainRow'
 
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetChainAdapter } from '@/lib/utils'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {

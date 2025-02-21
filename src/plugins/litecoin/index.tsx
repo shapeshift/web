@@ -1,8 +1,9 @@
 import { litecoin } from '@shapeshiftmonorepo/chain-adapters'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import * as unchained from '@shapeshiftmonorepo/unchained-client'
-import { getConfig } from 'config'
-import type { Plugins } from 'plugins/types'
+
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
@@ -18,18 +19,18 @@ export default function register(): Plugins {
               () => {
                 const http = new unchained.litecoin.V1Api(
                   new unchained.litecoin.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_LITECOIN_HTTP_URL,
+                    basePath: getConfig().VITE_UNCHAINED_LITECOIN_HTTP_URL,
                   }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.litecoin.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_LITECOIN_WS_URL,
+                  getConfig().VITE_UNCHAINED_LITECOIN_WS_URL,
                 )
 
                 return new litecoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Litecoin',
-                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_MIDGARD_URL,
                 })
               },
             ],

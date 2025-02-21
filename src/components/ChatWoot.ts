@@ -1,7 +1,7 @@
-import { getConfig } from 'config'
 import type React from 'react'
 import { useEffect } from 'react'
 
+import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 export const ChatwootWidget: React.FC = () => {
@@ -17,7 +17,7 @@ export const ChatwootWidget: React.FC = () => {
 
     // Paste the script from inbox settings except the <script> tag
     ;(function (d: Document) {
-      const BASE_URL = getConfig().REACT_APP_CHATWOOT_URL
+      const BASE_URL = getConfig().VITE_CHATWOOT_URL
       const g = d.createElement('script')
       const s = d.getElementsByTagName('script')[0]
       g.src = BASE_URL + '/packs/js/sdk.js'
@@ -25,7 +25,7 @@ export const ChatwootWidget: React.FC = () => {
       g.async = true
       g.onload = function () {
         ;(window as any).chatwootSDK.run({
-          websiteToken: getConfig().REACT_APP_CHATWOOT_TOKEN,
+          websiteToken: getConfig().VITE_CHATWOOT_TOKEN,
           baseUrl: BASE_URL,
         })
       }

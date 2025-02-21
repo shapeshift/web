@@ -4,10 +4,6 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bn } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import { fromBaseUnit } from 'lib/math'
-import { middleEllipsis } from 'lib/utils'
 
 import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
 import { useFoxWifHatClaimedQueryQuery } from '../hooks/useFoxWifHatClaimedQuery'
@@ -15,6 +11,10 @@ import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuer
 
 import { Amount } from '@/components/Amount/Amount'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { bn } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import { fromBaseUnit } from '@/lib/math'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectAccountIdsByChainId,
   selectAccountNumberByAccountId,

@@ -15,8 +15,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
@@ -32,6 +30,8 @@ import { TransactionDate } from '@/components/TransactionHistoryRows/Transaction
 import { useActions } from '@/hooks/useActions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {

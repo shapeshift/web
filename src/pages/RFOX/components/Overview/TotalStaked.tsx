@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { bn } from '@shapeshiftmonorepo/chain-adapters'
 import { useTranslate } from 'react-polyglot'
-import { fromBaseUnit } from 'lib/math'
 
 import { StatItem } from './StatItem'
 
+import { fromBaseUnit } from '@/lib/math'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

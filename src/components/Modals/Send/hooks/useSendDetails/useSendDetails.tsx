@@ -5,10 +5,6 @@ import { solana } from '@shapeshiftmonorepo/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { contractAddressOrUndefined } from 'lib/utils'
 
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
@@ -17,6 +13,10 @@ import { estimateFees } from '@/components/Modals/Send/utils'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { contractAddressOrUndefined } from '@/lib/utils'
 import {
   selectAssetById,
   selectFeeAssetById,

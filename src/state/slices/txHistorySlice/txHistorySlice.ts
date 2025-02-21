@@ -7,11 +7,11 @@ import type { PartialRecord, UtxoAccountType } from '@shapeshiftmonorepo/types'
 import orderBy from 'lodash/orderBy'
 import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
-import { deepUpsertArray } from 'lib/utils'
 
 import { getRelatedAssetIds, serializeTxIndex } from './utils'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { deepUpsertArray } from '@/lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import {
   BLACKLISTED_COLLECTION_IDS,

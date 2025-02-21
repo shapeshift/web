@@ -2,9 +2,7 @@ import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 
 import { BorrowRoutePaths } from './types'
 
@@ -13,6 +11,8 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Sweep } from '@/components/Sweep'
 import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getThorchainLendingPosition } from '@/lib/utils/thorchain/lending'
+import { reactQueries } from '@/react-queries'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

@@ -12,13 +12,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { AccountSelectionByChainId } from 'plugins/walletConnectToDapps/components/AccountSelectionByChainId'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { Row } from '@/components/Row/Row'
+import { AccountSelectionByChainId } from '@/plugins/walletConnectToDapps/components/AccountSelectionByChainId'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

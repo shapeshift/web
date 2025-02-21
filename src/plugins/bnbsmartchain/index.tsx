@@ -1,14 +1,15 @@
 import { bnbsmartchain } from '@shapeshiftmonorepo/chain-adapters'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import * as unchained from '@shapeshiftmonorepo/unchained-client'
-import { getConfig } from 'config'
-import type { Plugins } from 'plugins/types'
+
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
 
 // I'm an unchained-client wrapper around `/api/v1/` endpoints
 // If you ever need to consume endpoints which are not abstracted by chain-adapters, consume me
 export const http = new unchained.bnbsmartchain.V1Api(
   new unchained.bnbsmartchain.Configuration({
-    basePath: getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
+    basePath: getConfig().VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
   }),
 )
 
@@ -26,13 +27,13 @@ export default function register(): Plugins {
               KnownChainIds.BnbSmartChainMainnet,
               () => {
                 const ws = new unchained.ws.Client<unchained.bnbsmartchain.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_WS_URL,
+                  getConfig().VITE_UNCHAINED_BNBSMARTCHAIN_WS_URL,
                 )
 
                 return new bnbsmartchain.ChainAdapter({
                   providers: { http, ws },
-                  rpcUrl: getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL,
-                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
+                  rpcUrl: getConfig().VITE_BNBSMARTCHAIN_NODE_URL,
+                  midgardUrl: getConfig().VITE_MIDGARD_URL,
                 })
               },
             ],

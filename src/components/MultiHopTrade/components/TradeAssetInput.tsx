@@ -1,10 +1,10 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import React, { memo, useCallback, useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { TradeAmountInputProps } from '@/components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from '@/components/MultiHopTrade/components/TradeAmountInput'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,

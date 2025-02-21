@@ -1,6 +1,7 @@
 import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 
 export const getFeeData = async (asset: Asset) => {
   const adapter = assertGetCosmosSdkChainAdapter(fromAssetId(asset.assetId).chainId)

@@ -1,6 +1,5 @@
 import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import type { AxiosInstance } from 'axios'
-import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -9,9 +8,11 @@ import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './erhMockData'
 import { ExchangeRateHostService, makeExchangeRateRequestUrls } from './exchange-rates-host'
 import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
+import { getConfig } from '@/config'
+
 const exchangeRateHostService = new ExchangeRateHostService()
-const baseUrl = getConfig().REACT_APP_EXCHANGERATEHOST_BASE_URL
-const apiKey = getConfig().REACT_APP_EXCHANGERATEHOST_API_KEY
+const baseUrl = getConfig().VITE_EXCHANGERATEHOST_BASE_URL
+const apiKey = getConfig().VITE_EXCHANGERATEHOST_API_KEY
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),

@@ -4,13 +4,13 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { calculateFiatChange, calculatePercentChange } from 'lib/charts'
 
 import { Graph } from '@/components/Graph/Graph'
 import { IconCircle } from '@/components/IconCircle'
 import { Text } from '@/components/Text'
 import { makeBalanceChartData } from '@/hooks/useBalanceChartData/utils'
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { calculateFiatChange, calculatePercentChange } from '@/lib/charts'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,

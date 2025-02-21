@@ -1,6 +1,6 @@
 import type { Result } from '@sniptt/monads'
-import { assertUnreachable } from 'lib/utils'
 
+import { assertUnreachable } from '@/lib/utils'
 import { GetAllowanceErr } from '@/react-queries/types'
 
 export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceErr>) => {

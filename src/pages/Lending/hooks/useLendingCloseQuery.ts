@@ -5,18 +5,18 @@ import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
-import { BigNumber, bn } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
-import { getMaybeThorchainLendingCloseQuote } from 'lib/utils/thorchain/lending'
-import type {
-  LendingQuoteClose,
-  LendingWithdrawQuoteResponseSuccess,
-} from 'lib/utils/thorchain/lending/types'
 
 import { useLendingPositionData } from './useLendingPositionData'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import { BigNumber, bn } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { BASE_BPS_POINTS } from '@/lib/utils/thorchain/constants'
+import { getMaybeThorchainLendingCloseQuote } from '@/lib/utils/thorchain/lending'
+import type {
+  LendingQuoteClose,
+  LendingWithdrawQuoteResponseSuccess,
+} from '@/lib/utils/thorchain/lending/types'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,

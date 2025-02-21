@@ -7,8 +7,6 @@ import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLink } from 'lib/getTxLink'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -27,6 +25,8 @@ import type {
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
 
 type StatusProps = { accountId: AccountId | undefined }
 

@@ -19,13 +19,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
-import { fromBaseUnit } from 'lib/math'
-import { firstFourLastFour } from 'lib/utils'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from 'lib/utils/evm'
 
 import { FoxWifHatClaimRoutePaths } from './types'
 
@@ -36,6 +29,13 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import { firstFourLastFour } from '@/lib/utils'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from '@/lib/utils/evm'
 import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_CONTRACT } from '@/pages/Fox/constant'
 import { useFoxWifHatMerkleTreeQuery } from '@/pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
 import {

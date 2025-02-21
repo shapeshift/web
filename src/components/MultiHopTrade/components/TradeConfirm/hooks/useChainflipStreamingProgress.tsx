@@ -1,11 +1,11 @@
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
 import type { ChainFlipStatus } from '@shapeshiftmonorepo/swapper/dist/swappers/ChainflipSwapper/types'
 import axios from 'axios'
-import { getConfig } from 'config'
 import { useEffect, useMemo } from 'react'
 
 import type { ChainflipStreamingSwapResponseSuccess } from '../types'
 
+import { getConfig } from '@/config'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -29,8 +29,8 @@ const getChainflipStreamingSwap = async (
   if (!swapId) return
 
   const config = getConfig()
-  const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = config.VITE_CHAINFLIP_API_URL
+  const apiKey = config.VITE_CHAINFLIP_API_KEY
 
   const statusResponse = await axios
     .get<ChainFlipStatus>(`${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`)

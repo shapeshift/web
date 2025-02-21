@@ -17,12 +17,6 @@ import type { LifiTradeRate } from '@shapeshiftmonorepo/swapper/src/swappers/Lif
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isSome } from 'lib/utils'
 
 import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
 import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
@@ -32,6 +26,12 @@ import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGe
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isSome } from '@/lib/utils'
 import {
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,

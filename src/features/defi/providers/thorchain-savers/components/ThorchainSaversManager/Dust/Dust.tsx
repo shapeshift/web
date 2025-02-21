@@ -4,8 +4,6 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
@@ -20,6 +18,8 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 type DustProps = {
   accountId: AccountId | undefined

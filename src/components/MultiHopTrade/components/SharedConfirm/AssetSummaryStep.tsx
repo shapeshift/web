@@ -3,8 +3,6 @@ import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
 import { StepperStep } from '../TradeConfirm/StepperStep'
 
@@ -12,6 +10,8 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectIsAssetWithoutMarketData,
   selectMarketDataUserCurrency,

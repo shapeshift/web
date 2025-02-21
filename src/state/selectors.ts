@@ -7,7 +7,6 @@ import type { TradeQuote } from '@shapeshiftmonorepo/swapper'
 import type { HistoryTimeframe, QuoteId } from '@shapeshiftmonorepo/types'
 import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import createCachedSelector from 're-reselect'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import type { ReduxState } from './reducer'
 import type {
@@ -20,6 +19,7 @@ import type {
 } from './slices/opportunitiesSlice/types'
 
 import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter

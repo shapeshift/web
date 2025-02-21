@@ -4,7 +4,6 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { FaArrowDown } from 'react-icons/fa'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
@@ -14,6 +13,7 @@ import type {
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   serializeUserStakingId,
   supportsUndelegations,

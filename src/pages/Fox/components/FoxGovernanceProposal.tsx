@@ -1,8 +1,8 @@
 import { Box, Card, CardBody, Flex, Link, Progress, Tag, Text } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftmonorepo/caip'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { Proposal } from '@/state/apis/snapshot/validators'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

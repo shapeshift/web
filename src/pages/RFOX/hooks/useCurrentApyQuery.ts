@@ -3,7 +3,6 @@ import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import { useCallback } from 'react'
-import { fromBaseUnit } from 'lib/math'
 
 import { getStakingContract } from '../helpers'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
@@ -11,6 +10,7 @@ import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
 
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectPriceHistoryByAssetTimeframe } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

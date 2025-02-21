@@ -1,12 +1,13 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { adapters } from '@shapeshiftmonorepo/caip'
 import axios from 'axios'
-import { getConfig } from 'config'
 import head from 'lodash/head'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
+
+import { getConfig } from '@/config'
 
 // Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
 type Crypto = {
@@ -26,8 +27,8 @@ type OnRamperGatewaysResponse = {
 
 const getGatewayData = async () => {
   try {
-    const baseUrl = getConfig().REACT_APP_ONRAMPER_API_URL
-    const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
+    const baseUrl = getConfig().VITE_ONRAMPER_API_URL
+    const apiKey = getConfig().VITE_ONRAMPER_API_KEY
     return (
       await axios.get<OnRamperGatewaysResponse>(`${baseUrl}supported`, {
         headers: {
@@ -156,8 +157,8 @@ export const createOnRamperUrl = ({
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
   if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
 
-  const baseUrl = getConfig().REACT_APP_ONRAMPER_WIDGET_URL
-  const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
+  const baseUrl = getConfig().VITE_ONRAMPER_WIDGET_URL
+  const apiKey = getConfig().VITE_ONRAMPER_API_KEY
 
   const params = new URLSearchParams()
   const defaultCrypto = head(onRamperSymbols)!!

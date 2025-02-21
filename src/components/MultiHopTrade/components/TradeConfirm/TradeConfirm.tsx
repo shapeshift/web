@@ -2,7 +2,6 @@ import { Stepper } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftmonorepo/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { fromBaseUnit } from 'lib/math'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
@@ -14,6 +13,7 @@ import { TradeConfirmFooter } from './TradeConfirmFooter'
 
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,

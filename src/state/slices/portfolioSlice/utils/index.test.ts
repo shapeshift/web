@@ -9,11 +9,11 @@ import {
   polygonAssetId,
 } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it, vi } from 'vitest'
-import { trimWithEndEllipsis } from 'lib/utils'
-import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 
 import { accountIdToLabel, findAccountsByAssetId } from '.'
 
+import { trimWithEndEllipsis } from '@/lib/utils'
+import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { mockChainAdapters } from '@/test/mocks/portfolio'
 
 vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({

@@ -3,9 +3,9 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Avatar, Box, Button, Flex, IconButton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 
 const activeIcon = <CheckCircleIcon color='blue.500' ml='auto' />
 const editIcon = <EditIcon />

@@ -18,7 +18,6 @@ import React, { useCallback, useMemo } from 'react'
 import type { ControllerProps, FieldValues } from 'react-hook-form'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
 import { AssetInput } from '@/components/DeFi/components/AssetInput'
@@ -28,6 +27,7 @@ import { Slippage } from '@/components/Slippage/Slippage'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type InputDefaultValue = {
   cryptoAmount: string

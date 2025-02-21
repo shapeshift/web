@@ -57,7 +57,7 @@ vi.mock('@/state/slices/assetsSlice/selectors', async () => {
     XDAI,
     ETH_ARBITRUM,
     USDC_ARBITRUM,
-  } = require('lib/swapper/swappers/utils/test-data/assets')
+  } = require('@/lib/swapper/swappers/utils/test-data/assets')
 
   const actual = await vi.importActual('@/state/slices/assetsSlice/selectors')
   return {
@@ -79,7 +79,7 @@ vi.mock('@/state/slices/assetsSlice/selectors', async () => {
 const ASSETS = [ETH, WBTC, WETH, BTC, FOX_MAINNET, XDAI, ETH_ARBITRUM, USDC_ARBITRUM]
 
 const MOCK_COWSWAP_CONFIG = {
-  REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+  VITE_COWSWAP_BASE_URL: 'https://api.cow.fi',
 } as SwapperConfig
 
 describe('CowSwapper', () => {

@@ -14,12 +14,11 @@
     "noImplicitReturns": false,
 
     /* Module Resolution Options */
-    "baseUrl": "src",
+    "baseUrl": ".",
     "moduleResolution": "node",
     "paths": {
-      "@shapeshiftmonorepo/*": ["packages/$1/src/*"],
       "@/*": ["src/*"],
-      "*": ["src/*"]
+      "@shapeshiftmonorepo/*": ["packages/$1/src/*"]
     },
     "resolveJsonModule": true,
 

@@ -6,15 +6,15 @@ import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/
 import type { AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import type {
   MidgardInterval,
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
-} from 'lib/utils/thorchain/lp/types'
-
+} from '@/lib/utils/thorchain/lp/types'
+import { reactQueries } from '@/react-queries'
 import { selectAssets, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

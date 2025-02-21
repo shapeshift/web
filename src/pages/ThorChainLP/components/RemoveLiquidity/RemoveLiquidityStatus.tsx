@@ -1,10 +1,11 @@
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
-import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 
 import { ReusableLpStatus } from '../ReusableLpStatus/ReusableLpStatus'
 import { RemoveLiquidityRoutePaths } from './types'
+
+import type { LpConfirmedWithdrawalQuote } from '@/lib/utils/thorchain/lp/types'
 
 type RemoveLiquidityStatusProps = {
   confirmedQuote: LpConfirmedWithdrawalQuote

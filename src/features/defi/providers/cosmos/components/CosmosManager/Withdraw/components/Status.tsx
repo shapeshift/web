@@ -4,9 +4,9 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 import { WithdrawContext } from '../WithdrawContext'
 

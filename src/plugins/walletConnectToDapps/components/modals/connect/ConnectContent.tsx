@@ -13,7 +13,6 @@ import {
   Link,
   VStack,
 } from '@chakra-ui/react'
-import { isWalletConnectV2Uri } from 'plugins/walletConnectToDapps/components/modals/connect/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -29,6 +28,7 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { Text } from '@/components/Text'
+import { isWalletConnectV2Uri } from '@/plugins/walletConnectToDapps/components/modals/connect/utils'
 
 type FormValues = {
   uri: string

@@ -7,7 +7,6 @@ import {
   toAssetId,
 } from '@shapeshiftmonorepo/caip'
 import dayjs from 'dayjs'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type {
   GetOpportunityIdsOutput,
@@ -24,6 +23,7 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { foxyApi } from '@/state/apis/foxy/foxyApi'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'

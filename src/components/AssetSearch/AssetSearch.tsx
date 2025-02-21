@@ -10,12 +10,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { sortChainIdsByDisplayName } from 'lib/utils'
 
 import { AssetList } from './components/AssetList'
 
 import { ChainList } from '@/components/TradeAssetSearch/Chains/ChainList'
 import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { sortChainIdsByDisplayName } from '@/lib/utils'
 import { selectWalletConnectedChainIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

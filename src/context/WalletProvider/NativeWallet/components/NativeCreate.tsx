@@ -10,19 +10,23 @@ import {
   Tag,
   Wrap,
 } from '@chakra-ui/react'
-import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import {
+  Revocable,
+  revocable,
+} from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines/default'
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useQuery } from '@tanstack/react-query'
 import { range } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useHistory, useLocation } from 'react-router-dom'
-import { Text } from '@/components/Text'
-import { NativeWalletRoutes } from '@/context/WalletProvider/types'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
+
+import { Text } from '@/components/Text'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 const faEyeIcon = <FaEye />
 
@@ -33,9 +37,6 @@ const getVault = async (): Promise<Vault> => {
   vault.set('#mnemonic', GENERATE_MNEMONIC)
   return vault
 }
-
-const Revocable = Default.Revocable
-const revocable = Default.revocable
 
 export const NativeCreate = () => {
   const history = useHistory()

@@ -1,15 +1,8 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import { CosmosClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -29,6 +22,13 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { StakingAction } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
+import { useStakingAction } from '@/plugins/cosmos/hooks/useStakingAction/useStakingAction'
+import { getFeeData } from '@/plugins/cosmos/utils'
 import {
   selectAssetById,
   selectAssets,

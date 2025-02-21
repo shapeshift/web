@@ -19,7 +19,6 @@ import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { validateAddress } from 'lib/address/address'
 
 import { selectRuneAddress } from '../helpers'
 import { useRFOXContext } from '../hooks/useRfoxContext'
@@ -34,6 +33,7 @@ import { Text } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { validateAddress } from '@/lib/address/address'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountIdsByAssetId,

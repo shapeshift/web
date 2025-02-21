@@ -5,9 +5,9 @@ import type { InboundAddressResponse } from '@shapeshiftmonorepo/swapper/dist/sw
 import type { Result } from '@sniptt/monads'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 
+import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { reactQueries } from '@/react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
 
 export const useIsTradingActive = ({

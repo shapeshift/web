@@ -4,8 +4,6 @@ import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import type { ParseAddressInputReturn } from 'lib/address/address'
-import { parseAddressInputWithChainId } from 'lib/address/address'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
@@ -13,6 +11,8 @@ import { Overview } from './Overview'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { ParseAddressInputReturn } from '@/lib/address/address'
+import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,

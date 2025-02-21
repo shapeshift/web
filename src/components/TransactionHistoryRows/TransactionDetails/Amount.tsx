@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromBaseUnit } from 'lib/math'
 
 import { Amount as AmountComponent } from '@/components/Amount/Amount'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

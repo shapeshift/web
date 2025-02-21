@@ -7,6 +7,13 @@ import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
 import type { SlideRenderProps } from 'react-swipeable-views-utils'
 import { virtualize } from 'react-swipeable-views-utils'
+
+import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
+import { EarnDashboard } from './EarnDashboard'
+import { MobileActivity } from './MobileActivity'
+import { RewardsDashboard } from './RewardsDashboard'
+import { WalletDashboard } from './WalletDashboard'
+
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { NftTable } from '@/components/Nfts/NftTable'
@@ -14,16 +21,10 @@ import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isMobile } from 'lib/globals'
+import { isMobile } from '@/lib/globals'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 import { breakpoints } from '@/theme/theme'
-
-import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
-import { EarnDashboard } from './EarnDashboard'
-import { MobileActivity } from './MobileActivity'
-import { RewardsDashboard } from './RewardsDashboard'
-import { WalletDashboard } from './WalletDashboard'
 
 const mainPadding = { base: 0, md: 4 }
 const customTabActive = { color: 'text.base' }

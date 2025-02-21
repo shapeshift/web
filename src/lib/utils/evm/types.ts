@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { MaybeUndefinedFields } from 'lib/types'
+
+import type { MaybeUndefinedFields } from '@/lib/types'
 
 type ApproveInput = {
   assetId: AssetId

@@ -1,11 +1,11 @@
 import { Link } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
-import { getTxLink } from 'lib/getTxLink'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useChainflipSwapIdQuery } from '@/hooks/queries/useChainflipSwapIdQuery'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { getTxLink } from '@/lib/getTxLink'
 
 export const TxLabel = ({
   txHash,

@@ -1,13 +1,13 @@
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import type { Borrower } from 'lib/utils/thorchain/lending/types'
 
 import { useLendingSupportedAssets } from './useLendingSupportedAssets'
 
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { getThorchainLendingPosition } from '@/lib/utils/thorchain/lending'
+import type { Borrower } from '@/lib/utils/thorchain/lending/types'
 import {
   selectAccountIdsByAssetId,
   selectEnabledWalletAccountIds,

@@ -2,11 +2,11 @@ import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftmonorepo/c
 import type { AccountMetadataById } from '@shapeshiftmonorepo/types'
 import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 
 export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args

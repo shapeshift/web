@@ -12,14 +12,14 @@ import last from 'lodash/last'
 import values from 'lodash/values'
 import without from 'lodash/without'
 import { useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtDate } from 'lib/charts'
-import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 import { excludeTransaction } from './cosmosUtils'
 import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
 
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { priceAtDate } from '@/lib/charts'
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {

@@ -9,17 +9,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { encodeFunctionData, erc20Abi } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLink } from 'lib/getTxLink'
-import { fromBaseUnit } from 'lib/math'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-  isGetFeesWithWalletEIP1559SupportArgs,
-} from 'lib/utils/evm'
 
 import type { StakeInputValues } from '../types'
 
@@ -27,7 +17,17 @@ import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  isGetFeesWithWalletEIP1559SupportArgs,
+} from '@/lib/utils/evm'
 import { getStakingContract } from '@/pages/RFOX/helpers'
+import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import {
   selectAccountNumberByAccountId,

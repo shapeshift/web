@@ -67,8 +67,8 @@ export const getTradeQuote = async (
 
   if (maybeTradeQuotes.isErr()) return Err(maybeTradeQuotes.unwrapErr())
 
-  const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
+  const apiKey = deps.config.VITE_CHAINFLIP_API_KEY
 
   const tradeQuotes = maybeTradeQuotes.unwrap()
 

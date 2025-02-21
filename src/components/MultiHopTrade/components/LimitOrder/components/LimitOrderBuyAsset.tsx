@@ -2,13 +2,13 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { positiveOrZero } from 'lib/bignumber/bignumber'
 
 import { TradeAssetInput } from '../../TradeAssetInput'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useModal } from '@/hooks/useModal/useModal'
+import { positiveOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectBuyAmountCryptoPrecision,
   selectBuyAmountUserCurrency,

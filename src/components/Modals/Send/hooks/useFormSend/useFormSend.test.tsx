@@ -9,7 +9,6 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { ensLookup } from 'lib/address/ens'
 
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
@@ -20,6 +19,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { ensLookup } from '@/lib/address/ens'
 import { ethereum as mockEthereum } from '@/test/mocks/assets'
 import { EthSend } from '@/test/mocks/txs'
 
@@ -82,15 +82,15 @@ const mockEvmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
 ]
-vi.mock('lib/utils/evm', async () => {
-  const actual = await vi.importActual('lib/utils/evm')
+vi.mock('@/lib/utils/evm', async () => {
+  const actual = await vi.importActual('@/lib/utils/evm')
   return {
     ...actual,
     getSupportedEvmChainIds: () => mockEvmChainIds,
   }
 })
 
-vi.mock('lib/address/ens')
+vi.mock('@/lib/address/ens')
 
 const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',

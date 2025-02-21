@@ -3,8 +3,6 @@ import { toAssetId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
 import { ClaimConfirm } from '../Claim/ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -17,6 +15,8 @@ import type {
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type { UserStakingId } from '@/state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {

@@ -14,7 +14,6 @@ import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import SaversVaultTop from '@/assets/savers-vault-top.png'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -24,6 +23,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from '@/features/defi/components/EmptyOverview/EmptyOverview'
 import { useModal } from '@/hooks/useModal/useModal'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import {
   selectAssetById,

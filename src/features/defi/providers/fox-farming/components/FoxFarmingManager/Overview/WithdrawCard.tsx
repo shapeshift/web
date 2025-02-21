@@ -4,7 +4,6 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import type { Property } from 'csstype'
 import qs from 'qs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
@@ -17,6 +16,7 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type WithdrawCardProps = {
   asset: Asset

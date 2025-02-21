@@ -2,8 +2,9 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { ProtocolFee } from '@shapeshiftmonorepo/swapper'
 import type { MarketData, PartialRecord } from '@shapeshiftmonorepo/types'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, convertPrecision } from 'lib/bignumber/bignumber'
+
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, convertPrecision } from '@/lib/bignumber/bignumber'
 
 type SumProtocolFeesToDenomArgs = {
   marketDataByAssetIdUsd: Partial<Record<AssetId, Pick<MarketData, 'price'>>>

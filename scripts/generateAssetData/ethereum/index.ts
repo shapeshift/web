@@ -6,10 +6,11 @@ import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
-import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
+
+import { getPortalTokens } from '@/lib/portals/utils'
 
 const foxyToken: Asset = {
   assetId: toAssetId({

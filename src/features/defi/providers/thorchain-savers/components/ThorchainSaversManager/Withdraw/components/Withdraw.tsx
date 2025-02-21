@@ -10,19 +10,6 @@ import pDebounce from 'p-debounce'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
-import type { GetThorchainSaversWithdrawQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
-import {
-  fetchThorchainWithdrawQuote,
-  useGetThorchainSaversWithdrawQuoteQuery,
-} from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { isUtxoChainId } from 'lib/utils/utxo'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -40,6 +27,19 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from '@/lib/utils/thorchain/balance'
+import { BASE_BPS_POINTS } from '@/lib/utils/thorchain/constants'
+import type { GetThorchainSaversWithdrawQuoteQueryKey } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import {
+  fetchThorchainWithdrawQuote,
+  useGetThorchainSaversWithdrawQuoteQuery,
+} from '@/lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'

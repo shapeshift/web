@@ -36,7 +36,7 @@ import type {
 } from '@/state/slices/opportunitiesSlice/types'
 import { opportunityIdToChainId } from '@/state/slices/opportunitiesSlice/utils'
 
-describe('lib/utils', () => {
+describe('@/lib/utils', () => {
   describe('opportunityIdToChainId', () => {
     test('returns the correct chain ID for an LpId', () => {
       const lpId: LpId = foxAssetId as LpId

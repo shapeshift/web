@@ -1,6 +1,7 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import { firstFourLastFour } from 'lib/utils'
+
+import { firstFourLastFour } from '@/lib/utils'
 
 type MiddleEllipsisProps = {
   value: string

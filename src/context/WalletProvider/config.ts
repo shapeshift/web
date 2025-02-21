@@ -8,11 +8,8 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import { getConfig } from 'config'
 import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
-import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
 
 import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
@@ -30,6 +27,10 @@ import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
+
+import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { getConfig } from '@/config'
+import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
 
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
@@ -451,7 +452,7 @@ export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMod
       return {
         appName: 'ShapeShift',
         appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
-        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultJsonRpcUrl: getConfig().VITE_ETHEREUM_NODE_URL,
         defaultChainId: 1,
         darkMode: isDarkMode,
       }

@@ -2,11 +2,11 @@ import { Text as CText } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { CommonCard, CommonStat } from './CommonCard'
 
 import { Amount } from '@/components/Amount/Amount'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

@@ -8,12 +8,12 @@ import {
 } from '@shapeshiftmonorepo/caip'
 import { Dex, TransferType, TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useMemo } from 'react'
-import { getTxLink } from 'lib/getTxLink'
 
 import { RewardTransactionList } from './RewardTransactionList'
 
 import { Text } from '@/components/Text'
 import type { TxDetails } from '@/hooks/useTxDetails/useTxDetails'
+import { getTxLink } from '@/lib/getTxLink'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { useLifetimeRewardDistributionsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'

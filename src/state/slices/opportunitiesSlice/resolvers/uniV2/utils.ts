@@ -11,10 +11,11 @@ import type { TokenAmount } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'
 import type { GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, parseAbiItem } from 'viem'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { TRADING_FEE_RATE } from './constants'
+
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const getToken0Volume24Hr = async ({
   blockNumber,

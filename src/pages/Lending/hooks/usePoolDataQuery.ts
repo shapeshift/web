@@ -2,12 +2,15 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
-import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import {
+  getAllThorchainLendingPositions,
+  getThorchainPoolInfo,
+} from '@/lib/utils/thorchain/lending'
+import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectAssetById,

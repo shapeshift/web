@@ -10,7 +10,6 @@ import type { BrowserProvider } from 'ethers6'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
-import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
 
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
@@ -37,6 +36,7 @@ import { MobileConfig } from '@/context/WalletProvider/MobileWallet/config'
 import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
+import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 import {
   selectWalletDeviceId,

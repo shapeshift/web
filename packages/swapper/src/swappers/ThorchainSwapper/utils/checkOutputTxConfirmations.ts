@@ -16,34 +16,34 @@ export const checkOutputTxConfirmations = async (
   const apiUrl = (() => {
     switch (latestOutTx.chain) {
       case ThorchainChain.BTC: {
-        return config.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL
+        return config.VITE_UNCHAINED_BITCOIN_HTTP_URL
       }
       case ThorchainChain.DOGE: {
-        return config.REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL
+        return config.VITE_UNCHAINED_DOGECOIN_HTTP_URL
       }
       case ThorchainChain.LTC: {
-        return config.REACT_APP_UNCHAINED_LITECOIN_HTTP_URL
+        return config.VITE_UNCHAINED_LITECOIN_HTTP_URL
       }
       case ThorchainChain.BCH: {
-        return config.REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL
+        return config.VITE_UNCHAINED_BITCOINCASH_HTTP_URL
       }
       case ThorchainChain.ETH: {
-        return config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
+        return config.VITE_UNCHAINED_ETHEREUM_HTTP_URL
       }
       case ThorchainChain.AVAX: {
-        return config.REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL
+        return config.VITE_UNCHAINED_AVALANCHE_HTTP_URL
       }
       case ThorchainChain.BNB: {
-        return config.REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL
+        return config.VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL
       }
       case ThorchainChain.THOR: {
-        return config.REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
+        return config.VITE_UNCHAINED_THORCHAIN_HTTP_URL
       }
       case ThorchainChain.GAIA: {
-        return config.REACT_APP_UNCHAINED_COSMOS_HTTP_URL
+        return config.VITE_UNCHAINED_COSMOS_HTTP_URL
       }
       case ThorchainChain.BASE: {
-        return config.REACT_APP_UNCHAINED_BASE_HTTP_URL
+        return config.VITE_UNCHAINED_BASE_HTTP_URL
       }
       case ThorchainChain.BSC:
         throw Error(`${latestOutTx.chain} not supported`)

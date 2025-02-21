@@ -5,9 +5,9 @@ import type {
 } from '@shapeshiftmonorepo/swapper'
 import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
 import { useMemo } from 'react'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectUsdRateByAssetId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

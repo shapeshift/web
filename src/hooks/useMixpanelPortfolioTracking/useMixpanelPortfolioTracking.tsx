@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { selectWalletId } from '@/state/slices/common-selectors'
 import { selectIsMarketDataLoaded } from '@/state/slices/marketDataSlice/selectors'
 import {

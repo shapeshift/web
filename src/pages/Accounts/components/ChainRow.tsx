@@ -3,13 +3,13 @@ import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '
 import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import { AccountNumberRow } from './AccountNumberRow'
 
 import { Amount } from '@/components/Amount/Amount'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,

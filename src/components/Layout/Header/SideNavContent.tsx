@@ -14,7 +14,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
 const WalletConnectToDappsHeaderButton = lazy(() =>
-  import('plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
+  import('@/plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
     ({ WalletConnectToDappsHeaderButton }) => ({ default: WalletConnectToDappsHeaderButton }),
   ),
 )

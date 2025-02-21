@@ -1,6 +1,6 @@
 import type { InterpolationOptions } from 'node-polyglot'
-import { assertUnreachable } from 'lib/utils'
 
+import { assertUnreachable } from '@/lib/utils'
 import type { ErrorWithMeta } from '@/state/apis/swapper/types'
 import { TradeQuoteRequestError } from '@/state/apis/swapper/types'
 

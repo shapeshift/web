@@ -12,8 +12,6 @@ import {
 import type { MarketData } from '@shapeshiftmonorepo/types'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -32,6 +30,8 @@ import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { makeTotalLpApr, rewardRatePerToken } from './utils'
 
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 

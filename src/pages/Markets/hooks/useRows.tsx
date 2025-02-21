@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftmonorepo/swapper/dist/swappers/PortalsSwapper/constants'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getCoingeckoSupportedChainIds } from 'lib/coingecko/utils'
 
 import { AssetGridWithData } from '../components/AssetGridWithData'
 import { OneClickDefiAssets } from '../components/LpGrid'
@@ -10,6 +9,7 @@ import { MarketsCategories } from '../constants'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { getCoingeckoSupportedChainIds } from '@/lib/coingecko/utils'
 
 export type RowProps = {
   selectedChainId: ChainId | undefined

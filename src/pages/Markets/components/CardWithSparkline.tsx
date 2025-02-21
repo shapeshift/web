@@ -4,13 +4,13 @@ import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import noop from 'lodash/noop'
 import { useCallback } from 'react'
-import { markdownLinkToHTML } from 'lib/utils'
 
 import { Amount } from '@/components/Amount/Amount'
 import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ParsedHtml } from '@/components/ParsedHtml/ParsedHtml'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
+import { markdownLinkToHTML } from '@/lib/utils'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,

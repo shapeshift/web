@@ -3,9 +3,9 @@ import type { Asset, CowSwapError } from '@shapeshiftmonorepo/types'
 import { OrderError } from '@shapeshiftmonorepo/types'
 import { bn } from '@shapeshiftmonorepo/utils'
 import type { InterpolationOptions } from 'node-polyglot'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { assertUnreachable } from 'lib/utils'
 
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { assertUnreachable } from '@/lib/utils'
 import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
 import type { ReduxState } from '@/state/reducer'
 import {

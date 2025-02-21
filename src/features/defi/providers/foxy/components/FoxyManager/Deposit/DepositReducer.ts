@@ -1,9 +1,9 @@
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { bn } from 'lib/bignumber/bignumber'
 
 import type { FoxyDepositActions, FoxyDepositState } from './DepositCommon'
 import { FoxyDepositActionType } from './DepositCommon'
 
+import { bn } from '@/lib/bignumber/bignumber'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export const initialState: FoxyDepositState = {

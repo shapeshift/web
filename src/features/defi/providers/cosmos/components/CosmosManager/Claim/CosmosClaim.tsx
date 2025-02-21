@@ -4,7 +4,6 @@ import { toAssetId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
 import { CosmosClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -24,6 +23,7 @@ import type {
 import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { serializeUserStakingId, toValidatorId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,

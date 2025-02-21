@@ -5,11 +5,11 @@ import {
   ETH_FOX_STAKING_EVERGREEN_CONTRACT,
   foxEthStakingContractAddresses,
 } from '@shapeshiftmonorepo/contracts'
-import { getTypeGuardAssertion } from 'lib/utils'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
 import { DefiProvider } from './types'
 
+import { getTypeGuardAssertion } from '@/lib/utils'
 import { RFOX_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
 
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02

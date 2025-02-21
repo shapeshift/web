@@ -13,13 +13,13 @@ import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { bn } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { ChainRow } from './ChainRow'
 
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
 import { GridIcon } from '@/components/Icons/GridIcon'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

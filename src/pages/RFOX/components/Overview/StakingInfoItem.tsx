@@ -3,11 +3,11 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { fromBaseUnit } from 'lib/math'
 
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Text } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

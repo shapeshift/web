@@ -3,7 +3,6 @@ import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { ManageAccountsDrawer } from '@/components/ManageAccountsDrawer/ManageAccountsDrawer'
@@ -20,6 +19,7 @@ import { RawText } from '@/components/Text'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
 import { selectWalletSupportedChainIds } from '@/state/slices/common-selectors'
 import {
   selectAccountIdsByChainId,

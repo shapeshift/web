@@ -12,7 +12,7 @@ dayjs.extend(relativeTime)
 export const formatSecondsToDuration = (seconds: number) => {
   const selectedLocale = selectSelectedLocale(store.getState())
   const locale = selectedLocale in LanguageTypeEnum ? selectedLocale : 'en'
-  require(`dayjs/locale/${locale}.js`)
+  void import(`dayjs/locale/${locale}.js`)
 
   return dayjs.duration(seconds, 'seconds').locale(locale).humanize()
 }

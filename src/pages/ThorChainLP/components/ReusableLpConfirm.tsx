@@ -18,17 +18,6 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import React, { useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable } from 'lib/utils'
-import type {
-  LpConfirmedDepositQuote,
-  LpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/types'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import {
-  isLpConfirmedDepositQuote,
-  isLpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/utils'
 
 import { fromQuote } from '../utils'
 import { PoolIcon } from './PoolIcon'
@@ -40,6 +29,17 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { assertUnreachable } from '@/lib/utils'
+import type {
+  LpConfirmedDepositQuote,
+  LpConfirmedWithdrawalQuote,
+} from '@/lib/utils/thorchain/lp/types'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
+import {
+  isLpConfirmedDepositQuote,
+  isLpConfirmedWithdrawalQuote,
+} from '@/lib/utils/thorchain/lp/utils'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

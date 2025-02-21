@@ -1,9 +1,10 @@
 import { solanaChainId, toAccountId } from '@shapeshiftmonorepo/caip'
 import type { AccountMetadataById } from '@shapeshiftmonorepo/types'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
+
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 
 export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args

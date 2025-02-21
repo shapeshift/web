@@ -17,8 +17,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { parseAddressInputWithChainId } from 'lib/address/address'
-import { middleEllipsis } from 'lib/utils'
 
 import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput'
 import type { SendInput } from '@/components/Modals/Send/Form'
@@ -36,6 +34,8 @@ import {
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChainAtRuntime } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { parseAddressInputWithChainId } from '@/lib/address/address'
+import { middleEllipsis } from '@/lib/utils'
 
 const editIcon = <EditIcon />
 const checkIcon = <CheckIcon />

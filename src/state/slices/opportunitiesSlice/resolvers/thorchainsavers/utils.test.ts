@@ -1,15 +1,16 @@
 import { btcAssetId } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it, vi } from 'vitest'
-import { getAssetService } from 'lib/asset-service'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
+
+import { getAssetService } from '@/lib/asset-service'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
 }))
 
-vi.mock('lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
+vi.mock('@/lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
   const mockAxios = {
     default: {
       create: vi.fn(() => ({

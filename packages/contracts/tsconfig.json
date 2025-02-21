@@ -5,9 +5,10 @@
     "outDir": "dist",
     "module": "esnext",
     "target": "ESNext",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "types": ["vite/client"]
   },
-  "include": ["src/**/*", "src/**/*.json"],
+  "include": ["src/**/*", "src/**/*.json", "src/**/*.d.ts"],
   "exclude": ["dist"],
   "references": [
     {

@@ -4,11 +4,11 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import type { GetReceiveAddressArgs } from '@/components/MultiHopTrade/types'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 

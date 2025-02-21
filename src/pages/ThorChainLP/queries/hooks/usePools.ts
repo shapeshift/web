@@ -2,13 +2,13 @@ import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import type { MidgardPoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { bn } from 'lib/bignumber/bignumber'
-import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 
 import type { Pool, VolumeStats } from './usePool'
 import { getPool, getVolumeStats, selectSwapsData } from './usePool'
 
+import { bn } from '@/lib/bignumber/bignumber'
+import type { MidgardSwapHistoryResponse } from '@/lib/utils/thorchain/lp/types'
+import { reactQueries } from '@/react-queries'
 import { selectAssets, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

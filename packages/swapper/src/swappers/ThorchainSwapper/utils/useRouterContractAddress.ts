@@ -14,7 +14,7 @@ export const fetchRouterContractAddress = async (
   excludeHalted: boolean,
   config: SwapperConfig,
 ) => {
-  const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const maybeInboundAddressData = await getInboundAddressDataForChain(
     daemonUrl,
     assetId,

@@ -1,14 +1,14 @@
 import type { ChainId } from '@shapeshiftmonorepo/caip'
 import type { ChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { PluginManager } from 'plugins'
-import { activePlugins } from 'plugins/activePlugins'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { partitionCompareWith } from 'lib/utils'
 
 import { getChainAdapterManager } from './chainAdapterSingleton'
 
+import { partitionCompareWith } from '@/lib/utils'
+import { PluginManager } from '@/plugins'
+import { activePlugins } from '@/plugins/activePlugins'
 import type { Route } from '@/Routes/helpers'
 import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
 

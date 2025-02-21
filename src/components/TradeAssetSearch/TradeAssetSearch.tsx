@@ -9,7 +9,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { sortChainIdsByDisplayName } from 'lib/utils'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
@@ -20,6 +19,7 @@ import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMen
 import { AllChainMenu } from '@/components/ChainMenu'
 import { knownChainIds } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCap,
   selectPortfolioFungibleAssetsSortedByBalance,

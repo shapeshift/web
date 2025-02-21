@@ -1,8 +1,8 @@
 import { HStack, Tag, TagLabel } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { accountIdToChainDisplayName } from 'lib/utils/accounts'
 
 import { RawText } from '@/components/Text'
+import { accountIdToChainDisplayName } from '@/lib/utils/accounts'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 
 type AccountLabelProps = { accountId: AccountId }

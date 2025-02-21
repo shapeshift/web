@@ -66,11 +66,11 @@ describe('bucketTxs', () => {
     const totalTxs = bucketedTxs.reduce<number>((acc, bucket: Bucket) => acc + bucket.txs.length, 0)
 
     // if this non null assertion is false we fail anyway
-    const expectedBucket = bucketedTxs.find(bucket => bucket.txs.length)!
+    const expectedBucket = bucketedTxs.find(bucket => bucket.txs.length)
     expect(totalTxs).toEqual(txs.length)
-    expect(expectedBucket.txs.length).toEqual(1)
-    expect(expectedBucket.start.isBefore(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
-    expect(expectedBucket.end.isAfter(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
+    expect(expectedBucket?.txs.length).toEqual(1)
+    expect(expectedBucket?.start.isBefore(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
+    expect(expectedBucket?.end.isAfter(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
   })
 })
 

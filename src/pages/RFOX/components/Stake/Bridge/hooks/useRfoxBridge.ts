@@ -230,7 +230,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
       const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-      const unsignedTx = await arbitrumBridgeApi.getUnsignedEvmTransaction!({
+      // This shouldn't happen but...
+      if ('getUnsignedEvmTransaction' in arbitrumBridgeApi) throw new Error('Not implemented')
+
+      const unsignedTx = await arbitrumBridgeApi.getUnsignedEvmTransaction({
         tradeQuote,
         chainId: sellAsset.chainId,
         from: fromAccountId(confirmedQuote.sellAssetAccountId).account,

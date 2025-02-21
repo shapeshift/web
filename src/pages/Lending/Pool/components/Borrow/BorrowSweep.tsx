@@ -44,8 +44,8 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
       accountId: collateralAccountId,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,
-      accountMetadata: collateralAccountMetadata!,
-      wallet: wallet!,
+      accountMetadata: collateralAccountMetadata,
+      wallet,
     }),
     enabled: Boolean(collateralAccountMetadata && wallet),
   })

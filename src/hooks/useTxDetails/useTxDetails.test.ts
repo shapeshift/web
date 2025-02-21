@@ -33,7 +33,7 @@ describe('useTxDetails', () => {
 
   it('should get correct type for a common tx', () => {
     const common = deposit
-    common.data!.method = 'common'
+    common.data.method = 'common'
     const transfers = getTransfers(common, mockAssetState().byId)
     const type = getTxType(common, transfers)
     expect(type).toEqual('common')

@@ -64,10 +64,14 @@ export const getGasData = (
     bnOrZero(customFee?.priorityFee).gt(0)
     ? {
         maxPriorityFeePerGas: convertNumberToHex(
-          bnOrZero(customFee!.priorityFee).times(1e9).toString(), // to wei
+          bnOrZero(customFee?.priorityFee)
+            .times(1e9)
+            .toString(), // to wei
         ),
         maxFeePerGas: convertNumberToHex(
-          bnOrZero(customFee!.baseFee).times(1e9).toString(), // to wei
+          bnOrZero(customFee?.baseFee)
+            .times(1e9)
+            .toString(), // to wei
         ),
       }
     : {

@@ -17,7 +17,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'

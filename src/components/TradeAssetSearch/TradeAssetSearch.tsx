@@ -8,7 +8,7 @@ import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'

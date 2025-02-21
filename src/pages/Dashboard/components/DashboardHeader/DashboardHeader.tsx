@@ -2,7 +2,7 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 
 import { DashboardTab } from '../DashboardTab'
 import { DashboardHeaderTop } from './DashboardHeaderTop'

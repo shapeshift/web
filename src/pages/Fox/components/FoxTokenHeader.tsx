@@ -3,7 +3,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import { useCallback, useEffect } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 

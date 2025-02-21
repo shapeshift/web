@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
+import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
 
 import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'

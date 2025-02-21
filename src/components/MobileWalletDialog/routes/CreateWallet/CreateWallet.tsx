@@ -10,7 +10,7 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 

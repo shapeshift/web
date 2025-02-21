@@ -4,7 +4,7 @@ import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { StatusBody } from '../../StatusBody'
 import { WithBackButton } from '../../WithBackButton'

@@ -3,7 +3,7 @@ import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'

@@ -20,7 +20,7 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 

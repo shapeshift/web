@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { StatusBody } from '../../StatusBody'
 import { LimitOrderRoutePaths } from '../types'

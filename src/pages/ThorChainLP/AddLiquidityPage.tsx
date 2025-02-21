@@ -1,6 +1,6 @@
 import { Card, Center } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 import { AddLiquidity } from './components/AddLiquidity/AddLiquidity'
 

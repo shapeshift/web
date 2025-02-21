@@ -1,4 +1,4 @@
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 import { TransactionRow } from '@/components/TransactionHistoryRows/TransactionRow'
 

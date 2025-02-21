@@ -2,7 +2,7 @@ import { Button, Card, HStack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'

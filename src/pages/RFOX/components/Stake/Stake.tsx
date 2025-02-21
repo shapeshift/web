@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'

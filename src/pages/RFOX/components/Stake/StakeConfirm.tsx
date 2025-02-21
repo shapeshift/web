@@ -17,7 +17,7 @@ import { getChainShortName } from '@shapeshiftmonorepo/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { useRfoxStake } from './hooks/useRfoxStake'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'

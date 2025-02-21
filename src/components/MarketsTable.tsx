@@ -5,7 +5,7 @@ import { truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'

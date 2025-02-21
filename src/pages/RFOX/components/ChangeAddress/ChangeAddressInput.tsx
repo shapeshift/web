@@ -17,7 +17,7 @@ import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import { AddressSelection } from '../AddressSelection'

@@ -6,7 +6,7 @@ import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useRouteMatch } from 'react-router'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'

@@ -4,7 +4,7 @@ import { FaLock } from 'react-icons/fa'
 import { FiAlertTriangle, FiEye } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 

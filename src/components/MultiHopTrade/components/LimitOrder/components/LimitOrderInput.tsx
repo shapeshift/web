@@ -13,7 +13,7 @@ import { BigNumber, bn, bnOrZero } from '@shapeshiftmonorepo/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
 
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'

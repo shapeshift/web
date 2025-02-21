@@ -3,7 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'

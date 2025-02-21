@@ -15,7 +15,7 @@ import {
 import { useCallback, useMemo } from 'react'
 import { FaArrowRightArrowLeft } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { FoxIcon } from '@/components/Icons/FoxIcon'

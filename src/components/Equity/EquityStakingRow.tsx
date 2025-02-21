@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { fromBaseUnit } from '@shapeshiftmonorepo/utils'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { EquityRow } from './EquityRow'
 

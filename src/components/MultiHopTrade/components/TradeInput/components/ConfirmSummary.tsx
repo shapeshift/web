@@ -6,7 +6,7 @@ import { bnOrZero, isSome, isUtxoChainId } from '@shapeshiftmonorepo/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { PriceImpact } from '../../PriceImpact'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'

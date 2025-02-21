@@ -3,7 +3,7 @@ import { Card, CardBody, Center, Stack } from '@chakra-ui/react'
 import { memo, useCallback } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { PoolsIcon } from '@/components/Icons/Pools'

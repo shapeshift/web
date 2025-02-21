@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
-import { MemoryRouter, Redirect, Route, Switch, useHistory } from 'react-router'
+import { MemoryRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom'
 
 import { ManualBackup } from '../ManualBackup/ManualBackup'
 import { CreateBackupConfirm } from './CreateBackupConfirm'

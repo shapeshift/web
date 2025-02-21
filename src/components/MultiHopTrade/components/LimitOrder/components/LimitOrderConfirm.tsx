@@ -14,7 +14,7 @@ import type { CowSwapError } from '@shapeshiftmonorepo/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'

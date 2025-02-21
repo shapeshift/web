@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
-import type { RouteComponentProps } from 'react-router'
+import type { RouteComponentProps } from 'react-router-dom'
 
 import { getWalletCount } from '../mobileMessageHandlers'
 

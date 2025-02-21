@@ -4,7 +4,7 @@ import { Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { RawText } from '@/components/Text'
 

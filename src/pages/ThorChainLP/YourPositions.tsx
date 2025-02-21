@@ -6,7 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'

@@ -1,7 +1,7 @@
 import { Button, Flex, List, Stat, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { NestedAsset } from './NestedAsset'
 import { opportunityRowGrid } from './OpportunityTableHeader'

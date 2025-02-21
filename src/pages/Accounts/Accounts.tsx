@@ -4,7 +4,7 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useRouteMatch } from 'react-router'
+import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'

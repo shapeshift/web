@@ -4,7 +4,7 @@ import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'

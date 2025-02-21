@@ -4,7 +4,7 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'

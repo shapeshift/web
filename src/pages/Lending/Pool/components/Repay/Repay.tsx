@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 
 import { RepayRoutePaths } from './types'
 

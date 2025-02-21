@@ -2,7 +2,7 @@ import { Button, FormControl, FormErrorMessage, Input } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../types'
 

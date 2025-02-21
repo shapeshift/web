@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
 

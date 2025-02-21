@@ -2,7 +2,7 @@ import type { CardProps } from '@chakra-ui/react'
 import { Box, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import type { LimitOrderRoutePaths } from './LimitOrder/types'
 

@@ -4,7 +4,7 @@ import { Button, Card, CardBody, CardHeader, Flex } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetActions } from '@/components/AssetHeader/AssetActions'

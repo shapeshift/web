@@ -1,6 +1,6 @@
 import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { ClaimRow } from './ClaimRow'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'

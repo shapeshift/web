@@ -13,7 +13,7 @@ import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
-import { generatePath, useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router-dom'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
 import { SearchResults } from './SearchResults'

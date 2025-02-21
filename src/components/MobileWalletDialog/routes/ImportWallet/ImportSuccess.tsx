@@ -3,7 +3,7 @@ import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { useCallback } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'

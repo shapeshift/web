@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { Route, Switch, useRouteMatch } from 'react-router'
+import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 

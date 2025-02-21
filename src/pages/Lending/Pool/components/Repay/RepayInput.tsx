@@ -23,7 +23,7 @@ import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'

@@ -20,7 +20,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
+import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router-dom'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'

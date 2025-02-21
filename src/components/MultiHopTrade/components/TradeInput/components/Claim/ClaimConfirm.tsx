@@ -15,7 +15,7 @@ import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { getChainShortName } from '@shapeshiftmonorepo/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimTx } from './hooks/useArbitrumClaimTx'

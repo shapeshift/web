@@ -24,7 +24,7 @@ import {
 } from '@shapeshiftmonorepo/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import type { Filter } from './FoxTokenFilterButton'

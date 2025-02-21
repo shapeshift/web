@@ -1,7 +1,6 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
-import type { StaticContext } from 'react-router'
-import type { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps, StaticContext } from 'react-router-dom'
 import { Route, Switch } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'

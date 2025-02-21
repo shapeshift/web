@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainNamespace, ChainReference } from '@shapeshiftmonorepo/caip'
 import { toChainId } from '@shapeshiftmonorepo/caip'
 import { useMemo } from 'react'
-import { matchPath, useLocation } from 'react-router'
+import { matchPath, useLocation } from 'react-router-dom'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 

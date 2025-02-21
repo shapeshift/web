@@ -23,7 +23,7 @@ import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory, useParams } from 'react-router'
+import { generatePath, useHistory, useParams } from 'react-router-dom'
 
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'

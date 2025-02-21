@@ -1,7 +1,7 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useRouteMatch } from 'react-router'
+import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { DownloadButton } from './DownloadButton'
 import { useFilters } from './hooks/useFilters'

@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
-import { Route, Switch, useLocation } from 'react-router'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'

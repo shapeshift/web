@@ -2,7 +2,7 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'

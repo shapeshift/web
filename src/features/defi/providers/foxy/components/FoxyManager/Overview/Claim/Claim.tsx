@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter } from 'react-router-dom'
 
 import { ClaimRoutes } from './ClaimRoutes'
 

@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiCopy } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 

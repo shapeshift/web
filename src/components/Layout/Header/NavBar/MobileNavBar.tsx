@@ -14,7 +14,7 @@ import { union } from 'lodash'
 import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { MobileNavLink } from './MobileNavLink'
 

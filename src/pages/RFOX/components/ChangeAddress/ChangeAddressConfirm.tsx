@@ -16,7 +16,7 @@ import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'

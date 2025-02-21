@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'

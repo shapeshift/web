@@ -21,7 +21,7 @@ import { truncate } from 'lodash'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'

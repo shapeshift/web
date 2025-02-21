@@ -2,7 +2,7 @@ import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { FoxWifHat } from './FoxWifHat'

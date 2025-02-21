@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftmonorepo/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 import type { Row } from 'react-table'
 
 import { OpportunityRow } from './OpportunityRow'

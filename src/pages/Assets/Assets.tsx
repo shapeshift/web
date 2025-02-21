@@ -4,7 +4,7 @@ import type { Row } from '@tanstack/react-table'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'

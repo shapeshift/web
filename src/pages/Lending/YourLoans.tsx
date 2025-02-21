@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router-dom'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'

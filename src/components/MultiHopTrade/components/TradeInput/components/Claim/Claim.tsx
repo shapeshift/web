@@ -1,7 +1,7 @@
 import { Card } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'

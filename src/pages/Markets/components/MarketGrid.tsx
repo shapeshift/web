@@ -1,6 +1,6 @@
 import { SimpleGrid } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 import type { MarketsCategories } from '../constants'
 

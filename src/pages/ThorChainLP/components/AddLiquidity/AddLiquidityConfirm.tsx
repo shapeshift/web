@@ -1,6 +1,6 @@
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { ReusableLpConfirm } from '../ReusableLpConfirm'
 import { AddLiquidityRoutePaths } from './types'

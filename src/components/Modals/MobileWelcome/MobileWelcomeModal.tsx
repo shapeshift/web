@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
+import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
 
 import { ImportSuccess } from './views/ImportSuccess'
 import { Notice } from './views/Notice'

@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'

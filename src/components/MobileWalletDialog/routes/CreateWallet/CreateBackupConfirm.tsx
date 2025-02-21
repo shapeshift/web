@@ -4,7 +4,7 @@ import { uniq } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 

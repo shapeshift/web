@@ -7,7 +7,7 @@ import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'

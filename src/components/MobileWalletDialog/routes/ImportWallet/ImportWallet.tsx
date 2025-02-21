@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, HStack, Stack, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { FaFile, FaKey } from 'react-icons/fa'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'

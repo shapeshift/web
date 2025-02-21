@@ -12,7 +12,7 @@ import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader, PageHeaderButton } from '@/components/Layout/Header/PageHeader'

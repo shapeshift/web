@@ -1,7 +1,7 @@
 import { Text } from '@chakra-ui/react'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'

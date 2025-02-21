@@ -38,7 +38,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import type { AmountsByPosition } from '../LpType'
 import { LpType } from '../LpType'

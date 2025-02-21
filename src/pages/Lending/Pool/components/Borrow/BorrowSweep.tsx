@@ -2,7 +2,7 @@ import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { BorrowRoutePaths } from './types'
 

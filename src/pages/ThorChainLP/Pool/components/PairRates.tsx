@@ -1,7 +1,7 @@
 import { Card, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'

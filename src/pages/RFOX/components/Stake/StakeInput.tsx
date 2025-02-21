@@ -12,7 +12,7 @@ import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'

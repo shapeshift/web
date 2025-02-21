@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { toAssetId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
-import { Route, Switch, useLocation } from 'react-router'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { ClaimConfirm } from '../Claim/ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'

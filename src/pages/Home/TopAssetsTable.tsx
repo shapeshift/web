@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import type { Row } from 'react-table'
 
 import { MarketsTable } from '@/components/MarketsTable'

@@ -2,7 +2,7 @@ import { Button, Heading } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router'
+import { MemoryRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { ConfirmDelete } from './Confirm'
 

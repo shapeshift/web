@@ -25,7 +25,7 @@ import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router'
+import { useHistory, useParams } from 'react-router-dom'
 
 import { AddLiquidity } from '../components/AddLiquidity/AddLiquidity'
 import { Faq } from '../components/Faq'

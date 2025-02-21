@@ -119,7 +119,6 @@ const assertCommitsToRelease = (total: number) => {
 }
 
 const doRegularRelease = async () => {
-  await fetch()
   const { messages, total } = await getCommits('develop')
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages, 'create')
@@ -224,7 +223,6 @@ const createRelease = async () => {
 }
 
 const mergeRelease = async () => {
-  await fetch()
   const { messages, total } = await getCommits('release')
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages, 'merge')

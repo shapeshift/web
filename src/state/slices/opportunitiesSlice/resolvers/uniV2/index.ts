@@ -224,7 +224,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     )
 
     const totalLiquidityFiat = portalsAppBalanceData
-      ? bnOrZero(portalsAppBalanceData.dataProps?.liquidity!)
+      ? bnOrZero(portalsAppBalanceData.dataProps?.liquidity)
       : token0ReservesCryptoPrecision.times(token0Price).times(2)
     const tvl = totalLiquidityFiat.toString()
     const price = bnOrZero(tvl)

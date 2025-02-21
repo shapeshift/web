@@ -106,7 +106,7 @@ export const Deposit = ({
     },
   })
 
-  const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
+  const handleMaxClick = useCallback(() => onMaxClick?.(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
   const { field: cryptoAmount } = useController<DepositValues>({

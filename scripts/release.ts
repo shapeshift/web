@@ -266,6 +266,7 @@ const main = async () => {
   await assertIsCleanRepo()
   await assertGhInstalled()
   await assertGhAuth()
+  await fetch()
   ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
 }
 

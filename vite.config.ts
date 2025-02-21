@@ -2,7 +2,8 @@ import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
-import circularDependency from 'vite-plugin-circular-dependency'
+// import circularDependency from 'vite-plugin-circular-dependency'
+import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { headers } from './headers'
@@ -23,16 +24,19 @@ export default defineConfig(async ({ mode }) => {
     plugins: [
       react(),
       tsconfigPaths(),
-      circularDependency({
-        exclude: /node_modules/,
-        include: /src/,
-      }),
+      // @TODO: reenable
+      // circularDependency({
+      //   exclude: /node_modules/,
+      //   include: /src/,
+      // }),
       process.env.ANALYZE === 'true' &&
         visualizer({
           open: true,
           filename: 'bundle-analysis.html',
         }),
+      nodePolyfills(),
     ],
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

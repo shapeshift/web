@@ -107,22 +107,26 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
-  const opportunityDataFilter = useMemo(
-    () => ({
+  const opportunityDataFilter = useMemo(() => {
+    const _accountId = accountId ?? highestBalanceAccountId
+    if (!_accountId) return
+
+    return {
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId)!,
+        _accountId,
         toOpportunityId({
           chainId,
           assetNamespace,
           assetReference,
         }),
       ),
-    }),
-    [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId],
-  )
+    }
+  }, [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId])
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))

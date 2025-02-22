@@ -70,21 +70,25 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
 
-  const opportunityDataFilter = useMemo(
-    () => ({
+  const opportunityDataFilter = useMemo(() => {
+    const _accountId = accountId ?? highestBalanceAccountId
+    if (!_accountId) return
+
+    return {
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId)!,
+        _accountId,
         toOpportunityId({
           chainId,
           assetNamespace,
           assetReference: contractAddress,
         }),
       ),
-    }),
-    [accountId, assetNamespace, chainId, contractAddress, highestBalanceAccountId],
-  )
+    }
+  }, [accountId, assetNamespace, chainId, contractAddress, highestBalanceAccountId])
   const opportunityData = useAppSelector(state =>
-    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
 
   const underlyingAssetsIcons: string[] = useMemo(
@@ -125,7 +129,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   ])
 
   const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
-    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter)
+      : undefined,
   )
 
   const lpAssetWithBalancesAndIcons = useMemo(

@@ -73,10 +73,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   useEffect(() => {
     if (!(contextDispatch && state?.txid?.length && accountId)) return
     ;(async () => {
+      if (!state.txid) return
+
       // Ensuring we wait for the outbound Tx to exist
       // Note, the transaction we wait for here is a Thorchain transaction, *not* the inbound Tx
       const thorchainTxStatus = await waitForThorchainUpdate({
-        txId: state.txid!,
+        txId: state.txid,
         // RUNEPool has no outbound Tx so we skipOutbound, else this will spin to infinity
         skipOutbound: isRunePool,
       }).promise

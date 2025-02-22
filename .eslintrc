@@ -98,6 +98,7 @@
     "require-await": "error",
     "import/no-duplicates": "error",
     "react-memo/require-usememo": "error"
+    // "@typescript-eslint/no-non-null-assertion": "warn"
   },
   "overrides": [
     {

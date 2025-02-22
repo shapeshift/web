@@ -1,11 +1,11 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
-import { reactQueries } from 'react-queries'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
+import { getThorchainFromAddress } from '..'
 import type { getThorchainLendingPosition } from '../lending'
 
 type UseThorchainFromAddressArgs = {
@@ -33,18 +33,22 @@ export const useThorchainFromAddress = ({
   enabled = true,
 }: UseThorchainFromAddressArgs) => {
   const query = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: accountId!,
-      assetId: assetId!,
-      opportunityId,
-      wallet: wallet!,
-      accountMetadata: accountMetadata!,
-      getPosition,
-    }),
+    queryKey: ['thorchainFromAddress', accountId, assetId, opportunityId],
+    queryFn:
+      accountId && wallet && accountMetadata && assetId && enabled
+        ? () =>
+            getThorchainFromAddress({
+              accountId,
+              assetId,
+              opportunityId,
+              getPosition,
+              accountMetadata,
+              wallet,
+            })
+        : skipToken,
     staleTime: 0,
     gcTime: 0,
     select,
-    enabled: Boolean(enabled && wallet && accountId && accountMetadata && assetId),
   })
 
   return query

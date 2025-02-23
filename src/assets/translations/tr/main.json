@@ -1195,7 +1195,7 @@
         "button": "Tekrar Deneyin"
       },
       "downloadUpdater": {
-        "header": "KeepKey Updater'ı İndirin",
+        "header": "KeepKey Desktop'ı İndirin",
         "button": "%{filename} dosyasını indir",
         "wrongPlatform": "%{platform}? kullanmıyor musunuz? Buraya Tıklayın"
       },

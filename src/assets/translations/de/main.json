@@ -1195,7 +1195,7 @@
         "button": "Nochmaliger Versuch"
       },
       "downloadUpdater": {
-        "header": "Lade den KeepKey-Updater",
+        "header": "Lade den KeepKey-Desktop",
         "button": "Lade %{filename}",
         "wrongPlatform": "Sie verwenden %{platform} nicht? Klick hier"
       },

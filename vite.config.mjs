@@ -118,23 +118,22 @@ export default defineConfig(({ mode }) => {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
-          manualChunks: id => {
-            if (id.includes('node_modules')) {
-              // Core dependencies - must load first
-              if (id.includes('react/') || id.includes('react-dom/')) return 'vendor-react-core'
-              if (id.includes('@emotion/') || id.includes('stylis')) return 'vendor-emotion-core'
+          manualChunks: {
+            // React must be in its own chunk and loaded first
+            'vendor-react': ['react', 'react-dom'],
 
-              // Largest packages (>500KB)
-              if (id.includes('@ledgerhq')) return 'vendor-ledger'
-              if (id.includes('@shapeshiftoss')) return 'vendor-shapeshift'
-              if (id.includes('@metaplex-foundation')) return 'vendor-metaplex'
-            }
+            // Emotion and styling related packages
+            'vendor-emotion': [
+              '@emotion/react',
+              '@emotion/styled',
+              '@emotion/cache',
+              '@emotion/serialize',
+              '@emotion/utils',
+              '@emotion/weak-memoize',
+            ],
 
-            // Application code chunks
-            if (id.includes('src/')) {
-              return 'src'
-            }
-            return null
+            // Other UI libraries that depend on React/Emotion
+            'vendor-ui': ['@chakra-ui/react', '@chakra-ui/system', 'framer-motion'],
           },
           chunkFileNames: chunkInfo => {
             // Control loading order with prefixes
@@ -152,7 +151,7 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
-        preserveModules: true,
+        preserveModules: false,
         format: 'es',
         chunkSizeWarningLimit: 25000,
       },

@@ -124,40 +124,15 @@ export default defineConfig(({ mode }) => {
               if (id.includes('react/') || id.includes('react-dom/')) return 'vendor-react-core'
               if (id.includes('@emotion/') || id.includes('stylis')) return 'vendor-emotion-core'
 
-              // FormatJS and its dependencies
-              if (
-                id.includes('@formatjs') ||
-                id.includes('intl-messageformat') ||
-                id.includes('intl-format-cache') ||
-                id.includes('intl-messageformat-parser')
-              )
-                return 'vendor-formatjs-core'
-
               // Largest packages (>500KB)
               if (id.includes('@ledgerhq')) return 'vendor-ledger'
               if (id.includes('@shapeshiftoss')) return 'vendor-shapeshift'
               if (id.includes('@metaplex-foundation')) return 'vendor-metaplex'
-              if (id.includes('@walletconnect')) return 'vendor-walletconnect'
-              if (id.includes('osmojs')) return 'vendor-osmojs'
-              if (id.includes('@keepkey')) return 'vendor-keepkey'
-              if (id.includes('@ethereumjs')) return 'vendor-ethereumjs'
-
-              // Medium packages (>200KB)
-              if (id.includes('ethers')) return 'vendor-ethers'
-              if (id.includes('web3')) return 'vendor-web3'
-              if (id.includes('@arbitrum')) return 'vendor-arbitrum'
-              if (id.includes('axios')) return 'vendor-axios'
-              if (id.includes('libsodium')) return 'vendor-libsodium'
             }
 
             // Application code chunks
             if (id.includes('src/')) {
-              if (id.includes('src/pages')) return 'pages'
-              if (id.includes('src/components')) return 'components'
-              if (id.includes('src/lib')) return 'lib'
-              if (id.includes('src/features')) return 'features'
-              if (id.includes('src/hooks')) return 'hooks'
-              if (id.includes('src/context')) return 'context'
+              return 'src'
             }
             return null
           },
@@ -167,7 +142,9 @@ export default defineConfig(({ mode }) => {
               {
                 'vendor-react-core': '00',
                 'vendor-emotion-core': '01',
-                'vendor-formatjs-core': '02',
+                'vendor-ledger': '02',
+                'vendor-shapeshift': '03',
+                'vendor-metaplex': '04',
               }[chunkInfo.name] || '99'
 
             return `assets/${prefix}-${chunkInfo.name}-[hash].js`

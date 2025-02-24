@@ -1,149 +1,60 @@
 import react from '@vitejs/plugin-react-swc'
 import { dirname, resolve } from 'path'
-import { visualizer } from 'rollup-plugin-visualizer'
 import { fileURLToPath } from 'url'
-import { defineConfig, loadEnv } from 'vite'
-// import circularDependency from 'vite-plugin-circular-dependency'
+import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
-
-import { headers } from './headers'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// External ShapeShift packages that need special handling
-const externalShapeshiftPackages = [
-  '@shapeshiftoss/hdwallet-core',
-  '@shapeshiftoss/hdwallet-ledger',
-  '@shapeshiftoss/hdwallet-native',
-  '@shapeshiftoss/hdwallet-keepkey',
-  '@shapeshiftoss/hdwallet-metamask',
-]
-
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-
   return {
-    plugins: [
-      react(),
-      tsconfigPaths(),
-      // @TODO: reenable
-      // circularDependency({
-      //   exclude: /node_modules/,
-      //   include: /src/,
-      // }),
-      process.env.ANALYZE === 'true' &&
-        visualizer({
-          open: true,
-          filename: 'bundle-analysis.html',
-        }),
-    ],
-
+    plugins: [react(), tsconfigPaths()],
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
         '@shapeshiftmonorepo': resolve(__dirname, './packages'),
-        process: 'process/browser',
-        stream: 'stream-browserify',
-        zlib: 'browserify-zlib',
-        util: 'util/',
-        'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
         crypto: 'crypto-browserify',
+        stream: 'stream-browserify',
+        assert: 'assert',
+        http: 'stream-http',
+        https: 'https-browserify',
+        os: 'os-browserify',
+        url: 'url',
+        buffer: 'buffer',
+        process: 'process/browser',
+        'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
       },
     },
-    optimizeDeps: {
-      force: true,
-      include: [
-        'react',
-        'react-dom',
-        '@chakra-ui/react',
-        'ethers',
-        'buffer',
-        'process',
-        '@shapeshiftoss/hdwallet-coinbase',
-        '@shapeshiftoss/hdwallet-core',
-        '@shapeshiftoss/hdwallet-keepkey',
-        '@shapeshiftoss/hdwallet-keepkey-webusb',
-        '@shapeshiftoss/hdwallet-keplr',
-        '@shapeshiftoss/hdwallet-ledger',
-        '@shapeshiftoss/hdwallet-ledger-webusb',
-        '@shapeshiftoss/hdwallet-metamask-multichain',
-        '@shapeshiftoss/hdwallet-native',
-        '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines/default',
-        '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines',
-        '@shapeshiftoss/hdwallet-native-vault',
-        '@shapeshiftoss/hdwallet-phantom',
-        '@shapeshiftoss/hdwallet-walletconnectv2',
-        'dayjs',
-      ],
-      exclude: [
-        '@shapeshiftmonorepo/types',
-        '@shapeshiftmonorepo/chain-adapters',
-        '@shapeshiftmonorepo/contracts',
-        '@shapeshiftmonorepo/unchained-client',
-        '@shapeshiftmonorepo/caip',
-        '@shapeshiftmonorepo/errors',
-        '@shapeshiftmonorepo/swapper',
-        '@shapeshiftmonorepo/utils',
-        ...externalShapeshiftPackages,
-      ],
-      esbuildOptions: {
-        define: {
-          global: 'globalThis',
-        },
-        target: 'esnext',
-      },
+    define: {
+      'process.env': {},
+      global: 'globalThis',
     },
-    server: {
-      port: 3000,
-      open: true,
-      watch: {
-        usePolling: true,
-      },
-      fs: {
-        allow: ['..'],
-      },
-      headers,
-    },
-    root: './',
-    publicDir: 'public',
     build: {
-      commonjsOptions: {
-        transformMixedEsModules: true,
-        include: [/node_modules/, /packages/, /@shapeshiftoss\/hdwallet-core/],
-      },
       rollupOptions: {
-        treeshake: true,
-        input: {
-          main: resolve(__dirname, 'index.html'),
-        },
+        external: [],
         output: {
-          manualChunks: id => {
-            // React and related packages
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react'
+          format: 'es',
+          exports: 'named',
+          manualChunks(id) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('scheduler') ||
+              id.includes('@emotion/') ||
+              id.includes('@chakra-ui/') ||
+              id.includes('framer-motion')
+            ) {
+              return 'vendor-core'
             }
 
-            // Emotion and styling related packages
-            if (id.includes('@emotion/')) {
-              return 'vendor-emotion'
-            }
-
-            // UI libraries
-            if (id.includes('@chakra-ui/') || id.includes('framer-motion')) {
-              return 'vendor-ui'
-            }
-
-            // Default case - let Rollup handle it
             return null
           },
-          chunkFileNames: chunkInfo => {
-            // Control loading order with prefixes
+          chunkFileNames(chunkInfo) {
             const prefix =
               {
-                'vendor-react': '00',
-                'vendor-emotion': '01',
-                'vendor-ui': '02',
+                'vendor-core': '00',
+                'vendor-ui': '10',
               }[chunkInfo.name] || '99'
 
             return `assets/${prefix}-${chunkInfo.name}-[hash].js`
@@ -155,15 +66,11 @@ export default defineConfig(({ mode }) => {
         format: 'es',
         chunkSizeWarningLimit: 25000,
       },
+      target: ['es2020'],
       minify: mode === 'development' ? false : 'esbuild',
       sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
       outDir: 'build',
       emptyOutDir: true,
-    },
-    define: {
-      'process.env': JSON.stringify(env),
-      global: 'globalThis',
-      'process.browser': true,
     },
   }
 })

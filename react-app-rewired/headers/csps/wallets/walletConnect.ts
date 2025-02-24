@@ -1,8 +1,13 @@
 import type { Csp } from '../../types'
 
+const REACT_APP_WALLET_CONNECT_RELAY_URL = process.env.REACT_APP_WALLET_CONNECT_RELAY_URL
+
+if (!REACT_APP_WALLET_CONNECT_RELAY_URL)
+  throw new Error('REACT_APP_WALLET_CONNECT_RELAY_URL is required')
+
 export const csp: Csp = {
   'connect-src': [
-    process.env.REACT_APP_WALLET_CONNECT_RELAY_URL!,
+    REACT_APP_WALLET_CONNECT_RELAY_URL,
     'wss://*.bridge.walletconnect.org/',
     'wss://*.relay.walletconnect.org/',
     'wss://relay.walletconnect.org/',

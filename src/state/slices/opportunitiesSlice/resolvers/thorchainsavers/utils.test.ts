@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-vi.mock('@/lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
+vi.mock('axios', () => {
   const mockAxios = {
     default: {
       create: vi.fn(() => ({
@@ -21,18 +21,17 @@ vi.mock('@/lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
   }
 
   return {
-    thorService: mockAxios.default.create(),
+    default: {
+      ...mockAxios.default.create(),
+      create: mockAxios.default.create,
+    },
   }
 })
 
-vi.mock('axios', () => {
+vi.mock('axios-cache-interceptor', () => {
   return {
-    default: {
-      create: vi.fn(() => ({
-        get: vi.fn(),
-        post: vi.fn(),
-      })),
-    },
+    setupCache: vi.fn(axios => axios),
+    buildMemoryStorage: vi.fn(),
   }
 })
 
@@ -60,7 +59,18 @@ describe('resolvers/thorchainSavers/utils', () => {
     it('gets a quote for a valid pool AssetId', async () => {
       mocks.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: btcQuoteResponse,
+          data: {
+            expected_amount_out: '9997894',
+            fees: {
+              affiliate: '0',
+              asset: 'BTC/BTC',
+              slippage_bps: 2,
+              outbound: '0',
+            },
+            inbound_address: 'bc1q0vphqevkhc33g94pl0ctnnp58v9mcuhp4e2hnm',
+            inbound_confirmation_blocks: 1,
+            memo: '+:BTC/BTC',
+          },
         }),
       )
 

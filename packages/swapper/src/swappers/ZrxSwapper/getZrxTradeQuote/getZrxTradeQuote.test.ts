@@ -36,9 +36,8 @@ vi.mock('../utils/helpers/helpers', async () => {
   }
 })
 
-
 vi.mock('@shapeshiftoss/chain-adapters', async () => {
-  const { KnownChainIds } = await import ('@shapeshiftoss/types')
+  const { KnownChainIds } = await import('@shapeshiftoss/types')
 
   const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
 
@@ -51,7 +50,6 @@ vi.mock('@shapeshiftoss/chain-adapters', async () => {
     },
   }
 })
-
 
 const mockOk = Ok
 const mockErr = Err

@@ -18,7 +18,7 @@ const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
 vi.mock('@shapeshiftmonorepo/contracts', async () => {
-  const { KnownChainIds } = require('@shapeshiftmonorepo/types')
+  const { KnownChainIds } = await import('@shapeshiftmonorepo/types')
 
   const actual = await vi.importActual('@shapeshiftmonorepo/contracts')
 

@@ -26,17 +26,13 @@ vi.mock('@/lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
 })
 
 vi.mock('axios', () => {
-  const mockAxios = {
+  return {
     default: {
       create: vi.fn(() => ({
-        get: mocks.get,
-        post: mocks.post,
+        get: vi.fn(),
+        post: vi.fn(),
       })),
     },
-  }
-
-  return {
-    default: mockAxios.default.create(),
   }
 })
 

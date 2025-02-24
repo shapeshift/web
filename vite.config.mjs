@@ -121,7 +121,26 @@ export default defineConfig(({ mode }) => {
           manualChunks: id => {
             // Vendor chunks - more granular splitting
             if (id.includes('node_modules')) {
-              // UI related
+              // Group ALL Sentry-related code into a single chunk
+              if (
+                id.includes('@sentry') ||
+                id.includes('sentry') ||
+                /\/@sentry-internal\//.test(id) ||
+                /\/@sentry\//.test(id)
+              ) {
+                return 'vendor-sentry-all'
+              }
+
+              // Core dependencies that should load first
+              if (
+                id.includes('process') ||
+                id.includes('global') ||
+                id.includes('regenerator-runtime')
+              ) {
+                return 'vendor-core'
+              }
+
+              // Rest of your existing chunks...
               if (id.includes('react')) return 'vendor-react'
               if (id.includes('@chakra-ui')) return 'vendor-chakra'
               if (id.includes('@emotion/')) return 'vendor-emotion'
@@ -163,7 +182,16 @@ export default defineConfig(({ mode }) => {
             }
             return null
           },
-          chunkFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: chunkInfo => {
+            const prefix =
+              {
+                'vendor-core': '00',
+                'vendor-sentry-all': '01',
+                'vendor-react': '02',
+              }[chunkInfo.name] || '99'
+
+            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
+          },
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },

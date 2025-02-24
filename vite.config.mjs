@@ -152,6 +152,8 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
+        preserveModules: true,
+        format: 'es',
         chunkSizeWarningLimit: 25000,
       },
       minify: mode === 'development' ? false : 'esbuild',

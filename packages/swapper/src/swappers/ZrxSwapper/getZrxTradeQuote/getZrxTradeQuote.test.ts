@@ -15,42 +15,26 @@ import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-  post: vi.fn(),
+vi.mock('../utils/zrxService', () => {
+  const get = vi.fn()
+  const post = vi.fn()
+
+  return {
+    zrxServiceFactory: vi.fn(() => ({
+      get,
+      post,
+    })),
+  }
+})
+
+vi.mock('../utils/helpers/helpers', () => ({
+  baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
 }))
 
-vi.mock('../utils/zrxService', () => {
-  const mockAxios = {
-    default: {
-      create: vi.fn(() => ({
-        get: mocks.get,
-        post: mocks.post,
-      })),
-    },
-  }
-
-  return {
-    zrxServiceFactory: mockAxios.default.create,
-  }
-})
-
-vi.mock('../utils/helpers/helpers', async () => {
-  const actual = await vi.importActual('../utils/helpers/helpers')
-
-  return {
-    ...actual,
-    baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
-  }
-})
-
-vi.mock('@shapeshiftmonorepo/chain-adapters', async () => {
+vi.mock('@shapeshiftmonorepo/chain-adapters', () => {
   const { KnownChainIds } = require('@shapeshiftmonorepo/types')
 
-  const actual = await vi.importActual('@shapeshiftmonorepo/chain-adapters')
-
   return {
-    ...actual,
     isEvmChainId: vi.fn(() => true),
     evmChainIds: [KnownChainIds.EthereumMainnet],
     optimism: {

@@ -119,56 +119,28 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           manualChunks: id => {
-            // Vendor chunks - more granular splitting
+            // Extract largest packages into their own chunks
             if (id.includes('node_modules')) {
-              // Group ALL Sentry-related code into a single chunk
-              if (
-                id.includes('@sentry') ||
-                id.includes('sentry') ||
-                /\/@sentry-internal\//.test(id) ||
-                /\/@sentry\//.test(id)
-              ) {
-                return 'vendor-sentry-all'
-              }
+              // Core dependencies
+              if (id.includes('react/') || id.includes('react-dom/')) return 'vendor-react-core'
+              if (id.includes('@emotion/') || id.includes('stylis')) return 'vendor-emotion-core'
 
-              // Core dependencies that should load first
-              if (
-                id.includes('process') ||
-                id.includes('global') ||
-                id.includes('regenerator-runtime')
-              ) {
-                return 'vendor-core'
-              }
+              // Largest packages (>500KB)
+              if (id.includes('@ledgerhq')) return 'vendor-ledger'
+              if (id.includes('@shapeshiftoss')) return 'vendor-shapeshift'
+              if (id.includes('@metaplex-foundation')) return 'vendor-metaplex'
+              if (id.includes('@formatjs')) return 'vendor-formatjs'
+              if (id.includes('@walletconnect')) return 'vendor-walletconnect'
+              if (id.includes('osmojs')) return 'vendor-osmojs'
+              if (id.includes('@keepkey')) return 'vendor-keepkey'
+              if (id.includes('@ethereumjs')) return 'vendor-ethereumjs'
 
-              // Rest of your existing chunks...
-              if (id.includes('react')) return 'vendor-react'
-              if (id.includes('@chakra-ui')) return 'vendor-chakra'
-              if (id.includes('@emotion/')) return 'vendor-emotion'
-              if (id.includes('framer-motion')) return 'vendor-framer'
-
-              // Blockchain related
+              // Medium packages (>200KB)
               if (id.includes('ethers')) return 'vendor-ethers'
-              if (id.includes('@shapeshiftoss/hdwallet')) return 'vendor-wallets'
               if (id.includes('web3')) return 'vendor-web3'
-              if (id.includes('@web3-onboard')) return 'vendor-web3-onboard'
-              if (id.includes('bitcoinjs')) return 'vendor-bitcoin'
-
-              // Data handling
-              if (id.includes('lodash')) return 'vendor-lodash'
-              if (id.includes('dayjs')) return 'vendor-dayjs'
+              if (id.includes('@arbitrum')) return 'vendor-arbitrum'
               if (id.includes('axios')) return 'vendor-axios'
-              if (id.includes('query')) return 'vendor-query'
-              if (id.includes('redux')) return 'vendor-redux'
-              if (id.includes('zustand')) return 'vendor-state'
-
-              // Utils and polyfills
-              if (id.includes('buffer')) return 'vendor-buffer'
-              if (id.includes('crypto-')) return 'vendor-crypto'
-              if (id.includes('stream-')) return 'vendor-stream'
-              if (id.includes('browserify-')) return 'vendor-browserify'
-
-              // Split remaining node_modules into smaller chunks
-              return 'vendor-other-' + id.split('node_modules/')[1].split('/')[0]
+              if (id.includes('libsodium')) return 'vendor-libsodium'
             }
 
             // Application code chunks
@@ -182,16 +154,7 @@ export default defineConfig(({ mode }) => {
             }
             return null
           },
-          chunkFileNames: chunkInfo => {
-            const prefix =
-              {
-                'vendor-core': '00',
-                'vendor-sentry-all': '01',
-                'vendor-react': '02',
-              }[chunkInfo.name] || '99'
-
-            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
-          },
+          chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },

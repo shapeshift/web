@@ -27,14 +27,23 @@ vi.mock('../utils/zrxService', () => {
   }
 })
 
-vi.mock('../utils/helpers/helpers', () => ({
-  baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
-}))
-
-vi.mock('@shapeshiftmonorepo/chain-adapters', async () => {
-  const { KnownChainIds } = await import('@shapeshiftmonorepo/types')
+vi.mock('../utils/helpers/helpers', async () => {
+  const actual = await vi.importActual('../utils/helpers/helpers')
 
   return {
+    ...actual,
+    baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
+  }
+})
+
+
+vi.mock('@shapeshiftoss/chain-adapters', async () => {
+  const { KnownChainIds } = await import ('@shapeshiftoss/types')
+
+  const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
+
+  return {
+    ...actual,
     isEvmChainId: vi.fn(() => true),
     evmChainIds: [KnownChainIds.EthereumMainnet],
     optimism: {
@@ -42,6 +51,7 @@ vi.mock('@shapeshiftmonorepo/chain-adapters', async () => {
     },
   }
 })
+
 
 const mockOk = Ok
 const mockErr = Err

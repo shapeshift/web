@@ -93,7 +93,7 @@ describe('ErrorWithDetails', () => {
     expect(e.code).toBe('ERR_UNKNOWN')
   })
 
-  it('should support typed cause', () => {
+  it('should support unknown typed cause', () => {
     const cause = 'string error'
     const e = new ErrorWithDetails('test message', { cause })
     expect(e.message).toBe('test message')

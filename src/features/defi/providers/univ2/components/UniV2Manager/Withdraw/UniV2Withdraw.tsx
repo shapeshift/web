@@ -118,7 +118,7 @@ export const UniV2Withdraw: React.FC<UniV2WithdrawProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: earnUserLpOpportunity.opportunityName!,
+            opportunity: earnUserLpOpportunity.opportunityName,
           })}
           onBack={handleBack}
         />

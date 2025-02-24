@@ -32,7 +32,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
-import { waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
@@ -128,21 +128,25 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return isRuneTx ? runeAccountMetadata : poolAssetAccountMetadata
   }, [isRuneTx, runeAccountMetadata, poolAssetAccountMetadata])
 
-  const { queryKey: thorchainFromAddressQueryKey, queryFn: thorchainFromAddressQueryFn } =
-    reactQueries.common.thorchainFromAddress({
-      accountId: fromAccountId!,
-      assetId: isRuneTx ? thorchainAssetId : poolAssetId,
-      opportunityId: confirmedQuote.opportunityId,
-      wallet: wallet!,
-      accountMetadata: fromAccountMetadata!,
-      getPosition: getThorchainLpPosition,
-    })
-
   const { data: fromAddress } = useQuery({
-    queryKey: thorchainFromAddressQueryKey,
-    queryFn: Boolean(fromAccountId && fromAccountMetadata && wallet)
-      ? thorchainFromAddressQueryFn
-      : skipToken,
+    queryKey: [
+      'thorchainFromAddress',
+      fromAccountId,
+      isRuneTx ? thorchainAssetId : poolAssetId,
+      confirmedQuote.opportunityId,
+    ],
+    queryFn:
+      fromAccountId && wallet && fromAccountId && fromAccountMetadata
+        ? () =>
+            getThorchainFromAddress({
+              accountId: fromAccountId,
+              assetId: isRuneTx ? thorchainAssetId : poolAssetId,
+              opportunityId: confirmedQuote.opportunityId,
+              getPosition: getThorchainLpPosition,
+              accountMetadata: fromAccountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const pairAssetAccountId = useMemo(() => {

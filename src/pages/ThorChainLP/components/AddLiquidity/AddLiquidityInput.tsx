@@ -716,7 +716,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(poolAsset.assetId)) {
       const assetAmountCryptoBaseUnit = toBaseUnit(
-        actualAssetDepositAmountCryptoPrecision!,
+        actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision,
       )
       return bnOrZero(assetAmountCryptoBaseUnit)
@@ -833,7 +833,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!runeTxFeeCryptoBaseUnit) return false
 
     const runeAmountCryptoBaseUnit = toBaseUnit(
-      actualRuneDepositAmountCryptoPrecision!,
+      actualRuneDepositAmountCryptoPrecision,
       runeAsset?.precision,
     )
 
@@ -885,15 +885,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
   const handleSubmit = useCallback(() => {
+    if (!mixpanel) return
+    if (!confirmedQuote) return
     if (isApprovalRequired) return handleApprove()
     if (isSweepNeeded) return history.push(AddLiquidityRoutePaths.Sweep)
 
     if (Boolean(incompleteSide)) {
       history.push(AddLiquidityRoutePaths.Status)
-      mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote!)
+      mixpanel.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
     } else {
       history.push(AddLiquidityRoutePaths.Confirm)
-      mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
+      mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
     }
   }, [
     confirmedQuote,

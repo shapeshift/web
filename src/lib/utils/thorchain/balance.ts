@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -57,7 +57,7 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
   sweepTxFeeCryptoBaseUnit: string
 }) => {
   const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-  if (balanceCryptoBaseUnitBn.isZero()) return { hasEnoughBalance: false, missingFunds: null }
+  if (balanceCryptoBaseUnitBn.isZero()) return { hasEnoughBalance: false, missingFunds: bn(0) }
 
   return {
     hasEnoughBalance: bnOrZero(amountCryptoPrecision)

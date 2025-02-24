@@ -67,7 +67,7 @@ export const fetchPortalsTokens = async ({
 
   if (typeof networks === 'object') {
     networks.forEach((network, i) => {
-      if (!network) throw new Error(`Unsupported chainId: ${chainIds![i]}`)
+      if (!network) throw new Error(`Unsupported chainId: ${chainIds?.[i]}`)
     })
   }
 

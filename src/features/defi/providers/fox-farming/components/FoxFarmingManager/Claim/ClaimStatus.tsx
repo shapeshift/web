@@ -150,6 +150,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     return confirmedTransaction?.status
   }, [confirmedTransaction?.status, maybeSafeTx?.isExecutedSafeTx, maybeSafeTx?.isQueuedSafeTx])
 
+  const statusInfo = useMemo(() => {
+    if (!status) return
+
+    return StatusInfo[status]
+  }, [status])
+
   useEffect(() => {
     if (status && status !== TxStatus.Pending) {
       const usedGasFeeCryptoPrecision = (() => {
@@ -233,8 +239,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
               {status === TxStatus.Pending ? (
                 <AssetIcon src={asset?.icon} boxSize='16' />
               ) : (
-                <IconCircle bg={StatusInfo[status!]?.color} boxSize='16' color='white'>
-                  {StatusInfo[status!]?.icon ?? null}
+                <IconCircle bg={statusInfo?.color} boxSize='16' color='white'>
+                  {statusInfo?.icon ?? null}
                 </IconCircle>
               )}
             </Box>

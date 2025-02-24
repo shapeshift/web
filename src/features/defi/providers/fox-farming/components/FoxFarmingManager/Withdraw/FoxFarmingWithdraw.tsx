@@ -44,21 +44,23 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
 
-  const opportunityDataFilter = useMemo(
-    () => ({
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    return {
       userStakingId: serializeUserStakingId(
-        accountId!,
+        accountId,
         toOpportunityId({
           chainId,
           assetNamespace,
           assetReference: contractAddress,
         }),
       ),
-    }),
-    [accountId, assetNamespace, chainId, contractAddress],
-  )
+    }
+  }, [accountId, assetNamespace, chainId, contractAddress])
   const foxFarmingOpportunity = useAppSelector(state =>
-    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
 
   const loading = useSelector(selectIsPortfolioLoading)

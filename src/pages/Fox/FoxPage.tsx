@@ -16,7 +16,7 @@ export const FoxPage = () => {
 
   return (
     <>
-      <SEO title={translate('navBar.foxBenefits')} />
+      <SEO title={translate('navBar.foxEcosystem')} />
       <Main headerComponent={headerComponent} isSubPage>
         <FoxToken />
         <RFOXSection />

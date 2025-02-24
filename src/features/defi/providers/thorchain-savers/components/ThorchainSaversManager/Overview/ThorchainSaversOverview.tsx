@@ -17,7 +17,7 @@ import { thorchainAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
 import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
@@ -42,10 +42,10 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { useGetThorchainSaversDepositQuoteQuery } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import { useIsLendingActive } from '@/pages/Lending/hooks/useIsLendingActive'
-import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import type { ThorchainSaversStakingSpecificMetadata } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
@@ -254,14 +254,19 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   )
 
   const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: accountId!,
-      assetId,
-      wallet: wallet!,
-      accountMetadata: accountMetadata!,
-      getPosition: getThorchainSaversPosition,
-    }),
-    enabled: Boolean(accountId && wallet && accountMetadata),
+    queryKey: ['thorchainFromAddress', accountId, assetId, opportunityId],
+    queryFn:
+      accountId && wallet && accountMetadata
+        ? () =>
+            getThorchainFromAddress({
+              accountId,
+              assetId,
+              opportunityId,
+              getPosition: getThorchainSaversPosition,
+              accountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const makeDefaultMenu = useCallback(

@@ -126,7 +126,7 @@ export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', {
-            opportunity: earnUserLpOpportunity.opportunityName!,
+            opportunity: earnUserLpOpportunity.opportunityName,
           })}
           onBack={handleBack}
         />

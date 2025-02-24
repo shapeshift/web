@@ -73,9 +73,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   useEffect(() => {
     if (!(contextDispatch && state?.txid?.length && accountId)) return
     ;(async () => {
+      if (!state?.txid) return
+
       // Skipping outbound detection since there's no outbound tx involved here - as long as the inner swap is confirmed, we're gucci
       const thorchainTxStatus = await waitForThorchainUpdate({
-        txId: state.txid!,
+        txId: state.txid,
         skipOutbound: true,
       }).promise
 

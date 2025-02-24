@@ -314,7 +314,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
               <ReusableApprove
                 key={'approve0'}
                 asset={asset0}
-                spenderName={lpOpportunity!.provider}
+                spenderName={lpOpportunity?.provider ?? ''}
                 feeAsset={feeAsset}
                 estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
                 disabled={!hasEnoughBalanceForGas}
@@ -324,12 +324,14 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 isApproved={isAsset0AllowanceGranted}
                 loading={approve0Loading}
                 preFooter={preFooter}
-                providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
+                providerIcon={
+                  lpOpportunity ? getMetadataForProvider(lpOpportunity.provider)?.icon : undefined
+                }
                 onCancel={handleApproveCancel}
                 // we need to pass an arg here, so we need an anonymous function wrapper
                 // eslint-disable-next-line react-memo/require-usememo
                 onConfirm={() => handleApprove(asset0ContractAddress)}
-                spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET!}
+                spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET}
               />
             </>,
           ]
@@ -343,7 +345,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
               <ReusableApprove
                 key={'approve1'}
                 asset={asset1}
-                spenderName={lpOpportunity!.provider}
+                spenderName={lpOpportunity?.provider ?? ''}
                 feeAsset={feeAsset}
                 estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
                 disabled={!hasEnoughBalanceForGas}
@@ -353,7 +355,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 isApproved={isAsset1AllowanceGranted}
                 loading={approve1Loading}
                 preFooter={preFooter}
-                providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
+                providerIcon={
+                  lpOpportunity ? getMetadataForProvider(lpOpportunity?.provider)?.icon : undefined
+                }
                 onCancel={handleApproveCancel}
                 // we need to pass an arg here, so we need an anonymous function wrapper
                 // eslint-disable-next-line react-memo/require-usememo

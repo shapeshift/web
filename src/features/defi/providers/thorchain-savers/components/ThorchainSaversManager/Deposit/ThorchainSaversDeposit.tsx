@@ -2,7 +2,7 @@ import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { thorchainAssetId, toAssetId, usdtAssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,8 +30,8 @@ import type {
 import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { isUtxoChainId } from '@/lib/utils/utxo'
-import { reactQueries } from '@/react-queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
@@ -44,7 +44,6 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
 type YearnDepositProps = {
   accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -130,14 +129,18 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   )
 
   const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: accountId!,
-      getPosition: getThorchainSaversPosition,
-      assetId,
-      wallet: wallet!,
-      accountMetadata: accountMetadata!,
-    }),
-    enabled: Boolean(accountId && wallet && accountMetadata),
+    queryKey: ['thorchainFromAddress', accountId, assetId],
+    queryFn:
+      accountId && wallet && accountMetadata
+        ? () =>
+            getThorchainFromAddress({
+              accountId,
+              assetId,
+              getPosition: getThorchainSaversPosition,
+              accountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const makeHandleSweepBack = useCallback(

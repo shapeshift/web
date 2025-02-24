@@ -3,8 +3,6 @@ import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom'
 
 import { AccountToken } from './AccountToken/AccountToken'
-import { AccountTokenTxHistory } from './AccountToken/AccountTokenTxHistory'
-import { AccountTxHistory } from './AccountTxHistory'
 
 import { AccountDetails } from '@/components/AccountDetails'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
@@ -31,14 +29,8 @@ export const Account = () => {
         <Route exact path={`${path}`}>
           <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
         </Route>
-        <Route exact path={`${path}/transactions`}>
-          <AccountTxHistory />
-        </Route>
         <Route exact path={`${path}/:assetId`}>
           <AccountToken />
-        </Route>
-        <Route exact path={`${path}/:assetId/transactions`}>
-          <AccountTokenTxHistory />
         </Route>
       </Switch>
     </Flex>

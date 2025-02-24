@@ -414,7 +414,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               fromAddress,
             })
 
-          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds.toFixed())
 
           return (
             balanceCryptoPrecision.gt(0) &&
@@ -519,7 +519,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               fromAddress,
             })
 
-          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds.toFixed())
 
           return (
             amountAvailableFiat.gt(0) &&

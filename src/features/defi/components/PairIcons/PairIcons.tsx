@@ -33,14 +33,20 @@ export const PairIcons = ({
   showFirst,
   ...styleProps
 }: {
-  icons: string[]
+  icons: string[] | undefined
   iconBoxSize?: AvatarProps['boxSize']
   iconSize?: AvatarProps['size']
   showFirst?: boolean
-} & FlexProps): JSX.Element => {
-  const firstIcon = icons[0]
+} & FlexProps): JSX.Element | null => {
+  const firstIcon = useMemo(() => {
+    if (!icons?.length) return
+
+    return icons[0]
+  }, [icons])
 
   const remainingIcons = useMemo(() => {
+    if (!icons?.length) return
+
     const iconsMinusFirst = icons.slice(showFirst ? 1 : 0)
     if (iconsMinusFirst.length > 1) {
       return (
@@ -94,6 +100,8 @@ export const PairIcons = ({
       />
     ))
   }, [iconBoxSize, iconSize, icons, showFirst])
+
+  if (!icons?.length) return null
 
   return (
     <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>

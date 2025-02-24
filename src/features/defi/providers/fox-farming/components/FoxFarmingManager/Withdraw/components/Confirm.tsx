@@ -179,7 +179,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={opportunity?.icons!}
+                icons={opportunity?.icons}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

@@ -182,10 +182,15 @@ export const getThorchainFromAddress = async ({
     })()
     return chainId === bchChainId ? `bitcoincash:${address}` : address
   } catch {
-    const accountType = accountMetadata?.accountType
-    const bip44Params = accountMetadata?.bip44Params
+    // Re-throw if no meta, we obviously can't get an address without it
+    if (!accountMetadata) throw new Error('No account metadata found')
+    const accountType = accountMetadata.accountType
+    const bip44Params = accountMetadata.bip44Params
 
-    const chainAdapter = getChainAdapterManager().get(chainId)!
+    const chainAdapter = getChainAdapterManager().get(chainId)
+
+    // And re-throw if no adapter found. "Shouldn't happen but" yadi yadi yada you know the drill
+    if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
 
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,

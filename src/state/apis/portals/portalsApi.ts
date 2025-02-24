@@ -746,7 +746,7 @@ export const portals = createApi({
               if (!accountUpsertPayload.byAccountId[accountId]) {
                 accountUpsertPayload.byAccountId[accountId] = []
               }
-              accountUpsertPayload.byAccountId[accountId]!.push(opportunityId)
+              accountUpsertPayload.byAccountId[accountId]?.push(opportunityId)
             }
 
             // Prepare payload for upsertUserStakingOpportunities

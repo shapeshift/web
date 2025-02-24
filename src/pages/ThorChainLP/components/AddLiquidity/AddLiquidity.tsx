@@ -141,6 +141,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
 
   const renderAddLiquiditySweep = useCallback(() => {
     if (!confirmedQuote) return null
+    if (!mixpanel) return
 
     const handleSweepSeen = () => {
       if (confirmedQuote.positionStatus?.incomplete) {
@@ -149,7 +150,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
       }
 
       history.push(AddLiquidityRoutePaths.Confirm)
-      mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
+      mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
     }
 
     return (

@@ -2,7 +2,7 @@ import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
 import { isUtxoChainId } from '@shapeshiftmonorepo/utils'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,7 +28,7 @@ import type {
 import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { reactQueries } from '@/react-queries'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -75,22 +75,26 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
-  const opportunityDataFilter = useMemo(
-    () => ({
+  const opportunityDataFilter = useMemo(() => {
+    const _accountId = accountId ?? highestBalanceAccountId
+    if (!_accountId) return
+
+    return {
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId)!,
+        _accountId,
         toOpportunityId({
           chainId,
           assetNamespace,
           assetReference,
         }),
       ),
-    }),
-    [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId],
-  )
+    }
+  }, [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId])
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
 
   // user info
@@ -104,14 +108,19 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
   )
 
   const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: accountId!,
-      getPosition: getThorchainSaversPosition,
-      assetId,
-      wallet: wallet!,
-      accountMetadata: accountMetadata!,
-    }),
-    enabled: Boolean(accountId && wallet && accountMetadata),
+    queryKey: ['thorchainFromAddress', accountId, assetId, opportunityId],
+    queryFn:
+      accountId && wallet && accountMetadata
+        ? () =>
+            getThorchainFromAddress({
+              accountId,
+              assetId,
+              opportunityId,
+              getPosition: getThorchainSaversPosition,
+              accountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   useEffect(() => {

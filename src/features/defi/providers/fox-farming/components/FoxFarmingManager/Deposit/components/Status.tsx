@@ -259,7 +259,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={foxFarmingOpportunity?.icons!}
+                icons={foxFarmingOpportunity?.icons}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

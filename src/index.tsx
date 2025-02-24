@@ -1,3 +1,4 @@
+import './lib/global-polyfills'
 import './wdyr'
 import '@/lib/polyfills'
 

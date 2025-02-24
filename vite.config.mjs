@@ -7,70 +7,80 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-export default defineConfig(({ mode }) => {
-  return {
-    plugins: [react(), tsconfigPaths()],
-    resolve: {
-      alias: {
-        '@': resolve(__dirname, './src'),
-        '@shapeshiftmonorepo': resolve(__dirname, './packages'),
-        crypto: 'crypto-browserify',
-        stream: 'stream-browserify',
-        assert: 'assert',
-        http: 'stream-http',
-        https: 'https-browserify',
-        os: 'os-browserify',
-        url: 'url',
-        buffer: 'buffer',
-        process: 'process/browser',
-        'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+export default defineConfig(mode => ({
+  plugins: [react(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@shapeshiftmonorepo': resolve(__dirname, './packages'),
+      crypto: 'crypto-browserify',
+      stream: 'stream-browserify',
+      assert: 'assert',
+      http: 'stream-http',
+      https: 'https-browserify',
+      os: 'os-browserify',
+      url: 'url',
+      buffer: 'buffer',
+      process: 'process/browser',
+      'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+    },
+  },
+  define: {
+    'process.env': {},
+    global: 'globalThis',
+    'global.Buffer': ['buffer', 'Buffer'],
+  },
+  build: {
+    target: 'esnext',
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
       },
-    },
-    define: {
-      'process.env': {},
-      global: 'globalThis',
-    },
-    build: {
-      rollupOptions: {
-        external: [],
-        output: {
-          format: 'es',
-          exports: 'named',
-          manualChunks(id) {
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('scheduler') ||
-              id.includes('@emotion/') ||
-              id.includes('@chakra-ui/') ||
-              id.includes('framer-motion')
-            ) {
-              return 'vendor-core'
-            }
-
-            return null
-          },
-          chunkFileNames(chunkInfo) {
-            const prefix =
-              {
-                'vendor-core': '00',
-                'vendor-ui': '10',
-              }[chunkInfo.name] || '99'
-
-            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
-          },
-          entryFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
+      output: {
+        manualChunks(id) {
+          // Bundle React and polyfills together to ensure they're available
+          if (
+            id.includes('react') ||
+            id.includes('react-dom') ||
+            id.includes('scheduler') ||
+            id.includes('buffer') ||
+            id.includes('process') ||
+            id.includes('polyfills')
+          ) {
+            return 'vendor-react'
+          }
+          return null
         },
-        preserveModules: false,
-        format: 'es',
-        chunkSizeWarningLimit: 25000,
+        chunkFileNames: chunkInfo => {
+          const prefix =
+            {
+              polyfills: '00',
+              'vendor-react': '01',
+            }[chunkInfo.name] || '99'
+
+          return `assets/${prefix}-${chunkInfo.name}-[hash].js`
+        },
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
-      target: ['es2020'],
-      minify: mode === 'development' ? false : 'esbuild',
-      sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
-      outDir: 'build',
-      emptyOutDir: true,
+      preserveModules: false,
+      format: 'es',
+      exports: 'named',
     },
-  }
-})
+    minify: mode === 'development' ? false : 'esbuild',
+    sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
+    outDir: 'build',
+    emptyOutDir: true,
+  },
+  optimizeDeps: {
+    include: ['buffer', 'process'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
+}))

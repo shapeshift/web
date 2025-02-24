@@ -4,11 +4,26 @@ import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
+import { cspMeta, headers, serializeCsp } from './headers'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const VITE_CSP_META = serializeCsp(cspMeta)
+
 export default defineConfig(mode => ({
   plugins: [react(), tsconfigPaths()],
+  server: {
+    port: 3000,
+    open: true,
+    watch: {
+      usePolling: true,
+    },
+    fs: {
+      allow: ['..'],
+    },
+    headers,
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -26,7 +41,8 @@ export default defineConfig(mode => ({
     },
   },
   define: {
-    'process.env': {},
+    'import.meta.env.VITE_CSP_META': JSON.stringify(VITE_CSP_META),
+    'process.env.VITE_CSP_META': JSON.stringify(VITE_CSP_META),
     global: 'globalThis',
     'global.Buffer': ['buffer', 'Buffer'],
   },

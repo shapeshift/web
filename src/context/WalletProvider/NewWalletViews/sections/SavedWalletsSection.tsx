@@ -32,11 +32,12 @@ const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
     <Box
       as={Button}
       variant='ghost'
+      whiteSpace='normal'
       px={4}
-      ml={-4}
-      py={6}
+      ml='-16px'
+      mr='-16px'
+      py={2.5}
       borderRadius='md'
-      width='full'
       onClick={handleClick}
       bg={isSelected ? bgColor : undefined}
     >
@@ -61,8 +62,6 @@ export const SavedWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const buttonBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
-
   const history = useHistory()
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
@@ -147,12 +146,11 @@ export const SavedWalletsSection = ({
           variant='ghost'
           whiteSpace='normal'
           px={4}
-          ml={-4}
-          py={6}
+          ml='-16px'
+          mr='-16px'
+          py={2.5}
           borderRadius='md'
-          width='full'
           onClick={handleAddNewWalletClick}
-          bg={buttonBgColor}
         >
           <Flex alignItems='center' width='full' color='gray.500'>
             <Icon as={FaPlus} boxSize='12px' mr={3} />

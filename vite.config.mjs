@@ -118,32 +118,32 @@ export default defineConfig(({ mode }) => {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
-          manualChunks: {
-            // React must be in its own chunk and loaded first
-            'vendor-react': ['react', 'react-dom'],
+          manualChunks: id => {
+            // React and related packages
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react'
+            }
 
             // Emotion and styling related packages
-            'vendor-emotion': [
-              '@emotion/react',
-              '@emotion/styled',
-              '@emotion/cache',
-              '@emotion/serialize',
-              '@emotion/utils',
-              '@emotion/weak-memoize',
-            ],
+            if (id.includes('@emotion/')) {
+              return 'vendor-emotion'
+            }
 
-            // Other UI libraries that depend on React/Emotion
-            'vendor-ui': ['@chakra-ui/react', '@chakra-ui/system', 'framer-motion'],
+            // UI libraries
+            if (id.includes('@chakra-ui/') || id.includes('framer-motion')) {
+              return 'vendor-ui'
+            }
+
+            // Default case - let Rollup handle it
+            return null
           },
           chunkFileNames: chunkInfo => {
             // Control loading order with prefixes
             const prefix =
               {
-                'vendor-react-core': '00',
-                'vendor-emotion-core': '01',
-                'vendor-ledger': '02',
-                'vendor-shapeshift': '03',
-                'vendor-metaplex': '04',
+                'vendor-react': '00',
+                'vendor-emotion': '01',
+                'vendor-ui': '02',
               }[chunkInfo.name] || '99'
 
             return `assets/${prefix}-${chunkInfo.name}-[hash].js`

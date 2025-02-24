@@ -15,7 +15,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -25,7 +25,6 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -43,7 +42,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -77,7 +76,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const opportunity = useMemo(() => state?.opportunity, [state])
   const assets = useAppSelector(selectAssets)
 
-  const chainAdapter = getChainAdapterManager().get(chainId)!
+  const chainAdapter = getChainAdapterManager().get(chainId)
 
   const assetId = toAssetId({
     chainId,
@@ -181,14 +180,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: accountId!,
-      assetId,
-      wallet: wallet!,
-      accountMetadata: accountMetadata!,
-      getPosition: getThorchainSaversPosition,
-    }),
-    enabled: Boolean(accountId && wallet && accountMetadata),
+    queryKey: ['thorchainFromAddress', accountId, assetId],
+    queryFn:
+      accountId && wallet && accountMetadata
+        ? () =>
+            getThorchainFromAddress({
+              accountId,
+              assetId,
+              getPosition: getThorchainSaversPosition,
+              accountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const memo = useMemo(() => {

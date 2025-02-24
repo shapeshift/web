@@ -34,7 +34,7 @@ export const StakingVaults = () => {
   return (
     <>
       {defiHeader}
-      <Main hideBreadcrumbs isSubPage>
+      <Main isSubPage>
         <SEO title={translate('defi.earn')} description={translate('navBar.defi')} />
         <EligibleSlider />
         <DeFiEarn mt={6} />

@@ -82,7 +82,6 @@ export const Explore = memo(() => {
         flex={1}
         width='full'
         pb='calc(env(safe-area-inset-bottom) + 6rem)'
-        hideBreadcrumbs
         pageProps={pageProps}
       >
         <SEO title={translate('navBar.explore')} />

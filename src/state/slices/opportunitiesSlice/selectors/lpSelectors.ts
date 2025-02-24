@@ -58,7 +58,9 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
       opportunityMetadata.underlyingAssetIds.map((underlyingAssetId, i) => {
-        const underlyingAsset = assets[underlyingAssetId]!
+        const underlyingAsset = assets[underlyingAssetId]
+
+        if (!underlyingAsset) return '0'
 
         return (
           bnOrZero(lpAssetBalanceCryptoBaseUnit)

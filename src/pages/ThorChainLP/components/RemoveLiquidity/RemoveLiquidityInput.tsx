@@ -25,12 +25,11 @@ import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -48,7 +47,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertUnreachable } from 'lib/utils'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
@@ -398,15 +397,19 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const { data: poolAssetAccountAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId,
-      assetId: poolAsset?.assetId!,
-      opportunityId,
-      wallet: wallet!,
-      accountMetadata: poolAssetAccountMetadata!,
-      getPosition: getThorchainLpPosition,
-    }),
-    enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
+    queryKey: ['thorchainFromAddress', accountId, poolAsset?.assetId, opportunityId],
+    queryFn:
+      wallet && accountId && poolAssetAccountMetadata && poolAsset
+        ? () =>
+            getThorchainFromAddress({
+              accountId,
+              assetId: poolAsset.assetId,
+              opportunityId,
+              getPosition: getThorchainLpPosition,
+              accountMetadata: poolAssetAccountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const {
@@ -723,12 +726,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     useIsSweepNeededQuery(isSweepNeededArgs)
 
   const handleSubmit = useCallback(() => {
+    if (!mixpanel) return
+    if (!confirmedQuote) return
     if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
 
     if (incompleteSide) {
-      mixpanel?.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote!)
+      mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
     } else {
-      mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+      mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
     history.push(RemoveLiquidityRoutePaths.Confirm)

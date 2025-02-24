@@ -118,13 +118,14 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   )
 
   const renderRemoveLiquiditySweep = useCallback(() => {
+    if (!mixpanel) return null
     if (!confirmedQuote) return null
 
     const handleSweepSeen = () => {
       if (confirmedQuote.positionStatus?.incomplete) {
-        mixpanel?.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote!)
+        mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
       } else {
-        mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+        mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
       }
 
       history.push(RemoveLiquidityRoutePaths.Confirm)

@@ -1195,7 +1195,7 @@
         "button": "Intentar otra vez"
       },
       "downloadUpdater": {
-        "header": "Descargar KeepKey Updater",
+        "header": "Descargar KeepKey Desktop",
         "button": "Descargar %{filename}",
         "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
       },

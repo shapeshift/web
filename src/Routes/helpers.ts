@@ -4,14 +4,6 @@ import type React from 'react'
  * Article for context -- https://sneas.github.io/blog/react-nested-navigation/
  */
 
-/**
- * Combine paths
- *
- * @param {string} parent
- * @param {string} child
- * @returns {string}
- */
-
 export enum RouteCategory {
   Featured = 'featured',
   Explore = 'explore',
@@ -21,16 +13,13 @@ export enum RouteCategory {
 
 export type Route = {
   path: string
-  label: string
   shortLabel?: string
   main: React.ElementType<{ route?: Route }> | null
   parent?: Route | null
   routes?: Route[]
   icon?: JSX.Element
   disable?: boolean
-  hide?: boolean
   hideDesktop?: boolean
-  breadcrumb?: string | React.ReactNode
   isNew?: boolean
   isViewOnly?: boolean
   category?: RouteCategory
@@ -43,8 +32,25 @@ export type Route = {
       mobileNav?: never
       priority?: never
     }
-)
+) &
+  (
+    | {
+        label: string
+        hide?: false | boolean
+      }
+    | {
+        label?: never
+        hide: true
+      }
+  )
 
+/**
+ * Combine paths
+ *
+ * @param {string} parent
+ * @param {string} child
+ * @returns {string}
+ */
 const combinePaths = (parent: string, child: string): string =>
   `${parent.replace(/\/$/, '')}/${child.replace(/^\//, '')}`
 

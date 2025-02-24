@@ -4,7 +4,6 @@ import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { ExploreIcon } from 'components/Icons/Explore'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -128,7 +127,6 @@ export const routes: Route[] = [
   {
     path: '/home',
     label: 'navBar.home',
-    shortLabel: 'navBar.home',
     icon: <HomeIcon />,
     mobileNav: true,
     hideDesktop: true,
@@ -146,13 +144,11 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     routes: [
       {
-        label: 'Trade Assets',
         path: '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
         main: Trade,
         hide: true,
       },
-      ...assetIdPaths.map(assetIdPath => ({
-        label: 'Trade Asset',
+      ...assetIdPaths.map<Route>(assetIdPath => ({
         path: assetIdPath,
         main: Trade,
         hide: true,
@@ -179,9 +175,9 @@ export const routes: Route[] = [
     mobileNav: false,
     priority: 4,
     routes: assetIdPaths.map(assetIdPath => ({
-      label: 'Buy Asset',
       path: assetIdPath,
       main: Buy,
+      hide: true,
     })),
   },
   {
@@ -255,24 +251,12 @@ export const routes: Route[] = [
   },
   {
     path: '/assets',
-    label: 'navBar.assets',
     main: Assets,
     hide: true,
-    icon: <AssetsIcon />,
-    category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({
       path: assetIdPath,
-      label: 'Overview',
-      icon: <AssetsIcon />,
-      main: null,
+      main: Asset,
       hide: true,
-      routes: [
-        {
-          path: '/',
-          label: 'navBar.overview',
-          main: Asset,
-        },
-      ],
     })),
   },
   {

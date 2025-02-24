@@ -1,5 +1,5 @@
-import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { thorchainAssetId, thorchainChainId } from '@shapeshiftmonorepo/caip'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Fee } from '../../../../types'

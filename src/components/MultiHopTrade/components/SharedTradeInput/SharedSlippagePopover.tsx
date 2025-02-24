@@ -16,15 +16,16 @@ import {
   PopoverTrigger,
   Tooltip,
 } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 enum SlippageType {
   Auto = 'Auto',

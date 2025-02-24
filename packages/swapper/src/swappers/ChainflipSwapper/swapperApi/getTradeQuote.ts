@@ -1,6 +1,6 @@
-import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftmonorepo/caip'
+import type { GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -67,8 +67,8 @@ export const getTradeQuote = async (
 
   if (maybeTradeQuotes.isErr()) return Err(maybeTradeQuotes.unwrapErr())
 
-  const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
+  const apiKey = deps.config.VITE_CHAINFLIP_API_KEY
 
   const tradeQuotes = maybeTradeQuotes.unwrap()
 

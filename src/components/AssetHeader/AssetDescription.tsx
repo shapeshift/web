@@ -1,10 +1,11 @@
 import { Card, CardBody, CardHeader, Heading, Skeleton } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useTranslate } from 'react-polyglot'
-import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { AssetDescriptionTeaser } from '@/components/AssetDescriptionTeaser'
+import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssetById, selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetDescriptionProps = {
   assetId: AssetId

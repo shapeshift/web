@@ -1,8 +1,9 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
-import type { solana } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE, fromAssetId, solanaChainId } from '@shapeshiftmonorepo/caip'
+import type { solana } from '@shapeshiftmonorepo/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isSolanaChainAdapter = (
   chainAdapter: unknown,

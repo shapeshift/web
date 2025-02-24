@@ -1,9 +1,10 @@
 import { EncryptedWallet, engines } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+
 import {
   decryptWallet,
   hashPassword,
-} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { isMobile } from 'lib/globals'
+} from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { isMobile } from '@/lib/globals'
 
 const cryptoEngine = new engines.WebCryptoEngine()
 

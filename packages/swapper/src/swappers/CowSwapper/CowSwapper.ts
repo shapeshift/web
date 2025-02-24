@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { SigningScheme } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
+import { SigningScheme } from '@shapeshiftmonorepo/types'
 
 import { assertGetCowNetwork, signCowOrder } from '../../cowswap-utils'
 import type {
@@ -30,7 +30,7 @@ export const cowSwapper: Swapper = {
     const network = assertGetCowNetwork(chainId)
 
     const maybeOrdersResponse = await cowService.post<string>(
-      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
+      `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
       {
         ...orderToSign,
         signingScheme: SigningScheme.EIP712,

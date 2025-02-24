@@ -1,5 +1,5 @@
-import type { Plugins } from 'plugins/types'
-import { isMobile } from 'lib/globals'
+import { isMobile } from '@/lib/globals'
+import type { Plugins } from '@/plugins/types'
 
 export type MobileMessageEvent = { id: number; cmd?: string; deviceId?: string }
 

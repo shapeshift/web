@@ -1,8 +1,9 @@
 import type { TextProps } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { RawText } from 'components/Text'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { RawText } from '@/components/Text'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const TransactionDate = ({ blockTime, ...rest }: { blockTime: number } & TextProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)

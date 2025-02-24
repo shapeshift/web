@@ -1,7 +1,7 @@
 import { Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { OnboardingRoutes } from '../config'
 

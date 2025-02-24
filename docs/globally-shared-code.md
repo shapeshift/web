@@ -7,7 +7,7 @@ We should always be writing our code so it is easy to be moved and shared. A gen
 We use aliasing for our file paths so that we can easily nest components and not have to worry about traversing our files with the correct `../../../` The aliases are implemented for any of the folders in the `src` folder.
 
 ```
-import { MyCustomHook } from 'hooks/MyCustomHook'
+import { MyCustomHook } from '@/hooks/MyCustomHook'
 ```
 
 ## Components

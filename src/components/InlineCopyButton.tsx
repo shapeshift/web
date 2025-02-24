@@ -3,9 +3,10 @@ import { Flex, IconButton } from '@chakra-ui/react'
 import type { MouseEvent, PropsWithChildren } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useCopyToClipboard } from 'hooks/useCopyToClipboard'
 
 import { TooltipWithTouch } from './TooltipWithTouch'
+
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 
 type InlineCopyButtonProps = {
   value: string

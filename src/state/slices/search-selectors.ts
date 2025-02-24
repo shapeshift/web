@@ -1,11 +1,12 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 import { selectSearchQueryFromFilter } from '../selectors'
 import { selectAssetsBySearchQuery } from './common-selectors'
 import { selectTxsByQuery } from './txHistorySlice/selectors'
 import type { TxId } from './txHistorySlice/txHistorySlice'
+
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
 export enum GlobalSearchResultType {
   Asset = 'Asset',

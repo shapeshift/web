@@ -12,13 +12,14 @@ import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Display } from 'components/Display'
-import { PageBackButton, PageHeader, PageHeaderButton } from 'components/Layout/Header/PageHeader'
-import type { TabItem } from 'components/TabMenu/TabMenu'
-import { TabMenu } from 'components/TabMenu/TabMenu'
-import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useHistory } from 'react-router-dom'
+
+import { Display } from '@/components/Display'
+import { PageBackButton, PageHeader, PageHeaderButton } from '@/components/Layout/Header/PageHeader'
+import type { TabItem } from '@/components/TabMenu/TabMenu'
+import { TabMenu } from '@/components/TabMenu/TabMenu'
+import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 const containerPadding = { base: 4, '2xl': 8 }
 const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }

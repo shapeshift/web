@@ -1,12 +1,12 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
+import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import type { GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftmonorepo/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftmonorepo/types'
+import { cosmossdk, TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftmonorepo/utils'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { UtxoChainId } from '@shapeshiftoss/types'
-import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
-import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
@@ -526,7 +526,7 @@ export const thorchainApi: SwapperApi = {
 
           const api = new cosmossdk.thorchain.V1Api(
             new cosmossdk.thorchain.Configuration({
-              basePath: config.REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
+              basePath: config.VITE_UNCHAINED_THORCHAIN_HTTP_URL,
             }),
           )
 
@@ -540,7 +540,7 @@ export const thorchainApi: SwapperApi = {
             gas,
           }
 
-          const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
+          const daemonUrl = config.VITE_THORCHAIN_NODE_URL
           const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
           if (maybeGaiaAddressData.isErr()) throw maybeGaiaAddressData.unwrapErr()
           const gaiaAddressData = maybeGaiaAddressData.unwrap()
@@ -557,7 +557,7 @@ export const thorchainApi: SwapperApi = {
 
           const api = new cosmossdk.cosmos.V1Api(
             new cosmossdk.cosmos.Configuration({
-              basePath: config.REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+              basePath: config.VITE_UNCHAINED_COSMOS_HTTP_URL,
             }),
           )
 
@@ -629,10 +629,10 @@ export const thorchainApi: SwapperApi = {
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
       const [{ data: txData }, { data: txStatusData }] = await Promise.all([
         axios.get<ThornodeTxResponse>(
-          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
         ),
         axios.get<ThornodeStatusResponse>(
-          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
         ),
       ])
 

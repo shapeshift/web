@@ -1,11 +1,12 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent } from 'react'
-import type { TradeInputTab } from 'components/MultiHopTrade/types'
-import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
+
+import type { TradeInputTab } from '@/components/MultiHopTrade/types'
+import { breakpoints } from '@/theme/theme'
 
 export type SideComponentProps = {
   isOpen: boolean

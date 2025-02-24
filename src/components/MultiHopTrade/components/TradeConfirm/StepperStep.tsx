@@ -11,10 +11,11 @@ import {
   Tag,
   useStyleConfig,
 } from '@chakra-ui/react'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { selectActiveQuote } from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const stepStyle = {
   height: 'auto',

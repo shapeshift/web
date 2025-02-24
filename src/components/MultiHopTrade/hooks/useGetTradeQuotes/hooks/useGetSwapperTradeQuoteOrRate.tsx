@@ -1,9 +1,14 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { GetTradeQuoteInput, GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
+import type {
+  GetTradeQuoteInput,
+  GetTradeRateInput,
+  SwapperName,
+} from '@shapeshiftmonorepo/swapper'
 import { useEffect, useMemo } from 'react'
-import { swapperApi, useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch } from 'state/store'
+
+import { swapperApi, useGetTradeQuoteQuery } from '@/state/apis/swapper/swapperApi'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch } from '@/state/store'
 
 export type UseGetSwapperTradeQuoteOrRateArgs = {
   swapperName: SwapperName | undefined

@@ -1,7 +1,8 @@
 import { QuestionIcon } from '@chakra-ui/icons'
 import type { FlexProps, IconProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import { TooltipWithTouch } from 'components/TooltipWithTouch'
+
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 
 export type HelperTooltipProps = {
   label: string

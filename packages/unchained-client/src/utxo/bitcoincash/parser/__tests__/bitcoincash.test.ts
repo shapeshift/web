@@ -1,4 +1,4 @@
-import { bchAssetId, bchChainId } from '@shapeshiftoss/caip'
+import { bchAssetId, bchChainId } from '@shapeshiftmonorepo/caip'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { ParsedTx } from '../../../../types'

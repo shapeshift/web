@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { btcChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { btcChainId } from '@shapeshiftmonorepo/caip'
+import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -15,23 +15,15 @@ import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-  post: vi.fn(),
-}))
-
 vi.mock('../utils/zrxService', () => {
-  const mockAxios = {
-    default: {
-      create: vi.fn(() => ({
-        get: mocks.get,
-        post: mocks.post,
-      })),
-    },
-  }
+  const get = vi.fn()
+  const post = vi.fn()
 
   return {
-    zrxServiceFactory: mockAxios.default.create,
+    zrxServiceFactory: vi.fn(() => ({
+      get,
+      post,
+    })),
   }
 })
 
@@ -45,7 +37,7 @@ vi.mock('../utils/helpers/helpers', async () => {
 })
 
 vi.mock('@shapeshiftoss/chain-adapters', async () => {
-  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const { KnownChainIds } = await import('@shapeshiftoss/types')
 
   const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
 

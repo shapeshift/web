@@ -4,10 +4,11 @@ import type { Property } from 'csstype'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { store } from 'state/store'
 
 import { RawText } from './Text'
+
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { store } from '@/state/store'
 
 const containerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const containerAlignItems = { base: 'flex-start', md: 'center' }

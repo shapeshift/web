@@ -1,6 +1,6 @@
-import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftmonorepo/caip'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import type { evm } from '@shapeshiftoss/common-api'
-import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
@@ -30,7 +30,7 @@ import zrxTradeUsdcToEth from './mockData/zrxTradeUsdcToEth'
 import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 const mockedApi = vi.mocked(new V1Api())

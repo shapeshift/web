@@ -1,5 +1,5 @@
-import { adapters } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { adapters } from '@shapeshiftmonorepo/caip'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

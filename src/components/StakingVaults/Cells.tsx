@@ -10,18 +10,19 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { debounce } from 'lodash'
 import { isValidElement, useCallback, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
+import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetCellProps = {
   assetId: AssetId

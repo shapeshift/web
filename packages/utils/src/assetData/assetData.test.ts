@@ -1,4 +1,4 @@
-import type { AssetsById } from '@shapeshiftoss/types'
+import type { AssetsById } from '@shapeshiftmonorepo/types'
 import { describe, expect, it } from 'vitest'
 
 import { decodeAssetData } from './decodeAssetData'

@@ -1,8 +1,8 @@
-import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftmonorepo/chain-adapters'
+import type { Bip44Params, KnownChainIds, WithdrawType } from '@shapeshiftmonorepo/types'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import type { Bip44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-import type { Contract } from 'ethers'
+import type { Contract } from 'ethers6'
 
 export type FoxyAddressesType = {
   staking: string

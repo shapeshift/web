@@ -1,10 +1,11 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
-import { useModal } from 'hooks/useModal/useModal'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseRouter } from './BackupPassphraseRouter'
+
+import { useModal } from '@/hooks/useModal/useModal'
 
 export const entries = Object.values(BackupPassphraseRoutes)
 

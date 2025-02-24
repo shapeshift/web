@@ -1,8 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import type { TradeInputTab } from 'components/MultiHopTrade/types'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
@@ -12,6 +10,9 @@ import { LimitOrderInput } from './components/LimitOrderInput'
 import { LimitOrderList } from './components/LimitOrderList'
 import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderRoutePaths } from './types'
+
+import type { TradeInputTab } from '@/components/MultiHopTrade/types'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 const LimitOrderRouteEntries = [
   LimitOrderRoutePaths.Input,

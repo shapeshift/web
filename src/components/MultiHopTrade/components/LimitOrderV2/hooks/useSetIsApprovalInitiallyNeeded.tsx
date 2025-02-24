@@ -1,13 +1,14 @@
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftmonorepo/swapper'
 import { useEffect, useMemo } from 'react'
-import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
-import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
+
+import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
+import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceResetRequired'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectLimitOrderSubmissionMetadata,
-} from 'state/slices/limitOrderSlice/selectors'
-import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
+} from '@/state/slices/limitOrderSlice/selectors'
+import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const useSetIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()

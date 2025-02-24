@@ -1,9 +1,10 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, MenuDivider, MenuItem } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
-import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
+
+import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/ManageAccountsMenuItem'
+import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 
 const chevronRightIcon = <ChevronRightIcon />
 type NativeMenuProps = {

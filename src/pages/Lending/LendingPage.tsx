@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Route, Switch, useRouteMatch } from 'react-router'
+import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { AvailablePools } from './AvailablePools'
 import { Pool } from './Pool/Pool'

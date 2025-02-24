@@ -1,11 +1,12 @@
 import { useInView } from 'react-intersection-observer'
-import type { OrderDirection } from 'components/OrderDropdown/types'
-import type { SortOptionsKeys } from 'components/SortDropdown/types'
 
 import type { MarketsCategories } from '../constants'
 import { CATEGORY_TO_QUERY_HOOK } from '../hooks/useCoingeckoData'
 import type { RowProps } from '../hooks/useRows'
 import { AssetsGrid } from './AssetsGrid'
+
+import type { OrderDirection } from '@/components/OrderDropdown/types'
+import type { SortOptionsKeys } from '@/components/SortDropdown/types'
 
 export const AssetGridWithData = ({
   selectedChainId,

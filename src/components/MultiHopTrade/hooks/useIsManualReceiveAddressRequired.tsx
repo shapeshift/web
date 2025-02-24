@@ -1,14 +1,15 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { useMemo } from 'react'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
   useWalletSupportsChain,
   useWalletSupportsChainAtRuntime,
-} from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { selectAccountIdsByAssetId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseIsManualReceiveAddressRequiredProps = {
   shouldForceManualAddressEntry: boolean

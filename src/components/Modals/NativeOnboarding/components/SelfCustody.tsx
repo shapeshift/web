@@ -1,8 +1,9 @@
 import { Center, Flex, Image } from '@chakra-ui/react'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
 
 import SelfCustodyIcon from '../self-custody.svg'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
 
 export const SelfCustody = () => {
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.selfCustody.${key}`

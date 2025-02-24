@@ -14,20 +14,21 @@ import {
   Tabs,
   VStack,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
-import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { cowSwapTokenToAssetId } from '@shapeshiftmonorepo/swapper'
+import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftmonorepo/types'
+import { bnOrZero } from '@shapeshiftmonorepo/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { Text } from 'components/Text'
 
 import { WithBackButton } from '../../WithBackButton'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersQuery'
 import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'
+
+import { Text } from '@/components/Text'
 
 const textSelectedProps = {
   color: 'text.base',

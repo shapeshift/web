@@ -1,11 +1,11 @@
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/common-api'
+import { ethAssetId, ethChainId } from '@shapeshiftmonorepo/caip'
 import {
   FOXY_STAKING_CONTRACT,
   UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
   WETH_TOKEN_CONTRACT,
   ZRX_ETHEREUM_PROXY_CONTRACT,
-} from '@shapeshiftoss/contracts'
+} from '@shapeshiftmonorepo/contracts'
+import type { evm } from '@shapeshiftoss/common-api'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { Trade } from '../../../../types'
@@ -118,7 +118,7 @@ const getApi = vi.hoisted(async () => {
 })
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 vi.mock('axios', () => {

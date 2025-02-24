@@ -1,6 +1,6 @@
-import type { QuoteFees } from 'lib/utils/thorchain/lending/types'
-
 import type { DefiProvider, DefiType, OpportunityMetadataBase } from '../../types'
+
+import type { QuoteFees } from '@/lib/utils/thorchain/lending/types'
 
 export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   provider: DefiProvider.ThorchainSavers

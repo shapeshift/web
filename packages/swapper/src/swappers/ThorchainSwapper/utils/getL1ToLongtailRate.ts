@@ -1,7 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
-import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
-import { isFulfilled, isRejected, isResolvedErr } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { ethChainId } from '@shapeshiftmonorepo/caip'
+import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftmonorepo/contracts'
+import { isFulfilled, isRejected, isResolvedErr } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 

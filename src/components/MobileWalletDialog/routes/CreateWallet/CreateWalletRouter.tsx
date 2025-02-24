@@ -1,14 +1,15 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
-import { MemoryRouter, Redirect, Route, Switch, useHistory } from 'react-router'
-import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
-import { SlideTransition } from 'components/SlideTransition'
+import { MemoryRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom'
 
 import { ManualBackup } from '../ManualBackup/ManualBackup'
 import { CreateBackupConfirm } from './CreateBackupConfirm'
 import { CreateSuccess } from './CreateSuccess'
 import { CreateWallet } from './CreateWallet'
 import { KeepSafe } from './KeepSafe'
+
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { SlideTransition } from '@/components/SlideTransition'
 
 type CreateWalletRouterProps = {
   onClose: () => void

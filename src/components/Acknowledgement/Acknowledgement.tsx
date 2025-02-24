@@ -12,7 +12,8 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
-import { RawText, Text } from 'components/Text'
+
+import { RawText, Text } from '@/components/Text'
 
 export type AcknowledgementProps = {
   content?: JSX.Element

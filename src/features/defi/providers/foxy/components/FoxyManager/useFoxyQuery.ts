@@ -1,15 +1,16 @@
-import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { useMemo } from 'react'
+
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useMemo } from 'react'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectStakingOpportunityByFilter } from 'state/slices/opportunitiesSlice/selectors'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { useAppSelector } from 'state/store'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectStakingOpportunityByFilter } from '@/state/slices/opportunitiesSlice/selectors'
+import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
+import { useAppSelector } from '@/state/store'
 
 export const useFoxyQuery = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

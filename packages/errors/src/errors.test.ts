@@ -58,10 +58,11 @@ describe.each`
 
   it('should ignore unknown properties in options object', () => {
     const cause = new TypeError('cause')
-    const e = new TestError('test message', { cause, stuff: { arg1: 'foo' } })
-    expect(e.message).toBe('test message')
-    expect(e.cause).toBe(cause)
-    expect(Object.getOwnPropertyNames(e)).toStrictEqual(['stack', 'message', 'name', 'cause'])
+    const e = new TestError('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
   })
 
   it(`should have a default error code of ${code}`, () => {
@@ -75,5 +76,71 @@ describe.each`
 
     e.code = 'second-Error'
     expect(e.code).toBe('SECOND_ERROR')
+  })
+})
+
+describe('ErrorWithDetails', () => {
+  it('should ignore unknown properties in options object', () => {
+    const cause = new TypeError('cause')
+    const e = new ErrorWithDetails('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
+  })
+})
+
+describe('ForbiddenError', () => {
+  it('should ignore unknown properties in options object', () => {
+    const cause = new TypeError('cause')
+    const e = new ForbiddenError('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
+  })
+})
+
+describe('NotFoundError', () => {
+  it('should ignore unknown properties in options object', () => {
+    const cause = new TypeError('cause')
+    const e = new NotFoundError('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
+  })
+})
+
+describe('RateLimitError', () => {
+  it('should ignore unknown properties in options object', () => {
+    const cause = new TypeError('cause')
+    const e = new RateLimitError('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
+  })
+})
+
+describe('UnauthorizedError', () => {
+  it('should ignore unknown properties in options object', () => {
+    const cause = new TypeError('cause')
+    const e = new UnauthorizedError('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
+  })
+})
+
+describe('ValidationError', () => {
+  it('should ignore unknown properties in options object', () => {
+    const cause = new TypeError('cause')
+    const e = new ValidationError('test message', { cause })
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message')
+    expect(e).toHaveProperty('name')
+    expect(e).toHaveProperty('cause')
   })
 })

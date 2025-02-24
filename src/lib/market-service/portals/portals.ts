@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -7,23 +7,24 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { createThrottle } from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { createThrottle } from '@shapeshiftmonorepo/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/portals/constants'
-import type { GetTokensResponse, HistoryResponse } from 'lib/portals/types'
-import { assertUnreachable, getTimeFrameBounds, isToken } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
+
+import { getConfig } from '@/config'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from '@/lib/portals/constants'
+import type { GetTokensResponse, HistoryResponse } from '@/lib/portals/types'
+import { assertUnreachable, getTimeFrameBounds, isToken } from '@/lib/utils'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)
@@ -43,10 +44,10 @@ const { throttle, clear } = createThrottle({
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
-const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
+const PORTALS_API_KEY = getConfig().VITE_PORTALS_API_KEY
 
 export class PortalsMarketService implements MarketService {
-  baseUrl = getConfig().REACT_APP_PORTALS_BASE_URL
+  baseUrl = getConfig().VITE_PORTALS_BASE_URL
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 250,

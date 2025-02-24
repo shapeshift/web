@@ -1,10 +1,11 @@
 import * as webcrypto from '@peculiar/webcrypto'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { decryptNativeWallet, getPasswordHash } from './login'
 
 describe('login', () => {
-  globalThis.crypto = new webcrypto.Crypto() as Crypto
+  const crypto = new webcrypto.Crypto()
+  vi.stubGlobal('crypto', crypto)
 
   describe('password-hash', () => {
     it('should fail on getPasswordHash without email', async () => {

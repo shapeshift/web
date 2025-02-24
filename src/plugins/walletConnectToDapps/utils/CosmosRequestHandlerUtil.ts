@@ -1,17 +1,18 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { ChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { toAddressNList } from '@shapeshiftmonorepo/chain-adapters'
+import type { AccountMetadata, CosmosSdkChainId } from '@shapeshiftmonorepo/types'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata, CosmosSdkChainId } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
+
+import { assertIsDefined } from '@/lib/utils'
 import type {
   CustomTransactionData,
   SupportedSessionRequest,
-} from 'plugins/walletConnectToDapps/types'
-import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
-import { assertIsDefined } from 'lib/utils'
+} from '@/plugins/walletConnectToDapps/types'
+import { CosmosSigningMethod } from '@/plugins/walletConnectToDapps/types'
 
 type ApproveCosmosRequestArgs = {
   requestEvent: SupportedSessionRequest

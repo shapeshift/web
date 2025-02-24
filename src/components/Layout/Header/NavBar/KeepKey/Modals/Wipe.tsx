@@ -11,11 +11,12 @@ import {
 } from '@chakra-ui/react'
 import React, { useCallback, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { Text } from 'components/Text'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { Text } from '@/components/Text'
+import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const WipeModal = () => {
   const initRef = useRef<HTMLInputElement | null>(null)

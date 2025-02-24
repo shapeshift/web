@@ -1,5 +1,5 @@
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 
 export function calculateSlippageMargin(amount: string | null, precision: number) {
   if (!amount) throw new Error('Amount not given for slippage')

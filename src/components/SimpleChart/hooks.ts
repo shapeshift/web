@@ -1,7 +1,8 @@
 import type { UTCTimestamp } from 'lightweight-charts'
 import { useCallback } from 'react'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export function useHeaderDateFormatter() {
   const locale = useAppSelector(selectSelectedLocale)

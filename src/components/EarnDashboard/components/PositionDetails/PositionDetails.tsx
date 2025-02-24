@@ -1,8 +1,9 @@
 import { Flex } from '@chakra-ui/react'
-import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 
 import { LpPositionsByProvider } from './LpPositionsByProvider'
 import { StakingPositionsByProvider } from './StakingPositionsByProvider'
+
+import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
 
 const flexPx = { base: 4, md: 6 }
 const flexPy = { base: 2, md: 8 }

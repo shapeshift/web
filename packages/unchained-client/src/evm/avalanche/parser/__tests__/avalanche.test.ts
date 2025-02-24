@@ -1,6 +1,6 @@
-import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
+import { avalancheAssetId, avalancheChainId } from '@shapeshiftmonorepo/caip'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import type { evm } from '@shapeshiftoss/common-api'
-import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
@@ -21,7 +21,7 @@ import zrxTradeWethToAvax from './mockData/zrxTradeWethToAvax'
 import zrxTradeWethToWbtc from './mockData/zrxTradeWethToWbtc'
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 const mockedApi = vi.mocked(new V1Api())

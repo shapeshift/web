@@ -1,16 +1,17 @@
-import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
 import type { ChainId, Token, Yearn } from '@yfi/sdk'
 import uniqBy from 'lodash/uniqBy'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type YearnTokenMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>

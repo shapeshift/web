@@ -1,10 +1,6 @@
-import { TransferType } from '@shapeshiftoss/unchained-client'
+import { TransferType } from '@shapeshiftmonorepo/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
-import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
@@ -19,6 +15,11 @@ import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
+
+import { RawText } from '@/components/Text'
+import { Method } from '@/hooks/useTxDetails/useTxDetails'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const TransactionMethod = ({
   txDetails,

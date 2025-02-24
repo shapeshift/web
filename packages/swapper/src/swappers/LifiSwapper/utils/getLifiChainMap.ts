@@ -1,8 +1,8 @@
 import type { ChainId as LifiChainId, ChainKey } from '@lifi/sdk'
 import { getChains } from '@lifi/sdk'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumNovaChainId, fromChainId } from '@shapeshiftoss/caip'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { arbitrumNovaChainId, fromChainId } from '@shapeshiftmonorepo/caip'
+import { evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
 
 import { configureLiFi } from './configureLiFi'
 import { createLifiChainMap } from './createLifiChainMap/createLifiChainMap'

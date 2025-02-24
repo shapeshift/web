@@ -1,8 +1,8 @@
 import type {
   Field as WithdrawField,
   WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+} from '@/features/defi/components/Withdraw/Withdraw'
+import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
   estimatedGasCryptoBaseUnit?: string

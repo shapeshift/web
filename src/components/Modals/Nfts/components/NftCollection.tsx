@@ -1,9 +1,10 @@
 import { Button, Flex, Link, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
-import { markdownLinkToHTML } from 'lib/utils'
-import type { NftCollectionType } from 'state/apis/nft/types'
+
+import { SanitizedHtml } from '@/components/SanitizedHtml/SanitizedHtml'
+import { markdownLinkToHTML } from '@/lib/utils'
+import type { NftCollectionType } from '@/state/apis/nft/types'
 
 type NftCollectionProps = Pick<NftCollectionType, 'socialLinks' | 'description' | 'name'>
 

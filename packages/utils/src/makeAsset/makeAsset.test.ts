@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import { ASSET_NAMESPACE, ethAssetId, ethChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import { describe, expect, it } from 'vitest'
 
 import type { MinimalAsset } from './makeAsset'

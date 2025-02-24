@@ -1,5 +1,5 @@
-import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { PERMIT2_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import type { AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'

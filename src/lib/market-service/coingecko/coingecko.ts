@@ -1,4 +1,4 @@
-import { adapters, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { adapters, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -6,16 +6,17 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getTimeFrameBounds } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTimeFrameBounds } from '@/lib/utils'
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {

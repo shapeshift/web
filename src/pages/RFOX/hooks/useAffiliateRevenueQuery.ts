@@ -1,7 +1,8 @@
 import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
+
+import { getConfig } from '@/config'
 
 type AffiliateRevenueQueryKey = [
   'affiliateRevenue',
@@ -31,7 +32,7 @@ export const getAffiliateRevenueQueryFn = ({
   if (!startTimestamp || !endTimestamp) return skipToken
 
   return async () => {
-    const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
+    const baseUrl = getConfig().VITE_UNCHAINED_THORCHAIN_HTTP_URL
 
     const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp}&end=${endTimestamp}`
     const { data } = await axios.get<{ address: string; amount: string }>(url)

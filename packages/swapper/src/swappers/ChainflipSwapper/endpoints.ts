@@ -1,9 +1,9 @@
-import { fromAssetId, fromChainId, solAssetId } from '@shapeshiftoss/caip'
-import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId, fromChainId, solAssetId } from '@shapeshiftmonorepo/caip'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
+import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import type { EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftmonorepo/types'
+import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
@@ -287,8 +287,8 @@ export const chainflipApi: SwapperApi = {
     // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap
     const swapId = swap.id
 
-    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
+    const brokerUrl = config.VITE_CHAINFLIP_API_URL
+    const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
       `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,

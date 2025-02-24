@@ -1,5 +1,5 @@
-import type { AssetReference, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import type { AssetReference, ChainNamespace, ChainReference } from '@shapeshiftmonorepo/caip'
+import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
 
 export const getNativeFeeAssetReference = (
   chainNamespace: ChainNamespace,

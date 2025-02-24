@@ -2,8 +2,9 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import { Box, Circle, CircularProgressLabel, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText } from 'components/Text'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RawText } from '@/components/Text'
 
 export type StepRowProps = {
   label: string

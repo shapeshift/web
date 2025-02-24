@@ -1,17 +1,18 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { UniV2Deposit } from './Deposit/UniV2Deposit'
 import { UniV2Overview } from './Overview/UniV2Overview'
 import { UniV2Withdraw } from './Withdraw/UniV2Withdraw'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export const UniV2LpManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

@@ -1,5 +1,5 @@
-import type { BigNumber } from '@shapeshiftoss/utils'
-import { bn } from '@shapeshiftoss/utils'
+import type { BigNumber } from '@shapeshiftmonorepo/utils'
+import { bn } from '@shapeshiftmonorepo/utils'
 
 import {
   MIN_CROSS_CHAIN_AMOUNT_THRESHOLD_USD_HUMAN,

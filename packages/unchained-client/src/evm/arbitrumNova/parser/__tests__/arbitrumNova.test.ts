@@ -1,4 +1,4 @@
-import { arbitrumNovaAssetId, arbitrumNovaChainId } from '@shapeshiftoss/caip'
+import { arbitrumNovaAssetId, arbitrumNovaChainId } from '@shapeshiftmonorepo/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -16,7 +16,7 @@ import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 const mockedApi = vi.mocked(new V1Api())

@@ -1,5 +1,4 @@
 import { mergeQueryKeys } from '@lukemorales/query-key-factory'
-import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 
 import { accountManagement } from './queries/accountManagement'
 import { common } from './queries/common'
@@ -8,6 +7,8 @@ import { mutations } from './queries/mutations'
 import { opportunities } from './queries/opportunities'
 import { swapper } from './queries/swapper'
 import { thornode } from './queries/thornode'
+
+import { thorchainLp } from '@/pages/ThorChainLP/queries/queries'
 
 export const reactQueries = mergeQueryKeys(
   accountManagement,

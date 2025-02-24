@@ -15,16 +15,17 @@ import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
-import { IconCircle } from 'components/IconCircle'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { NativeConfig } from '../config'
+
+import { IconCircle } from '@/components/IconCircle'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type VaultInfo = {
   id: string

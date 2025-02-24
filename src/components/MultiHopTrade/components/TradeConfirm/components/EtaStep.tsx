@@ -2,10 +2,11 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StepperStep } from '../StepperStep'
+
+import { selectActiveQuote } from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const etaStepProps = { py: 0 }
 

@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ethers } from 'ethers'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { ethers } from 'ethers6'
 
 import type { Tx } from '../../generated/ethereum'
 import { Parser as ThorchainParser } from '../../parser/thorchain'

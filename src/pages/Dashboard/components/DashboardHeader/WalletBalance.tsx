@@ -1,19 +1,20 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Skeleton } from '@chakra-ui/react'
 import type { ResponsiveValue } from '@chakra-ui/system'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
 import type { Property } from 'csstype'
 import { memo, useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpportunities'
-import { Text } from 'components/Text'
+
+import { Amount } from '@/components/Amount/Amount'
+import { useFetchOpportunities } from '@/components/StakingVaults/hooks/useFetchOpportunities'
+import { Text } from '@/components/Text'
 import {
   selectClaimableRewards,
   selectEarnBalancesUserCurrencyAmountFull,
   selectIsPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalance,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const balanceFontSize = { base: '2xl', md: '4xl' }
 const balanceFlexDir: ResponsiveValue<Property.FlexDirection> = {

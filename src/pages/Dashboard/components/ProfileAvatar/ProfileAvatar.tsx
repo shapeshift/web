@@ -1,11 +1,12 @@
 import { Box, Button, Center, useDisclosure } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import React, { memo } from 'react'
-import { EditPen } from 'components/Icons/EditPen'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
 
 import { AvatarSelectModal } from './AvatarSelectModal'
+
+import { EditPen } from '@/components/Icons/EditPen'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { useProfileAvatar } from '@/hooks/useProfileAvatar/useProfileAvatar'
 
 const groupOverFullOpacity = { opacity: 1 }
 const groupHoverHalfOpacity = { opacity: '0.5' }

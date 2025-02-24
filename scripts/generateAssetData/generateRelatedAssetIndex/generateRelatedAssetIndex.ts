@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import {
   adapters,
   arbitrumAssetId,
@@ -10,8 +10,8 @@ import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
   optimismAssetId,
-} from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/caip'
+import type { Asset } from '@shapeshiftmonorepo/types'
 import {
   createThrottle,
   decodeAssetData,
@@ -19,15 +19,12 @@ import {
   encodeAssetData,
   encodeRelatedAssetIndex,
   isEvmChainId,
-} from '@shapeshiftoss/utils'
+} from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
-import type { CoingeckoAssetDetails } from 'lib/coingecko/types'
-import type { PartialFields } from 'lib/types'
-import { isToken } from 'lib/utils'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
 import {
@@ -35,6 +32,10 @@ import {
   zerionImplementationToMaybeAssetId,
 } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
+
+import type { CoingeckoAssetDetails } from '@/lib/coingecko/types'
+import type { PartialFields } from '@/lib/types'
+import { isToken } from '@/lib/utils'
 
 // NOTE: this must call the zerion api directly rather than our proxy because of rate limiting requirements
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'

@@ -1,16 +1,17 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
-import { getConfig } from 'config'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { thorService } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
 
 import { fromThorBaseUnit } from '.'
 import { THOR_PRECISION } from './constants'
 import type { MidgardEarningsHistoryPoolItem, PoolShareDetail, SlippageDetails } from './lp/types'
 
-const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+import { getConfig } from '@/config'
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+
+const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
 // formula: P(Ra + rA) / 2RA
 // https://dev.thorchain.org/concepts/math.html#lp-units-add

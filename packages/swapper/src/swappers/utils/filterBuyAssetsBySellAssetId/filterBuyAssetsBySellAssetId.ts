@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumNovaChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import { arbitrumNovaChainId } from '@shapeshiftmonorepo/caip'
+import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import type { Asset } from '@shapeshiftmonorepo/types'
 
 import type { BuyAssetBySellIdInput } from '../../../types'
 

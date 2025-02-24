@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ethers } from 'ethers'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ethers } from 'ethers6'
 
 import type { BaseTxMetadata } from '../../types'
 import type { Api } from '..'
@@ -36,7 +36,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
   }
 
   async parse(tx: T, address: string): Promise<TxSpecific | undefined> {
-    if (process.env.REACT_APP_FEATURE_NFT_METADATA !== 'true') return
+    if (import.meta.env.VITE_FEATURE_NFT_METADATA !== 'true') return
     if (!tx.tokenTransfers?.length) return
 
     const filteredTransfers = tx.tokenTransfers.filter(

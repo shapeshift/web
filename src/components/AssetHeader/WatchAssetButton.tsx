@@ -1,11 +1,12 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, Icon } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { useCallback } from 'react'
 import { FaRegStar, FaStar } from 'react-icons/fa'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectIsAssetIdWatched } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectIsAssetIdWatched } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type WatchAssetButtonProps = Partial<BoxProps> & {
   assetId: AssetId

@@ -4,8 +4,9 @@ import { Box, Button, Divider, Flex, useColorModeValue } from '@chakra-ui/react'
 import type Polyglot from 'node-polyglot'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export type AwaitKeepKeyProps = {
   translation: string | null | [string, number | Polyglot.InterpolationOptions]

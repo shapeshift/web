@@ -7,7 +7,8 @@ import {
   CardBody,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 export const Faq = () => {
   const defaultIndex = useMemo(() => [0], [])

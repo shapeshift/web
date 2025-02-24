@@ -1,5 +1,5 @@
-import type { EncodedAssetData } from '@shapeshiftoss/utils'
-import { decodeAssetData, decodeRelatedAssetIndex } from '@shapeshiftoss/utils'
+import type { EncodedAssetData } from '@shapeshiftmonorepo/utils'
+import { decodeAssetData, decodeRelatedAssetIndex } from '@shapeshiftmonorepo/utils'
 
 import encodedAssetData from './encodedAssetData.json'
 import encodedRelatedAssetIndex from './encodedRelatedAssetIndex.json'

@@ -1,5 +1,5 @@
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftmonorepo/caip'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { YearnVaultMarketCapService } from './yearn-vaults'

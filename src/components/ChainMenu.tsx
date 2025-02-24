@@ -12,12 +12,13 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircleIcon } from 'components/Icons/Circle'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircleIcon } from '@/components/Icons/Circle'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export type ChainMenuProps<T extends ChainId | 'All'> = {
   chainIds: T[]

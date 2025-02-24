@@ -2,14 +2,15 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Center, Flex, Image, SimpleGrid } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useModal } from 'hooks/useModal/useModal'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { store } from 'state/store'
 
 import EasyToUseIcon from '../easy-to-use.svg'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from '@/hooks/useModal/useModal'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { store } from '@/state/store'
 
 const NativeFeatureList = ['trackBalance', 'sendReceive', 'buyCrypto', 'tradeAssets', 'earnYield']
 

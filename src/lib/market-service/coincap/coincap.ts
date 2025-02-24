@@ -1,4 +1,4 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftmonorepo/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -6,18 +6,19 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+} from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import omit from 'lodash/omit'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, getTimeFrameBounds } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinCapMarketCap } from './coincap-types'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 

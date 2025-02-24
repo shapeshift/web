@@ -5,13 +5,14 @@ import { useCallback, useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Routes } from 'Routes/Routes'
-import { ConsentBanner } from 'components/ConsentBanner'
-import { IconCircle } from 'components/IconCircle'
-import { useBridgeClaimNotification } from 'hooks/useBridgeClaimNotification/useBridgeClaimNotification'
-import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
-import { useModal } from 'hooks/useModal/useModal'
-import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
+
+import { ConsentBanner } from '@/components/ConsentBanner'
+import { IconCircle } from '@/components/IconCircle'
+import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
+import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
+import { useModal } from '@/hooks/useModal/useModal'
+import { Routes } from '@/Routes/Routes'
+import { selectShowConsentBanner, selectShowWelcomeModal } from '@/state/slices/selectors'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }

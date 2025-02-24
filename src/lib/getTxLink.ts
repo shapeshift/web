@@ -1,19 +1,19 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import type { SafeTxInfo, SwapSource } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { SafeTxInfo, SwapSource } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftmonorepo/swapper'
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
+} from '@shapeshiftmonorepo/swapper/dist/swappers/ChainflipSwapper/constants'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { Dex } from '@shapeshiftoss/unchained-client'
+} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
+import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { Dex } from '@shapeshiftmonorepo/unchained-client'
 
 type GetTxBaseUrl = {
   stepSource?: Dex | SwapSource

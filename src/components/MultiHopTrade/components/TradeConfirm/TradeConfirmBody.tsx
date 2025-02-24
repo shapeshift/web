@@ -1,14 +1,14 @@
+import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
+import { EtaStep } from './components/EtaStep'
+import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
+
 import {
   selectConfirmedTradeExecutionState,
   selectFirstHop,
   selectLastHop,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector } from 'state/store'
-
-import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
-import { EtaStep } from './components/EtaStep'
-import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector } from '@/state/store'
 
 const InnerSteps = () => {
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)

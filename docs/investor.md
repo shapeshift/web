@@ -37,7 +37,7 @@ This function must return either 1) an `InvestorOpportunity` or 2) `undefined` t
 
 ### `findByUnderlyingAssetId: (assetId: string) => Promise<Array<InvestorOpportunity<TxType, MetaData>>>`
 
-`assetId` is a `AssetId` type as defined in `@shapeshiftoss/caip`. `AssetId` is a `string` formatted per the CAIP-19 specification.
+`assetId` is a `AssetId` type as defined in `@shapeshiftmonorepo/caip`. `AssetId` is a `string` formatted per the CAIP-19 specification.
 
 This function must return an array of `InvestorOpportunities` in which the `InvestorOpportunity.underlyingAsset.assetId` matches the provided `assetId`.
 
@@ -81,7 +81,7 @@ This is the `Asset` that can be deposited into the `Opportunity`.
 
 #### `assetId: string`
 
-`assetId` must be of type `AssetId` from `@shapeshiftoss/caip` and is a CAIP-19 representation of the asset or token that can be deposited into this `Opportunity`.
+`assetId` must be of type `AssetId` from `@shapeshiftmonorepo/caip/caip` and is a CAIP-19 representation of the asset or token that can be deposited into this `Opportunity`.
 
 For example, `AssetId` for Ethereum is `eip155:1/slip44:60`
 

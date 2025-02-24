@@ -1,5 +1,6 @@
 import type { TextProps } from '@chakra-ui/react'
-import { Amount } from 'components/Amount/Amount'
+
+import { Amount } from '@/components/Amount/Amount'
 type AssetBalanceProps = {
   symbol: string
   cryptoBalance: string

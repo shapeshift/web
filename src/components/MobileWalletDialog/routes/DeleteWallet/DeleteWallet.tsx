@@ -2,13 +2,14 @@ import { Button, Heading } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router'
-import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { SlideTransition } from 'components/SlideTransition'
-import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
+import { MemoryRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { ConfirmDelete } from './Confirm'
+
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { SlideTransition } from '@/components/SlideTransition'
+import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 export const DeleteWallet = () => {
   const {

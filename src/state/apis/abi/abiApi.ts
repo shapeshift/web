@@ -1,8 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+
+import { getConfig } from '@/config'
 
 type ContractAddress = string // 0xaddress on evm mainnet
 type Abi = any // json
@@ -15,7 +16,7 @@ export const abiApi = createApi({
       keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
       queryFn: async contractAddress => {
         try {
-          const apiKey = getConfig().REACT_APP_ETHERSCAN_API_KEY
+          const apiKey = getConfig().VITE_ETHERSCAN_API_KEY
           const url = `https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${apiKey}`
           const response = await fetch(url)
           if (!response.ok) {

@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
-import { SnapContent } from 'components/Modals/Snaps/SnapContent'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { SnapContent } from '@/components/Modals/Snaps/SnapContent'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const SnapInstall = () => {
   const { dispatch } = useWallet()

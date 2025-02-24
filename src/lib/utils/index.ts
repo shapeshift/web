@@ -8,7 +8,6 @@ import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
@@ -168,10 +167,6 @@ export const isFulfilled = <T>(
 
 export const isRejected = <T>(promise: PromiseSettledResult<T>): promise is PromiseRejectedResult =>
   promise.status === 'rejected'
-
-export const isResolvedErr = <U, V, T extends Result<U, V>>(
-  promise: PromiseSettledResult<T>,
-): promise is PromiseRejectedResult => 'value' in promise && promise.value.isErr()
 
 export function assertUnreachable(x: never): never {
   throw Error(`unhandled case: ${x}`)

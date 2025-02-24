@@ -10,7 +10,7 @@ import {
   Tag,
   Wrap,
 } from '@chakra-ui/react'
-import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useQuery } from '@tanstack/react-query'
 import { range } from 'lodash'
@@ -34,8 +34,8 @@ const getVault = async (): Promise<Vault> => {
   return vault
 }
 
-const Revocable = Default.Revocable
-const revocable = Default.revocable
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 export const NativeCreate = () => {
   const history = useHistory()

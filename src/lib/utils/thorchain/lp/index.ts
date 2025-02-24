@@ -6,9 +6,9 @@ import { getConfig } from 'config'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { fromThorBaseUnit } from '.'
-import { THOR_PRECISION } from './constants'
-import type { MidgardEarningsHistoryPoolItem, PoolShareDetail, SlippageDetails } from './lp/types'
+import { fromThorBaseUnit } from '..'
+import { THOR_PRECISION } from '../constants'
+import type { MidgardEarningsHistoryPoolItem, PoolShareDetail, SlippageDetails } from './types'
 
 const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 

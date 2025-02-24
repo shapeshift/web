@@ -4,17 +4,17 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
+  LifiTradeRate,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
+  isThorTradeQuote,
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import type { LifiTradeRate } from '@shapeshiftoss/swapper/src/swappers/LifiSwapper/utils/types'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'

@@ -1,16 +1,20 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
-import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
+import type {
+  GetTradeRateInput,
+  SwapperConfig,
+  SwapperDeps,
+  ThorEvmTradeQuote,
+} from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
   getTradeRates,
   SwapperName,
+  TradeType,
 } from '@shapeshiftoss/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
@@ -300,4 +304,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi
+export const { useGetTradeQuoteQuery } = swapperApi

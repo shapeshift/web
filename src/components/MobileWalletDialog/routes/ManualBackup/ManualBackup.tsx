@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiCopy } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
@@ -33,8 +33,8 @@ import { MobileWalletDialogRoutes } from '../../types'
 
 const copyIcon = <Icon as={FiCopy} />
 
-const Revocable = Default.Revocable
-const revocable = Default.revocable
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 type ManualBackupProps = {
   showContinueButton?: boolean

@@ -17,11 +17,11 @@ import type {
 import {
   getHopByIndex,
   isExecutableTradeQuote,
+  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
   SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'

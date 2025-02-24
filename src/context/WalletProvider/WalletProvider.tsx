@@ -4,10 +4,9 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
-import type { BrowserProvider } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
@@ -81,8 +80,6 @@ const initialDeviceState: DeviceState = {
   isUpdatingPin: false,
   isDeviceLoading: false,
 }
-export type MetaMaskLikeProvider = BrowserProvider
-
 export type InitialState = {
   keyring: Keyring
   adapters: Partial<AdaptersByKeyManager>
@@ -854,7 +851,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       const adapterInstance = Adapter.useKeyring(state.keyring)
 
       const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
-      const { create } = Dummy.BIP39.Mnemonic
+      const { create } = crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
       await wallet.loadDevice({
         mnemonic: await create(PublicWalletXpubs),
         deviceId,

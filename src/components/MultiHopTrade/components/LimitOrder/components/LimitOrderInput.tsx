@@ -2,8 +2,12 @@ import { Button, Divider, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS, getCowNetwork, SwapperName } from '@shapeshiftoss/swapper'
-import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
+import {
+  COW_SWAP_VAULT_RELAYER_ADDRESS,
+  getCowNetwork,
+  isNativeEvmAsset,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'

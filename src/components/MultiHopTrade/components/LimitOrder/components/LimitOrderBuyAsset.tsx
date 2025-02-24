@@ -15,12 +15,6 @@ import { useAppSelector } from 'state/store'
 
 import { TradeAssetInput } from '../../TradeAssetInput'
 
-export type TradeAmountInputFormValues = {
-  amountFieldInput: string
-  amountCryptoPrecision: string
-  amountUserCurrency: string
-}
-
 const emptyPercentOptions: number[] = []
 const formControlProps = {
   borderRadius: 0,

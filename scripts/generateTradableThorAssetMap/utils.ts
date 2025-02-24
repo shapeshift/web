@@ -25,7 +25,7 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAddress, isAddress } from 'viem'
 
@@ -64,7 +64,7 @@ function assertUnreachable(x: never): never {
   throw Error(`unhandled case: ${x}`)
 }
 
-export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | undefined => {
+const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | undefined => {
   switch (chain) {
     case ThorchainChain.BTC:
       return btcAssetId
@@ -93,7 +93,7 @@ export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | 
   }
 }
 
-export const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefined => {
+const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefined => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.AvalancheMainnet:

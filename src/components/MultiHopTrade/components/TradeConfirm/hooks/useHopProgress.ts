@@ -1,8 +1,10 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { ChainflipStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
-import { LifiStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/constants'
-import { ThorchainStatusMessage } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+import {
+  ChainflipStatusMessage,
+  LifiStatusMessage,
+  SwapperName,
+  ThorchainStatusMessage,
+} from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 import {
   selectActiveQuote,

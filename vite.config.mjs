@@ -119,17 +119,24 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           manualChunks: id => {
-            // Extract largest packages into their own chunks
             if (id.includes('node_modules')) {
-              // Core dependencies
+              // Core dependencies - must load first
               if (id.includes('react/') || id.includes('react-dom/')) return 'vendor-react-core'
               if (id.includes('@emotion/') || id.includes('stylis')) return 'vendor-emotion-core'
+
+              // FormatJS and its dependencies
+              if (
+                id.includes('@formatjs') ||
+                id.includes('intl-messageformat') ||
+                id.includes('intl-format-cache') ||
+                id.includes('intl-messageformat-parser')
+              )
+                return 'vendor-formatjs-core'
 
               // Largest packages (>500KB)
               if (id.includes('@ledgerhq')) return 'vendor-ledger'
               if (id.includes('@shapeshiftoss')) return 'vendor-shapeshift'
               if (id.includes('@metaplex-foundation')) return 'vendor-metaplex'
-              if (id.includes('@formatjs')) return 'vendor-formatjs'
               if (id.includes('@walletconnect')) return 'vendor-walletconnect'
               if (id.includes('osmojs')) return 'vendor-osmojs'
               if (id.includes('@keepkey')) return 'vendor-keepkey'
@@ -154,7 +161,17 @@ export default defineConfig(({ mode }) => {
             }
             return null
           },
-          chunkFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: chunkInfo => {
+            // Control loading order with prefixes
+            const prefix =
+              {
+                'vendor-react-core': '00',
+                'vendor-emotion-core': '01',
+                'vendor-formatjs-core': '02',
+              }[chunkInfo.name] || '99'
+
+            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
+          },
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },

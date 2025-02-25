@@ -1,4 +1,4 @@
-import { Button, Icon, Link, ModalBody, ModalHeader, Text as CText } from '@chakra-ui/react'
+import { Button, Icon, ModalBody, ModalHeader, Text as CText } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 import { Text } from 'components/Text'
@@ -71,9 +71,9 @@ export const KeepKeyDownloadUpdaterApp = () => {
         {platform && (
           <>
             <CText fontWeight='bold'>{platform}</CText>
-            <Link isExternal href={RELEASE_PAGE}>
-              <Text color='text.subtle' translation={wrongPlatformTranslation} mb={2} />
-            </Link>
+            <Button variant='link' onClick={() => handleDownload(RELEASE_PAGE)} mb={2}>
+              <Text color='text.subtle' translation={wrongPlatformTranslation} />
+            </Button>
           </>
         )}
         <Button width='full' onClick={() => handleDownload(downloadUrl)} colorScheme='blue' mt={2}>

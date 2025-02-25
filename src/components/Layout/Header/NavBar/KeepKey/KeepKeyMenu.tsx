@@ -19,6 +19,7 @@ import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContain
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -54,6 +55,7 @@ export const KeepKeyMenu = () => {
   const {
     setDeviceState,
     state: { isConnected, walletInfo },
+    dispatch,
   } = useWallet()
   const keepKeyWipe = useModal('keepKeyWipe')
 
@@ -80,6 +82,10 @@ export const KeepKeyMenu = () => {
   const handleWipeClick = () => {
     keepKeyWipe.open({})
   }
+
+  const handleUpdateClick = useCallback(() => {
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
+  }, [dispatch])
 
   const deviceTimeoutTranslation: string =
     typeof deviceTimeout?.label === 'object'
@@ -134,7 +140,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
-            externalUrl={updaterUrl}
+            onClick={handleUpdateClick}
           />
           <ExpandedMenuItem
             label='walletProvider.keepKey.settings.menuLabels.firmware'
@@ -143,7 +149,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}
-            externalUrl={updaterUrl}
+            onClick={handleUpdateClick}
           />
           <MenuDivider />
           <ExpandedMenuItem

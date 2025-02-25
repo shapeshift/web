@@ -5,9 +5,9 @@ import {
   AlertTitle,
   Box,
   CloseButton,
-  Link,
   Text,
   useToast,
+  Button,
 } from '@chakra-ui/react'
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -26,7 +26,7 @@ import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { poll } from 'lib/poll/poll'
 import { isKeepKeyHDWallet } from 'lib/utils'
-import { WalletActions } from './actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
@@ -124,6 +124,7 @@ const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const {
     state: { wallet },
+    dispatch: walletDispatch,
   } = useWallet()
   const { versions, updaterUrl, isLTCSupportedFirmwareVersion } = useKeepKeyVersions()
   const translate = useTranslate()
@@ -212,9 +213,16 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                     </Text>
                   ) : null}
                 </AlertDescription>
-                <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
+                <Button
+                  onClick={() => walletDispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })}
+                  display={'block'}
+                  fontWeight={'bold'}
+                  mt={2}
+                  variant='link'
+                  color='white'
+                >
                   {translate('updateToast.keepKey.downloadCta')}
-                </Link>
+                </Button>
               </Box>
               <CloseButton
                 alignSelf='flex-start'
@@ -240,6 +248,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     versions,
     onClose,
     updaterUrl,
+    walletDispatch,
   ])
 
   const value: IKeepKeyContext = useMemo(

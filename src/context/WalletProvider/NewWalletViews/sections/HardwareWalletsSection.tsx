@@ -26,11 +26,12 @@ const WalletOption = ({ connect, isSelected, isDisabled, icon: Icon, name }: Wal
     <Box
       as={Button}
       variant='ghost'
+      whiteSpace='normal'
       px={4}
-      ml={-4}
-      py={6}
+      ml='-16px'
+      mr='-16px'
+      py={2.5}
       borderRadius='md'
-      width='full'
       onClick={connect}
       bg={isSelected ? backgroundColor : undefined}
       isDisabled={isDisabled}

@@ -2,7 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { assertUnreachable, bn, convertPrecision } from '@shapeshiftmonorepo/utils'
+import { bn, convertPrecision } from '@shapeshiftmonorepo/utils'
 import { Err, Ok } from '@sniptt/monads'
 import { getAddress } from 'viem'
 
@@ -11,27 +11,6 @@ import { makeSwapErrorRight } from '../../../../utils'
 import type { ZrxFees, ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
 import { ZRX_NATIVE_ASSET_ADDRESS } from '../constants'
-
-export const baseUrlFromChainId = (zrxBaseUrl: string, chainId: ZrxSupportedChainId): string => {
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return `${zrxBaseUrl}ethereum/`
-    case KnownChainIds.AvalancheMainnet:
-      return `${zrxBaseUrl}avalanche/`
-    case KnownChainIds.OptimismMainnet:
-      return `${zrxBaseUrl}optimism/`
-    case KnownChainIds.BnbSmartChainMainnet:
-      return `${zrxBaseUrl}bnbsmartchain/`
-    case KnownChainIds.PolygonMainnet:
-      return `${zrxBaseUrl}polygon/`
-    case KnownChainIds.ArbitrumMainnet:
-      return `${zrxBaseUrl}arbitrum/`
-    case KnownChainIds.BaseMainnet:
-      return `${zrxBaseUrl}base/`
-    default:
-      return assertUnreachable(chainId)
-  }
-}
 
 // converts an asset to zrx token (symbol or contract address)
 export const assetIdToZrxToken = (assetId: AssetId): string => {

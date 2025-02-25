@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { skipToken, useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { skipToken } from '@tanstack/react-query'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
@@ -53,24 +52,4 @@ export const getEarnedQueryFn = ({
       return 0n
     }
   }
-}
-
-export const useEarnedQuery = ({
-  stakingAssetAccountAddress,
-  stakingAssetId,
-}: UseEarnedQueryProps) => {
-  const queryKey: EarnedQueryKey = useMemo(() => {
-    return getEarnedQueryKey({ stakingAssetAccountAddress, stakingAssetId })
-  }, [stakingAssetAccountAddress, stakingAssetId])
-
-  const queryFn = useMemo(() => {
-    return getEarnedQueryFn({ stakingAssetAccountAddress, stakingAssetId })
-  }, [stakingAssetAccountAddress, stakingAssetId])
-
-  const query = useQuery({
-    queryKey,
-    queryFn,
-  })
-
-  return query
 }

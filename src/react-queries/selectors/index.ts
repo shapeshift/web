@@ -1,10 +1,7 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { Fees } from '@shapeshiftmonorepo/chain-adapters/dist/evm/types'
-import type { SwapErrorRight } from '@shapeshiftmonorepo/swapper'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { InboundAddressResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { isRune } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/isRune/isRune'
-import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { evm } from '@shapeshiftmonorepo/chain-adapters'
+import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftmonorepo/swapper'
+import { assetIdToPoolAssetId, isRune, SwapperName } from '@shapeshiftmonorepo/swapper'
 import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -67,7 +64,7 @@ export const selectIsTradingActive = ({
 }
 
 export const selectEvmFees = (
-  fees: Fees,
+  fees: evm.Fees,
   feeAsset: Asset,
   feeAssetMarketData: MarketData,
 ): EvmFees => {

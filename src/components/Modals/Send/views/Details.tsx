@@ -11,8 +11,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE } from '@shapeshiftmonorepo/caip/dist/constants'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import isNil from 'lodash/isNil'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form'

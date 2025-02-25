@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper'
 import axios from 'axios'
 import fs from 'fs'
 import { isNull } from 'lodash'

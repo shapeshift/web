@@ -3,10 +3,10 @@ import { foxWifHatAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftmonorepo/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  isThorTradeRate,
   SwapperName,
   swappers,
 } from '@shapeshiftmonorepo/swapper'
-import { isThorTradeRate } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'

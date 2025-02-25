@@ -5,7 +5,7 @@ import { Err } from '@sniptt/monads'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
+import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse, ThorTradeQuote } from '../types'
 import { getL1Quote } from '../utils/getL1quote'
 import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
@@ -25,7 +25,10 @@ export const getThorTradeQuote = async (
   const thorchainSwapL1ToLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
-  if (!sellSupportedChainIds[sellAsset.chainId] || !buySupportedChainIds[buyAsset.chainId]) {
+  if (
+    !thorchainSellSupportedChainIds[sellAsset.chainId] ||
+    !thorchainBuySupportedChainIds[buyAsset.chainId]
+  ) {
     return Err(
       makeSwapErrorRight({
         message: 'Unsupported chain',

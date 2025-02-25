@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'

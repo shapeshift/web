@@ -1,8 +1,10 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type { AmountDisplayMeta } from '@shapeshiftmonorepo/swapper'
-import { isExecutableTradeQuote } from '@shapeshiftmonorepo/swapper'
-import { isThorTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { isThorTradeRate } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
+import {
+  isExecutableTradeQuote,
+  isThorTradeQuote,
+  isThorTradeRate,
+} from '@shapeshiftmonorepo/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
 
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'

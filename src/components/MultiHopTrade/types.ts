@@ -1,4 +1,3 @@
-import type { GetTradeQuoteInput } from '@shapeshiftmonorepo/swapper'
 import type { AccountMetadata, Asset } from '@shapeshiftmonorepo/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
@@ -19,21 +18,6 @@ export type GetReceiveAddressArgs = {
   accountMetadata: AccountMetadata
   pubKey?: string
 }
-
-export type TradeQuoteInputCommonArgs = Pick<
-  GetTradeQuoteInput,
-  | 'sellAmountIncludingProtocolFeesCryptoBaseUnit'
-  | 'sellAsset'
-  | 'buyAsset'
-  | 'receiveAddress'
-  | 'accountNumber'
-  | 'affiliateBps'
-  | 'potentialAffiliateBps'
-  | 'allowMultiHop'
-  | 'slippageTolerancePercentageDecimal'
-  | 'quoteOrRate'
-  | 'originalRate'
->
 
 export enum TradeInputTab {
   Trade = 'trade',

@@ -3,10 +3,12 @@ import type {
   TradeQuote,
   TradeRate,
 } from '@shapeshiftmonorepo/swapper'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import { ChainflipStatusMessage } from '@shapeshiftmonorepo/swapper/dist/swappers/ChainflipSwapper/constants'
-import { LifiStatusMessage } from '@shapeshiftmonorepo/swapper/dist/swappers/LifiSwapper/constants'
-import { ThorchainStatusMessage } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
+import {
+  ChainflipStatusMessage,
+  LifiStatusMessage,
+  SwapperName,
+  ThorchainStatusMessage,
+} from '@shapeshiftmonorepo/swapper'
 import { useEffect, useMemo } from 'react'
 
 import {

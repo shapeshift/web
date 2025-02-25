@@ -1,7 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getAddress, isAddress } from 'viem'

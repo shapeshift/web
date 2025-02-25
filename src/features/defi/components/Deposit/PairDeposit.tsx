@@ -1,5 +1,5 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip/dist/accountId/accountId'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import get from 'lodash/get'
 import { useCallback, useMemo } from 'react'

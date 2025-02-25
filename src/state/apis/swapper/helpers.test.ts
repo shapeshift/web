@@ -1,8 +1,9 @@
 import { btcAssetId } from '@shapeshiftmonorepo/caip'
-import type { getInboundAddressDataForChain } from '@shapeshiftmonorepo/swapper'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { InboundAddressResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { ThorchainChain } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import type {
+  getInboundAddressDataForChain,
+  InboundAddressResponse,
+} from '@shapeshiftmonorepo/swapper'
+import { SwapperName, ThorchainChain } from '@shapeshiftmonorepo/swapper'
 import { describe, expect, it, vi } from 'vitest'
 
 import { selectIsTradingActive } from '@/react-queries/selectors'

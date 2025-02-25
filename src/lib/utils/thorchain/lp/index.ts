@@ -3,9 +3,9 @@ import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swap
 import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
 
-import { fromThorBaseUnit } from '.'
-import { THOR_PRECISION } from './constants'
-import type { MidgardEarningsHistoryPoolItem, PoolShareDetail, SlippageDetails } from './lp/types'
+import { fromThorBaseUnit } from '..'
+import { THOR_PRECISION } from '../constants'
+import type { MidgardEarningsHistoryPoolItem, PoolShareDetail, SlippageDetails } from './types'
 
 import { getConfig } from '@/config'
 import type { BN } from '@/lib/bignumber/bignumber'

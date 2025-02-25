@@ -273,7 +273,7 @@ export const NewWalletViewsSwitch = () => {
               top={3}
               zIndex={1}
               bg={buttonContainerBgColor}
-              borderRadius='full'
+              borderRadius='2xl'
             >
               <IconButton
                 icon={arrowBackIcon}

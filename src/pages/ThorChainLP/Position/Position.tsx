@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'

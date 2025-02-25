@@ -207,7 +207,6 @@ export const marketApi = createApi({
         return { data: null }
       },
     }),
-
     findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({
       queryFn: async ({ symbol }: { symbol: SupportedFiatCurrencies }, baseQuery) => {
         try {
@@ -251,9 +250,4 @@ export const marketApi = createApi({
   }),
 })
 
-export const {
-  useFindAllQuery,
-  useFindByFiatSymbolQuery,
-  useFindPriceHistoryByFiatSymbolQuery,
-  useFindPriceHistoryByAssetIdQuery,
-} = marketApi
+export const { useFindAllQuery, useFindPriceHistoryByAssetIdQuery } = marketApi

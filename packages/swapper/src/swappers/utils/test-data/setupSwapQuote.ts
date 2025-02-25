@@ -3,7 +3,6 @@ import { KnownChainIds } from '@shapeshiftmonorepo/types'
 
 import type { GetTradeQuoteInput, TradeQuote, TradeRate } from '../../../types'
 import { SwapperName } from '../../../types'
-import { DEFAULT_SLIPPAGE } from '../constants'
 import { FOX_MAINNET, WETH } from './assets'
 
 export const setupQuote = () => {
@@ -50,7 +49,7 @@ export const setupQuote = () => {
     potentialAffiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
-    slippageTolerancePercentageDecimal: DEFAULT_SLIPPAGE,
+    slippageTolerancePercentageDecimal: '0.002',
     quoteOrRate: 'quote',
     originalRate: {} as TradeRate,
   }

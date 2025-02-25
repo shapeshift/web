@@ -10,11 +10,11 @@ import type {
 import {
   getHopByIndex,
   isExecutableTradeQuote,
+  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
   SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftmonorepo/swapper'
-import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftmonorepo/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftmonorepo/types'
 import type {
   BTCSignTx,

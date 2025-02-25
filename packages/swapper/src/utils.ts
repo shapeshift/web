@@ -1,7 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import { fromAccountId, fromAssetId, solanaChainId } from '@shapeshiftmonorepo/caip'
-import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
-import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftmonorepo/chain-adapters/dist/solana/SolanaChainAdapter'
+import type { EvmChainAdapter, solana } from '@shapeshiftmonorepo/chain-adapters'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { evm, TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftmonorepo/utils'
@@ -328,7 +327,7 @@ export const checkSolanaSwapStatus = async ({
 }: {
   txHash: string
   accountId: AccountId | undefined
-  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
+  assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined

@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper'
 import { isSome, toBaseUnit } from '@shapeshiftmonorepo/utils'
 import axios from 'axios'
 

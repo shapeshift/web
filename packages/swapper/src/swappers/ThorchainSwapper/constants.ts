@@ -8,7 +8,7 @@ import { SwapperName } from '../../types'
 
 export const THOR_PRECISION = 8
 
-export const sellSupportedChainIds: Record<ChainId, boolean> = {
+export const thorchainSellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
   [KnownChainIds.BitcoinMainnet]: true,
   [KnownChainIds.DogecoinMainnet]: true,
@@ -21,7 +21,7 @@ export const sellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.BaseMainnet]: true,
 }
 
-export const buySupportedChainIds: Record<ChainId, boolean> = {
+export const thorchainBuySupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
   [KnownChainIds.BitcoinMainnet]: true,
   [KnownChainIds.DogecoinMainnet]: true,
@@ -35,8 +35,8 @@ export const buySupportedChainIds: Record<ChainId, boolean> = {
 }
 
 export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: Object.keys(sellSupportedChainIds),
-  buy: Object.keys(buySupportedChainIds),
+  sell: Object.keys(thorchainSellSupportedChainIds),
+  buy: Object.keys(thorchainBuySupportedChainIds),
 }
 
 export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Streaming`

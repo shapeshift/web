@@ -5,9 +5,9 @@ import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import {
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   getCowNetwork,
+  isNativeEvmAsset,
   SwapperName,
 } from '@shapeshiftmonorepo/swapper'
-import { isNativeEvmAsset } from '@shapeshiftmonorepo/swapper/dist/swappers/utils/helpers/helpers'
 import type { CowSwapError } from '@shapeshiftmonorepo/types'
 import { BigNumber, bn, bnOrZero } from '@shapeshiftmonorepo/utils'
 import type { FormEvent } from 'react'

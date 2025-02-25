@@ -1,6 +1,6 @@
 import { RFOX_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
 
-import type { BaseTxMetadata, StandardTx } from '../../../types'
+import type { BaseTxMetadata } from '../../../types'
 import type { SubParser, Tx, TxSpecific } from '../../parser'
 
 export interface TxMetadata extends BaseTxMetadata {
@@ -10,10 +10,6 @@ export interface TxMetadata extends BaseTxMetadata {
   stakingAddress: string
   stakingContract: string
   ipfsHash: string
-}
-
-export interface ParsedTx extends StandardTx {
-  data?: TxMetadata
 }
 
 export class Parser implements SubParser<Tx> {

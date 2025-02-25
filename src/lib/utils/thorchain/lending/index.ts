@@ -1,10 +1,13 @@
 import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { ThornodePoolResponse } from '@shapeshiftmonorepo/swapper'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper'
+import { convertDecimalPercentageToBasisPoints } from '@shapeshiftmonorepo/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 
+import { isUtxoChainId } from '../../utxo'
 import type {
   Borrower,
   BorrowersResponse,
@@ -17,7 +20,7 @@ import type {
 
 import { getConfig } from '@/config'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn } from '@/lib/bignumber/bignumber'
 import { getAccountAddresses, toThorBaseUnit } from '@/lib/utils/thorchain'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store } from '@/state/store'
@@ -52,12 +55,15 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   const { VITE_THORCHAIN_NODE_URL } = getConfig()
   if (!VITE_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
+  // The THORChain quote endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
+  const parsedReceiveAddress = receiveAssetAddress.replace('bitcoincash:', '')
+
   const url =
     `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
-    `&destination=${receiveAssetAddress}`
+    `&destination=${parsedReceiveAddress}`
 
   const { data } = await axios.get<LendingDepositQuoteResponse>(url)
   if (!data) return Err('Could not get quote data')
@@ -71,22 +77,20 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
   collateralAssetId,
-  repaymentAmountCryptoBaseUnit: collateralAmountCryptoBaseUnit,
+  repaymentPercent,
   repaymentAssetId,
   collateralAssetAddress,
 }: {
   collateralAssetId: AssetId
-  repaymentAmountCryptoBaseUnit: BigNumber.Value | null | undefined
+  repaymentPercent: number
   repaymentAssetId: AssetId
   collateralAssetAddress: string
 }): Promise<Result<LendingWithdrawQuoteResponseSuccess, string>> => {
-  if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
-  const collateralAsset = selectAssetById(store.getState(), collateralAssetId)
-  if (!collateralAsset) return Err(`Asset not found for assetId ${collateralAssetId}`)
-  const amountCryptoThorBaseUnit = toThorBaseUnit({
-    valueCryptoBaseUnit: collateralAmountCryptoBaseUnit,
-    asset: collateralAsset,
-  })
+  if (!repaymentPercent) return Err('A non-zero amount is required')
+
+  const repaymentAsset = selectAssetById(store.getState(), repaymentAssetId)
+  if (!repaymentAsset) return Err(`Asset not found for assetId ${repaymentAsset}`)
+  const repayBps = convertDecimalPercentageToBasisPoints(bn(repaymentPercent).div(100).toNumber())
 
   const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
   if (!from_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
@@ -96,12 +100,15 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   const { VITE_THORCHAIN_NODE_URL } = getConfig()
   if (!VITE_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
+  // The THORChain quote endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
+  const parsedCollateralAssetAddress = collateralAssetAddress.replace('bitcoincash:', '')
+
   const url =
     `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
-    `&amount=${amountCryptoThorBaseUnit.toString()}` +
+    `&repay_bps=${repayBps.toString()}` +
     `&to_asset=${to_asset}` +
-    `&loan_owner=${collateralAssetAddress}`
+    `&loan_owner=${parsedCollateralAssetAddress}`
 
   const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
   // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error
@@ -133,22 +140,39 @@ export const getThorchainLendingPosition = async ({
   accountId,
   assetId,
 }: {
-  accountId: AccountId
+  accountId: AccountId | null
   assetId: AssetId
 }): Promise<Borrower | null> => {
-  const lendingPositionsResponse = await getAllThorchainLendingPositions(assetId)
+  if (!accountId) return null
 
-  const allPositions = lendingPositionsResponse
-  if (!allPositions.length) {
-    throw new Error(`No lending positions found for asset ID: ${assetId}`)
-  }
+  const address = fromAccountId(accountId).account
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
 
-  const accountAddresses = await getAccountAddresses(accountId)
+  const accountPosition = await (async () => {
+    if (!isUtxoChainId(fromAssetId(assetId).chainId))
+      return (
+        await axios.get<Borrower>(
+          `${
+            getConfig().VITE_THORCHAIN_NODE_URL
+          }/lcd/thorchain/pool/${poolAssetId}/borrower/${address}`,
+        )
+      ).data
 
-  const accountPosition = allPositions.find(position => accountAddresses.includes(position.owner))
+    const lendingPositionsResponse = await getAllThorchainLendingPositions(assetId)
+
+    const allPositions = lendingPositionsResponse
+    if (!allPositions.length) {
+      return null
+    }
+
+    const accountAddresses = await getAccountAddresses(accountId)
+
+    return allPositions.find(position => accountAddresses.includes(position.owner))
+  })()
 
   return accountPosition || null
 }
+
 export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePoolResponse> => {
   const { VITE_THORCHAIN_NODE_URL } = getConfig()
 
@@ -168,12 +192,4 @@ export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePo
   }
 
   return data
-}
-
-export const getLtvFromCollateralizationRatio = (
-  collateralizationRatio: BigNumber.Value,
-): string => {
-  const crDecimal = bnOrZero(collateralizationRatio).div(100)
-  const ltvPercentage = bn(1).div(crDecimal).times(100).toFixed(2)
-  return ltvPercentage
 }

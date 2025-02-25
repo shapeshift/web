@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { coingeckoUrl } from '@shapeshiftmonorepo/caip/src/adapters'
-import { fetchData, parseData } from '@shapeshiftmonorepo/caip/src/adapters/coingecko/utils'
+import { adapters } from '@shapeshiftmonorepo/caip'
 import type { Asset, AssetsById } from '@shapeshiftmonorepo/types'
 import assert from 'assert'
 import { intersection } from 'lodash'
@@ -39,8 +38,8 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
     page++
   }
 
-  const data = await fetchData(coingeckoUrl)
-  const chainIdAssetIdMap = parseData(data)
+  const data = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
+  const chainIdAssetIdMap = adapters.parseCoingeckoData(data)
 
   // Remap from Record<ChainId, Record<AssetId, string>> to Record<string, Record<ChainId, AssetId>>
   const remappedOutput = Object.entries(chainIdAssetIdMap).reduce<

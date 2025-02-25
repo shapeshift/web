@@ -1,16 +1,20 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftmonorepo/caip'
-import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftmonorepo/swapper'
+import type {
+  GetTradeRateInput,
+  SwapperConfig,
+  SwapperDeps,
+  ThorEvmTradeQuote,
+} from '@shapeshiftmonorepo/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
   getTradeRates,
   SwapperName,
+  TradeType,
 } from '@shapeshiftmonorepo/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { TradeType } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
@@ -301,4 +305,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi
+export const { useGetTradeQuoteQuery } = swapperApi

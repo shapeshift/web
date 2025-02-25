@@ -8,9 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip/dist/assetId/assetId'
-import { CHAIN_NAMESPACE } from '@shapeshiftmonorepo/caip/dist/constants'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import type { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo } from 'react'

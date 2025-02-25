@@ -11,7 +11,7 @@ import {
   Tag,
   Wrap,
 } from '@chakra-ui/react'
-import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -28,8 +28,8 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 
-const Revocable = Default.Revocable
-const revocable = Default.revocable
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 

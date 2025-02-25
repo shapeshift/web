@@ -6,11 +6,11 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   getAffiliateAppDataFragmentByChainId,
   getFullAppData,
+  isNativeEvmAsset,
   signCowMessage,
   signCowOrder,
   signCowOrderCancellation,
 } from '@shapeshiftmonorepo/swapper'
-import { isNativeEvmAsset } from '@shapeshiftmonorepo/swapper/dist/swappers/utils/helpers/helpers'
 import type {
   CowSwapError,
   Order,

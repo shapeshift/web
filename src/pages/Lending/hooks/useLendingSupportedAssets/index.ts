@@ -1,9 +1,6 @@
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftmonorepo/caip'
-import type {
-  ThornodePoolResponse,
-  ThornodePoolStatuses,
-} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { ThornodePoolResponse, ThornodePoolStatuses } from '@shapeshiftmonorepo/swapper'
+import { poolAssetIdToAssetId } from '@shapeshiftmonorepo/swapper'
 import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { useQuery } from '@tanstack/react-query'

@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type {
   ProtocolFee,
   SwapErrorRight,
+  ThorTradeQuote,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftmonorepo/swapper'
@@ -11,7 +12,6 @@ import {
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftmonorepo/swapper'
-import type { ThorTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { getChainShortName } from '@shapeshiftmonorepo/utils'
 

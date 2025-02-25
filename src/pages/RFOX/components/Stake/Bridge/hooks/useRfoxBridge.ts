@@ -2,10 +2,14 @@ import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
 import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftmonorepo/contracts'
-import type { SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
+import type {
+  GetEvmTradeQuoteInputWithWallet,
+  SwapErrorRight,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftmonorepo/swapper'
 import { arbitrumBridgeApi } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
 import { getTradeQuoteWithWallet } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/types'
 import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
 import { bnOrZero } from '@shapeshiftmonorepo/utils'

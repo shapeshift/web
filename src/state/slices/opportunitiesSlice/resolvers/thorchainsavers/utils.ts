@@ -13,7 +13,7 @@ import {
   ltcAssetId,
   thorchainAssetId,
 } from '@shapeshiftmonorepo/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'

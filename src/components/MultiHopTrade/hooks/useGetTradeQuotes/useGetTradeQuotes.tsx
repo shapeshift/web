@@ -3,17 +3,17 @@ import { foxWifHatAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
+  LifiTradeRate,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftmonorepo/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
+  isThorTradeQuote,
   SwapperName,
   swappers,
 } from '@shapeshiftmonorepo/swapper'
-import { isThorTradeQuote } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import type { LifiTradeRate } from '@shapeshiftmonorepo/swapper/src/swappers/LifiSwapper/utils/types'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'

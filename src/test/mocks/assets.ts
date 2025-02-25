@@ -1,6 +1,4 @@
 import {
-  arbitrumAssetId,
-  arbitrumChainId,
   btcAssetId,
   btcChainId,
   ethAssetId,
@@ -35,20 +33,6 @@ export const ethereum: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
-  relatedAssetKey: null,
-}
-
-export const arbitrum: Asset = {
-  chainId: arbitrumChainId,
-  assetId: arbitrumAssetId,
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  color: '#FFFFFF',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  explorer: 'https://arbiscan.io',
-  explorerTxLink: 'https://arbiscan.io/tx/',
-  explorerAddressLink: 'https://arbiscan.io/address/',
   relatedAssetKey: null,
 }
 

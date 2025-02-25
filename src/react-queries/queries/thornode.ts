@@ -1,11 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type {
-  InboundAddressResponse,
-  ThornodePoolResponse,
-} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
+import type { InboundAddressResponse, ThornodePoolResponse } from '@shapeshiftmonorepo/swapper'
+import { assetIdToPoolAssetId, thorService } from '@shapeshiftmonorepo/swapper'
 import { Ok } from '@sniptt/monads'
 import axios from 'axios'
 

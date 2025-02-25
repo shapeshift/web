@@ -76,16 +76,12 @@ export const SnapshotSchema = object({
   data: Data,
 })
 
-export type SnapshotStrategies = Infer<typeof SnapshotSchema>
-
 // ###### voting power
 
 export const ScoresSchema = object({
   state: string(),
   scores: array(record(number())),
 })
-
-export type VotingPower = Infer<typeof ScoresSchema>
 
 // ###### proposals type
 

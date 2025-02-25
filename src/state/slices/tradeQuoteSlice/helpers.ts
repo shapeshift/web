@@ -8,7 +8,7 @@ import type {
   TradeRate,
 } from '@shapeshiftmonorepo/swapper'
 import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
-import type { Asset, MarketData, PartialRecord } from '@shapeshiftmonorepo/types'
+import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
 import { orderBy } from 'lodash'
 import partition from 'lodash/partition'
 
@@ -19,7 +19,6 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote } from '@/state/apis/swapper/types'
-import { sumProtocolFeesToDenom } from '@/state/slices/tradeQuoteSlice/utils'
 
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
@@ -61,19 +60,6 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
     )
     return acc.plus(networkFeeFiatPrecision ?? '0')
   }, bn(0))
-}
-
-export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuote['steps'][number],
-  userCurrencyToUsdRate: string,
-  marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
-): string | undefined => {
-  return sumProtocolFeesToDenom({
-    marketDataByAssetIdUsd,
-    protocolFees: tradeQuoteStep.feeData.protocolFees,
-    outputExponent: 0,
-    outputAssetPriceUsd: userCurrencyToUsdRate,
-  })
 }
 
 /**

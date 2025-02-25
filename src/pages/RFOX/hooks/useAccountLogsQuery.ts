@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
-import { skipToken, useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { skipToken } from '@tanstack/react-query'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 
@@ -9,12 +8,6 @@ import { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from '..
 import { getStakingContract } from '../helpers'
 import type { RFOXAccountLog } from '../types'
 import { getRfoxContractCreationBlockNumber } from './helpers'
-
-type UseAccountLogsProps<SelectData> = {
-  stakingAssetAccountAddress: string | undefined
-  stakingAssetId: AssetId
-  select?: (sortedAccountLogs: RFOXAccountLog[]) => SelectData
-}
 
 const client = viemClientByNetworkId[arbitrum.id]
 
@@ -71,26 +64,3 @@ export const getAccountLogsQueryFn = (
   stakingAssetAccountAddress
     ? () => fetchAccountLogs(stakingAssetAccountAddress, stakingAssetId)
     : skipToken
-
-export const useAccountLogsQuery = <SelectData>({
-  stakingAssetAccountAddress,
-  stakingAssetId,
-  select,
-}: UseAccountLogsProps<SelectData>) => {
-  const queryKey = useMemo(
-    () => getAccountLogsQueryKey(stakingAssetAccountAddress, stakingAssetId),
-    [stakingAssetAccountAddress, stakingAssetId],
-  )
-  const queryFn = useMemo(
-    () => getAccountLogsQueryFn(stakingAssetAccountAddress, stakingAssetId),
-    [stakingAssetAccountAddress, stakingAssetId],
-  )
-
-  const accountLogsQuery = useQuery({
-    queryKey,
-    queryFn,
-    select,
-  })
-
-  return accountLogsQuery
-}

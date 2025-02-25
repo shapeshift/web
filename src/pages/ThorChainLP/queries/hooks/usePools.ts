@@ -1,5 +1,5 @@
 import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import type { MidgardPoolResponse } from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from '@shapeshiftmonorepo/swapper'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 

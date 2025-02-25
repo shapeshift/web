@@ -81,8 +81,6 @@ export const selectRequiredParamFromFilter = <T extends ParamFilterKey>(param: T
   )((_state: ReduxState, filter: Required<Pick<ParamFilter, T>>) => `${param}-${filter[param]}`)
 
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
-export const selectAccountIdsParamFromFilter = selectParamFromFilter('accountIds')
-export const selectFromParamFromFilter = selectParamFromFilter('from')
 export const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')

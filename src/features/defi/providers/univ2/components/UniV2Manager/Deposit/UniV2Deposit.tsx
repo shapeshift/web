@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftmonorepo/caip'
 import { toAssetId } from '@shapeshiftmonorepo/caip'
-import type { AccountId } from '@shapeshiftmonorepo/caip/dist/accountId/accountId'
 import qs from 'qs'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'

@@ -49,8 +49,6 @@ export const selectThorchainLpVotingPower = (state: ReduxState) =>
 export const selectSwapperVotingPower = (state: ReduxState) =>
   state.snapshot.votingPowerByModel['SWAPPER']
 
-export const selectProposals = (state: ReduxState) => state.snapshot.proposals
-
 type AffiliateFeesProps = {
   feeModel: ParameterModel
   inputAmountUsd: string | undefined

@@ -1,6 +1,10 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
-import type { GetTradeQuoteInput, GetTradeRateInput, TradeRate } from '@shapeshiftmonorepo/swapper'
-import type { LifiTradeQuote } from '@shapeshiftmonorepo/swapper/src/swappers/LifiSwapper/utils/types'
+import type {
+  GetTradeQuoteInput,
+  GetTradeRateInput,
+  LifiTradeQuote,
+  TradeRate,
+} from '@shapeshiftmonorepo/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftmonorepo/types'
 import { UtxoAccountType } from '@shapeshiftmonorepo/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'

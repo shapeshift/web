@@ -37,16 +37,31 @@ import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
 import { csp as yearn } from './defi/yearn'
+// Missing from fiatRamps directory
+import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as interFont } from './InterFont'
+// Missing imports:
+import { csp as jupiter } from './jupiter'
+import { csp as ledger } from './ledger'
+// Missing from marketService directory
+import { csp as coincap } from './marketService/coincap'
+import { csp as exchangeRates } from './marketService/exchangeRates'
+import { csp as mercle } from './mercle'
+import { csp as mixPanel } from './mixPanel'
 // Plugin CSPs
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
+import { csp as sentry } from './sentry'
+import { csp as shapeshiftGateway } from './shapeshiftGateway'
+import { csp as shapeshiftProxy } from './shapeshiftProxy'
+import { csp as snapshots } from './snapshots'
 // Wallet CSPs
 import { csp as coinbase } from './wallets/coinbase'
 import { csp as keepkey } from './wallets/keepkey'
 import { csp as metamask } from './wallets/metamask'
 import { csp as walletConnect } from './wallets/walletConnect'
 import { csp as walletMigration } from './wallets/walletMigration'
+import { csp as webflow } from './webflow'
 
 export const csps = [
   // Base CSP (should be first as it contains default rules)
@@ -58,6 +73,15 @@ export const csps = [
   chatwoot,
   customTokenImport,
   interFont,
+  jupiter,
+  ledger,
+  mercle,
+  mixPanel,
+  sentry,
+  shapeshiftGateway,
+  shapeshiftProxy,
+  snapshots,
+  webflow,
 
   // Chain CSPs
   arbitrum,
@@ -80,6 +104,13 @@ export const csps = [
 
   // Asset Service CSPs
   trustwallet,
+
+  // Market Service CSPs
+  coincap,
+  exchangeRates,
+
+  // Fiat Ramps CSPs
+  onRamper,
 
   // DeFi CSPs
   foxy,

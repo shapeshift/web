@@ -62,7 +62,6 @@ export default defineConfig(mode => ({
     fs: {
       allow: ['..'],
     },
-    headers,
   },
   resolve: {
     alias: {

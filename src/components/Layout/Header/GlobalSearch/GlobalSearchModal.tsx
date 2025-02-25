@@ -71,11 +71,14 @@ export const GlobalSearchModal = memo(
         const parsed = await parseAddressInput({ urlOrAddress: searchQuery })
         if (parsed) {
           const { chainId, address, vanityAddress } = parsed
+          const adapter = getChainAdapterManager().get(chainId)
+          if (!adapter) throw new Error(`No adapter found for chainId ${chainId}`)
+
           // Set the fee AssetId as a default - users can select their preferred token later during the flow
           setSendResults([
             {
               type: GlobalSearchResultType.Send,
-              id: getChainAdapterManager().get(chainId)!.getFeeAssetId(),
+              id: adapter.getFeeAssetId(),
               address,
               vanityAddress,
             },

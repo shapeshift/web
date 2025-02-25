@@ -57,8 +57,7 @@ export const useFormSend = () => {
 
         return broadcastTXID
       } catch (e) {
-        // If we're here, we know asset is defined
-        const asset = selectAssetById(store.getState(), sendInput.assetId)!
+        const asset = selectAssetById(store.getState(), sendInput.assetId)
         console.error(e)
 
         const translation =
@@ -67,9 +66,11 @@ export const useFormSend = () => {
             : translate('modals.send.errors.transactionRejected')
 
         toast({
-          title: translate('modals.send.errorTitle', {
-            asset: asset.name,
-          }),
+          title: asset
+            ? translate('modals.send.errorTitle', {
+                asset: asset.name,
+              })
+            : translate('common.error'),
           description: (
             <InlineCopyButton value={translation}>
               <RawText>{translation}</RawText>

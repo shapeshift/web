@@ -126,8 +126,10 @@ export const makeBuckets: MakeBuckets = args => {
 
 export const bucketEvents = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
-  const start = head(buckets)!.start
-  const end = last(buckets)!.end
+  const start = head(buckets)?.start
+  const end = last(buckets)?.end
+
+  if (!start || !end) return []
 
   // events are potentially a lot longer than buckets, iterate the long list once
   return txs.reduce((acc, event) => {
@@ -177,11 +179,12 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
       priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
 
   for (const [assetId, assetCryptoBalance] of Object.entries(bucket.balance.crypto)) {
-    if (!cryptoPriceHistoryData[assetId]?.length) continue
+    const priceHistoryData = cryptoPriceHistoryData[assetId]
+    if (!priceHistoryData) continue
     if (!assets[assetId]) continue
-    const price = priceAtDate({ priceHistoryData: cryptoPriceHistoryData[assetId]!, date })
+    const price = priceAtDate({ priceHistoryData, date })
     balanceAtBucket[assetId] = assetCryptoBalance
-      .times(`1e-${assets[assetId]?.precision!}`)
+      .times(`1e-${assets[assetId]?.precision ?? '0'}`)
       .times(price)
     // dont unnecessarily multiply again
     if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)

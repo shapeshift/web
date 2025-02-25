@@ -160,7 +160,11 @@ export const createOnRamperUrl = ({
   const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
 
   const params = new URLSearchParams()
-  const defaultCrypto = head(onRamperSymbols)!!
+  const defaultCrypto = head(onRamperSymbols)
+
+  // This should not happen really, head() is just strongly typed in favour of safety but we should have at least one symbol really
+  // Unless we don't? I mean that's what safety is for, hey
+  if (!defaultCrypto) throw new Error('Failed to get onRamperSymbols head')
 
   params.set('apiKey', apiKey)
   params.set('defaultCrypto', defaultCrypto)

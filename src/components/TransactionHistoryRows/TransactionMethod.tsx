@@ -29,8 +29,8 @@ export const TransactionMethod = ({
   topRight,
 }: TransactionRowProps) => {
   const translate = useTranslate()
-  const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
-  const { method, parser } = txMetadata
+  const txMetadata = useMemo(() => txDetails.tx.data, [txDetails.tx.data])
+  const { method, parser } = txMetadata ?? {}
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
 
   const asset = useAppSelector(state =>
@@ -116,6 +116,8 @@ export const TransactionMethod = ({
       }
     }
   }, [transfersByType, method])
+
+  if (!txMetadata) return null
 
   return (
     <>

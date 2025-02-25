@@ -58,7 +58,9 @@ export const SnapIntro = ({
   const allNativeAssets = useMemo(() => {
     return knownChainIds
       .map(knownChainId => {
-        const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!
+        const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()
+        if (!assetId) return undefined
+
         const asset = selectAssetById(store.getState(), assetId)
         return asset
       })

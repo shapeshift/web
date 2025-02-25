@@ -67,9 +67,12 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
       let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
       const targetWordIndex = shuffledNumbers[testCount]
-      const targetWord = words[targetWordIndex]!
+      const targetWord = words[targetWordIndex]
       randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+
+      if (!targetWord) return setError('walletProvider.shapeShift.create.error')
       randomWords.push(targetWord)
+
       randomWords = shuffle(randomWords)
       const correctAnswerIndex = randomWords.indexOf(targetWord)
       // Should never happen because we literally just added the word to the array

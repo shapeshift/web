@@ -146,7 +146,7 @@ export const MobileNavBar = memo(() => {
       union(routes, pluginRoutes)
         .filter(route => !route.disable && !route.hide && route.mobileNav)
         // route mobileNav discriminated union narrowing is lost by the Array.prototype.sort() call
-        .sort((a, b) => bnOrZero(a.priority!).minus(b.priority!).toNumber()),
+        .sort((a, b) => bnOrZero(a.priority).minus(bnOrZero(b.priority)).toNumber()),
     [pluginRoutes],
   )
   useLayoutEffect(() => {

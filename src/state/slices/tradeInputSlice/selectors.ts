@@ -19,7 +19,6 @@ export const {
   selectInputBuyAsset,
   selectInputSellAsset,
   selectInputSellAssetUsdRate,
-  selectInputBuyAssetUsdRate,
   selectInputSellAssetUserCurrencyRate,
   selectInputBuyAssetUserCurrencyRate,
   selectInputSellAmountCryptoBaseUnit,

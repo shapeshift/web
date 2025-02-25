@@ -8,11 +8,8 @@ import {
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type {
-  MidgardActionsResponse,
-  ThornodeStatusResponse,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
+import type { MidgardActionsResponse, ThornodeStatusResponse } from '@shapeshiftoss/swapper'
+import { thorService } from '@shapeshiftoss/swapper'
 import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'

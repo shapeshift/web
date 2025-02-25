@@ -5,7 +5,7 @@ import { Err } from '@sniptt/monads'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
+import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse, ThorTradeRate } from '../types'
 import { getL1Rate } from '../utils/getL1Rate'
 import { getL1ToLongtailRate } from '../utils/getL1ToLongtailRate'
@@ -26,7 +26,10 @@ export const getThorTradeRate = async (
     deps.config.REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
-  if (!sellSupportedChainIds[sellAsset.chainId] || !buySupportedChainIds[buyAsset.chainId]) {
+  if (
+    !thorchainSellSupportedChainIds[sellAsset.chainId] ||
+    !thorchainBuySupportedChainIds[buyAsset.chainId]
+  ) {
     return Err(
       makeSwapErrorRight({
         message: 'Unsupported chain',

@@ -130,13 +130,6 @@ export const getWalletCount = (): Promise<number> => {
 }
 
 /**
- * Returns `true` is a given wallet by `ID` exists in the mobile app
- */
-export const hasWallet = (key: string): Promise<boolean> => {
-  return postMessage<boolean>({ cmd: 'hasWallet', key })
-}
-
-/**
  * Rename a wallet
  */
 export const updateWallet = (key: string, walletInfo: { label: string }): Promise<boolean> => {

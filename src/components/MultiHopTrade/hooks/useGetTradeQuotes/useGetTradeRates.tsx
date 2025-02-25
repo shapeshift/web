@@ -4,10 +4,10 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  isThorTradeRate,
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeRate } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'

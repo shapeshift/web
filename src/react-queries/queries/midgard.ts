@@ -1,5 +1,5 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { MidgardPoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type {

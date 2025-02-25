@@ -262,5 +262,3 @@ export const zrxQuote: TradeQuote = {
     },
   ],
 }
-
-export const quotes: TradeQuote[] = [lifiQuote, thorQuote, zrxQuote, cowQuote]

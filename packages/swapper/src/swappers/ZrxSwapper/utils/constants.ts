@@ -3,10 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { SupportedChainIds } from '../../../types'
 
-export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-
 // Zrx doesn't have an easily accessible master assets list.
-
 // We assume all erc20's are supported and remove these explicitly unsupported assets
 export const ZRX_UNSUPPORTED_ASSETS = Object.freeze([
   // Foxy token unsupported by zrx

@@ -5,9 +5,9 @@ import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
+  solana,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
 import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
@@ -187,6 +187,9 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
   supportsEIP1559: false
 }
 export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
+  wallet: HDWallet
+}
 
 export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: CosmosSdkChainId
@@ -242,7 +245,7 @@ export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
 export type SolanaSwapperDeps = {
-  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
+  assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
 }
 
 export type SwapperDeps = {

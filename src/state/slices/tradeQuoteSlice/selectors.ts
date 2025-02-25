@@ -48,14 +48,12 @@ import {
   getActiveQuoteMetaOrDefault,
   getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeUserCurrency,
-  getHopTotalProtocolFeesFiatPrecision,
   getTotalProtocolFeeByAsset,
   sortTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
 import { selectIsWalletConnected, selectWalletConnectedChainIds } from '../common-selectors'
 import {
-  selectMarketDataUsd,
   selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
@@ -195,11 +193,6 @@ export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
   },
 )
 
-export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuote => tradeQuote.activeStep ?? 0,
-)
-
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
@@ -281,20 +274,6 @@ export const selectActiveQuoteWarnings: Selector<
   ErrorWithMeta<TradeQuoteWarning>[] | undefined
 > = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.warnings)
 
-export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectActiveQuote,
-    selectUserCurrencyToUsdRate,
-    selectMarketDataUsd,
-    (_state: ReduxState, stepIndex: SupportedTradeQuoteStepIndex) => stepIndex,
-    (quote, userCurrencyToUsdRate, marketDataUsd, stepIndex) => {
-      const step = getHopByIndex(quote, stepIndex)
-      if (!step) return
-
-      return getHopTotalProtocolFeesFiatPrecision(step, userCurrencyToUsdRate, marketDataUsd)
-    },
-  )
-
 export const selectBuyAmountAfterFeesCryptoPrecision: Selector<ReduxState, string | undefined> =
   createSelector(selectActiveQuote, selectActiveSwapperName, quote =>
     quote ? getBuyAmountAfterFeesCryptoPrecision({ quote }) : undefined,
@@ -336,10 +315,6 @@ export const selectSecondHopSellAsset: Selector<ReduxState, Asset | undefined> =
     secondHop ? secondHop.sellAsset : undefined,
   )
 
-// last hop !== second hop for single hop trades. Used to handling end-state of trades
-export const selectLastHopSellAsset: Selector<ReduxState, Asset | undefined> =
-  createDeepEqualOutputSelector(selectLastHop, lastHop => (lastHop ? lastHop.sellAsset : undefined))
-
 export const selectLastHopBuyAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectLastHop, lastHop => (lastHop ? lastHop.buyAsset : undefined))
 
@@ -378,26 +353,11 @@ export const selectSecondHopSellFeeAsset: Selector<ReduxState, Asset | undefined
     secondHopSellFeeAsset => secondHopSellFeeAsset,
   )
 
-export const selectLastHopSellFeeAsset: Selector<ReduxState, Asset | undefined> =
-  createDeepEqualOutputSelector(
-    (state: ReduxState) => selectFeeAssetById(state, selectLastHopSellAsset(state)?.assetId ?? ''),
-    lastHopSellFeeAsset => lastHopSellFeeAsset,
-  )
-
-// TODO(woodenfurniture): update swappers to specify this as with protocol fees
-export const selectNetworkFeeRequiresBalance: Selector<ReduxState, boolean> = createSelector(
-  selectActiveSwapperName,
-  (swapperName): boolean => swapperName !== SwapperName.CowSwap,
-)
-
 export const selectFirstHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectFirstHop, firstHop => firstHop?.feeData.networkFeeCryptoBaseUnit)
 
 export const selectSecondHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectSecondHop, secondHop => secondHop?.feeData.networkFeeCryptoBaseUnit)
-
-export const selectLastHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
-  createSelector(selectLastHop, lastHop => lastHop?.feeData.networkFeeCryptoBaseUnit)
 
 export const selectFirstHopNetworkFeeUserCurrency: Selector<ReduxState, string | undefined> =
   createSelector(
@@ -445,15 +405,6 @@ export const selectSecondHopNetworkFeeUserCurrency: Selector<ReduxState, string 
       )?.toString()
     },
   )
-
-export const selectHopNetworkFeeUserCurrency = createDeepEqualOutputSelector(
-  selectFirstHopNetworkFeeUserCurrency,
-  selectSecondHopNetworkFeeUserCurrency,
-  selectHopIndexParamFromRequiredFilter,
-  (firstHopNetworkFeeUserCurrency, secondHopNetworkFeeUserCurrency, hopIndex) => {
-    return hopIndex === 0 ? firstHopNetworkFeeUserCurrency : secondHopNetworkFeeUserCurrency
-  },
-)
 
 export const selectTotalNetworkFeeUserCurrency: Selector<ReduxState, string | undefined> =
   createSelector(

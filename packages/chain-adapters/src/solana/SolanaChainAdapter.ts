@@ -73,8 +73,6 @@ import {
 import { isToken2022AccountInfo } from './types'
 import { microLamportsToLamports } from './utils'
 
-export const svmChainIds = [KnownChainIds.SolanaMainnet] as const
-
 // Maximum compute units allowed for a single solana transaction
 const MAX_COMPUTE_UNITS = 1400000
 

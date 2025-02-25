@@ -1,12 +1,17 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SwapErrorRight,
+  ThorTradeQuote,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from 'components/MultiHopTrade/utils'

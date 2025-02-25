@@ -3,10 +3,13 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
-import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/types'
+import type {
+  GetEvmTradeQuoteInputWithWallet,
+  SwapErrorRight,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
+import { arbitrumBridgeApi, getTradeQuoteWithWallet } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'

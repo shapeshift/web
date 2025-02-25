@@ -1,14 +1,18 @@
-import type { ButtonProps } from '@chakra-ui/react'
+import type { ButtonProps, GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
-import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+
+const gridTemplateColumns: GridProps['gridTemplateColumns'] = {
+  base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
+  md: '1fr repeat(2, 170px)',
+}
 
 type EquityRowBaseProps = {
   label: string
@@ -37,7 +41,7 @@ const divider = <RawText> • </RawText>
 
 export const EquityRowLoading = () => {
   return (
-    <SimpleGrid py={4} px={4} gridTemplateColumns={opportunityRowGrid} alignItems='center'>
+    <SimpleGrid py={4} px={4} gridTemplateColumns={gridTemplateColumns} alignItems='center'>
       <Flex flex={1} alignItems='flex-start' justifyContent='space-between' gap={4}>
         <LazyLoadAvatar />
         <Flex flexDir='column' flex={1} gap={1} textAlign='left'>
@@ -97,7 +101,7 @@ export const EquityRow: React.FC<EquityRowProps> = ({
       justifyContent='flex-start'
       alignItems='center'
       display='grid'
-      gridTemplateColumns={opportunityRowGrid}
+      gridTemplateColumns={gridTemplateColumns}
       gap={4}
       {...rest}
     >

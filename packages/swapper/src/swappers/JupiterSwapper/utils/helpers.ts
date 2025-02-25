@@ -3,7 +3,7 @@ import { ASSOCIATED_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/
 import type { Instruction, QuoteResponse, SwapInstructionsResponse } from '@jup-ag/api'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId, wrappedSolAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters/src/solana'
+import type { solana } from '@shapeshiftoss/chain-adapters'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -53,7 +53,7 @@ type CreateInstructionsParams = {
   affiliateBps: string
   buyAsset: Asset
   sellAsset: any
-  adapter: ChainAdapter
+  adapter: solana.ChainAdapter
   jupiterUrl: string
 }
 

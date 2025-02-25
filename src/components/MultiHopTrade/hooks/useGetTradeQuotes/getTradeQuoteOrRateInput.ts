@@ -1,8 +1,12 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { GetTradeQuoteInput, GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
-import type { LifiTradeQuote } from '@shapeshiftoss/swapper/src/swappers/LifiSwapper/utils/types'
+import type {
+  GetTradeQuoteInput,
+  GetTradeRateInput,
+  LifiTradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { toBaseUnit } from 'lib/math'

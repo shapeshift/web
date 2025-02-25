@@ -15,9 +15,3 @@ export interface LifiTradeRate extends TradeRate {
   selectedLifiRoute?: Route
   lifiTools?: LifiTools
 }
-
-export type LifiTool = {
-  key: string
-  name: string
-  logoURI: string
-}

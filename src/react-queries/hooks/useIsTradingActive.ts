@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { InboundAddressResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Result } from '@sniptt/monads'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'

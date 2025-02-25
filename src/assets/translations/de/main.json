@@ -512,9 +512,9 @@
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "myPositions": "Meine Positionen",
-    "myPositionsBody": "Ihre aktiven Positionen werden hier angezeigt.",
+    
     "myRewards": "Meine Belohnungen",
-    "myRewardsBody": "Ihre aktiven Positionen mit beanspruchbaren Prämien werden hier angezeigt.",
+    
     "viewAllPositions": "Alle Positionen anzeigen",
     "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "Es gibt eine Sperrfrist von %{time}. Während der Sperre können Sie nicht auf Ihre Liquidität zugreifen.",

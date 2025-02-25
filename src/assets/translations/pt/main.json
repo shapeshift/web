@@ -512,9 +512,9 @@
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
     "myPositions": "Minhas Posições",
-    "myPositionsBody": "",
+    
     "myRewards": "Minhas recompensas",
-    "myRewardsBody": "",
+    
     "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
     "liquidityLockupWarning": "Há um período de bloqueio de %{time}. Durante o bloqueio, você não pode acessar sua liquidez.",

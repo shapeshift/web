@@ -111,12 +111,6 @@ const validators = {
   REACT_APP_ONRAMPER_WIDGET_URL: url(),
   REACT_APP_ONRAMPER_API_URL: url(),
   REACT_APP_ONRAMPER_API_KEY: str(),
-  REACT_APP_KEEPKEY_UPDATER_RELEASE_PAGE: url({
-    default: 'https://github.com/keepkey/keepkey-updater/releases/latest',
-  }),
-  REACT_APP_KEEPKEY_UPDATER_BASE_URL: url({
-    default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
-  }),
   REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
   REACT_APP_MIXPANEL_TOKEN: str(),
   REACT_APP_SNAPSHOT_BASE_URL: url({

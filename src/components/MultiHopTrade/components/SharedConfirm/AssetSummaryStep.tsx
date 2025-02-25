@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
+import { RATE_CHANGED_BPS_THRESHOLD } from 'components/Modals/RateChanged/RateChanged'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from 'hooks/useModal/useModal'
@@ -77,6 +78,15 @@ export const AssetSummaryStep = ({
     )
       return
     if (bn(amountCryptoBaseUnit).gte(prevAmountCryptoBaseUnit)) return
+
+    // Calculate difference in basis points (1% = 100 bps)
+    const bpsDiff = bn(amountCryptoBaseUnit)
+      .minus(prevAmountCryptoBaseUnit)
+      .div(prevAmountCryptoBaseUnit)
+      .times(10000)
+      .abs()
+
+    if (bpsDiff.lt(RATE_CHANGED_BPS_THRESHOLD)) return
 
     rateChanged.open({ prevAmountCryptoBaseUnit })
   }, [amountCryptoBaseUnit, isLastStep, prevAmountCryptoBaseUnit, rateChanged])

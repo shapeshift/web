@@ -1,14 +1,14 @@
 import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { Sweep } from 'components/Sweep'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -40,14 +40,18 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   )
 
   const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: collateralAccountId,
-      assetId: collateralAssetId,
-      getPosition: getThorchainLendingPosition,
-      accountMetadata: collateralAccountMetadata,
-      wallet,
-    }),
-    enabled: Boolean(collateralAccountMetadata && wallet),
+    queryKey: ['thorchainFromAddress', collateralAccountId, collateralAssetId],
+    queryFn:
+      collateralAccountId && wallet && collateralAccountMetadata && collateralAssetId
+        ? () =>
+            getThorchainFromAddress({
+              accountId: collateralAccountId,
+              assetId: collateralAssetId,
+              getPosition: getThorchainLendingPosition,
+              accountMetadata: collateralAccountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const handleSwepSeen = useCallback(() => {

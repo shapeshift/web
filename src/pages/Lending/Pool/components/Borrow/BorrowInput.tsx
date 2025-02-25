@@ -12,11 +12,10 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
@@ -37,6 +36,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { isUtxoChainId } from 'lib/utils/utxo'
@@ -166,14 +166,18 @@ export const BorrowInput = ({
   )
 
   const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: collateralAccountId,
-      assetId: collateralAssetId,
-      getPosition: getThorchainLendingPosition,
-      accountMetadata: collateralAccountMetadata,
-      wallet,
-    }),
-    enabled: Boolean(collateralAccountMetadata && wallet),
+    queryKey: ['thorchainFromAddress', collateralAccountId, collateralAssetId],
+    queryFn:
+      collateralAccountId && wallet && collateralAccountMetadata && collateralAssetId
+        ? () =>
+            getThorchainFromAddress({
+              accountId: collateralAccountId,
+              assetId: collateralAssetId,
+              getPosition: getThorchainLendingPosition,
+              accountMetadata: collateralAccountMetadata,
+              wallet,
+            })
+        : skipToken,
   })
 
   const {
@@ -278,7 +282,7 @@ export const BorrowInput = ({
   } = useGetEstimatedFeesQuery({
     amountCryptoPrecision: '0',
     assetId: collateralAssetId,
-    feeAssetId: collateralFeeAsset?.assetId,
+    feeAssetId: collateralFeeAsset?.assetId ?? '',
     to: fromAddress ?? '',
     sendMax: true,
     accountId: collateralAccountId,

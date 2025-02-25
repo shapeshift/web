@@ -33,6 +33,7 @@ describe('useTxDetails', () => {
 
   it('should get correct type for a common tx', () => {
     const common = deposit
+    if (!common.data) throw new Error('Unhandled rejection in tests')
     common.data.method = 'common'
     const transfers = getTransfers(common, mockAssetState().byId)
     const type = getTxType(common, transfers)

@@ -79,6 +79,7 @@ export default defineConfig(mode => ({
       buffer: 'buffer',
       process: 'process/browser',
       'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+      zlib: 'browserify-zlib',
     },
   },
   define: {
@@ -161,6 +162,7 @@ export default defineConfig(mode => ({
       '@shapeshiftoss/hdwallet-walletconnectv2',
       'dayjs',
       'crypto-browserify',
+      'browserify-zlib',
     ],
     esbuildOptions: {
       define: {

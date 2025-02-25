@@ -108,6 +108,18 @@ const validators = {
   REACT_APP_COWSWAP_BASE_URL: url({
     default: 'https://api.cow.fi',
   }),
+  REACT_APP_KEEPKEY_FIRMWARE_RELEASES_URL: url({
+    default: 'https://raw.githack.com/keepkey/keepkey-desktop/master/firmware/releases.json',
+  }),
+  REACT_APP_KEEPKEY_GITHUB_RELEASES_API_URL: url({
+    default: 'https://api.github.com/repos/keepkey/keepkey-desktop/releases/latest',
+  }),
+  REACT_APP_KEEPKEY_RELEASES_PAGE: url({
+    default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
+  }),
+  REACT_APP_KEEPKEY_DESKTOP_URL: url({
+    default: 'http://localhost:1646/',
+  }),
   REACT_APP_ONRAMPER_WIDGET_URL: url(),
   REACT_APP_ONRAMPER_API_URL: url(),
   REACT_APP_ONRAMPER_API_KEY: str(),

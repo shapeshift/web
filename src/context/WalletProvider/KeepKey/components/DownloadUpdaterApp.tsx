@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState, useCallback } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { getConfig } from 'config'
 
-const RELEASE_PAGE = 'https://github.com/keepkey/keepkey-desktop/releases/latest'
-const GITHUB_API_URL = 'https://api.github.com/repos/keepkey/keepkey-desktop/releases/latest'
+const RELEASE_PAGE = getConfig().REACT_APP_KEEPKEY_RELEASES_PAGE
+const GITHUB_API_URL = getConfig().REACT_APP_KEEPKEY_GITHUB_RELEASES_API_URL
 
 // Interface for GitHub release assets
 interface GithubReleaseAsset {

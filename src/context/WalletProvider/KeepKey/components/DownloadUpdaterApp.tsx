@@ -4,7 +4,8 @@ import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 
-import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from '../helpers'
+const RELEASE_PAGE = 'https://github.com/keepkey/keepkey-desktop/releases/latest'
+const BASE_DOWNLOAD_URL = 'https://github.com/keepkey/keepkey-desktop/releases/download/v3.0.27'
 
 export const KeepKeyDownloadUpdaterApp = () => {
   const platform = useMemo(() => getPlatform(), [])
@@ -12,11 +13,11 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const platformFilename = useMemo(() => {
     switch (platform) {
       case 'Mac OS':
-        return 'KeepKey-Updater-2.1.4.dmg'
+        return 'KeepKey-Desktop-3.0.27-universal.dmg'
       case 'Windows':
-        return 'KeepKey-Updater-Setup-2.1.4.exe'
+        return 'KeepKey-Desktop-Setup-3.0.27.exe'
       case 'Linux':
-        return 'KeepKey-Updater-2.1.4.AppImage'
+        return 'KeepKey-Desktop-3.0.27.AppImage'
       default:
         return null
     }
@@ -43,12 +44,22 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const downloadUpdaterTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       'modals.keepKey.downloadUpdater.button',
-      { filename: platformFilename || 'Updater App' },
+      { filename: platformFilename || 'Desktop App' },
     ],
     [platformFilename],
   )
 
-  const updaterUrl = platformFilename ? `${UPDATER_BASE_URL}${platformFilename}` : RELEASE_PAGE
+  const handleDownload = (url: string) => {
+    // Create a temporary link element
+    const link = document.createElement('a')
+    link.href = url
+    link.download = platformFilename || 'KeepKey-Desktop'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const downloadUrl = platformFilename ? `${BASE_DOWNLOAD_URL}/${platformFilename}` : RELEASE_PAGE
 
   return (
     <>
@@ -65,10 +76,25 @@ export const KeepKeyDownloadUpdaterApp = () => {
             </Link>
           </>
         )}
-        <Button as={Link} width='full' isExternal href={updaterUrl} colorScheme='blue' mt={2}>
+        <Button width='full' onClick={() => handleDownload(downloadUrl)} colorScheme='blue' mt={2}>
           <Text translation={downloadUpdaterTranslation} />
         </Button>
       </ModalBody>
     </>
   )
+}
+
+// Helper function from the original helpers.ts
+const getPlatform = () => {
+  const platform = navigator?.platform
+  const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
+  const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
+
+  if (macosPlatforms.includes(platform)) {
+    return 'Mac OS'
+  } else if (windowsPlatforms.includes(platform)) {
+    return 'Windows'
+  } else if (/Linux/.test(platform)) {
+    return 'Linux'
+  }
 }

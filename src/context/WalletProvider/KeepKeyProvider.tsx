@@ -26,6 +26,7 @@ import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { poll } from 'lib/poll/poll'
 import { isKeepKeyHDWallet } from 'lib/utils'
+import { WalletActions } from './actions'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 

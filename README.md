@@ -118,7 +118,7 @@ yarn test
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-yarn build:web
+yarn build:web:production
 ```
 
 > It correctly bundles React in production mode and optimizes the build for the best performance.

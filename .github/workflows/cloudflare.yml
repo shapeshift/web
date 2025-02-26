@@ -38,6 +38,15 @@ jobs:
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
           echo "CURRENT_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
+      - name: Determine Build Mode
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "release" ]]; then
+            echo "BUILD_MODE=production" >> ${GITHUB_ENV}
+          elif [[ "${{ github.ref_name }}" == "private" ]]; then
+            echo "BUILD_MODE=private" >> ${GITHUB_ENV}
+          else
+            echo "BUILD_MODE=development" >> ${GITHUB_ENV}
+          fi
       - name: Debug GitHub Context
         env: { CONTENT : "${{ toJson(github) }}" }
         run: "echo $CONTENT"
@@ -57,7 +66,7 @@ jobs:
       - name: Yarn Install
         run: yarn install --immutable
       - name: Build Web
-        run: yarn build:web
+        run: yarn build:web:${{ env.BUILD_MODE }}
       # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1

@@ -12,7 +12,6 @@ import checker from 'vite-plugin-checker'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { cspMeta, headers, serializeCsp } from './headers'
-import { determineMode } from './utils'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -45,15 +44,10 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   publicFilesEnvVars[`VITE_CID_${mungedName}`] = JSON.stringify(cid)
 }
 
-export default defineConfig(() => {
-  const actualMode = determineMode()
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
 
-  const env = {
-    ...loadEnv('base', process.cwd(), ''),
-    ...loadEnv(actualMode, process.cwd(), ''),
-  }
-
-  console.log(`Using environment variables for ${actualMode} environment`)
+  console.log(`Using environment variables for ${mode} mode`)
 
   return {
     plugins: [
@@ -187,8 +181,8 @@ export default defineConfig(() => {
           warn(warning)
         },
       },
-      minify: actualMode === 'development' ? false : 'esbuild',
-      sourcemap: actualMode === 'development' ? 'eval-cheap-module-source-map' : false,
+      minify: mode === 'development' ? false : 'esbuild',
+      sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
       outDir: 'build',
       emptyOutDir: true,
     },

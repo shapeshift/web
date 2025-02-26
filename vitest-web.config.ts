@@ -1,17 +1,11 @@
 /// <reference types="vitest" />
 import { defineConfig, loadEnv } from 'vite'
 
-import { determineMode } from './utils'
-
 // eslint-disable-next-line import/no-default-export
-export default defineConfig(async () => {
+export default defineConfig(async ({ mode }) => {
   const tsconfigPaths = (await import('vite-tsconfig-paths')).default
-  const actualMode = determineMode()
 
-  const env = {
-    ...loadEnv('base', process.cwd(), ''),
-    ...loadEnv(actualMode, process.cwd(), ''),
-  }
+  const env = loadEnv(mode, process.cwd(), '')
 
   return {
     plugins: [tsconfigPaths()],

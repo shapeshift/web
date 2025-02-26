@@ -1,9 +1,8 @@
 import { loadEnv } from 'vite'
 
-import { determineMode } from '../../utils'
 import type { Csp } from '../types'
 
-const mode = determineMode()
+const mode = process.env.NODE_ENV || 'development'
 const env = loadEnv(mode, process.cwd(), '')
 
 export const csp: Csp = {

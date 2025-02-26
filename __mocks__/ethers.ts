@@ -1,4 +1,4 @@
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 import { vi } from 'vitest'
 
 const Contract = vi.fn().mockImplementation(address => ({
@@ -50,5 +50,5 @@ const ethersMock = {
   Contract,
 }
 
-export * from 'ethers6'
-export { ethersMock as ethers6, Contract, JsonRpcProvider }
+export * from 'ethers'
+export { ethersMock as ethers, Contract, JsonRpcProvider }

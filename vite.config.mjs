@@ -67,7 +67,8 @@ export default defineConfig(mode => ({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@shapeshiftmonorepo': resolve(__dirname, './packages'),
+      'ethers/lib/utils': 'ethers5/lib/utils.js',
+      'ethers/lib/utils.js': 'ethers5/lib/utils.js',
       crypto: 'crypto-browserify',
       stream: 'stream-browserify',
       assert: 'assert',
@@ -80,6 +81,9 @@ export default defineConfig(mode => ({
       process: 'process/browser',
       'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
       zlib: 'browserify-zlib',
+      fs: 'memfs',
+      path: 'path-browserify',
+      '@shapeshiftoss/caip': '@shapeshiftmonorepo/caip',
     },
   },
   define: {
@@ -128,9 +132,40 @@ export default defineConfig(mode => ({
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
       },
-      preserveModules: false,
-      format: 'es',
-      exports: 'named',
+      onwarn(warning, warn) {
+        // Ignore annotation warnings with /*#__PURE__*/ pattern
+        if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment')) {
+          return
+        }
+
+        // Ignore Node.js module externalization warnings
+        if (
+          warning.code === 'PLUGIN_WARNING' &&
+          warning.message.includes('has been externalized for browser compatibility')
+        ) {
+          return
+        }
+
+        // Ignore eval warnings in dependencies
+        if (
+          warning.code === 'EVAL' &&
+          (warning.id?.includes('node_modules/js-sha256') ||
+            warning.id?.includes('node_modules/google-protobuf') ||
+            warning.id?.includes('node_modules/@protobufjs/inquire'))
+        ) {
+          return
+        }
+
+        // Ignore dynamic import chunking warnings
+        if (
+          warning.plugin === 'vite:reporter' &&
+          warning.message.includes('dynamic import will not move module into another chunk')
+        ) {
+          return
+        }
+
+        warn(warning)
+      },
     },
     minify: mode === 'development' ? false : 'esbuild',
     sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
@@ -144,6 +179,7 @@ export default defineConfig(mode => ({
       'react-dom',
       '@chakra-ui/react',
       'ethers',
+      'ethers5',
       'buffer',
       'process',
       '@shapeshiftoss/hdwallet-coinbase',

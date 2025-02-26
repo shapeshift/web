@@ -45,7 +45,6 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 }
 
 export default defineConfig(({ mode }) => {
-  console.log({ mode })
   return {
     plugins: [
       react(),

@@ -24,6 +24,7 @@ const publicFilesEnvVars = {
 }
 
 const publicPath = path.join(__dirname, 'public')
+
 for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   if (!dirent.isFile()) continue
   const mungedName = dirent.name
@@ -44,7 +45,7 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   publicFilesEnvVars[`VITE_CID_${mungedName}`] = JSON.stringify(cid)
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   const actualMode = determineMode()
 
   const env = {
@@ -66,6 +67,12 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     define: {
+      ...Object.fromEntries(
+        Object.entries(publicFilesEnvVars).map(([key, value]) => [`import.meta.env.${key}`, value]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
+      ),
       ...Object.fromEntries(
         Object.entries(env).map(([key, value]) => [
           `import.meta.env.${key}`,

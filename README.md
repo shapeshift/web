@@ -154,3 +154,20 @@ REACT_APP_FEATURE_MIXPANEL=true
 ```
 
 The MixPanel project UI will now show events from your local session.
+
+## Add Local Environment Variables
+
+Vite supports local environment variable files that are automatically excluded from Git. You can create these files following the patterns described in the [Vite documentation](https://vitejs.dev/guide/env-and-mode#env-files).
+
+Examples of supported file names:
+- `.env.local` (loaded in all environments)
+- `.env.development.local` (loaded only in development)
+- `.env.production.local` (loaded only in production)
+
+We recommend using local environment files for sensitive or development-specific configurations. For instance, we provide example files with development MixPanel tokens to prevent your local testing from affecting our development and production analytics data.
+
+To get started, copy the example environment files and modify them as needed:
+
+```sh
+cp .env.example .env.local
+```

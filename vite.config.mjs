@@ -7,7 +7,7 @@ import { dirname, resolve } from 'path'
 import * as path from 'path'
 import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import checker from 'vite-plugin-checker'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -45,6 +45,8 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 }
 
 export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+
   return {
     plugins: [
       react(),
@@ -62,6 +64,15 @@ export default defineConfig(({ mode }) => {
       ),
       ...Object.fromEntries(
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(env).map(([key, value]) => [
+          `import.meta.env.${key}`,
+          JSON.stringify(value),
+        ]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(env).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
       ),
       global: 'globalThis',
       'global.Buffer': ['buffer', 'Buffer'],

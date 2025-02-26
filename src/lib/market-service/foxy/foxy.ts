@@ -7,7 +7,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftmonorepo/types'
 import * as unchained from '@shapeshiftmonorepo/unchained-client'
-import type { ethers } from 'ethers6'
+import type { ethers } from 'ethers'
 
 import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'

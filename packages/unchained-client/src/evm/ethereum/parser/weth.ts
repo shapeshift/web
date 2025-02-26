@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { fromChainId, toAssetId } from '@shapeshiftmonorepo/caip'
 import { WETH_ABI, WETH_TOKEN_CONTRACT } from '@shapeshiftmonorepo/contracts'
 import assert from 'assert'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'

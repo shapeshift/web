@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftmonorepo/caip'
 import { toAssetId } from '@shapeshiftmonorepo/caip'
 import { I_BEP20_ABI } from '@shapeshiftmonorepo/contracts'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../../types'
 import type { SubParser, Tx, TxSpecific } from '../../parser/types'

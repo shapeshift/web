@@ -2,8 +2,8 @@ import type { ChainId } from '@shapeshiftmonorepo/caip'
 import type { EvmChainId } from '@shapeshiftmonorepo/types'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { assertUnreachable } from '@shapeshiftmonorepo/utils'
-import { ethers as ethersV5 } from 'ethers'
-import { JsonRpcProvider } from 'ethers6'
+import { JsonRpcProvider } from 'ethers'
+import { ethers as ethersV5 } from 'ethers5'
 
 export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {

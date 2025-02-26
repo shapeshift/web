@@ -1,11 +1,11 @@
 import { getEthersProvider } from '@shapeshiftmonorepo/contracts'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import type { Block } from 'ethers6'
+import type { Block } from 'ethers'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { findClosestFoxDiscountDelayBlockNumber } from './utils'
 
-vi.unmock('ethers6')
+vi.unmock('ethers')
 
 const getBlockSpy = vi.spyOn(getEthersProvider(KnownChainIds.EthereumMainnet), 'getBlock')
 

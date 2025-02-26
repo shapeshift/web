@@ -4,7 +4,7 @@ import * as unchained from '@shapeshiftmonorepo/unchained-client'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import dotenv from 'dotenv'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 import readline from 'readline-sync'
 
 import { FoxyApi } from './api'

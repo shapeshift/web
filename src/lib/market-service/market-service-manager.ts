@@ -7,7 +7,7 @@ import type {
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftmonorepo/types'
-import type { ethers } from 'ethers6'
+import type { ethers } from 'ethers'
 
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'

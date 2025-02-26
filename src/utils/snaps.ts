@@ -1,4 +1,4 @@
-import type { Eip1193Provider } from 'ethers6'
+import type { Eip1193Provider } from 'ethers'
 
 import { getConfig } from '@/config'
 import { METAMASK_RDNS, mipdStore } from '@/lib/mipd'

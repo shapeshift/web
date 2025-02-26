@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftmonorepo/types'
-import type { ParamType, TransactionDescription } from 'ethers6'
+import type { ParamType, TransactionDescription } from 'ethers'
 import startCase from 'lodash/startCase'
 import type { FC } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'

@@ -2,7 +2,7 @@ import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakr
 import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftmonorepo/caip'
 import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
-import type { TransactionReceipt, TransactionReceiptParams } from 'ethers6'
+import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'

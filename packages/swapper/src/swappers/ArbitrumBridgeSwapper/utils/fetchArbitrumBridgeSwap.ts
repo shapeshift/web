@@ -10,7 +10,7 @@ import { getEthersV5Provider } from '@shapeshiftmonorepo/contracts'
 import type { Asset } from '@shapeshiftmonorepo/types'
 import { KnownChainIds } from '@shapeshiftmonorepo/types'
 import { assertUnreachable } from '@shapeshiftmonorepo/utils'
-import { BigNumber } from 'ethers'
+import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 
 import { BRIDGE_TYPE } from '../types'

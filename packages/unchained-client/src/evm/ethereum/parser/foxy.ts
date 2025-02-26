@@ -1,5 +1,5 @@
 import { FOXY_STAKING_ABI, FOXY_STAKING_CONTRACT } from '@shapeshiftmonorepo/contracts'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'

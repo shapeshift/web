@@ -1,6 +1,6 @@
 import { btcAssetId, ethAssetId } from '@shapeshiftmonorepo/caip'
 import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 import { describe, expect, it, vi } from 'vitest'
 
 import { CoinGeckoMarketService } from './coingecko/coingecko'

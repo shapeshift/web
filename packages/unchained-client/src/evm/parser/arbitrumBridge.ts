@@ -17,7 +17,7 @@ import {
   L2_ARBITRUM_GATEWAY_ABI,
   L2_ARBITRUM_GATEWAY_CONTRACT,
 } from '@shapeshiftmonorepo/contracts'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'

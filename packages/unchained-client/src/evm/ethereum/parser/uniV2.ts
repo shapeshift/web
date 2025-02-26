@@ -9,14 +9,8 @@ import {
   WETH_TOKEN_CONTRACT,
 } from '@shapeshiftmonorepo/contracts'
 import assert from 'assert'
-import type { JsonRpcProvider } from 'ethers6'
-import {
-  Contract,
-  getAddress,
-  getCreate2Address,
-  Interface,
-  solidityPackedKeccak256,
-} from 'ethers6'
+import type { JsonRpcProvider } from 'ethers'
+import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
 import { erc20Abi } from 'viem'
 
 import type { Tx } from '../../../generated/ethereum'

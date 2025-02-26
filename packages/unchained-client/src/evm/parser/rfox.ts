@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftmonorepo/caip'
 import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'

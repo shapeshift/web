@@ -18,8 +18,8 @@ import {
 } from '@shapeshiftmonorepo/utils'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TypedData } from 'eip-712'
-import type { TypedDataDomain } from 'ethers6'
-import { ethers } from 'ethers6'
+import type { TypedDataDomain } from 'ethers'
+import { ethers } from 'ethers'
 import type { Address } from 'viem'
 import { keccak256, stringToBytes } from 'viem'
 
@@ -101,7 +101,7 @@ const getSignTypeDataPayload = (
   const signingDomain = Number(chainReference)
   const typedDataDomain = cowDomain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS)
   return {
-    // Mismatch of types between ethers' TypedDataDomain and TypedData :shrugs:
+    // Mismatch of types between ethers5' TypedDataDomain and TypedData :shrugs:
     domain: typedDataDomain as Record<string, unknown>,
     primaryType,
     types: {

@@ -1,6 +1,6 @@
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
-import { ethers } from 'ethers'
+import { ethers } from 'ethers5'
 import fs from 'fs'
 import toLower from 'lodash/toLower'
 import uniqBy from 'lodash/uniqBy'

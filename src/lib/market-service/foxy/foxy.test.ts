@@ -1,6 +1,6 @@
 import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
 import type { AxiosInstance } from 'axios'
-import { ethers } from 'ethers6'
+import { ethers } from 'ethers'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'

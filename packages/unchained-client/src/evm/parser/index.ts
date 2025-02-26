@@ -8,7 +8,7 @@ import {
   toAssetId,
 } from '@shapeshiftmonorepo/caip'
 import { BigNumber } from 'bignumber.js'
-import { getAddress, JsonRpcProvider } from 'ethers6'
+import { getAddress, JsonRpcProvider } from 'ethers'
 
 import type { Token, TxStatus } from '../../types'
 import { TransferType } from '../../types'

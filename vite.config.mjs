@@ -45,10 +45,6 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-
-  console.log(`Using environment variables for ${mode} mode`)
-
   return {
     plugins: [
       react(),
@@ -66,15 +62,6 @@ export default defineConfig(({ mode }) => {
       ),
       ...Object.fromEntries(
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
-      ),
-      ...Object.fromEntries(
-        Object.entries(env).map(([key, value]) => [
-          `import.meta.env.${key}`,
-          JSON.stringify(value),
-        ]),
-      ),
-      ...Object.fromEntries(
-        Object.entries(env).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
       ),
       global: 'globalThis',
       'global.Buffer': ['buffer', 'Buffer'],

@@ -5,6 +5,7 @@ import { defineConfig, loadEnv } from 'vite'
 export default defineConfig(async ({ mode }) => {
   const tsconfigPaths = (await import('vite-tsconfig-paths')).default
 
+  console.log('mode', mode)
   const env = loadEnv(mode, process.cwd(), '')
 
   return {

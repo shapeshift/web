@@ -1,10 +1,10 @@
 import { btcAssetId, btcChainId } from '@shapeshiftoss/caip'
-import type { Bip44Params, UtxoChainId } from '@shapeshiftoss/types'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { BTCWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { Bip44Params, UtxoChainId } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput, TxHistoryResponse } from '../../types'

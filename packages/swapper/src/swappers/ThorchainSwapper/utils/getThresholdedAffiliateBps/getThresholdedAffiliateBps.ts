@@ -1,9 +1,5 @@
 import type { Asset } from '@shapeshiftoss/types'
-import {
-  bn,
-  convertBasisPointsToDecimalPercentage,
-  convertPrecision,
-} from '@shapeshiftoss/utils'
+import { bn, convertBasisPointsToDecimalPercentage, convertPrecision } from '@shapeshiftoss/utils'
 
 import type { SwapperConfig } from '../../../../types'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'

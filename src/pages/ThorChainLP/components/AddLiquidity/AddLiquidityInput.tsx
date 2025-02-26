@@ -17,13 +17,6 @@ import {
   useColorModeValue,
   usePrevious,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import {
-  assetIdToPoolAssetId,
-  poolAssetIdToAssetId,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   foxWifHatAssetId,
@@ -32,6 +25,13 @@ import {
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import {
+  assetIdToPoolAssetId,
+  poolAssetIdToAssetId,
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'

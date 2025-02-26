@@ -1,12 +1,5 @@
 import type { ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
-  ChainSpecific,
-  KnownChainIds,
-  UtxoAccountType,
-  UtxoChainId,
-} from '@shapeshiftoss/types'
-import type * as unchained from '@shapeshiftoss/unchained-client'
-import type {
   BTCSignTx,
   CosmosSignTx,
   ETHSignTx,
@@ -14,6 +7,13 @@ import type {
   SolanaSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
+import type {
+  ChainSpecific,
+  KnownChainIds,
+  UtxoAccountType,
+  UtxoChainId,
+} from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import type PQueue from 'p-queue'
 
 import type * as cosmossdk from './cosmossdk/types'

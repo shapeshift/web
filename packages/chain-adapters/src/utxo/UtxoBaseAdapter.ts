@@ -1,7 +1,4 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Bip44Params, RootBip44Params, UtxoChainId } from '@shapeshiftoss/types'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import type * as unchained from '@shapeshiftoss/unchained-client'
 import type {
   BTCSignTxInput,
   BTCSignTxOutput,
@@ -14,6 +11,9 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
+import type { Bip44Params, RootBip44Params, UtxoChainId } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
 import PQueue from 'p-queue'
 

@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   ProtocolFee,
   SupportedTradeQuoteStepIndex,
@@ -12,7 +13,6 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 

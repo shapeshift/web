@@ -1,11 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  adapters,
-  btcAssetId,
-  fromAssetId,
-  gnosisChainId,
-  usdtAssetId,
-} from '@shapeshiftoss/caip'
+import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
 
 import type commonFiatCurrencyList from './FiatCurrencyList.json'
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'

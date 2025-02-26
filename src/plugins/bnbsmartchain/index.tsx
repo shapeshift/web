@@ -1,6 +1,6 @@
+import { bnbsmartchain } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { bnbsmartchain } from '@shapeshiftoss/chain-adapters'
 
 import { getConfig } from '@/config'
 import type { Plugins } from '@/plugins/types'

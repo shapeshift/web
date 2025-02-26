@@ -1,7 +1,7 @@
-import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import { matchSorter } from 'match-sorter'

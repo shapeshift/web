@@ -11,10 +11,10 @@ import {
   HStack,
   Stack,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'

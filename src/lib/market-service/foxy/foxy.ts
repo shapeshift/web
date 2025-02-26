@@ -1,3 +1,4 @@
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import type {
   HistoryData,
   MarketCapResult,
@@ -6,7 +7,6 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { ethers } from 'ethers'
 
 import type { MarketService } from '../api'

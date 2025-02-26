@@ -3,13 +3,13 @@ import type {
   ChildToParentTransactionRequest,
   ParentToChildTransactionRequest,
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
-import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
+import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 

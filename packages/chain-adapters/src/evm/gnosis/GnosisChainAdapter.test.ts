@@ -4,18 +4,13 @@
  * Test GnosisChainAdapter
  * @group unit
  */
-import {
-  ASSET_REFERENCE,
-  fromChainId,
-  gnosisAssetId,
-  gnosisChainId,
-} from '@shapeshiftoss/caip'
-import type { Bip44Params, EvmChainId } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import type * as unchained from '@shapeshiftoss/unchained-client'
+import { ASSET_REFERENCE, fromChainId, gnosisAssetId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { Bip44Params, EvmChainId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { toHex, zeroAddress } from 'viem'
 import { describe, expect, it, vi } from 'vitest'

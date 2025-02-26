@@ -1,5 +1,3 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -11,6 +9,8 @@ import {
   wrappedSolAssetId,
 } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { PublicKey } from '@solana/web3.js'

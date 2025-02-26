@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, cosmosAssetId } from '@shapeshiftoss/caip'
+import type { CosmosSignTx, CosmosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import type { CosmosSignTx, CosmosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
 
 import { ChainAdapterError, ErrorHandler } from '../../error/ErrorHandler'
 import type {

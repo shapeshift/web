@@ -1,8 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import type * as unchained from '@shapeshiftoss/unchained-client'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -21,6 +18,9 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
+import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'

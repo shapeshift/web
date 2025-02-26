@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/types'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { selectSearchQueryFromFilter } from '../selectors'
 import { selectAssetsBySearchQuery } from './common-selectors'

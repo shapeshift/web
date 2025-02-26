@@ -1,6 +1,6 @@
+import { viemNetworkIdByChainId } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
-import { viemNetworkIdByChainId } from '@shapeshiftoss/contracts'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 

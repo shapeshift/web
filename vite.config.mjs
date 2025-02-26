@@ -102,6 +102,8 @@ export default defineConfig(({ mode }) => {
       commonjsOptions: {
         transformMixedEsModules: true,
       },
+      chunkSizeWarningLimit: 2000,
+      assetsInlineLimit: 4096,
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
@@ -168,8 +170,11 @@ export default defineConfig(({ mode }) => {
           warn(warning)
         },
       },
-      minify: mode === 'development' ? false : 'esbuild',
-      sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
+      minify: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? false : 'esbuild',
+      sourcemap:
+        mode === 'development' && !process.env.DISABLE_SOURCE_MAP
+          ? 'eval-cheap-module-source-map'
+          : false,
       outDir: 'build',
       emptyOutDir: true,
     },

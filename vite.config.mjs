@@ -45,7 +45,7 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 }
 
 export default defineConfig(({ mode }) => {
-  const actualMode = determineMode(mode)
+  const actualMode = determineMode()
 
   const env = {
     ...loadEnv('base', process.cwd(), ''),
@@ -66,12 +66,6 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     define: {
-      ...Object.fromEntries(
-        Object.entries(publicFilesEnvVars).map(([key, value]) => [`import.meta.env.${key}`, value]),
-      ),
-      ...Object.fromEntries(
-        Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
-      ),
       ...Object.fromEntries(
         Object.entries(env).map(([key, value]) => [
           `import.meta.env.${key}`,

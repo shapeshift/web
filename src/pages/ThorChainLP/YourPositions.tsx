@@ -1,6 +1,6 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Box, Flex, Skeleton, Spinner, Stack, Tag } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'

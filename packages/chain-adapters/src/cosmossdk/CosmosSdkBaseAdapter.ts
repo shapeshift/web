@@ -1,8 +1,8 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftmonorepo/caip'
-import type { Bip44Params, CosmosSdkChainId, RootBip44Params } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import * as unchained from '@shapeshiftmonorepo/unchained-client'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
+import type { Bip44Params, CosmosSdkChainId, RootBip44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
 import PQueue from 'p-queue'
 

@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { bn, bnOrZero } from '@shapeshiftmonorepo/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 
 import erc20Abi from './erc20Abi.json'
 import type { EvmChainAdapter } from './EvmBaseAdapter'

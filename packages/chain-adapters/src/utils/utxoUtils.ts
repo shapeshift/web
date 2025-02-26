@@ -1,5 +1,5 @@
-import { UtxoAccountType } from '@shapeshiftmonorepo/types'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
 
 /**

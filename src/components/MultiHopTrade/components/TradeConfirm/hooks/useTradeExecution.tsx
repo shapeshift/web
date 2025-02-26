@@ -1,21 +1,7 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
-import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftmonorepo/chain-adapters'
-import { ChainAdapterError, toAddressNList } from '@shapeshiftmonorepo/chain-adapters'
-import type {
-  EvmTransactionRequest,
-  SupportedTradeQuoteStepIndex,
-  TradeQuote,
-} from '@shapeshiftmonorepo/swapper'
-import {
-  getHopByIndex,
-  isExecutableTradeQuote,
-  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
-  SolanaLogsError,
-  SwapperName,
-  TradeExecutionEvent,
-} from '@shapeshiftmonorepo/swapper'
-import type { CosmosSdkChainId } from '@shapeshiftmonorepo/types'
+import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
   BTCSignTx,
   ETHSignTypedData,
@@ -23,6 +9,20 @@ import type {
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type {
+  EvmTransactionRequest,
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+} from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  isExecutableTradeQuote,
+  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
+  SolanaLogsError,
+  SwapperName,
+  TradeExecutionEvent,
+} from '@shapeshiftoss/swapper'
+import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'

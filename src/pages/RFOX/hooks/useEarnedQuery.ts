@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { skipToken } from '@tanstack/react-query'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'

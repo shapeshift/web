@@ -8,10 +8,10 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftmonorepo/caip'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

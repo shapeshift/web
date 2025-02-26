@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
 

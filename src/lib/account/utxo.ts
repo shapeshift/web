@@ -1,10 +1,10 @@
-import { toAccountId } from '@shapeshiftmonorepo/caip'
-import { utxoChainIds } from '@shapeshiftmonorepo/chain-adapters'
-import type { AccountMetadataById, UtxoChainId } from '@shapeshiftmonorepo/types'
-import { UtxoAccountType } from '@shapeshiftmonorepo/types'
+import { toAccountId } from '@shapeshiftoss/caip'
+import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 

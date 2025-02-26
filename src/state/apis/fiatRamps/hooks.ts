@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'

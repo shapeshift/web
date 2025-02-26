@@ -1,6 +1,6 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import qs from 'qs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'

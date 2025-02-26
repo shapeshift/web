@@ -1,15 +1,15 @@
-import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   FoxEthStakingContract,
   FoxEthStakingContractAbi,
   KnownContractAddress,
-} from '@shapeshiftmonorepo/contracts'
+} from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_POOL_CONTRACT,
   fetchUniV2PairData,
   getOrCreateContractByAddress,
-} from '@shapeshiftmonorepo/contracts'
-import type { MarketData } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/contracts'
+import type { MarketData } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 

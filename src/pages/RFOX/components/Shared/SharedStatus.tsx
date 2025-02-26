@@ -1,5 +1,5 @@
 import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
-import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
 import React from 'react'

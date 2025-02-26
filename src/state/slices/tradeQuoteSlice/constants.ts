@@ -1,4 +1,4 @@
-import { TradeQuoteError } from '@shapeshiftmonorepo/swapper'
+import { TradeQuoteError } from '@shapeshiftoss/swapper'
 
 import type { TradeQuoteSliceState } from './types'
 import { HopExecutionState, TradeExecutionState, TransactionExecutionState } from './types'

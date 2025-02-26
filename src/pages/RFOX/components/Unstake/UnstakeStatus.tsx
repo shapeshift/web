@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'

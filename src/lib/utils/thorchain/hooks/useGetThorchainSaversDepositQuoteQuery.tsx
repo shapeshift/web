@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

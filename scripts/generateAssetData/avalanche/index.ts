@@ -1,6 +1,6 @@
-import { avalancheChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { avax, unfreeze } from '@shapeshiftmonorepo/utils'
+import { avalancheChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { avax, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 

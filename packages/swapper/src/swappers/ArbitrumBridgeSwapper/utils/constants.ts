@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { bn } from '@shapeshiftmonorepo/utils'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
 
 import type { SupportedChainIds } from '../../../types'
 import { BRIDGE_TYPE } from '../types'

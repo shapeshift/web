@@ -1,4 +1,4 @@
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { TradeQuote, TradeRate } from '../../types'
 import type { TradeType } from './utils/longTailHelpers'

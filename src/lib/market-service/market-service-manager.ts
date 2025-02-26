@@ -1,12 +1,12 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { isNft } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
 
 // import { Yearn } from '@yfi/sdk'

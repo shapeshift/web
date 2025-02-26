@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Center, Flex, HStack } from '@chakra-ui/react'
-import { TransferType } from '@shapeshiftmonorepo/unchained-client'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

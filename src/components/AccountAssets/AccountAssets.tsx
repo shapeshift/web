@@ -1,6 +1,6 @@
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 
 import { AccountAssetsList } from './AccountAssetsList'
 

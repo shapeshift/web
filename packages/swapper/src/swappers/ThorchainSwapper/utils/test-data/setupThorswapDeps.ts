@@ -1,7 +1,7 @@
-import { ethAssetId } from '@shapeshiftmonorepo/caip'
-import type { evm, EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { vi } from 'vitest'
 
 const feeData = {

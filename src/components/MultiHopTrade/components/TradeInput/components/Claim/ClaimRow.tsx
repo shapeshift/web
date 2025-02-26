@@ -1,4 +1,4 @@
-import { fromBaseUnit } from '@shapeshiftmonorepo/utils'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

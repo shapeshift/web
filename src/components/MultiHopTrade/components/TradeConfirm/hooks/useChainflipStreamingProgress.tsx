@@ -1,4 +1,4 @@
-import type { ChainFlipStatus, TradeQuote, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
+import type { ChainFlipStatus, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo } from 'react'
 

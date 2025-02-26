@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   btcAssetId,
@@ -9,9 +9,9 @@ import {
   usdcOnArbitrumOneAssetId,
   usdcOnSolanaAssetId,
   usdtAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { SupportedChainIds, SwapSource } from '../../types'
 import { SwapperName } from '../../types'

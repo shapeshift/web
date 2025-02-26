@@ -1,4 +1,4 @@
-import { btcAssetId, ethAssetId } from '@shapeshiftmonorepo/caip'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { assetIdToPoolAssetId, poolAssetIdToAssetId } from './poolAssetHelpers'

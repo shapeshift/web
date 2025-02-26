@@ -10,7 +10,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import isUndefined from 'lodash/isUndefined'
 import { useCallback, useMemo } from 'react'
 import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'

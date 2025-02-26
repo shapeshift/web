@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { ChainAdapterError } from '@shapeshiftmonorepo/chain-adapters'
+import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 

@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { assertUnreachable } from '@shapeshiftmonorepo/utils'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'

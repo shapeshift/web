@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback } from 'react'
 import { MemoryRouter } from 'react-router-dom'

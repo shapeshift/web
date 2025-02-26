@@ -1,13 +1,13 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, OrderQuoteResponse } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset, OrderQuoteResponse } from '@shapeshiftoss/types'
 import {
   bn,
   bnOrZero,
   convertBasisPointsToDecimalPercentage,
   convertPrecision,
   fromBaseUnit,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 

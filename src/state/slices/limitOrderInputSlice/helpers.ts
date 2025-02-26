@@ -1,4 +1,4 @@
-import { assertUnreachable } from '@shapeshiftmonorepo/utils'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 
 import { ExpiryOption, PriceDirection } from './constants'

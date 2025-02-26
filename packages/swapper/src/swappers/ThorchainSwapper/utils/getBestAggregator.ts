@@ -3,8 +3,8 @@ import {
   UNISWAP_V3_QUOTER_ABI,
   UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
   viemClientByChainId,
-} from '@shapeshiftmonorepo/contracts'
-import type { Asset, EvmChainId } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/contracts'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { Token } from '@uniswap/sdk-core'
 import type { FeeAmount } from '@uniswap/v3-sdk'

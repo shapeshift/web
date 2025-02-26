@@ -14,11 +14,11 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import { assertAndProcessMemo } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'

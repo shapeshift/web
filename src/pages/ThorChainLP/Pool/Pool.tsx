@@ -15,9 +15,9 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { poolAssetIdToAssetId, SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { poolAssetIdToAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'

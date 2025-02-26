@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { toAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 

@@ -1,7 +1,7 @@
 import { Box, Container, Heading, Image, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
-import { bn, bnOrZero } from '@shapeshiftmonorepo/utils'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId } from '@shapeshiftoss/caip'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

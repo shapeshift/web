@@ -1,7 +1,7 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { Bip44Params, RootBip44Params, UtxoChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftmonorepo/types'
-import type * as unchained from '@shapeshiftmonorepo/unchained-client'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Bip44Params, RootBip44Params, UtxoChainId } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import type {
   BTCSignTxInput,
   BTCSignTxOutput,

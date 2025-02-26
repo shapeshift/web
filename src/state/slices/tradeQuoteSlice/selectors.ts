@@ -1,18 +1,18 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
 import type {
   ProtocolFee,
   SupportedTradeQuoteStepIndex,
   TradeQuote,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
   getHopByIndex,
   isAutoSlippageSupportedBySwapper,
   SwapperName,
-} from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 

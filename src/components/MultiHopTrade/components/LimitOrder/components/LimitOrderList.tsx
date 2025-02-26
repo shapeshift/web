@@ -14,10 +14,10 @@ import {
   Tabs,
   VStack,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import { cowSwapTokenToAssetId } from '@shapeshiftmonorepo/swapper'
-import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftmonorepo/types'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
+import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'

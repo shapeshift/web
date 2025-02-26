@@ -1,5 +1,5 @@
-import type { AssetNamespace, ChainId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE, fromChainId } from '@shapeshiftmonorepo/caip'
+import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 
 export * from './bignumber'
 export * from './bip44'

@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftmonorepo/caip'
-import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
 import { arbitrum } from 'viem/chains'
 

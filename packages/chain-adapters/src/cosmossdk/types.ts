@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { CosmosSdkChainId } from '@shapeshiftmonorepo/types'
-import type * as unchained from '@shapeshiftmonorepo/unchained-client'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainId } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 
 import type * as types from '../types'
 

@@ -1,6 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import type { SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { PartialRecord } from '@shapeshiftmonorepo/types'
+import type { SwapperName } from '@shapeshiftoss/swapper'
+import type { PartialRecord } from '@shapeshiftoss/types'
 
 import type { TradeQuoteOrRateRequest } from './types'
 

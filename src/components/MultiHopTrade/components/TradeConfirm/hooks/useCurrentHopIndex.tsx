@@ -1,4 +1,4 @@
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftmonorepo/swapper'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 
 import {
   selectActiveQuote,

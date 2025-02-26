@@ -1,6 +1,6 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import dayjs from 'dayjs'
 import qs from 'qs'

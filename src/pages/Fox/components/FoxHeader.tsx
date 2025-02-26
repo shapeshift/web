@@ -1,5 +1,5 @@
 import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

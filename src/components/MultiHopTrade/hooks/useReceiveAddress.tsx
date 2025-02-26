@@ -1,7 +1,7 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { Asset } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

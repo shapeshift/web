@@ -14,8 +14,8 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'

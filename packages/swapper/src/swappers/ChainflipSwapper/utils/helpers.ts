@@ -1,7 +1,7 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 

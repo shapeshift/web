@@ -1,4 +1,4 @@
-import type { PartialRecord } from '@shapeshiftmonorepo/types'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 
 import type { WalletConnectAction, WalletConnectState } from '@/plugins/walletConnectToDapps/types'

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   adapters,
   arbitrumAssetId,
@@ -10,8 +10,8 @@ import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
   optimismAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import {
   createThrottle,
   decodeAssetData,
@@ -19,7 +19,7 @@ import {
   encodeAssetData,
   encodeRelatedAssetIndex,
   isEvmChainId,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'

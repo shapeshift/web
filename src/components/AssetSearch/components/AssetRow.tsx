@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import type { ListChildComponentProps } from 'react-window'

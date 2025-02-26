@@ -1,6 +1,6 @@
-import { bscChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { bnbsmartchain, unfreeze } from '@shapeshiftmonorepo/utils'
+import { bscChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { bnbsmartchain, unfreeze } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import uniqBy from 'lodash/uniqBy'
 

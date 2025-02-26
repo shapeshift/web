@@ -1,5 +1,5 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { PartialRecord } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { PartialRecord } from '@shapeshiftoss/types'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'

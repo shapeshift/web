@@ -1,5 +1,5 @@
-import type { TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 
 import { useChainflipStreamingProgress } from './useChainflipStreamingProgress'
 import { useThorStreamingProgress } from './useThorStreamingProgress'

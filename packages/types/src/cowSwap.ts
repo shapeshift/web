@@ -1,4 +1,4 @@
-import type { Nominal } from '@shapeshiftmonorepo/caip'
+import type { Nominal } from '@shapeshiftoss/caip'
 import type { TypedDataField } from 'ethers5'
 import type { Address } from 'viem'
 

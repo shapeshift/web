@@ -1,6 +1,6 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import type { AccountMetadata } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { getThorchainFromAddress } from '..'

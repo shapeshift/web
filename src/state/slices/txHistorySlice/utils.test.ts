@@ -1,4 +1,4 @@
-import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
+import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { getRelatedAssetIds } from './utils'

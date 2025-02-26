@@ -1,5 +1,5 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import type { ParamType, TransactionDescription } from 'ethers'
 import startCase from 'lodash/startCase'
 import type { FC } from 'react'

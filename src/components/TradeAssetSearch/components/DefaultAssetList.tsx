@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { useGetPopularAssetsQuery } from '../hooks/useGetPopularAssetsQuery'

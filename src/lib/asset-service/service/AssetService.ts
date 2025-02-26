@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   adapters,
   arbitrumChainId,
@@ -9,8 +9,8 @@ import {
   optimismChainId,
   polygonChainId,
   solanaChainId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset, AssetsById } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
 import Polyglot from 'node-polyglot'
 

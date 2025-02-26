@@ -1,8 +1,8 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { bn, convertPrecision } from '@shapeshiftmonorepo/utils'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { bn, convertPrecision } from '@shapeshiftoss/utils'
 import { Err, Ok } from '@sniptt/monads'
 import { getAddress } from 'viem'
 

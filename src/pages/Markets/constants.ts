@@ -1,4 +1,4 @@
-import type { MarketData } from '@shapeshiftmonorepo/types'
+import type { MarketData } from '@shapeshiftoss/types'
 
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 

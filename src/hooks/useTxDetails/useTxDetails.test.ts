@@ -1,4 +1,4 @@
-import { TradeType, TransferType } from '@shapeshiftmonorepo/unchained-client'
+import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'

@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
 import dayjs from 'dayjs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

@@ -1,5 +1,5 @@
 import { Button, Skeleton, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'

@@ -8,7 +8,7 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

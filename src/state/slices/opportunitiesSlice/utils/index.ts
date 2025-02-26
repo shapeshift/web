@@ -1,6 +1,6 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from '../constants'
 import type {

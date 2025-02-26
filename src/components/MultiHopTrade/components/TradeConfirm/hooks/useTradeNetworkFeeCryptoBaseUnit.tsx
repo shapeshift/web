@@ -1,13 +1,13 @@
-import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftmonorepo/caip'
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftmonorepo/swapper'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   swappers,
-} from '@shapeshiftmonorepo/swapper'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+} from '@shapeshiftoss/swapper'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

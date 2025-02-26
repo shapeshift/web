@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'

@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, IconButton } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftmonorepo/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

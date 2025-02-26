@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { MemoryRouter } from 'react-router-dom'
 
 import { Form } from './Form'

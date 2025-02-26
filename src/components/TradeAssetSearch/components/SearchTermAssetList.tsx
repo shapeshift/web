@@ -1,8 +1,8 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { isNft, solanaChainId, toAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
-import type { MinimalAsset } from '@shapeshiftmonorepo/utils'
-import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftmonorepo/utils'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { MinimalAsset } from '@shapeshiftoss/utils'
+import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 

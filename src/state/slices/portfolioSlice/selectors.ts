@@ -1,12 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   AccountMetadata,
   AccountMetadataById,
   Bip44Params,
   PartialRecord,
-} from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'

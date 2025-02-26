@@ -10,8 +10,8 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { isValidElement, useCallback, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'

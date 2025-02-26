@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import type { EvmChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { assertUnreachable } from '@shapeshiftmonorepo/utils'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
 

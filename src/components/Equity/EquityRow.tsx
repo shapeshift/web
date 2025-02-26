@@ -1,6 +1,6 @@
 import type { ButtonProps, GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'

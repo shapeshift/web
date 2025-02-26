@@ -1,6 +1,6 @@
 import { CardFooter } from '@chakra-ui/react'
-import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 

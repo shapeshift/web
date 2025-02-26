@@ -9,8 +9,8 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 

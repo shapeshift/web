@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainAdapterError } from '@shapeshiftmonorepo/chain-adapters'
-import { SolanaLogsError } from '@shapeshiftmonorepo/swapper'
+import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
+import { SolanaLogsError } from '@shapeshiftoss/swapper'
 import camelCase from 'lodash/camelCase'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'

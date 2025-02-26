@@ -9,8 +9,8 @@ import {
   MenuOptionGroup,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

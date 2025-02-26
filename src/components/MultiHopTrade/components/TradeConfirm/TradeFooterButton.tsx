@@ -8,8 +8,8 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
-import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

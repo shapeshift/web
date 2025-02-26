@@ -9,8 +9,8 @@ import {
   HStack,
   Stack,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { CowSwapError } from '@shapeshiftmonorepo/types'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { CowSwapError } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'

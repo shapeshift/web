@@ -1,4 +1,4 @@
-import { ethChainId } from '@shapeshiftmonorepo/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'

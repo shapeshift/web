@@ -1,4 +1,4 @@
-import { adapters, fromAssetId } from '@shapeshiftmonorepo/caip'
+import { adapters, fromAssetId } from '@shapeshiftoss/caip'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'

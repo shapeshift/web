@@ -1,6 +1,6 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

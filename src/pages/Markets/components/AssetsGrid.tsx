@@ -1,6 +1,6 @@
 import { GridItem, useMediaQuery } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useHistory } from 'react-router-dom'

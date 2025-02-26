@@ -1,10 +1,10 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
-import type { FoxEthStakingContractAddress } from '@shapeshiftmonorepo/contracts'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_STAKING_EVERGREEN_CONTRACT,
   foxEthStakingContractAddresses,
-} from '@shapeshiftmonorepo/contracts'
+} from '@shapeshiftoss/contracts'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
 import { DefiProvider } from './types'

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 

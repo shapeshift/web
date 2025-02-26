@@ -1,7 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import type { GetEvmTradeQuoteInput } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 
 export type ArbitrumBridgeTradeQuoteInput = Omit<
   GetEvmTradeQuoteInput,

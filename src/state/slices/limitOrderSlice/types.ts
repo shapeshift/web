@@ -1,5 +1,5 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import type { OrderQuoteResponse, QuoteId, UnsignedOrderCreation } from '@shapeshiftmonorepo/types'
+import type { OrderQuoteResponse, QuoteId, UnsignedOrderCreation } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { ApprovalExecutionMetadata, TransactionExecutionState } from '../tradeQuoteSlice/types'

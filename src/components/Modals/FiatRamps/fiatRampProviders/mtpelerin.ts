@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { adapters } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
 import type { CommonFiatCurrencies } from '../config'

@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Center, Heading, Stack } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

@@ -1,4 +1,4 @@
-import { ethAssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it, vi } from 'vitest'
 
 import { mapMixpanelPathname } from './helpers'

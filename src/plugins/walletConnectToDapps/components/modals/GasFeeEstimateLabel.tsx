@@ -1,5 +1,5 @@
 import { HStack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

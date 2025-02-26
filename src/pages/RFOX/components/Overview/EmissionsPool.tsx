@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { bn } from '@shapeshiftmonorepo/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

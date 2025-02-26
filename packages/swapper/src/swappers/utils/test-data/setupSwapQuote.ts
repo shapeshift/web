@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { GetTradeQuoteInput, TradeQuote, TradeRate } from '../../../types'
 import { SwapperName } from '../../../types'

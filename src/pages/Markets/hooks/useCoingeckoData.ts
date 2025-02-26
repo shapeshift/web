@@ -1,6 +1,6 @@
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { AssetsByIdPartial, MarketData } from '@shapeshiftmonorepo/types'
-import { bnOrZero, makeAsset } from '@shapeshiftmonorepo/utils'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
+import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { marketDataBySortKey, MarketsCategories } from '../constants'

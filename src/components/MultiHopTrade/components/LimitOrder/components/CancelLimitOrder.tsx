@@ -14,9 +14,9 @@ import {
   Progress,
   Stack,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'

@@ -1,4 +1,4 @@
-import { bn } from '@shapeshiftmonorepo/utils'
+import { bn } from '@shapeshiftoss/utils'
 
 import { THORCHAIN_AFFILIATE_NAME } from '../../swappers/ThorchainSwapper/utils/constants'
 

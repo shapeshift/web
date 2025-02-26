@@ -1,5 +1,5 @@
-import type { Bip44Params } from '@shapeshiftmonorepo/types'
 import { addressNListToBIP32, bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
+import type { Bip44Params } from '@shapeshiftoss/types'
 
 export const toRootDerivationPath = (bip44Params: Bip44Params): string => {
   const { purpose, coinType, accountNumber } = bip44Params

@@ -1,11 +1,5 @@
-import type { ToAssetIdArgs } from '@shapeshiftmonorepo/caip'
-import {
-  ethChainId,
-  foxyAssetId,
-  fromAccountId,
-  fromAssetId,
-  toAssetId,
-} from '@shapeshiftmonorepo/caip'
+import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 
 import type {

@@ -21,7 +21,7 @@ import {
   fromAssetId,
   thorchainAssetId,
   uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

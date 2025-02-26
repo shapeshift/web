@@ -1,13 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { foxWifHatAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
-import type { GetTradeRateInput, TradeRate } from '@shapeshiftmonorepo/swapper'
+import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isThorTradeRate,
   SwapperName,
   swappers,
-} from '@shapeshiftmonorepo/swapper'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+} from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 

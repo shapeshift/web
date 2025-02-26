@@ -1,20 +1,14 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import {
-  ethAssetId,
-  ethChainId,
-  fromAccountId,
-  fromAssetId,
-  toAssetId,
-} from '@shapeshiftmonorepo/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import {
   ContractType,
   getOrCreateContractByAddress,
   getOrCreateContractByType,
   UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
   WETH_TOKEN_CONTRACT,
-} from '@shapeshiftmonorepo/contracts'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/contracts'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'

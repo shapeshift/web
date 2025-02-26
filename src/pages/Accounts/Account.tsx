@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom'
 
 import { AccountToken } from './AccountToken/AccountToken'

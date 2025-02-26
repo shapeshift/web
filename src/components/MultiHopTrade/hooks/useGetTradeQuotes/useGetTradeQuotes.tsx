@@ -1,20 +1,20 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
-import { foxWifHatAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
   LifiTradeRate,
   TradeQuote,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
   isThorTradeQuote,
   SwapperName,
   swappers,
-} from '@shapeshiftmonorepo/swapper'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+} from '@shapeshiftoss/swapper'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 

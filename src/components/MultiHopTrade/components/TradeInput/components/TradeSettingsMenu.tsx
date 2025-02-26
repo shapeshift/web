@@ -1,5 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
-import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftmonorepo/swapper'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 
 import { SlippagePopover } from '../../SlippagePopover'

@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import type { FiatRamp } from '@/components/Modals/FiatRamps/config'
 import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'

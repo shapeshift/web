@@ -1,6 +1,6 @@
-import { cosmos } from '@shapeshiftmonorepo/chain-adapters'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import * as unchained from '@shapeshiftmonorepo/unchained-client'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
+import { cosmos } from '@shapeshiftoss/chain-adapters'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { getConfig } from '@/config'

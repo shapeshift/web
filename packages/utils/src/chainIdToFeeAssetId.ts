@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   arbitrumNovaAssetId,
@@ -16,8 +16,8 @@ import {
   polygonAssetId,
   solAssetId,
   thorchainAssetId,
-} from '@shapeshiftmonorepo/caip'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from './assertUnreachable'
 

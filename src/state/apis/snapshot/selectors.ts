@@ -1,6 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import { ethChainId, foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import { ethChainId, foxWifHatAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'

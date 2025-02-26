@@ -1,9 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type {
-  GetTradeQuoteInput,
-  GetTradeRateInput,
-  SwapperName,
-} from '@shapeshiftmonorepo/swapper'
+import type { GetTradeQuoteInput, GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 
 import { swapperApi, useGetTradeQuoteQuery } from '@/state/apis/swapper/swapperApi'

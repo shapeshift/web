@@ -1,5 +1,5 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'

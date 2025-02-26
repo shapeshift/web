@@ -8,8 +8,8 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

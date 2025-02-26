@@ -12,7 +12,7 @@ import {
   useColorModeValue,
   useOutsideClick,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'

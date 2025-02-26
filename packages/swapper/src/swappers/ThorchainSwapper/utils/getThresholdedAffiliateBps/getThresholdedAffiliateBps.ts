@@ -1,9 +1,9 @@
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import {
   bn,
   convertBasisPointsToDecimalPercentage,
   convertPrecision,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 
 import type { SwapperConfig } from '../../../../types'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'

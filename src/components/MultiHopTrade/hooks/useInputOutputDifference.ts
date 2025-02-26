@@ -1,10 +1,6 @@
-import type {
-  SupportedTradeQuoteStepIndex,
-  TradeQuote,
-  TradeRate,
-} from '@shapeshiftmonorepo/swapper'
-import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
+import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import { selectUsdRateByAssetId } from '@/state/slices/selectors'

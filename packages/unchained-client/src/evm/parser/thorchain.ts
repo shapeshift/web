@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../generated/ethereum'

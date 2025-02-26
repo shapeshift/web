@@ -1,9 +1,9 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
   uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 

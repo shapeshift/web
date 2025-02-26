@@ -1,9 +1,9 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   RFOX_PROXY_CONTRACT,
   RFOX_REWARD_RATE,
   RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
-} from '@shapeshiftmonorepo/contracts'
+} from '@shapeshiftoss/contracts'
 
 import { getStakingContract } from '../helpers'
 import type { CurrentEpochMetadata } from '../types'

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import { SUPPORTED_CHAIN_IDS } from '../../../cowswap-utils/constants'
 import type { BuyAssetBySellIdInput } from '../../../types'

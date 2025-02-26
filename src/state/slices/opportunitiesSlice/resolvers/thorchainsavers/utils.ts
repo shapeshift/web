@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   bchAssetId,
@@ -12,9 +12,9 @@ import {
   fromAssetId,
   ltcAssetId,
   thorchainAssetId,
-} from '@shapeshiftmonorepo/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'

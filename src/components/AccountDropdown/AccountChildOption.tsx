@@ -1,6 +1,6 @@
 import type { MenuItemOptionProps } from '@chakra-ui/react'
 import { forwardRef, MenuItemOption, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'

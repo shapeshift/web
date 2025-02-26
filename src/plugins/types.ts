@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import type { ChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { Route } from '@/Routes/helpers'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'

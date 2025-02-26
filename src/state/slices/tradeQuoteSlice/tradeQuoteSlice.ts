@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
+import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 

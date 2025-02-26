@@ -1,13 +1,10 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   foxAssetId,
   foxOnArbitrumOneAssetId,
   uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftmonorepo/caip'
-import {
-  RFOX_PROXY_CONTRACT,
-  RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
-} from '@shapeshiftmonorepo/contracts'
+} from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT, RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { invert } from 'lodash'
 
 import type { EpochWithIpfsHash } from './hooks/useEpochHistoryQuery'

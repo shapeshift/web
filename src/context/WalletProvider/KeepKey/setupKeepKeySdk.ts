@@ -1,6 +1,6 @@
 import type { PairingInfo } from '@keepkey/keepkey-sdk'
 import { KeepKeySdk } from '@keepkey/keepkey-sdk'
-import { foxAssetId } from '@shapeshiftmonorepo/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 
 import { store } from '@/state/store'
 

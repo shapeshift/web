@@ -1,6 +1,6 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Text } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'

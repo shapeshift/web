@@ -9,10 +9,10 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { bchChainId, fromAccountId, thorchainAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

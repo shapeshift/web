@@ -1,16 +1,16 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   bchChainId,
   cosmosChainId,
   fromAccountId,
   fromAssetId,
   thorchainChainId,
-} from '@shapeshiftmonorepo/caip'
-import type { MidgardActionsResponse, ThornodeStatusResponse } from '@shapeshiftmonorepo/swapper'
-import { thorService } from '@shapeshiftmonorepo/swapper'
-import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { MidgardActionsResponse, ThornodeStatusResponse } from '@shapeshiftoss/swapper'
+import { thorService } from '@shapeshiftoss/swapper'
+import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import dayjs from 'dayjs'

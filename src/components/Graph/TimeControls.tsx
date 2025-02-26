@@ -1,5 +1,5 @@
 import type { ButtonGroupProps } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { memo } from 'react'
 
 import { Radio } from '@/components/Radio/Radio'

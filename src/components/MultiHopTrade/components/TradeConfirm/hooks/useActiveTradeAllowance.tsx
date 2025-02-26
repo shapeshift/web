@@ -1,4 +1,4 @@
-import type { TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 
 import { useAllowanceApproval } from './useAllowanceApproval'

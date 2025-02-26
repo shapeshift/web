@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { fromChainId, toAssetId } from '@shapeshiftmonorepo/caip'
-import { WETH_ABI, WETH_TOKEN_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { WETH_ABI, WETH_TOKEN_CONTRACT } from '@shapeshiftoss/contracts'
 import assert from 'assert'
 import { ethers } from 'ethers'
 

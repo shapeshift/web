@@ -5,7 +5,7 @@ import {
   ethChainId,
   ltcAssetId,
   ltcChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import type { ParseAddressByChainIdOutput } from './address'

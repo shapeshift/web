@@ -1,4 +1,4 @@
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'

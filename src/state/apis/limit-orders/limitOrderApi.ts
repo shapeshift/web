@@ -1,6 +1,7 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   assertGetCowNetwork,
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -10,7 +11,7 @@ import {
   signCowMessage,
   signCowOrder,
   signCowOrderCancellation,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import type {
   CowSwapError,
   Order,
@@ -22,7 +23,7 @@ import type {
   OrderStatus,
   QuoteId,
   Trade,
-} from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/types'
 import {
   EcdsaSigningScheme,
   OrderClass,
@@ -30,8 +31,7 @@ import {
   PriceQuality,
   SellTokenSource,
   SigningScheme,
-} from '@shapeshiftmonorepo/types'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { TypedData } from 'eip-712'

@@ -1,7 +1,7 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, HistoryData } from '@shapeshiftmonorepo/types'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { Asset, HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { Bucket } from './useBalanceChartData'

@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { getEthersProvider } from '@shapeshiftmonorepo/contracts'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getEthersProvider } from '@shapeshiftoss/contracts'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { ethers, Fragment } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'

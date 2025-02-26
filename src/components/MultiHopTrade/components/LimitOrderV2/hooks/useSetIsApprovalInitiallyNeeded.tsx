@@ -1,4 +1,4 @@
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftmonorepo/swapper'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'

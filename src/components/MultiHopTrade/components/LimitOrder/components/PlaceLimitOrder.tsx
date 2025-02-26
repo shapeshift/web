@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, CardFooter, useMediaQuery } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 

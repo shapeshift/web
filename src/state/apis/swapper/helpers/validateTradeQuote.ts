@@ -1,19 +1,19 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   ProtocolFee,
   SwapErrorRight,
   ThorTradeQuote,
   TradeQuote,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
-} from '@shapeshiftmonorepo/swapper'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { getChainShortName } from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from '@shapeshiftoss/utils'
 
 import type { ErrorWithMeta, TradeQuoteError } from '../types'
 import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'

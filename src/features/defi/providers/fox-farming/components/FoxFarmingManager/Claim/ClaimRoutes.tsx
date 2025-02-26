@@ -1,5 +1,5 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { toAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'

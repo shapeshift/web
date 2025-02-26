@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -8,7 +8,7 @@ import {
   gnosisChainId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [
   // shapeshift supported

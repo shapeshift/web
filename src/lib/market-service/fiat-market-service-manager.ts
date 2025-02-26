@@ -1,4 +1,4 @@
-import type { HistoryData, MarketData } from '@shapeshiftmonorepo/types'
+import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 
 import { FiatMarketProviders } from './fiat-market-providers'
 import type {

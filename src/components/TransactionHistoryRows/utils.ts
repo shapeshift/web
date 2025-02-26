@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { TransferType, TxMetadata } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { memoize } from 'lodash'
 import { maxUint256 } from 'viem'
 

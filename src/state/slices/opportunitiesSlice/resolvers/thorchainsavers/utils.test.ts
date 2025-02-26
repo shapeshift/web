@@ -1,4 +1,4 @@
-import { btcAssetId } from '@shapeshiftmonorepo/caip'
+import { btcAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it, vi } from 'vitest'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'

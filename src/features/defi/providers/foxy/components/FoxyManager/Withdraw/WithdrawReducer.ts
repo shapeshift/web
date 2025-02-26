@@ -1,4 +1,4 @@
-import { KnownChainIds, WithdrawType } from '@shapeshiftmonorepo/types'
+import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 
 import type { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
 import { FoxyWithdrawActionType } from './WithdrawCommon'

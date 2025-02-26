@@ -1,5 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { Bip44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftmonorepo/types'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Bip44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type {
   Account,

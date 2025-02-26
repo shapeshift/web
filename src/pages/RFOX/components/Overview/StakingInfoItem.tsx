@@ -1,6 +1,6 @@
 import { Flex, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

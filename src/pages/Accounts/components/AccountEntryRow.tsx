@@ -1,6 +1,6 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'

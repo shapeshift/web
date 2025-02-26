@@ -1,6 +1,6 @@
 import { HStack, Link, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'

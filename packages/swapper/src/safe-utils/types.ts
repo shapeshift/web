@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 
 export type SafeTxInfo = {
   transaction: SafeMultisigTransactionSuccess | null

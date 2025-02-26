@@ -1,6 +1,6 @@
 import { Link } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useChainflipSwapIdQuery } from '@/hooks/queries/useChainflipSwapIdQuery'

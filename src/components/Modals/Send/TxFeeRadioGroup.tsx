@@ -1,7 +1,7 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Box, Button, Radio, Spinner, Stack, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Property } from 'csstype'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 

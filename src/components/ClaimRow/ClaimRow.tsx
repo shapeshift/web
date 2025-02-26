@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { TransferType } from '@shapeshiftmonorepo/unchained-client'
+import type { Asset } from '@shapeshiftoss/types'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 
 import { ClaimStatus } from './types'

@@ -1,4 +1,4 @@
-import type { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
+import type { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { Address, Log, ReadContractReturnType } from 'viem'
 
 import type { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from './constants'

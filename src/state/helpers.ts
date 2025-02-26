@@ -1,4 +1,4 @@
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 

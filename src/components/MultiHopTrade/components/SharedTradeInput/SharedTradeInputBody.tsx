@@ -7,8 +7,8 @@ import {
   IconButton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 

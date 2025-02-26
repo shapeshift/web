@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ImportAccounts } from './components/ImportAccounts'

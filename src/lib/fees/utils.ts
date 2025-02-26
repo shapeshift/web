@@ -1,5 +1,5 @@
-import { getEthersProvider } from '@shapeshiftmonorepo/contracts'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getEthersProvider } from '@shapeshiftoss/contracts'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 export const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 

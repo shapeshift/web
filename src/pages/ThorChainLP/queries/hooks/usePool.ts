@@ -1,8 +1,8 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import type { MidgardPoolResponse } from '@shapeshiftmonorepo/swapper'
-import { poolAssetIdToAssetId, thorchainSellSupportedChainIds } from '@shapeshiftmonorepo/swapper'
-import type { AssetsByIdPartial } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { MidgardPoolResponse } from '@shapeshiftoss/swapper'
+import { poolAssetIdToAssetId, thorchainSellSupportedChainIds } from '@shapeshiftoss/swapper'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 

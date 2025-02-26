@@ -13,11 +13,11 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import { FeeDataKey, isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'

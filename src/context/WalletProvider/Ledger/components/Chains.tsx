@@ -15,8 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { ethChainId, fromAccountId, fromChainId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

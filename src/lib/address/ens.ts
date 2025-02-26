@@ -1,4 +1,4 @@
-import { viemEthMainnetClient } from '@shapeshiftmonorepo/contracts'
+import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
 

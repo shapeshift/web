@@ -1,6 +1,6 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { bn } from '@shapeshiftmonorepo/chain-adapters'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 
 import { EmissionsPool } from './EmissionsPool'

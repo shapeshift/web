@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -11,8 +11,7 @@ import {
   optimismChainId,
   polygonChainId,
   toAccountId,
-} from '@shapeshiftmonorepo/caip'
-import type { AccountMetadataById } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
 import {
   supportsArbitrum,
   supportsArbitrumNova,
@@ -25,6 +24,7 @@ import {
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 

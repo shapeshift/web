@@ -1,5 +1,5 @@
 import { Alert, AlertIcon } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

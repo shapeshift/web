@@ -1,5 +1,5 @@
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { FeePrice } from '@/components/Modals/Send/views/Confirm'

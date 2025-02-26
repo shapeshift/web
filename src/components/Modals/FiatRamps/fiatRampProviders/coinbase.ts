@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { foxAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 
 import type { CommonFiatCurrencies } from '../config'
 import type { CreateUrlProps } from '../types'

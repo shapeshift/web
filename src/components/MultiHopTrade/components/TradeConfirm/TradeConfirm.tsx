@@ -1,5 +1,5 @@
 import { Stepper } from '@chakra-ui/react'
-import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftmonorepo/swapper'
+import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 

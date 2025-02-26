@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   ethAssetId,
@@ -8,9 +8,9 @@ import {
   fromAssetId,
   gnosisAssetId,
   polygonAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset, AssetsById } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   atom,
   bitcoin,
@@ -23,7 +23,7 @@ import {
   litecoin,
   thorchain,
   unfreeze,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'

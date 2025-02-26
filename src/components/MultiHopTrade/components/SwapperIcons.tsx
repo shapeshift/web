@@ -1,9 +1,9 @@
 import { Center } from '@chakra-ui/react'
-import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import { AnimatePresence } from 'framer-motion'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'

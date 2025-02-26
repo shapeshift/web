@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 
 import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
 import type { BigNumber } from '@/lib/bignumber/bignumber'

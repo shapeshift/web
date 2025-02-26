@@ -1,7 +1,7 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { ProtocolFee } from '@shapeshiftmonorepo/swapper'
-import { testData } from '@shapeshiftmonorepo/swapper'
-import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftmonorepo/utils'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { ProtocolFee } from '@shapeshiftoss/swapper'
+import { testData } from '@shapeshiftoss/swapper'
+import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
 

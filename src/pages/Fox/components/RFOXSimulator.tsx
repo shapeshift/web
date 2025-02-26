@@ -1,7 +1,7 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

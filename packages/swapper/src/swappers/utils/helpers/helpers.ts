@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   avalancheAssetId,
@@ -9,9 +9,9 @@ import {
   gnosisAssetId,
   optimismAssetId,
   polygonAssetId,
-} from '@shapeshiftmonorepo/caip'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import type { EvmTreasuryChainId } from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type { EvmTreasuryChainId } from '@shapeshiftoss/utils'
 import {
   DAO_TREASURY_ARBITRUM,
   DAO_TREASURY_AVALANCHE,
@@ -22,7 +22,7 @@ import {
   DAO_TREASURY_OPTIMISM,
   DAO_TREASURY_POLYGON,
   isEvmTreasuryChainId,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
   const { chainId } = fromAssetId(assetId)

@@ -7,7 +7,7 @@ import {
   ethAssetId,
   optimismAssetId,
   polygonAssetId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import { describe, expect, it, vi } from 'vitest'
 
 import { accountIdToLabel, findAccountsByAssetId } from '.'

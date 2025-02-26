@@ -9,7 +9,7 @@ import {
   Stepper,
   StepStatus,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type Polyglot from 'node-polyglot'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

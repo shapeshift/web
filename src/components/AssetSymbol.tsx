@@ -1,5 +1,5 @@
 import type { TextProps } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import { RawText } from './Text'
 

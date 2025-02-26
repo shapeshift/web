@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvent, TrackOpportunityProps } from './types'

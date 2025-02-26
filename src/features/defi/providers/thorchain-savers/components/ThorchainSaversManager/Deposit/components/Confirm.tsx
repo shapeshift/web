@@ -9,12 +9,12 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { isUtxoChainId } from '@shapeshiftmonorepo/utils'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

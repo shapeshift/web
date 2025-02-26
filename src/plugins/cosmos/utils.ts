@@ -1,5 +1,5 @@
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 

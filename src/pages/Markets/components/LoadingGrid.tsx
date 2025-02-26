@@ -1,5 +1,5 @@
 import { GridItem, Skeleton } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { noop } from 'lodash'
 
 import { AssetCard } from './AssetCard'

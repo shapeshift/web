@@ -1,5 +1,5 @@
-import { ethChainId } from '@shapeshiftmonorepo/caip'
-import type { OrderQuoteResponse } from '@shapeshiftmonorepo/types'
+import { ethChainId } from '@shapeshiftoss/caip'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'

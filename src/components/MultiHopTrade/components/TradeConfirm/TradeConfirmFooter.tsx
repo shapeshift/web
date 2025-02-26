@@ -1,5 +1,5 @@
 import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
-import type { TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 

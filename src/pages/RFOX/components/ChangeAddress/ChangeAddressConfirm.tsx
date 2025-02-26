@@ -10,9 +10,9 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
-import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

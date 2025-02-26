@@ -1,6 +1,6 @@
-import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { TransactionInstruction } from '@solana/web3.js'
 
 import type { GetUnsignedSolanaTransactionArgs, SwapperApi } from '../../types'

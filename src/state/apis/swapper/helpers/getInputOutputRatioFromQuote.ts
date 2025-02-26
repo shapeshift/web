@@ -1,12 +1,12 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   SupportedTradeQuoteStepIndex,
   SwapperName,
   TradeQuote,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
-import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'

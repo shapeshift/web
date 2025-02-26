@@ -15,12 +15,12 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftmonorepo/caip'
-import { viemEthMainnetClient } from '@shapeshiftmonorepo/contracts'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

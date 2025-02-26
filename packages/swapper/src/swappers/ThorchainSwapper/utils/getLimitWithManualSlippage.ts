@@ -1,5 +1,5 @@
-import { bn } from '@shapeshiftmonorepo/chain-adapters'
-import { subtractBasisPointAmount } from '@shapeshiftmonorepo/utils'
+import { bn } from '@shapeshiftoss/chain-adapters'
+import { subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 
 export const getLimitWithManualSlippage = ({

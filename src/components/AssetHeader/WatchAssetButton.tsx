@@ -1,6 +1,6 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, Icon } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { FaRegStar, FaStar } from 'react-icons/fa'
 

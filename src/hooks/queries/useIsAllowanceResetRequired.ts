@@ -1,4 +1,4 @@
-import { ethChainId, fromAssetId, usdtAssetId } from '@shapeshiftmonorepo/caip'
+import { ethChainId, fromAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import type { UseIsApprovalRequiredProps } from './useIsAllowanceApprovalRequired'

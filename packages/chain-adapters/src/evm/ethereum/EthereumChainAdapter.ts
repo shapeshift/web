@@ -1,8 +1,8 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { ASSET_REFERENCE, ethAssetId } from '@shapeshiftmonorepo/caip'
-import type { RootBip44Params } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import * as unchained from '@shapeshiftmonorepo/unchained-client'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId } from '@shapeshiftoss/caip'
+import type { RootBip44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 
 import type { ValidAddressResult } from '../../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../../types'

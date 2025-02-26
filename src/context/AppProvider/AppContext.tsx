@@ -1,6 +1,6 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
-import type { LedgerOpenAppEventArgs } from '@shapeshiftmonorepo/chain-adapters'
-import { emitter } from '@shapeshiftmonorepo/chain-adapters'
+import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
+import { emitter } from '@shapeshiftoss/chain-adapters'
 import { useQueries } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -97,7 +97,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   useEffect(() => {
-    if (selectedLocale in LanguageTypeEnum ?? {}) {
+    if (selectedLocale in LanguageTypeEnum) {
       void import(`dayjs/locale/${selectedLocale}.js`)
     }
   }, [selectedLocale])

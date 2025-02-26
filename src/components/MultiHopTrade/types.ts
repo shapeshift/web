@@ -1,5 +1,5 @@
-import type { AccountMetadata, Asset } from '@shapeshiftmonorepo/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 
 export enum TradeRoutePaths {
   Input = '/trade/input',

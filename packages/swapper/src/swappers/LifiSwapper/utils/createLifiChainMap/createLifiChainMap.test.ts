@@ -1,5 +1,5 @@
 import { ChainId as LifiChainId, ChainKey as LifiChainKey } from '@lifi/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
 
 import { createLifiChainMap } from './createLifiChainMap'

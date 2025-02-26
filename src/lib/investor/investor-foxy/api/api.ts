@@ -1,11 +1,11 @@
-import type { ChainReference } from '@shapeshiftmonorepo/caip'
-import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
+import type { ChainReference } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type {
   EvmBaseAdapter,
   FeeDataEstimate,
   GetFeeDataInput,
-} from '@shapeshiftmonorepo/chain-adapters'
-import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+} from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import {
   FOXY_ABI,
   FOXY_STAKING_ABI,
@@ -13,9 +13,9 @@ import {
   TOKE_MANAGER_ABI,
   TOKE_POOL_ABI,
   TOKE_REWARD_HASH_ABI,
-} from '@shapeshiftmonorepo/contracts'
-import type { EvmChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds, WithdrawType } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/contracts'
+import type { EvmChainId } from '@shapeshiftoss/types'
+import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
 import type { TransactionReceipt } from 'ethers'

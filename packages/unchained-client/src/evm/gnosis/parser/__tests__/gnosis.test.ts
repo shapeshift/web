@@ -1,4 +1,4 @@
-import { gnosisAssetId, gnosisChainId } from '@shapeshiftmonorepo/caip'
+import { gnosisAssetId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { describe, expect, it, vi } from 'vitest'
 

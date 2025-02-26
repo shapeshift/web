@@ -12,7 +12,7 @@ import {
   TagLabel,
   Tooltip,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'

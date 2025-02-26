@@ -1,5 +1,5 @@
 import { Box, Button, Flex, HStack, Tag, useDisclosure, VStack } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

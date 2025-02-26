@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -10,8 +10,8 @@ import {
   fromAssetId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftmonorepo/caip'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+} from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import cloneDeep from 'lodash/cloneDeep'
 import invert from 'lodash/invert'
 

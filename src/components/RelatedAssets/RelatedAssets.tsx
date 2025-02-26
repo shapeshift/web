@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'

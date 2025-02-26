@@ -1,6 +1,6 @@
 import { Card, CardHeader, Heading } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

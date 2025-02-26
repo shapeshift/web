@@ -1,9 +1,5 @@
-import type {
-  SupportedTradeQuoteStepIndex,
-  TradeQuote,
-  TradeRate,
-} from '@shapeshiftmonorepo/swapper'
-import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'

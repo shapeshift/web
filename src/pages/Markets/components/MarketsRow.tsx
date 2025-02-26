@@ -12,8 +12,8 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link, useHistory, useParams } from 'react-router-dom'

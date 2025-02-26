@@ -1,4 +1,4 @@
-import { ethChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { getUniqueAddressSubstring } from './getUniqueAddressSubstring'

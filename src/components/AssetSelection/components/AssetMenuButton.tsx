@@ -1,7 +1,7 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex, Text } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 
 import { getStyledMenuButtonProps } from '../helpers'

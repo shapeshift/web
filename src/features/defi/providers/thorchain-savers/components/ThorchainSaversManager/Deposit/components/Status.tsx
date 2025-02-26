@@ -1,8 +1,8 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { TxStatus as TxStatusType } from '@shapeshiftmonorepo/unchained-client'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 

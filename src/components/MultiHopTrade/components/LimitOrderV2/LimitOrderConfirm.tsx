@@ -1,5 +1,5 @@
 import { Button, HStack, Skeleton, Stack } from '@chakra-ui/react'
-import { bn, fromBaseUnit } from '@shapeshiftmonorepo/utils'
+import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'

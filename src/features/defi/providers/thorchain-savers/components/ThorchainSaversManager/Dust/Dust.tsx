@@ -1,6 +1,6 @@
 import { ArrowDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Avatar, Box, Button, Divider, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'

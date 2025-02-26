@@ -1,6 +1,6 @@
 import { Button, Divider, Flex, Link, Tag } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 

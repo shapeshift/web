@@ -8,8 +8,8 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 
 import Placeholder from '@/assets/placeholder.png'

@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'

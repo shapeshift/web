@@ -9,8 +9,8 @@ import {
   MenuList,
   MenuOptionGroup,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { bn } from '@shapeshiftmonorepo/utils'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

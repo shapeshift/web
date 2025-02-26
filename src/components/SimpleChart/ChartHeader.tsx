@@ -1,5 +1,5 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { UTCTimestamp } from 'lightweight-charts'
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react'
 import { useTranslate } from 'react-polyglot'

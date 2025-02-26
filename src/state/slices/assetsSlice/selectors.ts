@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { isSome } from '@shapeshiftmonorepo/utils'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'

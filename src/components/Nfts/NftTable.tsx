@@ -1,6 +1,6 @@
 import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

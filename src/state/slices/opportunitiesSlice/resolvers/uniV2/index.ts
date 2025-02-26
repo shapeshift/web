@@ -1,14 +1,14 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import {
   ContractType,
   fetchUniV2PairData,
   getEthersProvider,
   getOrCreateContractByType,
   WETH_TOKEN_CONTRACT,
-} from '@shapeshiftmonorepo/contracts'
-import type { MarketData } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/contracts'
+import type { MarketData } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import { getAddress } from 'viem'
 

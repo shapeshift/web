@@ -1,6 +1,6 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Box, Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 
 import { Address } from './Address'

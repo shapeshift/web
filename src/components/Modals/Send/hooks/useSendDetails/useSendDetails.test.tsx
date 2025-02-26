@@ -1,10 +1,10 @@
-import { btcAssetId, cosmosAssetId } from '@shapeshiftmonorepo/caip'
+import { btcAssetId, cosmosAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainAdapter,
   EvmChainAdapter,
   UtxoChainAdapter,
-} from '@shapeshiftmonorepo/chain-adapters'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+} from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { History, LocationState } from 'history'
 import type { PropsWithChildren } from 'react'

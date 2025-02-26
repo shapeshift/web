@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 

@@ -1,5 +1,5 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

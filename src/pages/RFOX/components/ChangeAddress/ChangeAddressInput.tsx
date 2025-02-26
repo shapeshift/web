@@ -9,10 +9,10 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { RFOX_ABI } from '@shapeshiftmonorepo/contracts'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { isSome } from '@shapeshiftmonorepo/utils'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import type { Asset } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'

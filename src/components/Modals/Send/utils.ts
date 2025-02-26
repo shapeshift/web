@@ -1,20 +1,15 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   BuildSendTxInput,
   FeeData,
   FeeDataEstimate,
   GetFeeDataInput,
-} from '@shapeshiftmonorepo/chain-adapters'
-import { utxoChainIds } from '@shapeshiftmonorepo/chain-adapters'
-import type {
-  CosmosSdkChainId,
-  EvmChainId,
-  KnownChainIds,
-  UtxoChainId,
-} from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/chain-adapters'
+import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 
 import type { SendInput } from './Form'
 

@@ -1,4 +1,4 @@
-import { UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import { UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT } from '@shapeshiftoss/contracts'
 
 import { mempoolMock } from './mempoolMock'
 

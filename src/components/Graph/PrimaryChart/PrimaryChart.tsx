@@ -1,7 +1,7 @@
 import { useColorModeValue } from '@chakra-ui/color-mode'
 import { Stack as CStack } from '@chakra-ui/react'
 import { useToken } from '@chakra-ui/system'
-import type { HistoryData } from '@shapeshiftmonorepo/types'
+import type { HistoryData } from '@shapeshiftoss/types'
 import { scaleLinear } from '@visx/scale'
 import type { AxisScale } from '@visx/xychart'
 import type { BaseAreaSeriesProps } from '@visx/xychart/lib/components/series/private/BaseAreaSeries'

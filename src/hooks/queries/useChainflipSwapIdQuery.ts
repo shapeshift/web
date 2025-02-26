@@ -1,4 +1,4 @@
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'

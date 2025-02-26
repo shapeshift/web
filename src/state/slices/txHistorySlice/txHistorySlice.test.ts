@@ -1,6 +1,6 @@
-import { btcAssetId, ethAssetId } from '@shapeshiftmonorepo/caip'
-import { UtxoAccountType } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { UtxoAccountType } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { map, reverse } from 'lodash'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 

@@ -14,7 +14,7 @@ import {
   thorchainAssetId,
   thorchainChainId,
   toAccountId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'

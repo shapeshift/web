@@ -10,9 +10,9 @@ import {
   Tag,
   Text as CText,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

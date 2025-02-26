@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'

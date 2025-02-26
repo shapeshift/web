@@ -1,19 +1,19 @@
 import type { HDWallet } from '@keepkey/hdwallet-core'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
-import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftmonorepo/contracts'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type {
   GetEvmTradeQuoteInputWithWallet,
   SwapErrorRight,
   TradeQuote,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
-import { arbitrumBridgeApi } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
-import { getTradeQuoteWithWallet } from '@shapeshiftmonorepo/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftoss/swapper'
+import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
+import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'

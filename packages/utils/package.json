@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftmonorepo/utils",
+  "name": "@shapeshiftoss/utils",
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -17,8 +17,8 @@
     "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
-    "@shapeshiftmonorepo/caip": "workspace:^",
-    "@shapeshiftmonorepo/types": "workspace:^",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
     "crypto-browserify": "^3.12.0"
   }
 }

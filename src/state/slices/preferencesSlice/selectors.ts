@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import createCachedSelector from 're-reselect'
 
 import type { Flag } from './preferencesSlice'

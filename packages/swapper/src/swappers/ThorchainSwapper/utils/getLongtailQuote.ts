@@ -1,9 +1,9 @@
-import { ethChainId } from '@shapeshiftmonorepo/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import {
   TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
   viemClientByChainId,
-} from '@shapeshiftmonorepo/contracts'
-import type { EvmChainId } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/contracts'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'

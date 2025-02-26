@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { bn, bnOrZero, toBaseUnit } from '@shapeshiftmonorepo/utils'
+import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 
 import {
   selectEnabledWalletAccountIds,

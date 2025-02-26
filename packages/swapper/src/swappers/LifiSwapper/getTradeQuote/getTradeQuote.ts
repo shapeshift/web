@@ -1,7 +1,7 @@
 import type { ChainKey, RoutesRequest } from '@lifi/sdk'
 import { getRoutes, LiFiErrorCode, SDKError } from '@lifi/sdk'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { fromChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import {
   bn,
   bnOrZero,
@@ -9,7 +9,7 @@ import {
   convertPrecision,
   isFulfilled,
   isRejected,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 

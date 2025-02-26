@@ -1,5 +1,5 @@
 import { AvatarGroup, HStack } from '@chakra-ui/react'
-import { accountIdToChainId } from '@shapeshiftmonorepo/caip'
+import { accountIdToChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { AssetIcon } from '@/components/AssetIcon'

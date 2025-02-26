@@ -1,8 +1,8 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { evm } from '@shapeshiftmonorepo/chain-adapters'
-import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftmonorepo/swapper'
-import { assetIdToPoolAssetId, isRune, SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
+import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
+import { assetIdToPoolAssetId, isRune, SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 

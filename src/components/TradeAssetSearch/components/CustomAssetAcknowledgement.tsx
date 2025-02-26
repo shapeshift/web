@@ -10,8 +10,8 @@ import {
   useBreakpointValue,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type * as CSS from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

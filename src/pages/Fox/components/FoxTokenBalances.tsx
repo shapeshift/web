@@ -1,6 +1,6 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, ButtonGroup, Card, CardBody, HStack, List } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'

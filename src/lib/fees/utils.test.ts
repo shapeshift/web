@@ -1,5 +1,5 @@
-import { getEthersProvider } from '@shapeshiftmonorepo/contracts'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { getEthersProvider } from '@shapeshiftoss/contracts'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Block } from 'ethers'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

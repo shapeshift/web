@@ -1,7 +1,7 @@
 import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
-import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { FC, PropsWithChildren } from 'react'
 import { memo } from 'react'
 import { FaGasPump } from 'react-icons/fa'

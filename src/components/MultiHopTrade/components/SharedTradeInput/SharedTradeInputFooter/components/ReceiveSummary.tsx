@@ -1,6 +1,6 @@
 import { QuestionIcon } from '@chakra-ui/icons'
 import { Flex, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { SwapperName, SwapSource } from '@shapeshiftmonorepo/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { memo, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

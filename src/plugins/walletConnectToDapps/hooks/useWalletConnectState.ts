@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { useIsInteractingWithContract } from '@/plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'

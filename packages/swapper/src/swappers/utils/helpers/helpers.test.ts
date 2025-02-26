@@ -1,5 +1,5 @@
-import { thorchainChainId } from '@shapeshiftmonorepo/caip'
-import type { EvmChainId } from '@shapeshiftmonorepo/types'
+import { thorchainChainId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
 
 import { getTreasuryAddressFromChainId } from './helpers'

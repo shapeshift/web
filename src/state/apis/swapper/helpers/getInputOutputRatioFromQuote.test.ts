@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { describe, expect, it, vi } from 'vitest'
 
 import { assertUnreachable } from '@/lib/utils'

@@ -1,6 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import partition from 'lodash/partition'
 

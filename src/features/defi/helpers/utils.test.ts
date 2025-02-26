@@ -1,4 +1,4 @@
-import { cosmosChainId, ethChainId } from '@shapeshiftmonorepo/caip'
+import { cosmosChainId, ethChainId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { chainIdToLabel } from './utils'

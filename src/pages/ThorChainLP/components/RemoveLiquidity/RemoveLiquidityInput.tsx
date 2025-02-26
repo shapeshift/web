@@ -20,11 +20,11 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftmonorepo/caip'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
-import { convertPercentageToBasisPoints } from '@shapeshiftmonorepo/utils'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'

@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { Token } from '@uniswap/sdk-core'
 
 export const THOR_EVM_GAS_LIMIT = '100000' // for sends of eth / erc20 into thorchain router

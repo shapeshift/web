@@ -3,10 +3,10 @@ import {
   fromChainId,
   optimismAssetId,
   optimismChainId,
-} from '@shapeshiftmonorepo/caip'
-import type { Bip44Params, EvmChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import type * as unchained from '@shapeshiftmonorepo/unchained-client'
+} from '@shapeshiftoss/caip'
+import type { Bip44Params, EvmChainId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'

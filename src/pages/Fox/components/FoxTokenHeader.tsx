@@ -1,6 +1,6 @@
 import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useHistory } from 'react-router-dom'

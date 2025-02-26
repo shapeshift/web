@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { SupportedChainIds } from '../../../types'
 

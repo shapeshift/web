@@ -1,7 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, HStack, Stack, Text, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

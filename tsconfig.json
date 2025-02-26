@@ -17,8 +17,7 @@
     "baseUrl": ".",
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["src/*"],
-      "@shapeshiftmonorepo/*": ["packages/$1/src/*"]
+      "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
 

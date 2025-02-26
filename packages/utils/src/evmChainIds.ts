@@ -1,5 +1,5 @@
-import type { EvmChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { EvmChainId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,

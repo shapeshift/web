@@ -1,5 +1,5 @@
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { encodeFunctionData, erc20Abi, getAddress } from 'viem'

@@ -1,10 +1,10 @@
-import type { ChainReference } from '@shapeshiftmonorepo/caip'
+import type { ChainReference } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   CHAIN_NAMESPACE,
   toAssetId,
   VALID_CHAIN_IDS,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'

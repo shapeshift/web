@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftmonorepo/caip",
+  "name": "@shapeshiftoss/caip",
   "version": "8.15.0",
   "description": "CAIP Implementation",
   "repository": "https://github.com/shapeshift/web",

@@ -9,7 +9,7 @@ import {
   Stat,
   StatArrow,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useTranslate } from 'react-polyglot'
 

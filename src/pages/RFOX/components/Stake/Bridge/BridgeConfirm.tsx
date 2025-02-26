@@ -9,8 +9,8 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { getChainShortName } from '@shapeshiftmonorepo/utils'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

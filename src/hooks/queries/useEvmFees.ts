@@ -1,6 +1,6 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import type { evm } from '@shapeshiftmonorepo/chain-adapters'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

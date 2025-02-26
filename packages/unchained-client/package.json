@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftmonorepo/unchained-client",
+  "name": "@shapeshiftoss/unchained-client",
   "version": "10.14.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -18,9 +18,9 @@
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate"
   },
   "dependencies": {
-    "@shapeshiftmonorepo/caip": "workspace:^",
-    "@shapeshiftmonorepo/contracts": "workspace:^",
+    "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^9.3.0",
+    "@shapeshiftoss/contracts": "workspace:^",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "isomorphic-ws": "^4.0.1",

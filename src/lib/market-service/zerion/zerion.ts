@@ -1,5 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -7,9 +7,9 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
-} from '@shapeshiftmonorepo/types'
-import { HistoryTimeframe, ZERION_CHAINS_MAP } from '@shapeshiftmonorepo/types'
-import { createThrottle } from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/types'
+import { HistoryTimeframe, ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
+import { createThrottle } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import qs from 'qs'

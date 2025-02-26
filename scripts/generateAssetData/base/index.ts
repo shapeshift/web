@@ -1,6 +1,6 @@
-import { baseChainId, foxWifHatAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { base, unfreeze } from '@shapeshiftmonorepo/utils'
+import { baseChainId, foxWifHatAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { base, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 

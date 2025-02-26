@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'

@@ -1,4 +1,4 @@
-import { assertUnreachable } from '@shapeshiftmonorepo/utils'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 
 import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './cowswap-utils/constants'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'

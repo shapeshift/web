@@ -1,7 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEffect, useMemo } from 'react'
 
 import { selectTxById } from '@/state/slices/selectors'

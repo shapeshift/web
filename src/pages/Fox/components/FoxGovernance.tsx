@@ -15,7 +15,7 @@ import {
   Tabs,
   Text as CText,
 } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftmonorepo/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch } from 'react-redux'

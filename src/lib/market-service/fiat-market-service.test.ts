@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { describe, expect, it, vi } from 'vitest'
 
 import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './exchange-rates-host/erhMockData'

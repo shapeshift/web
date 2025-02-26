@@ -1,14 +1,10 @@
-import type {
-  SupportedTradeQuoteStepIndex,
-  TradeQuote,
-  TradeRate,
-} from '@shapeshiftmonorepo/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import {
   ChainflipStatusMessage,
   LifiStatusMessage,
   SwapperName,
   ThorchainStatusMessage,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 
 import {

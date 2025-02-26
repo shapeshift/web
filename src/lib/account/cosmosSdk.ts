@@ -1,7 +1,7 @@
-import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftmonorepo/caip'
-import type { AccountMetadataById } from '@shapeshiftmonorepo/types'
+import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 

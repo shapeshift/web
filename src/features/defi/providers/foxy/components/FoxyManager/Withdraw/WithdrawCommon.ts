@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import type { WithdrawType } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { WithdrawType } from '@shapeshiftoss/types'
 
 import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdraw'
 import type { BigNumber } from '@/lib/bignumber/bignumber'

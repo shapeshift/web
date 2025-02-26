@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { FaStar } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'

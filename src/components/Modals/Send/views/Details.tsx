@@ -10,8 +10,8 @@ import {
   Tooltip,
   usePrevious,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form'

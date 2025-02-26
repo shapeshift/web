@@ -1,6 +1,6 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { accountIdToChainId, fromAccountId } from '@shapeshiftmonorepo/caip'
-import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { accountIdToChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 
 import { firstFourLastFour } from '.'
 import { isUtxoAccountId } from './utxo'

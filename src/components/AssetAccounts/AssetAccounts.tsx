@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Grid, Heading, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetAccountRow } from './AssetAccountRow'

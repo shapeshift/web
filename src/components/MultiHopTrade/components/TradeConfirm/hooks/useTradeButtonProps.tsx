@@ -1,4 +1,4 @@
-import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 

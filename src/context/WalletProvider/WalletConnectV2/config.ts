@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE } from '@shapeshiftmonorepo/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {

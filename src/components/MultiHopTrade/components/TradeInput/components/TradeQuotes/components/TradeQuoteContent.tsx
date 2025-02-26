@@ -1,6 +1,6 @@
 import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
-import type { TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { BsLayers } from 'react-icons/bs'

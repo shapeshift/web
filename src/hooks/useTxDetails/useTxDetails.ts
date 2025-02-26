@@ -1,7 +1,7 @@
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import type { EvmChainAdapter, TxTransfer } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
-import type * as unchained from '@shapeshiftmonorepo/unchained-client'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter, TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

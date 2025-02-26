@@ -1,4 +1,4 @@
-import { assertUnreachable, bn } from '@shapeshiftmonorepo/utils'
+import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 

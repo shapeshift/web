@@ -1,5 +1,5 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { foxAssetId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import {

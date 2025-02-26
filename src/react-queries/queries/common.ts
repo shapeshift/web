@@ -1,9 +1,9 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import { evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
-import type { AccountMetadata, EvmChainId } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata, EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 

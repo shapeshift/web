@@ -1,6 +1,6 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Card, HStack, Stack } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftmonorepo/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useTranslate } from 'react-polyglot'
 
 import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'

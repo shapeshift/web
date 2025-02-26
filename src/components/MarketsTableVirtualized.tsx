@@ -11,8 +11,8 @@ import {
   Tr,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import type { VirtualItem } from '@tanstack/react-virtual'

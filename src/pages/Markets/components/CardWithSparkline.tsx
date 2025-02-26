@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardBody, Flex, Text } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback } from 'react'
 

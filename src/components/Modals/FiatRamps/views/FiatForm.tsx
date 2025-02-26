@@ -1,7 +1,7 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
-import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 

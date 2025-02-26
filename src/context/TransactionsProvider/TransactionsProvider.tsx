@@ -1,15 +1,15 @@
-import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   ethChainId,
   foxAssetId,
   foxatarAssetId,
   fromAccountId,
   fromAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Transaction } from '@shapeshiftmonorepo/chain-adapters'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+} from '@shapeshiftoss/caip'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 

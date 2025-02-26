@@ -1,11 +1,11 @@
 // Utility selectors, which are only used for params selecting and do NOT select from the store
 
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { TxMetadata } from '@shapeshiftmonorepo/chain-adapters'
-import type { TradeQuote } from '@shapeshiftmonorepo/swapper'
-import type { HistoryTimeframe, QuoteId } from '@shapeshiftmonorepo/types'
-import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
 
 import type { ReduxState } from './reducer'

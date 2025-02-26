@@ -1,11 +1,11 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   baseChainId,
   ethChainId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import { Alchemy, Network } from 'alchemy-sdk'
 
 import { getConfig } from '@/config'

@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { bchChainId } from '@shapeshiftmonorepo/caip'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { isUtxoChainId } from '@shapeshiftmonorepo/utils'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bchChainId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 
 import type { SupportedChainIds, SwapSource } from '../../types'
 import { SwapperName } from '../../types'

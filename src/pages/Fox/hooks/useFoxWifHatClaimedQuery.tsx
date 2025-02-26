@@ -1,7 +1,4 @@
-import {
-  FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI,
-  viemClientByNetworkId,
-} from '@shapeshiftmonorepo/contracts'
+import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { getContract } from 'viem'

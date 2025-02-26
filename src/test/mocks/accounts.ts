@@ -1,13 +1,7 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import {
-  btcAssetId,
-  btcChainId,
-  ethAssetId,
-  ethChainId,
-  foxAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Account, evm } from '@shapeshiftmonorepo/chain-adapters'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import type { Account, evm } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 

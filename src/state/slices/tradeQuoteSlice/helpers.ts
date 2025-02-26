@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   ProtocolFee,
   SupportedTradeQuoteStepIndex,
@@ -6,9 +6,9 @@ import type {
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
-import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
-import type { Asset, PartialRecord } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import partition from 'lodash/partition'
 

@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -16,8 +16,8 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
-} from '@shapeshiftmonorepo/caip'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+} from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,

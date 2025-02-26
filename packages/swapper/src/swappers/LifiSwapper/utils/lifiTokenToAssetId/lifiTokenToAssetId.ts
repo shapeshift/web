@@ -1,5 +1,5 @@
 import type { Token } from '@lifi/sdk'
-import type { AssetId, ChainReference } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainReference } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   ASSET_REFERENCE,
@@ -7,7 +7,7 @@ import {
   CHAIN_REFERENCE,
   toAssetId,
   toChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 
 import { DEFAULT_LIFI_TOKEN_ADDRESS } from '../constants'
 

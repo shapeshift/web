@@ -1,6 +1,6 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftmonorepo/swapper'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 

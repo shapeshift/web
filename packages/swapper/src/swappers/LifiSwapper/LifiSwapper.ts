@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { optimismChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { optimismChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput, Swapper } from '../../types'
 import { executeEvmTransaction } from '../../utils'

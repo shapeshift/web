@@ -1,4 +1,4 @@
-import { solanaChainId, solAssetId } from '@shapeshiftmonorepo/caip'
+import { solanaChainId, solAssetId } from '@shapeshiftoss/caip'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { TransferType, TxStatus } from '../../../types'

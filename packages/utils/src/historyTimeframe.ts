@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 
 import { assertUnreachable } from './assertUnreachable'

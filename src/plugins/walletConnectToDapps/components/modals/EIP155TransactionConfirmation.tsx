@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'

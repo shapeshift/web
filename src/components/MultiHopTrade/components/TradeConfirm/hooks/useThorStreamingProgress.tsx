@@ -1,4 +1,4 @@
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
 

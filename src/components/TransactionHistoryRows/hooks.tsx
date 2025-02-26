@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
-import { Dex, TransferType } from '@shapeshiftmonorepo/unchained-client'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { Dex, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 

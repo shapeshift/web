@@ -1,6 +1,6 @@
 import { Button, Flex, Stack, Tag, useMediaQuery } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import { truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'

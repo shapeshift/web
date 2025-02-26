@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'
 import { FaTwitter } from 'react-icons/fa'

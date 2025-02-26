@@ -1,4 +1,4 @@
-import type { UtxoAccountType } from '@shapeshiftmonorepo/types'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
 
 import type { GetAddressInputBase } from '../types'
 

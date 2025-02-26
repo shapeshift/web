@@ -1,4 +1,4 @@
-import { assertUnreachable } from '@shapeshiftmonorepo/utils'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 
 import { ThorchainStatusMessage } from '../constants'

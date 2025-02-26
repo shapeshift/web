@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   adapters,
   arbitrumChainId,
@@ -13,8 +13,8 @@ import {
   polygonChainId,
   solanaChainId,
   toAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import {
   arbitrum,
   arbitrumNova,
@@ -26,7 +26,7 @@ import {
   optimism,
   polygon,
   solana,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import colormap from './color-map.json'

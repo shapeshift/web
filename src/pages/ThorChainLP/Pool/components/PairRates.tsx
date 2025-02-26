@@ -1,5 +1,5 @@
 import { Card, Flex } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 

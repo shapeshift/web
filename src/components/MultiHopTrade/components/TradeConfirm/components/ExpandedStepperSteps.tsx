@@ -11,7 +11,7 @@ import {
   usePrevious,
   VStack,
 } from '@chakra-ui/react'
-import type { TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
+import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

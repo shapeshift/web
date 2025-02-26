@@ -1,4 +1,4 @@
-import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
 
 import type { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'

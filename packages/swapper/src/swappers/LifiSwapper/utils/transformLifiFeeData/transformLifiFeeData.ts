@@ -1,8 +1,8 @@
 import type { Token } from '@lifi/sdk'
 import type { LiFiStep } from '@lifi/types'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 
 import type { ProtocolFee } from '../../../../types'
 import { LIFI_SHARED_FEES_STEP_NAME } from '../constants'

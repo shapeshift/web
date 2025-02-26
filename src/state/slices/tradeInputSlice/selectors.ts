@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftmonorepo/swapper'
-import { isExecutableTradeStep } from '@shapeshiftmonorepo/swapper'
-import { bn } from '@shapeshiftmonorepo/utils'
+import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
+import { bn } from '@shapeshiftoss/utils'
 import type { Selector } from 'react-redux'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'

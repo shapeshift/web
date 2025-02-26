@@ -1,5 +1,5 @@
 import { Card } from '@chakra-ui/react'
-import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 

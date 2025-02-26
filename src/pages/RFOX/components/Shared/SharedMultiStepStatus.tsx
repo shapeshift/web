@@ -10,8 +10,8 @@ import {
   Heading,
   Stack,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { Asset } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'

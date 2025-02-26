@@ -1,4 +1,4 @@
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 

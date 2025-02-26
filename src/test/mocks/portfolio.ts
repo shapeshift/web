@@ -10,9 +10,9 @@ import {
   optimismAssetId,
   polygonAssetId,
   thorchainAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Account } from '@shapeshiftmonorepo/chain-adapters'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/caip'
+import type { Account } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { accountToPortfolio } from '@/state/slices/portfolioSlice/utils'
 

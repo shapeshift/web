@@ -1,5 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'

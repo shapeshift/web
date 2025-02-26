@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from './assertUnreachable'
 

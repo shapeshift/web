@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { YearnTokenMarketCapService } from './yearn-tokens'

@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'

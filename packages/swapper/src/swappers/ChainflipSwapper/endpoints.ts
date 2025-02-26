@@ -1,8 +1,8 @@
-import { fromAssetId, fromChainId, solAssetId } from '@shapeshiftmonorepo/caip'
-import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftmonorepo/chain-adapters'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
-import type { EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { fromAssetId, fromChainId, solAssetId } from '@shapeshiftoss/caip'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { InterpolationOptions } from 'node-polyglot'
 

@@ -1,5 +1,5 @@
 import { Flex, Image } from '@chakra-ui/react'
-import { dogeAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
+import { dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { memo } from 'react'
 
 import { RecentTransactions } from './RecentTransactions'

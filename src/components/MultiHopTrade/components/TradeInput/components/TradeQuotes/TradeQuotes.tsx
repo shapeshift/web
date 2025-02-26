@@ -9,9 +9,9 @@ import {
   Icon,
   Tag,
 } from '@chakra-ui/react'
-import { dogeAssetId } from '@shapeshiftmonorepo/caip'
-import type { SwapperName } from '@shapeshiftmonorepo/swapper'
-import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftmonorepo/swapper'
+import { dogeAssetId } from '@shapeshiftoss/caip'
+import type { SwapperName } from '@shapeshiftoss/swapper'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FaDog } from 'react-icons/fa'

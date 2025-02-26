@@ -1,13 +1,13 @@
 import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftmonorepo/types'
-import { getChainShortName, isSome } from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName, isSome } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'

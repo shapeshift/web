@@ -1,6 +1,6 @@
 import { Erc20Bridger, EthBridger } from '@arbitrum/sdk'
-import { ethAssetId, ethChainId } from '@shapeshiftmonorepo/caip'
-import type { EvmChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetEvmTradeQuoteInputBase, SwapperDeps } from '../../../types'
@@ -14,8 +14,8 @@ vi.mock('@arbitrum/sdk', () => ({
   getArbitrumNetwork: vi.fn().mockResolvedValue({ chainID: 42161 }),
 }))
 
-vi.mock('@shapeshiftmonorepo/chain-adapters', async () => {
-  const actual = await vi.importActual('@shapeshiftmonorepo/chain-adapters')
+vi.mock('@shapeshiftoss/chain-adapters', async () => {
+  const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
 
   return {
     ...actual,

@@ -1,6 +1,6 @@
-import type { cosmossdk } from '@shapeshiftmonorepo/chain-adapters'
-import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset, Bip44Params } from '@shapeshiftmonorepo/types'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import type { Asset, Bip44Params } from '@shapeshiftoss/types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import {

@@ -1,5 +1,5 @@
-import { btcAssetId, ethAssetId } from '@shapeshiftmonorepo/caip'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
 import { describe, expect, it, vi } from 'vitest'
 

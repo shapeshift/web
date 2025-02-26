@@ -1,5 +1,5 @@
 import { Box, Card, CardBody, Flex, Link, Progress, Tag, Text } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftmonorepo/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'

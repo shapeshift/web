@@ -1,15 +1,15 @@
 import { Button, Divider, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   getCowNetwork,
   isNativeEvmAsset,
   SwapperName,
-} from '@shapeshiftmonorepo/swapper'
-import type { CowSwapError } from '@shapeshiftmonorepo/types'
-import { BigNumber, bn, bnOrZero } from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/swapper'
+import type { CowSwapError } from '@shapeshiftoss/types'
+import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'

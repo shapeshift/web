@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 

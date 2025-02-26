@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 
 export enum FoxWifHatClaimRoutePaths {
   Confirm = '/claim/confirm',

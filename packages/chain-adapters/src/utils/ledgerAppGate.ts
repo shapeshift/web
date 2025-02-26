@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import EventEmitter from 'events'
 
 import { ChainAdapterError } from '../error/ErrorHandler'

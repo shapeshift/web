@@ -14,7 +14,7 @@ import {
   Spinner,
   Stack,
 } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

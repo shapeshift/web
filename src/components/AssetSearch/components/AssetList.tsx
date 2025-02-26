@@ -1,6 +1,6 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { Size } from 'react-virtualized-auto-sizer'

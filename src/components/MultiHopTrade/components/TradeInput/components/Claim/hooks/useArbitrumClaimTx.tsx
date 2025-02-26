@@ -1,13 +1,9 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
-import {
-  ARB_OUTBOX_ABI,
-  assertGetViemClient,
-  getEthersV5Provider,
-} from '@shapeshiftmonorepo/contracts'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address, Hash, Hex } from 'viem'

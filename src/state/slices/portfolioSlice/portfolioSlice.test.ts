@@ -1,5 +1,5 @@
-import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftmonorepo/caip'
-import type { Bip44Params } from '@shapeshiftmonorepo/types'
+import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { Bip44Params } from '@shapeshiftoss/types'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'

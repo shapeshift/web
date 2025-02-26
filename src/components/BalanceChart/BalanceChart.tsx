@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import type { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 
 import { Graph } from '@/components/Graph/Graph'

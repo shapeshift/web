@@ -1,5 +1,5 @@
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'

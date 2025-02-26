@@ -1,6 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Box, Center } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { defaultClipPath } from '@/components/AssetIcon'

@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
   Tooltip,
 } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'

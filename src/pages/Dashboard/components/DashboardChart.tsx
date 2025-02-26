@@ -11,7 +11,7 @@ import {
   StatNumber,
   Switch,
 } from '@chakra-ui/react'
-import type { HistoryTimeframe } from '@shapeshiftmonorepo/types'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import { useCallback, useState } from 'react'
 

@@ -1,15 +1,15 @@
 import { Divider, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
-import type { AmountDisplayMeta, SwapSource } from '@shapeshiftmonorepo/swapper'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftmonorepo/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

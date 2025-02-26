@@ -1,11 +1,11 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   bchChainId,
   btcChainId,
   dogeChainId,
   ethChainId,
   ltcChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'

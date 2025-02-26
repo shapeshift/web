@@ -1,5 +1,5 @@
-import { assertGetViemClient } from '@shapeshiftmonorepo/contracts'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftmonorepo/swapper'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'

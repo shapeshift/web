@@ -1,5 +1,5 @@
 import { Stack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

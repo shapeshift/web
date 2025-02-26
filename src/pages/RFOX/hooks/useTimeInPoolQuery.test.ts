@@ -1,4 +1,4 @@
-import { viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import dayjs from 'dayjs'
 import type { GetBlockReturnType } from 'viem'
 import { arbitrum } from 'viem/chains'
@@ -7,10 +7,10 @@ import { describe, expect, it, vi } from 'vitest'
 import type { RFOXAccountLog } from '../types'
 import { getTimeInPoolSeconds } from './useTimeInPoolQuery'
 
-vi.mock('@shapeshiftmonorepo/contracts', async () => {
+vi.mock('@shapeshiftoss/contracts', async () => {
   const { arbitrum } = require('viem/chains')
 
-  const actual = await vi.importActual('@shapeshiftmonorepo/contracts')
+  const actual = await vi.importActual('@shapeshiftoss/contracts')
 
   return {
     ...actual,

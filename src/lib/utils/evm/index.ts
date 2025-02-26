@@ -1,15 +1,11 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE } from '@shapeshiftmonorepo/caip'
-import type {
-  ContractInteraction,
-  EvmChainAdapter,
-  SignTx,
-} from '@shapeshiftmonorepo/chain-adapters'
-import { evm, evmChainIds } from '@shapeshiftmonorepo/chain-adapters'
-import { ContractType, getOrCreateContractByType } from '@shapeshiftmonorepo/contracts'
-import type { EvmChainId, KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
+import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
+import { evm, evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { encodeFunctionData, getAddress } from 'viem'
 
 import { getSupportedChainIdsByChainNamespace } from '..'

@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   cosmosAssetId,
   cosmosChainId,
@@ -7,7 +7,7 @@ import {
   foxAssetId,
   foxyAssetId,
   fromAssetId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import { describe, expect, it, test, vi } from 'vitest'
 
 import {

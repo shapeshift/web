@@ -1,7 +1,7 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import { HistoryTimeframe } from '@shapeshiftmonorepo/types'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 
 import { getStakingContract } from '../helpers'

@@ -1,4 +1,4 @@
-import { FOXY_STAKING_ABI, FOXY_STAKING_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import { FOXY_STAKING_ABI, FOXY_STAKING_CONTRACT } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'

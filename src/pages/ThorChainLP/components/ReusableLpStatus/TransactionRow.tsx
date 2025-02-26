@@ -9,10 +9,10 @@ import {
   Link,
   Skeleton,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftmonorepo/caip'
-import { assetIdToPoolAssetId, SwapperName } from '@shapeshiftmonorepo/swapper'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { assetIdToPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'

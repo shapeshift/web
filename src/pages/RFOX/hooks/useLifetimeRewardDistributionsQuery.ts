@@ -1,4 +1,4 @@
-import { bnOrZero, isSome } from '@shapeshiftmonorepo/utils'
+import { bnOrZero, isSome } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 

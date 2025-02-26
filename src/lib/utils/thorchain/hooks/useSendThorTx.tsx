@@ -1,16 +1,16 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftmonorepo/caip'
-import type { FeeDataEstimate } from '@shapeshiftmonorepo/chain-adapters'
-import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import {
   assertAndProcessMemo,
   depositWithExpiry,
   fetchSafeTransactionInfo,
   SwapperName,
-} from '@shapeshiftmonorepo/swapper'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
+} from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'

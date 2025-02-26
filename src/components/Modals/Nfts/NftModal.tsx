@@ -26,7 +26,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   baseChainId,
@@ -34,7 +34,7 @@ import {
   fromAssetId,
   optimismChainId,
   polygonChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 import axios from 'axios'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'

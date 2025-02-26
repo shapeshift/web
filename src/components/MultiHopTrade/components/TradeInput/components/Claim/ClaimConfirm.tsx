@@ -10,9 +10,9 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
-import type { TxStatus } from '@shapeshiftmonorepo/unchained-client'
-import { getChainShortName } from '@shapeshiftmonorepo/utils'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

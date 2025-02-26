@@ -1,3 +1,3 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 export type AssetIdPair = [thorchainAsset: string, assetId: AssetId]

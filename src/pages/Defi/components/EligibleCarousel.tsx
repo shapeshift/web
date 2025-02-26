@@ -1,6 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, Flex, Heading } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
 import { uniqBy } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

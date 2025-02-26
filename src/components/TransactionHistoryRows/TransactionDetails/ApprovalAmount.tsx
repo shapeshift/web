@@ -1,6 +1,6 @@
 import { Tag } from '@chakra-ui/tag'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { TxMetadata } from '@shapeshiftmonorepo/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

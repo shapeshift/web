@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'

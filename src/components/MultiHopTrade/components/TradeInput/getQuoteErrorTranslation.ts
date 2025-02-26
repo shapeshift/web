@@ -1,4 +1,4 @@
-import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftmonorepo/swapper'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { assertUnreachable } from '@/lib/utils'

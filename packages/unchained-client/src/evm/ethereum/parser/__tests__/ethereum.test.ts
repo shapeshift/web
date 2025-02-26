@@ -1,11 +1,11 @@
-import { ethAssetId, ethChainId } from '@shapeshiftmonorepo/caip'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/common-api'
 import {
   FOXY_STAKING_CONTRACT,
   UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
   WETH_TOKEN_CONTRACT,
   ZRX_ETHEREUM_PROXY_CONTRACT,
-} from '@shapeshiftmonorepo/contracts'
-import type { evm } from '@shapeshiftoss/common-api'
+} from '@shapeshiftoss/contracts'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { Trade } from '../../../../types'

@@ -17,9 +17,9 @@ import {
   solanaChainId,
   thorchainChainId,
   toAssetId,
-} from '@shapeshiftmonorepo/caip'
-import type { KnownChainIds } from '@shapeshiftmonorepo/types'
-import { getAssetNamespaceFromChainId } from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'

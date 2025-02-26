@@ -18,9 +18,9 @@ import {
   foxOnGnosisAssetId,
   fromAssetId,
   toAccountId,
-} from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { TransferType } from '@shapeshiftmonorepo/unchained-client'
+} from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

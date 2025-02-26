@@ -13,8 +13,8 @@ import {
   Tag,
   Text as CText,
 } from '@chakra-ui/react'
-import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import qs from 'qs'

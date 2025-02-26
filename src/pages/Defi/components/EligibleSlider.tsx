@@ -1,5 +1,5 @@
 import type { BoxProps } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftoss/contracts'
 import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 

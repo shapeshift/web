@@ -1,12 +1,7 @@
 import { Box, CardBody } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import {
-  fromAccountId,
-  thorchainAssetId,
-  thorchainChainId,
-  toAccountId,
-} from '@shapeshiftmonorepo/caip'
-import { Dex, TransferType, TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 
 import { RewardTransactionList } from './RewardTransactionList'

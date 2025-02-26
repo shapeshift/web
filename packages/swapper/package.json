@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftmonorepo/swapper",
+  "name": "@shapeshiftoss/swapper",
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.29.0",
-    "@shapeshiftmonorepo/caip": "workspace:^",
-    "@shapeshiftmonorepo/chain-adapters": "workspace:^",
-    "@shapeshiftmonorepo/types": "workspace:^",
-    "@shapeshiftmonorepo/utils": "workspace:^"
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^"
   }
 }

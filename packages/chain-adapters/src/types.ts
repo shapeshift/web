@@ -1,11 +1,11 @@
-import type { ChainId, Nominal } from '@shapeshiftmonorepo/caip'
+import type { ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainSpecific,
   KnownChainIds,
   UtxoAccountType,
   UtxoChainId,
-} from '@shapeshiftmonorepo/types'
-import type * as unchained from '@shapeshiftmonorepo/unchained-client'
+} from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import type {
   BTCSignTx,
   CosmosSignTx,

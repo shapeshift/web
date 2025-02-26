@@ -11,15 +11,15 @@ import type {
   SwapperApi,
   TradeExecutionEventMap,
   UtxoTransactionExecutionInput,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
-} from '@shapeshiftmonorepo/swapper'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+} from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import EventEmitter from 'events'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'

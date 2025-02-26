@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import createCachedSelector from 're-reselect'
 
 import { defaultMarketData } from './marketDataSlice'

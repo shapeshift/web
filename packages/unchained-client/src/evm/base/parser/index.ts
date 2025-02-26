@@ -1,4 +1,4 @@
-import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftmonorepo/contracts'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 
 import type { Tx } from '../../../generated/base'
 import type { BaseTransactionParserArgs } from '../../parser'

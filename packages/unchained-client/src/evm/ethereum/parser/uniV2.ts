@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { fromChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
   UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
   UNISWAP_V2_FACTORY_CONTRACT_MAINNET,
@@ -7,7 +7,7 @@ import {
   UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
   UNIV2_STAKING_REWARDS_ABI,
   WETH_TOKEN_CONTRACT,
-} from '@shapeshiftmonorepo/contracts'
+} from '@shapeshiftoss/contracts'
 import assert from 'assert'
 import type { JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'

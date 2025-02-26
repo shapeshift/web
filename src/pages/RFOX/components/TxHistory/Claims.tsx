@@ -1,5 +1,5 @@
 import { CardBody, Skeleton } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 

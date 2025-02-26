@@ -1,4 +1,4 @@
-import { cosmosChainId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
 
 import type {
   GetOpportunityIdsOutput,

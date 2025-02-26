@@ -1,5 +1,5 @@
-import type { BigNumber } from '@shapeshiftmonorepo/utils'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import type { BigNumber } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

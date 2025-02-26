@@ -1,5 +1,5 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { arbitrumChainId, foxAssetId, fromAccountId } from '@shapeshiftmonorepo/caip'
+import { arbitrumChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'

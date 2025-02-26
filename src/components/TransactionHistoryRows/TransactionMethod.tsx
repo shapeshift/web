@@ -1,4 +1,4 @@
-import { TransferType } from '@shapeshiftmonorepo/unchained-client'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

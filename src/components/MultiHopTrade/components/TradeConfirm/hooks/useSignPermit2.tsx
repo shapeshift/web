@@ -1,5 +1,5 @@
-import { toAddressNList } from '@shapeshiftmonorepo/chain-adapters'
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftmonorepo/swapper'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import assert from 'assert'
 import { useCallback, useMemo } from 'react'
 

@@ -9,8 +9,8 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import { isEvmChainId } from '@shapeshiftmonorepo/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { generatePath, useHistory } from 'react-router-dom'

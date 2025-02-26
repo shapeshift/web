@@ -1,5 +1,5 @@
 import { Box, Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import type { TopItemListProps } from 'react-virtuoso'
 import { GroupedVirtuoso } from 'react-virtuoso'

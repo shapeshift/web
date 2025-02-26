@@ -1,5 +1,5 @@
 import type { ColorMode } from '@chakra-ui/system'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import type { FiatRampAction } from './FiatRampsCommon'
 

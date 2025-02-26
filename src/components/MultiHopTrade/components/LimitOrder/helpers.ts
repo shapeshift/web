@@ -1,7 +1,7 @@
 import type { SerializedError } from '@reduxjs/toolkit'
-import type { Asset, CowSwapError } from '@shapeshiftmonorepo/types'
-import { OrderError } from '@shapeshiftmonorepo/types'
-import { bn } from '@shapeshiftmonorepo/utils'
+import type { Asset, CowSwapError } from '@shapeshiftoss/types'
+import { OrderError } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'

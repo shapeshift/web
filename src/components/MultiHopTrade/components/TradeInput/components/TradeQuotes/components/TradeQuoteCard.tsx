@@ -1,5 +1,5 @@
 import { Card, CardHeader, Flex, useColorModeValue } from '@chakra-ui/react'
-import type { SwapperName } from '@shapeshiftmonorepo/swapper'
+import type { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 
 import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'

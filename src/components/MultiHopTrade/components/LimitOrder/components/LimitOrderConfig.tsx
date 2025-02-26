@@ -15,8 +15,8 @@ import {
   Stack,
   Text as CText,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { bnOrZero } from '@shapeshiftmonorepo/utils'
+import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'

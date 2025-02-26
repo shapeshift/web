@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import { Amount as AmountComponent } from '@/components/Amount/Amount'
 import { fromBaseUnit } from '@/lib/math'

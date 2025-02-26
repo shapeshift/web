@@ -1,5 +1,5 @@
-import * as caip from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import * as caip from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 
 export const ethereum: Readonly<Asset> = Object.freeze({
   assetId: caip.ethAssetId,

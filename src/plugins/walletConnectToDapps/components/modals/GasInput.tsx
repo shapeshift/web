@@ -12,7 +12,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftmonorepo/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

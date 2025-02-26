@@ -1,5 +1,5 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { TransferType } from '@shapeshiftmonorepo/unchained-client'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useMemo, useState } from 'react'

@@ -1,14 +1,14 @@
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftmonorepo/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
   LifiTradeQuote,
   TradeRate,
-} from '@shapeshiftmonorepo/swapper'
-import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftmonorepo/types'
-import { UtxoAccountType } from '@shapeshiftmonorepo/types'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftoss/swapper'
+import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 
 import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'

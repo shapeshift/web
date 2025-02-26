@@ -1,6 +1,6 @@
-import type { GetFeeDataInput, UtxoChainAdapter } from '@shapeshiftmonorepo/chain-adapters'
-import type { UtxoChainId } from '@shapeshiftmonorepo/types'
-import { bn } from '@shapeshiftmonorepo/utils'
+import type { UtxoChainId } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
+import type { GetFeeDataInput, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 
 import type { QuoteFeeData } from '../../../types'
 

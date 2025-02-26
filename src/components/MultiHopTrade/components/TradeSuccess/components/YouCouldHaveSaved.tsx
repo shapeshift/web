@@ -1,5 +1,5 @@
 import { Button, Card, HStack } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftmonorepo/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

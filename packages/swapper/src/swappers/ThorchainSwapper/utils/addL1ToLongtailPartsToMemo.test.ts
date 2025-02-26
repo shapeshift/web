@@ -1,4 +1,4 @@
-import { btcChainId, dogeChainId, ethChainId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { btcChainId, dogeChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { getMaxBytesLengthByChainId } from '../constants'

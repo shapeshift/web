@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 // https://api.portals.fi/v1/networks
 export const PortalsSupportedChainIds = [

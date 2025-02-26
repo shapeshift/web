@@ -1,5 +1,5 @@
 import { Button, FormControl, FormLabel, Stack } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftmonorepo/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'

@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { foxAssetId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 

@@ -1,5 +1,5 @@
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
-import type { Order } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Order } from '@shapeshiftoss/types'
 
 export enum LimitOrderRoutePaths {
   Input = '/trade/limit-order/input',

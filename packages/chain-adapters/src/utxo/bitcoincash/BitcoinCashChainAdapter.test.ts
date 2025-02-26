@@ -1,6 +1,4 @@
-import { bchAssetId, bchChainId } from '@shapeshiftmonorepo/caip'
-import type { Bip44Params, UtxoChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftmonorepo/types'
+import { bchAssetId, bchChainId } from '@shapeshiftoss/caip'
 import type { BTCSignTx, BTCWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   BTCInputScriptType,
@@ -9,6 +7,8 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { Bip44Params, UtxoChainId } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'

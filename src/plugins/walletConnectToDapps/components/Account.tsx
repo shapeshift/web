@@ -1,6 +1,6 @@
 import { Checkbox, Flex } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftmonorepo/caip'
-import { fromAccountId } from '@shapeshiftmonorepo/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback } from 'react'
 

@@ -83,7 +83,6 @@ export default defineConfig(mode => ({
       zlib: 'browserify-zlib',
       fs: 'memfs',
       path: 'path-browserify',
-      '@shapeshiftoss/caip': '@shapeshiftmonorepo/caip',
     },
   },
   define: {

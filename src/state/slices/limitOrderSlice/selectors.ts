@@ -1,5 +1,5 @@
-import type { QuoteId } from '@shapeshiftmonorepo/types'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftmonorepo/utils'
+import type { QuoteId } from '@shapeshiftoss/types'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { PriceDirection } from '../limitOrderInputSlice/constants'

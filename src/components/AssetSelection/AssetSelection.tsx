@@ -1,8 +1,8 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { ButtonProps, FlexProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo } from 'react'
 
 import { StyledAssetChainDropdown } from './components/AssetChainDropdown/AssetChainDropdown'

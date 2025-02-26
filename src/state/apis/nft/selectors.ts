@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { isNft } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'

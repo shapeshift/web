@@ -1,5 +1,5 @@
-import type { Asset, AssetsByIdPartial } from '@shapeshiftmonorepo/types'
-import { bnOrZero, isSome, timeoutMonadic } from '@shapeshiftmonorepo/utils'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import { bnOrZero, isSome, timeoutMonadic } from '@shapeshiftoss/utils'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type {

@@ -1,6 +1,6 @@
-import { ethChainId, foxAssetId } from '@shapeshiftmonorepo/caip'
-import type { TxMetadata } from '@shapeshiftmonorepo/chain-adapters'
-import type { Asset, MarketData } from '@shapeshiftmonorepo/types'
+import { ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { maxUint256 } from 'viem'
 import { describe, expect, it } from 'vitest'
 

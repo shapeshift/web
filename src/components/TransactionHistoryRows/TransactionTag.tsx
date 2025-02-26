@@ -1,5 +1,5 @@
 import { Tag } from '@chakra-ui/react'
-import type { TransferType } from '@shapeshiftmonorepo/chain-adapters'
+import type { TransferType } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 
 import type { Transfer, TxDetails } from '@/hooks/useTxDetails/useTxDetails'

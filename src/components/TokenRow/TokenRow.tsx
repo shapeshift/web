@@ -1,6 +1,6 @@
 import type { InputGroupProps, InputProps } from '@chakra-ui/react'
 import { Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import type {
   Control,

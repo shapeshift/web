@@ -1,6 +1,6 @@
-import { arbitrumChainId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { arbitrum, unfreeze } from '@shapeshiftmonorepo/utils'
+import { arbitrumChainId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { arbitrum, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 

@@ -1,8 +1,8 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Center, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { memo, useMemo } from 'react'
 
 import { FoxIcon } from './Icons/FoxIcon'

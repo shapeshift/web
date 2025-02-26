@@ -1,6 +1,6 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftmonorepo/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useState } from 'react'
 

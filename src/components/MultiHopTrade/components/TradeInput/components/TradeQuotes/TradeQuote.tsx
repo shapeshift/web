@@ -1,11 +1,11 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftmonorepo/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   swappers,
   TradeQuoteError as SwapperTradeQuoteError,
-} from '@shapeshiftmonorepo/swapper'
+} from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'

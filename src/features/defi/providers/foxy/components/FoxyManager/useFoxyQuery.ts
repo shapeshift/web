@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftmonorepo/caip'
+import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import type {

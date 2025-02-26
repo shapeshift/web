@@ -16,7 +16,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

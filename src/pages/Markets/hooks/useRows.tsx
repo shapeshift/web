@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftmonorepo/swapper'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

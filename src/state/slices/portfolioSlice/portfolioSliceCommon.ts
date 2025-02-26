@@ -1,5 +1,5 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import type { AccountMetadataById, PartialRecord } from '@shapeshiftmonorepo/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountMetadataById, PartialRecord } from '@shapeshiftoss/types'
 
 import type { Nominal } from '@/types/common'
 

@@ -1,4 +1,4 @@
-import type { utxo } from '@shapeshiftmonorepo/unchained-client'
+import type { utxo } from '@shapeshiftoss/unchained-client'
 
 const account: utxo.bitcoin.Account = {
   pubkey: 'testKey',

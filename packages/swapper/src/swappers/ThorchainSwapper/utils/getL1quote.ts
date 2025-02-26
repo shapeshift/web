@@ -1,6 +1,6 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftmonorepo/caip'
-import { bn, bnOrZero } from '@shapeshiftmonorepo/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
   convertDecimalPercentageToBasisPoints,
@@ -9,7 +9,7 @@ import {
   isFulfilled,
   isRejected,
   toBaseUnit,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'

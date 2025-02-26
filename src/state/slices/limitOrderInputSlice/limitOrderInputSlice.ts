@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { foxAssetId, usdcAssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
-import { assertUnreachable, bn, bnOrZero } from '@shapeshiftmonorepo/utils'
+import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { assertUnreachable, bn, bnOrZero } from '@shapeshiftoss/utils'
 import pick from 'lodash/pick'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'

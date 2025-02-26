@@ -1,6 +1,6 @@
-import type { AssetId, ChainId } from '@shapeshiftmonorepo/caip'
-import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftmonorepo/caip'
-import { toBaseUnit } from '@shapeshiftmonorepo/utils'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
+import { toBaseUnit } from '@shapeshiftoss/utils'
 
 import { TransferType, TxStatus } from '../../types'
 import type { AggregateTransferArgs } from '../../utils'

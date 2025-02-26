@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import type { Asset } from '@shapeshiftmonorepo/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import {
   atom,
   bitcoin,
@@ -10,7 +10,7 @@ import {
   litecoin,
   thorchain,
   unfreeze,
-} from '@shapeshiftmonorepo/utils'
+} from '@shapeshiftoss/utils'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 

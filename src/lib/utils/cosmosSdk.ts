@@ -1,8 +1,8 @@
-import type { ChainId } from '@shapeshiftmonorepo/caip'
-import type { CosmosSdkChainAdapter, thorchain } from '@shapeshiftmonorepo/chain-adapters'
-import { cosmosSdkChainIds } from '@shapeshiftmonorepo/chain-adapters'
-import type { CosmosSdkChainId } from '@shapeshiftmonorepo/types'
-import { KnownChainIds } from '@shapeshiftmonorepo/types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
+import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 

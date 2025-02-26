@@ -12,8 +12,8 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { getHopByIndex } from '@shapeshiftmonorepo/swapper'
-import { BigNumber, bnOrZero, fromBaseUnit, isSome } from '@shapeshiftmonorepo/utils'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
+import { BigNumber, bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

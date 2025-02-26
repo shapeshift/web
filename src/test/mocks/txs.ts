@@ -1,6 +1,6 @@
-import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftmonorepo/caip'
-import { UtxoAccountType } from '@shapeshiftmonorepo/types'
-import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftmonorepo/unchained-client'
+import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import { UtxoAccountType } from '@shapeshiftoss/types'
+import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { zeroAddress } from 'viem'
 
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'

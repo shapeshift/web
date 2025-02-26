@@ -1,5 +1,5 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -12,7 +12,7 @@ import {
   fromAccountId,
   ltcChainId,
   thorchainChainId,
-} from '@shapeshiftmonorepo/caip'
+} from '@shapeshiftoss/caip'
 
 import {
   fetchAllOpportunitiesIdsByChainId,

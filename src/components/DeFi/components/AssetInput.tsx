@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { FormControlProps, InputProps } from '@chakra-ui/react'
 import { Button, FormControl, FormErrorMessage, Input, Skeleton, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftmonorepo/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'

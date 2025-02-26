@@ -1,5 +1,5 @@
-import { fromAssetId } from '@shapeshiftmonorepo/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftmonorepo/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 
 import {
   assertGetEvmChainAdapter,

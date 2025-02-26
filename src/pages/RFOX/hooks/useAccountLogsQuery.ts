@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftmonorepo/caip'
-import { viemClientByNetworkId } from '@shapeshiftmonorepo/contracts'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken } from '@tanstack/react-query'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'

@@ -169,5 +169,5 @@ We recommend using local environment files for sensitive or development-specific
 To get started, copy the example environment files and modify them as needed:
 
 ```sh
-cp .env.example .env.local
+cp .env.development.local.example .env.development.local
 ```

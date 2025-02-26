@@ -81,9 +81,7 @@ If you are using Linux and macOS it works out of the box following these steps:
     yarn build:packages
     ```
 
-6. Run `yarn env dev` to generate a `.env` file.
-
-7. Other recommended configurations:
+6. Other recommended configurations:
 
     To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running:
 

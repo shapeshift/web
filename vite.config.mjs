@@ -7,7 +7,7 @@ import { dirname, resolve } from 'path'
 import * as path from 'path'
 import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import checker from 'vite-plugin-checker'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -15,6 +15,30 @@ import { cspMeta, headers, serializeCsp } from './headers'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+
+const BRANCH_TO_MODE = {
+  beard: 'develop',
+  juice: 'develop',
+  wood: 'develop',
+  gome: 'develop',
+  neo: 'develop',
+  arkeo: 'develop',
+  yeet: 'develop',
+  develop: 'develop',
+  release: 'app',
+  main: 'app',
+  private: 'private',
+}
+
+const determineMode = () => {
+  const branch = process.env.CURRENT_BRANCH_NAME
+  if (branch && BRANCH_TO_MODE[branch]) {
+    console.log(`Using branch ${branch} to determine environment ${BRANCH_TO_MODE[branch]}`)
+    return BRANCH_TO_MODE[branch]
+  }
+
+  return 'dev'
+}
 
 const VITE_CSP_META = serializeCsp(cspMeta)
 
@@ -43,166 +67,186 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   publicFilesEnvVars[`VITE_CID_${mungedName}`] = JSON.stringify(cid)
 }
 
-export default defineConfig(mode => ({
-  plugins: [
-    react(),
-    tsconfigPaths(),
-    checker({
-      typescript: {
-        typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
-      },
-      overlay: true,
-    }),
-  ],
-  server: {
-    port: 3000,
-    watch: {
-      usePolling: true,
-    },
-    fs: {
-      allow: ['..'],
-    },
-    headers,
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-      'ethers/lib/utils': 'ethers5/lib/utils.js',
-      'ethers/lib/utils.js': 'ethers5/lib/utils.js',
-      crypto: 'crypto-browserify',
-      stream: 'stream-browserify',
-      assert: 'assert',
-      http: 'stream-http',
-      https: 'https-browserify',
-      os: 'os-browserify',
-      typescript: 'typescript',
-      url: 'url',
-      buffer: 'buffer',
-      process: 'process/browser',
-      'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
-      zlib: 'browserify-zlib',
-      fs: 'memfs',
-      path: 'path-browserify',
-    },
-  },
-  define: {
-    ...Object.fromEntries(
-      Object.entries(publicFilesEnvVars).map(([key, value]) => [`import.meta.env.${key}`, value]),
-    ),
-    ...Object.fromEntries(
-      Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
-    ),
-    global: 'globalThis',
-    'global.Buffer': ['buffer', 'Buffer'],
-  },
-  build: {
-    target: 'esnext',
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-      },
-      output: {
-        manualChunks(id) {
-          // Bundle React and polyfills together to ensure they're available
-          if (
-            id.includes('react') ||
-            id.includes('react-dom') ||
-            id.includes('scheduler') ||
-            id.includes('buffer') ||
-            id.includes('process') ||
-            id.includes('polyfills')
-          ) {
-            return 'vendor-react'
-          }
-          return null
+export default defineConfig(({ mode }) => {
+  const actualMode = determineMode(mode)
+
+  const env = {
+    ...loadEnv('base', process.cwd(), ''),
+    ...loadEnv(actualMode, process.cwd(), ''),
+  }
+
+  console.log(`Using environment variables for ${actualMode} environment`)
+
+  return {
+    plugins: [
+      react(),
+      tsconfigPaths(),
+      checker({
+        typescript: {
+          typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
         },
-        chunkFileNames: chunkInfo => {
-          const prefix =
-            {
-              polyfills: '00',
-              'vendor-react': '01',
-            }[chunkInfo.name] || '99'
-
-          return `assets/${prefix}-${chunkInfo.name}-[hash].js`
-        },
-        entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
-      },
-      onwarn(warning, warn) {
-        // Ignore annotation warnings with /*#__PURE__*/ pattern
-        if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment')) {
-          return
-        }
-
-        // Ignore Node.js module externalization warnings
-        if (
-          warning.code === 'PLUGIN_WARNING' &&
-          warning.message.includes('has been externalized for browser compatibility')
-        ) {
-          return
-        }
-
-        // Ignore eval warnings in dependencies
-        if (
-          warning.code === 'EVAL' &&
-          (warning.id?.includes('node_modules/js-sha256') ||
-            warning.id?.includes('node_modules/google-protobuf') ||
-            warning.id?.includes('node_modules/@protobufjs/inquire'))
-        ) {
-          return
-        }
-
-        // Ignore dynamic import chunking warnings
-        if (
-          warning.plugin === 'vite:reporter' &&
-          warning.message.includes('dynamic import will not move module into another chunk')
-        ) {
-          return
-        }
-
-        warn(warning)
-      },
-    },
-    minify: mode === 'development' ? false : 'esbuild',
-    sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
-    outDir: 'build',
-    emptyOutDir: true,
-  },
-  optimizeDeps: {
-    force: true,
-    include: [
-      'react',
-      'react-dom',
-      '@chakra-ui/react',
-      'ethers',
-      'ethers5',
-      'buffer',
-      'process',
-      '@shapeshiftoss/hdwallet-coinbase',
-      '@shapeshiftoss/hdwallet-core',
-      '@shapeshiftoss/hdwallet-keepkey',
-      '@shapeshiftoss/hdwallet-keepkey-webusb',
-      '@shapeshiftoss/hdwallet-keplr',
-      '@shapeshiftoss/hdwallet-ledger',
-      '@shapeshiftoss/hdwallet-ledger-webusb',
-      '@shapeshiftoss/hdwallet-metamask-multichain',
-      '@shapeshiftoss/hdwallet-native',
-      '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines/default',
-      '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines',
-      '@shapeshiftoss/hdwallet-native-vault',
-      '@shapeshiftoss/hdwallet-phantom',
-      '@shapeshiftoss/hdwallet-walletconnectv2',
-      'dayjs',
-      'crypto-browserify',
-      'browserify-zlib',
+        overlay: true,
+      }),
     ],
-    esbuildOptions: {
-      define: {
-        global: 'globalThis',
+    define: {
+      ...Object.fromEntries(
+        Object.entries(publicFilesEnvVars).map(([key, value]) => [`import.meta.env.${key}`, value]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(env).map(([key, value]) => [
+          `import.meta.env.${key}`,
+          JSON.stringify(value),
+        ]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(env).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
+      ),
+      global: 'globalThis',
+      'global.Buffer': ['buffer', 'Buffer'],
+    },
+    server: {
+      port: 3000,
+      watch: {
+        usePolling: true,
+      },
+      fs: {
+        allow: ['..'],
+      },
+      headers,
+    },
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, './src'),
+        'ethers/lib/utils': 'ethers5/lib/utils.js',
+        'ethers/lib/utils.js': 'ethers5/lib/utils.js',
+        crypto: 'crypto-browserify',
+        stream: 'stream-browserify',
+        assert: 'assert',
+        http: 'stream-http',
+        https: 'https-browserify',
+        os: 'os-browserify',
+        typescript: 'typescript',
+        url: 'url',
+        buffer: 'buffer',
+        process: 'process/browser',
+        'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+        zlib: 'browserify-zlib',
+        fs: 'memfs',
+        path: 'path-browserify',
       },
     },
-  },
-}))
+    build: {
+      target: 'esnext',
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
+      rollupOptions: {
+        input: {
+          main: resolve(__dirname, 'index.html'),
+        },
+        output: {
+          manualChunks(id) {
+            // Bundle React and polyfills together to ensure they're available
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('scheduler') ||
+              id.includes('buffer') ||
+              id.includes('process') ||
+              id.includes('polyfills')
+            ) {
+              return 'vendor-react'
+            }
+            return null
+          },
+          chunkFileNames: chunkInfo => {
+            const prefix =
+              {
+                polyfills: '00',
+                'vendor-react': '01',
+              }[chunkInfo.name] || '99'
+
+            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
+          },
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
+        },
+        onwarn(warning, warn) {
+          // Ignore annotation warnings with /*#__PURE__*/ pattern
+          if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment')) {
+            return
+          }
+
+          // Ignore Node.js module externalization warnings
+          if (
+            warning.code === 'PLUGIN_WARNING' &&
+            warning.message.includes('has been externalized for browser compatibility')
+          ) {
+            return
+          }
+
+          // Ignore eval warnings in dependencies
+          if (
+            warning.code === 'EVAL' &&
+            (warning.id?.includes('node_modules/js-sha256') ||
+              warning.id?.includes('node_modules/google-protobuf') ||
+              warning.id?.includes('node_modules/@protobufjs/inquire'))
+          ) {
+            return
+          }
+
+          // Ignore dynamic import chunking warnings
+          if (
+            warning.plugin === 'vite:reporter' &&
+            warning.message.includes('dynamic import will not move module into another chunk')
+          ) {
+            return
+          }
+
+          warn(warning)
+        },
+      },
+      minify: actualMode === 'development' ? false : 'esbuild',
+      sourcemap: actualMode === 'development' ? 'eval-cheap-module-source-map' : false,
+      outDir: 'build',
+      emptyOutDir: true,
+    },
+    optimizeDeps: {
+      force: true,
+      include: [
+        'react',
+        'react-dom',
+        '@chakra-ui/react',
+        'ethers',
+        'ethers5',
+        'buffer',
+        'process',
+        '@shapeshiftoss/hdwallet-coinbase',
+        '@shapeshiftoss/hdwallet-core',
+        '@shapeshiftoss/hdwallet-keepkey',
+        '@shapeshiftoss/hdwallet-keepkey-webusb',
+        '@shapeshiftoss/hdwallet-keplr',
+        '@shapeshiftoss/hdwallet-ledger',
+        '@shapeshiftoss/hdwallet-ledger-webusb',
+        '@shapeshiftoss/hdwallet-metamask-multichain',
+        '@shapeshiftoss/hdwallet-native',
+        '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines/default',
+        '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines',
+        '@shapeshiftoss/hdwallet-native-vault',
+        '@shapeshiftoss/hdwallet-phantom',
+        '@shapeshiftoss/hdwallet-walletconnectv2',
+        'dayjs',
+        'crypto-browserify',
+        'browserify-zlib',
+      ],
+      esbuildOptions: {
+        define: {
+          global: 'globalThis',
+        },
+      },
+    },
+  }
+})

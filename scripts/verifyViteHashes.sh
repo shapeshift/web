@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Vite files are named [name].[hash].[ext]. The hash is typically longer than Webpack's.
 # This script verifies the content hashes of generated files to ensure deterministic builds.
 
 # Find all files with a hash in the name (excluding source maps and manifests)
@@ -18,7 +17,6 @@ find ./build/assets -type f -regextype posix-extended -regex '.*\.[a-zA-Z0-9]{8,
     REPLACER="$(printf 's/%s/%s/g' "$NAME" "$STRIPPEDNAME" | sed -r 's/\./\./g')"
     
     # Calculate hash of file content
-    # Note: Vite's hashing algorithm might differ, adjust if needed
     NEWHASH="$(sha256sum "$FILE" | cut -d ' ' -f 1 | dd bs=8 count=1 status=none)"
     
     if [ "${HASH:0:8}" = "$NEWHASH" ]; then

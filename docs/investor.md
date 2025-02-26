@@ -81,7 +81,7 @@ This is the `Asset` that can be deposited into the `Opportunity`.
 
 #### `assetId: string`
 
-`assetId` must be of type `AssetId` from `@shapeshiftmonorepo/caip/caip` and is a CAIP-19 representation of the asset or token that can be deposited into this `Opportunity`.
+`assetId` must be of type `AssetId` from `@shapeshiftmonorepo/caip` and is a CAIP-19 representation of the asset or token that can be deposited into this `Opportunity`.
 
 For example, `AssetId` for Ethereum is `eip155:1/slip44:60`
 

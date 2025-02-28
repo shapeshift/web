@@ -512,9 +512,7 @@
     "clickHereToEarn": "单击此处通过收益挖矿 ETH-FOX 流动性池代币赚取 %{apr} APR*",
     "overview": "总览",
     "myPositions": "我的仓位",
-    
     "myRewards": "我的奖励",
-    
     "viewAllPositions": "查看所有仓位",
     "liquidityPools": "流动资金池",
     "liquidityLockupWarning": "锁定期为 %{time}。在锁定期间，你无法动用你的流动性。",
@@ -2518,10 +2516,7 @@
     "foxPowerDiscount": "FOX Power 折扣",
     "basedOnFee": "基于费用：%{fee}",
     "feeSummary": "费用概要",
-    "simulateFee": "模拟折扣",
     "freeUnderThreshold": "%{threshold} 以下的 %{feature} 始终免费",
-    "breakdownHeader": "你的 FOX Power 折扣",
-    "breakdownBody": "以下是你的 %{featureLowerCase} 费用和所应用的相应 FOX Power 折扣的明细。了解在“模拟”选项卡上你还可以节省多少费用。",
     "featureFee": "%{feature} 费用",
     "totalFeatureFee": "总费用%{feature}"
   },

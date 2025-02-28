@@ -512,9 +512,7 @@
     "clickHereToEarn": "Натисніть тут, щоб заробити %{apr} APR*, фармлячи токени пулу ліквідності ETH-FOX",
     "overview": "Огляд",
     "myPositions": "Мої позиції",
-    
     "myRewards": "Мої винагороди",
-    
     "viewAllPositions": "Переглянути всі позиції",
     "liquidityPools": "Пули ліквідності",
     "liquidityLockupWarning": "Існує період блокування %{time}. Під час блокування ви не можете отримати доступ до своєї ліквідності.",
@@ -2518,10 +2516,7 @@
     "foxPowerDiscount": "Знижка FOX Power",
     "basedOnFee": "На основі комісії: %{fee}",
     "feeSummary": "Підсумок вартості газу",
-    "simulateFee": "Змоделювати знижку",
     "freeUnderThreshold": "%{feature} до %{threshold} завжди БЕЗКОШТОВНІ",
-    "breakdownHeader": "Ваша знижка сили FOX",
-    "breakdownBody": "Нижче наведено розбивку ваших комісій %{featureLowerCase} та відповідну знижку FOX Power, що застосовується. Дізнайтеся, скільки ще ви можете заощадити на вкладці \"Моделювання\".",
     "featureFee": "%{feature} Комісія",
     "totalFeatureFee": "Загальна %{feature} комісія"
   },

@@ -512,9 +512,7 @@
     "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
     "myPositions": "Mes positions",
-    
     "myRewards": "Mes récompenses",
-    
     "viewAllPositions": "Voir toutes les positions",
     "liquidityPools": "Pools de liquidité",
     "liquidityLockupWarning": "Il y a une période de verrouillage de %{time}. Pendant la période de verrouillage, vous ne pouvez pas accéder à vos liquidités.",
@@ -2518,10 +2516,7 @@
     "foxPowerDiscount": "Remise Puissance FOX",
     "basedOnFee": "Basé sur des frais de : %{fee}",
     "feeSummary": "Résumé des frais",
-    "simulateFee": "Simuler les remises",
     "freeUnderThreshold": "%{feature} en dessous de %{threshold} sont toujours GRATUITS",
-    "breakdownHeader": "Votre remise Puissance FOX",
-    "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais pour un %{featureLowerCase} et de la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet Simulation.",
     "featureFee": "Frais %{feature}",
     "totalFeatureFee": "Total Frais %{feature}"
   },

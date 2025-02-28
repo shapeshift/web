@@ -512,9 +512,7 @@
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
     "myPositions": "Minhas Posições",
-    
     "myRewards": "Minhas recompensas",
-    
     "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
     "liquidityLockupWarning": "Há um período de bloqueio de %{time}. Durante o bloqueio, você não pode acessar sua liquidez.",
@@ -2518,10 +2516,7 @@
     "foxPowerDiscount": "Desconto do poder FOX",
     "basedOnFee": "Com base em uma taxa de: %{fee}",
     "feeSummary": "Resumo das Taxas",
-    "simulateFee": "Simular o Desconto",
     "freeUnderThreshold": "%{feature} abaixo de %{threshold} são sempre GRATUITOS",
-    "breakdownHeader": "Desconto graças ao seu Poder FOX",
-    "breakdownBody": "Abaixo está um detalhamento de suas taxas de %{featureLowerCase} e o desconto FOX Power correspondente aplicado. Saiba quanto mais você pode economizar na aba simular.",
     "featureFee": "%{feature} Taxa",
     "totalFeatureFee": "Taxa %{feature} Total"
   },

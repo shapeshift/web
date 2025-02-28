@@ -512,9 +512,7 @@
     "clickHereToEarn": "Нажмите здесь, чтобы заработать %{apr} APR* фармингом пула ликвидности ETH-FOX",
     "overview": "Обзор",
     "myPositions": "Мои позиции",
-    
     "myRewards": "Мои награды",
-    
     "viewAllPositions": "Посмотреть все позиции",
     "liquidityPools": "Пулы ликвидности",
     "liquidityLockupWarning": "Существует период блокировки %{time}. Во время блокировки вы не можете получить доступ к своей ликвидности.",
@@ -2518,10 +2516,7 @@
     "foxPowerDiscount": "Скидка FOX Power",
     "basedOnFee": "На основе вознаграждения в размере: %{fee}",
     "feeSummary": "Сводка расходов за газ",
-    "simulateFee": "Имитировать скидку",
     "freeUnderThreshold": "%{feature} ниже %{threshold} всегда БЕСПЛАТНО",
-    "breakdownHeader": "Ваша скидка силы FOX ",
-    "breakdownBody": "Ниже приведена разбивка ваших %{featureLowerCase} расходов и соответствующей примененной скидки FOX Power Discount. Узнайте, сколько еще вы можете сэкономить на вкладке \"Моделирование\".",
     "featureFee": "%{feature} Комиссии",
     "totalFeatureFee": "Общая комиссия %{feature} "
   },

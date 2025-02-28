@@ -512,9 +512,7 @@
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "myPositions": "Meine Positionen",
-    
     "myRewards": "Meine Belohnungen",
-    
     "viewAllPositions": "Alle Positionen anzeigen",
     "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "Es gibt eine Sperrfrist von %{time}. Während der Sperre können Sie nicht auf Ihre Liquidität zugreifen.",
@@ -2518,10 +2516,7 @@
     "foxPowerDiscount": "FOX Power Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
-    "simulateFee": "Rabatt simulieren",
     "freeUnderThreshold": "%{feature} unter %{threshold} sind immer KOSTENLOS",
-    "breakdownHeader": "Ihr FOX Power Rabatt",
-    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer %{featureLowerCase}-Gebühren und des entsprechenden angewendeten FOX Power-Rabatts. Erfahren Sie, wie viel mehr Sie sparen können in der Registerkarte „Simulieren“ .",
     "featureFee": "%{feature} Gebühr",
     "totalFeatureFee": "Gesamte %{feature} Gebühr"
   },

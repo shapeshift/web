@@ -42,10 +42,13 @@ jobs:
         run: |
           if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "release" ]]; then
             echo "BUILD_MODE=production" >> ${GITHUB_ENV}
+            echo "NODE_ENV=production" >> ${GITHUB_ENV}
           elif [[ "${{ github.ref_name }}" == "private" ]]; then
             echo "BUILD_MODE=private" >> ${GITHUB_ENV}
+            echo "NODE_ENV=production" >> ${GITHUB_ENV}
           else
             echo "BUILD_MODE=development" >> ${GITHUB_ENV}
+            echo "NODE_ENV=development" >> ${GITHUB_ENV}
           fi
       - name: Debug GitHub Context
         env: { CONTENT : "${{ toJson(github) }}" }

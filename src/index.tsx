@@ -20,7 +20,6 @@ import { AppProviders } from './AppProviders'
 import { getConfig } from './config'
 import { renderConsoleArt } from './lib/consoleArt'
 import { reportWebVitals } from './lib/reportWebVitals'
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import { httpClientIntegration } from './utils/sentry/httpclient'
 
 // Remove this condition to test sentry locally
@@ -134,8 +133,6 @@ root.render(
     </AppProviders>
   </React.StrictMode>,
 )
-
-serviceWorkerRegistration.register()
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

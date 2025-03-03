@@ -140,6 +140,8 @@
     "needAsset": "Besoin de %{asset} ?",
     "buyNow": "Acheter maintenant",
     "manage": "Gérer",
+    "view": "Voir",
+    "viewOnly": "Lecture seule",
     "selectedAccount": "Compte sélectionné",
     "allChains": "Toutes les chaînes",
     "wallet": "Porte-monnaie",
@@ -512,7 +514,9 @@
     "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
     "myPositions": "Mes positions",
+    "myPositionsBody": "Une liste de vos positions actuellement actives dans la DeFi.",
     "myRewards": "Mes récompenses",
+    "myRewardsBody": "Vos positions DeFi actives avec les récompenses pouvant être réclamées.",
     "viewAllPositions": "Voir toutes les positions",
     "liquidityPools": "Pools de liquidité",
     "liquidityLockupWarning": "Il y a une période de verrouillage de %{time}. Pendant la période de verrouillage, vous ne pouvez pas accéder à vos liquidités.",
@@ -526,8 +530,6 @@
     "poolValue": "Valeur du pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valeur totale",
-    "byAsset": "Par actif",
-    "byProvider": "Par fournisseur",
     "claimableRewards": "Récompenses réclamables",
     "stakingPosition": "Position de mises",
     "liquidityPool": "Pool de liquidités",
@@ -588,6 +590,8 @@
     "assetStakingBalance": "Solde des mises en %{assetName}"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "Accueil",
     "activity": "Activité",
     "myWallet": "Mon porte-monnaie",
@@ -622,7 +626,7 @@
     "lending": "Prêts",
     "pools": "Pools",
     "rFOX": "rFOX",
-    "foxBenefits": "Avantages FOX",
+    "foxEcosystem": "Écosystème FOX",
     "markets": "Marchés",
     "actionMenu": {
       "send": {
@@ -2466,6 +2470,7 @@
     "repayNotice": "Pour récupérer votre collatéral, vous devrez rembourser 100 % de votre dette.",
     "feesNotice": "Les frais liés au collatéral que vous récupérerez après avoir remboursé 100 % de votre dette",
     "refetchQuote": "Actualiser le devis",
+    "haltedAlert": "Les services THORFi (Prêts, Savers et RUNEPool) sont actuellement suspendus sur THORChain. Nous nous excusons pour la gêne occasionnée.",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2513,12 +2518,19 @@
     "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre %{feature}. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre %{featureLowerCase} en monnaie fiduciaire, et constatez vos économies potentielles !",
     "featureSize": "Montant %{feature}",
     "totalFee": "Total des frais",
-    "foxPowerDiscount": "Remise Puissance FOX",
+    "discountLabel": "Remise %{discountType}",
     "basedOnFee": "Basé sur des frais de : %{fee}",
     "feeSummary": "Résumé des frais",
+    "simulateFee": "Simuler la remise FOX",
     "freeUnderThreshold": "%{feature} en dessous de %{threshold} sont toujours GRATUITS",
+    "breakdownHeader": "Votre remise",
+    "breakdownBody": "Vous trouverez ci-dessous une répartition de vos frais %{featureLowerCase} et de la remise correspondante appliquée. Découvrez combien vous pouvez économiser en plus sur l'onglet de simulation.",
     "featureFee": "Frais %{feature}",
-    "totalFeatureFee": "Total Frais %{feature}"
+    "totalFeatureFee": "Total Frais %{feature}",
+    "underThreshold": "Faible valeur",
+    "thorHolder": "Détenteur THORSwap",
+    "foxHolder": "Détenteur FOX",
+    "foxWifHatHolder": "Détenteur FOX Wif Hat"
   },
   "chart": {
     "interval": {
@@ -2559,6 +2571,7 @@
     "unsupportedDemoWalletExplainer": "Le porte-monnaie de démo n'est pas pris en charge, veuillez vous connecter à un porte-monnaie pour utiliser cette fonctionnalité.",
     "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
+    "instabilityWarning": "Les utilisateurs sont actuellement confrontés à des remboursements lors des dépôts dans les pools THORChain. Veuillez procéder avec prudence.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",
@@ -2855,10 +2868,6 @@
       "noActiveProposals": "Aucune proposition active disponible",
       "noClosedProposals": "Aucune proposition fermée disponible"
     }
-  },
-  "thorFees": {
-    "title": "Vous venez de THORSwap ?",
-    "description": "Les détenteurs de THOR échangent gratuitement durant 2024."
   },
   "chainAdapters": {
     "errors": {

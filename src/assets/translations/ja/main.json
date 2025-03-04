@@ -140,6 +140,8 @@
     "needAsset": "%{asset} が必要ですか?",
     "buyNow": "今すぐ購入",
     "manage": "管理",
+    "view": "ビュー",
+    "viewOnly": "表示のみ",
     "selectedAccount": "選択したアカウント",
     "allChains": "すべてのチェーン",
     "wallet": "ウォレット",
@@ -512,7 +514,9 @@
     "clickHereToEarn": "ここをクリックすると、ETH-FOX流動性プールトークンを獲得して年率%{apr}*を獲得できます",
     "overview": "概要",
     "myPositions": "ポジション",
+    "myPositionsBody": "DeFi における現在アクティブなポジションのリスト。",
     "myRewards": "報酬",
+    "myRewardsBody": "請求可能な報酬のあるアクティブな DeFi ポジション。",
     "viewAllPositions": "すべてのポジションを表示",
     "liquidityPools": "流動性プール",
     "liquidityLockupWarning": "%{time} のロックアップ期間があります。ロックアップ中は流動性にアクセスできません。",
@@ -526,8 +530,6 @@
     "poolValue": "プール値",
     "yearn": "Yearn Finance",
     "totalValue": "総価値",
-    "byAsset": "アセット別",
-    "byProvider": "プロバイダー別",
     "claimableRewards": "受け取れる報酬",
     "stakingPosition": "ステーキングポジション",
     "liquidityPool": "流動性プール",
@@ -588,6 +590,8 @@
     "assetStakingBalance": "%{assetSymbol} ステーキング残高"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "ホーム",
     "activity": "アクティビティ",
     "myWallet": "ウォレット",
@@ -622,7 +626,7 @@
     "lending": "貸し出し",
     "pools": "プール",
     "rFOX": "rFOX",
-    "foxBenefits": "FOXのメリット",
+    "foxEcosystem": "FOXエコシステム",
     "markets": "市場",
     "actionMenu": {
       "send": {
@@ -2466,6 +2470,7 @@
     "repayNotice": "担保を取り戻すには借金を100％返済する必要があります。",
     "feesNotice": "担保に対して発生した手数料は、借金を100%返済した後に返還されます。",
     "refetchQuote": "見積もりを再取得する",
+    "haltedAlert": "THORChain では、現在 THORFi サービス (Lending、Savers、RUNEPool) が一時停止中です。ご不便をおかけして申し訳ございません。",
     "faq": {
       "title": "よくある質問",
       "lending": {
@@ -2513,12 +2518,19 @@
     "simulateBody": "この便利な計算ツールを使用して、合計料金と %{feature} で受けられる割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での %{featureLowerCase} サイズを示すだけで、潜在的な節約額がどのように展開されるかを確認してください。",
     "featureSize": "%{feature} サイズ",
     "totalFee": "合計料金",
-    "foxPowerDiscount": "FOXパワー割引",
+    "discountLabel": "%{discountType} 割引",
     "basedOnFee": "料金に基づく: %{fee}",
     "feeSummary": "料金概要",
+    "simulateFee": "FOX割引をシミュレートする",
     "freeUnderThreshold": "%{threshold} 未満の %{feature} は常に無料です",
+    "breakdownHeader": "割引",
+    "breakdownBody": "以下は、%{featureLowerCase} の料金とそれに応じて適用される割引の内訳です。シミュレーション タブでさらにどれだけ節約できるかを確認してください。",
     "featureFee": "%{feature} 料金",
-    "totalFeatureFee": "合計 %{feature} 料金"
+    "totalFeatureFee": "合計 %{feature} 料金",
+    "underThreshold": "少額取引",
+    "thorHolder": "THORSwapホルダー",
+    "foxHolder": "FOXホルダー",
+    "foxWifHatHolder": "FOX Wif ハットホルダー"
   },
   "chart": {
     "interval": {
@@ -2559,6 +2571,7 @@
     "unsupportedDemoWalletExplainer": "デモ ウォレットはサポートされていません。この機能を使用するには、ウォレットに接続してください。",
     "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
     "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
+    "instabilityWarning": "現在、THORChain プールへの入金中に払い戻しが発生しています。注意して進めてください。",
     "shareOfPool": "プールのシェア",
     "assetDepositAmount": "%{asset} 入金額",
     "totalLiquidity": "総流動性",
@@ -2855,10 +2868,6 @@
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"
     }
-  },
-  "thorFees": {
-    "title": "THORSwapから来ましたか?",
-    "description": "THOR保有者は2024年まで無料で取引できます。"
   },
   "chainAdapters": {
     "errors": {

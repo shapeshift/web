@@ -160,7 +160,7 @@ export const KeepKeyRoutes = () => {
     if (!deviceFirmwareQuery.data || !versionsQuery.data) return
 
     initializeKeepKeyMutation.mutate()
-  }, [wallet, deviceFirmwareQuery.data, versionsQuery.data, initializeKeepKeyMutation])
+  }, [wallet, deviceFirmwareQuery.data, versionsQuery.data, initializeKeepKeyMutation.mutate])
 
   const secondaryContent = useMemo(
     () =>

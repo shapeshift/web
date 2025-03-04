@@ -113,10 +113,10 @@ const validators = {
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
-    default: 'https://github.com/keepkey/keepkey-updater/releases/latest',
+    default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
   }),
   VITE_KEEPKEY_UPDATER_BASE_URL: url({
-    default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
+    default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
   }),
   VITE_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
   VITE_MIXPANEL_TOKEN: str(),

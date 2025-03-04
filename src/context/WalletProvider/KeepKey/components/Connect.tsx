@@ -9,8 +9,10 @@ import {
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
+import semverGte from 'semver/functions/gte'
 
 import { KeepKeyConfig } from '../config'
+import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 import { setupKeepKeySDK } from '../setupKeepKeySdk'
 
@@ -43,6 +45,8 @@ export const KeepKeyConnect = () => {
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { versionsQuery } = useKeepKeyVersions({ wallet: state.wallet })
+  const latestFirmware = versionsQuery.data?.latestFirmware
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -86,6 +90,26 @@ export const KeepKeyConnect = () => {
 
     if (!wallet) return
     try {
+      // Check firmware version before proceeding
+      const deviceFirmware = await wallet.getFirmwareVersion()
+
+      // If we're still loading the latest firmware version, wait
+      if (versionsQuery.isFetching) {
+        console.log('Still loading latest firmware version, waiting...')
+        setLoading(true)
+        return
+      }
+
+      // If the latest firmware version is not available, proceed anyway
+      if (!latestFirmware) {
+        console.warn('Latest firmware version not available, proceeding anyway')
+      } else if (!semverGte(deviceFirmware, latestFirmware)) {
+        // If the device firmware is older than the required firmware version, show error and return
+        console.error(`Firmware version ${deviceFirmware} is older than required ${latestFirmware}`)
+        setErrorLoading('walletProvider.errors.walletNotFound')
+        return
+      }
+
       const { name, icon } = KeepKeyConfig
       const deviceId = await wallet.getDeviceID()
       await wallet.getFeatures()
@@ -125,7 +149,15 @@ export const KeepKeyConnect = () => {
     }
 
     setLoading(false)
-  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
+  }, [
+    dispatch,
+    getAdapter,
+    localWallet,
+    setErrorLoading,
+    state.keyring,
+    latestFirmware,
+    versionsQuery.isFetching,
+  ])
   return (
     <>
       <ModalHeader>
@@ -153,7 +185,12 @@ export const KeepKeyConnect = () => {
             <Alert status='error' mt={4}>
               <AlertIcon />
               <AlertDescription>
-                <Text translation={'walletProvider.keepKey.errors.updateAlert'} />
+                <Text
+                  translation={[
+                    'walletProvider.keepKey.errors.updateAlert',
+                    { version: latestFirmware },
+                  ]}
+                />
               </AlertDescription>
             </Alert>
             <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>

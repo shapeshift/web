@@ -8,7 +8,8 @@ import {
 } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
-import { useCallback, useState } from 'react'
+import type { InterpolationOptions } from 'node-polyglot'
+import { useCallback, useMemo, useState } from 'react'
 import semverGte from 'semver/functions/gte'
 
 import { KeepKeyConfig } from '../config'
@@ -158,6 +159,11 @@ export const KeepKeyConnect = () => {
     latestFirmware,
     versionsQuery.isFetching,
   ])
+
+  const walletNotFoundTranslation: [string, InterpolationOptions] = useMemo(
+    () => ['walletProvider.keepKey.errors.updateAlert', { version: latestFirmware }],
+    [latestFirmware],
+  )
   return (
     <>
       <ModalHeader>
@@ -185,12 +191,7 @@ export const KeepKeyConnect = () => {
             <Alert status='error' mt={4}>
               <AlertIcon />
               <AlertDescription>
-                <Text
-                  translation={[
-                    'walletProvider.keepKey.errors.updateAlert',
-                    { version: latestFirmware },
-                  ]}
-                />
+                <Text translation={walletNotFoundTranslation} />
               </AlertDescription>
             </Alert>
             <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>

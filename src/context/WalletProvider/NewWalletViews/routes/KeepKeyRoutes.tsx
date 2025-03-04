@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertIcon, Button } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWallet, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useMutation } from '@tanstack/react-query'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import semverGte from 'semver/functions/gte'
 
@@ -160,22 +160,31 @@ export const KeepKeyRoutes = () => {
     if (!deviceFirmwareQuery.data || !versionsQuery.data) return
 
     initializeKeepKeyMutation.mutate()
-  }, [wallet, deviceFirmwareQuery.data, versionsQuery.data])
+  }, [wallet, deviceFirmwareQuery.data, versionsQuery.data, initializeKeepKeyMutation])
 
-  const secondaryContent = error === 'walletProvider.errors.walletVersionTooOld' && (
-    <>
-      <Alert status='error'>
-        <AlertIcon />
-        <AlertDescription>
-          <Text
-            translation={['walletProvider.keepKey.errors.updateAlert', { version: latestFirmware }]}
-          />
-        </AlertDescription>
-      </Alert>
-      <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue'>
-        <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
-      </Button>
-    </>
+  const secondaryContent = useMemo(
+    () =>
+      error === 'walletProvider.errors.walletVersionTooOld' && (
+        <>
+          <Alert status='error'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text
+                // This is already memoized
+                // eslint-disable-next-line react-memo/require-usememo
+                translation={[
+                  'walletProvider.keepKey.errors.updateAlert',
+                  { version: latestFirmware },
+                ]}
+              />
+            </AlertDescription>
+          </Alert>
+          <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue'>
+            <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
+          </Button>
+        </>
+      ),
+    [error, handleDownloadButtonClick, latestFirmware],
   )
 
   // Note, `/keepkey/connect` is handled with PairBody instead of the regular KK routes, since it's the new, better looking version

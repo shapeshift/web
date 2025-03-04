@@ -120,11 +120,6 @@ export const ConfirmSummary = ({
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
-  const isTaprootReceiveAddress = useMemo(
-    () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
-    [buyAsset.chainId, receiveAddress],
-  )
-
   const shouldDisableThorTaprootReceiveAddress = useMemo(() => {
     // Taproot addresses are not supported by THORChain swapper currently
     if (activeSwapperName === SwapperName.Thorchain && isTaprootReceiveAddress) return true
@@ -189,20 +184,8 @@ export const ConfirmSummary = ({
     isWalletReceiveAddressLoading,
   })
 
-  // Taproot sends are unsupported for KeepKey, and Chainflip uses Taproot address for BTC sells.
-  const isUnsupportedKeepKeyP2TrTx = useMemo(() => {
-    return (
-      wallet &&
-      sellAsset?.assetId === btcAssetId &&
-      isKeepKeyHDWallet(wallet) &&
-      activeSwapperName === SwapperName.Chainflip
-    )
-  }, [activeSwapperName, sellAsset?.assetId, wallet])
-
   const shouldDisablePreviewButton = useMemo(() => {
     return (
-      // No dice for KK BTC sends
-      isUnsupportedKeepKeyP2TrTx ||
       // don't execute trades while address is validating
       isManualReceiveAddressRequired ||
       isManualReceiveAddressValidating ||
@@ -221,7 +204,6 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
-    isUnsupportedKeepKeyP2TrTx,
     isManualReceiveAddressRequired,
     isManualReceiveAddressValidating,
     isManualReceiveAddressEditing,
@@ -308,16 +290,9 @@ export const ConfirmSummary = ({
           <Text translation={nativeAssetBridgeWarning} />
         </Alert>
       )
-    if (isUnsupportedKeepKeyP2TrTx)
-      return (
-        <Alert status='info' borderRadius='lg'>
-          <AlertIcon />
-          <Text translation='trade.disableChainflipKeepKeyTaprootReceive' />
-        </Alert>
-      )
 
     return null
-  }, [isUnsupportedKeepKeyP2TrTx, nativeAssetBridgeWarning])
+  }, [nativeAssetBridgeWarning])
 
   const manualAddressEntryDescription = useMemo(() => {
     if (shouldDisableThorNativeSmartContractReceive)

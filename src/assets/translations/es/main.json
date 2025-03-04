@@ -140,6 +140,8 @@
     "needAsset": "¿Necesita %{asset}?",
     "buyNow": "Comprar ahora",
     "manage": "Administre",
+    "view": "Vista",
+    "viewOnly": "Sólo Lectura",
     "selectedAccount": "Cuenta Seleccionada",
     "allChains": "Todas las cadenas",
     "wallet": "Billetera",
@@ -512,7 +514,9 @@
     "clickHereToEarn": "Haga clic aquí para ganar %{apr} APR* farming sus tokens en el pool ETH-FOX",
     "overview": "Overview",
     "myPositions": "Mis Posiciones",
+    "myPositionsBody": "Una lista de sus posiciones actualmente activas en DeFi.",
     "myRewards": "Mis Recompensas",
+    "myRewardsBody": "Tus posiciones DeFi activas con recompensas reclamables.",
     "viewAllPositions": "Ver Todas las Posiciones",
     "liquidityPools": "Pools de liquidez",
     "liquidityLockupWarning": "Hay un período de bloqueo de %{time}. Durante el bloqueo, no puedes acceder a tu liquidez.",
@@ -526,8 +530,6 @@
     "poolValue": "Valor de Pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valor Total",
-    "byAsset": "Por Activo",
-    "byProvider": "Por Proveedor",
     "claimableRewards": "Recompensas reclamables",
     "stakingPosition": "Posición Staking",
     "liquidityPool": "Pool de Liquidez",
@@ -588,6 +590,8 @@
     "assetStakingBalance": "%{assetSymbol} Balance de Staking"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "Inicio",
     "activity": "Actividad",
     "myWallet": "Mi billetera",
@@ -622,7 +626,7 @@
     "lending": "Préstamo",
     "pools": "Pools",
     "rFOX": "rFOX",
-    "foxBenefits": "Beneficios FOX",
+    "foxEcosystem": "Ecosistema FOX",
     "markets": "Mercados",
     "actionMenu": {
       "send": {
@@ -2466,6 +2470,7 @@
     "repayNotice": "Para recuperar su garantía colateral deberá pagar el 100% de su deuda.",
     "feesNotice": "Se produjeron tarifas sobre la garantía que recibirá después de pagar 100% de su deuda.",
     "refetchQuote": "Recuperar Cotización",
+    "haltedAlert": "Los servicios THORFi (préstamos, Savers y RUNEPool) están actualmente suspendidos en THORChain. Pedimos disculpas por inconvenientes.",
     "faq": {
       "title": "Preguntas más frecuentes",
       "lending": {
@@ -2513,12 +2518,19 @@
     "simulateBody": "Utilice calculadora para determinar tarifas totales y descuentos %{feature}. Ajuste controles deslizantes para indicar el monto de su FOX y el tamaño %{featureLowerCase} en fiat, ¡y observe cómo se desarrollan sus ahorros potenciales!",
     "featureSize": "%{feature} Tamaño",
     "totalFee": "Costo total",
-    "foxPowerDiscount": "Descuento poder FOX",
+    "discountLabel": "%{discountType} Descuento",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
+    "simulateFee": "Simular Descuento FOX",
     "freeUnderThreshold": "%{feature} por debajo de %{threshold} siempre son GRATIS",
+    "breakdownHeader": "Tu Descuento",
+    "breakdownBody": "A continuación, se muestra un desglose de tarifas %{featureLowerCase} y descuento aplicado. Descubra cuánto más puede ahorrar en pestaña de simulación.",
     "featureFee": "%{feature} Tarifa",
-    "totalFeatureFee": "Tarifa %{feature} total"
+    "totalFeatureFee": "Tarifa %{feature} total",
+    "underThreshold": "Monto Intercambiado",
+    "thorHolder": "Holder THORSwap",
+    "foxHolder": "Holder FOX",
+    "foxWifHatHolder": "Holder FOX Wif Hat"
   },
   "chart": {
     "interval": {
@@ -2559,6 +2571,7 @@
     "unsupportedDemoWalletExplainer": "La billetera demo no es compatible; conecte una billetera para usar esta función.",
     "unsupportedNetworkExplainer": "Tu billetera no está conectada a %{network}. Conecte esta cadena o cambie a una billetera que admita esta red.",
     "unsupportedNetworksExplainer": "Tu billetera no está conectada a %{network1} y %{network2}. Conecte esta cadena o cambie a una billetera que admita estas redes.",
+    "instabilityWarning": "Actualmente, usuarios están recibiendo reembolsos al realizar depósitos en pools THORChain. Proceda con precaución.",
     "shareOfPool": "Participación de Pool",
     "assetDepositAmount": "%{asset} Monto de Depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2855,10 +2868,6 @@
       "noActiveProposals": "No hay propuestas activas disponibles",
       "noClosedProposals": "No hay propuestas cerradas disponibles"
     }
-  },
-  "thorFees": {
-    "title": "¿Eres de THORSwap?",
-    "description": "Los titulares de THOR intercambian gratis en 2024."
   },
   "chainAdapters": {
     "errors": {

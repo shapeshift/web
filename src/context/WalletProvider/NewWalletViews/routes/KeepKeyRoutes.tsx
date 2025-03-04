@@ -160,6 +160,8 @@ export const KeepKeyRoutes = () => {
     if (!deviceFirmwareQuery.data || !versionsQuery.data) return
 
     initializeKeepKeyMutation.mutate()
+    // Don't memoize initializeKeepKeyMutation or this will run in an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, deviceFirmwareQuery.data, versionsQuery.data, initializeKeepKeyMutation.mutate])
 
   const secondaryContent = useMemo(

@@ -177,7 +177,7 @@ export default defineConfig(({ mode }) => {
           warn(warning)
         },
       },
-      minify: mode === 'development' ? false : 'esbuild',
+      minify: mode === 'development' && !process.env.DISABLE_MINIFY ? false : 'esbuild',
       sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
       outDir: 'build',
       emptyOutDir: true,

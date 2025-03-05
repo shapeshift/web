@@ -177,8 +177,11 @@ export default defineConfig(({ mode }) => {
           warn(warning)
         },
       },
-      minify: mode === 'development' && !process.env.DISABLE_MINIFY ? false : 'esbuild',
-      sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
+      minify: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? false : 'esbuild',
+      sourcemap:
+        mode === 'development' && !process.env.DISABLE_SOURCE_MAP
+          ? 'eval-cheap-module-source-map'
+          : false,
       outDir: 'build',
       emptyOutDir: true,
     },

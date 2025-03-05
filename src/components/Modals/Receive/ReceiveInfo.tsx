@@ -40,6 +40,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { firstFourLastFour } from 'lib/utils'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 
@@ -137,7 +138,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       await navigator.clipboard.writeText(receiveAddress)
       const title = translate('modals.receive.copied', translatePayload)
       const status = 'success'
-      const description = receiveAddress
+      const description = firstFourLastFour(receiveAddress)
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('modals.receive.copyFailed', translatePayload)

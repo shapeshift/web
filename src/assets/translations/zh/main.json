@@ -512,9 +512,9 @@
     "clickHereToEarn": "单击此处通过收益挖矿 ETH-FOX 流动性池代币赚取 %{apr} APR*",
     "overview": "总览",
     "myPositions": "我的仓位",
-    "myPositionsBody": "你的活跃仓位将显示在这里。",
+    
     "myRewards": "我的奖励",
-    "myRewardsBody": "你的活跃仓位以及可领取的奖励将显示在此处。",
+    
     "viewAllPositions": "查看所有仓位",
     "liquidityPools": "流动资金池",
     "liquidityLockupWarning": "锁定期为 %{time}。在锁定期间，你无法动用你的流动性。",

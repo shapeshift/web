@@ -76,6 +76,13 @@ export default defineConfig(({ mode }) => {
       },
       headers,
     },
+    preview: {
+      port: 3000,
+      fs: {
+        allow: ['..'],
+      },
+      headers,
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
@@ -170,11 +177,8 @@ export default defineConfig(({ mode }) => {
           warn(warning)
         },
       },
-      minify: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? false : 'esbuild',
-      sourcemap:
-        mode === 'development' && !process.env.DISABLE_SOURCE_MAP
-          ? 'eval-cheap-module-source-map'
-          : false,
+      minify: mode === 'development' ? false : 'esbuild',
+      sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : false,
       outDir: 'build',
       emptyOutDir: true,
     },

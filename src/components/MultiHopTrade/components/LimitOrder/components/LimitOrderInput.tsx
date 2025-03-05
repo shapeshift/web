@@ -77,12 +77,14 @@ type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
+  noExpand?: boolean
 }
 
 export const LimitOrderInput = ({
   isCompact,
   tradeInputRef,
   onChangeTab,
+  noExpand,
 }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
@@ -535,6 +537,7 @@ export const LimitOrderInput = ({
         swapSource={SwapperName.CowSwap}
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
         sellAsset={sellAsset}
+        noExpand={noExpand}
       >
         {renderedRecipientAddress}
       </SharedTradeInputFooter>
@@ -555,6 +558,7 @@ export const LimitOrderInput = ({
     networkFeeUserCurrency,
     sellAsset,
     renderedRecipientAddress,
+    noExpand,
   ])
 
   return (
@@ -577,6 +581,7 @@ export const LimitOrderInput = ({
         tradeInputTab={TradeInputTab.LimitOrder}
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
+        noExpand={noExpand}
       />
     </>
   )

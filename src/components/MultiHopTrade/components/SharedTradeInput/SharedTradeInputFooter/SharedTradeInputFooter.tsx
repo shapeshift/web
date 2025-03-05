@@ -33,6 +33,7 @@ type SharedTradeInputFooterProps = {
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
   onGasRateRowClick?: () => void
+  noExpand?: boolean
 }
 
 export const SharedTradeInputFooter = ({
@@ -55,6 +56,7 @@ export const SharedTradeInputFooter = ({
   swapSource,
   networkFeeFiatUserCurrency,
   onGasRateRowClick,
+  noExpand,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
@@ -99,6 +101,7 @@ export const SharedTradeInputFooter = ({
       >
         {hasUserEnteredAmount && (
           <RateGasRow
+            affiliateBps={affiliateBps}
             buyAssetSymbol={buyAsset.symbol}
             sellAssetSymbol={sellAsset.symbol}
             isDisabled={shouldDisableGasRateRowClick}
@@ -108,6 +111,7 @@ export const SharedTradeInputFooter = ({
             swapperName={swapperName}
             swapSource={swapSource}
             onClick={onGasRateRowClick}
+            noExpand={noExpand}
           >
             <ReceiveSummary
               isLoading={isLoading}

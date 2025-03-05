@@ -3,6 +3,7 @@ import { Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -76,6 +77,10 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
+      if (!contractAddress || !rewardAddress) {
+        return
+      }
+
       if (opportunity.isReadOnly) {
         const url = getMetadataForProvider(opportunity.provider)?.url
         url && window.open(url, '_blank')
@@ -96,19 +101,21 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         assets,
       )
 
+      const queryParams: DefiQueryParams = {
+        type,
+        provider,
+        chainId,
+        contractAddress,
+        assetNamespace,
+        assetReference,
+        highestBalanceAccountAddress,
+        rewardId: rewardAddress,
+        modal: action ? action : 'overview',
+      }
+
       history.push({
         pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action ? action : 'overview',
-        }),
+        search: qs.stringify(queryParams),
         state: { background: location },
       })
     },

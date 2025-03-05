@@ -4,6 +4,7 @@ import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -120,6 +121,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         return
       }
 
+      if (!contractAddress || !rewardAddress) {
+        return
+      }
+
       trackOpportunityEvent(
         MixPanelEvent.ClickOpportunity,
         {
@@ -129,19 +134,21 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         assets,
       )
 
+      const queryParams: DefiQueryParams = {
+        type,
+        provider,
+        chainId,
+        contractAddress,
+        assetNamespace,
+        assetReference,
+        highestBalanceAccountAddress,
+        rewardId: rewardAddress,
+        modal: action,
+      }
+
       history.push({
         pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action,
-        }),
+        search: qs.stringify(queryParams),
         state: { background: location },
       })
     },
@@ -298,7 +305,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
 
           return (
             <Flex justifyContent='flex-end' width='full'>
-              {translation && (
+              {translation && row.original.rewardAddress && (
                 <Button
                   variant='ghost'
                   size='sm'

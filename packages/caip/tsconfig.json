@@ -2,11 +2,7 @@
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
-    "module": "esnext",
-    "target": "ESNext",
-    "moduleResolution": "Node",
-    "types": ["vite/client"]
+    "outDir": "dist"
   },
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"]

@@ -9,9 +9,6 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-import { Text } from '@/components/Text'
-import type { TextPropTypes } from '@/components/Text/Text'
-
 export const KeepKeyDownloadUpdaterApp = () => {
   const platform = useMemo(() => getPlatform(), [])
   const {

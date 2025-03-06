@@ -6,5 +6,5 @@ const mode = process.env.MODE ?? process.env.NODE_ENV ?? 'development'
 const env = loadEnv(mode, process.cwd(), '')
 
 export const csp: Csp = {
-  'connect-src': [env.VITE_UNCHAINED_BITCOINCASH_HTTP_URL!, env.VITE_UNCHAINED_BITCOINCASH_WS_URL!],
+  'connect-src': [env.VITE_UNCHAINED_BITCOINCASH_HTTP_URL, env.VITE_UNCHAINED_BITCOINCASH_WS_URL],
 }

@@ -37,7 +37,6 @@ export type ActionTypes =
   | {
       type: WalletActions.SET_WALLET
       payload: WalletInfo & {
-        isDemoWallet?: boolean
         wallet: HDWallet | null
         connectedType: KeyManager
       }

@@ -34,12 +34,13 @@ export const selectVotingPower = createSelector(
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,
   (votingPowerByModel, feeModel, accountIdsbyChainId, isSnapshotApiQueriesRejected) => {
+    if (!feeModel) return '0'
     if (isSnapshotApiQueriesRejected) return '0'
 
     const ethAccountIds = accountIdsbyChainId[ethChainId]
     if (!ethAccountIds?.length) return '0'
 
-    return votingPowerByModel[feeModel!]
+    return votingPowerByModel[feeModel]
   },
 )
 

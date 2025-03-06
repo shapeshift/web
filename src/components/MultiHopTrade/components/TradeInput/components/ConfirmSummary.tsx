@@ -77,7 +77,7 @@ export const ConfirmSummary = ({
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -241,11 +241,12 @@ export const ConfirmSummary = ({
           tradeQuoteError.error === TradeQuoteError.FinalQuoteExecutionReverted):
         return 'trade.previewTrade'
       case !!tradeQuoteError:
-        return getQuoteErrorTranslation(tradeQuoteError!)
+        // TS pls
+        return tradeQuoteError ? getQuoteErrorTranslation(tradeQuoteError) : 'common.error'
       case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:
         return 'trade.noRateAvailable'
-      case !isConnected || isDemoWallet:
-        // We got a happy path quote, but we may still be in the context of the demo wallet
+      case !isConnected:
+        // We got a happy path quote, but no wallet connected
         return 'common.connectWallet'
       default:
         return 'trade.previewTrade'
@@ -262,7 +263,6 @@ export const ConfirmSummary = ({
     isAnyTradeQuoteLoading,
     isAnySwapperQuoteAvailable,
     isConnected,
-    isDemoWallet,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {

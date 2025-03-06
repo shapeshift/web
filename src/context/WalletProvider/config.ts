@@ -12,8 +12,6 @@ import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
 
 import { CoinbaseConfig } from './Coinbase/config'
-import { DemoConfig } from './DemoWallet/config'
-import { DemoMenu } from './DemoWallet/DemoMenu'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
@@ -309,10 +307,9 @@ export type SupportedWalletInfo<T> = {
 
 export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Coinbase]: SupportedWalletInfo<typeof CoinbaseAdapter>
-  // Native, Mobile, and Demo wallets are all native wallets
+  // Native and Mobile wallets are both native wallets
   [KeyManager.Native]: SupportedWalletInfo<typeof NativeAdapter>
   [KeyManager.Mobile]: SupportedWalletInfo<typeof NativeAdapter>
-  [KeyManager.Demo]: SupportedWalletInfo<typeof NativeAdapter>
   // TODO(gomes): export WebUSBKeepKeyAdapter as a type in hdwallet, not a declare const
   // this effectively means we keep on importing the akschual package for now
   [KeyManager.KeepKey]: SupportedWalletInfo<typeof WebUSBKeepKeyAdapter | typeof KkRestAdapter>
@@ -404,11 +401,6 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/coinbase/connect', component: CoinbaseConnect },
       { path: '/coinbase/failure', component: CoinbaseFailure },
     ],
-  },
-  [KeyManager.Demo]: {
-    ...DemoConfig,
-    routes: [],
-    connectedMenuComponent: DemoMenu,
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,

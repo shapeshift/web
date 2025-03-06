@@ -86,7 +86,7 @@ export const LimitOrderInput = ({
 }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
 
   const history = useHistory()
@@ -256,8 +256,8 @@ export const LimitOrderInput = ({
   }, [limitPriceMode, marketPriceBuyAsset, setLimitPrice])
 
   const onSubmit = useCallback(async () => {
-    // No preview happening if wallet isn't connected i.e is using the demo wallet
-    if (!isConnected || isDemoWallet) {
+    // No preview happening if wallet isn't connected
+    if (!isConnected) {
       return handleConnect()
     }
 
@@ -326,7 +326,6 @@ export const LimitOrderInput = ({
     }
   }, [
     isConnected,
-    isDemoWallet,
     quoteResponse,
     limitOrderQuoteParams,
     sellAccountId,
@@ -484,8 +483,8 @@ export const LimitOrderInput = ({
       case quoteResponseError !== undefined:
         // Catch-all of non-cowswap quote errors
         return { quoteStatusTranslation: 'trade.errors.quoteError', isError: true }
-      case !isConnected || isDemoWallet:
-        // We got a happy path quote, but we may still be in the context of the demo wallet
+      case !isConnected:
+        // We got a happy path quote, but we're not connected
         return { quoteStatusTranslation: 'common.connectWallet', isError: false }
       default:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
@@ -496,7 +495,6 @@ export const LimitOrderInput = ({
     hasUserEnteredAmount,
     isAccountsMetadataLoading,
     isConnected,
-    isDemoWallet,
     quoteResponseError,
     recipientAddress,
     sellAccountId,

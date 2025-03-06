@@ -38,7 +38,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   color,
 }) => {
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const history = useHistory()
@@ -83,7 +83,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     } = opportunity
     const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-    if (!isConnected && isDemoWallet) {
+    if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -112,7 +112,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
       }),
       state: { background: location },
     })
-  }, [assets, dispatch, history, isConnected, isDemoWallet, location, opportunity])
+  }, [assets, dispatch, history, isConnected, location, opportunity])
 
   if (!opportunity || !asset || !underlyingBalances[assetId]) return null
 

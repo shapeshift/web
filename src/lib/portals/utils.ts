@@ -3,11 +3,8 @@ import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
-import { getConfig } from 'config'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { localAssetData } from 'lib/asset-service'
 
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
 import type {
@@ -18,8 +15,12 @@ import type {
   TokenInfo,
 } from './types'
 
-const PORTALS_BASE_URL = getConfig().REACT_APP_PORTALS_BASE_URL
-const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
+import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { localAssetData } from '@/lib/asset-service'
+
+const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
+const PORTALS_API_KEY = getConfig().VITE_PORTALS_API_KEY
 
 export const fetchPortalsTokens = async ({
   chainIds,
@@ -50,8 +51,8 @@ export const fetchPortalsTokens = async ({
   sortDirection?: 'asc' | 'desc'
   limit: number | 'all'
 }): Promise<TokenInfo[]> => {
-  if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
-  if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
+  if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
+  if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
 
   const url = `${PORTALS_BASE_URL}/v2/tokens`
 
@@ -249,8 +250,8 @@ export const getPortalTokens = async (
   nativeAsset: Asset,
   limit: number | 'all',
 ): Promise<Asset[]> => {
-  if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
-  if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
+  if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
+  if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
 
   const portalsPlatforms = await queryClient.fetchQuery({
     queryFn: () => fetchPortalsPlatforms(),

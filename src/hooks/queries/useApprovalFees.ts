@@ -2,10 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { maxUint256 } from 'viem'
-import { assertUnreachable } from 'lib/utils'
-import { getApproveContractData } from 'lib/utils/evm'
 
 import { useEvmFees } from './useEvmFees'
+
+import { assertUnreachable } from '@/lib/utils'
+import { getApproveContractData } from '@/lib/utils/evm'
 
 export enum AllowanceType {
   Exact,

@@ -13,11 +13,12 @@ import type { Property } from 'csstype'
 import { useEffect, useRef, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { IconCircle } from 'components/IconCircle'
-import { useArbitrumClaimsByStatus } from 'components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useHistory } from 'react-router-dom'
+
+import { IconCircle } from '@/components/IconCircle'
+import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }

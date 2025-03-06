@@ -5,9 +5,10 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
+
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args

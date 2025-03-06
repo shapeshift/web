@@ -2,12 +2,13 @@ import type { ButtonProps, GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { RawText } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isUtxoAccountId } from 'lib/utils/utxo'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { RawText } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 
 const gridTemplateColumns: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',

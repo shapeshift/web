@@ -17,33 +17,34 @@ import { getChainShortName } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import type { RowProps } from 'components/Row/Row'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { middleEllipsis } from 'lib/utils'
-import { getStakingContract, selectStakingBalance } from 'pages/RFOX/helpers'
-import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { useHistory } from 'react-router-dom'
+
+import { useRfoxStake } from './hooks/useRfoxStake'
+import type { RfoxStakingQuote, StakeRouteProps } from './types'
+import { StakeRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import type { RowProps } from '@/components/Row/Row'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { middleEllipsis } from '@/lib/utils'
+import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
+import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { reactQueries } from '@/react-queries'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import { useRfoxStake } from './hooks/useRfoxStake'
-import type { RfoxStakingQuote, StakeRouteProps } from './types'
-import { StakeRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 const backIcon = <ArrowBackIcon />
 

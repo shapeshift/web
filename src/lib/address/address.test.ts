@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'
 
-describe('lib/address', () => {
+describe('@/lib/address', () => {
   describe('parseMaybeUrlWithChainId', () => {
     it('should not parse EIP-681 URL for ENS domain', () => {
       const input = {

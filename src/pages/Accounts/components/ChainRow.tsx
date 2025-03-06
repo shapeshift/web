@@ -2,19 +2,20 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { NestedList } from 'components/NestedList'
-import { RawText } from 'components/Text'
-import { isUtxoAccountId } from 'lib/utils/utxo'
+import { useHistory } from 'react-router-dom'
+
+import { AccountNumberRow } from './AccountNumberRow'
+
+import { Amount } from '@/components/Amount/Amount'
+import { NestedList } from '@/components/NestedList'
+import { RawText } from '@/components/Text'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
   selectPortfolioTotalChainIdBalanceIncludeStaking,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { AccountNumberRow } from './AccountNumberRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ChainRowProps = {
   chainId: ChainId

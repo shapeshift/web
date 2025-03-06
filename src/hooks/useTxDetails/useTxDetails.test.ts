@@ -1,8 +1,9 @@
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
-import { mockAssetState } from 'test/mocks/assets'
-import { createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import { describe, expect, it } from 'vitest'
-import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
+
+import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
+import { mockAssetState } from '@/test/mocks/assets'
+import { createMockEthTxs, EthReceive, EthSend, TradeTx } from '@/test/mocks/txs'
 
 const [deposit] = createMockEthTxs('foo')
 

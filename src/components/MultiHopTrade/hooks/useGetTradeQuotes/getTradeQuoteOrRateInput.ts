@@ -9,12 +9,13 @@ import type {
 } from '@shapeshiftoss/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import { toBaseUnit } from 'lib/math'
-import { assertUnreachable } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+
+import { toBaseUnit } from '@/lib/math'
+import { assertUnreachable } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 export type GetTradeQuoteOrRateInputArgs = {
   sellAsset: Asset

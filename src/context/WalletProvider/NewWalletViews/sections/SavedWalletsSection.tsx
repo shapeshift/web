@@ -2,16 +2,17 @@ import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router-dom'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { NativeConfig } from '@/context/WalletProvider/NativeWallet/config'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { reactQueries } from '@/react-queries'
 
 type VaultInfo = {
   id: string

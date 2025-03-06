@@ -21,13 +21,14 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { Text } from 'components/Text'
 
 import { WithBackButton } from '../../WithBackButton'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersQuery'
 import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'
+
+import { Text } from '@/components/Text'
 
 const textSelectedProps = {
   color: 'text.base',

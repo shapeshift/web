@@ -1,13 +1,14 @@
 import { useToast } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
-import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { ConnectContent } from '@/plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
 type Props = {
   initialUri?: string

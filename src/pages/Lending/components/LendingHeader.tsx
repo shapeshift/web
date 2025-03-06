@@ -13,19 +13,20 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { Display } from 'components/Display'
-import type { ChartData } from 'components/DonutChart/DonutChart'
-import { DonutChart } from 'components/DonutChart/DonutChart'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import type { TabItem } from 'components/TabMenu/TabMenu'
-import { TabMenu } from 'components/TabMenu/TabMenu'
-import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useHistory } from 'react-router-dom'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 import { useIsLendingActive } from '../hooks/useIsLendingActive'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Display } from '@/components/Display'
+import type { ChartData } from '@/components/DonutChart/DonutChart'
+import { DonutChart } from '@/components/DonutChart/DonutChart'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import type { TabItem } from '@/components/TabMenu/TabMenu'
+import { TabMenu } from '@/components/TabMenu/TabMenu'
+import { Text } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const responsiveFlex = { base: 'auto', lg: 1 }

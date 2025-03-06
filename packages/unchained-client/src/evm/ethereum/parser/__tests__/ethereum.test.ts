@@ -118,7 +118,7 @@ const getApi = vi.hoisted(async () => {
 })
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 vi.mock('axios', () => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { PollArgs } from 'lib/poll/poll'
-import { poll as pollFn } from 'lib/poll/poll'
+
+import type { PollArgs } from '@/lib/poll/poll'
+import { poll as pollFn } from '@/lib/poll/poll'
 
 /**
  * Wraps `poll` for use in react components. Cancels polling on component unmount.

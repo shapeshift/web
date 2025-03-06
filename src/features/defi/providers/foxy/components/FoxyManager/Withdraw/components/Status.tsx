@@ -5,27 +5,28 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { Summary } from 'features/defi/components/Summary'
-import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { useCallback, useContext, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import { WithdrawContext } from '../WithdrawContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { StatusTextEnum } from '@/components/RouteSteps/RouteSteps'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { Summary } from '@/features/defi/components/Summary'
+import { TxStatus as TransactionStatus } from '@/features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
-import { useCallback, useContext, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLink } from 'lib/getTxLink'
-
-import { WithdrawContext } from '../WithdrawContext'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
 
 type StatusProps = { accountId: AccountId | undefined }
 

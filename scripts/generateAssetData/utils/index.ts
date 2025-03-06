@@ -6,10 +6,11 @@ import { intersection } from 'lodash'
 import difference from 'lodash/difference'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
-import { getCoingeckoMarketsRaw } from 'lib/coingecko/utils'
-import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
 import blacklist from '../blacklist.json'
+
+import { getCoingeckoMarketsRaw } from '@/lib/coingecko/utils'
+import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
 
 // blacklist wormhole assets as well - users can't hold a balance and we don't support wormholes
 export const filterOutBlacklistedAssets = (unfilteredAssetData: Asset[]) =>

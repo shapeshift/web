@@ -8,11 +8,12 @@ import type {
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import type { ethers } from 'ethers'
-import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 
 import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'
 import type { ProviderUrls } from '../market-service-manager'
+
+import { foxyAddresses, FoxyApi } from '@/lib/investor/investor-foxy'
 
 export const FOXY_ASSET_ID = 'eip155:1/erc20:0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
 const FOX_ASSET_ID = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'

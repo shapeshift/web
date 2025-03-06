@@ -1,10 +1,11 @@
 import { Card, CardBody, CardHeader, Divider } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 
 import { StakingInfo } from './StakingInfo'
 import { Stats } from './Stats'
+
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
 export const Overview: React.FC = () => {
   const { stakingAssetAccountId, supportedStakingAssetIds } = useRFOXContext()

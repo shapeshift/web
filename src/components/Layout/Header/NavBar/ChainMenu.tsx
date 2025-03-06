@@ -6,13 +6,14 @@ import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { memo, useCallback, useMemo } from 'react'
 import { toHex } from 'viem'
-import { ChainMenu as BasicChainMenu } from 'components/ChainMenu'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useEvm } from 'hooks/useEvm/useEvm'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { ChainMenu as BasicChainMenu } from '@/components/ChainMenu'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useEvm } from '@/hooks/useEvm/useEvm'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { selectAssetById, selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const buttonProps: ButtonProps = {
   iconSpacing: 2,

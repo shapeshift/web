@@ -1,13 +1,14 @@
 import { MenuDivider, MenuItem } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/ManageAccountsMenuItem'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type LedgerMenuProps = {
   onClose?: () => void

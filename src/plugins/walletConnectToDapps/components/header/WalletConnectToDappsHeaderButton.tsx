@@ -1,18 +1,19 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { AvatarGroup, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
-import { DappHeaderMenuSummary } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import type { FC } from 'react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { isSome, trimWithEndEllipsis } from 'lib/utils'
 
 import { useIsWalletConnectToDappsSupportedWallet } from '../../hooks/useIsWalletConnectToDappsSupportedWallet'
 import { WalletConnectButtons } from './ConnectDapp'
 import { DappAvatar } from './DappAvatar'
+
+import { RawText } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { isSome, trimWithEndEllipsis } from '@/lib/utils'
+import { DappHeaderMenuSummary } from '@/plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
 const paddingProp = { base: 0, md: '20px' }
 const maxWidthProp = { base: '280px', md: 'xs' }

@@ -3,14 +3,15 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { fromBaseUnit } from 'lib/math'
-import { getStakingContract } from 'pages/RFOX/helpers'
-import { useAffiliateRevenueQuery } from 'pages/RFOX/hooks/useAffiliateRevenueQuery'
-import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StatItem } from './StatItem'
+
+import { fromBaseUnit } from '@/lib/math'
+import { getStakingContract } from '@/pages/RFOX/helpers'
+import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EmissionsPoolProps = {
   stakingAssetId: AssetId

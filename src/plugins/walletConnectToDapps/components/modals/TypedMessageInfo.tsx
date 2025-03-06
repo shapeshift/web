@@ -1,10 +1,11 @@
 import { Box, Card, Divider, useColorModeValue } from '@chakra-ui/react'
 import startCase from 'lodash/startCase'
-import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
+import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 
 const faCodeIcon = <FaCode />
 

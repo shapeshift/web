@@ -6,7 +6,7 @@ import type { Csp, CspEntry } from './types'
 export function cspToEntries(x: Csp): CspEntry[] {
   return Object.entries(x).flatMap(([k, v]) => {
     return v.map(entry => {
-      const out = [k, entry]
+      const out: [string, string] = [k, entry]
       return out
     })
   })
@@ -21,9 +21,6 @@ export function entriesToCsp(x: CspEntry[]): Csp {
   const acc: Csp = {}
   return x
     .sort(([k1, v1], [k2, v2]) => {
-      if (k1 === undefined || k2 === undefined) return 0
-      if (v1 === undefined || v2 === undefined) return 0
-
       if (k1 < k2) return -1
       if (k1 > k2) return 1
       if (v1 < v2) return -1
@@ -31,8 +28,6 @@ export function entriesToCsp(x: CspEntry[]): Csp {
       return 0
     })
     .reduce((a, [k, v]) => {
-      if (!k) return a
-
       a[k] ??= []
       if (v && (a[k].length === 0 || v !== "'none'") && !a[k].includes(v)) a[k].push(v)
       if (a[k].length > 1) a[k] = a[k].filter(x => x !== "'none'")

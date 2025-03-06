@@ -80,6 +80,7 @@ type PortalsTradeOrderEstimateResponse = {
     outputAmount: string
     outputAmountUsd: number
     minOutputAmountUsd: number
+    gasLimit: number
     sender?: string
   }
 }

@@ -1,5 +1,4 @@
 import { Alert, AlertIcon, Divider, HStack, useMediaQuery } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { bnOrZero, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
@@ -27,7 +26,7 @@ import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isKeepKeyHDWallet, isToken } from '@/lib/utils'
+import { isToken } from '@/lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import { selectFeeAssetById, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import {
@@ -78,7 +77,7 @@ export const ConfirmSummary = ({
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet },
   } = useWallet()
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -119,6 +118,11 @@ export const ConfirmSummary = ({
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
+
+  const isTaprootReceiveAddress = useMemo(
+    () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
+    [buyAsset.chainId, receiveAddress],
+  )
 
   const shouldDisableThorTaprootReceiveAddress = useMemo(() => {
     // Taproot addresses are not supported by THORChain swapper currently

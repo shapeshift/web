@@ -56,14 +56,14 @@ const getChainflipStreamingSwap = async (
   ) {
     // It's finished!
     return {
-      executedChunks: dcaStatus!.executedChunks!,
+      executedChunks: dcaStatus.executedChunks ?? 0,
       remainingChunks: 0,
     }
   }
 
   return {
-    executedChunks: dcaStatus!.executedChunks!,
-    remainingChunks: dcaStatus!.remainingChunks!,
+    executedChunks: dcaStatus?.executedChunks ?? 0,
+    remainingChunks: dcaStatus?.remainingChunks ?? 0,
   }
 }
 

@@ -1,6 +1,6 @@
 import type { CardProps, StackProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
-import { foxWifHatAssetId } from '@shapeshiftoss/caip'
+import { foxAssetIds, foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
@@ -37,6 +37,7 @@ import {
   selectVotingPower,
 } from '@/state/apis/snapshot/selectors'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 type FeeChartProps = {
@@ -275,6 +276,9 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
   )
 
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const isFoxBuyAsset = useMemo(() => foxAssetIds.includes(buyAsset?.assetId), [buyAsset])
+
   const {
     feeUsd,
     feeBps,
@@ -300,11 +304,13 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
     [feeUsdBeforeDiscount, feeBpsBeforeDiscount],
   )
 
-  const isFree = useMemo(() => bnOrZero(feeUsd).lte(0), [feeUsd])
+  const isFree = useMemo(() => bnOrZero(feeUsd).lte(0) || isFoxBuyAsset, [feeUsd, isFoxBuyAsset])
 
   const discountTypeTranslation = useMemo(() => {
+    if (isFoxBuyAsset) return translate('foxDiscounts.foxBuy')
+
     return translate(appliedDiscountType)
-  }, [appliedDiscountType, translate])
+  }, [appliedDiscountType, isFoxBuyAsset, translate])
 
   const discountLabelTranslation: TextPropTypes['translation'] = useMemo(() => {
     return [`foxDiscounts.discountLabel`, { discountType: discountTypeTranslation }]

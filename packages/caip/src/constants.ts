@@ -30,6 +30,10 @@ export const foxOnGnosisAssetId: AssetId =
 export const foxOnArbitrumOneAssetId: AssetId =
   'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+export const foxOnOptimismAssetId: AssetId =
+  'eip155:10/erc20:0xf1a0da3367bc7aa04f8d94ba57b862ff37ced174'
+export const foxOnPolygonAssetId: AssetId =
+  'eip155:137/erc20:0x65a05db8322701724c197af82c9cae41195b0aa8'
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const usdcOnArbitrumOneAssetId: AssetId =
@@ -76,6 +80,14 @@ export const CHAIN_NAMESPACE = {
 type ValidChainMap = {
   [k in ChainNamespace]: ChainReference[]
 }
+
+export const foxAssetIds = [
+  foxAssetId,
+  foxOnGnosisAssetId,
+  foxOnArbitrumOneAssetId,
+  foxOnOptimismAssetId,
+  foxOnPolygonAssetId,
+]
 
 export const CHAIN_REFERENCE = {
   EthereumMainnet: '1',

@@ -12,13 +12,7 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import {
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  foxOnGnosisAssetId,
-  fromAssetId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
+import { foxAssetIds, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -167,7 +161,6 @@ export const TradeSuccess = ({
   // values because the amount of FOX held in the wallet will have changed.
   // See https://github.com/shapeshift/web/issues/8028 for more details.
   const enableFoxDiscountSummary = useMemo(() => {
-    const foxAssetIds = [foxAssetId, foxOnGnosisAssetId, foxOnArbitrumOneAssetId]
     const didTradeFox = foxAssetIds.some(assetId => {
       return (
         firstHop?.buyAsset.assetId === assetId ||

@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetIds, foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
@@ -234,6 +234,8 @@ export const useGetTradeRates = () => {
         isSnapshotApiQueriesRejected,
       })
 
+      const isFoxBuyAsset = foxAssetIds.includes(buyAsset.assetId)
+
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
@@ -247,8 +249,8 @@ export const useGetTradeRates = () => {
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
-        affiliateBps,
-        potentialAffiliateBps,
+        affiliateBps: isFoxBuyAsset ? '0' : affiliateBps,
+        potentialAffiliateBps: isFoxBuyAsset ? '0' : potentialAffiliateBps,
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
         pubKey:

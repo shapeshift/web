@@ -2530,7 +2530,8 @@
     "underThreshold": "Low Trade",
     "thorHolder": "THORSwap Holder",
     "foxHolder": "FOX Holder",
-    "foxWifHatHolder": "FOX Wif Hat Holder"
+    "foxWifHatHolder": "FOX Wif Hat Holder",
+    "foxBuy": "FOX Buy"
   },
   "chart": {
     "interval": {

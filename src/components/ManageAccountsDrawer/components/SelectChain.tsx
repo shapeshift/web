@@ -3,22 +3,23 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
-import { RawText } from 'components/Text'
-import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import {
-  selectAssetById,
-  selectWalletConnectedChainIds,
-  selectWalletSupportedChainIds,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { filterChainIdsBySearchTerm } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
 import { DrawerWrapper } from './DrawerWrapper'
+
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
+import { RawText } from '@/components/Text'
+import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
+import {
+  selectAssetById,
+  selectWalletConnectedChainIds,
+  selectWalletSupportedChainIds,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'lg' }
 

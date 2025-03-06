@@ -3,9 +3,10 @@ import { IconButton, ModalCloseButton, useMediaQuery } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { IoClose } from 'react-icons/io5'
 import { Drawer } from 'vaul'
-import { useDialog } from 'context/DialogContextProvider/DialogContextProvider'
-import { isMobile } from 'lib/globals'
-import { breakpoints } from 'theme/theme'
+
+import { useDialog } from '@/context/DialogContextProvider/DialogContextProvider'
+import { isMobile } from '@/lib/globals'
+import { breakpoints } from '@/theme/theme'
 
 type DialogCloseButtonProps = ModalCloseButtonProps
 

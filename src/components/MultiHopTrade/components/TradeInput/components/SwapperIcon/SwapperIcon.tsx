@@ -1,8 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { assertUnreachable } from 'lib/utils'
 
 import ZrxIcon from './0x-icon.png'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
@@ -12,6 +10,9 @@ import JupiterIcon from './jupiter-icon.svg'
 import LiFiIcon from './lifi-icon.png'
 import PortalsIcon from './portals-icon.png'
 import THORChainIcon from './thorchain-icon.png'
+
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { assertUnreachable } from '@/lib/utils'
 
 export const SwapperIcon = ({
   swapperName,

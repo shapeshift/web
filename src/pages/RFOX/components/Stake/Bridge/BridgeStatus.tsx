@@ -1,8 +1,7 @@
 import { Text } from '@chakra-ui/react'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
+import { useHistory } from 'react-router-dom'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
@@ -10,6 +9,8 @@ import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
 import type { BridgeRouteProps, RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
 
 type BridgeStatusProps = {
   confirmedQuote: RfoxBridgeQuote

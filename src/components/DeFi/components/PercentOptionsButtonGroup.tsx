@@ -1,7 +1,8 @@
 import { Button, ButtonGroup } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
+
+import { Amount } from '@/components/Amount/Amount'
 
 type MaxButtonProps = {
   isDisabled?: boolean

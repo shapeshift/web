@@ -1,7 +1,8 @@
 import { Alert, AlertIcon, useColorModeValue } from '@chakra-ui/react'
 import { upperFirst } from 'lodash'
 import { useTranslate } from 'react-polyglot'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export type LastDeviceInteractionStatusProps = {
   setting: string

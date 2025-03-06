@@ -12,41 +12,42 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   accountId: AccountId | undefined

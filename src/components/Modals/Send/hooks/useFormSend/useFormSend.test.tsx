@@ -8,19 +8,20 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
-import { ethereum as mockEthereum } from 'test/mocks/assets'
-import { EthSend } from 'test/mocks/txs'
 import { describe, expect, it, vi } from 'vitest'
-import type { BaseProps, Modals } from 'context/ModalProvider/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { IWalletContext } from 'context/WalletProvider/WalletContext'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensLookup } from 'lib/address/ens'
 
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
+
+import type { BaseProps, Modals } from '@/context/ModalProvider/types'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { ensLookup } from '@/lib/address/ens'
+import { ethereum as mockEthereum } from '@/test/mocks/assets'
+import { EthSend } from '@/test/mocks/txs'
 
 vi.mock('@shapeshiftoss/metamask-snaps-adapter', async () => {
   const actual = await vi.importActual('@shapeshiftoss/metamask-snaps-adapter')
@@ -30,8 +31,8 @@ vi.mock('@shapeshiftoss/metamask-snaps-adapter', async () => {
   }
 })
 
-vi.mock('state/slices/selectors', async () => {
-  const actual = await vi.importActual('state/slices/selectors')
+vi.mock('@/state/slices/selectors', async () => {
+  const actual = await vi.importActual('@/state/slices/selectors')
   return {
     ...actual,
     selectPortfolioAccountMetadataByAccountId: () => ({
@@ -66,10 +67,10 @@ vi.mock('react-polyglot', () => ({
   useTranslate: () => vi.fn(),
 }))
 
-vi.mock('context/PluginProvider/chainAdapterSingleton')
-vi.mock('context/PluginProvider/PluginProvider')
-vi.mock('hooks/useModal/useModal')
-vi.mock('hooks/useWallet/useWallet')
+vi.mock('@/context/PluginProvider/chainAdapterSingleton')
+vi.mock('@/context/PluginProvider/PluginProvider')
+vi.mock('@/hooks/useModal/useModal')
+vi.mock('@/hooks/useWallet/useWallet')
 
 const mockEvmChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -81,15 +82,15 @@ const mockEvmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
 ]
-vi.mock('lib/utils/evm', async () => {
-  const actual = await vi.importActual('lib/utils/evm')
+vi.mock('@/lib/utils/evm', async () => {
+  const actual = await vi.importActual('@/lib/utils/evm')
   return {
     ...actual,
     getSupportedEvmChainIds: () => mockEvmChainIds,
   }
 })
 
-vi.mock('lib/address/ens')
+vi.mock('@/lib/address/ens')
 
 const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',

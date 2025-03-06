@@ -14,11 +14,12 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText, Text } from 'components/Text'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText, Text } from '@/components/Text'
+import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssetById, selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))

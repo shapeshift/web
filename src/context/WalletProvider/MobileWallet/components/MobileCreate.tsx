@@ -19,12 +19,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
-import { Text } from 'components/Text'
 
 import { createWallet } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileLocationState } from '../types'
+
+import { Text } from '@/components/Text'
 
 type MobileCreateProps = {
   HeaderComponent?: React.ComponentType<any>

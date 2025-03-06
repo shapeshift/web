@@ -7,13 +7,14 @@ import isBetween from 'dayjs/plugin/isBetween'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Carousel } from 'components/Carousel/Carousel'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 
 import type { PromoItem } from './types'
+
+import { Carousel } from '@/components/Carousel/Carousel'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 
 dayjs.extend(isBetween)
 dayjs.extend(customParseFormat)

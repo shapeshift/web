@@ -1,12 +1,13 @@
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
+import { useHistory } from 'react-router-dom'
 
 import { ReusableLpConfirm } from '../ReusableLpConfirm'
 import { RemoveLiquidityRoutePaths } from './types'
+
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { LpConfirmedWithdrawalQuote } from '@/lib/utils/thorchain/lp/types'
 
 type RemoveLiquidityConfirmProps = {
   confirmedQuote: LpConfirmedWithdrawalQuote

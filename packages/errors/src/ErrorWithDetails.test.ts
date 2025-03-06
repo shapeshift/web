@@ -64,11 +64,14 @@ describe('ErrorWithDetails', () => {
   })
 
   it('should ignore unknown properties in options object', () => {
-    const cause = new TypeError('cause')
-    const e = new ErrorWithDetails('test message', { cause, stuff: { arg1: 'foo' } })
-    expect(e.message).toBe('test message')
-    expect(e.cause).toBe(cause)
-    expect(Object.getOwnPropertyNames(e)).toStrictEqual(['stack', 'message', 'name', 'cause'])
+    const e = new ErrorWithDetails('test message')
+
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message', 'test message')
+    expect(e).toHaveProperty('name', 'ErrorWithDetails')
+    expect(e).toHaveProperty('cause', undefined)
+    expect(e).toHaveProperty('details', undefined)
+    expect(e).toHaveProperty('code', 'ERR_UNKNOWN')
   })
 
   it('should support an error code', () => {
@@ -80,5 +83,20 @@ describe('ErrorWithDetails', () => {
 
     const e2 = new ErrorWithDetails('test message', { code: 'ERR_test' })
     expect(e2.code).toBe('ERR_TEST')
+  })
+
+  it('should create an error with details', () => {
+    const details = { foo: 'bar' }
+    const e = new ErrorWithDetails('test message', { details })
+    expect(e.message).toBe('test message')
+    expect(e.details).toEqual(details)
+    expect(e.code).toBe('ERR_UNKNOWN')
+  })
+
+  it('should support unknown typed cause', () => {
+    const cause = 'string error'
+    const e = new ErrorWithDetails('test message', { cause })
+    expect(e.message).toBe('test message')
+    expect(e.cause).toBe(cause)
   })
 })

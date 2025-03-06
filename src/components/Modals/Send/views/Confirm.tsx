@@ -10,34 +10,35 @@ import {
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { getConfig } from 'config'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Amount } from 'components/Amount/Amount'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isUtxoAccountId } from 'lib/utils/utxo'
-import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type FeePrice = {
   [key in FeeDataKey]: {
@@ -70,7 +71,7 @@ export const Confirm = () => {
     control,
   }) as Partial<SendInput>
   const { fees } = useSendFees()
-  const allowCustomSendNonce = getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE
+  const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const showMemoRow = useMemo(

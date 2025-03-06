@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import { IPFS_GATEWAY } from '../constants'
 import type { Epoch } from '../types'
@@ -9,6 +8,8 @@ import {
   fetchCurrentEpochMetadata,
   getCurrentEpochMetadataQueryKey,
 } from './useCurrentEpochMetadataQuery'
+
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 type EpochHistoryQueryKey = ['epochHistory']
 

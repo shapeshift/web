@@ -4,8 +4,9 @@ import { testData } from '@shapeshiftoss/swapper'
 import { fromBaseUnit, subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
-import { bn, convertPrecision } from 'lib/bignumber/bignumber'
-import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
+
+import { bn, convertPrecision } from '@/lib/bignumber/bignumber'
+import { sumProtocolFeesToDenom } from '@/state/slices/tradeQuoteSlice/utils'
 
 const { BTC, ETH, FOX_MAINNET, marketDataByAssetIdUsd } = testData
 

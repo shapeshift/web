@@ -1,6 +1,7 @@
 import type { UTCTimestamp } from 'lightweight-charts'
 import { TickMarkType } from 'lightweight-charts'
-import type { Interval } from 'react-queries/queries/midgard'
+
+import type { Interval } from '@/react-queries/queries/midgard'
 
 export function formatTickMarks(
   time: UTCTimestamp,

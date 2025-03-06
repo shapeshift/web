@@ -3,12 +3,6 @@ import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import type { Route } from 'Routes/helpers'
-import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
-import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetChart } from './AssetHeader/AssetChart'
@@ -20,6 +14,13 @@ import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
+
+import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
+import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { Route } from '@/Routes/helpers'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetDetailsProps = {
   assetId: AssetId

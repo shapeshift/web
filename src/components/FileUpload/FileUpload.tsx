@@ -2,7 +2,8 @@ import { Box, FormControl, Icon, Input, Text as CText } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { useCallback, useState } from 'react'
 import { FaFile } from 'react-icons/fa'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 const hoverSx = { borderColor: 'blue.500' }
 

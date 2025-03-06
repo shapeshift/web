@@ -2,7 +2,8 @@ import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Collapse } from '@chakra-ui/react'
 import type { ReactElement, ReactNode } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 type ModalCollapsableSectionProps = {
   title: ReactElement

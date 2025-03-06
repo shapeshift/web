@@ -1,7 +1,8 @@
 import type { InterpolationOptions } from 'node-polyglot'
-import { assertUnreachable } from 'lib/utils'
-import type { ErrorWithMeta } from 'state/apis/swapper/types'
-import { TradeQuoteRequestError } from 'state/apis/swapper/types'
+
+import { assertUnreachable } from '@/lib/utils'
+import type { ErrorWithMeta } from '@/state/apis/swapper/types'
+import { TradeQuoteRequestError } from '@/state/apis/swapper/types'
 
 export const getQuoteRequestErrorTranslation = (
   tradeQuoteRequestError: ErrorWithMeta<TradeQuoteRequestError>,

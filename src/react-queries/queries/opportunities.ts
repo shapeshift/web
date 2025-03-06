@@ -13,13 +13,14 @@ import {
   ltcChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
+
 import {
   fetchAllOpportunitiesIdsByChainId,
   fetchAllOpportunitiesMetadataByChainId,
   fetchAllOpportunitiesUserDataByAccountId,
-} from 'state/slices/opportunitiesSlice/thunks'
-import type { PortfolioAccount } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import type { AppDispatch } from 'state/store'
+} from '@/state/slices/opportunitiesSlice/thunks'
+import type { PortfolioAccount } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AppDispatch } from '@/state/store'
 
 type FetchAllArgs = {
   dispatch: AppDispatch

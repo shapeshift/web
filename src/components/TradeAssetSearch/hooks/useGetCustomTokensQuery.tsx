@@ -6,14 +6,15 @@ import { Connection, PublicKey } from '@solana/web3.js'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
-import { getConfig } from 'config'
 import { useCallback, useMemo } from 'react'
-import { mergeQueryOutputs } from 'react-queries/helpers'
 import { isAddress } from 'viem'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 
 import { isSolanaAddress } from '../helpers/customAssetSearch'
+
+import { getConfig } from '@/config'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
+import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 type TokenMetadata = TokenMetadataResponse & {
   chainId: ChainId
@@ -51,8 +52,8 @@ export const useGetCustomTokensQuery = ({
 
   const getSolanaTokenMetadata = useCallback(
     async (mintAddress: string): Promise<TokenMetadata> => {
-      const solanaRpcUrl = `${getConfig().REACT_APP_ALCHEMY_SOLANA_BASE_URL}/${
-        getConfig().REACT_APP_ALCHEMY_API_KEY
+      const solanaRpcUrl = `${getConfig().VITE_ALCHEMY_SOLANA_BASE_URL}/${
+        getConfig().VITE_ALCHEMY_API_KEY
       }`
       const connection = new Connection(solanaRpcUrl)
       const metaplex = Metaplex.make(connection)

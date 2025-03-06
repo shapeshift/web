@@ -1,11 +1,11 @@
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
-} from 'state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useTradeReceiveAddress = () => {
   const buyAsset = useAppSelector(selectInputBuyAsset)

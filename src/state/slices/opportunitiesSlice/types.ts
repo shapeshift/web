@@ -1,6 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { Nominal } from 'types/common'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
@@ -12,6 +11,8 @@ import type {
   OpportunityMetadataResolverInput,
   OpportunityUserDataResolverInput,
 } from './resolvers/types'
+
+import type { Nominal } from '@/types/common'
 
 export enum DefiType {
   LiquidityPool = 'lp',

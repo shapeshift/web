@@ -1,5 +1,5 @@
-import type { SupportedFiatCurrencies } from 'lib/market-service'
-import type { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
+import type { CurrencyFormats } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export enum SettingsRoutes {
   Index = '/settings/index',

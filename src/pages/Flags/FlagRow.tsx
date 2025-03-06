@@ -1,10 +1,11 @@
 import { Switch } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { Row } from 'components/Row/Row'
-import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { Row } from '@/components/Row/Row'
+import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type FlagRowProps = {
   flag: keyof FeatureFlags

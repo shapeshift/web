@@ -1,17 +1,18 @@
 import { List } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import MultiRef from 'react-multi-ref'
-import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
+
+import { ActionResults } from './ActionResults/ActionResults'
+import { AssetResults } from './AssetResults/AssetResults'
+import { TxResults } from './TxResults/TxResults'
+
+import { SearchEmpty } from '@/components/StakingVaults/SearchEmpty'
 import type {
   AssetSearchResult,
   GlobalSearchResult,
   SendResult,
   TxSearchResult,
-} from 'state/slices/search-selectors'
-
-import { ActionResults } from './ActionResults/ActionResults'
-import { AssetResults } from './AssetResults/AssetResults'
-import { TxResults } from './TxResults/TxResults'
+} from '@/state/slices/search-selectors'
 
 export type SearchResultsProps = {
   assetResults: AssetSearchResult[]

@@ -2,10 +2,11 @@ import { Box, Button, Card, CardBody, Flex, Text as CText, Tooltip } from '@chak
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { PropsWithChildren } from 'react'
 import { useCallback } from 'react'
-import { WatchAssetButton } from 'components/AssetHeader/WatchAssetButton'
-import type { AssetIconProps } from 'components/AssetIcon'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
+
+import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
+import type { AssetIconProps } from '@/components/AssetIcon'
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
 
 type CommonStatProps = {
   label: string | JSX.Element

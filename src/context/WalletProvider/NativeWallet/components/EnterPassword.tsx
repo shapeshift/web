@@ -19,15 +19,16 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { IconCircle } from 'components/IconCircle'
-import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { NativeWalletValues } from '../types'
+
+import { IconCircle } from '@/components/IconCircle'
+import { RawText, Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { NativeConfig } from '@/context/WalletProvider/NativeWallet/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const mbProp = [3]
 const mlProp = [0, 1.5]

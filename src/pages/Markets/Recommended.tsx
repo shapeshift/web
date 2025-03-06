@@ -1,12 +1,13 @@
 import { Box } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
 
 import { MarketsRow } from './components/MarketsRow'
 import { useRows } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
+
+import { Main } from '@/components/Layout/Main'
+import { SEO } from '@/components/Layout/Seo'
 
 const containerPaddingX = { base: 4, xl: 0 }
 

@@ -3,15 +3,16 @@ import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
 import { bn } from '@shapeshiftoss/utils'
 import type { Selector } from 'react-redux'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
 import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
 import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
 import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
 import type { TradeInputState } from './tradeInputSlice'
+
+import type { ApiQuote } from '@/state/apis/swapper/types'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
 // Shared selectors from the base trade input slice that handle common functionality like input
 // assets, rates, and slippage preferences

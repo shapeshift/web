@@ -1,10 +1,11 @@
 import type { Dispatch } from 'react'
 import { useCallback, useEffect } from 'react'
-import type { ActionTypes } from 'context/WalletProvider/actions'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import type { InitialState } from 'context/WalletProvider/WalletProvider'
+
+import type { ActionTypes } from '@/context/WalletProvider/actions'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 
 export const useWalletConnectV2EventHandler = (
   state: InitialState,

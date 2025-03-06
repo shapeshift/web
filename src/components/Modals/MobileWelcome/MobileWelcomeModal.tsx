@@ -1,10 +1,11 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
-import { useModal } from 'hooks/useModal/useModal'
+import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
 
 import { ImportSuccess } from './views/ImportSuccess'
 import { Notice } from './views/Notice'
+
+import { useModal } from '@/hooks/useModal/useModal'
 
 export const MobileWelcomeModal = () => {
   const { close: handleClose, isOpen } = useModal('mobileWelcomeModal')

@@ -7,14 +7,15 @@ import { useCallback, useMemo } from 'react'
 import type { ControllerProps, UseFormSetValue } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { AssetInput } from 'components/DeFi/components/AssetInput'
-import { FormField } from 'components/DeFi/components/FormField'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { AssetInput } from '@/components/DeFi/components/AssetInput'
+import { FormField } from '@/components/DeFi/components/FormField'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 type DepositProps = {
   accountId?: AccountId | undefined

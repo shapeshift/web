@@ -4,10 +4,11 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getSupportedEvmChainIds } from '@/lib/utils/evm'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useEvm = () => {
   const {

@@ -1,4 +1,4 @@
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
+import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
 
 import { SnapConfirm } from './SnapConfirm'
 import { SnapIntro } from './SnapIntro'

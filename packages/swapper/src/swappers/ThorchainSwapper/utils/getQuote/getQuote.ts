@@ -60,7 +60,7 @@ const _getQuote = async (
       ? receiveAddress.replace('bitcoincash:', '')
       : receiveAddress
 
-  const daemonUrl = deps.config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
 
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),

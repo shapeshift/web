@@ -1,12 +1,13 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
-import { Main } from 'components/Layout/Main'
 
 import { Faq } from './components/Faq/Faq'
 import { Overview } from './components/Overview/Overview'
 import { RFOXHeader } from './components/RFOXHeader'
 import { TxHistory } from './components/TxHistory/TxHistory'
 import { Widget } from './Widget'
+
+import { Main } from '@/components/Layout/Main'
 
 const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: '100%', md: '450px' }

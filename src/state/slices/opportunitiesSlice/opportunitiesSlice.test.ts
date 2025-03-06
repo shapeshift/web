@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { clearState, store } from 'state/store'
 
 import { foxEthLpAssetId } from './constants'
 import {
@@ -14,6 +13,8 @@ import {
 import { initialState, opportunities } from './opportunitiesSlice'
 import { DefiProvider, DefiType } from './types'
 import { serializeUserStakingId } from './utils'
+
+import { clearState, store } from '@/state/store'
 
 describe('opportunitiesSlice', () => {
   beforeEach(() => {

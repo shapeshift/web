@@ -5,15 +5,6 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
-import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -21,6 +12,16 @@ import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { Status } from './views/Status'
+
+import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
+import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectSelectedCurrency,
+} from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId

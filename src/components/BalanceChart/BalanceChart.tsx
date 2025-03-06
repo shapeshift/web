@@ -2,9 +2,10 @@ import { Box } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
-import { Graph } from 'components/Graph/Graph'
-import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { calculatePercentChange } from 'lib/charts'
+
+import { Graph } from '@/components/Graph/Graph'
+import { useBalanceChartData } from '@/hooks/useBalanceChartData/useBalanceChartData'
+import { calculatePercentChange } from '@/lib/charts'
 
 const chartHeight = { base: '250px', md: '350px' }
 

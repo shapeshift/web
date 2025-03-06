@@ -14,10 +14,11 @@ import {
 import type { InterpolationOptions } from 'node-polyglot'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText, Text } from 'components/Text'
 
 import { PairIcons } from './PairIcons'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RawText, Text } from '@/components/Text'
 
 type Status =
   | 'modals.status.header.pending'

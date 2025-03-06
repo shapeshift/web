@@ -13,13 +13,18 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable } from 'lib/utils'
+
+import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
+import { useStreamingProgress } from './hooks/useStreamingProgress'
+import { useTradeButtonProps } from './hooks/useTradeButtonProps'
+
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { chainSupportsTxHistory } from '@/components/MultiHopTrade/utils'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { assertUnreachable } from '@/lib/utils'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
@@ -29,13 +34,9 @@ import {
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
-
-import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
-import { useStreamingProgress } from './hooks/useStreamingProgress'
-import { useTradeButtonProps } from './hooks/useTradeButtonProps'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type TradeFooterButtonProps = {
   tradeQuoteStep: TradeQuoteStep

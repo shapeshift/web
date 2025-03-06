@@ -2,17 +2,18 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import createCachedSelector from 're-reselect'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtDate } from 'lib/charts'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter } from 'state/selectors'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
-import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
 import { defaultMarketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
 import { getTrimmedOutOfBoundsMarketData } from './utils'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { priceAtDate } from '@/lib/charts'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import { selectAssetIdParamFromFilter } from '@/state/selectors'
+import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
+import { selectSelectedCurrency } from '@/state/slices/preferencesSlice/selectors'
 
 export const selectMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
   state.marketData.crypto.ids

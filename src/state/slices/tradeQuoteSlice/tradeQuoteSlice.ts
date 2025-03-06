@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import type { HopProgress, StreamingSwapMetadata, TradeExecutionMetadata } from './types'
@@ -14,6 +13,8 @@ import {
   TradeExecutionState,
   TransactionExecutionState,
 } from './types'
+
+import type { ApiQuote } from '@/state/apis/swapper/types'
 
 export const tradeQuoteSlice = createSlice({
   name: 'tradeQuote',

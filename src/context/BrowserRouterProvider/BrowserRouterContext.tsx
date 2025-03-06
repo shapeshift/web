@@ -1,6 +1,7 @@
 import type { History, Location } from 'history'
 import { createContext } from 'react'
-import type { Route as NestedRoute } from 'Routes/helpers'
+
+import type { Route as NestedRoute } from '@/Routes/helpers'
 
 export type BrowserRouterContextProps<Q, P> = {
   location: Location

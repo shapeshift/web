@@ -17,34 +17,35 @@ import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { useHistory, useLocation } from 'react-router-dom'
+
+import { useFoxPageContext } from '../hooks/useFoxPageContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
+import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { useFoxPageContext } from '../hooks/useFoxPageContext'
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const containerPaddingX = { base: 4, xl: 0 }
 const headerTitleMb = { base: 4, md: 0 }

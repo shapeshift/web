@@ -1,6 +1,7 @@
 import { createMutationKeys } from '@lukemorales/query-key-factory'
-import { approve } from 'lib/utils/evm/approve'
-import type { MaybeApproveInputWithWallet } from 'lib/utils/evm/types'
+
+import { approve } from '@/lib/utils/evm/approve'
+import type { MaybeApproveInputWithWallet } from '@/lib/utils/evm/types'
 
 export const mutations = createMutationKeys('mutations', {
   approve: ({

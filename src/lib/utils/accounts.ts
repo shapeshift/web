@@ -1,10 +1,11 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { accountIdToChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 import { firstFourLastFour } from '.'
 import { isUtxoAccountId } from './utxo'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const getAccountTitle = (accountId: AccountId, assets: PartialRecord<AssetId, Asset>) => {
   const isUtxoAccount = isUtxoAccountId(accountId)

@@ -9,16 +9,17 @@ import {
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 import { setupKeepKeySDK } from '../setupKeepKeySdk'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const translateError = (event: Event) => {
   let t: string

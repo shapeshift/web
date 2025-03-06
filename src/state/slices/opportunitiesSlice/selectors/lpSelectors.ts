@@ -1,18 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import partition from 'lodash/partition'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  selectLpIdParamFromFilter,
-} from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
@@ -24,6 +13,18 @@ import {
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'
+
+import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { isSome } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectLpIdParamFromFilter,
+} from '@/state/selectors'
 
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 

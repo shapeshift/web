@@ -1,12 +1,13 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Tooltip, useDisclosure } from '@chakra-ui/react'
-import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { isSome } from 'lib/utils'
+
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { isSome } from '@/lib/utils'
+import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
 const widthProp = { base: 'full', md: 'auto' }
 const walletConnectIcon = <WalletConnectIcon />

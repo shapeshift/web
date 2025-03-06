@@ -1,5 +1,6 @@
 import { Flex, ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 export const RecoverySettingUp = () => {
   return (

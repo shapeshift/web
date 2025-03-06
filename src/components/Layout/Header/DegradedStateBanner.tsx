@@ -19,12 +19,13 @@ import { memo, useCallback, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { RawText, Text } from 'components/Text'
-import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectPortfolioErroredAccountIds } from 'state/slices/selectors'
-import { useAppDispatch } from 'state/store'
+
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { RawText, Text } from '@/components/Text'
+import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
+import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { selectAssets, selectPortfolioErroredAccountIds } from '@/state/slices/selectors'
+import { useAppDispatch } from '@/state/store'
 
 const warningIcon = <WarningIcon />
 const idMdRefreshIcon = <IoMdRefresh />

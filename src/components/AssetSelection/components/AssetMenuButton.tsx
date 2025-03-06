@@ -2,14 +2,15 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { useCallback, useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { getStyledMenuButtonProps } from '../helpers'
 import { AssetRowLoading } from './AssetRowLoading'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type AssetMenuButtonProps = {
   assetId?: AssetId

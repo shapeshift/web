@@ -18,13 +18,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { getConfig } from 'config'
 import uniq from 'lodash/uniq'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
-import { isUtxoChainId } from 'lib/utils/utxo'
 
 import type {
   MidgardPoolPeriod,
@@ -37,6 +31,13 @@ import type {
   ThorchainSaversWithdrawQuoteResponse,
   ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
+
+import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from '@/lib/utils/thorchain'
+import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
@@ -94,7 +95,7 @@ export const getAllThorchainSaversPositions = async (
     queryKey: ['thorchainSaversPositions', poolId],
     queryFn: () =>
       axios.get<ThorchainSaverPositionResponse[]>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
+        `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
       ),
     staleTime: 60_000,
   })
@@ -118,7 +119,7 @@ export const getThorchainSaversPosition = async ({
     if (assetId === thorchainAssetId) {
       const { data: runepoolInformation } =
         await axios.get<ThorchainRunepoolProviderResponseSuccess>(
-          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
+          `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
         )
 
       const runepoolOpportunity: ThorchainSaverPositionResponse = {
@@ -141,7 +142,7 @@ export const getThorchainSaversPosition = async ({
       return (
         await axios.get<ThorchainSaverPositionResponse>(
           `${
-            getConfig().REACT_APP_THORCHAIN_NODE_URL
+            getConfig().VITE_THORCHAIN_NODE_URL
           }/lcd/thorchain/pool/${poolAssetId}/saver/${address}`,
         )
       ).data
@@ -194,7 +195,7 @@ export const getMaybeThorchainSaversDepositQuote = async ({
 
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
-      getConfig().REACT_APP_THORCHAIN_NODE_URL
+      getConfig().VITE_THORCHAIN_NODE_URL
     }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${THORCHAIN_AFFILIATE_NAME}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
@@ -235,7 +236,7 @@ export const getThorchainSaversWithdrawQuote = async ({
 
   const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
     `${
-      getConfig().REACT_APP_THORCHAIN_NODE_URL
+      getConfig().VITE_THORCHAIN_NODE_URL
     }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
   )
 
@@ -250,7 +251,7 @@ export const getMidgardPools = async (
 ): Promise<MidgardPoolResponse[]> => {
   const maybePeriodQueryParameter: MidgardPoolRequest = period ? { period } : {}
   const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+    `${getConfig().VITE_MIDGARD_URL}/pools`,
     { params: maybePeriodQueryParameter },
   )
 

@@ -1,16 +1,17 @@
 import { useColorModeValue, useToast } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
-import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { Radio } from 'components/Radio/Radio'
-import { DeviceTimeout, timeoutOptions, useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
+
+import type { AwaitKeepKeyProps } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { LastDeviceInteractionStatus } from '@/components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
+import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
+import { Radio } from '@/components/Radio/Radio'
+import { DeviceTimeout, timeoutOptions, useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const radioProps = { width: 'full', justifyContent: 'flex-start' }
 const radioButtonGroupProps = {

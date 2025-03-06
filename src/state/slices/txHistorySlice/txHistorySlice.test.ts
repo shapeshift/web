@@ -2,12 +2,13 @@ import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { map, reverse } from 'lodash'
-import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { store } from 'state/store'
 
 import { txHistory } from './txHistorySlice'
 import { serializeTxIndex } from './utils'
+
+import { store } from '@/state/store'
+import { BtcSend, ethereumTransactions, EthReceive, EthSend } from '@/test/mocks/txs'
 
 describe('txHistorySlice', () => {
   const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => void 0)

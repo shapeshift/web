@@ -3,15 +3,16 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
-import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectPriceHistoryByAssetTimeframe } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { getStakingContract } from '../helpers'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
+
+import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById, selectPriceHistoryByAssetTimeframe } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type useCurrentApyQueryProps = {
   stakingAssetId: AssetId

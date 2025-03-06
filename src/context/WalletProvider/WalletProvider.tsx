@@ -6,26 +6,9 @@ import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamas
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { crypto } from '@shapeshiftoss/hdwallet-native'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
-import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
-import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
-import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
-import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
-import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
-import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
-import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
-import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
-import {
-  selectWalletDeviceId,
-  selectWalletRdns,
-  selectWalletType,
-} from 'state/slices/localWalletSlice/selectors'
-import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
-import { store } from 'state/store'
 
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
@@ -43,6 +26,24 @@ import { useEip1993EventHandler } from './useEip1993EventHandler'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
+
+import { PublicWalletXpubs } from '@/constants/PublicWalletXpubs'
+import type { Entropy } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
+import { VALID_ENTROPY } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
+import { useKeepKeyEventHandler } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
+import { MobileConfig } from '@/context/WalletProvider/MobileWallet/config'
+import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
+import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
+import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
+import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
+import {
+  selectWalletDeviceId,
+  selectWalletRdns,
+  selectWalletType,
+} from '@/state/slices/localWalletSlice/selectors'
+import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { store } from '@/state/store'
 
 export type WalletInfo = {
   name: string

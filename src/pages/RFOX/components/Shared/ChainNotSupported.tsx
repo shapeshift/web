@@ -3,9 +3,10 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText, Text } from 'components/Text'
-import { chainIdToChainDisplayName } from 'lib/utils'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText, Text } from '@/components/Text'
+import { chainIdToChainDisplayName } from '@/lib/utils'
 
 type ChainNotSupportedProps = {
   chainId: ChainId | undefined

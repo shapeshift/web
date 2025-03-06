@@ -13,20 +13,21 @@ import { thorService } from '@shapeshiftoss/swapper'
 import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
-import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
-import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
 import { assertGetUtxoChainAdapter, isUtxoAccountId, isUtxoChainId } from '../utxo'
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
+
+import { getConfig } from '@/config'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { poll } from '@/lib/poll/poll'
+import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 const getThorchainTransactionStatus = async ({
   txHash,
@@ -44,7 +45,7 @@ const getThorchainTransactionStatus = async ({
 
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+    `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
     // We don't want to throw on 404s, we're parsing these ourselves
     { validateStatus: () => true },
   )
@@ -68,7 +69,7 @@ const getThorchainTransactionStatus = async ({
   if (thorTxData.stages.swap_status?.pending) return TxStatus.Pending
 
   // Introspect midgard to detect failures/success states when enforcing outbound checks
-  const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+  const midgardUrl = getConfig().VITE_MIDGARD_URL
   const maybeResult = await thorService.get<MidgardActionsResponse>(
     `${midgardUrl}/actions?txid=${thorTxHash}`,
   )

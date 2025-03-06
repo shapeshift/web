@@ -1,9 +1,10 @@
 import { ModalBody, ModalHeader } from '@chakra-ui/react'
-import { Text } from 'components/Text'
-import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { KeepKeyPin } from './Pin'
+
+import { Text } from '@/components/Text'
+import { PinMatrixRequestType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const KeepKeyPinModal = () => {
   const {

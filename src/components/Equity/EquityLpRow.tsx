@@ -1,26 +1,27 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+import { useHistory, useLocation } from 'react-router-dom'
+
+import { EquityRow } from './EquityRow'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { OpportunityId } from '@/state/slices/opportunitiesSlice/types'
+import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
   selectMarketDataUserCurrency,
   selectOpportunityApiPending,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { EquityRow } from './EquityRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EquityLpRowProps = {
   opportunityId: OpportunityId

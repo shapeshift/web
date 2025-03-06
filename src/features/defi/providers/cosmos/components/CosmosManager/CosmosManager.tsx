@@ -1,19 +1,20 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useState } from 'react'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { CosmosClaim } from './Claim/CosmosClaim'
 import { CosmosDeposit } from './Deposit/CosmosDeposit'
 import { CosmosLearnMore } from './LearnMore/CosmosLearnMore'
 import { CosmosOverview } from './Overview/CosmosOverview'
 import { CosmosWithdraw } from './Withdraw/CosmosWithdraw'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export const CosmosManager = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()

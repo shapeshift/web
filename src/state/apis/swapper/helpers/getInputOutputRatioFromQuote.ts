@@ -7,12 +7,16 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import type { ReduxState } from 'state/reducer'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataUsd, selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
+
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import type { ReduxState } from '@/state/reducer'
+import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
+import {
+  selectMarketDataUsd,
+  selectUsdRateByAssetId,
+} from '@/state/slices/marketDataSlice/selectors'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,

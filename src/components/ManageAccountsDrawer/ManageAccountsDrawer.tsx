@@ -1,10 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertUnreachable } from 'lib/utils'
 
 import { ImportAccounts } from './components/ImportAccounts'
 import { SelectChain } from './components/SelectChain'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertUnreachable } from '@/lib/utils'
 
 export type ManageAccountsDrawerProps = {
   isOpen: boolean

@@ -5,15 +5,16 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteProps } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'react-router-dom'
+
 import {
   useMenuRoutes,
   WalletConnectedRoutes,
-} from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
-import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
-import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
-import { RawText, Text } from 'components/Text'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+} from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuContainer'
+import type { WalletConnectedProps } from '@/components/Layout/Header/NavBar/UserMenu'
+import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
+import { RawText, Text } from '@/components/Text'
+import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />

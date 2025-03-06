@@ -24,9 +24,6 @@ jobs:
       - name: Yarn Install
         run: yarn install --immutable
 
-      - name: Setup env
-        run: yarn env dev
-
       - name: Build Packages
         run: yarn build:packages
 

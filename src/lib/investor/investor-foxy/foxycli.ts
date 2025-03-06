@@ -6,10 +6,11 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 import { ethers } from 'ethers'
 import readline from 'readline-sync'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FoxyApi } from './api'
 import { foxyAddresses } from './constants'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 dotenv.config()
 
@@ -53,9 +54,9 @@ const main = async (): Promise<void> => {
 
   const api = new FoxyApi({
     adapter: ethChainAdapter,
-    providerUrl: process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
+    providerUrl: import.meta.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
     foxyAddresses,
-    provider: new ethers.JsonRpcProvider(process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/'),
+    provider: new ethers.JsonRpcProvider(import.meta.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/'),
   })
 
   const accountNumber = 0

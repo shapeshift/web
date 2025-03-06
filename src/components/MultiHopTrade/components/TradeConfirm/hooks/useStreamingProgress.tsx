@@ -1,10 +1,14 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { useChainflipStreamingProgress } from './useChainflipStreamingProgress'
 import { useThorStreamingProgress } from './useThorStreamingProgress'
+
+import {
+  selectActiveQuote,
+  selectActiveSwapperName,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseStreamingProgressProps = {
   hopIndex: number

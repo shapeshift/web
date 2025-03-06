@@ -1,18 +1,19 @@
 import type { FC } from 'react'
-import type { BackupPassphraseModalProps } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
-import type { AssetSearchModalProps } from 'components/Modals/AssetSearch/AssetSearchModal'
-import type { FiatRampsModalProps } from 'components/Modals/FiatRamps/FiatRampsModal'
-import type { LedgerOpenAppModalProps } from 'components/Modals/LedgerOpenApp/LedgerOpenAppModal'
-import type { NftModalProps } from 'components/Modals/Nfts/NftModal'
-import type { PopupWindowModalProps } from 'components/Modals/PopupWindowModal'
-import type { QrCodeModalProps } from 'components/Modals/QrCode/QrCode'
-import type { RateChangedModalProps } from 'components/Modals/RateChanged/RateChanged'
-import type { ReceivePropsType } from 'components/Modals/Receive/Receive'
-import type { SendModalProps } from 'components/Modals/Send/Send'
-import type { SnapsModalProps } from 'components/Modals/Snaps/Snaps'
-import type { TradeAssetSearchModalProps } from 'components/Modals/TradeAssetSearch/TradeAssetSearchModal'
 
 import type { CLOSE_MODAL, OPEN_MODAL } from './constants'
+
+import type { BackupPassphraseModalProps } from '@/components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
+import type { AssetSearchModalProps } from '@/components/Modals/AssetSearch/AssetSearchModal'
+import type { FiatRampsModalProps } from '@/components/Modals/FiatRamps/FiatRampsModal'
+import type { LedgerOpenAppModalProps } from '@/components/Modals/LedgerOpenApp/LedgerOpenAppModal'
+import type { NftModalProps } from '@/components/Modals/Nfts/NftModal'
+import type { PopupWindowModalProps } from '@/components/Modals/PopupWindowModal'
+import type { QrCodeModalProps } from '@/components/Modals/QrCode/QrCode'
+import type { RateChangedModalProps } from '@/components/Modals/RateChanged/RateChanged'
+import type { ReceivePropsType } from '@/components/Modals/Receive/Receive'
+import type { SendModalProps } from '@/components/Modals/Send/Send'
+import type { SnapsModalProps } from '@/components/Modals/Snaps/Snaps'
+import type { TradeAssetSearchModalProps } from '@/components/Modals/TradeAssetSearch/TradeAssetSearchModal'
 
 export type Modals = {
   receive: FC<ReceivePropsType>

@@ -2,7 +2,7 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, forwardRef, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useLocation } from 'react-router'
+import { matchPath, useHistory, useLocation } from 'react-router-dom'
 
 type MenuTabProps = {
   label: string

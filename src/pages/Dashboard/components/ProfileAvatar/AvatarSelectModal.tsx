@@ -18,24 +18,25 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { NarwhalIcon } from 'components/Icons/Narwhal'
-import { useNfts } from 'components/Nfts/hooks/useNfts'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
-import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
-import { RawText } from 'components/Text'
-import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
-import { nft } from 'state/apis/nft/nftApi'
+
+import { NftRow } from './NftRow'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { NarwhalIcon } from '@/components/Icons/Narwhal'
+import { useNfts } from '@/components/Nfts/hooks/useNfts'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
+import { SearchEmpty } from '@/components/StakingVaults/SearchEmpty'
+import { RawText } from '@/components/Text'
+import { useProfileAvatar } from '@/hooks/useProfileAvatar/useProfileAvatar'
+import { nft } from '@/state/apis/nft/nftApi'
 import {
   selectPortfolioNftItemsWithCollectionExcludeSpams,
   selectSelectedNftAvatar,
-} from 'state/apis/nft/selectors'
-import type { NftItemWithCollection } from 'state/apis/nft/types'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { NftRow } from './NftRow'
+} from '@/state/apis/nft/selectors'
+import type { NftItemWithCollection } from '@/state/apis/nft/types'
+import { selectWalletId } from '@/state/slices/common-selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> & Pick<ModalProps, 'onClose'>
 

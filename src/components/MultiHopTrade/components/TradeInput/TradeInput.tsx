@@ -86,7 +86,7 @@ type TradeInputProps = {
 export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const { handleSubmit } = useFormContext()
@@ -246,8 +246,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   }, [walletDispatch])
 
   const onSubmit = useCallback(() => {
-    // No preview happening if wallet isn't connected i.e is using the demo wallet
-    if (!isConnected || isDemoWallet) {
+    // No preview happening if wallet isn't connected
+    if (!isConnected) {
       return handleConnect()
     }
 
@@ -291,7 +291,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     handleConnect,
     history,
     isConnected,
-    isDemoWallet,
     mixpanel,
     showErrorToast,
     tradeQuoteStep,

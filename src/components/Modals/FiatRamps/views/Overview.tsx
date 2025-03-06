@@ -99,7 +99,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const toast = useToast()
   const assets = useAppSelector(selectAssets)
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { wallet, isConnected },
     dispatch,
   } = useWallet()
 
@@ -216,7 +216,7 @@ export const Overview: React.FC<OverviewProps> = ({
       .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
       .map(rampId => {
         const ramp = supportedFiatRamps[rampId]
-        const passedAddress = isDemoWallet ? '' : address
+        const passedAddress = address
         return (
           <FiatRampButton
             key={rampId}
@@ -236,7 +236,6 @@ export const Overview: React.FC<OverviewProps> = ({
     fiatCurrency,
     fiatRampAction,
     handlePopupClick,
-    isDemoWallet,
     isRampsLoading,
     ramps,
   ])
@@ -325,7 +324,7 @@ export const Overview: React.FC<OverviewProps> = ({
             {description && (
               <Text translation={description} color='text.subtle' mt='15px' mb='8px' />
             )}
-            {isConnected && !isDemoWallet ? (
+            {isConnected ? (
               <>
                 {isUnsupportedAsset ? (
                   <Button

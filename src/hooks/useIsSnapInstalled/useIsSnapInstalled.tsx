@@ -46,14 +46,14 @@ export const useIsSnapInstalled = (): {
   const [isCorrectVersion, setIsCorrectVersion] = useState<boolean | null>(null)
 
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { wallet, isConnected },
   } = useWallet()
 
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const checkSnapInstallation = useCallback(async () => {
     if (connectedRdns !== METAMASK_RDNS) return setIsSnapInstalled(null)
-    if (!isConnected || isDemoWallet) return setIsSnapInstalled(null)
+    if (!isConnected) return setIsSnapInstalled(null)
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
     if (!isMetaMaskDesktop) return
 
@@ -62,7 +62,7 @@ export const useIsSnapInstalled = (): {
 
     setIsCorrectVersion(version === snapVersion)
     setIsSnapInstalled(_isSnapInstalled)
-  }, [connectedRdns, isConnected, isDemoWallet, wallet])
+  }, [connectedRdns, isConnected, wallet])
 
   useEffect(() => {
     // Call the function immediately

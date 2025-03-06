@@ -1,10 +1,7 @@
-// Service CSPs
 import { csp as alchemy } from './alchemy'
-// Asset Service CSPs
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
-// Chain CSPs
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as arbitrumNova } from './chains/arbitrumNova'
 import { csp as avalanche } from './chains/avalanche'
@@ -24,12 +21,10 @@ import { csp as thorchain } from './chains/thorchain'
 import { csp as unstoppable } from './chains/unstoppable'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
-// DeFi CSPs
 import { csp as foxy } from './defi/foxy'
 import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
-// DeFi Swapper CSPs
 import { csp as zeroX } from './defi/swappers/0x'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as lifi } from './defi/swappers/Lifi'
@@ -37,25 +32,20 @@ import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
 import { csp as yearn } from './defi/yearn'
-// Missing from fiatRamps directory
 import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as interFont } from './InterFont'
-// Missing imports:
 import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
-// Missing from marketService directory
 import { csp as coincap } from './marketService/coincap'
 import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
-// Plugin CSPs
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as sentry } from './sentry'
 import { csp as shapeshiftGateway } from './shapeshiftGateway'
 import { csp as shapeshiftProxy } from './shapeshiftProxy'
 import { csp as snapshots } from './snapshots'
-// Wallet CSPs
 import { csp as coinbase } from './wallets/coinbase'
 import { csp as keepkey } from './wallets/keepkey'
 import { csp as metamask } from './wallets/metamask'
@@ -64,10 +54,7 @@ import { csp as walletMigration } from './wallets/walletMigration'
 import { csp as webflow } from './webflow'
 
 export const csps = [
-  // Base CSP (should be first as it contains default rules)
   base,
-
-  // Service CSPs
   alchemy,
   chainflip,
   chatwoot,
@@ -82,8 +69,6 @@ export const csps = [
   shapeshiftProxy,
   snapshots,
   webflow,
-
-  // Chain CSPs
   arbitrum,
   arbitrumNova,
   avalanche,
@@ -101,37 +86,23 @@ export const csps = [
   solana,
   thorchain,
   unstoppable,
-
-  // Asset Service CSPs
   trustwallet,
-
-  // Market Service CSPs
   coincap,
   exchangeRates,
-
-  // Fiat Ramps CSPs
   onRamper,
-
-  // DeFi CSPs
   foxy,
   idle,
   mtpelerin,
   safe,
   yearn,
-
-  // DeFi Swapper CSPs
   zeroX,
   cowSwap,
   lifi,
   oneInch,
   portals,
   thor,
-
-  // Plugin CSPs
   foxPage,
   walletConnectToDapps,
-
-  // Wallet CSPs
   coinbase,
   keepkey,
   metamask,

@@ -3,8 +3,6 @@ import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
 
-import env from './env'
-
 import { JUPITER_API_URL } from '@/constants/urls'
 
 const { cleanEnv, str, url } = envalid
@@ -201,5 +199,5 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() => {
-  return Object.freeze({ ...cleanEnv(env, validators, { reporter }) })
+  return Object.freeze({ ...cleanEnv(import.meta.env, validators, { reporter }) })
 })

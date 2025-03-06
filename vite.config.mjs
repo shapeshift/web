@@ -76,6 +76,13 @@ export default defineConfig(({ mode }) => {
       },
       headers,
     },
+    preview: {
+      port: 3000,
+      fs: {
+        allow: ['..'],
+      },
+      headers,
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
@@ -93,7 +100,8 @@ export default defineConfig(({ mode }) => {
         process: 'process/browser',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
         zlib: 'browserify-zlib',
-        fs: 'memfs',
+        fs: 'node:fs',
+        qs: 'qs',
         path: 'path-browserify',
       },
     },

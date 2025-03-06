@@ -1,7 +1,8 @@
 import 'dotenv/config'
 
+import { csps } from './csps'
 import type { Csp } from './types'
-import { collectCsps, cspMerge, serializeCsp } from './util'
+import { cspMerge, serializeCsp } from './util'
 
 export { serializeCsp } from './util'
 
@@ -19,7 +20,7 @@ export const cspHeader: Csp = {
  * These directives will be delivered by the meta tag alone.
  */
 export const cspMeta = cspMerge(
-  ...collectCsps('./csps'),
+  ...csps,
   'report-uri' in cspHeader
     ? {
         'script-src': ["'report-sample'"],

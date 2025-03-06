@@ -31,7 +31,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
   ({ data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts }, index, style }) => {
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
-      state: { isConnected, isDemoWallet, wallet },
+      state: { isConnected, wallet },
     } = useWallet()
     const asset: Asset | undefined = assets[index]
     const assetId = asset?.assetId
@@ -81,7 +81,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
             </Flex>
           </Box>
         </Flex>
-        {(isConnected || isDemoWallet) && !hideAssetBalance && (
+        {isConnected && !hideAssetBalance && (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
             <Amount.Fiat
               color='var(--chakra-colors-chakra-body-text)'

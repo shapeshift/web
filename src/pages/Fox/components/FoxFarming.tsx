@@ -78,7 +78,7 @@ export const FoxFarming = () => {
   const location = useLocation()
   const appDispatch = useAppDispatch()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const queryClient = useQueryClient()
@@ -217,7 +217,7 @@ export const FoxFarming = () => {
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-      if (!isConnected || isDemoWallet) {
+      if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
@@ -239,7 +239,7 @@ export const FoxFarming = () => {
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, isDemoWallet, location, assetAccountId],
+    [dispatch, history, isConnected, location, assetAccountId],
   )
 
   const handleManageClick = useCallback(() => {

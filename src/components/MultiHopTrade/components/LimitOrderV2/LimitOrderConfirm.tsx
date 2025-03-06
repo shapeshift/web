@@ -53,7 +53,7 @@ export const LimitOrderConfirm = () => {
     limitOrderSlice.actions,
   )
   const {
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -258,7 +258,7 @@ export const LimitOrderConfirm = () => {
 
   const buttonTranslation: string | [string, number | InterpolationOptions] | undefined =
     useMemo(() => {
-      if (!isConnected || isDemoWallet) return 'common.connectWallet'
+      if (!isConnected) return 'common.connectWallet'
       switch (orderSubmissionState) {
         case LimitOrderSubmissionState.AwaitingAllowanceApproval:
           return ['trade.approveAsset', { symbol: sellAsset?.symbol }]
@@ -269,10 +269,10 @@ export const LimitOrderConfirm = () => {
         default:
           return undefined
       }
-    }, [isConnected, isDemoWallet, orderSubmissionState, sellAsset?.symbol])
+    }, [isConnected, orderSubmissionState, sellAsset?.symbol])
 
   const handleConfirm = useCallback(async () => {
-    if (!isConnected || isDemoWallet) {
+    if (!isConnected) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -341,7 +341,6 @@ export const LimitOrderConfirm = () => {
     buyAsset,
     dispatch,
     isConnected,
-    isDemoWallet,
     mixpanel,
     orderSubmissionState,
     placeLimitOrder,

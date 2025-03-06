@@ -1506,12 +1506,13 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
+      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support.",
+      "walletVersionTooOld": "Unable to pair your wallet. Please update your wallet to the latest version."
     },
     "keepKey": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with your KeepKey",
-        "updateAlert": "Firmware 6.1.0 or later is required to use your Keepkey with this client. Please update your device.",
+        "updateAlert": "Firmware %{version} or later is required to use your KeepKey with this client. Please update your device.",
         "pinCancelled": "PIN entry was cancelled",
         "pinInvalid": "The PIN you entered is not valid",
         "pinMismatch": "The two PINs you entered do not match"

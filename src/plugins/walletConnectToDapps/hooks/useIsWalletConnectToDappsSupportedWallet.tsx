@@ -8,7 +8,9 @@ export const useIsWalletConnectToDappsSupportedWallet = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const { isEIP712SupportedFirmwareVersion } = useKeepKeyVersions()
+  const { versionsQuery } = useKeepKeyVersions({ wallet })
+  const isEIP712SupportedFirmwareVersion =
+    versionsQuery.data?.isEIP712SupportedFirmwareVersion ?? false
 
   const result = useMemo((): boolean => {
     if (!wallet) return false

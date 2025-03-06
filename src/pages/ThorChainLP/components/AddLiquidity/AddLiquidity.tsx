@@ -2,13 +2,14 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { AddLiquidityRoutePaths } from './types'
+
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { LpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/types'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 

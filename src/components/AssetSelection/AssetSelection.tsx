@@ -4,12 +4,13 @@ import { Flex } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo } from 'react'
-import { Text } from 'components/Text'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StyledAssetChainDropdown } from './components/AssetChainDropdown/AssetChainDropdown'
 import { StyledAssetMenuButton } from './components/AssetMenuButton'
+
+import { Text } from '@/components/Text'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TradeAssetSelectBaseProps = {
   assetId?: AssetId

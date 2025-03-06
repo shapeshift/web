@@ -7,8 +7,6 @@ import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
-import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import type { ReduxState } from './reducer'
 import type {
@@ -19,6 +17,9 @@ import type {
   UserStakingId,
   ValidatorId,
 } from './slices/opportunitiesSlice/types'
+
+import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter
@@ -80,8 +81,6 @@ export const selectRequiredParamFromFilter = <T extends ParamFilterKey>(param: T
   )((_state: ReduxState, filter: Required<Pick<ParamFilter, T>>) => `${param}-${filter[param]}`)
 
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
-export const selectAccountIdsParamFromFilter = selectParamFromFilter('accountIds')
-export const selectFromParamFromFilter = selectParamFromFilter('from')
 export const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')

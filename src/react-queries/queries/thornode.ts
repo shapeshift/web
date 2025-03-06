@@ -1,17 +1,14 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  InboundAddressResponse,
-  ThornodePoolResponse,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
+import type { InboundAddressResponse, ThornodePoolResponse } from '@shapeshiftoss/swapper'
+import { assetIdToPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { getConfig } from 'config'
-import type { ThorchainBlock, ThorchainMimir } from 'lib/utils/thorchain/types'
 
-const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+import { getConfig } from '@/config'
+import type { ThorchainBlock, ThorchainMimir } from '@/lib/utils/thorchain/types'
+
+const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
 // Feature-agnostic, abstracts away THORNode endpoints
 export const thornode = createQueryKeys('thornode', {

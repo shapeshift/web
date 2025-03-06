@@ -1,11 +1,12 @@
 import { ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { mockMarketData } from 'test/mocks/marketData'
 import { maxUint256 } from 'viem'
 import { describe, expect, it } from 'vitest'
 
 import { makeAmountOrDefault } from './utils'
+
+import { mockMarketData } from '@/test/mocks/marketData'
 
 describe('TransactionHistoryRow/utils', () => {
   describe('makeAmountOrDefault', () => {

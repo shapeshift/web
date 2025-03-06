@@ -1,39 +1,45 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SwapErrorRight,
+  ThorTradeQuote,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
-import { isMultiHopTradeQuote, isMultiHopTradeRate } from 'components/MultiHopTrade/utils'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
+
+import type { ErrorWithMeta, TradeQuoteError } from '../types'
+import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+
+import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletConnectedChainIds,
   selectWalletId,
-} from 'state/slices/common-selectors'
+} from '@/state/slices/common-selectors'
 import {
   selectAssets,
   selectFeeAssetById,
   selectPortfolioAccountIdByNumberByChainId,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
   selectSecondHopSellAccountId,
-} from 'state/slices/tradeInputSlice/selectors'
-import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
-
-import type { ErrorWithMeta, TradeQuoteError } from '../types'
-import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+} from '@/state/slices/tradeInputSlice/selectors'
+import { getTotalProtocolFeeByAssetForStep } from '@/state/slices/tradeQuoteSlice/helpers'
 
 export const validateTradeQuote = (
   state: ReduxState,

@@ -2,12 +2,13 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { EstimateFeesInput } from 'components/Modals/Send/utils'
-import { estimateFees } from 'components/Modals/Send/utils'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
+import { estimateFees } from '@/components/Modals/Send/utils'
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type EstimatedFeesQueryKey = [
   'estimateFees',

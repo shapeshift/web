@@ -4,10 +4,11 @@ import {
   RFOX_REWARD_RATE,
   RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
 } from '@shapeshiftoss/contracts'
-import { bn } from 'lib/bignumber/bignumber'
 
 import { getStakingContract } from '../helpers'
 import type { CurrentEpochMetadata } from '../types'
+
+import { bn } from '@/lib/bignumber/bignumber'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.

@@ -1,8 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { Route } from 'Routes/helpers'
-import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+
+import type { Route } from '@/Routes/helpers'
+import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export type Plugins = [chainId: string, chain: Plugin][]
 

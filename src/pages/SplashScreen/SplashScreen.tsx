@@ -1,10 +1,11 @@
 import { Center, Circle, Spinner } from '@chakra-ui/react'
 import { isFirefox } from 'react-device-detect'
-import Orbs from 'assets/orbs.svg'
-import OrbsStatic from 'assets/orbs-static.png'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Page } from 'components/Layout/Page'
-import { colors } from 'theme/colors'
+
+import Orbs from '@/assets/orbs.svg'
+import OrbsStatic from '@/assets/orbs-static.png'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { Page } from '@/components/Layout/Page'
+import { colors } from '@/theme/colors'
 
 const after = {
   position: 'absolute',

@@ -3,11 +3,12 @@ import { useCallback } from 'react'
 import type { FallbackProps } from 'react-error-boundary'
 import { FaSadTear } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { IconCircle } from 'components/IconCircle'
-import { Layout } from 'components/Layout/Layout'
-import { Main } from 'components/Layout/Main'
-import { RawText } from 'components/Text'
-import { persistor } from 'state/store'
+
+import { IconCircle } from '@/components/IconCircle'
+import { Layout } from '@/components/Layout/Layout'
+import { Main } from '@/components/Layout/Main'
+import { RawText } from '@/components/Text'
+import { persistor } from '@/state/store'
 
 export const ErrorPage: React.FC<FallbackProps> = () => {
   const translate = useTranslate()

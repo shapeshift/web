@@ -3,34 +3,9 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import type { DefiStepProps, StepComponentProps } from 'components/DeFi/components/Steps'
-import { Steps } from 'components/DeFi/components/Steps'
-import { Sweep } from 'components/Sweep'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import {
-  selectAssetById,
-  selectEarnUserStakingOpportunityByUserStakingId,
-  selectHighestStakingBalanceAccountIdByStakingId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -38,6 +13,32 @@ import { Withdraw } from './components/Withdraw'
 import { ThorchainSaversWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import type { DefiStepProps, StepComponentProps } from '@/components/DeFi/components/Steps'
+import { Steps } from '@/components/DeFi/components/Steps'
+import { Sweep } from '@/components/Sweep'
+import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
+import { DefiModalHeader } from '@/features/defi/components/DefiModal/DefiModalHeader'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
+import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type WithdrawProps = {
   accountId: AccountId | undefined

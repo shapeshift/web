@@ -12,10 +12,11 @@ import type {
 import { Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()

@@ -1,8 +1,9 @@
 import { Center, Flex, Image } from '@chakra-ui/react'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
 
 import MultiChainIcon from '../multi-chain.svg'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
 
 export const MultiChain = () => {
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.multiChain.${key}`

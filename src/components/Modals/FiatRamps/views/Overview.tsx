@@ -22,32 +22,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { IconCircle } from 'components/IconCircle'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isKeepKeyHDWallet } from 'lib/utils'
-import { isUtxoAccountId } from 'lib/utils/utxo'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import {
-  selectAssetById,
-  selectAssets,
-  selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioUserCurrencyBalanceByFilter,
-  selectSelectedCurrency,
-  selectSelectedLocale,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
@@ -56,6 +30,33 @@ import { supportedFiatRamps } from '../config'
 import commonFiatCurrencyList from '../FiatCurrencyList.json'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { IconCircle } from '@/components/IconCircle'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isKeepKeyHDWallet } from '@/lib/utils'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
+import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioUserCurrencyBalanceByFilter,
+  selectSelectedCurrency,
+  selectSelectedLocale,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type OverviewProps = {
   accountId: AccountId | undefined

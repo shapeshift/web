@@ -130,20 +130,6 @@ export type ThorUtxoSupportedChainId =
   | KnownChainIds.LitecoinMainnet
   | KnownChainIds.BitcoinCashMainnet
 
-export type ThorEvmSupportedChainId =
-  | KnownChainIds.EthereumMainnet
-  | KnownChainIds.AvalancheMainnet
-  | KnownChainIds.BnbSmartChainMainnet
-
-export type ThorCosmosSdkSupportedChainId =
-  | KnownChainIds.ThorchainMainnet
-  | KnownChainIds.CosmosMainnet
-
-export type ThorChainId =
-  | ThorCosmosSdkSupportedChainId
-  | ThorEvmSupportedChainId
-  | ThorUtxoSupportedChainId
-
 type ThorNodeCoinSchema = {
   asset: string
   amount: string

@@ -3,19 +3,20 @@ import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useModal } from 'hooks/useModal/useModal'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+
+import { StepperStep } from '../TradeConfirm/StepperStep'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useModal } from '@/hooks/useModal/useModal'
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectIsAssetWithoutMarketData,
   selectMarketDataUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { StepperStep } from '../TradeConfirm/StepperStep'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type AssetSummaryStepProps = {
   asset: Asset

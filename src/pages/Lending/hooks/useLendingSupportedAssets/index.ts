@@ -1,27 +1,25 @@
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import type {
-  ThornodePoolResponse,
-  ThornodePoolStatuses,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { ThornodePoolResponse, ThornodePoolStatuses } from '@shapeshiftoss/swapper'
+import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
-import { knownChainIds } from 'constants/chains'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { isSome } from 'lib/utils'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+
+import { knownChainIds } from '@/constants/chains'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { isSome } from '@/lib/utils'
+import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { reactQueries } from '@/react-queries'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
   selectWalletConnectedChainIds,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 const queryKey = ['lendingSupportedAssets']
 

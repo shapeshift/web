@@ -1,13 +1,12 @@
 import type { AccountId, AssetId, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
 import { toChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { matchPath, useLocation } from 'react-router'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { matchPath, useLocation } from 'react-router-dom'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 // Make sure this array remains ordered from most to least specific to avoid early matching
 export const assetIdPaths = [
-  '/:chainId/:assetSubId/:nftId/transactions', // DO NOT REMOVE - first match in case we're in a /transactions path, making sure the parsing is correct
-  '/:chainId/:assetSubId/transactions', // DO NOT REMOVE - first match in case we're in a /transactions path, making sure the parsing is correct
   '/:chainId/:assetSubId/:nftId', // NFT token path template
   '/:chainId/:assetSubId', // Standard asset path template
 ]

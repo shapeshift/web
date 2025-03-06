@@ -14,21 +14,23 @@ import { union } from 'lodash'
 import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { routes } from 'Routes/RoutesCommon'
-import { QRCodeIcon } from 'components/Icons/QRCode'
-import { SendIcon } from 'components/Icons/SendIcon'
-import { SwapIcon } from 'components/Icons/SwapIcon'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { RawText } from 'components/Text'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useHistory } from 'react-router-dom'
 
 import { MobileNavLink } from './MobileNavLink'
+
+import { QRCodeIcon } from '@/components/Icons/QRCode'
+import { SendIcon } from '@/components/Icons/SendIcon'
+import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { RawText } from '@/components/Text'
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { Route } from '@/Routes/helpers'
+import { routes } from '@/Routes/RoutesCommon'
 
 const displayProp = { base: 'grid', md: 'none' }
 
@@ -141,14 +143,16 @@ export const MobileNavBar = memo(() => {
   const qrCode = useModal('qrCode')
   const { routes: pluginRoutes } = usePlugins()
   const history = useHistory()
-  const allRoutes = useMemo(
-    () =>
-      union(routes, pluginRoutes)
-        .filter(route => !route.disable && !route.hide && route.mobileNav)
-        // route mobileNav discriminated union narrowing is lost by the Array.prototype.sort() call
-        .sort((a, b) => bnOrZero(a.priority!).minus(b.priority!).toNumber()),
-    [pluginRoutes],
-  )
+  const allRoutes = useMemo(() => {
+    return union(routes, pluginRoutes)
+      .filter(
+        (
+          route,
+        ): route is Extract<Route, { priority: number }> & Extract<Route, { label: string }> =>
+          !route.disable && !route.hide && !!route.mobileNav,
+      )
+      .sort((a, b) => bnOrZero(a.priority).minus(b.priority).toNumber())
+  }, [pluginRoutes])
   useLayoutEffect(() => {
     const body = document.body
     const nav = document.querySelector('.mobile-nav')

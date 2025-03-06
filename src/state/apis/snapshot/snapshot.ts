@@ -5,16 +5,17 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { PURGE } from 'redux-persist'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
-import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
 import type { Proposal, Strategy } from './validators'
 import { ProposalSchema, SnapshotSchema } from './validators'
+
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { FEE_CURVE_PARAMETERS } from '@/lib/fees/parameters'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { findClosestFoxDiscountDelayBlockNumber } from '@/lib/fees/utils'
+import type { ReduxState } from '@/state/reducer'
 
 type FoxVotingPowerCryptoBalance = string
 

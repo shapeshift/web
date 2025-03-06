@@ -1,14 +1,15 @@
-import { EncryptedWallet, engines } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
+
 import {
   decryptWallet,
   hashPassword,
-} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { isMobile } from 'lib/globals'
+} from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { isMobile } from '@/lib/globals'
 
-const cryptoEngine = new engines.WebCryptoEngine()
+const cryptoEngine = new crypto.engines.WebCryptoEngine()
 
 const getEncryptedWallet = () => {
-  return new EncryptedWallet(cryptoEngine)
+  return new crypto.EncryptedWallet(cryptoEngine)
 }
 
 export async function getPasswordHash(email: string, password: string): Promise<string> {

@@ -2,14 +2,15 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isToken } from 'lib/utils'
-import type { MaybeApproveInput } from 'lib/utils/evm/types'
+
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isToken } from '@/lib/utils'
+import type { MaybeApproveInput } from '@/lib/utils/evm/types'
+import { reactQueries } from '@/react-queries'
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
 
 type UseApproveProps = MaybeApproveInput & {
   onSuccess?: (txHash: string) => void

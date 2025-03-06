@@ -8,24 +8,25 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
-import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
-import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import type {
-  CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
-} from 'plugins/walletConnectToDapps/types'
-import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
-import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { RawText, Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { RawText, Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
+import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
+import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
+import type {
+  CosmosSignAminoCallRequest,
+  CosmosSignDirectCallRequest,
+} from '@/plugins/walletConnectToDapps/types'
+import { CosmosSigningMethod } from '@/plugins/walletConnectToDapps/types'
+import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 

@@ -1,10 +1,11 @@
 import { Box, Button, Collapse, SkeletonText } from '@chakra-ui/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { markdownLinkToHTML } from 'lib/utils'
 
 import { ParsedHtml } from './ParsedHtml/ParsedHtml'
 import { SanitizedHtml } from './SanitizedHtml/SanitizedHtml'
+
+import { markdownLinkToHTML } from '@/lib/utils'
 
 const DESCRIPTION_DEFAULT_HEIGHT = 75
 

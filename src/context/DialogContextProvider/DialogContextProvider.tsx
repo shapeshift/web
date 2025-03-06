@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import React, { createContext, useContext, useState } from 'react'
-import type { DialogProps } from 'components/Modal/components/Dialog'
+
+import type { DialogProps } from '@/components/Modal/components/Dialog'
 
 type DialogContextType = {
   snapPoint: string | number

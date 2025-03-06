@@ -1,5 +1,8 @@
-import type { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type {
+  DepositValues,
+  Field as DepositField,
+} from '@/features/defi/components/Deposit/Deposit'
+import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
   estimatedGasCryptoBaseUnit?: string

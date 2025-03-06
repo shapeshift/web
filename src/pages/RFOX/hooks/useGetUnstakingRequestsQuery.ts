@@ -3,13 +3,11 @@ import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { mergeQueryOutputs } from 'react-queries/helpers'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { multicall } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import { serialize } from 'wagmi'
-import { isSome } from 'lib/utils'
 
 import { getStakingAssetId, getStakingContract } from '../helpers'
 import {
@@ -17,6 +15,9 @@ import {
   getUnstakingRequestCountQueryKey,
 } from './useGetUnstakingRequestCountQuery'
 import { useRFOXContext } from './useRfoxContext'
+
+import { isSome } from '@/lib/utils'
+import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 const getContractFnParams = (
   stakingAssetAccountAddress: string | undefined,

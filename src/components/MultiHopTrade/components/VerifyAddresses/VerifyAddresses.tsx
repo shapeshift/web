@@ -17,29 +17,30 @@ import {
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { AssetIcon } from 'components/AssetIcon'
-import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
-import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useHistory } from 'react-router-dom'
+
+import { WithBackButton } from '../WithBackButton'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
+import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
   selectAccountIdsByChainIdFilter,
   selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddress,
-} from 'state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { WithBackButton } from '../WithBackButton'
+} from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 enum AddressVerificationType {
   Sell = 'sell',

@@ -1,9 +1,10 @@
 import type { TextProps } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { RawText } from './Text'
+
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetSymbolProps = {
   assetId: AssetId

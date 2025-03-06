@@ -1,5 +1,5 @@
-import type { SlideTransitionProps } from 'components/SlideTransition'
-import { SlideTransition } from 'components/SlideTransition'
+import type { SlideTransitionProps } from '@/components/SlideTransition'
+import { SlideTransition } from '@/components/SlideTransition'
 
 export const transitionStyle = {
   width: '100%',

@@ -2,18 +2,6 @@ import { Stepper } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import type { TextPropTypes } from 'components/Text/Text'
-import { fromBaseUnit } from 'lib/math'
-import {
-  selectActiveQuote,
-  selectConfirmedTradeExecutionState,
-  selectFirstHop,
-  selectLastHop,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
@@ -22,6 +10,19 @@ import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
 import { TradeConfirmBody } from './TradeConfirmBody'
 import { TradeConfirmFooter } from './TradeConfirmFooter'
+
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { fromBaseUnit } from '@/lib/math'
+import {
+  selectActiveQuote,
+  selectConfirmedTradeExecutionState,
+  selectFirstHop,
+  selectLastHop,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const TradeConfirm = () => {
   const { isLoading } = useIsApprovalInitiallyNeeded()

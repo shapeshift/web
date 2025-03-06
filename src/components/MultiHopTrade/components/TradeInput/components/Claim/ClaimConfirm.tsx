@@ -15,26 +15,27 @@ import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { firstFourLastFour } from 'lib/utils'
+import { useHistory } from 'react-router-dom'
+
+import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
+import { useArbitrumClaimTx } from './hooks/useArbitrumClaimTx'
+import { ClaimRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { firstFourLastFour } from '@/lib/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
-import { useArbitrumClaimTx } from './hooks/useArbitrumClaimTx'
-import { ClaimRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   activeClaim: ClaimDetails

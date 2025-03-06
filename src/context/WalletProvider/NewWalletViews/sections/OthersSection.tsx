@@ -1,11 +1,12 @@
 import { Box, Button, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { CoinbaseIcon } from 'components/Icons/CoinbaseIcon'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { Text } from 'components/Text'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useMipdProviders } from 'lib/mipd'
+
+import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { Text } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useMipdProviders } from '@/lib/mipd'
 
 const WalletConnectOption = ({
   connect,
@@ -23,11 +24,12 @@ const WalletConnectOption = ({
       as={Button}
       key='walletconnect'
       variant='ghost'
+      whiteSpace='normal'
       px={4}
-      ml={-4}
-      py={6}
+      ml='-16px'
+      mr='-16px'
+      py={2.5}
       borderRadius='md'
-      width='full'
       onClick={connect}
       bg={isSelected ? backgroundColor : undefined}
       isDisabled={isDisabled}
@@ -62,11 +64,12 @@ const CoinbaseQROption = ({
       as={Button}
       key='coinbaseqr'
       variant='ghost'
+      whiteSpace='normal'
       px={4}
-      ml={-4}
-      py={6}
+      ml='-16px'
+      mr='-16px'
+      py={2.5}
       borderRadius='md'
-      width='full'
       onClick={connect}
       bg={isSelected ? selectedBackgroundColor : undefined}
       isDisabled={isDisabled}

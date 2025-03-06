@@ -1,4 +1,4 @@
-import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 
 export enum BackupPassphraseRoutes {
   Start = '/backup-passphrase/',

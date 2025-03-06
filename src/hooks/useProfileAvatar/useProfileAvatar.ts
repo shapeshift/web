@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
-import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
-import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
+
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
+import { selectSelectedNftAvatarUrl } from '@/state/apis/nft/selectors'
+import { selectWalletId } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useProfileAvatar = () => {
   const walletId = useAppSelector(selectWalletId)

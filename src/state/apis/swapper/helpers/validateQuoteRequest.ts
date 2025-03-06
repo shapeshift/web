@@ -1,11 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isTruthy } from 'lib/utils'
 
 import type { ErrorWithMeta } from '../types'
 import { TradeQuoteRequestError } from '../types'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isTruthy } from '@/lib/utils'
 
 export const validateQuoteRequest = ({
   isWalletConnected,

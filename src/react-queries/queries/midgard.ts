@@ -1,17 +1,18 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { MidgardPoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
-import { getConfig } from 'config'
+
+import { getConfig } from '@/config'
 import type {
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
-} from 'lib/utils/thorchain/lp/types'
+} from '@/lib/utils/thorchain/lp/types'
 
 type Period = 'all'
 export type Interval = '5min' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
 
-const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+const midgardUrl = getConfig().VITE_MIDGARD_URL
 
 // Feature-agnostic, abstracts away midgard endpoints
 export const midgard = createQueryKeys('midgard', {

@@ -1,12 +1,11 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import type { getInboundAddressDataForChain } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { InboundAddressResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { ThorchainChain } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { selectIsTradingActive } from 'react-queries/selectors'
+import type { getInboundAddressDataForChain, InboundAddressResponse } from '@shapeshiftoss/swapper'
+import { SwapperName, ThorchainChain } from '@shapeshiftoss/swapper'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
+import { selectIsTradingActive } from '@/react-queries/selectors'
+
+vi.mock('@/lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
   const actual: typeof getInboundAddressDataForChain = await importActual()
 
   return {

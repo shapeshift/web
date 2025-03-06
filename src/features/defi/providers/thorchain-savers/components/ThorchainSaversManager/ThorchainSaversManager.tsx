@@ -1,18 +1,19 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { ThorchainSaversDeposit } from './Deposit/ThorchainSaversDeposit'
 import { Dust } from './Dust/Dust'
 import { ThorchainSaversOverview } from './Overview/ThorchainSaversOverview'
 import { ThorchainSaversWithdraw } from './Withdraw/ThorchainSaversWithdraw'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export const ThorchainSaversManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

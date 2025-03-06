@@ -1,7 +1,8 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
-import { breakpoints } from 'theme/theme'
+
+import { breakpoints } from '@/theme/theme'
 
 type DisplayCompoundProps = {
   Desktop: React.FC<{ children: React.ReactNode }>

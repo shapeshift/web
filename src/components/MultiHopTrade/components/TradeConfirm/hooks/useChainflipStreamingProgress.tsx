@@ -1,18 +1,18 @@
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import type { ChainFlipStatus } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/types'
+import type { ChainFlipStatus, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import axios from 'axios'
-import { getConfig } from 'config'
 import { useEffect, useMemo } from 'react'
-import { usePoll } from 'hooks/usePoll/usePoll'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+
+import type { ChainflipStreamingSwapResponseSuccess } from '../types'
+
+import { getConfig } from '@/config'
+import { usePoll } from '@/hooks/usePoll/usePoll'
+import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
-} from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import type { ChainflipStreamingSwapResponseSuccess } from '../types'
+} from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const POLL_INTERVAL_MILLISECONDS = 5_000 // 5 seconds
 
@@ -28,8 +28,8 @@ const getChainflipStreamingSwap = async (
   if (!swapId) return
 
   const config = getConfig()
-  const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = config.VITE_CHAINFLIP_API_URL
+  const apiKey = config.VITE_CHAINFLIP_API_KEY
 
   const statusResponse = await axios
     .get<ChainFlipStatus>(`${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`)

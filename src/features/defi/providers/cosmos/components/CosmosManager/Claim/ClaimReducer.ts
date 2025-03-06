@@ -1,7 +1,7 @@
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-
 import type { CosmosClaimActions, CosmosClaimState } from './ClaimCommon'
 import { CosmosClaimActionType, TxStatus } from './ClaimCommon'
+
+import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 
 export const initialState: CosmosClaimState = {
   txid: null,

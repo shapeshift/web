@@ -2,17 +2,18 @@ import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Display } from 'components/Display'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import { Text } from 'components/Text'
-import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useHistory } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { FoxWifHat } from './FoxWifHat'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { Display } from '@/components/Display'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { Text } from '@/components/Text'
+import { selectPortfolioAccountIdsByAssetIdFilter } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const containerPaddingTop = { base: 0, md: 8 }

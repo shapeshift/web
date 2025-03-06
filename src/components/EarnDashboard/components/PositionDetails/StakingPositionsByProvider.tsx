@@ -4,33 +4,34 @@ import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
-import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { ReactTable } from 'components/ReactTable/ReactTable'
-import { RawText } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { ReactTable } from '@/components/ReactTable/ReactTable'
+import { RawText } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
-} from 'state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+} from '@/state/slices/opportunitiesSlice/types'
+import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
   selectMarketDataUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]

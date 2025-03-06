@@ -1,10 +1,11 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Button, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
-import { Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
+
+import { Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const KeepKeyRecoverySentenceInvalid = () => {
   const [loading, setLoading] = useState(false)

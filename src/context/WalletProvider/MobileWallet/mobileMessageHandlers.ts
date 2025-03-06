@@ -1,9 +1,9 @@
-import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
-import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
-} from 'context/WalletProvider/MobileWallet/types'
+} from '@/context/WalletProvider/MobileWallet/types'
 
 type Command =
   | 'getWallet'
@@ -127,13 +127,6 @@ export const getWallet = async (key: string): Promise<RevocableWallet | null> =>
 export const getWalletCount = (): Promise<number> => {
   // mobile app returns the number of wallets saved
   return postMessage<number>({ cmd: 'getWalletCount' })
-}
-
-/**
- * Returns `true` is a given wallet by `ID` exists in the mobile app
- */
-export const hasWallet = (key: string): Promise<boolean> => {
-  return postMessage<boolean>({ cmd: 'hasWallet', key })
 }
 
 /**

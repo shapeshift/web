@@ -6,26 +6,27 @@ import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { Display } from 'components/Display'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import { SEO } from 'components/Layout/Seo'
-import { ScrollDisplay } from 'components/ScrollDisplay'
-import { RawText } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { isToken, middleEllipsis } from 'lib/utils'
+
+import { AssetActions } from './AssetActions'
+import { WatchAssetButton } from './WatchAssetButton'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { Display } from '@/components/Display'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { SEO } from '@/components/Layout/Seo'
+import { ScrollDisplay } from '@/components/ScrollDisplay'
+import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { isToken, middleEllipsis } from '@/lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { AssetActions } from './AssetActions'
-import { WatchAssetButton } from './WatchAssetButton'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetHeaderProps = {
   assetId?: AssetId

@@ -1,9 +1,10 @@
 import type { UseRadioGroupReturn } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
 import type { GridChildComponentProps } from 'react-window'
-import type { NftItemWithCollection } from 'state/apis/nft/types'
 
 import { AvatarRadio } from './AvatarRadio'
+
+import type { NftItemWithCollection } from '@/state/apis/nft/types'
 
 type NftRowProps = {
   filteredNfts: NftItemWithCollection[]

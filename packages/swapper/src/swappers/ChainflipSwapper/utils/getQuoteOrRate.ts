@@ -97,8 +97,8 @@ export const getQuoteOrRate = async (
     )
   }
 
-  const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
+  const apiKey = deps.config.VITE_CHAINFLIP_API_KEY
 
   const sourceAsset = await getChainFlipIdFromAssetId({
     assetId: sellAsset.assetId,
@@ -288,7 +288,7 @@ export const getQuoteOrRate = async (
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
 
-    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA) continue
+    if (isStreaming && !deps.config.VITE_FEATURE_CHAINFLIP_SWAP_DCA) continue
 
     const feeData = await getFeeData()
 

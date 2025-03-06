@@ -9,23 +9,24 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertUnreachable } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+
+import { getConfig } from '@/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertUnreachable } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectConfirmedTradeExecution,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useTradeNetworkFeeCryptoBaseUnit = ({
   hopIndex,

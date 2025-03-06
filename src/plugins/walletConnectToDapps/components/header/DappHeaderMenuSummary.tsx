@@ -1,11 +1,12 @@
 import { Accordion, Box, MenuDivider, MenuGroup } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { WalletConnectButtons } from './ConnectDapp'
 import { Session } from './Session'
+
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
 export const DappHeaderMenuSummary = () => {
   const translate = useTranslate()

@@ -15,20 +15,21 @@ import {
 import { useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Main } from 'components/Layout/Main'
-import { RawText } from 'components/Text'
-import { slices } from 'state/reducer'
-import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import type { AppDispatch } from 'state/store'
-import { clearState, useAppSelector } from 'state/store'
 
 import { Debugging } from './Debugging'
 import { FlagRow } from './FlagRow'
 
+import { Main } from '@/components/Layout/Main'
+import { RawText } from '@/components/Text'
+import { slices } from '@/state/reducer'
+import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import type { AppDispatch } from '@/state/store'
+import { clearState, useAppSelector } from '@/state/store'
+
 const FlagHeader = () => {
   return (
-    <Stack pb={4}>
+    <Stack px={8} py={4}>
       <Heading>Flags</Heading>
       <RawText color='red.500' fontStyle='italic'>
         These features are <strong>experimental</strong> and in <strong>active development</strong>.
@@ -77,7 +78,7 @@ export const Flags = () => {
   }, [dispatch])
 
   return (
-    <Main titleComponent={flagHeader}>
+    <Main headerComponent={flagHeader}>
       <Stack direction={stackDirection} spacing={6}>
         <Card flex={1}>
           <CardHeader>

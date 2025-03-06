@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -8,10 +8,7 @@ import {
   gnosisChainId,
   optimismChainId,
   polygonChainId,
-  toAssetId,
 } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
@@ -162,6 +159,7 @@ const PortalsTokenSchema: Type<PortalsToken> = z
   })
   .allowUnknownKeys()
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PortalsAssetBaseSchema = z
   .object({
     key: z.string(),
@@ -182,39 +180,6 @@ const PortalsAssetBaseSchema = z
     balanceUSD: z.number().optional(),
   })
   .allowUnknownKeys()
-
-const PortalsAssetWithBalancesSchema = z
-  .intersection(
-    PortalsAssetBaseSchema,
-    z.object({
-      tokens: z.array(PortalsTokenSchema),
-    }),
-  )
-  .allowUnknownKeys()
-
-export type PortalsAssetWithBalancesType = Infer<typeof PortalsAssetWithBalancesSchema>
-
-export const portalsAssetToMaybeAssetId = (
-  asset: PortalsAssetWithBalancesType | PortalsToken,
-): AssetId | undefined => {
-  const chainId = portalsNetworkToChainId(asset.network as SupportedPortalsNetwork)
-  if (!chainId) return undefined
-  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
-
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: asset.address,
-  })
-
-  return assetId
-}
-
-const PortalsProductSchema = z.object({
-  label: z.string(),
-  assets: z.array(PortalsAssetWithBalancesSchema),
-  meta: z.array(z.unknown()),
-})
 
 const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
 export type MediaFileType = (typeof MEDIA_FILETYPE)[number]
@@ -259,21 +224,6 @@ const categorySchema = z
   .allowUnknownKeys()
 
 export type PortalsAssetBase = Infer<typeof PortalsAssetBaseSchema>
-
-export const V2AppsBalancesResponse = z.array(
-  z.object({
-    key: z.string(),
-    address: z.string(),
-    appId: PortalsAppIdSchema.optional(),
-    appName: z.string(),
-    appImage: z.string(),
-    network: z.string(),
-    updatedAt: z.string(),
-    balanceUSD: z.number(),
-    products: z.array(PortalsProductSchema),
-  }),
-)
-export type V2AppsBalancesResponseType = Infer<typeof V2AppsBalancesResponse>
 
 const V2AppTokenResponse = z.object({
   address: z.string(),

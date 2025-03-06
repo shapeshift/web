@@ -3,14 +3,15 @@ import { Card, CardBody, Center, Stack } from '@chakra-ui/react'
 import { memo, useCallback } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { DefiIcon } from 'components/Icons/DeFi'
-import { PoolsIcon } from 'components/Icons/Pools'
-import { RFOXIcon } from 'components/Icons/RFOX'
-import { PageHeader } from 'components/Layout/Header/PageHeader'
-import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
-import { Text } from 'components/Text'
+import { useHistory } from 'react-router-dom'
+
+import { DefiIcon } from '@/components/Icons/DeFi'
+import { PoolsIcon } from '@/components/Icons/Pools'
+import { RFOXIcon } from '@/components/Icons/RFOX'
+import { PageHeader } from '@/components/Layout/Header/PageHeader'
+import { Main } from '@/components/Layout/Main'
+import { SEO } from '@/components/Layout/Seo'
+import { Text } from '@/components/Text'
 
 type ExploreCardProps = {
   title: string
@@ -82,7 +83,6 @@ export const Explore = memo(() => {
         flex={1}
         width='full'
         pb='calc(env(safe-area-inset-bottom) + 6rem)'
-        hideBreadcrumbs
         pageProps={pageProps}
       >
         <SEO title={translate('navBar.explore')} />

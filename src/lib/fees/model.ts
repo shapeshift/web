@@ -1,6 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { getConfig } from 'config'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
   FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS,
@@ -10,6 +8,9 @@ import {
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
 import { FeeDiscountType } from './types'
+
+import { getConfig } from '@/config'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
@@ -63,7 +64,7 @@ export const calculateFees: CalculateFeeBps = ({
   const minFeeBps = bn(FEE_CURVE_MIN_FEE_BPS)
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
-  const isFoxWifHatEnabled = getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION
+  const isFoxWifHatEnabled = getConfig().VITE_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION
 
   const isFoxWifHatCampaignActive =
     new Date().getTime() >= FOX_WIF_HAT_CAMPAIGN_STARTING_TIME_MS &&

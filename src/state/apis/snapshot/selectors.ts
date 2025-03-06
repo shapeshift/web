@@ -4,14 +4,15 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { isSome } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { selectFeeModelParamFromFilter } from 'state/selectors'
-import { selectPortfolioAssetBalancesBaseUnit } from 'state/slices/common-selectors'
-import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
+
+import type { CalculateFeeBpsReturn } from '@/lib/fees/model'
+import { calculateFees } from '@/lib/fees/model'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { isSome } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
+import { selectFeeModelParamFromFilter } from '@/state/selectors'
+import { selectPortfolioAssetBalancesBaseUnit } from '@/state/slices/common-selectors'
+import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
 
@@ -48,8 +49,6 @@ export const selectThorchainLpVotingPower = (state: ReduxState) =>
 
 export const selectSwapperVotingPower = (state: ReduxState) =>
   state.snapshot.votingPowerByModel['SWAPPER']
-
-export const selectProposals = (state: ReduxState) => state.snapshot.proposals
 
 type AffiliateFeesProps = {
   feeModel: ParameterModel

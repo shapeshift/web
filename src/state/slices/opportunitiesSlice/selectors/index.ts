@@ -1,12 +1,13 @@
 import { createSelector } from 'reselect'
-import type { ReduxState } from 'state/reducer'
+
+import type { GetOpportunityUserDataInput } from '../types'
+
+import type { ReduxState } from '@/state/reducer'
 import {
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,
   selectQueryStatusParamFromFilter,
-} from 'state/selectors'
-
-import type { GetOpportunityUserDataInput } from '../types'
+} from '@/state/selectors'
 
 export * from './combined'
 export * from './lpSelectors'

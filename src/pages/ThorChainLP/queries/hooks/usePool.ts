@@ -1,21 +1,21 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { sellSupportedChainIds } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
-import type { MidgardPoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { MidgardPoolResponse } from '@shapeshiftoss/swapper'
+import { poolAssetIdToAssetId, thorchainSellSupportedChainIds } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import type {
   MidgardInterval,
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
-} from 'lib/utils/thorchain/lp/types'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/lib/utils/thorchain/lp/types'
+import { reactQueries } from '@/react-queries'
+import { selectAssets, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type Pool = MidgardPoolResponse & {
   assetId: AssetId
@@ -56,7 +56,7 @@ export const getPool = (
   if (!assetId) return
 
   const chainId = fromAssetId(assetId).chainId
-  if (!sellSupportedChainIds[chainId]) return
+  if (!thorchainSellSupportedChainIds[chainId]) return
 
   const asset = assets[assetId]
   if (!asset) return

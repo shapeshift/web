@@ -17,32 +17,8 @@ import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
-import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { middleEllipsis } from 'lib/utils'
-import type {
-  GetFeesWithWalletEip1559SupportArgs,
-  MaybeGetFeesWithWalletEip1559Args,
-} from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
-import { getStakingContract, selectRuneAddress } from 'pages/RFOX/helpers'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import {
-  selectAccountNumberByAccountId,
-  selectAssetById,
-  selectAssets,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
@@ -53,6 +29,31 @@ import type {
   RfoxChangeAddressQuote,
 } from './types'
 import { ChangeAddressRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { middleEllipsis } from '@/lib/utils'
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
+} from '@/lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from '@/lib/utils/evm'
+import { getStakingContract, selectRuneAddress } from '@/pages/RFOX/helpers'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectAssets,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ChangeAddressInputProps = {
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void

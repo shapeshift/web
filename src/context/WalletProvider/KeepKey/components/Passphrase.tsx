@@ -8,12 +8,13 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import { useCallback, useRef, useState } from 'react'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectWalletId } from '@/state/slices/common-selectors'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const KeepKeyPassphrase = () => {
   const [error, setError] = useState<string | null>(null)

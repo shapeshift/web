@@ -6,9 +6,6 @@ import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
-import { getStakingInfoQueryFn } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 
 import { rFOXStakingIds } from '../../constants'
 import type {
@@ -19,6 +16,10 @@ import type {
 import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+
+import { selectStakingBalance } from '@/pages/RFOX/helpers'
+import { getStakingInfoQueryFn } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 
 const client = viemClientByNetworkId[arbitrum.id]
 

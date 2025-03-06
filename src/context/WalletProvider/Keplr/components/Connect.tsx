@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
-import type { ActionTypes } from 'context/WalletProvider/actions'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { KeplrConfig } from '../config'
+
+import type { ActionTypes } from '@/context/WalletProvider/actions'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export interface KeplrSetupProps
   extends RouteComponentProps<

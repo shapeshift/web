@@ -5,9 +5,10 @@ import { assetIdToPoolAssetId, isRune, SwapperName } from '@shapeshiftoss/swappe
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { EvmFees } from 'hooks/queries/useEvmFees'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+
+import type { EvmFees } from '@/hooks/queries/useEvmFees'
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 
 export const selectInboundAddressData = (
   data: Result<InboundAddressResponse[], SwapErrorRight>,

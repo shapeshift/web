@@ -1,14 +1,15 @@
 import { Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { chainIdToFeeAssetId } from 'lib/utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { chainIdToFeeAssetId } from '@/lib/utils'
 import {
   selectAssetById,
   selectPortfolioTotalChainIdBalanceIncludeStaking,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ChainRowProps = {
   chainId: ChainId

@@ -1,11 +1,12 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { SendResult } from 'state/slices/search-selectors'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { ActionResult } from './ActionResult'
+
+import type { SendResult } from '@/state/slices/search-selectors'
 
 type ActionResultsProps = GlobalSearchResultsProps<SendResult>
 export const ActionResults: React.FC<ActionResultsProps> = ({

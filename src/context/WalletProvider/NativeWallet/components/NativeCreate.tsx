@@ -17,12 +17,13 @@ import { range } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useHistory, useLocation } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
+
+import { Text } from '@/components/Text'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 const faEyeIcon = <FaEye />
 

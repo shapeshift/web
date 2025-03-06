@@ -1,3 +1,4 @@
+import { isTruthy } from '@/lib/utils'
 import type {
   EthPersonalSignCallRequest,
   EthSignCallRequest,
@@ -6,9 +7,8 @@ import type {
   RequestParams,
   TransactionParams,
   WalletConnectRequest,
-} from 'plugins/walletConnectToDapps/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
-import { isTruthy } from 'lib/utils'
+} from '@/plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
 
 export const isTransactionParamsArray = (
   transactions: RequestParams | undefined,

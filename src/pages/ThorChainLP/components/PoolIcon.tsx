@@ -3,7 +3,8 @@ import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
+
+import { AssetIcon } from '@/components/AssetIcon'
 
 type PoolIconProps = {
   assetIds: AssetId[]

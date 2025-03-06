@@ -3,8 +3,9 @@ import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
-import { CircleIcon } from 'components/Icons/Circle'
-import { breakpoints } from 'theme/theme'
+
+import { CircleIcon } from '@/components/Icons/Circle'
+import { breakpoints } from '@/theme/theme'
 
 type SidebarLinkProps = {
   href?: string

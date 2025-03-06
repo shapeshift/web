@@ -1,4 +1,4 @@
-import { Redirect, Route, Switch, useHistory, useRouteMatch } from 'react-router'
+import { Redirect, Route, Switch, useHistory, useRouteMatch } from 'react-router-dom'
 
 import { Category } from './Category'
 import { Recommended } from './Recommended'

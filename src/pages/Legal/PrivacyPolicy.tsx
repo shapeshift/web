@@ -1,6 +1,7 @@
 import { Center, DarkMode, Flex, Link } from '@chakra-ui/react'
-import { Main } from 'components/Layout/Main'
-import { RawText, Text } from 'components/Text'
+
+import { Main } from '@/components/Layout/Main'
+import { RawText, Text } from '@/components/Text'
 
 const flexPaddingX = { base: 2, lg: 4 }
 const flexPaddingY = { base: 4, lg: 8 }

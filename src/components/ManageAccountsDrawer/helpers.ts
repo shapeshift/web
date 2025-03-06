@@ -1,12 +1,13 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { matchSorter } from 'match-sorter'
-import { accountManagement } from 'react-queries/queries/accountManagement'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { isSome } from 'lib/utils'
-import { checkAccountHasActivity } from 'state/slices/portfolioSlice/utils'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
+import { isSome } from '@/lib/utils'
+import { accountManagement } from '@/react-queries/queries/accountManagement'
+import { checkAccountHasActivity } from '@/state/slices/portfolioSlice/utils'
 
 export const filterChainIdsBySearchTerm = (search: string, chainIds: ChainId[]) => {
   if (!chainIds.length) return []

@@ -1,12 +1,13 @@
 import { Container, Heading, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Display } from 'components/Display'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import type { TabItem } from 'components/TabMenu/TabMenu'
-import { TabMenu } from 'components/TabMenu/TabMenu'
-import { Text } from 'components/Text'
+import { useHistory } from 'react-router-dom'
+
+import { Display } from '@/components/Display'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import type { TabItem } from '@/components/TabMenu/TabMenu'
+import { TabMenu } from '@/components/TabMenu/TabMenu'
+import { Text } from '@/components/Text'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const containerPaddingTop = { base: 0, md: 8 }

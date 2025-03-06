@@ -1,9 +1,10 @@
 import { Flex } from '@chakra-ui/react'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
-import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
+
+import { Main } from '@/components/Layout/Main'
+import { SEO } from '@/components/Layout/Seo'
+import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 
 const padding = { base: 0, md: 8 }
 

@@ -6,19 +6,20 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useRouteMatch } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
-import { AssetCell } from 'components/StakingVaults/Cells'
-import { RawText, Text } from 'components/Text'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
 import { useIsLendingActive } from './hooks/useIsLendingActive'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 import { usePoolDataQuery } from './hooks/usePoolDataQuery'
+
+import { Amount } from '@/components/Amount/Amount'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Main } from '@/components/Layout/Main'
+import { SEO } from '@/components/Layout/Seo'
+import { AssetCell } from '@/components/StakingVaults/Cells'
+import { RawText, Text } from '@/components/Text'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',

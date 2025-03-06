@@ -6,8 +6,9 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { PropsWithChildren } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link } from 'react-router-dom'
-import { DefiIcon } from 'components/Icons/DeFi'
-import { Text } from 'components/Text'
+
+import { DefiIcon } from '@/components/Icons/DeFi'
+import { Text } from '@/components/Text'
 
 type ResultsEmptyProp = {
   icon?: JSX.Element

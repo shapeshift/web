@@ -2,18 +2,19 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
+
 import {
   AllowanceType,
   getApprovalAmountCryptoBaseUnit,
   useApprovalFees,
-} from 'hooks/queries/useApprovalFees'
-import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import type { LimitOrderActiveQuote } from 'state/slices/limitOrderSlice/types'
-import { selectAccountNumberByAccountId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/hooks/queries/useApprovalFees'
+import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { reactQueries } from '@/react-queries'
+import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
+import { selectAccountNumberByAccountId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseAllowanceApprovalProps = {
   activeQuote: LimitOrderActiveQuote

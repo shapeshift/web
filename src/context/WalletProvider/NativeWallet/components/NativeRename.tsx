@@ -14,9 +14,10 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
 
 import type { NativeSetupProps, NativeWalletValues } from '../types'
+
+import { Text } from '@/components/Text'
 
 export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()

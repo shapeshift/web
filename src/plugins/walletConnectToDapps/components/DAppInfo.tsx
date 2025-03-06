@@ -1,7 +1,8 @@
 import { Avatar, Grid, GridItem } from '@chakra-ui/react'
 import type { SignClientTypes } from '@walletconnect/types'
 import type { FC } from 'react'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
 
 interface IProps {
   // Override the icons type, as it's incorrect - "icons" can indeed be undefined in the wild.

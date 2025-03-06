@@ -19,15 +19,16 @@ import range from 'lodash/range'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { Revocable, revocable } from 'context/WalletProvider/MobileWallet/RevocableWallet'
-import { useModal } from 'hooks/useModal/useModal'
-import { isMobile } from 'lib/globals'
+import { useHistory } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { Revocable, revocable } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { useModal } from '@/hooks/useModal/useModal'
+import { isMobile } from '@/lib/globals'
 
 const arrowBackIcon = <ArrowBackIcon />
 const faEyeIcon = <FaEye />

@@ -17,33 +17,34 @@ import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
-import { firstFourLastFour } from 'lib/utils'
+
+import { FoxWifHatClaimRoutePaths } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import { firstFourLastFour } from '@/lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-} from 'lib/utils/evm'
-import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_CONTRACT } from 'pages/Fox/constant'
-import { useFoxWifHatMerkleTreeQuery } from 'pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
+} from '@/lib/utils/evm'
+import { FOX_WIF_HAT_MERKLE_DISTRIBUTOR_CONTRACT } from '@/pages/Fox/constant'
+import { useFoxWifHatMerkleTreeQuery } from '@/pages/Fox/hooks/useFoxWifHatMerkleTreeQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import { FoxWifHatClaimRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type FoxWifHatClaimConfirmProps = {
   setClaimTxid: (txId: string) => void

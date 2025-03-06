@@ -45,11 +45,11 @@ vi.mock('../utils/thorService', () => {
   }
 })
 
-vi.mock('config', () => {
+vi.mock('@/config', () => {
   return {
     getConfig: () => ({
-      REACT_APP_THORCHAIN_NODE_URL: '',
-      REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
+      VITE_THORCHAIN_NODE_URL: '',
+      VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
     }),
   }
 })
@@ -228,10 +228,10 @@ describe('getTradeQuote', () => {
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,
       config: {
-        REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: true,
-        REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: true,
-        REACT_APP_THORCHAIN_NODE_URL: '',
-        REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
+        VITE_FEATURE_THORCHAINSWAP_LONGTAIL: true,
+        VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: true,
+        VITE_THORCHAIN_NODE_URL: '',
+        VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
       },
     } as unknown as SwapperDeps)
     expect(maybeTradeQuote.isOk()).toBe(true)

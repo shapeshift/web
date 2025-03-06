@@ -12,10 +12,7 @@ import { HistoryTimeframe, ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
 import { createThrottle } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import { getConfig } from 'config'
 import qs from 'qs'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, isToken } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -27,6 +24,10 @@ import type {
 } from './types'
 import { zerionMarketDataToMarketData } from './utils'
 
+import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { assertUnreachable, isToken } from '@/lib/utils'
+
 const { throttle, clear } = createThrottle({
   capacity: 1000, // Production keys are stated to have "200+ RPS"
   costPerReq: 1,
@@ -37,7 +38,7 @@ const { throttle, clear } = createThrottle({
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class ZerionMarketService implements MarketService {
-  baseUrl = getConfig().REACT_APP_ZERION_BASE_URL
+  baseUrl = getConfig().VITE_ZERION_BASE_URL
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 250,

@@ -5,17 +5,18 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useModal } from 'hooks/useModal/useModal'
-import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
-import { getTxLink } from 'lib/getTxLink'
-import { SharedStatus } from 'pages/RFOX/components/Shared/SharedStatus'
-import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { SendFormFields } from '../SendCommon'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
+import { getTxLink } from '@/lib/getTxLink'
+import { SharedStatus } from '@/pages/RFOX/components/Shared/SharedStatus'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type BodyContent = {
   key: TxStatus

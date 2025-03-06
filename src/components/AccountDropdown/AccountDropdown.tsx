@@ -22,25 +22,26 @@ import type { FC } from 'react'
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { isValidAccountNumber } from 'lib/utils/accounts'
-import { isUtxoAccountId } from 'lib/utils/utxo'
-import type { ReduxState } from 'state/reducer'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+
+import { RawText } from '../Text'
+import { AccountChildOption } from './AccountChildOption'
+import { AccountSegment } from './AccountSegement'
+
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { isValidAccountNumber } from '@/lib/utils/accounts'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
+import type { ReduxState } from '@/state/reducer'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { RawText } from '../Text'
-import { AccountChildOption } from './AccountChildOption'
-import { AccountSegment } from './AccountSegement'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type AccountDropdownProps = {
   assetId: AssetId

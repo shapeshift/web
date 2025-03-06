@@ -5,11 +5,12 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { curveNatural } from '@visx/curve'
 import { LineSeries, XYChart } from '@visx/xychart'
 import { useMemo } from 'react'
+
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type SparkLineProps = {
   assetId: AssetId

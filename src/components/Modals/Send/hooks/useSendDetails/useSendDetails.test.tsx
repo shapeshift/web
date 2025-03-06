@@ -11,29 +11,30 @@ import type { PropsWithChildren } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
-import { TestProviders } from 'test/TestProviders'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { IWalletContext } from 'context/WalletProvider/WalletContext'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import type { ResolveVanityAddressReturn } from 'lib/address/address'
-import { ensLookup } from 'lib/address/ens'
-import { fromBaseUnit } from 'lib/math'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+
+import { useSendDetails } from './useSendDetails'
+
+import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { ResolveVanityAddressReturn } from '@/lib/address/address'
+import { ensLookup } from '@/lib/address/ens'
+import { fromBaseUnit } from '@/lib/math'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
+import { ethereum as mockEthereum, rune as mockRune } from '@/test/mocks/assets'
+import { TestProviders } from '@/test/TestProviders'
 
-import { useSendDetails } from './useSendDetails'
-
-vi.mock('lib/market-service', () => ({
+vi.mock('@/lib/market-service', () => ({
   findAll: vi.fn,
   findByAssetId: () => ({
     price: 3500,
@@ -43,15 +44,15 @@ vi.mock('lib/market-service', () => ({
 }))
 vi.mock('react-hook-form')
 vi.mock('react-router-dom', () => ({ useHistory: vi.fn() }))
-vi.mock('hooks/useWallet/useWallet')
-vi.mock('context/PluginProvider/PluginProvider')
-vi.mock('lib/utils/cosmosSdk')
-vi.mock('lib/utils/evm')
-vi.mock('lib/utils/utxo')
-vi.mock('lib/address/ens', () => ({ ensLookup: vi.fn() }))
+vi.mock('@/hooks/useWallet/useWallet')
+vi.mock('@/context/PluginProvider/PluginProvider')
+vi.mock('@/lib/utils/cosmosSdk')
+vi.mock('@/lib/utils/evm')
+vi.mock('@/lib/utils/utxo')
+vi.mock('@/lib/address/ens', () => ({ ensLookup: vi.fn() }))
 
-vi.mock('state/slices/selectors', async () => {
-  const actual = await vi.importActual('state/slices/selectors')
+vi.mock('@/state/slices/selectors', async () => {
+  const actual = await vi.importActual('@/state/slices/selectors')
 
   return {
     ...actual,

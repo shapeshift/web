@@ -1,17 +1,18 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 import {
   TransactionRow,
   TransactionRowFromTxDetails,
-} from 'components/TransactionHistoryRows/TransactionRow'
-import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
-import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import type { ReduxState } from 'state/reducer'
-import { selectTxById } from 'state/slices/selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+} from '@/components/TransactionHistoryRows/TransactionRow'
+import { useResizeObserver } from '@/hooks/useResizeObserver/useResizeObserver'
+import type { TxDetails } from '@/hooks/useTxDetails/useTxDetails'
+import type { ReduxState } from '@/state/reducer'
+import { selectTxById } from '@/state/slices/selectors'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { deserializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type RewardTransactionListProps = {
   txIds: TxId[]

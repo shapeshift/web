@@ -51,7 +51,7 @@ export const Buy = () => {
 
   const {
     dispatch,
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
   const translate = useTranslate()
 
@@ -122,7 +122,7 @@ export const Buy = () => {
             </Box>
           </Flex>
         </PageContainer>
-        {(!isConnected || isDemoWallet) && (
+        {!isConnected && (
           <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
             <PageContainer display='flex' py={0} flexDir={flexDirXlRow} textAlign={textAlignXlLeft}>
               <Stack spacing={4} py='6rem' flex={1} alignItems={alignItemsXlFlexStart}>

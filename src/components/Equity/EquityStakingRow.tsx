@@ -44,7 +44,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   color,
 }) => {
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const history = useHistory()
@@ -126,7 +126,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     } = opportunity
     const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-    if (!isConnected && isDemoWallet) {
+    if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -159,7 +159,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       }),
       state: { background: location },
     })
-  }, [assets, dispatch, history, isConnected, isDemoWallet, location, opportunity])
+  }, [assets, dispatch, history, isConnected, location, opportunity])
 
   if (!opportunity || !asset) return null
   return (

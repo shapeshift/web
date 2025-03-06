@@ -6,13 +6,12 @@ import { isKeepKeyHDWallet, isNativeHDWallet } from '@/lib/utils'
 
 export const useIsWalletConnectToDappsSupportedWallet = () => {
   const {
-    state: { wallet, isDemoWallet },
+    state: { wallet },
   } = useWallet()
   const { isEIP712SupportedFirmwareVersion } = useKeepKeyVersions()
 
   const result = useMemo((): boolean => {
     if (!wallet) return false
-    if (isDemoWallet) return false
     switch (true) {
       case isNativeHDWallet(wallet):
         return true
@@ -22,7 +21,7 @@ export const useIsWalletConnectToDappsSupportedWallet = () => {
       default:
         return false
     }
-  }, [wallet, isEIP712SupportedFirmwareVersion, isDemoWallet])
+  }, [wallet, isEIP712SupportedFirmwareVersion])
 
   return result
 }

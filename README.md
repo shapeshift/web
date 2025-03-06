@@ -118,7 +118,7 @@ yarn test
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-yarn build:web:production
+MODE=production yarn build:web
 ```
 
 > It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -163,11 +163,3 @@ Examples of supported file names:
 - `.env.local` (loaded in all environments)
 - `.env.development.local` (loaded only in development)
 - `.env.production.local` (loaded only in production)
-
-We recommend using local environment files for sensitive or development-specific configurations. For instance, we provide example files with development MixPanel tokens to prevent your local testing from affecting our development and production analytics data.
-
-To get started, copy the example environment files and modify them as needed:
-
-```sh
-cp .env.development.local.example .env.development.local
-```

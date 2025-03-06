@@ -98,7 +98,7 @@ export const KeepKeyRoutes = () => {
       if (!latestFirmware) {
         console.warn('Latest firmware version not available, proceeding anyway')
       } else if (!semverGte(deviceFirmware, latestFirmware)) {
-        // If the device firmware is older than the required firmware version, show error and return
+        // If the device firmware is older than the required firmware version, show error and throw
         console.error(`Firmware version ${deviceFirmware} is older than required ${latestFirmware}`)
         throw new Error('walletProvider.errors.walletVersionTooOld')
       }

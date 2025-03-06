@@ -1,5 +1,6 @@
 import { Button } from '@chakra-ui/react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 type SendMaxButtonProps = {
   onClick(): Promise<void>

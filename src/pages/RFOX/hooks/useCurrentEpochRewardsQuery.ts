@@ -2,7 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import { mergeQueryOutputs } from 'react-queries/helpers'
 import { getAddress } from 'viem'
 
 import { getStakingContract } from '../helpers'
@@ -11,6 +10,8 @@ import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
+
+import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 type EpochRewardsResultTuple = [
   epochHistory: Epoch[] | undefined,

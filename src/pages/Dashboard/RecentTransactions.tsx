@@ -6,11 +6,12 @@ import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { selectTxIdsByFilter } from 'state/slices/selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+
+import { Text } from '@/components/Text'
+import { TransactionHistoryList } from '@/components/TransactionHistory/TransactionHistoryList'
+import { selectTxIdsByFilter } from '@/state/slices/selectors'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 type RecentTransactionFilter = {
   acccountId?: AccountId

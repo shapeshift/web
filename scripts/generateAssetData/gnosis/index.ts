@@ -3,9 +3,10 @@ import type { Asset } from '@shapeshiftoss/types'
 import { gnosis, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
-import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
+
+import { getPortalTokens } from '@/lib/portals/utils'
 
 export const getAssets = async (): Promise<Asset[]> => {
   const [assets, _portalsAssets] = await Promise.all([

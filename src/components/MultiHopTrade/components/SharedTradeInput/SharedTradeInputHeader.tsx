@@ -1,11 +1,12 @@
 import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectWalletId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { TradeInputTab } from '../../types'
+
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { selectWalletId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab

@@ -5,21 +5,22 @@ import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+
+import { StakingTable } from './StakingTable'
+
+import { Text } from '@/components/Text'
+import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { StakingTable } from './StakingTable'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EarnOpportunitiesProps = {
   tokenId?: string

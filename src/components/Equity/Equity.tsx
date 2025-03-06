@@ -13,10 +13,17 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Amount } from 'components/Amount/Amount'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+
+import { EquityAccountRow } from './EquityAccountRow'
+import { EquityLpRow } from './EquityLpRow'
+import { EquityRowLoading } from './EquityRow'
+import { EquityStakingRow } from './EquityStakingRow'
+import { UnderlyingAsset } from './UnderlyingAsset'
+
+import { Amount } from '@/components/Amount/Amount'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { LpId, OpportunityId } from '@/state/slices/opportunitiesSlice/types'
+import { AssetEquityType } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetEquityItemsByFilter,
   selectAssets,
@@ -24,14 +31,8 @@ import {
   selectIsPortfolioLoading,
   selectOpportunityApiPending,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { EquityAccountRow } from './EquityAccountRow'
-import { EquityLpRow } from './EquityLpRow'
-import { EquityRowLoading } from './EquityRow'
-import { EquityStakingRow } from './EquityStakingRow'
-import { UnderlyingAsset } from './UnderlyingAsset'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EquityProps = {
   assetId: AssetId

@@ -1,9 +1,10 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { TextPropTypes } from 'components/Text/Text'
-import { assertUnreachable } from 'lib/utils'
-import type { ApprovalExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+
+import type { TextPropTypes } from '@/components/Text/Text'
+import { assertUnreachable } from '@/lib/utils'
+import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 
 export const getHopExecutionStateButtonTranslation = (hopExecutionState: HopExecutionState) => {
   switch (hopExecutionState) {

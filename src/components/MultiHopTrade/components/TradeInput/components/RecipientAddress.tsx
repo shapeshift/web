@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
-import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
 import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
+
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type RecipientAddressProps = {
   shouldForceManualAddressEntry?: boolean

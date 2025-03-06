@@ -1,10 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
-import banxaLogo from 'assets/banxa.png'
-import CoinbaseLogo from 'assets/coinbase-logo.svg'
-import MtPelerinLogo from 'assets/mtpelerin.png'
-import OnRamperLogo from 'assets/onramper-logo.svg'
-import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import type commonFiatCurrencyList from './FiatCurrencyList.json'
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
@@ -24,6 +19,12 @@ import {
   getSupportedOnRamperFiatCurrencies,
 } from './fiatRampProviders/onramper'
 import type { CreateUrlProps } from './types'
+
+import banxaLogo from '@/assets/banxa.png'
+import CoinbaseLogo from '@/assets/coinbase-logo.svg'
+import MtPelerinLogo from '@/assets/mtpelerin.png'
+import OnRamperLogo from '@/assets/onramper-logo.svg'
+import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 

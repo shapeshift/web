@@ -1,26 +1,30 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { getAddress } from 'viem'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { AssetInput } from 'components/DeFi/components/AssetInput'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
+
+import { UniV2WithdrawActionType } from '../WithdrawCommon'
+import { WithdrawContext } from '../WithdrawContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { AssetInput } from '@/components/DeFi/components/AssetInput'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { Text } from '@/components/Text'
+import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from '@/features/defi/components/Withdraw/Withdraw'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { LpId } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -28,11 +32,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { UniV2WithdrawActionType } from '../WithdrawCommon'
-import { WithdrawContext } from '../WithdrawContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined

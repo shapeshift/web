@@ -3,17 +3,18 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { getConfig } from 'config'
 import pDebounce from 'p-debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getSnapVersion } from 'utils/snaps'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { METAMASK_RDNS } from 'lib/mipd'
-import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { getConfig } from '@/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { METAMASK_RDNS } from '@/lib/mipd'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
+import { getSnapVersion } from '@/utils/snaps'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
-const snapVersion = getConfig().REACT_APP_SNAP_VERSION
+const snapVersion = getConfig().VITE_SNAP_VERSION
 
 // Many many user-agents to detect mobile MM and other in-app dApp browsers
 // https://github.com/MetaMask/metamask-mobile/issues/3920#issuecomment-1074188335

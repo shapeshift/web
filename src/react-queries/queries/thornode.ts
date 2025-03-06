@@ -4,10 +4,11 @@ import type { InboundAddressResponse, ThornodePoolResponse } from '@shapeshiftos
 import { assetIdToPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { getConfig } from 'config'
-import type { ThorchainBlock, ThorchainMimir } from 'lib/utils/thorchain/types'
 
-const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+import { getConfig } from '@/config'
+import type { ThorchainBlock, ThorchainMimir } from '@/lib/utils/thorchain/types'
+
+const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
 // Feature-agnostic, abstracts away THORNode endpoints
 export const thornode = createQueryKeys('thornode', {

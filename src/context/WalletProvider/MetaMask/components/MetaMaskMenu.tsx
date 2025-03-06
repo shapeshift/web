@@ -1,13 +1,14 @@
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
+
+import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import {
   checkIsMetaMaskDesktop,
   useIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type MetaMaskMenuProps = {
   onClose?: () => void

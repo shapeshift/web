@@ -12,15 +12,16 @@ import {
 } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { fromBaseUnit } from 'lib/math'
-import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { fromBaseUnit } from '@/lib/math'
+import { selectUserSlippagePercentage } from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type MaxSlippageProps = {
   swapSource?: SwapSource

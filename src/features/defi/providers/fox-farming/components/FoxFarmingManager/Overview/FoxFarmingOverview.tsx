@@ -2,29 +2,33 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import { Overview } from 'features/defi/components/Overview/Overview'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+
+import { FoxFarmingEmpty } from './FoxFarmingEmpty'
+import { WithdrawCard } from './WithdrawCard'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
+import { Overview } from '@/features/defi/components/Overview/Overview'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { isSome } from '@/lib/utils'
+import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import {
   makeDefiProviderDisplayName,
   serializeUserStakingId,
   toOpportunityId,
-} from 'state/slices/opportunitiesSlice/utils'
+} from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -33,11 +37,8 @@ import {
   selectMarketDataUserCurrency,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { FoxFarmingEmpty } from './FoxFarmingEmpty'
-import { WithdrawCard } from './WithdrawCard'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type FoxFarmingOverviewProps = {
   accountId?: AccountId | undefined

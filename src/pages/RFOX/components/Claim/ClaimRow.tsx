@@ -5,14 +5,15 @@ import { fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ClaimRow as ReusableClaimRow } from 'components/ClaimRow/ClaimRow'
-import { ClaimStatus } from 'components/ClaimRow/types'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import type { RfoxClaimQuote } from './types'
+
+import { ClaimRow as ReusableClaimRow } from '@/components/ClaimRow/ClaimRow'
+import { ClaimStatus } from '@/components/ClaimRow/types'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type ClaimRowProps = {
   stakingAssetId: AssetId

@@ -21,30 +21,31 @@ import { useCallback, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
-import { SwapIcon } from 'components/Icons/SwapIcon'
-import { Text } from 'components/Text'
-import { useActions } from 'hooks/useActions'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { BigNumber, bn } from 'lib/bignumber/bignumber'
-import { assertUnreachable } from 'lib/utils'
+
+import { AmountInput } from '../../TradeAmountInput'
+
+import { StyledAssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
+import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { Text } from '@/components/Text'
+import { useActions } from '@/hooks/useActions'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { BigNumber, bn } from '@/lib/bignumber/bignumber'
+import { assertUnreachable } from '@/lib/utils'
 import {
   ExpiryOption,
   LimitPriceMode,
   PriceDirection,
-} from 'state/slices/limitOrderInputSlice/constants'
-import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
+} from '@/state/slices/limitOrderInputSlice/constants'
+import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectExpiry,
   selectLimitPrice,
   selectLimitPriceDirection,
   selectLimitPriceForSelectedPriceDirection,
   selectLimitPriceMode,
-} from 'state/slices/limitOrderInputSlice/selectors'
-import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
-import { useAppSelector } from 'state/store'
-
-import { AmountInput } from '../../TradeAmountInput'
+} from '@/state/slices/limitOrderInputSlice/selectors'
+import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { useAppSelector } from '@/state/store'
 
 const EXPIRY_OPTIONS = [
   ExpiryOption.OneHour,

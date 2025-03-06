@@ -5,11 +5,12 @@ import BigNumber from 'bignumber.js'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
+
+import { TRADING_FEE_RATE } from '@/state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,
   getToken0Volume24Hr,
-} from 'state/slices/opportunitiesSlice/resolvers/uniV2/utils'
+} from '@/state/slices/opportunitiesSlice/resolvers/uniV2/utils'
 
 const tokenAmount = '1000000'
 const mockAmount0Out = '97000000000000000000000'
@@ -17,7 +18,7 @@ const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
 vi.mock('@shapeshiftoss/contracts', async () => {
-  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const { KnownChainIds } = await import('@shapeshiftoss/types')
 
   const actual = await vi.importActual('@shapeshiftoss/contracts')
 

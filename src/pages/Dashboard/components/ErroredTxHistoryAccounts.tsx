@@ -14,16 +14,17 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ChainIcon } from 'components/ChainMenu'
-import { RawText, Text } from 'components/Text'
-import { getAccountTitle } from 'lib/utils/accounts'
-import { isUtxoChainId } from 'lib/utils/utxo'
+
+import { ChainIcon } from '@/components/ChainMenu'
+import { RawText, Text } from '@/components/Text'
+import { getAccountTitle } from '@/lib/utils/accounts'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAccountNumberByAccountId,
   selectAssets,
   selectErroredTxHistoryAccounts,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const warningIcon = <WarningIcon />
 

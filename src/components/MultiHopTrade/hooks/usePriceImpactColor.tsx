@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW: string = '1' // 1%
 const ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM: string = '3' // 3%

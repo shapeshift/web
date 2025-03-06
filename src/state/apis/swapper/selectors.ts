@@ -1,10 +1,11 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import type { TradeQuoteOrRateRequest } from './types'
+
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
 const selectSwapperApiQueries = (state: ReduxState) => state.swapperApi.queries
 

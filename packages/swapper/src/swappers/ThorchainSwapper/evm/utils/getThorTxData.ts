@@ -28,7 +28,7 @@ export const getThorTxInfo = async ({
   expiry,
   config,
 }: GetEvmThorTxInfoArgs): GetEvmThorTxInfoReturn => {
-  const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const { assetReference } = fromAssetId(sellAsset.assetId)
 
   const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, sellAsset.assetId)

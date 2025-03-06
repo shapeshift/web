@@ -3,7 +3,8 @@ import type { CosmosSdkChainAdapter, thorchain } from '@shapeshiftoss/chain-adap
 import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isCosmosSdkChainAdapter = (
   chainAdapter: unknown,

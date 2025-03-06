@@ -31,7 +31,7 @@ export const zrxApi: SwapperApi = {
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
       assetsById,
-      config.REACT_APP_ZRX_BASE_URL,
+      config.VITE_ZRX_BASE_URL,
     )
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
@@ -43,7 +43,7 @@ export const zrxApi: SwapperApi = {
     const tradeRateResult = await getZrxTradeRate(
       input as GetEvmTradeRateInput,
       assetsById,
-      config.REACT_APP_ZRX_BASE_URL,
+      config.VITE_ZRX_BASE_URL,
     )
 
     return tradeRateResult.map(tradeQuote => [tradeQuote])

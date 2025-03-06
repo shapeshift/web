@@ -2,10 +2,11 @@ import { Button, Input, ModalBody, ModalHeader, useToast } from '@chakra-ui/reac
 import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
+
+import { Text } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)

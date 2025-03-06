@@ -1,6 +1,7 @@
 import { ListItem, useColorModeValue } from '@chakra-ui/react'
 import React from 'react'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 export const ListItemSection: React.FC<{ title: string }> = ({ title }) => {
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.100')

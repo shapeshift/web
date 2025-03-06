@@ -1,5 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { AddressSelectionValues } from 'pages/RFOX/types'
+
+import type { AddressSelectionValues } from '@/pages/RFOX/types'
 
 export enum ChangeAddressRoutePaths {
   Input = '/change-address/input',

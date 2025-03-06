@@ -1,14 +1,15 @@
 import { Button, Card, CardBody, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
-import { ethereum } from 'test/mocks/assets'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { breakpoints } from 'theme/theme'
+import { useHistory } from 'react-router-dom'
 
 import { StatusBody } from '../../StatusBody'
 import { LimitOrderRoutePaths } from '../types'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { ethereum } from '@/test/mocks/assets'
+import { breakpoints } from '@/theme/theme'
 
 const cardBorderRadius = { base: '2xl' }
 

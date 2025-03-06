@@ -17,16 +17,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectTxById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { RfoxBridgeQuote } from '../Stake/Bridge/types'
 import { TransactionRow } from './TransactionRow'
+
+import { Amount } from '@/components/Amount/Amount'
+import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById, selectTxById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type MultiStepStatusStep = {
   asset: Asset

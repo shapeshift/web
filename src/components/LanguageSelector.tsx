@@ -1,12 +1,13 @@
 import type { SelectProps } from '@chakra-ui/react'
 import { Select } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
-import { locales } from 'assets/translations/constants'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { locales } from '@/assets/translations/constants'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const LanguageSelector: React.FC<SelectProps> = props => {
   const dispatch = useAppDispatch()

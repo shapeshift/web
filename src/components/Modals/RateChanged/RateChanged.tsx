@@ -14,16 +14,17 @@ import {
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { chainIdToChainDisplayName } from 'lib/utils'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { chainIdToChainDisplayName } from '@/lib/utils'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectLastHop } from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type RateChangedModalProps = {
   prevAmountCryptoBaseUnit: string

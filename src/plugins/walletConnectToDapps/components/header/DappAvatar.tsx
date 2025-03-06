@@ -1,6 +1,7 @@
 import { Avatar, useColorModeValue } from '@chakra-ui/react'
-import { CircleIcon } from 'components/Icons/Circle'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+
+import { CircleIcon } from '@/components/Icons/Circle'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
 
 type DappAvatarProps = {
   image?: string

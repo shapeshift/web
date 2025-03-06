@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { isValidAccountNumber } from './accounts'
 
-describe('lib/utils', () => {
+describe('@/lib/utils', () => {
   describe('isValidAccountNumber', () => {
     it('should return true for 0', () => {
       const accountNumber = 0

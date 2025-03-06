@@ -1,12 +1,13 @@
 import { captureException, setContext } from '@sentry/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+
 import type {
   AsymSide,
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/types'
-import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
+} from '@/lib/utils/thorchain/lp/types'
+import { isLpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/utils'
 
 export type OpportunityType = AsymSide | 'sym'
 

@@ -1,9 +1,10 @@
 import { Card, CardHeader, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
-import { RawText } from 'components/Text'
 
 import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
+
+import { RawText } from '@/components/Text'
 
 const borderRadius = { base: 'md', md: 'lg' }
 const hoverProps = {

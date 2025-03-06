@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { useAppDispatch } from 'state/store'
+
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { useAppDispatch } from '@/state/store'
 
 export const useFetchFiatAssetMarketData = (assetIds: AssetId[]): void => {
   const dispatch = useAppDispatch()

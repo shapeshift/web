@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { Amount as AmountComponent } from 'components/Amount/Amount'
-import { fromBaseUnit } from 'lib/math'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount as AmountComponent } from '@/components/Amount/Amount'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AmountArgs = {
   value: string

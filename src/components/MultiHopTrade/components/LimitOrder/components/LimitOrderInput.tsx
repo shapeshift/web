@@ -13,23 +13,34 @@ import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { TradeInputTab } from 'components/MultiHopTrade/types'
-import { Text } from 'components/Text'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useActions } from 'hooks/useActions'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getErc20Allowance } from 'lib/utils/evm'
-import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
-import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
-import { LimitPriceMode } from 'state/slices/limitOrderInputSlice/constants'
-import { expiryOptionToUnixTimestamp } from 'state/slices/limitOrderInputSlice/helpers'
-import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
+
+import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
+import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
+import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
+import { getCowSwapErrorTranslation, isCowSwapError } from '../helpers'
+import { useLimitOrderRecipientAddress } from '../hooks/useLimitOrderRecipientAddress'
+import { LimitOrderRoutePaths } from '../types'
+import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
+import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
+import { LimitOrderConfig } from './LimitOrderConfig'
+
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
+import { Text } from '@/components/Text'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useActions } from '@/hooks/useActions'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getErc20Allowance } from '@/lib/utils/evm'
+import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
+import { selectCalculatedFees, selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
+import { LimitPriceMode } from '@/state/slices/limitOrderInputSlice/constants'
+import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
+import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
   selectBuyAmountCryptoBaseUnit,
@@ -46,31 +57,21 @@ import {
   selectLimitPriceMode,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
-} from 'state/slices/limitOrderInputSlice/selectors'
-import { calcLimitPriceBuyAsset } from 'state/slices/limitOrderSlice/helpers'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
-import { selectActiveQuoteNetworkFeeUserCurrency } from 'state/slices/limitOrderSlice/selectors'
+} from '@/state/slices/limitOrderInputSlice/selectors'
+import { calcLimitPriceBuyAsset } from '@/state/slices/limitOrderSlice/helpers'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
-
-import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
-import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
-import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
-import { getCowSwapErrorTranslation, isCowSwapError } from '../helpers'
-import { useLimitOrderRecipientAddress } from '../hooks/useLimitOrderRecipientAddress'
-import { LimitOrderRoutePaths } from '../types'
-import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
-import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
-import { LimitOrderConfig } from './LimitOrderConfig'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>

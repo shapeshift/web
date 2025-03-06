@@ -4,18 +4,19 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
-import { Amount } from 'components/Amount/Amount'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import { ReactTable } from 'components/ReactTable/ReactTable'
-import { AssetCell } from 'components/StakingVaults/Cells'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
-import { selectFiatRampBuyAssetsWithMarketData } from 'state/apis/fiatRamps/selectors'
 
 import { PageContainer } from './components/PageContainer'
 import { SparkLine } from './components/Sparkline'
+
+import { Amount } from '@/components/Amount/Amount'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { ReactTable } from '@/components/ReactTable/ReactTable'
+import { AssetCell } from '@/components/StakingVaults/Cells'
+import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
+import { selectFiatRampBuyAssetsWithMarketData } from '@/state/apis/fiatRamps/selectors'
 
 type AssetWithMarketData = ReturnType<typeof selectFiatRampBuyAssetsWithMarketData>[0]
 type RowProps = Row<AssetWithMarketData>

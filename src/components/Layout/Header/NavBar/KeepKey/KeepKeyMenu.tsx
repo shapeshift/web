@@ -10,19 +10,20 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
+
+import { ExpandedMenuItem } from '@/components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
   useMenuRoutes,
   WalletConnectedRoutes,
-} from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
-import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
-import { RawText, Text } from 'components/Text'
-import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+} from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuContainer'
+import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
+import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
+import { RawText, Text } from '@/components/Text'
+import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
+import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const closeIcon = <CloseIcon />
 

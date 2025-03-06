@@ -1,12 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectPortfolioLoadingStatus, selectSelectedCurrency } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectPortfolioLoadingStatus, selectSelectedCurrency } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const { findPriceHistoryByFiatSymbol } = marketApi.endpoints
 

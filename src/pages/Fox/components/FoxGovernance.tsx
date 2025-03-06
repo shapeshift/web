@@ -19,15 +19,19 @@ import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch } from 'react-redux'
-import { Amount } from 'components/Amount/Amount'
-import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { snapshotApi, useGetProposalsQuery } from 'state/apis/snapshot/snapshot'
-import { selectAssetById, selectWalletAccountIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FoxGovernanceProposal } from './FoxGovernanceProposal'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import {
+  selectIsSnapshotApiQueriesPending,
+  selectVotingPower,
+} from '@/state/apis/snapshot/selectors'
+import { snapshotApi, useGetProposalsQuery } from '@/state/apis/snapshot/snapshot'
+import { selectAssetById, selectWalletAccountIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const containerPaddingX = { base: 4, xl: 0 }
 const headerTitleMb = { base: 4, md: 0 }

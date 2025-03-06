@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { KeyManager } from 'context/WalletProvider/KeyManager'
+
+import type { KeyManager } from '@/context/WalletProvider/KeyManager'
 
 export type LocalWalletState = {
   walletType: KeyManager | null

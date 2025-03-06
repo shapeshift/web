@@ -1,25 +1,26 @@
 import { Alert, AlertDescription, AlertIcon, Button, Flex, Image } from '@chakra-ui/react'
-import { getConfig } from 'config'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { getSnapVersion } from 'utils/snaps'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { MetaMaskConfig } from 'context/WalletProvider/MetaMask/config'
+
+import { PairBody } from '../../components/PairBody'
+
+import { Text } from '@/components/Text'
+import { getConfig } from '@/config'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { MetaMaskConfig } from '@/context/WalletProvider/MetaMask/config'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskMobileWebView,
   checkIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
-
-import { PairBody } from '../../components/PairBody'
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
+import { getSnapVersion } from '@/utils/snaps'
 
 type MipdBodyProps = {
   rdns: string
@@ -98,7 +99,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
 
         const isSnapInstalled = await checkIsSnapInstalled()
         const snapVersion = await getSnapVersion()
-        const isCorrectVersion = snapVersion === getConfig().REACT_APP_SNAP_VERSION
+        const isCorrectVersion = snapVersion === getConfig().VITE_SNAP_VERSION
 
         if (isSnapInstalled && !isCorrectVersion) {
           return history.push('/metamask/snap/update')

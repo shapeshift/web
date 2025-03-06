@@ -16,22 +16,28 @@ import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { BigNumber, bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { FeeModal } from 'components/FeeModal/FeeModal'
-import { parseAmountDisplayMeta } from 'components/MultiHopTrade/helpers'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { middleEllipsis } from 'lib/utils'
-import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectFeeAssetById } from 'state/slices/selectors'
+
+import { PriceImpact } from '../../PriceImpact'
+import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
+import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { useIsApprovalInitiallyNeeded } from '../hooks/useIsApprovalInitiallyNeeded'
+
+import { Amount } from '@/components/Amount/Amount'
+import { FeeModal } from '@/components/FeeModal/FeeModal'
+import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
+import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { middleEllipsis } from '@/lib/utils'
+import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
   selectIsActiveQuoteMultiHop,
-} from 'state/slices/tradeInputSlice/selectors'
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -44,13 +50,8 @@ import {
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeSlippagePercentageDecimal,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
-
-import { PriceImpact } from '../../PriceImpact'
-import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
-import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
-import { useIsApprovalInitiallyNeeded } from '../hooks/useIsApprovalInitiallyNeeded'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const ProtocolFeeToolTip = () => {
   return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />

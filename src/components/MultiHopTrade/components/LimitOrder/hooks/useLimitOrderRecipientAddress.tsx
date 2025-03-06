@@ -1,19 +1,20 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
-import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { useActions } from 'hooks/useActions'
-import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
+
+import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
+
+import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
+import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
+import { useActions } from '@/hooks/useActions'
+import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectIsManualReceiveAddressEditing,
   selectIsManualReceiveAddressValid,
   selectIsManualReceiveAddressValidating,
   selectManualReceiveAddress,
-} from 'state/slices/limitOrderInputSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
+} from '@/state/slices/limitOrderInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseLimitOrderRecipientAddressProps = {
   buyAsset: Asset

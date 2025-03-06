@@ -3,14 +3,15 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { useHistory } from 'react-router'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import { breakpoints } from 'theme/theme'
+import { useHistory } from 'react-router-dom'
 
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'
 import { LoadingGrid } from './LoadingGrid'
 import { MarketGrid } from './MarketGrid'
+
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { breakpoints } from '@/theme/theme'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 

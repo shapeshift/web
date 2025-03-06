@@ -1,9 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import createCachedSelector from 're-reselect'
-import { isMobile as isMobileApp } from 'lib/globals'
-import type { ReduxState } from 'state/reducer'
 
 import type { Flag } from './preferencesSlice'
+
+import { isMobile as isMobileApp } from '@/lib/globals'
+import type { ReduxState } from '@/state/reducer'
 
 export const selectFeatureFlags = (state: ReduxState) => state.preferences.featureFlags
 

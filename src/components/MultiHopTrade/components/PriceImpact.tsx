@@ -3,10 +3,11 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
 
 import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
+
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
 
 interface PriceImpactProps {
   priceImpactPercentage: BigNumber | undefined

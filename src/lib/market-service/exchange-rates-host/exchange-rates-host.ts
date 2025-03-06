@@ -2,10 +2,8 @@ import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 import { getHistoryTimeframeBounds } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import { getConfig } from 'config'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { FiatMarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -15,6 +13,9 @@ import type {
   SupportedFiatCurrencies,
 } from '../fiat-market-service-types'
 import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
+
+import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const baseCurrency = 'USD'
 
@@ -46,8 +47,8 @@ export const makeExchangeRateRequestUrls = (
 }
 
 export class ExchangeRateHostService implements FiatMarketService {
-  baseUrl = getConfig().REACT_APP_EXCHANGERATEHOST_BASE_URL
-  apiKey = getConfig().REACT_APP_EXCHANGERATEHOST_API_KEY
+  baseUrl = getConfig().VITE_EXCHANGERATEHOST_BASE_URL
+  apiKey = getConfig().VITE_EXCHANGERATEHOST_API_KEY
   findByFiatSymbol = async ({ symbol }: FiatMarketDataArgs): Promise<MarketData | null> => {
     try {
       const { data } = await axios.get<ExchangeRateHostRate>(

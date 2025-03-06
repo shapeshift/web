@@ -3,12 +3,13 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
-import { ReactTable } from 'components/ReactTable/ReactTable'
-import { AssetCell } from 'components/StakingVaults/Cells'
-import { Text } from 'components/Text'
-import { selectRelatedAssetIds } from 'state/slices/related-assets-selectors'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { ReactTable } from '@/components/ReactTable/ReactTable'
+import { AssetCell } from '@/components/StakingVaults/Cells'
+import { Text } from '@/components/Text'
+import { selectRelatedAssetIds } from '@/state/slices/related-assets-selectors'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type RelatedAssetsProps = {
   assetId: AssetId

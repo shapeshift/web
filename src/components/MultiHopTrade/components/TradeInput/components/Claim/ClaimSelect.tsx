@@ -1,14 +1,15 @@
 import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
-import { ClaimStatus } from 'components/ClaimRow/types'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
+import { useHistory } from 'react-router-dom'
 
 import { ClaimRow } from './ClaimRow'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimsByStatus } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
+
+import { ClaimStatus } from '@/components/ClaimRow/types'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
 
 type ClaimSelectProps = {
   setActiveClaim: (claim: ClaimDetails) => void

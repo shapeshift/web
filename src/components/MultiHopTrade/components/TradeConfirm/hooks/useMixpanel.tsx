@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react'
-import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import type { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import type { MixPanelEvent } from '@/lib/mixpanel/types'
 
 export const useMixpanel = () => {
   const mixpanel = useMemo(() => getMixPanel(), [])

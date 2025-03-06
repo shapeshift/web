@@ -2,10 +2,11 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
 import { ethers } from 'ethers'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { bn } from 'lib/bignumber/bignumber'
 
 import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
+
+import { bn } from '@/lib/bignumber/bignumber'
 
 const foxyMarketService = new FoxyMarketService({
   provider: new ethers.JsonRpcProvider(''),
@@ -45,7 +46,7 @@ vi.mock('axios-cache-interceptor', () => ({
 
 const mockTotalSupply = vi.fn().mockReturnValue(bn('502526240759422886301171305'))
 const mockTvl = vi.fn().mockReturnValue(bn('52018758965754575223841191'))
-vi.mock('lib/investor/investor-foxy', () => ({
+vi.mock('@/lib/investor/investor-foxy', () => ({
   FoxyApi: vi.fn().mockImplementation(() => ({
     totalSupply: mockTotalSupply,
     tvl: mockTvl,

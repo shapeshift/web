@@ -19,44 +19,47 @@ import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
-import { Overview } from 'features/defi/components/Overview/Overview'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { Amount } from 'components/Amount/Amount'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
-import { formatSecondsToDuration } from 'lib/utils/time'
-import { useIsLendingActive } from 'pages/Lending/hooks/useIsLendingActive'
-import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+
+import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Text } from '@/components/Text'
+import type { DefiButtonProps } from '@/features/defi/components/DefiActionButtons'
+import { Overview } from '@/features/defi/components/Overview/Overview'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
+import { useGetThorchainSaversDepositQuoteQuery } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import { formatSecondsToDuration } from '@/lib/utils/time'
+import { useIsLendingActive } from '@/pages/Lending/hooks/useIsLendingActive'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
+import type { ThorchainSaversStakingSpecificMetadata } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getThorchainSaversPosition,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+} from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import {
   isSaversUserStakingOpportunity,
   makeDefiProviderDisplayName,
   serializeUserStakingId,
   toOpportunityId,
-} from 'state/slices/opportunitiesSlice/utils'
+} from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -69,10 +72,8 @@ import {
   selectStakingOpportunityByFilter,
   selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type OverviewProps = {
   accountId: AccountId | undefined

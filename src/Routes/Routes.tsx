@@ -1,41 +1,42 @@
-import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import type { Location } from 'history'
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { Layout } from 'components/Layout/Layout'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useQuery } from 'hooks/useQuery/useQuery'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile } from 'lib/globals'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Layout } from '@/components/Layout/Layout'
+import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useQuery } from '@/hooks/useQuery/useQuery'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const Flags = makeSuspenseful(
-  lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
+  lazy(() => import('@/pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
 const NotFound = makeSuspenseful(
-  lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
+  lazy(() => import('@/pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
 
 const TermsOfService = makeSuspenseful(
   lazy(() =>
-    import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
+    import('@/pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
       default: TermsOfService,
     })),
   ),
 )
 const PrivacyPolicy = makeSuspenseful(
   lazy(() =>
-    import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
+    import('@/pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
   ),
 )
 
 const MobileConnect = makeSuspenseful(
   lazy(() =>
-    import('pages/ConnectWallet/MobileConnect').then(({ MobileConnect }) => ({
+    import('@/pages/ConnectWallet/MobileConnect').then(({ MobileConnect }) => ({
       default: MobileConnect,
     })),
   ),
@@ -56,7 +57,7 @@ export const Routes = memo(() => {
   })
 
   useEffect(() => {
-    const selectedLocaleExists = selectedLocale in LanguageTypeEnum ?? {}
+    const selectedLocaleExists = selectedLocale in LanguageTypeEnum
     if (lang && selectedLocaleExists && selectedLocale !== lang) {
       dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
     } else if (!selectedLocaleExists) {

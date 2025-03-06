@@ -4,9 +4,10 @@ import isBetween from 'dayjs/plugin/isBetween'
 import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Doge from 'assets/doge.png'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { SlideTransitionY } from 'components/SlideTransitionY'
+
+import Doge from '@/assets/doge.png'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { SlideTransitionY } from '@/components/SlideTransitionY'
 
 dayjs.extend(isBetween)
 

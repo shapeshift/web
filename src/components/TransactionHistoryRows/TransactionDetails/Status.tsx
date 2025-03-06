@@ -1,8 +1,9 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Tag, useColorModeValue } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
 
 export const Status = ({ status }: { status: TxStatus }) => {
   const circularProgressColor = useColorModeValue('blue.500', 'blue.200')

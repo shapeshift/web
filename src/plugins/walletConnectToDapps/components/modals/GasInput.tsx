@@ -13,15 +13,16 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { getFeeTranslation } from 'components/Modals/Send/TxFeeRadioGroup'
-import type { FeePrice } from 'components/Modals/Send/views/Confirm'
-import { RawText, Text } from 'components/Text'
+
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { getFeeTranslation } from '@/components/Modals/Send/TxFeeRadioGroup'
+import type { FeePrice } from '@/components/Modals/Send/views/Confirm'
+import { RawText, Text } from '@/components/Text'
+import type { ConfirmData } from '@/plugins/walletConnectToDapps/types'
 
 type GasInputProps = {
   fees: FeePrice | undefined

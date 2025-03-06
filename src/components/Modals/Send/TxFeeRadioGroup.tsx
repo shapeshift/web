@@ -4,15 +4,16 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Property } from 'csstype'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
-import { Amount } from 'components/Amount/Amount'
-import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectFeeAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import type { SendInput } from './Form'
 import { SendFormFields } from './SendCommon'
 import type { FeePrice } from './views/Confirm'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { selectFeeAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TxFeeRadioGroupProps = {
   fees: FeePrice | null

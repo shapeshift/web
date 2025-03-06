@@ -6,24 +6,25 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
-import type { EvmFees } from 'hooks/queries/useEvmFees'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  GetFeesWithWalletEip1559SupportArgs,
-  MaybeGetFeesWithWalletEip1559Args,
-} from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
-import { selectTxById } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
 
 import type { RfoxBridgeQuote } from '../types'
 import { useRfoxBridge } from './useRfoxBridge'
+
+import type { EvmFees } from '@/hooks/queries/useEvmFees'
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
+} from '@/lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from '@/lib/utils/evm'
+import { reactQueries } from '@/react-queries'
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
+import { selectTxById } from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type UseRfoxBridgeApprovalProps = { confirmedQuote: RfoxBridgeQuote }
 type UseRfoxBridgeApprovalReturn = {

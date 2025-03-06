@@ -1,12 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
-import { fromBaseUnit } from 'lib/math'
-import { useTotalStakedQuery } from 'pages/RFOX/hooks/useGetTotalStaked'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StatItem } from './StatItem'
+
+import { fromBaseUnit } from '@/lib/math'
+import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TotalStakedProps = {
   stakingAssetId: AssetId

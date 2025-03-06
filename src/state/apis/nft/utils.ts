@@ -14,14 +14,15 @@ import {
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import cloneDeep from 'lodash/cloneDeep'
 import invert from 'lodash/invert'
-import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
-import { isFulfilled } from 'lib/utils'
 
 import {
   parseAlchemyNftContractToCollectionItem,
   parseAlchemyNftToNftItem,
 } from './parsers/alchemy'
 import type { NftCollectionType, NftItemWithCollection } from './types'
+
+import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
+import { isFulfilled } from '@/lib/utils'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>

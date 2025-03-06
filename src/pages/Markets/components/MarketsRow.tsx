@@ -17,18 +17,19 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link, useHistory, useParams } from 'react-router-dom'
-import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
-import { OrderDropdown } from 'components/OrderDropdown/OrderDropdown'
-import { OrderDirection } from 'components/OrderDropdown/types'
-import { SortDropdown } from 'components/SortDropdown/SortDropdown'
-import { SortOptionsKeys } from 'components/SortDropdown/types'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import type { MarketsCategories } from '../constants'
 import { sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
+
+import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
+import { OrderDropdown } from '@/components/OrderDropdown/OrderDropdown'
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { SortDropdown } from '@/components/SortDropdown/SortDropdown'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { selectFeatureFlag } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const chevronDownIcon = <ChevronDownIcon />
 const arrowForwardIcon = <ArrowForwardIcon />

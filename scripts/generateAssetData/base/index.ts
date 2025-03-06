@@ -3,9 +3,10 @@ import type { Asset } from '@shapeshiftoss/types'
 import { base, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
-import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
+
+import { getPortalTokens } from '@/lib/portals/utils'
 
 const foxWifHatAsset: Readonly<Asset> = Object.freeze({
   assetId: foxWifHatAssetId,

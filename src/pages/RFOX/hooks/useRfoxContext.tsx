@@ -6,14 +6,15 @@ import {
 } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+
+import { RFOX_STAKING_ASSET_IDS } from '../constants'
+
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
-} from 'state/slices/portfolioSlice/selectors'
-import { selectFeatureFlags } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { RFOX_STAKING_ASSET_IDS } from '../constants'
+} from '@/state/slices/portfolioSlice/selectors'
+import { selectFeatureFlags } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type RFOXContextType = {
   selectedAssetAccountId: AccountId | undefined

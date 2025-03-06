@@ -11,19 +11,6 @@ import type { MarketData } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import { getAddress } from 'viem'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
-import { portalsApi } from 'state/apis/portals/portalsApi'
-import { selectPortalsFulfilled } from 'state/apis/portals/selectors'
-import type { ReduxState } from 'state/reducer'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
-import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type {
@@ -39,6 +26,20 @@ import type {
   OpportunityUserDataResolverInput,
 } from '../types'
 import { calculateAPRFromToken0 } from './utils'
+
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
+import { portalsApi } from '@/state/apis/portals/portalsApi'
+import { selectPortalsFulfilled } from '@/state/apis/portals/selectors'
+import type { ReduxState } from '@/state/reducer'
+import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectPortfolioAccountBalancesBaseUnit } from '@/state/slices/common-selectors'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import type { PortfolioAccountBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectPortfolioLoadingStatusGranular } from '@/state/slices/portfolioSlice/selectors'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
 
 let _blockNumber: number | null = null
 const getBlockNumber = async () => {

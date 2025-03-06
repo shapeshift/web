@@ -4,22 +4,17 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": [
-    "src/**/*",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": ["src/**/*", "src/**/*.json", "src/**/*.d.ts"],
+  "exclude": ["dist"],
   "references": [
     {
-      "path": "../types",
+      "path": "../types"
     },
     {
-      "path": "../caip",
+      "path": "../caip"
     },
     {
-      "path": "../utils",
+      "path": "../utils"
     }
   ]
 }

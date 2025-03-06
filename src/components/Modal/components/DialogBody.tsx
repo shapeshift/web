@@ -1,7 +1,8 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, ModalBody, useMediaQuery } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { breakpoints } from 'theme/theme'
+
+import { breakpoints } from '@/theme/theme'
 
 type DialogBodyProps = BoxProps
 

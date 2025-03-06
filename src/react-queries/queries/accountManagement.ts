@@ -1,7 +1,8 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { assertGetChainAdapter } from 'lib/utils'
+
+import { assertGetChainAdapter } from '@/lib/utils'
 
 export const accountManagement = createQueryKeys('accountManagement', {
   getAccount: (accountId: AccountId) => ({

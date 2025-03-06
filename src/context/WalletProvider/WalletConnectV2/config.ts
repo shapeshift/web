@@ -1,6 +1,5 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import { getConfig } from 'config'
 import type { Chain } from 'viem/chains'
 import {
   arbitrum,
@@ -13,10 +12,12 @@ import {
   optimism,
   polygon,
 } from 'viem/chains'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 import type { EthereumProviderOptions } from './constants'
+
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { getConfig } from '@/config'
+import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type WalletConnectV2ConfigType = Omit<SupportedWalletInfo<typeof WalletConnectV2Adapter>, 'routes'>
 
@@ -70,20 +71,20 @@ const walletConnectV2OptionalChainIds: AtLeastOneNumber = (() => {
 })()
 
 const {
-  REACT_APP_WALLET_CONNECT_WALLET_PROJECT_ID,
-  REACT_APP_AVALANCHE_NODE_URL,
-  REACT_APP_OPTIMISM_NODE_URL,
-  REACT_APP_BNBSMARTCHAIN_NODE_URL,
-  REACT_APP_POLYGON_NODE_URL,
-  REACT_APP_GNOSIS_NODE_URL,
-  REACT_APP_ETHEREUM_NODE_URL,
-  REACT_APP_ARBITRUM_NODE_URL,
-  REACT_APP_ARBITRUM_NOVA_NODE_URL,
-  REACT_APP_BASE_NODE_URL,
+  VITE_WALLET_CONNECT_WALLET_PROJECT_ID,
+  VITE_AVALANCHE_NODE_URL,
+  VITE_OPTIMISM_NODE_URL,
+  VITE_BNBSMARTCHAIN_NODE_URL,
+  VITE_POLYGON_NODE_URL,
+  VITE_GNOSIS_NODE_URL,
+  VITE_ETHEREUM_NODE_URL,
+  VITE_ARBITRUM_NODE_URL,
+  VITE_ARBITRUM_NOVA_NODE_URL,
+  VITE_BASE_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
-  projectId: REACT_APP_WALLET_CONNECT_WALLET_PROJECT_ID,
+  projectId: VITE_WALLET_CONNECT_WALLET_PROJECT_ID,
   chains: walletConnectV2RequiredChainIds,
   optionalChains: walletConnectV2OptionalChainIds,
   optionalMethods: [
@@ -102,14 +103,14 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     },
   },
   rpcMap: {
-    [CHAIN_REFERENCE.AvalancheCChain]: REACT_APP_AVALANCHE_NODE_URL,
-    [CHAIN_REFERENCE.OptimismMainnet]: REACT_APP_OPTIMISM_NODE_URL,
-    [CHAIN_REFERENCE.BnbSmartChainMainnet]: REACT_APP_BNBSMARTCHAIN_NODE_URL,
-    [CHAIN_REFERENCE.PolygonMainnet]: REACT_APP_POLYGON_NODE_URL,
-    [CHAIN_REFERENCE.GnosisMainnet]: REACT_APP_GNOSIS_NODE_URL,
-    [CHAIN_REFERENCE.EthereumMainnet]: REACT_APP_ETHEREUM_NODE_URL,
-    [CHAIN_REFERENCE.ArbitrumMainnet]: REACT_APP_ARBITRUM_NODE_URL,
-    [CHAIN_REFERENCE.ArbitrumNovaMainnet]: REACT_APP_ARBITRUM_NOVA_NODE_URL,
-    [CHAIN_REFERENCE.BaseMainnet]: REACT_APP_BASE_NODE_URL,
+    [CHAIN_REFERENCE.AvalancheCChain]: VITE_AVALANCHE_NODE_URL,
+    [CHAIN_REFERENCE.OptimismMainnet]: VITE_OPTIMISM_NODE_URL,
+    [CHAIN_REFERENCE.BnbSmartChainMainnet]: VITE_BNBSMARTCHAIN_NODE_URL,
+    [CHAIN_REFERENCE.PolygonMainnet]: VITE_POLYGON_NODE_URL,
+    [CHAIN_REFERENCE.GnosisMainnet]: VITE_GNOSIS_NODE_URL,
+    [CHAIN_REFERENCE.EthereumMainnet]: VITE_ETHEREUM_NODE_URL,
+    [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
+    [CHAIN_REFERENCE.ArbitrumNovaMainnet]: VITE_ARBITRUM_NOVA_NODE_URL,
+    [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
   },
 }

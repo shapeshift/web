@@ -1,10 +1,11 @@
 import { ethChainId, fromAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { UseIsApprovalRequiredProps } from './useIsAllowanceApprovalRequired'
 import { useIsAllowanceApprovalRequired } from './useIsAllowanceApprovalRequired'
+
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const useIsAllowanceResetRequired = ({
   assetId,

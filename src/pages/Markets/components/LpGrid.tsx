@@ -4,21 +4,22 @@ import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
 import { useHistory } from 'react-router'
-import { OrderDirection } from 'components/OrderDropdown/types'
-import { ResultsEmpty } from 'components/ResultsEmpty'
-import type { SortOptionsKeys } from 'components/SortDropdown/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { marketDataBySortKey } from '../constants'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
 import { LoadingGrid } from './LoadingGrid'
 import { LpGridItem } from './LpCard'
 import { MarketGrid } from './MarketGrid'
+
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import type { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectStakingOpportunityByFilter,
+} from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 

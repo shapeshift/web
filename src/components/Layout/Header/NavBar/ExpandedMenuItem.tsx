@@ -4,7 +4,8 @@ import { Link, MenuItem, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { ThemeTypings } from '@chakra-ui/styled-system'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { CSSProperties } from 'react'
-import { RawText, Text } from 'components/Text'
+
+import { RawText, Text } from '@/components/Text'
 
 type ExpandedMenuItemProps = {
   label: string | null | [string, number | InterpolationOptions]

@@ -3,12 +3,13 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import { selectAssetIdParamFromFilter } from '@/state/selectors'
 
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,

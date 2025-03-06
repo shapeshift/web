@@ -1,8 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { WithdrawType } from '@shapeshiftoss/types'
-import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import type { DefiType } from 'state/slices/opportunitiesSlice/types'
+
+import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdraw'
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import type { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 type SupportedFoxyOpportunity = {
   type: DefiType

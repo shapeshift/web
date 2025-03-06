@@ -37,11 +37,12 @@ import {
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useMemo } from 'react'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { METAMASK_RDNS } from 'lib/mipd'
-import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { METAMASK_RDNS } from '@/lib/mipd'
+import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
+import { selectFeatureFlag } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type CheckWalletHasRuntimeSupportArgs = {
   isSnapInstalled: boolean | null

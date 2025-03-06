@@ -16,12 +16,15 @@ import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { PathIcon } from 'components/Icons/PathIcon'
-import { Text } from 'components/Text'
-import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import { TradeQuoteValidationError } from 'state/apis/swapper/types'
-import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
+
+import { TradeQuote } from './TradeQuote'
+
+import { PathIcon } from '@/components/Icons/PathIcon'
+import { Text } from '@/components/Text'
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import type { ApiQuote } from '@/state/apis/swapper/types'
+import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
+import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -31,11 +34,9 @@ import {
   selectSortedTradeQuotes,
   selectUserAvailableTradeQuotes,
   selectUserUnavailableTradeQuotes,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { TradeQuote } from './TradeQuote'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const MotionBox = motion(Box)
 

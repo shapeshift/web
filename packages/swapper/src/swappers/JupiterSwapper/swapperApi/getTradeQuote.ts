@@ -50,7 +50,7 @@ export const getTradeQuote = async (
 
   const { assetsById } = deps
 
-  const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
+  const jupiterUrl = deps.config.VITE_JUPITER_API_URL
 
   const solAsset = assetsById[solAssetId]
 

@@ -1,22 +1,23 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
+import { useMemo } from 'react'
+
+import { useIsInteractingWithContract } from '@/plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
 import {
   isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
   isTransactionParamsArray,
-} from 'plugins/walletConnectToDapps/typeGuards'
-import type { KnownSigningMethod, WalletConnectState } from 'plugins/walletConnectToDapps/types'
+} from '@/plugins/walletConnectToDapps/typeGuards'
+import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
-} from 'plugins/walletConnectToDapps/utils'
-import { useMemo } from 'react'
-import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/plugins/walletConnectToDapps/utils'
+import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 /*
   A helper hook to derive commonly used information from the WalletConnectState

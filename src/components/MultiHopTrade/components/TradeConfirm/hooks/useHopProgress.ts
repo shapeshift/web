@@ -6,14 +6,15 @@ import {
   ThorchainStatusMessage,
 } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
+
 import {
   selectActiveQuote,
   selectHopExecutionMetadata,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import type { SwapExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
-import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import type { SwapExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
+import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type SwapperProgressMap = Record<string, number>
 type SwapperProgressMaps = Partial<Record<SwapperName, SwapperProgressMap>>

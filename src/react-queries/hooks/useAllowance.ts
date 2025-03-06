@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { reactQueries } from 'react-queries'
 
 import { selectAllowanceCryptoBaseUnit } from './selectors'
+
+import { reactQueries } from '@/react-queries'
 
 type UseAllowanceArgs = {
   assetId: string | undefined

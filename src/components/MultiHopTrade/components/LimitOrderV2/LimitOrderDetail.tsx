@@ -2,19 +2,20 @@ import { InfoIcon } from '@chakra-ui/icons'
 import { Card, HStack, Stack } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+
+import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import {
   selectActiveQuoteBuyAsset,
   selectActiveQuoteExpirationTimestamp,
   selectActiveQuoteLimitPrice,
   selectActiveQuoteSellAsset,
-} from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
+} from '@/state/slices/limitOrderSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const LimitOrderDetail = () => {
   const translate = useTranslate()

@@ -15,16 +15,17 @@ import {
 import { useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Main } from 'components/Layout/Main'
-import { RawText } from 'components/Text'
-import { slices } from 'state/reducer'
-import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import type { AppDispatch } from 'state/store'
-import { clearState, useAppSelector } from 'state/store'
 
 import { Debugging } from './Debugging'
 import { FlagRow } from './FlagRow'
+
+import { Main } from '@/components/Layout/Main'
+import { RawText } from '@/components/Text'
+import { slices } from '@/state/reducer'
+import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import type { AppDispatch } from '@/state/store'
+import { clearState, useAppSelector } from '@/state/store'
 
 const FlagHeader = () => {
   return (

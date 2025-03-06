@@ -4,17 +4,18 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { Graph } from 'components/Graph/Graph'
-import { IconCircle } from 'components/IconCircle'
-import { Text } from 'components/Text'
-import { makeBalanceChartData } from 'hooks/useBalanceChartData/utils'
-import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { calculateFiatChange, calculatePercentChange } from 'lib/charts'
+
+import { Graph } from '@/components/Graph/Graph'
+import { IconCircle } from '@/components/IconCircle'
+import { Text } from '@/components/Text'
+import { makeBalanceChartData } from '@/hooks/useBalanceChartData/utils'
+import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { calculateFiatChange, calculatePercentChange } from '@/lib/charts'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type PriceChartArgs = {
   assetId: AssetId

@@ -9,13 +9,14 @@ import type {
 import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
 
 import { QrCodeReader } from './QrCodeReader'
+
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
 
 export type DOMExceptionCallback = (errorMessage: string) => void
 

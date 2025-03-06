@@ -4,18 +4,19 @@ import { Button, Card, CardBody, CardHeader, Flex } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetActions } from 'components/AssetHeader/AssetActions'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+import { useHistory } from 'react-router-dom'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetActions } from '@/components/AssetHeader/AssetActions'
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectUserCurrencyBalanceIncludingStakingByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AccountBalanceProps = {
   assetId: AssetId

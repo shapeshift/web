@@ -2,19 +2,20 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import { Overview } from 'features/defi/components/Overview/Overview'
+import { useEffect, useMemo } from 'react'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
+import { Overview } from '@/features/defi/components/Overview/Overview'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useEffect, useMemo } from 'react'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
-import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
+import type { LpId } from '@/state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserLpOpportunity,
   selectFirstAccountIdByChainId,
@@ -22,8 +23,8 @@ import {
   selectSelectedLocale,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
   selectUserCurrencyBalanceIncludingStakingByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UniV2OverviewProps = {
   accountId: AccountId | undefined

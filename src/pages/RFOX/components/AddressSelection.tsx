@@ -14,28 +14,29 @@ import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { Text } from 'components/Text'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { validateAddress } from 'lib/address/address'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectAccountIdsByAssetId,
-  selectAccountIdsByChainId,
-  selectAccountNumberByAccountId,
-  selectPortfolioAccountIdsByAssetIdFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { selectRuneAddress } from '../helpers'
 import { useRFOXContext } from '../hooks/useRfoxContext'
 import { useStakingInfoQuery } from '../hooks/useStakingInfoQuery'
 import type { AddressSelectionValues } from '../types'
 import { RfoxTabIndex } from '../Widget'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { Text } from '@/components/Text'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { validateAddress } from '@/lib/address/address'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectAccountIdsByAssetId,
+  selectAccountIdsByChainId,
+  selectAccountNumberByAccountId,
+  selectPortfolioAccountIdsByAssetIdFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AddressSelectionProps = {
   setStepIndex: ((index: number) => void) | undefined

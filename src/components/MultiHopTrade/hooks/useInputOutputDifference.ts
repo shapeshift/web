@@ -2,8 +2,9 @@ import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shape
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
-import { selectUsdRateByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { selectUsdRateByAssetId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useInputOutputDifferenceDecimalPercentage = (
   tradeQuote: TradeQuote | TradeRate | undefined,

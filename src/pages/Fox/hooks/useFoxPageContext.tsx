@@ -1,12 +1,13 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+
 import {
   selectAccountNumberByAccountId,
   selectFirstAccountIdByChainId,
   selectPortfolioAccountIdsByAssetIdFilter,
-} from 'state/slices/portfolioSlice/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/portfolioSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type FoxPageContextType = {
   assetAccountId: AccountId | undefined

@@ -5,12 +5,13 @@ import type { Order } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
 import axios from 'axios'
-import { getConfig } from 'config'
 import orderBy from 'lodash/orderBy'
 import { useCallback } from 'react'
-import { mergeQueryOutputs } from 'react-queries/helpers'
-import { selectEvmAccountIds } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
+
+import { getConfig } from '@/config'
+import { mergeQueryOutputs } from '@/react-queries/helpers'
+import { selectEvmAccountIds } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 type CustomTokenQueryKey = ['getLimitOrdersForAccount', AccountId]
 
@@ -27,7 +28,7 @@ export const useGetLimitOrdersQuery = () => {
       const { account, chainId } = fromAccountId(accountId)
       const network = assertGetCowNetwork(chainId)
       const config = getConfig()
-      const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+      const baseUrl = config.VITE_COWSWAP_BASE_URL
       const result = await axios.get<Order[]>(
         // TODO: Implement paging for users with >1000 orders
         `${baseUrl}/${network}/api/v1/account/${account}/orders?limit=1000`,

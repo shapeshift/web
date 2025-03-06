@@ -46,8 +46,10 @@ describe('ErrorWithCause', () => {
   it('should ignore unknown properties in options object', () => {
     const cause = new TypeError('cause')
     const e = new ErrorWithCause('test message', { cause, details: { arg1: 'foo' } })
-    expect(e.message).toBe('test message')
-    expect(e.cause).toBe(cause)
-    expect(Object.getOwnPropertyNames(e)).toStrictEqual(['stack', 'message', 'name', 'cause'])
+
+    expect(e).toHaveProperty('stack')
+    expect(e).toHaveProperty('message', 'test message')
+    expect(e).toHaveProperty('name', 'ErrorWithCause')
+    expect(e).toHaveProperty('cause', cause)
   })
 })

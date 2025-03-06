@@ -81,9 +81,7 @@ If you are using Linux and macOS it works out of the box following these steps:
     yarn build:packages
     ```
 
-6. Run `yarn env dev` to generate a `.env` file.
-
-7. Other recommended configurations:
+6. Other recommended configurations:
 
     To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running:
 
@@ -120,7 +118,7 @@ yarn test
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-yarn build:web
+MODE=production yarn build:web
 ```
 
 > It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -156,3 +154,12 @@ REACT_APP_FEATURE_MIXPANEL=true
 ```
 
 The MixPanel project UI will now show events from your local session.
+
+## Add Local Environment Variables
+
+Vite supports local environment variable files that are automatically excluded from Git. You can create these files following the patterns described in the [Vite documentation](https://vitejs.dev/guide/env-and-mode#env-files).
+
+Examples of supported file names:
+- `.env.local` (loaded in all environments)
+- `.env.development.local` (loaded only in development)
+- `.env.production.local` (loaded only in production)

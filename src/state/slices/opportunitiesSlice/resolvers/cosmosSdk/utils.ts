@@ -6,9 +6,6 @@ import dayjs from 'dayjs'
 import flatMapDeep from 'lodash/flatMapDeep'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 
 import type {
   OpportunitiesState,
@@ -21,6 +18,10 @@ import type {
 import { serializeUserStakingId, supportsUndelegations, toValidatorId } from '../../utils'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'
 import type { UserUndelegation } from './types'
+
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
 
 export const makeUniqueValidatorAccountIds = ({
   cosmosSdkAccounts,

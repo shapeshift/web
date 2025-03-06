@@ -1,17 +1,18 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import qs from 'qs'
+import { useCallback } from 'react'
+import { MemoryRouter } from 'react-router-dom'
+
+import { ClaimRoutes } from './ClaimRoutes'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { SlideTransition } from '@/components/SlideTransition'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import qs from 'qs'
-import { useCallback } from 'react'
-import { MemoryRouter } from 'react-router'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-
-import { ClaimRoutes } from './ClaimRoutes'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 type ClaimProps = {
   accountId: AccountId | undefined

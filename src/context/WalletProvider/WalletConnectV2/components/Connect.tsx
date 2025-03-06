@@ -1,16 +1,17 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
-import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 import { useCallback, useState } from 'react'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { ConnectModal } from 'context/WalletProvider/components/ConnectModal'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { WalletConnectV2Config } from 'context/WalletProvider/WalletConnectV2/config'
-import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Error'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isWalletConnectWallet } from 'lib/utils'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { WalletConnectV2Config } from '@/context/WalletProvider/WalletConnectV2/config'
+import { WalletNotFoundError } from '@/context/WalletProvider/WalletConnectV2/Error'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isWalletConnectWallet } from '@/lib/utils'
+import { clearWalletConnectLocalStorage } from '@/plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 
 export type WalletConnectSetupProps = RouteComponentProps<{}, StaticContext, unknown>
 

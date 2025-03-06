@@ -1,10 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { OrderQuoteResponse, QuoteId, UnsignedOrderCreation } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { LimitOrderQuoteParams } from 'state/apis/limit-orders/limitOrderApi'
 
 import type { ApprovalExecutionMetadata, TransactionExecutionState } from '../tradeQuoteSlice/types'
 import type { LimitOrderSubmissionState } from './constants'
+
+import type { LimitOrderQuoteParams } from '@/state/apis/limit-orders/limitOrderApi'
 
 export type LimitOrderTransactionMetadata = {
   state: TransactionExecutionState

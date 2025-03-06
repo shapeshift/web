@@ -1,6 +1,7 @@
 import type { BoxProps } from '@chakra-ui/react'
-import { Row as RowStyle } from 'components/Row/Row'
-import { Text } from 'components/Text'
+
+import { Row as RowStyle } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
 
 export const Row = ({
   title,

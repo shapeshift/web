@@ -1,6 +1,7 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Flex, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 export const KeepKeyDisconnect = () => {
   return (

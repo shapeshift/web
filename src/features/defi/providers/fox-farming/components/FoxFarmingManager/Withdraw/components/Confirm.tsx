@@ -1,42 +1,43 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { Summary } from 'features/defi/components/Summary'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
+import { WithdrawContext } from '../WithdrawContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { Confirm as ReusableConfirm } from '@/features/defi/components/Confirm/Confirm'
+import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
+import { Summary } from '@/features/defi/components/Summary'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useCallback, useContext, useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
-import { WithdrawContext } from '../WithdrawContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 

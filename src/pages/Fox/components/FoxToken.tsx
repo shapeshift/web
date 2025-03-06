@@ -1,13 +1,14 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, Divider, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { FoxTokenBalances } from './FoxTokenBalances'
 import { FoxTokenHeader } from './FoxTokenHeader'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { FeeExplainer } from '@/components/FeeExplainer/FeeExplainer'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 const stackProps: StackProps = {
   flexDir: 'row',

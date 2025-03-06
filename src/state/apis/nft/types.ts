@@ -1,5 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { MediaUrl } from 'state/apis/portals/validators'
+
+import type { MediaUrl } from '@/state/apis/portals/validators'
 
 export type NftCollectionType = {
   assetId: AssetId

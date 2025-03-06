@@ -1,14 +1,15 @@
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
-import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+
+import { SharedSlippagePopover } from './SharedTradeInput/SharedSlippagePopover'
+
+import { selectUserSlippagePercentage } from '@/state/slices/tradeInputSlice/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectDefaultSlippagePercentage,
   selectQuoteSlippageTolerancePercentage,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { SharedSlippagePopover } from './SharedTradeInput/SharedSlippagePopover'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type SlippagePopoverProps = {
   isDisabled?: boolean

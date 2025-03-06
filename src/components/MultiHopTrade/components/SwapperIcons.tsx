@@ -5,10 +5,11 @@ import {
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import { AnimatePresence } from 'framer-motion'
-import { StreamIcon } from 'components/Icons/Stream'
-import { SlideTransitionX } from 'components/SlideTransitionX'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
+
+import { StreamIcon } from '@/components/Icons/Stream'
+import { SlideTransitionX } from '@/components/SlideTransitionX'
 
 type SwapperIconsProps = {
   swapSource: SwapSource | undefined

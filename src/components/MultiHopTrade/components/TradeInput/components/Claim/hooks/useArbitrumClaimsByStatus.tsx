@@ -7,11 +7,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ClaimStatus } from 'components/ClaimRow/types'
-import { assertUnreachable } from 'lib/utils'
-import { selectArbitrumWithdrawTxs, selectAssetById } from 'state/slices/selectors'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+
+import { ClaimStatus } from '@/components/ClaimRow/types'
+import { assertUnreachable } from '@/lib/utils'
+import { selectArbitrumWithdrawTxs, selectAssetById } from '@/state/slices/selectors'
+import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 

@@ -1,11 +1,12 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { reactQueries } from '@/react-queries'
 
 type UseLendingPositionDataProps = {
   accountId?: AccountId | null

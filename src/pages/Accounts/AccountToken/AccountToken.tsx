@@ -6,15 +6,16 @@ import toLower from 'lodash/toLower'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
-import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
-import { Equity } from 'components/Equity/Equity'
-import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
-import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
-import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectEnabledWalletAccountIds } from 'state/slices/selectors'
 
 import { AccountBalance } from './AccountBalance'
+
+import { AssetAccounts } from '@/components/AssetAccounts/AssetAccounts'
+import { Equity } from '@/components/Equity/Equity'
+import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
+import { EarnOpportunities } from '@/components/StakingVaults/EarnOpportunities'
+import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 
 export type MatchParams = {
   accountId: AccountId

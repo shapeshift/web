@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { selectEnabledWalletAccountIds } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
+
+import { useGetNftUserTokensQuery } from '@/state/apis/nft/nftApi'
+import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useNfts = () => {
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)

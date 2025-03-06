@@ -7,10 +7,11 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { encodeFunctionData, getAddress } from 'viem'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { PartialFields } from 'lib/types'
 
 import { getSupportedChainIdsByChainNamespace } from '..'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { PartialFields } from '@/lib/types'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string

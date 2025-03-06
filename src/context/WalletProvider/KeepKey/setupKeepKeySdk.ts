@@ -1,7 +1,8 @@
 import type { PairingInfo } from '@keepkey/keepkey-sdk'
 import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { store } from 'state/store'
+
+import { store } from '@/state/store'
 
 type Config = {
   apiKey: string

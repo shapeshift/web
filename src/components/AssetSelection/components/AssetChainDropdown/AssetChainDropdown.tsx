@@ -13,20 +13,21 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getStyledMenuButtonProps } from 'components/AssetSelection/helpers'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertGetChainAdapter } from 'lib/utils'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import { selectRelatedAssetIdsInclusiveSorted } from 'state/slices/related-assets-selectors'
+
+import { AssetRowLoading } from '../AssetRowLoading'
+import { AssetChainRow } from './AssetChainRow'
+
+import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetChainAdapter } from '@/lib/utils'
+import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectChainDisplayNameByAssetId,
   selectIsWalletConnected,
   selectWalletConnectedChainIds,
-} from 'state/slices/selectors'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
-
-import { AssetRowLoading } from '../AssetRowLoading'
-import { AssetChainRow } from './AssetChainRow'
+} from '@/state/slices/selectors'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type AssetChainDropdownProps = {
   assetId?: AssetId

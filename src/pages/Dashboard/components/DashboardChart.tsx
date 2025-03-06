@@ -14,21 +14,22 @@ import {
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import { useCallback, useState } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { BalanceChart } from 'components/BalanceChart/BalanceChart'
-import { TimeControls } from 'components/Graph/TimeControls'
-import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
-import { Text } from 'components/Text'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+
+import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'
+
+import { Amount } from '@/components/Amount/Amount'
+import { BalanceChart } from '@/components/BalanceChart/BalanceChart'
+import { TimeControls } from '@/components/Graph/TimeControls'
+import { MaybeChartUnavailable } from '@/components/MaybeChartUnavailable'
+import { Text } from '@/components/Text'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectChartTimeframe,
   selectIsPortfolioLoading,
   selectPortfolioAssetIds,
   selectPortfolioTotalUserCurrencyBalance,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const justifyContentMdSpaceBetween = { base: 'center', md: 'space-between' }
 const textAlignMdInherit: ResponsiveValue<Property.TextAlign> = { base: 'center', md: 'inherit' }

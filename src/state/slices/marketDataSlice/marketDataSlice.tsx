@@ -4,22 +4,23 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import type { MarketDataById } from './types'
+import { trimOutOfBoundsMarketData } from './utils'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
   SupportedFiatCurrencies,
-} from 'lib/market-service'
-import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from 'lib/market-service'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
+} from '@/lib/market-service'
+import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@/lib/market-service'
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
+import { getMarketServiceManager } from '@/state/slices/marketDataSlice/marketServiceManagerSingleton'
 import type {
   FindPriceHistoryByAssetIdArgs,
   MarketDataState,
-} from 'state/slices/marketDataSlice/types'
-
-import type { MarketDataById } from './types'
-import { trimOutOfBoundsMarketData } from './utils'
+} from '@/state/slices/marketDataSlice/types'
 
 export const initialState: MarketDataState = {
   crypto: {

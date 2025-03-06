@@ -1,7 +1,7 @@
-import { bnOrZero } from 'lib/bignumber/bignumber'
-
 import { THORCHAIN_BLOCK_TIME_SECONDS } from './constants'
 import type { ThorchainMimir } from './types'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const selectLiquidityLockupTime = (mimirData: ThorchainMimir): number => {
   const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined

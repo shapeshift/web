@@ -1,21 +1,22 @@
 import { Box, Button, Flex, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeepKeyPin } from 'context/WalletProvider/KeepKey/components/Pin'
-import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useMenuRoutes } from '../hooks/useMenuRoutes'
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
 import { LastDeviceInteractionStatus } from './LastDeviceInteractionStatus'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import type { AwaitKeepKeyProps } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeepKeyPin } from '@/context/WalletProvider/KeepKey/components/Pin'
+import { PinMatrixRequestType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
+import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const gridProps = { spacing: 2 }
 

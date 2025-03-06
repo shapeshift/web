@@ -10,7 +10,6 @@ import type {
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { ChainId, Yearn } from '@yfi/sdk'
 import head from 'lodash/head'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
@@ -18,6 +17,8 @@ import { isValidDate } from '../utils/isValidDate'
 import { createRateLimiter } from '../utils/rateLimiters'
 import { ACCOUNT_HISTORIC_EARNINGS } from './gql-queries'
 import type { VaultDayDataGQLResponse } from './yearn-types'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 

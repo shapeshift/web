@@ -4,11 +4,6 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": [
-    "src/**/*",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["dist"]
 }

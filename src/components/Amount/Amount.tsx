@@ -1,10 +1,11 @@
 import type { TextProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { RawText } from 'components/Text'
-import type { NumberFormatOptions } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import { RawText } from '@/components/Text'
+import type { NumberFormatOptions } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export type AmountProps = {
   value: number | string | undefined

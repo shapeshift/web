@@ -3,17 +3,18 @@ import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { KeepKeyConfig } from 'context/WalletProvider/KeepKey/config'
-import { FailureType, MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
-import { setupKeepKeySDK } from 'context/WalletProvider/KeepKey/setupKeepKeySdk'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { PairBody } from '../components/PairBody'
+
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
+import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
+import { FailureType, MessageType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
+import { setupKeepKeySDK } from '@/context/WalletProvider/KeepKey/setupKeepKeySdk'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const Icon = KeepKeyConfig.icon
 const icon = <Icon boxSize='64px' />

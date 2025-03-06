@@ -1,30 +1,31 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { AnimatePresence } from 'framer-motion'
+import { useEffect, useMemo } from 'react'
+import { Route, Switch, useLocation } from 'react-router-dom'
+
+import { ClaimConfirm } from '../Claim/ClaimConfirm'
+import { ClaimStatus } from './ClaimStatus'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { RouteSteps } from '@/components/RouteSteps/RouteSteps'
+import { SlideTransition } from '@/components/SlideTransition'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { AnimatePresence } from 'framer-motion'
-import { useEffect, useMemo } from 'react'
-import { Route, Switch, useLocation } from 'react-router'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import type { UserStakingId } from '@/state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssets,
   selectFirstAccountIdByChainId,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectUserStakingOpportunityByUserStakingId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ClaimConfirm } from '../Claim/ClaimConfirm'
-import { ClaimStatus } from './ClaimStatus'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 enum OverviewPath {
   Claim = '/',

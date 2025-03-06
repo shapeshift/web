@@ -6,39 +6,8 @@ import type { KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
-import { getConfig } from 'config'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
-import type {
-  GetPlatformsResponse,
-  GetTokensResponse,
-  Platform,
-  TokenInfo,
-} from 'lib/portals/types'
-import { isSome } from 'lib/utils'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { ReduxState } from 'state/reducer'
-import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { foxEthLpAssetIds } from 'state/slices/opportunitiesSlice/constants'
-import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
-import type {
-  DefiProviderMetadata,
-  GetOpportunityMetadataOutput,
-  GetOpportunityUserDataOutput,
-  GetOpportunityUserStakingDataOutput,
-  OpportunityMetadataBase,
-  ReadOnlyOpportunityType,
-  StakingId,
-} from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
-import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { PortalsAssetBase, SupportedPortalsNetwork, V2AppResponseType } from './validators'
@@ -48,8 +17,40 @@ import {
   portalsNetworkToChainId,
 } from './validators'
 
-const PORTALS_BASE_URL = getConfig().REACT_APP_PORTALS_BASE_URL
-const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
+import { getConfig } from '@/config'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
+import type {
+  GetPlatformsResponse,
+  GetTokensResponse,
+  Platform,
+  TokenInfo,
+} from '@/lib/portals/types'
+import { isSome } from '@/lib/utils'
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
+import type { ReduxState } from '@/state/reducer'
+import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from '@/state/slices/assetsSlice/selectors'
+import { marketData as marketDataSlice } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { foxEthLpAssetIds } from '@/state/slices/opportunitiesSlice/constants'
+import { opportunities } from '@/state/slices/opportunitiesSlice/opportunitiesSlice'
+import type {
+  DefiProviderMetadata,
+  GetOpportunityMetadataOutput,
+  GetOpportunityUserDataOutput,
+  GetOpportunityUserStakingDataOutput,
+  OpportunityMetadataBase,
+  ReadOnlyOpportunityType,
+  StakingId,
+} from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId } from '@/state/slices/opportunitiesSlice/utils'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
+
+const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
+const PORTALS_API_KEY = getConfig().VITE_PORTALS_API_KEY
 
 const options: AxiosRequestConfig = {
   method: 'GET' as const,
@@ -120,8 +121,8 @@ export const portalsApi = createApi({
     getPortalsAppsOutput: build.query<Record<string, V2AppResponseType>, void>({
       queryFn: async () => {
         try {
-          if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
-          if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
+          if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
+          if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
 
           const url = `${PORTALS_BASE_URL}/v2/platforms`
           const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
@@ -168,8 +169,8 @@ export const portalsApi = createApi({
     getPortalsAppTokensOutput: build.query<GetPortalsAppTokensOutput, void>({
       queryFn: async () => {
         try {
-          if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
-          if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
+          if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
+          if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
 
           const evmNetworks = [chainIdToPortalsNetwork(ethChainId)]
           const networks = evmNetworks.map(network => network?.toLowerCase()).filter(isSome)
@@ -315,8 +316,8 @@ export const portals = createApi({
               },
             }
 
-          if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
-          if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
+          if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
+          if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
 
           const assets = selectAssets(state)
           const evmNetworks = evmChainIds.map(chainIdToPortalsNetwork).filter(isSome)

@@ -12,15 +12,16 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
-import { SlideTransition } from 'components/SlideTransition'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile } from 'lib/globals'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
 import { SelectModal } from './SelectModal'
 import { NativeWalletRoutes } from './types'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 
 const arrowBackIcon = <ArrowBackIcon />
 

@@ -18,10 +18,11 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { FilterGroup } from 'components/FilterGroup'
-import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { isSome } from 'lib/utils'
+
+import { FilterGroup } from '@/components/FilterGroup'
+import { Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { isSome } from '@/lib/utils'
 
 export enum FilterFormFields {
   Network = 'network',

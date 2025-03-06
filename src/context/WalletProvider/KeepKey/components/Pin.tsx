@@ -3,11 +3,12 @@ import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CircleIcon } from 'components/Icons/Circle'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { FailureType, MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { CircleIcon } from '@/components/Icons/Circle'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { FailureType, MessageType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type KeepKeyPinProps = {
   translationType: string

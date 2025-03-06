@@ -3,7 +3,8 @@ import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip
 import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isUtxoChainAdapter = (chainAdapter: unknown): chainAdapter is UtxoChainAdapter => {
   return utxoChainIds.includes((chainAdapter as UtxoChainAdapter).getChainId() as UtxoChainId)

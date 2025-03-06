@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { fromBaseUnit } from './math'
 
-describe('lib/math', () => {
+describe('@/lib/math', () => {
   describe('fromBaseUnit', () => {
     it('should correctly convert and round down with given displayDecimals', () => {
       const result = fromBaseUnit(123456789, 4, 2)

@@ -6,9 +6,5 @@
   },
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],
-  "references": [
-    { "path": "../caip" },
-    { "path": "../types" },
-    { "path": "../unchained-client" },
-  ]
+  "references": [{ "path": "../caip" }, { "path": "../types" }, { "path": "../unchained-client" }]
 }

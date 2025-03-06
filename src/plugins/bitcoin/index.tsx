@@ -1,8 +1,9 @@
 import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { getConfig } from 'config'
-import type { Plugins } from 'plugins/types'
+
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
@@ -18,18 +19,18 @@ export default function register(): Plugins {
               () => {
                 const http = new unchained.bitcoin.V1Api(
                   new unchained.bitcoin.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+                    basePath: getConfig().VITE_UNCHAINED_BITCOIN_HTTP_URL,
                   }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.bitcoin.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL,
+                  getConfig().VITE_UNCHAINED_BITCOIN_WS_URL,
                 )
 
                 return new bitcoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Bitcoin',
-                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_MIDGARD_URL,
                 })
               },
             ],

@@ -6,19 +6,20 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { toBaseUnit } from 'lib/math'
-import { isValidAccountNumber } from 'lib/utils/accounts'
+
+import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { toBaseUnit } from '@/lib/math'
+import { isValidAccountNumber } from '@/lib/utils/accounts'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
   getFeesWithWalletEIP1559Support,
-} from 'lib/utils/evm'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/lib/utils/evm'
+import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
+import { selectAccountNumberByAccountId, selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseFoxFarmingOptions = {
   skip?: boolean

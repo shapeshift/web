@@ -20,23 +20,24 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
-import { RawText } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
+import { RawText } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
+import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
   selectWalletConnectedChainIdsSorted,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const chainDropdownButtonProps = { width: 'full' }
 

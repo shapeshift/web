@@ -12,9 +12,10 @@ import { useCallback } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Text } from 'components/Text'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { Text } from '@/components/Text'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 export const NativeIntro = () => {
   const translate = useTranslate()

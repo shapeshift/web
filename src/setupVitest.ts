@@ -12,7 +12,7 @@ moduleAlias.addAlias('ethers', (fromPath: string) => {
 })
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_MIXPANEL', 'false')
+  vi.stubEnv('VITE_FEATURE_MIXPANEL', 'false')
 })
 
 beforeAll(() => {

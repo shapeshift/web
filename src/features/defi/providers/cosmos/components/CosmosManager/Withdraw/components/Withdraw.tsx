@@ -2,34 +2,35 @@ import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
-import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+
+import { CosmosWithdrawActionType } from '../WithdrawCommon'
+import { WithdrawContext } from '../WithdrawContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from '@/features/defi/components/Withdraw/Withdraw'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { getFeeData } from '@/plugins/cosmos/utils'
+import { serializeUserStakingId, toValidatorId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { CosmosWithdrawActionType } from '../WithdrawCommon'
-import { WithdrawContext } from '../WithdrawContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type CosmosWithdrawValues = {
   [Field.WithdrawType]: WithdrawType

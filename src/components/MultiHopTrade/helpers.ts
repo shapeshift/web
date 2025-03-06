@@ -2,10 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote, isThorTradeQuote, isThorTradeRate } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { chainIdToChainDisplayName } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
+
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { chainIdToChainDisplayName } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
+import { selectAssets, selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -17,8 +18,8 @@ import {
   selectQuoteSellAmountUserCurrency,
   selectTradeQuoteAffiliateFeeAfterDiscountUsd,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { store } from 'state/store'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { store } from '@/state/store'
 
 export const getMixpanelEventData = () => {
   const state = store.getState() as ReduxState

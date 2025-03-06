@@ -3,17 +3,18 @@ import type { Asset, CowSwapError } from '@shapeshiftoss/types'
 import { OrderError } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { assertUnreachable } from 'lib/utils'
-import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
-import type { ReduxState } from 'state/reducer'
+
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { assertUnreachable } from '@/lib/utils'
+import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import type { ReduxState } from '@/state/reducer'
 import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
-import { store } from 'state/store'
+} from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const isCowSwapError = (
   maybeCowSwapError: CowSwapError | SerializedError | null | undefined,

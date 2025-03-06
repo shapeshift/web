@@ -20,11 +20,12 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import type { Option } from 'components/FilterGroup'
-import { FilterGroup } from 'components/FilterGroup'
-import { Text } from 'components/Text'
 
 import { DatePicker } from './components/DatePicker/DatePicker'
+
+import type { Option } from '@/components/FilterGroup'
+import { FilterGroup } from '@/components/FilterGroup'
+import { Text } from '@/components/Text'
 
 const customRangeOption: string = 'customRange'
 const hoverProp = { bg: 'transparent' }

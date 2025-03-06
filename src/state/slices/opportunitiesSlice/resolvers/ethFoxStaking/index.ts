@@ -12,10 +12,6 @@ import {
 import type { MarketData } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -33,6 +29,11 @@ import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { makeTotalLpApr, rewardRatePerToken } from './utils'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
+import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 
 export const ethFoxStakingMetadataResolver = async ({
   opportunityId,

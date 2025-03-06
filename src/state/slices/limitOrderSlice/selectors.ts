@@ -1,9 +1,6 @@
 import type { QuoteId } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectQuoteIdParamFromRequiredFilter } from 'state/selectors'
 
 import { PriceDirection } from '../limitOrderInputSlice/constants'
 import {
@@ -14,6 +11,10 @@ import {
 } from '../selectors'
 import { calcLimitPriceBuyAsset } from './helpers'
 import type { LimitOrderState } from './types'
+
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
 
 const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
 

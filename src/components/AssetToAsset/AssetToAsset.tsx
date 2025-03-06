@@ -4,7 +4,8 @@ import { Box, Circle, Divider, Flex, Spinner, useColorModeValue } from '@chakra-
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
+
+import { AssetIcon } from '@/components/AssetIcon'
 
 type AssetToAssetProps = {
   buyIcon: string

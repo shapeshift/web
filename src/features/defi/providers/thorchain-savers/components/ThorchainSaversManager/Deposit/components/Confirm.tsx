@@ -16,41 +16,45 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { Summary } from 'features/defi/components/Summary'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { Confirm as ReusableConfirm } from '@/features/defi/components/Confirm/Confirm'
+import { Summary } from '@/features/defi/components/Summary'
 import type {
   DefiParams,
   DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
-import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from '@/lib/utils/thorchain'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from '@/lib/utils/thorchain/constants'
+import { useGetThorchainSaversDepositQuoteQuery } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
+import type { ThorchainSaversDepositQuoteResponseSuccess } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getThorchainSaversPosition,
   makeDaysToBreakEven,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+} from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -58,11 +62,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ThorchainSaversDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 

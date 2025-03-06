@@ -8,9 +8,10 @@ import type {
 } from '@shapeshiftoss/types'
 import type { ChainId, Token, Yearn } from '@yfi/sdk'
 import uniqBy from 'lodash/uniqBy'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type YearnTokenMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>

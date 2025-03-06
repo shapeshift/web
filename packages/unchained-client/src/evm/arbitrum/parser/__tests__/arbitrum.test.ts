@@ -30,7 +30,7 @@ import zrxTradeUsdcToEth from './mockData/zrxTradeUsdcToEth'
 import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
 })
 
 const mockedApi = vi.mocked(new V1Api())

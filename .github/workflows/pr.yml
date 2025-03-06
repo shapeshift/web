@@ -55,8 +55,5 @@ jobs:
       - name: Type Check
         run: yarn type-check
 
-      - name: Add environment variables
-        run: yarn env app
-
       - name: Test
         run: yarn test:ci

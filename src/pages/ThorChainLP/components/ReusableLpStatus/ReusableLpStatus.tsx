@@ -20,24 +20,25 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertUnreachable } from 'lib/utils'
+
+import { TransactionRow } from './TransactionRow'
+
+import { Amount } from '@/components/Amount/Amount'
+import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { assertUnreachable } from '@/lib/utils'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/types'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
-import { fromQuote } from 'pages/ThorChainLP/utils'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { TransactionRow } from './TransactionRow'
+} from '@/lib/utils/thorchain/lp/types'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
+import { isLpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/utils'
+import { fromQuote } from '@/pages/ThorChainLP/utils'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ReusableLpStatusProps = {
   handleBack: () => void

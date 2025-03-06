@@ -1,5 +1,4 @@
 import { Route, Switch } from 'react-router-dom'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
 
 import { EnterPassword } from '../../NativeWallet/components/EnterPassword'
 import { NativeCreate } from '../../NativeWallet/components/NativeCreate'
@@ -11,6 +10,8 @@ import { NativeSuccess } from '../../NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from '../../NativeWallet/components/NativeTestPhrase'
 import type { NativeSetupProps } from '../../NativeWallet/types'
 import { NativeStart } from '../wallets/native/NativeStart'
+
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 export const NativeRoutes = () => (
   <Switch>

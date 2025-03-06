@@ -1,7 +1,8 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
-import { isEthAddress } from 'lib/address/utils'
+
+import { isEthAddress } from '@/lib/address/utils'
 
 export const filterAssetsBySearchTerm = (search: string, assets: Asset[]) => {
   if (!assets) return []

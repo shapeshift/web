@@ -1,27 +1,28 @@
-import { getConfig } from 'config'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { DefiIcon } from 'components/Icons/DeFi'
-import { ExploreIcon } from 'components/Icons/Explore'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { HomeIcon } from 'components/Icons/Home'
-import { PoolsIcon } from 'components/Icons/Pools'
-import { RFOXIcon } from 'components/Icons/RFOX'
-import { SwapIcon } from 'components/Icons/SwapIcon'
-import { WalletIcon } from 'components/Icons/WalletIcon'
-import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { FoxPage } from 'pages/Fox/FoxPage'
-import { RFOX } from 'pages/RFOX/RFOX'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
+import { DefiIcon } from '@/components/Icons/DeFi'
+import { ExploreIcon } from '@/components/Icons/Explore'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { HomeIcon } from '@/components/Icons/Home'
+import { PoolsIcon } from '@/components/Icons/Pools'
+import { RFOXIcon } from '@/components/Icons/RFOX'
+import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { getConfig } from '@/config'
+import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { FoxPage } from '@/pages/Fox/FoxPage'
+import { RFOX } from '@/pages/RFOX/RFOX'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
+
 const Home = makeSuspenseful(
   lazy(() =>
-    import('pages/Home/Home').then(({ Home }) => ({
+    import('@/pages/Home/Home').then(({ Home }) => ({
       default: Home,
     })),
   ),
@@ -29,7 +30,7 @@ const Home = makeSuspenseful(
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
-    import('pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
+    import('@/pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
       default: Dashboard,
     })),
   ),
@@ -37,7 +38,7 @@ const Dashboard = makeSuspenseful(
 
 const Asset = makeSuspenseful(
   lazy(() =>
-    import('pages/Assets/Asset').then(({ Asset }) => ({
+    import('@/pages/Assets/Asset').then(({ Asset }) => ({
       default: Asset,
     })),
   ),
@@ -45,7 +46,7 @@ const Asset = makeSuspenseful(
 
 const Assets = makeSuspenseful(
   lazy(() =>
-    import('pages/Assets/Assets').then(({ Assets }) => ({
+    import('@/pages/Assets/Assets').then(({ Assets }) => ({
       default: Assets,
     })),
   ),
@@ -53,7 +54,7 @@ const Assets = makeSuspenseful(
 
 const Buy = makeSuspenseful(
   lazy(() =>
-    import('pages/Buy/Buy').then(({ Buy }) => ({
+    import('@/pages/Buy/Buy').then(({ Buy }) => ({
       default: Buy,
     })),
   ),
@@ -61,7 +62,7 @@ const Buy = makeSuspenseful(
 
 const Flags = makeSuspenseful(
   lazy(() =>
-    import('pages/Flags/Flags').then(({ Flags }) => ({
+    import('@/pages/Flags/Flags').then(({ Flags }) => ({
       default: Flags,
     })),
   ),
@@ -69,7 +70,7 @@ const Flags = makeSuspenseful(
 
 const Explore = makeSuspenseful(
   lazy(() =>
-    import('pages/Explore/Explore').then(({ Explore }) => ({
+    import('@/pages/Explore/Explore').then(({ Explore }) => ({
       default: Explore,
     })),
   ),
@@ -77,7 +78,7 @@ const Explore = makeSuspenseful(
 
 const StakingVaults = makeSuspenseful(
   lazy(() =>
-    import('pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
+    import('@/pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
       default: StakingVaults,
     })),
   ),
@@ -85,7 +86,7 @@ const StakingVaults = makeSuspenseful(
 
 const LendingPage = makeSuspenseful(
   lazy(() =>
-    import('pages/Lending/LendingPage').then(({ LendingPage }) => ({
+    import('@/pages/Lending/LendingPage').then(({ LendingPage }) => ({
       default: LendingPage,
     })),
   ),
@@ -93,7 +94,7 @@ const LendingPage = makeSuspenseful(
 
 const PoolsPage = makeSuspenseful(
   lazy(() =>
-    import('pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
+    import('@/pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
       default: PoolsPage,
     })),
   ),
@@ -101,7 +102,7 @@ const PoolsPage = makeSuspenseful(
 
 const MarketsPage = makeSuspenseful(
   lazy(() =>
-    import('pages/Markets/MarketsPage').then(({ MarketsPage }) => ({
+    import('@/pages/Markets/MarketsPage').then(({ MarketsPage }) => ({
       default: MarketsPage,
     })),
   ),
@@ -109,7 +110,7 @@ const MarketsPage = makeSuspenseful(
 
 const Trade = makeSuspenseful(
   lazy(() =>
-    import('pages/Trade/Trade').then(({ Trade }) => ({
+    import('@/pages/Trade/Trade').then(({ Trade }) => ({
       default: Trade,
     })),
   ),
@@ -163,7 +164,7 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     priority: 3,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_MARKETS,
+    disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
     path: '/buy-crypto',
@@ -216,7 +217,7 @@ export const routes: Route[] = [
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
-    disable: !getConfig().REACT_APP_FEATURE_RFOX,
+    disable: !getConfig().VITE_FEATURE_RFOX,
   },
   {
     path: '/fox',
@@ -226,7 +227,7 @@ export const routes: Route[] = [
     category: RouteCategory.Fox,
     priority: 2,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_FOX_PAGE,
+    disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {
     path: '/pools',
@@ -236,7 +237,7 @@ export const routes: Route[] = [
     category: RouteCategory.Thorchain,
     priority: 1,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
+    disable: !getConfig().VITE_FEATURE_THORCHAIN_LP,
   },
   {
     path: '/lending',
@@ -246,7 +247,7 @@ export const routes: Route[] = [
     category: RouteCategory.Thorchain,
     priority: 2,
     mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    disable: !getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     isViewOnly: true,
   },
   {
@@ -265,7 +266,7 @@ export const routes: Route[] = [
     icon: <FaFlag />,
     hide:
       window.location.hostname !== 'localhost' &&
-      window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
+      window.location.hostname !== getConfig().VITE_LOCAL_IP,
     main: Flags,
   },
 ]

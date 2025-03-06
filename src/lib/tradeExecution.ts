@@ -20,17 +20,18 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getConfig } from 'config'
 import EventEmitter from 'events'
-import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { poll } from 'lib/poll/poll'
-import { selectFirstHopSellAccountId } from 'state/slices/tradeInputSlice/selectors'
-import { store } from 'state/store'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
+
+import { getConfig } from '@/config'
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { poll } from '@/lib/poll/poll'
+import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
+import { store } from '@/state/store'
 
 export class TradeExecution {
   private emitter = new EventEmitter()

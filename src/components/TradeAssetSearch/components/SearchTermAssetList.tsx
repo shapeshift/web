@@ -5,19 +5,20 @@ import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
-import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
-import { isSome } from 'lib/utils'
-import {
-  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
-  selectPortfolioUserCurrencyBalances,
-  selectWalletConnectedChainIds,
-} from 'state/slices/common-selectors'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
+
+import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
+import { isSome } from '@/lib/utils'
+import {
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  selectPortfolioUserCurrencyBalances,
+  selectWalletConnectedChainIds,
+} from '@/state/slices/common-selectors'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type SearchTermAssetListProps = {
   isLoading: boolean

@@ -3,29 +3,30 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { ManageAccountsDrawer } from 'components/ManageAccountsDrawer/ManageAccountsDrawer'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
+
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { ManageAccountsDrawer } from '@/components/ManageAccountsDrawer/ManageAccountsDrawer'
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import { RawText } from 'components/Text'
-import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import { selectWalletSupportedChainIds } from 'state/slices/common-selectors'
+} from '@/components/Modal/components/DialogHeader'
+import { RawText } from '@/components/Text'
+import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
+import { selectWalletSupportedChainIds } from '@/state/slices/common-selectors'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
   selectWalletConnectedChainIdsSorted,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 

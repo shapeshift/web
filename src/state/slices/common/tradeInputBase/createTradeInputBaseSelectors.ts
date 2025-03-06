@@ -1,7 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import {
   selectEnabledWalletAccountIds,
@@ -18,6 +16,9 @@ import {
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../../portfolioSlice/utils'
 import type { TradeInputBaseState } from './createTradeInputBaseSlice'
+
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
 /**
  * Creates a set of reusable Redux selectors for trade input functionality. This is a higher-order

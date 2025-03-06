@@ -13,24 +13,25 @@ import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+
+import { calculateSlippageMargin } from '../utils'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
   getFeesWithWalletEIP1559Support,
-} from 'lib/utils/evm'
-import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
+} from '@/lib/utils/evm'
+import { uniswapV2Router02AssetId } from '@/state/slices/opportunitiesSlice/constants'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { calculateSlippageMargin } from '../utils'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseUniV2LiquidityPoolOptions = {
   skip?: boolean

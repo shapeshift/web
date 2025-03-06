@@ -1,13 +1,14 @@
 import type { CenterProps } from '@chakra-ui/react'
 import { Center, CircularProgress } from '@chakra-ui/react'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { ArrowDownBoldIcon } from 'components/Icons/ArrowDownBold'
-import { BadgeCheckIcon } from 'components/Icons/BadgeCheck'
-import { ErrorIcon } from 'components/Icons/ErrorIcon'
-import { GenericTxIcon } from 'components/Icons/GenericTx'
-import { SendIcon } from 'components/Icons/SendIcon'
-import { SwapBoldIcon } from 'components/Icons/SwapBold'
-import { Method } from 'hooks/useTxDetails/useTxDetails'
+
+import { ArrowDownBoldIcon } from '@/components/Icons/ArrowDownBold'
+import { BadgeCheckIcon } from '@/components/Icons/BadgeCheck'
+import { ErrorIcon } from '@/components/Icons/ErrorIcon'
+import { GenericTxIcon } from '@/components/Icons/GenericTx'
+import { SendIcon } from '@/components/Icons/SendIcon'
+import { SwapBoldIcon } from '@/components/Icons/SwapBold'
+import { Method } from '@/hooks/useTxDetails/useTxDetails'
 
 const IconWrapper: React.FC<CenterProps> = props => (
   <Center borderRadius='full' boxSize='100%' {...props} />

@@ -1,12 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import { getConfig } from 'config'
-import { isSome } from 'lib/utils'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
+
+import { getConfig } from '@/config'
+import { isSome } from '@/lib/utils'
 
 type MtPelerinResponse = {
   [identifier: string]: {
@@ -42,7 +43,7 @@ export const getMtPelerinFiatCurrencies = (): CommonFiatCurrencies[] => {
 export async function getMtPelerinAssets(): Promise<AssetId[]> {
   const data = await (async () => {
     try {
-      const url = getConfig().REACT_APP_MTPELERIN_ASSETS_API
+      const url = getConfig().VITE_MTPELERIN_ASSETS_API
       const { data } = await axios.get<MtPelerinResponse>(url)
       return data
     } catch (e) {
@@ -76,8 +77,8 @@ export const createMtPelerinUrl = ({
    */
   const baseUrl = new URL(
     action === FiatRampAction.Sell
-      ? getConfig().REACT_APP_MTPELERIN_SELL_URL
-      : getConfig().REACT_APP_MTPELERIN_BUY_URL,
+      ? getConfig().VITE_MTPELERIN_SELL_URL
+      : getConfig().VITE_MTPELERIN_BUY_URL,
   )
   const params = new URLSearchParams()
 
@@ -104,8 +105,8 @@ export const createMtPelerinUrl = ({
   // List of authorized networks
   params.set('nets', network)
   // Integration authentication
-  params.set('rfr', getConfig().REACT_APP_MTPELERIN_REFERRAL_CODE)
-  params.set('_ctkn', getConfig().REACT_APP_MTPELERIN_INTEGRATION_KEY)
+  params.set('rfr', getConfig().VITE_MTPELERIN_REFERRAL_CODE)
+  params.set('_ctkn', getConfig().VITE_MTPELERIN_INTEGRATION_KEY)
   //@TODO: Figure out how to sign a message using the wallet for us to be able to do this.
   //https://developers.mtpelerin.com/integration-guides/options
   // params.set('addr', address)

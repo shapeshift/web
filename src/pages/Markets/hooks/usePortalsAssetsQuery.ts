@@ -1,15 +1,16 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { OrderDirection } from 'components/OrderDropdown/types'
-import { SortOptionsKeys } from 'components/SortDropdown/types'
-import { PORTALS_NETWORK_TO_CHAIN_ID } from 'lib/portals/constants'
-import type { TokenInfo } from 'lib/portals/types'
-import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from 'lib/portals/utils'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { PORTALS_NETWORK_TO_CHAIN_ID } from '@/lib/portals/constants'
+import type { TokenInfo } from '@/lib/portals/types'
+import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from '@/lib/portals/utils'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectAssets, selectFeeAssetById } from '@/state/slices/selectors'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export type PortalsAssets = {
   byId: Record<AssetId, TokenInfo>

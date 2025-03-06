@@ -8,10 +8,11 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
 
 import { updateWallet } from '../mobileMessageHandlers'
 import type { MobileSetupProps } from '../types'
+
+import { Text } from '@/components/Text'
 
 const isValidLabel = (label: unknown): label is string => {
   return typeof label === 'string' && label.length > 0 && label.length < 65

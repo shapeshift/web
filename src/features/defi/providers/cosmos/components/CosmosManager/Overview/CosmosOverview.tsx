@@ -2,33 +2,37 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import { Overview } from 'features/defi/components/Overview/Overview'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+
+import { CosmosEmpty } from './CosmosEmpty'
+import { WithdrawCard } from './WithdrawCard'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModalContent'
+import { Overview } from '@/features/defi/components/Overview/Overview'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   getDefaultValidatorAddressFromChainId,
   makeTotalCosmosSdkBondingsCryptoBaseUnit,
-} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+} from '@/state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import {
   makeDefiProviderDisplayName,
   makeOpportunityIcons,
   serializeUserStakingId,
   toValidatorId,
-} from 'state/slices/opportunitiesSlice/utils'
+} from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -38,11 +42,8 @@ import {
   selectSelectedLocale,
   selectStakingOpportunityByFilter,
   selectUserStakingOpportunityByUserStakingId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { CosmosEmpty } from './CosmosEmpty'
-import { WithdrawCard } from './WithdrawCard'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type CosmosOverviewProps = {
   accountId: AccountId | undefined

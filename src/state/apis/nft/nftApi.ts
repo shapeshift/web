@@ -7,15 +7,6 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isRejected } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { BLACKLISTED_COLLECTION_IDS, hasSpammyMedias, isSpammyNftText } from './constants'
@@ -27,6 +18,16 @@ import {
   updateNftCollection,
   updateNftItem,
 } from './utils'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isRejected } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
+import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from '@/state/slices/assetsSlice/selectors'
+import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio, WalletId } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import { initialState as initialPortfolioState } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]

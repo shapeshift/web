@@ -12,12 +12,16 @@ import last from 'lodash/last'
 import values from 'lodash/values'
 import without from 'lodash/without'
 import { useMemo } from 'react'
-import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtDate } from 'lib/charts'
-import type { SupportedFiatCurrencies } from 'lib/market-service'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
-import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+
+import { excludeTransaction } from './cosmosUtils'
+import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
+
+import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { priceAtDate } from '@/lib/charts'
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
+import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
+import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
@@ -27,12 +31,9 @@ import {
   selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
-} from 'state/slices/selectors'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
-
-import { excludeTransaction } from './cosmosUtils'
-import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
+} from '@/state/slices/selectors'
+import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 type BalanceByAssetId = Record<AssetId, BigNumber> // map of asset to base units
 

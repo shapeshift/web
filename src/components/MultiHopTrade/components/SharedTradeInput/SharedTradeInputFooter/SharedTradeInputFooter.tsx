@@ -3,14 +3,15 @@ import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
-import { Text } from 'components/Text'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { selectFeeAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ReceiveSummary } from './components/ReceiveSummary'
+
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
+import { Text } from '@/components/Text'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { selectFeeAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputFooterProps = {
   affiliateBps: string | undefined

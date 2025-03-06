@@ -1,40 +1,41 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+
+import { FoxFarmingDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from '@/features/defi/components/Deposit/Deposit'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
+import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { FoxFarmingDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined

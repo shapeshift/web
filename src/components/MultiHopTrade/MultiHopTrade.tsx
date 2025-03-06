@@ -4,15 +4,6 @@ import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
-import { fromBaseUnit } from 'lib/math'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import {
-  selectInputBuyAsset,
-  selectInputSellAmountCryptoBaseUnit,
-  selectInputSellAsset,
-} from 'state/slices/tradeInputSlice/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LimitOrder } from './components/LimitOrder/LimitOrder'
 import { QuoteList } from './components/QuoteList/QuoteList'
@@ -23,6 +14,16 @@ import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import { TradeInputTab, TradeRoutePaths } from './types'
+
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import {
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoBaseUnit,
+  selectInputSellAsset,
+} from '@/state/slices/tradeInputSlice/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const TradeRouteEntries = [
   TradeRoutePaths.Input,

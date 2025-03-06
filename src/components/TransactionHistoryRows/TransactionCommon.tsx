@@ -1,6 +1,5 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { RawText } from 'components/Text'
 
 import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
@@ -13,6 +12,8 @@ import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType } from './utils'
+
+import { RawText } from '@/components/Text'
 
 export const TransactionCommon = ({
   txDetails,

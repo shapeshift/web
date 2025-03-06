@@ -3,19 +3,6 @@ import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatedCheck } from 'components/AnimatedCheck'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText, Text } from 'components/Text'
-import { bn } from 'lib/bignumber/bignumber'
-import { selectIsActiveQuoteMultiHop } from 'state/slices/tradeInputSlice/selectors'
-import {
-  selectActiveQuote,
-  selectActiveQuoteErrors,
-  selectConfirmedTradeExecutionState,
-  selectHopExecutionMetadata,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import {
   getHopExecutionStateSummaryStepTranslation,
@@ -26,6 +13,23 @@ import { useHopProgress } from '../hooks/useHopProgress'
 import { useStepperSteps } from '../hooks/useStepperSteps'
 import { StepperStep } from '../StepperStep'
 import { ExpandedStepperSteps } from './ExpandedStepperSteps'
+
+import { AnimatedCheck } from '@/components/AnimatedCheck'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RawText, Text } from '@/components/Text'
+import { bn } from '@/lib/bignumber/bignumber'
+import { selectIsActiveQuoteMultiHop } from '@/state/slices/tradeInputSlice/selectors'
+import {
+  selectActiveQuote,
+  selectActiveQuoteErrors,
+  selectConfirmedTradeExecutionState,
+  selectHopExecutionMetadata,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import {
+  TradeExecutionState,
+  TransactionExecutionState,
+} from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const collapseStyle = { width: '100%' }
 

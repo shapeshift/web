@@ -9,14 +9,6 @@ import {
   fromAssetId,
 } from '@shapeshiftoss/caip'
 import { describe, expect, it, test, vi } from 'vitest'
-import { fauxmesAccountId } from 'state/slices/opportunitiesSlice/mocks'
-import type {
-  LpId,
-  OpportunityId,
-  StakingId,
-  ValidatorId,
-} from 'state/slices/opportunitiesSlice/types'
-import { opportunityIdToChainId } from 'state/slices/opportunitiesSlice/utils'
 
 import {
   assertIsDefined,
@@ -35,7 +27,16 @@ import {
   upsertArray,
 } from '.'
 
-describe('lib/utils', () => {
+import { fauxmesAccountId } from '@/state/slices/opportunitiesSlice/mocks'
+import type {
+  LpId,
+  OpportunityId,
+  StakingId,
+  ValidatorId,
+} from '@/state/slices/opportunitiesSlice/types'
+import { opportunityIdToChainId } from '@/state/slices/opportunitiesSlice/utils'
+
+describe('@/lib/utils', () => {
   describe('opportunityIdToChainId', () => {
     test('returns the correct chain ID for an LpId', () => {
       const lpId: LpId = foxAssetId as LpId

@@ -3,11 +3,12 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAssetById, selectTxIdsByFilter } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { TransactionHistoryList } from '@/components/TransactionHistory/TransactionHistoryList'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { selectAssetById, selectTxIdsByFilter } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetTransactionHistoryProps = {
   assetId?: AssetId

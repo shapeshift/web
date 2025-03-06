@@ -1,9 +1,10 @@
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
-import { bn } from 'lib/bignumber/bignumber'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
 import { FoxyWithdrawActionType } from './WithdrawCommon'
+
+import { bn } from '@/lib/bignumber/bignumber'
+import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export const initialState: FoxyWithdrawState = {
   txid: null,

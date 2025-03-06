@@ -89,7 +89,7 @@ async function _getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<OrderQuoteResponse>(
-    `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
+    `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
       buyToken,

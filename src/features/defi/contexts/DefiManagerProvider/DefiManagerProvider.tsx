@@ -1,6 +1,4 @@
 import React, { useMemo } from 'react'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import type {
@@ -10,6 +8,9 @@ import type {
   DefiQueryParams,
 } from './DefiCommon'
 import { getDefiProviderModulesResolvers } from './utils'
+
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 /*

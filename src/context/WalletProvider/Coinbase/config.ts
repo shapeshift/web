@@ -1,6 +1,7 @@
 import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
-import { CoinbaseIcon } from 'components/Icons/CoinbaseIcon'
-import type { SupportedWalletInfo } from 'context/WalletProvider/config'
+
+import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
+import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type CoinbaseConfigType = Omit<SupportedWalletInfo<typeof CoinbaseAdapter>, 'routes'>
 

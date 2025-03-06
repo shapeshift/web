@@ -21,9 +21,8 @@ export const getThorTradeRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
-  const thorchainSwapLongtailEnabled = deps.config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
-  const thorchainSwapL1ToLongtailEnabled =
-    deps.config.REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
+  const thorchainSwapLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
+  const thorchainSwapL1ToLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
   if (
@@ -38,7 +37,7 @@ export const getThorTradeRate = async (
     )
   }
 
-  const daemonUrl = deps.config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
     `${daemonUrl}/lcd/thorchain/pools`,
   )

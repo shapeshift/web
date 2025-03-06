@@ -13,7 +13,8 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { accountToPortfolio } from 'state/slices/portfolioSlice/utils'
+
+import { accountToPortfolio } from '@/state/slices/portfolioSlice/utils'
 
 type MockChainIds =
   | KnownChainIds.EthereumMainnet

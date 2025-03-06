@@ -9,14 +9,15 @@ import type { FC, FormEvent } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { ChainList } from 'components/TradeAssetSearch/Chains/ChainList'
-import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
-import { sortChainIdsByDisplayName } from 'lib/utils'
-import { selectWalletConnectedChainIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useHistory } from 'react-router-dom'
 
 import { AssetList } from './components/AssetList'
+
+import { ChainList } from '@/components/TradeAssetSearch/Chains/ChainList'
+import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { sortChainIdsByDisplayName } from '@/lib/utils'
+import { selectWalletConnectedChainIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const minHeight = { base: '100%', md: '400px' }
 

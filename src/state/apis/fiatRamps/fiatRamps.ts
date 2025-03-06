@@ -1,9 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { FiatRamp } from 'components/Modals/FiatRamps/config'
-import { supportedFiatRamps } from 'components/Modals/FiatRamps/config'
-import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+
+import type { FiatRamp } from '@/components/Modals/FiatRamps/config'
+import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
+import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 
 export type FiatRampsByAction = {
   [FiatRampAction.Buy]: FiatRamp[]

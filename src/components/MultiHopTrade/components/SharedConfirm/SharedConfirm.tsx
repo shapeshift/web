@@ -1,9 +1,10 @@
 import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
-import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
 
 import { WithBackButton } from '../WithBackButton'
+
+import { TradeSlideTransition } from '@/components/MultiHopTrade/TradeSlideTransition'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 
 const cardBorderRadius = { base: 'xl' }
 

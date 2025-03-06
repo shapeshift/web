@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { createMigrate, persistReducer } from 'redux-persist'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -41,6 +40,8 @@ import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 export const slices = {
   assets,

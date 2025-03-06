@@ -4,22 +4,23 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useRouteMatch } from 'react-router'
-import { SEO } from 'components/Layout/Seo'
-import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { Route, Switch, useRouteMatch } from 'react-router-dom'
+
+import { Account } from './Account'
+import { ChainRow } from './components/ChainRow'
+
+import { SEO } from '@/components/Layout/Seo'
+import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
   selectIsPortfolioLoading,
   selectWalletConnectedChainIdsSorted,
   selectWalletId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { Account } from './Account'
-import { ChainRow } from './components/ChainRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const addIcon = <AddIcon />
 const editIcon = <EditIcon />

@@ -4,8 +4,10 @@
     "composite": true,
     "declaration": true,
     "noEmit": false,
-    "module": "commonjs",
-    "noImplicitReturns": false
+    "module": "esnext",
+    "target": "ESNext",
+    "noImplicitReturns": false,
+    "types": ["vite/client"]
   },
   "include": [],
   "exclude": [],

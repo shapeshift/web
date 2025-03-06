@@ -1,4 +1,3 @@
-import { csps } from './csps'
 import type { Csp, CspEntry } from './types'
 
 /**
@@ -52,20 +51,4 @@ export function serializeCsp(x: Csp): string {
     .map(([k, v]) => [k, v.filter(x => !!x)])
     .map(([k, v]) => `${[k, ...v].join(' ')}`)
     .join('; ')
-}
-
-/**
- * Collects all the CSPs exported by the csps/index.ts file.
- * @param dir Path to the directory to search (no longer used but kept for backward compatibility).
- */
-export function collectCsps(_dir: string): Csp[] {
-  try {
-    if (!Array.isArray(csps)) {
-      throw new Error('Expected default export from csps/index.ts to be an array')
-    }
-    return csps
-  } catch (error) {
-    console.error('Error loading CSPs from index file:', error)
-    throw error
-  }
 }

@@ -75,7 +75,7 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
     // Avoid division by zero
     state.sellAmountCryptoPrecision = bnOrZero(buyAssetUsdRate).isZero()
       ? '0'
-      : sellAmountUsd.div(buyAssetUsdRate!).toFixed()
+      : sellAmountUsd.div(bnOrZero(buyAssetUsdRate)).toFixed()
 
     const buyAsset = state.sellAsset
     state.sellAsset = state.buyAsset

@@ -20,6 +20,8 @@ export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   onAssetClick: Required<TradeAssetSearchProps>['onAssetClick']
   assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
@@ -27,6 +29,8 @@ type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
   close: () => void
   assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
@@ -37,6 +41,8 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   title = 'common.selectAsset',
   assetFilterPredicate,
   chainIdFilterPredicate,
+  selectedChainId,
+  onSelectedChainIdChange,
 }) => {
   const translate = useTranslate()
 
@@ -60,6 +66,8 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        selectedChainId={selectedChainId}
+        onSelectedChainIdChange={onSelectedChainIdChange}
       />
     </Dialog>
   )

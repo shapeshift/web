@@ -52,6 +52,8 @@ import {
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
+  selectSelectedSellAssetChainId,
+  selectSelectedBuyAssetChainId,
 } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -125,6 +127,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
+  const selectedSellAssetChainId = useAppSelector(selectSelectedSellAssetChainId)
+  const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
   const activeQuote = useAppSelector(selectActiveQuote)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
@@ -371,14 +375,33 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isSolanaSwapperEnabled],
   )
 
+  const setSelectedBuyAssetChainId = useCallback(
+    (chainId: ChainId | 'All') => dispatch(tradeInput.actions.setSelectedBuyAssetChainId(chainId)),
+    [dispatch],
+  )
+
   const handleBuyAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onAssetClick: setBuyAsset,
       title: 'trade.tradeTo',
       assetFilterPredicate,
       chainIdFilterPredicate,
+      selectedChainId: selectedBuyAssetChainId,
+      onSelectedChainIdChange: setSelectedBuyAssetChainId,
     })
-  }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, setBuyAsset])
+  }, [
+    assetFilterPredicate,
+    buyAssetSearch,
+    chainIdFilterPredicate,
+    setBuyAsset,
+    selectedBuyAssetChainId,
+    setSelectedBuyAssetChainId,
+  ])
+
+  const setSelectedSellAssetChainId = useCallback(
+    (chainId: ChainId | 'All') => dispatch(tradeInput.actions.setSelectedSellAssetChainId(chainId)),
+    [dispatch],
+  )
 
   const buyTradeAssetSelect = useMemo(
     () => (
@@ -417,6 +440,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        selectedSellAssetChainId={selectedSellAssetChainId}
+        onSellAssetChainChange={setSelectedSellAssetChainId}
       >
         <TradeAssetInput
           // Disable account selection when user set a manual receive address
@@ -467,6 +492,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     setBuyAssetAccountId,
     setSellAsset,
     setSellAssetAccountId,
+    selectedSellAssetChainId,
+    setSelectedSellAssetChainId,
   ])
 
   const footerContent = useMemo(() => {

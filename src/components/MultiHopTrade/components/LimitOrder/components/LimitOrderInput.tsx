@@ -55,6 +55,8 @@ import {
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
   selectLimitPriceMode,
+  selectSelectedBuyAssetChainId,
+  selectSelectedSellAssetChainId,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
@@ -116,6 +118,8 @@ export const LimitOrderInput = ({
   const limitPriceMode = useAppSelector(selectLimitPriceMode)
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
+  const selectedSellAssetChainId = useAppSelector(selectSelectedSellAssetChainId)
+  const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
 
   const {
     switchAssets,
@@ -126,6 +130,8 @@ export const LimitOrderInput = ({
     setLimitPrice,
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
+    setSelectedSellAssetChainId,
+    setSelectedBuyAssetChainId,
   } = useActions(limitOrderInput.actions)
   const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
@@ -409,6 +415,8 @@ export const LimitOrderInput = ({
         setSellAccountId={setSellAccountId}
         assetFilterPredicate={sellAssetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        selectedSellAssetChainId={selectedSellAssetChainId}
+        onSellAssetChainIdChange={setSelectedSellAssetChainId}
       >
         <Stack>
           <LimitOrderBuyAsset
@@ -420,6 +428,8 @@ export const LimitOrderInput = ({
             onSetBuyAsset={setBuyAsset}
             assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
+            selectedChainId={selectedBuyAssetChainId}
+            onSelectedChainIdChange={setSelectedBuyAssetChainId}
           />
           <Divider />
           <LimitOrderConfig
@@ -451,6 +461,10 @@ export const LimitOrderInput = ({
     setBuyAsset,
     buyAssetFilterPredicate,
     marketPriceBuyAsset,
+    selectedBuyAssetChainId,
+    setSelectedBuyAssetChainId,
+    selectedSellAssetChainId,
+    setSelectedSellAssetChainId,
   ])
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {

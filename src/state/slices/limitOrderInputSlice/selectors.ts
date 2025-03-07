@@ -23,6 +23,8 @@ export const {
   selectIsInputtingFiatSellAmount,
   selectHasUserEnteredAmount,
   selectInputSellAmountCryptoPrecision,
+  selectSelectedSellAssetChainId,
+  selectSelectedBuyAssetChainId,
   ...privateSelectors
 } = createTradeInputBaseSelectors<LimitOrderInputState>('limitOrderInput')
 

@@ -25,12 +25,12 @@ export const useInputOutputDifferenceDecimalPercentage = (
     if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return
 
     // A quote always has a first hop
-    const firstHop = getHopByIndex(tradeQuote, 0)!
+    const firstHop = getHopByIndex(tradeQuote, 0)
     const sellAmountIncludingProtocolFeesCryptoBaseUnit =
-      firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
+      firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
     const sellAmountIncludingProtocolFeesCryptoPrecision = fromBaseUnit(
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit ?? '0',
       sellAsset.precision,
     )
 
@@ -42,11 +42,11 @@ export const useInputOutputDifferenceDecimalPercentage = (
 
     const lastHopIndex = (numSteps - 1) as SupportedTradeQuoteStepIndex
     // A quote always has a last hop since it always has a first hop
-    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)!
-    const buyAmountAfterProtocolFeesCryptoBaseUnit = lastHop.buyAmountAfterFeesCryptoBaseUnit
+    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)
+    const buyAmountAfterProtocolFeesCryptoBaseUnit = lastHop?.buyAmountAfterFeesCryptoBaseUnit
 
     const buyAmountAfterProtocolFeesCryptoPrecision = fromBaseUnit(
-      buyAmountAfterProtocolFeesCryptoBaseUnit,
+      buyAmountAfterProtocolFeesCryptoBaseUnit ?? '0',
       buyAsset.precision,
     )
 

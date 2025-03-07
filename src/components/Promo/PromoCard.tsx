@@ -33,7 +33,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
   )
   const {
     dispatch,
-    state: { wallet, isDemoWallet },
+    state: { wallet },
   } = useWallet()
   const mixpanel = getMixPanel()
   const history = useHistory()
@@ -58,7 +58,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
     }) => {
       mixpanel?.track('Promo Click', { id })
       if (walletRequired) {
-        if (wallet && !isDemoWallet && supportsETH(wallet)) {
+        if (wallet && supportsETH(wallet)) {
           isExternal ? window.open(href) : history.push(href)
         } else {
           handleWalletModalOpen()
@@ -67,7 +67,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
         isExternal ? window.open(href) : history.push(href)
       }
     },
-    [handleWalletModalOpen, history, isDemoWallet, mixpanel, wallet],
+    [handleWalletModalOpen, history, mixpanel, wallet],
   )
 
   const renderPromos = useMemo(() => {

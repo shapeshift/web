@@ -41,6 +41,7 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { firstFourLastFour } from '@/lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -138,7 +139,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       await navigator.clipboard.writeText(receiveAddress)
       const title = translate('modals.receive.copied', translatePayload)
       const status = 'success'
-      const description = receiveAddress
+      const description = firstFourLastFour(receiveAddress)
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('modals.receive.copyFailed', translatePayload)

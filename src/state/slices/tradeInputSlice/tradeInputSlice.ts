@@ -26,6 +26,8 @@ const initialState: TradeInputState = {
   isManualReceiveAddressValid: undefined,
   isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
+  selectedSellAssetChainId: 'All',
+  selectedBuyAssetChainId: 'All',
 }
 
 export const tradeInput = createTradeInputBaseSlice({

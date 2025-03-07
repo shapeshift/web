@@ -203,11 +203,11 @@ export const TradeSuccess = ({
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate(buttonTranslation)}
           </Button>
-          {enableFoxDiscountSummary && hasFeeSaving && (
-            <YouSaved feeSavingUserCurrency={enableFoxDiscountSummary && feeSavingUserCurrency!} />
+          {enableFoxDiscountSummary && hasFeeSaving && feeSavingUserCurrency && (
+            <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
           )}
-          {couldHaveReducedFee && (
-            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
+          {couldHaveReducedFee && affiliateFeeUserCurrency && (
+            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
           )}
         </Stack>
       </CardBody>

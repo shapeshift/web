@@ -57,9 +57,9 @@ const promoData: PromoItem[] = [
 
 export const DashboardSidebar = memo(() => {
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
-  if (!isConnected && !isDemoWallet) return null
+  if (!isConnected) return null
 
   return (
     <Flex width='full' flexDir='column' gap={6}>

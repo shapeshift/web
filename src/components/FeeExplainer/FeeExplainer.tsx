@@ -366,7 +366,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
             <Text color='text.subtle' translation={discountLabelTranslation} />
             <Amount.Percent
               fontSize='3xl'
-              value={foxDiscountPercent.div(100).toNumber()}
+              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
               color={'green.500'}
             />
           </Box>

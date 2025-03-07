@@ -1,8 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from '../constants'
 import type {
@@ -22,6 +20,9 @@ import type {
   ValidatorId,
 } from '../types'
 import { DefiProvider, DefiType } from '../types'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -117,37 +118,7 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
     {},
   )
 }
-type GetRewardBalancesArgs = {
-  assets: Partial<Record<AssetId, Asset>>
-  marketDataUserCurrency: Partial<Record<AssetId, MarketData>>
-} & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsCryptoBaseUnit'>
 
-type GetRewardBalances = (args: GetRewardBalancesArgs) => GetUnderlyingAssetIdsBalancesReturn
-export const getRewardBalances: GetRewardBalances = ({
-  rewardsCryptoBaseUnit,
-  rewardAssetIds,
-  assets,
-  marketDataUserCurrency,
-}) => {
-  if (!rewardAssetIds) return {}
-  return Array.from(rewardAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
-    (acc, assetId, index) => {
-      const rewardAsset = assets[assetId]
-      if (!rewardAsset) return acc
-      const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
-      const cryptoBalancePrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index])
-        .div(bn(10).pow(rewardAsset?.precision))
-        .toString()
-      const fiatAmount = bnOrZero(cryptoBalancePrecision).times(marketDataPrice).toString()
-      acc[assetId] = {
-        fiatAmount,
-        cryptoBalancePrecision,
-      }
-      return acc
-    },
-    {},
-  )
-}
 // An OpportunityId as a ValidatorId
 // Currently used with Cosmos SDK opportunities, where the opportunity is a validator, e.g an Address
 // Since AccountId is generally used to represent portfolio accounts and not other, arbitrary on-chain accounts, we give this some flavour

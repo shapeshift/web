@@ -8,15 +8,10 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import { getConfig } from 'config'
 import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
-import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
 import { CoinbaseConfig } from './Coinbase/config'
-import { DemoConfig } from './DemoWallet/config'
-import { DemoMenu } from './DemoWallet/DemoMenu'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
@@ -30,6 +25,10 @@ import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
+
+import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { getConfig } from '@/config'
+import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
 
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
@@ -103,32 +102,32 @@ const SnapUpdate = lazy(() =>
 )
 
 const ChangeLabel = lazy(() =>
-  import('components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
+  import('@/components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
     default: ChangeLabel,
   })),
 )
 const ChangePassphrase = lazy(() =>
-  import('components/Layout/Header/NavBar/KeepKey/ChangePassphrase').then(
+  import('@/components/Layout/Header/NavBar/KeepKey/ChangePassphrase').then(
     ({ ChangePassphrase }) => ({ default: ChangePassphrase }),
   ),
 )
 const ChangePin = lazy(() =>
-  import('components/Layout/Header/NavBar/KeepKey/ChangePin').then(({ ChangePin }) => ({
+  import('@/components/Layout/Header/NavBar/KeepKey/ChangePin').then(({ ChangePin }) => ({
     default: ChangePin,
   })),
 )
 const ChangeTimeout = lazy(() =>
-  import('components/Layout/Header/NavBar/KeepKey/ChangeTimeout').then(({ ChangeTimeout }) => ({
+  import('@/components/Layout/Header/NavBar/KeepKey/ChangeTimeout').then(({ ChangeTimeout }) => ({
     default: ChangeTimeout,
   })),
 )
 const KeepKeyMenu = lazy(() =>
-  import('components/Layout/Header/NavBar/KeepKey/KeepKeyMenu').then(({ KeepKeyMenu }) => ({
+  import('@/components/Layout/Header/NavBar/KeepKey/KeepKeyMenu').then(({ KeepKeyMenu }) => ({
     default: KeepKeyMenu,
   })),
 )
 const NativeMenu = lazy(() =>
-  import('components/Layout/Header/NavBar/Native/NativeMenu').then(({ NativeMenu }) => ({
+  import('@/components/Layout/Header/NavBar/Native/NativeMenu').then(({ NativeMenu }) => ({
     default: NativeMenu,
   })),
 )
@@ -308,10 +307,9 @@ export type SupportedWalletInfo<T> = {
 
 export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Coinbase]: SupportedWalletInfo<typeof CoinbaseAdapter>
-  // Native, Mobile, and Demo wallets are all native wallets
+  // Native and Mobile wallets are both native wallets
   [KeyManager.Native]: SupportedWalletInfo<typeof NativeAdapter>
   [KeyManager.Mobile]: SupportedWalletInfo<typeof NativeAdapter>
-  [KeyManager.Demo]: SupportedWalletInfo<typeof NativeAdapter>
   // TODO(gomes): export WebUSBKeepKeyAdapter as a type in hdwallet, not a declare const
   // this effectively means we keep on importing the akschual package for now
   [KeyManager.KeepKey]: SupportedWalletInfo<typeof WebUSBKeepKeyAdapter | typeof KkRestAdapter>
@@ -404,11 +402,6 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/coinbase/failure', component: CoinbaseFailure },
     ],
   },
-  [KeyManager.Demo]: {
-    ...DemoConfig,
-    routes: [],
-    connectedMenuComponent: DemoMenu,
-  },
   [KeyManager.Keplr]: {
     ...KeplrConfig,
     routes: [
@@ -451,7 +444,7 @@ export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMod
       return {
         appName: 'ShapeShift',
         appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
-        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultJsonRpcUrl: getConfig().VITE_ETHEREUM_NODE_URL,
         defaultChainId: 1,
         darkMode: isDarkMode,
       }

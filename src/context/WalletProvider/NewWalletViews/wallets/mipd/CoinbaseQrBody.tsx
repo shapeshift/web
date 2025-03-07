@@ -1,13 +1,14 @@
 import { Alert, AlertDescription, AlertIcon, Button, Flex, Spinner } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CoinbaseIcon } from 'components/Icons/CoinbaseIcon'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { CoinbaseConfig } from 'context/WalletProvider/Coinbase/config'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { CoinbaseConfig } from '@/context/WalletProvider/Coinbase/config'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const spinner = <Spinner color='white' />
 

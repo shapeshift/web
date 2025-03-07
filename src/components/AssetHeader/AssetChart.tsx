@@ -6,22 +6,23 @@ import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { TimeControls } from 'components/Graph/TimeControls'
-import { PriceChart } from 'components/PriceChart/PriceChart'
-import { RawText } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+
+import { AssetActions } from './AssetActions'
+
+import { Amount } from '@/components/Amount/Amount'
+import { TimeControls } from '@/components/Graph/TimeControls'
+import { PriceChart } from '@/components/PriceChart/PriceChart'
+import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
-
-import { AssetActions } from './AssetActions'
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type AssetChartProps = {
   accountId?: AccountId

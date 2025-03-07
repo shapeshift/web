@@ -116,20 +116,6 @@ export const ETH: Asset = {
   relatedAssetKey: null,
 }
 
-export const UNSUPPORTED: Asset = {
-  assetId: 'eip155:1/slip44:420',
-  chainId: ethChainId,
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  color: '#FFFFFF',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  relatedAssetKey: null,
-}
-
 export const USDC_MAINNET: Asset = {
   assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   chainId: ethChainId,
@@ -264,19 +250,5 @@ export const RUNE: Asset = {
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
-  relatedAssetKey: null,
-}
-
-export const ZERO: Asset = {
-  chainId: ethChainId,
-  assetId: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',
-  color: '#FFFFFF',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  icon: 'https://assets.coingecko.com/coins/images/13706/thumb/0.exchange_%28logo%29.jpg?1617070530',
-  name: '0 exchange',
-  precision: 18,
-  symbol: 'ZERO',
   relatedAssetKey: null,
 }

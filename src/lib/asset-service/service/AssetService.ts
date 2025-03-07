@@ -12,11 +12,12 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
-import { getConfig } from 'config'
 import Polyglot from 'node-polyglot'
 
 import { descriptions } from './descriptions'
 import { localAssetData, relatedAssetIndex, sortedAssetIds } from './localAssetData'
+
+import { getConfig } from '@/config'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
 
@@ -33,15 +34,14 @@ class _AssetService {
     // Filter asset data while preserving sorting
     this.assetIds = sortedAssetIds.filter(assetId => {
       const asset = localAssetData[assetId]
-      if (!config.REACT_APP_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return false
-      if (!config.REACT_APP_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return false
-      if (!config.REACT_APP_FEATURE_POLYGON && asset.chainId === polygonChainId) return false
-      if (!config.REACT_APP_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return false
-      if (!config.REACT_APP_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return false
-      if (!config.REACT_APP_FEATURE_ARBITRUM_NOVA && asset.chainId === arbitrumNovaChainId)
-        return false
-      if (!config.REACT_APP_FEATURE_BASE && asset.chainId === baseChainId) return false
-      if (!config.REACT_APP_FEATURE_SOLANA && asset.chainId === solanaChainId) return false
+      if (!config.VITE_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return false
+      if (!config.VITE_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return false
+      if (!config.VITE_FEATURE_POLYGON && asset.chainId === polygonChainId) return false
+      if (!config.VITE_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return false
+      if (!config.VITE_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return false
+      if (!config.VITE_FEATURE_ARBITRUM_NOVA && asset.chainId === arbitrumNovaChainId) return false
+      if (!config.VITE_FEATURE_BASE && asset.chainId === baseChainId) return false
+      if (!config.VITE_FEATURE_SOLANA && asset.chainId === solanaChainId) return false
       return true
     })
 

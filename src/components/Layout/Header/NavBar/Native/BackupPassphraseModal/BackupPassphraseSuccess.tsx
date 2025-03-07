@@ -1,7 +1,8 @@
 import { CheckIcon } from '@chakra-ui/icons'
 import { Box, Center, Circle, ModalBody, ModalCloseButton } from '@chakra-ui/react'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
 
 export const BackupPassphraseSuccess = () => (
   <SlideTransition>

@@ -6,10 +6,11 @@ import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { QRCodeIcon } from 'components/Icons/QRCode'
-import type { SendInput } from 'components/Modals/Send/Form'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
+
+import { QRCodeIcon } from '@/components/Icons/QRCode'
+import type { SendInput } from '@/components/Modals/Send/Form'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']

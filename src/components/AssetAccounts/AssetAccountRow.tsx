@@ -12,21 +12,22 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
-import { Allocations } from 'components/AccountRow/Allocations'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
-import { middleEllipsis } from 'lib/utils'
-import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+
+import { Allocations } from '@/components/AccountRow/Allocations'
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
+import { middleEllipsis } from '@/lib/utils'
+import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectPortfolioAllocationPercentByFilter,
   selectUserCurrencyBalanceIncludingStakingByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 // This can maybe be combined with the other AccountRow component once we know how the data works
 // src/components/AccountRow

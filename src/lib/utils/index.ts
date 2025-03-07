@@ -8,7 +8,6 @@ import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
@@ -17,9 +16,10 @@ import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 import { isSplToken } from './solana'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -168,10 +168,6 @@ export const isFulfilled = <T>(
 
 export const isRejected = <T>(promise: PromiseSettledResult<T>): promise is PromiseRejectedResult =>
   promise.status === 'rejected'
-
-export const isResolvedErr = <U, V, T extends Result<U, V>>(
-  promise: PromiseSettledResult<T>,
-): promise is PromiseRejectedResult => 'value' in promise && promise.value.isErr()
 
 export function assertUnreachable(x: never): never {
   throw Error(`unhandled case: ${x}`)

@@ -38,63 +38,70 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { useHistory } from 'react-router'
-import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { FeeModal } from 'components/FeeModal/FeeModal'
-import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
+import { useHistory } from 'react-router-dom'
+
+import type { AmountsByPosition } from '../LpType'
+import { LpType } from '../LpType'
+import { ReadOnlyAsset } from '../ReadOnlyAsset'
+import { PoolSummary } from './components/PoolSummary'
+import { AddLiquidityRoutePaths } from './types'
+
+import { InfoAcknowledgement } from '@/components/Acknowledgement/InfoAcknowledgement'
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { Amount } from '@/components/Amount/Amount'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { FeeModal } from '@/components/FeeModal/FeeModal'
+import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippagePopover'
+import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import {
   assertUnreachable,
   chainIdToChainDisplayName,
   isNonEmptyString,
   isSome,
   isToken,
-} from 'lib/utils'
-import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
-import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
-import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
-import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { formatSecondsToDuration } from 'lib/utils/time'
-import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
-import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
-import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { Opportunity } from 'pages/ThorChainLP/utils'
-import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
+} from '@/lib/utils'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
+import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import { estimateAddThorchainLiquidityPosition } from '@/lib/utils/thorchain/lp'
+import type { LpConfirmedDepositQuote } from '@/lib/utils/thorchain/lp/types'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
+import { formatSecondsToDuration } from '@/lib/utils/time'
+import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { usePools } from '@/pages/ThorChainLP/queries/hooks/usePools'
+import { useUserLpData } from '@/pages/ThorChainLP/queries/hooks/useUserLpData'
+import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
+import type { Opportunity } from '@/pages/ThorChainLP/utils'
+import { fromOpportunityId, toOpportunityId } from '@/pages/ThorChainLP/utils'
+import { reactQueries } from '@/react-queries'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectIsSnapshotApiQueriesRejected,
   selectIsVotingPowerLoading,
   selectVotingPower,
-} from 'state/apis/snapshot/selectors'
-import { snapshotApi } from 'state/apis/snapshot/snapshot'
+} from '@/state/apis/snapshot/selectors'
+import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountIdsByChainId,
@@ -108,15 +115,9 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import type { AmountsByPosition } from '../LpType'
-import { LpType } from '../LpType'
-import { ReadOnlyAsset } from '../ReadOnlyAsset'
-import { PoolSummary } from './components/PoolSummary'
-import { AddLiquidityRoutePaths } from './types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const UNSAFE_SLIPPAGE_DECIMAL_PERCENT = 0.05 // 5%
 
@@ -165,7 +166,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const { wallet, isConnected } = useWallet().state
-  const isDemoWallet = useWallet().state.isDemoWallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -482,12 +482,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
   // doesn't support one of the two
   const walletSupportsOpportunity = useMemo(() => {
-    if (isDemoWallet) return false
     if (!opportunityType) return false
     if (opportunityType === 'sym') return walletSupportsAsset && walletSupportsRune
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
-  }, [opportunityType, walletSupportsAsset, walletSupportsRune, isDemoWallet])
+  }, [opportunityType, walletSupportsAsset, walletSupportsRune])
 
   const handleToggleIsFiat = useCallback(
     (_isFiat: boolean) => {
@@ -1240,10 +1239,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       const runeAssetNetworkName =
         runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
 
-      if (isDemoWallet) {
-        return translate('pools.unsupportedDemoWalletExplainer')
-      }
-
       if (!walletSupportsRune && !walletSupportsAsset)
         return translate('pools.unsupportedNetworksExplainer', {
           network1: poolAssetNetworkName,
@@ -1268,7 +1263,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     walletSupportsOpportunity,
     poolAsset,
     runeAsset,
-    isDemoWallet,
     walletSupportsRune,
     walletSupportsAsset,
     translate,
@@ -1404,7 +1398,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isTradingActive === false) return translate('common.poolHalted')
-    if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)
@@ -1426,7 +1419,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return null
   }, [
     isConnected,
-    isDemoWallet,
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
     isTradingActive,

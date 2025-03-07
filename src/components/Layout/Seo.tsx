@@ -1,6 +1,7 @@
 import React, { memo } from 'react'
 import { Helmet } from 'react-helmet-async'
-import Thumb from 'assets/ss-thumb.jpg'
+
+import Thumb from '@/assets/ss-thumb.jpg'
 
 type SeoProps = {
   title?: string

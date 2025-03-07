@@ -3,14 +3,15 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { RawText } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'
 import { handleSend } from '../../utils'
+
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { RawText } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectAssetById } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const useFormSend = () => {
   const toast = useToast()

@@ -1,5 +1,6 @@
 import type { MarketData } from '@shapeshiftoss/types'
-import { SortOptionsKeys } from 'components/SortDropdown/types'
+
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
 
 export enum MarketsCategories {
   TradingVolume = 'tradingVolume',

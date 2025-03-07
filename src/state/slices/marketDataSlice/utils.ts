@@ -3,9 +3,10 @@ import type { HistoryData, HistoryTimeframe, PartialRecord } from '@shapeshiftos
 import { getHistoryTimeframeBounds } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { merge, orderBy } from 'lodash'
-import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 import type { PriceHistoryByTimeframe } from './types'
+
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
 
 export const getTrimmedOutOfBoundsMarketData = <T extends SupportedFiatCurrencies | AssetId>(
   priceHistory: PriceHistoryByTimeframe<T>,

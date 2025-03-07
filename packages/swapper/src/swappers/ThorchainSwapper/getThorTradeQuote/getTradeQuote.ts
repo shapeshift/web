@@ -5,7 +5,7 @@ import { Err } from '@sniptt/monads'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
+import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse, ThorTradeQuote } from '../types'
 import { getL1Quote } from '../utils/getL1quote'
 import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
@@ -21,12 +21,14 @@ export const getThorTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
-  const thorchainSwapLongtailEnabled = deps.config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
-  const thorchainSwapL1ToLongtailEnabled =
-    deps.config.REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
+  const thorchainSwapLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
+  const thorchainSwapL1ToLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
-  if (!sellSupportedChainIds[sellAsset.chainId] || !buySupportedChainIds[buyAsset.chainId]) {
+  if (
+    !thorchainSellSupportedChainIds[sellAsset.chainId] ||
+    !thorchainBuySupportedChainIds[buyAsset.chainId]
+  ) {
     return Err(
       makeSwapErrorRight({
         message: 'Unsupported chain',
@@ -35,7 +37,7 @@ export const getThorTradeQuote = async (
     )
   }
 
-  const daemonUrl = deps.config.REACT_APP_THORCHAIN_NODE_URL
+  const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
     `${daemonUrl}/lcd/thorchain/pools`,
   )

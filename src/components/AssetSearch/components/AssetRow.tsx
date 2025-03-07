@@ -3,20 +3,21 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import type { ListChildComponentProps } from 'react-window'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
-import { middleEllipsis } from 'lib/utils'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+
+import type { AssetData } from './AssetList'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from '@/lib/math'
+import { middleEllipsis } from '@/lib/utils'
+import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import type { AssetData } from './AssetList'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const focus = {
   shadow: 'outline-inset',
@@ -30,7 +31,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
   ({ data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts }, index, style }) => {
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
-      state: { isConnected, isDemoWallet, wallet },
+      state: { isConnected, wallet },
     } = useWallet()
     const asset: Asset | undefined = assets[index]
     const assetId = asset?.assetId
@@ -80,7 +81,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
             </Flex>
           </Box>
         </Flex>
-        {(isConnected || isDemoWallet) && !hideAssetBalance && (
+        {isConnected && !hideAssetBalance && (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
             <Amount.Fiat
               color='var(--chakra-colors-chakra-body-text)'

@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -18,12 +18,13 @@ import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
 
 import type { NativeSetupProps } from '../types'
 
-const Revocable = Default.Revocable
-const revocable = Default.revocable
+import { Text } from '@/components/Text'
+
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 

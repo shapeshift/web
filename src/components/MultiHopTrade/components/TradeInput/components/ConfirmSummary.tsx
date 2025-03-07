@@ -6,21 +6,30 @@ import { bnOrZero, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { parseAmountDisplayMeta } from 'components/MultiHopTrade/helpers'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
-import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isKeepKeyHDWallet, isToken } from 'lib/utils'
-import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { selectFeeAssetById, selectMarketDataUserCurrency } from 'state/slices/selectors'
+import { useHistory } from 'react-router-dom'
+
+import { PriceImpact } from '../../PriceImpact'
+import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
+import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
+import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslation'
+import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
+import { MaxSlippage } from './MaxSlippage'
+import { RecipientAddress } from './RecipientAddress'
+
+import { Amount } from '@/components/Amount/Amount'
+import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
+import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
+import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet, isToken } from '@/lib/utils'
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import { selectFeeAssetById, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -29,7 +38,7 @@ import {
   selectIsManualReceiveAddressEditing,
   selectIsManualReceiveAddressValid,
   selectIsManualReceiveAddressValidating,
-} from 'state/slices/tradeInputSlice/selectors'
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteAffiliateBps,
@@ -46,17 +55,9 @@ import {
   selectTradeQuoteRequestErrors,
   selectTradeQuoteResponseErrors,
   selectTradeSlippagePercentageDecimal,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
-
-import { PriceImpact } from '../../PriceImpact'
-import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
-import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
-import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslation'
-import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
-import { MaxSlippage } from './MaxSlippage'
-import { RecipientAddress } from './RecipientAddress'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type ConfirmSummaryProps = {
   isCompact: boolean | undefined
@@ -77,7 +78,7 @@ export const ConfirmSummary = ({
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { wallet, isConnected },
   } = useWallet()
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -258,8 +259,8 @@ export const ConfirmSummary = ({
         return tradeQuoteError ? getQuoteErrorTranslation(tradeQuoteError) : 'common.error'
       case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:
         return 'trade.noRateAvailable'
-      case !isConnected || isDemoWallet:
-        // We got a happy path quote, but we may still be in the context of the demo wallet
+      case !isConnected:
+        // We got a happy path quote, but no wallet connected
         return 'common.connectWallet'
       default:
         return 'trade.previewTrade'
@@ -276,7 +277,6 @@ export const ConfirmSummary = ({
     isAnyTradeQuoteLoading,
     isAnySwapperQuoteAvailable,
     isConnected,
-    isDemoWallet,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {

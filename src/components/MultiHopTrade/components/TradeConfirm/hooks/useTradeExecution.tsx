@@ -17,37 +17,41 @@ import type {
 import {
   getHopByIndex,
   isExecutableTradeQuote,
+  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
   SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { TradeExecution } from 'lib/tradeExecution'
-import { assertUnreachable } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+
+import { useMixpanel } from './useMixpanel'
+
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { TradeExecution } from '@/lib/tradeExecution'
+import { assertUnreachable } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import {
+  selectAssetById,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectHopExecutionMetadata,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { useMixpanel } from './useMixpanel'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,

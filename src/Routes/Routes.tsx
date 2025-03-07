@@ -1,41 +1,42 @@
-import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import type { Location } from 'history'
-import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
-import { matchPath, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { Layout } from 'components/Layout/Layout'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useQuery } from 'hooks/useQuery/useQuery'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile } from 'lib/globals'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+
+import { Layout } from '@/components/Layout/Layout'
+import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useQuery } from '@/hooks/useQuery/useQuery'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectSelectedLocale } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const Flags = makeSuspenseful(
-  lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
+  lazy(() => import('@/pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
 const NotFound = makeSuspenseful(
-  lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
+  lazy(() => import('@/pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
 
 const TermsOfService = makeSuspenseful(
   lazy(() =>
-    import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
+    import('@/pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
       default: TermsOfService,
     })),
   ),
 )
 const PrivacyPolicy = makeSuspenseful(
   lazy(() =>
-    import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
+    import('@/pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
   ),
 )
 
 const MobileConnect = makeSuspenseful(
   lazy(() =>
-    import('pages/ConnectWallet/MobileConnect').then(({ MobileConnect }) => ({
+    import('@/pages/ConnectWallet/MobileConnect').then(({ MobileConnect }) => ({
       default: MobileConnect,
     })),
   ),
@@ -45,18 +46,14 @@ export const Routes = memo(() => {
   const dispatch = useDispatch()
   const location = useLocation<{ background: Location }>()
   const history = useHistory()
-  const { connectDemo, state } = useWallet()
+  const { state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
-  const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
   const { lang } = useQuery<{ lang: string }>()
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
-    path: ['/demo/:appRoute(.+)', '/demo'],
-  })
 
   useEffect(() => {
-    const selectedLocaleExists = selectedLocale in LanguageTypeEnum ?? {}
+    const selectedLocaleExists = selectedLocale in LanguageTypeEnum
     if (lang && selectedLocaleExists && selectedLocale !== lang) {
       dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
     } else if (!selectedLocaleExists) {
@@ -78,20 +75,6 @@ export const Routes = memo(() => {
     // Set <html> language attribute
     document.querySelector('html')?.setAttribute('lang', selectedLocale)
   }, [selectedLocale])
-
-  useEffect(() => {
-    if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)
-    if (!matchDemoPath || state.isLoadingLocalWallet) return
-
-    state.isDemoWallet ? setShouldRedirectDemoRoute(true) : connectDemo()
-  }, [
-    matchDemoPath,
-    shouldRedirectDemoRoute,
-    location.pathname,
-    state.isDemoWallet,
-    state.isLoadingLocalWallet,
-    connectDemo,
-  ])
 
   /**
    * Memoize the route list to avoid unnecessary cascading re-renders
@@ -126,18 +109,8 @@ export const Routes = memo(() => {
 
   const locationProps = useMemo(() => location.state?.background || location, [location])
 
-  const renderRedirect = useCallback(() => {
-    return shouldRedirectDemoRoute ? (
-      <Redirect
-        from='/'
-        to={matchDemoPath?.params.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'}
-      />
-    ) : null
-  }, [matchDemoPath?.params.appRoute, shouldRedirectDemoRoute])
-
   return (
     <Switch location={locationProps}>
-      <Route path='/demo'>{renderRedirect}</Route>
       <Route path='/connect-mobile-wallet'>
         <MobileConnect />
       </Route>

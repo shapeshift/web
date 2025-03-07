@@ -1,8 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
-import { skipToken, useQuery } from '@tanstack/react-query'
+import { skipToken } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
-import { useMemo } from 'react'
 import type { Address, ReadContractReturnType } from 'viem'
 import { getAddress } from 'viem'
 import { readContract } from 'viem/actions'
@@ -58,26 +57,4 @@ export const getUnstakingRequestCountQueryFn = ({
       functionName: 'getUnstakingRequestCount',
       args: [getAddress(stakingAssetAccountAddress)],
     })
-}
-
-export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCount>({
-  stakingAssetAccountAddress,
-  stakingAssetId,
-  select,
-}: UseGetUnstakingRequestCountQueryProps<SelectData>) => {
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey = useMemo(() => {
-    return getUnstakingRequestCountQueryKey({ stakingAssetAccountAddress, stakingAssetId })
-  }, [stakingAssetAccountAddress, stakingAssetId])
-
-  const queryFn = useMemo(() => {
-    return getUnstakingRequestCountQueryFn({ stakingAssetAccountAddress, stakingAssetId })
-  }, [stakingAssetAccountAddress, stakingAssetId])
-
-  return useQuery({
-    queryKey,
-    queryFn,
-    select,
-    retry: false,
-  })
 }

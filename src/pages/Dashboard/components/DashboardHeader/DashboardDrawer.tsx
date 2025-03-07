@@ -1,6 +1,7 @@
 import { Drawer, DrawerContent, DrawerOverlay } from '@chakra-ui/react'
 import { memo } from 'react'
-import { SideNavContent } from 'components/Layout/Header/SideNavContent'
+
+import { SideNavContent } from '@/components/Layout/Header/SideNavContent'
 
 type DashboardDrawerProps = {
   isOpen: boolean

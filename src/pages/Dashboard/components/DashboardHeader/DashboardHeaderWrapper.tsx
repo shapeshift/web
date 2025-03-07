@@ -4,7 +4,8 @@ import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
-import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
+
+import { useProfileAvatar } from '@/hooks/useProfileAvatar/useProfileAvatar'
 
 const headerPosition: ResponsiveValue<Property.Position> = { base: 'fixed', md: 'relative' }
 type DashboardHeaderWrapperProps = {

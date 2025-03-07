@@ -1,19 +1,20 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import type { Borrower } from 'lib/utils/thorchain/lending/types'
+
+import { useLendingSupportedAssets } from './useLendingSupportedAssets'
+
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { getThorchainLendingPosition } from '@/lib/utils/thorchain/lending'
+import type { Borrower } from '@/lib/utils/thorchain/lending/types'
 import {
   selectAccountIdsByAssetId,
   selectEnabledWalletAccountIds,
   selectUserCurrencyRateByAssetId,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
-
-import { useLendingSupportedAssets } from './useLendingSupportedAssets'
+} from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type UseAllLendingPositionsDataProps = {
   assetId?: AssetId

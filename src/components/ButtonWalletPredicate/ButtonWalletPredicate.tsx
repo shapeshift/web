@@ -2,8 +2,9 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type ButtonWalletPredicateProps = {
   isValidWallet: boolean
@@ -17,14 +18,14 @@ export const ButtonWalletPredicate = ({
   const translate = useTranslate()
   const {
     dispatch,
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
-  if (isDemoWallet || !isConnected)
+  if (!isConnected)
     return (
       <Button {...restProps} onClick={handleConnect} isDisabled={false} colorScheme='blue'>
         {translate('common.connectWallet')}

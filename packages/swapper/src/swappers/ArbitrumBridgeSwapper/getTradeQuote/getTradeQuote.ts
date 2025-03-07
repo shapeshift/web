@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInputWithWallet,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
@@ -15,11 +16,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type {
-  ArbitrumBridgeTradeQuote,
-  ArbitrumBridgeTradeRate,
-  GetEvmTradeQuoteInputWithWallet,
-} from '../types'
+import type { ArbitrumBridgeTradeQuote, ArbitrumBridgeTradeRate } from '../types'
 import type { FetchArbitrumBridgeQuoteInput } from '../utils/fetchArbitrumBridgeSwap'
 import { fetchArbitrumBridgeQuote } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'

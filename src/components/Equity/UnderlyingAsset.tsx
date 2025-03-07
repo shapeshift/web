@@ -1,11 +1,12 @@
 import { Flex } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const UnderlyingAsset: React.FC<AssetWithBalance> = ({
   cryptoBalancePrecision,

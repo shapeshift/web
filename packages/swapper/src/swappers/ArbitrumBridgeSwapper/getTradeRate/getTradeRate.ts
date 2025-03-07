@@ -1,12 +1,10 @@
 import { ethChainId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
   SingleHopTradeRateSteps,
   SwapErrorRight,
@@ -17,10 +15,6 @@ import { makeSwapErrorRight } from '../../../utils'
 import type { ArbitrumBridgeTradeRate } from '../types'
 import { fetchArbitrumBridgePrice } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
-
-export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
-  wallet: HDWallet
-}
 
 export async function getTradeRate(
   input: GetEvmTradeRateInput,

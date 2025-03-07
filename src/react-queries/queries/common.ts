@@ -5,12 +5,13 @@ import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { PartialFields } from 'lib/types'
-import { assertGetChainAdapter } from 'lib/utils'
-import type { GetFeesWithWalletEip1559SupportArgs } from 'lib/utils/evm'
-import { getErc20Allowance } from 'lib/utils/evm'
 
 import { GetAllowanceErr } from '../types'
+
+import type { PartialFields } from '@/lib/types'
+import { assertGetChainAdapter } from '@/lib/utils'
+import type { GetFeesWithWalletEip1559SupportArgs } from '@/lib/utils/evm'
+import { getErc20Allowance } from '@/lib/utils/evm'
 
 export const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (

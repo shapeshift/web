@@ -2,12 +2,13 @@ import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
-import { RawText } from 'components/Text'
-import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 
 import { ClaimStatus } from './types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { RawText } from '@/components/Text'
+import { TransactionTypeIcon } from '@/components/TransactionHistory/TransactionTypeIcon'
 
 const disabledProps = { opacity: 1, cursor: 'default' }
 

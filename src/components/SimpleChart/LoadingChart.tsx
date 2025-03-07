@@ -2,9 +2,10 @@ import { Flex, Heading, useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { SeriesType } from 'lightweight-charts'
 import type { PropsWithChildren, ReactNode } from 'react'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { lightenColor, opacify } from 'theme/utils'
+
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { lightenColor, opacify } from '@/theme/utils'
 
 const ChartErrorContainer = styled(Row)`
   position: absolute;

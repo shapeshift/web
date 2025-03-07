@@ -1,21 +1,22 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
-import { middleEllipsis } from 'lib/utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from '@/lib/math'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const focus = {
   shadow: 'outline-inset',
@@ -40,7 +41,7 @@ export const GroupedAssetRow = ({
   const backgroundColor = useColorModeValue('gray.50', 'background.button.secondary.base')
   const translate = useTranslate()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
   const asset = assets[index] as Asset | undefined
   const assetId = asset?.assetId
@@ -91,9 +92,7 @@ export const GroupedAssetRow = ({
         <Flex
           gap={4}
           alignItems='center'
-          maxWidth={
-            (isConnected || isDemoWallet) && !hideAssetBalance ? 'calc(100% - 100px)' : '100%'
-          }
+          maxWidth={isConnected && !hideAssetBalance ? 'calc(100% - 100px)' : '100%'}
         >
           {icon}
           <Box textAlign='left' maxWidth='100%' overflow='hidden'>
@@ -128,7 +127,7 @@ export const GroupedAssetRow = ({
             </Flex>
           </Box>
         </Flex>
-        {(isConnected || isDemoWallet) && !hideAssetBalance && (
+        {isConnected && !hideAssetBalance && (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
             <Amount.Fiat
               color='text.base'
@@ -148,7 +147,6 @@ export const GroupedAssetRow = ({
     hideAssetBalance,
     icon,
     isConnected,
-    isDemoWallet,
     userCurrencyBalance,
   ])
 

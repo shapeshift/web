@@ -1,7 +1,8 @@
 import { Button, Link } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 
 const buttonHover = { bg: 'transparent' }
 

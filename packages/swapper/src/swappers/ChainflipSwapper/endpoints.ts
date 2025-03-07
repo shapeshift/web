@@ -289,8 +289,8 @@ export const chainflipApi: SwapperApi = {
     // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap
     const swapId = swap.id
 
-    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
+    const brokerUrl = config.VITE_CHAINFLIP_API_URL
+    const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
       `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,

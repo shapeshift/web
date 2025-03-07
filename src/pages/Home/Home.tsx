@@ -1,13 +1,14 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router'
-import { Main } from 'components/Layout/Main'
-import { DashboardHeaderWrapper } from 'pages/Dashboard/components/DashboardHeader/DashboardHeaderWrapper'
-import { WalletBalance } from 'pages/Dashboard/components/DashboardHeader/WalletBalance'
-import { ProfileAvatar } from 'pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
+import { useHistory } from 'react-router-dom'
 
 import { PriceTable } from './PriceTable'
+
+import { Main } from '@/components/Layout/Main'
+import { DashboardHeaderWrapper } from '@/pages/Dashboard/components/DashboardHeader/DashboardHeaderWrapper'
+import { WalletBalance } from '@/pages/Dashboard/components/DashboardHeader/WalletBalance'
+import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 
 const paddingTop = { base: 'calc(env(safe-area-inset-top) + 2rem)', md: '4.5rem' }
 const marginTop = { base: 0, md: '-4.5rem' }
@@ -30,7 +31,6 @@ export const Home = () => {
       width='full'
       flexDir='column'
       pageProps={pageProps}
-      hideBreadcrumbs
     >
       <DashboardHeaderWrapper position='relative'>
         <Flex

@@ -20,20 +20,21 @@ import { ethChainId, fromAccountId, fromChainId, thorchainAssetId } from '@shape
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectWalletConnectedChainIds } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { availableLedgerAppAssetIds, availableLedgerAppChainIds } from '../constants'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText, Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { deriveAccountIdsAndMetadataForChainNamespace } from '@/lib/account/account'
+import type { BN } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
+import { getSupportedEvmChainIds } from '@/lib/utils/evm'
+import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { selectAssets, selectWalletConnectedChainIds } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const LedgerChains = () => {
   const translate = useTranslate()

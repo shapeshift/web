@@ -12,7 +12,7 @@ import type {
   UtxoTransactionExecutionProps,
 } from '../../types'
 import { executeEvmTransaction } from '../../utils'
-import { buySupportedChainIds, sellSupportedChainIds } from './constants'
+import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from './constants'
 import type { ThornodePoolResponse } from './types'
 import { poolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from './utils/thorService'
@@ -23,8 +23,8 @@ const getSupportedAssets = async (
   supportedSellAssetIds: AssetId[]
   supportedBuyAssetIds: AssetId[]
 }> => {
-  const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
-  const thorchainSwapLongtailEnabled = config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
+  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
+  const thorchainSwapLongtailEnabled = config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
   let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
   let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
   const poolResponse = await thorService.get<ThornodePoolResponse[]>(
@@ -45,8 +45,8 @@ const getSupportedAssets = async (
 
   allTokens.forEach(assetId => {
     const chainId = fromAssetId(assetId).chainId
-    sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
-    buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
+    thorchainSellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
+    thorchainBuySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
   })
 
   return { supportedSellAssetIds, supportedBuyAssetIds }

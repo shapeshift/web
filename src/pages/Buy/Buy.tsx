@@ -4,23 +4,24 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useParams } from 'react-router'
-import AuroraBg from 'assets/aurorabg.jpg'
-import FoxPane from 'assets/fox-cta-pane.png'
-import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
-import { useAppSelector } from 'state/store'
+import { useParams } from 'react-router-dom'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
+
+import AuroraBg from '@/assets/aurorabg.jpg'
+import FoxPane from '@/assets/fox-cta-pane.png'
+import { Main } from '@/components/Layout/Main'
+import { SEO } from '@/components/Layout/Seo'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
+import { selectFiatRampChainCount } from '@/state/apis/fiatRamps/selectors'
+import { useAppSelector } from '@/state/store'
 
 type MatchParams = {
   chainId?: string
@@ -50,7 +51,7 @@ export const Buy = () => {
 
   const {
     dispatch,
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
   const translate = useTranslate()
 
@@ -121,7 +122,7 @@ export const Buy = () => {
             </Box>
           </Flex>
         </PageContainer>
-        {(!isConnected || isDemoWallet) && (
+        {!isConnected && (
           <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
             <PageContainer display='flex' py={0} flexDir={flexDirXlRow} textAlign={textAlignXlLeft}>
               <Stack spacing={4} py='6rem' flex={1} alignItems={alignItemsXlFlexStart}>

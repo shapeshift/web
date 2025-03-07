@@ -13,7 +13,6 @@ import type { KeyManager } from './KeyManager'
 export type AdaptersByKeyManager = {
   [KeyManager.Mobile]: NativeAdapter
   [KeyManager.Native]: NativeAdapter
-  [KeyManager.Demo]: NativeAdapter
   [KeyManager.KeepKey]: KkRestAdapter | typeof WebUSBKeepKeyAdapter
   [KeyManager.Ledger]: WebUSBLedgerAdapter
   [KeyManager.Keplr]: KeplrAdapter

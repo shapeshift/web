@@ -4,18 +4,19 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Row } from 'components/Row/Row'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
-import { sleep } from 'lib/poll/poll'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
 import { handleSend } from './Modals/Send/utils'
+
+import { Row } from '@/components/Row/Row'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import { sleep } from '@/lib/poll/poll'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const divider = <Divider />
 

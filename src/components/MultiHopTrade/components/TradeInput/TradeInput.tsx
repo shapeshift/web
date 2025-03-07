@@ -12,49 +12,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
-import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
-import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import {
-  selectIsAnyAccountMetadataLoadedForChainId,
-  selectUsdRateByAssetId,
-  selectWalletId,
-} from 'state/slices/selectors'
-import {
-  selectHasUserEnteredAmount,
-  selectInputBuyAsset,
-  selectInputSellAmountCryptoPrecision,
-  selectInputSellAmountUserCurrency,
-  selectInputSellAsset,
-  selectIsInputtingFiatSellAmount,
-} from 'state/slices/tradeInputSlice/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import {
-  selectActiveQuote,
-  selectActiveQuoteMeta,
-  selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAmountAfterFeesUserCurrency,
-  selectFirstHop,
-  selectIsTradeQuoteRequestAborted,
-  selectIsUnsafeActiveQuote,
-  selectShouldShowTradeQuoteOrAwaitInput,
-  selectSortedTradeQuotes,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useHistory } from 'react-router-dom'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -66,6 +24,49 @@ import { ConfirmSummary } from './components/ConfirmSummary'
 import { StreamingAcknowledgement } from './components/StreamingAcknowledgement'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
+
+import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
+import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
+import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
+import type { ApiQuote } from '@/state/apis/swapper/types'
+import {
+  selectIsAnyAccountMetadataLoadedForChainId,
+  selectUsdRateByAssetId,
+  selectWalletId,
+} from '@/state/slices/selectors'
+import {
+  selectHasUserEnteredAmount,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
+  selectInputSellAsset,
+  selectIsInputtingFiatSellAmount,
+} from '@/state/slices/tradeInputSlice/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import {
+  selectActiveQuote,
+  selectActiveQuoteMeta,
+  selectBuyAmountAfterFeesCryptoPrecision,
+  selectBuyAmountAfterFeesUserCurrency,
+  selectFirstHop,
+  selectIsTradeQuoteRequestAborted,
+  selectIsUnsafeActiveQuote,
+  selectShouldShowTradeQuoteOrAwaitInput,
+  selectSortedTradeQuotes,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const emptyPercentOptions: number[] = []
 const formControlProps = {
@@ -85,7 +86,7 @@ type TradeInputProps = {
 export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const { handleSubmit } = useFormContext()
@@ -245,8 +246,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   }, [walletDispatch])
 
   const onSubmit = useCallback(() => {
-    // No preview happening if wallet isn't connected i.e is using the demo wallet
-    if (!isConnected || isDemoWallet) {
+    // No preview happening if wallet isn't connected
+    if (!isConnected) {
       return handleConnect()
     }
 
@@ -290,7 +291,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     handleConnect,
     history,
     isConnected,
-    isDemoWallet,
     mixpanel,
     showErrorToast,
     tradeQuoteStep,

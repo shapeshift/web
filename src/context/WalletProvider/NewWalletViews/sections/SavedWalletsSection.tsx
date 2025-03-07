@@ -2,16 +2,17 @@ import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router-dom'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
-import { NativeWalletRoutes } from 'context/WalletProvider/types'
-import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { NativeConfig } from '@/context/WalletProvider/NativeWallet/config'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { reactQueries } from '@/react-queries'
 
 type VaultInfo = {
   id: string
@@ -32,11 +33,12 @@ const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
     <Box
       as={Button}
       variant='ghost'
+      whiteSpace='normal'
       px={4}
-      ml={-4}
-      py={6}
+      ml='-16px'
+      mr='-16px'
+      py={2.5}
       borderRadius='md'
-      width='full'
       onClick={handleClick}
       bg={isSelected ? bgColor : undefined}
     >
@@ -61,8 +63,6 @@ export const SavedWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const buttonBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
-
   const history = useHistory()
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
@@ -145,13 +145,13 @@ export const SavedWalletsSection = ({
         <Box
           as={Button}
           variant='ghost'
+          whiteSpace='normal'
           px={4}
-          ml={-4}
-          py={6}
+          ml='-16px'
+          mr='-16px'
+          py={2.5}
           borderRadius='md'
-          width='full'
           onClick={handleAddNewWalletClick}
-          bg={buttonBgColor}
         >
           <Flex alignItems='center' width='full' color='gray.500'>
             <Icon as={FaPlus} boxSize='12px' mr={3} />

@@ -2,12 +2,13 @@ import { CardBody, Skeleton } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
-import { ClaimStatus } from 'components/ClaimRow/types'
-import { Text } from 'components/Text'
-import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 
 import { ClaimRow } from '../Claim/ClaimRow'
+
+import { ClaimStatus } from '@/components/ClaimRow/types'
+import { Text } from '@/components/Text'
+import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
 type ClaimsProps = {
   headerComponent: JSX.Element

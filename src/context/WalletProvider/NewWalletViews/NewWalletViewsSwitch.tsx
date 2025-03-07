@@ -15,14 +15,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeepKeyRoutes as KeepKeyRoutesEnum } from 'context/WalletProvider/routes'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { KeyManager } from '../KeyManager'
 import type { LocationState } from '../NativeWallet/types'
@@ -39,6 +34,12 @@ import { OthersSection } from './sections/OthersSection'
 import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
+
+import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { reactQueries } from '@/react-queries'
 
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
@@ -272,7 +273,7 @@ export const NewWalletViewsSwitch = () => {
               top={3}
               zIndex={1}
               bg={buttonContainerBgColor}
-              borderRadius='full'
+              borderRadius='2xl'
             >
               <IconButton
                 icon={arrowBackIcon}

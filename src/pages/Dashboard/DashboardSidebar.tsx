@@ -1,15 +1,16 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { memo } from 'react'
-import OnRamperLogo from 'assets/onramper-logo.svg'
-import SaversVaultTop from 'assets/savers-vault-top.png'
-import { AssetIcon } from 'components/AssetIcon'
-import { PromoCard } from 'components/Promo/PromoCard'
-import type { PromoItem } from 'components/Promo/types'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 
 import { RecentTransactions } from './RecentTransactions'
+
+import OnRamperLogo from '@/assets/onramper-logo.svg'
+import SaversVaultTop from '@/assets/savers-vault-top.png'
+import { AssetIcon } from '@/components/AssetIcon'
+import { PromoCard } from '@/components/Promo/PromoCard'
+import type { PromoItem } from '@/components/Promo/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { EligibleCarousel } from '@/pages/Defi/components/EligibleCarousel'
 
 const displayXlFlex = { base: 'none', xl: 'flex' }
 
@@ -56,9 +57,9 @@ const promoData: PromoItem[] = [
 
 export const DashboardSidebar = memo(() => {
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
-  if (!isConnected && !isDemoWallet) return null
+  if (!isConnected) return null
 
   return (
     <Flex width='full' flexDir='column' gap={6}>

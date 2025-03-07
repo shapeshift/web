@@ -1,24 +1,25 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { isSome } from 'lib/utils'
-import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
-import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
-import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
+
+import { getUserLpDataPosition } from './useUserLpData'
+
+import { isSome } from '@/lib/utils'
+import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import type { Position, UserLpDataPosition } from '@/lib/utils/thorchain/lp/types'
+import { reactQueries } from '@/react-queries'
+import { findAccountsByAssetId } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataUserCurrency,
   selectPortfolioAccounts,
   selectWalletId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { getUserLpDataPosition } from './useUserLpData'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type UseAllUserLpDataReturn = {
   assetId: AssetId

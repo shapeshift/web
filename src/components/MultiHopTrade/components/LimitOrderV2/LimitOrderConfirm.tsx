@@ -3,35 +3,6 @@ import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text/Text'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useActions } from 'hooks/useActions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { limitOrderApi, usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
-import {
-  selectBuyAmountCryptoBaseUnit,
-  selectInputSellAmountCryptoBaseUnit,
-} from 'state/slices/limitOrderInputSlice/selectors'
-import { LimitOrderSubmissionState } from 'state/slices/limitOrderSlice/constants'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
-import {
-  selectActiveQuote,
-  selectActiveQuoteBuyAmountCryptoPrecision,
-  selectActiveQuoteBuyAsset,
-  selectActiveQuoteFeeAsset,
-  selectActiveQuoteFeeAssetRateUserCurrency,
-  selectActiveQuoteId,
-  selectActiveQuoteSellAmountCryptoPrecision,
-  selectActiveQuoteSellAsset,
-  selectLimitOrderSubmissionMetadata,
-} from 'state/slices/limitOrderSlice/selectors'
-import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
@@ -45,6 +16,36 @@ import { useSetIsApprovalInitiallyNeeded } from './hooks/useSetIsApprovalInitial
 import { InnerSteps } from './InnerSteps'
 import { LimitOrderDetail } from './LimitOrderDetail'
 
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text/Text'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useActions } from '@/hooks/useActions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { limitOrderApi, usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
+import {
+  selectBuyAmountCryptoBaseUnit,
+  selectInputSellAmountCryptoBaseUnit,
+} from '@/state/slices/limitOrderInputSlice/selectors'
+import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import {
+  selectActiveQuote,
+  selectActiveQuoteBuyAmountCryptoPrecision,
+  selectActiveQuoteBuyAsset,
+  selectActiveQuoteFeeAsset,
+  selectActiveQuoteFeeAssetRateUserCurrency,
+  selectActiveQuoteId,
+  selectActiveQuoteSellAmountCryptoPrecision,
+  selectActiveQuoteSellAsset,
+  selectLimitOrderSubmissionMetadata,
+} from '@/state/slices/limitOrderSlice/selectors'
+import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
+
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const dispatch = useAppDispatch()
@@ -52,7 +53,7 @@ export const LimitOrderConfirm = () => {
     limitOrderSlice.actions,
   )
   const {
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -257,7 +258,7 @@ export const LimitOrderConfirm = () => {
 
   const buttonTranslation: string | [string, number | InterpolationOptions] | undefined =
     useMemo(() => {
-      if (!isConnected || isDemoWallet) return 'common.connectWallet'
+      if (!isConnected) return 'common.connectWallet'
       switch (orderSubmissionState) {
         case LimitOrderSubmissionState.AwaitingAllowanceApproval:
           return ['trade.approveAsset', { symbol: sellAsset?.symbol }]
@@ -268,10 +269,10 @@ export const LimitOrderConfirm = () => {
         default:
           return undefined
       }
-    }, [isConnected, isDemoWallet, orderSubmissionState, sellAsset?.symbol])
+    }, [isConnected, orderSubmissionState, sellAsset?.symbol])
 
   const handleConfirm = useCallback(async () => {
-    if (!isConnected || isDemoWallet) {
+    if (!isConnected) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -340,7 +341,6 @@ export const LimitOrderConfirm = () => {
     buyAsset,
     dispatch,
     isConnected,
-    isDemoWallet,
     mixpanel,
     orderSubmissionState,
     placeLimitOrder,

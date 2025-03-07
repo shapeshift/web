@@ -28,13 +28,6 @@ export const usdcToken: Token = {
   symbol: 'USDC',
 }
 
-export const yvUsdcToken: Token = {
-  contract: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
-  decimals: 6,
-  name: 'USDC yVault',
-  symbol: 'yvUSDC',
-}
-
 export const tribeToken: Token = {
   contract: '0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B',
   decimals: 18,
@@ -74,18 +67,4 @@ export const bondToken: Token = {
   decimals: 18,
   name: 'BarnBridge Governance Token',
   symbol: 'BOND',
-}
-
-export const linkToken: Token = {
-  contract: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
-  decimals: 18,
-  name: 'ChainLink Token',
-  symbol: 'LINK',
-}
-
-export const linkYearnVault: Token = {
-  contract: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
-  decimals: 18,
-  name: 'LINK yVault',
-  symbol: 'yvLINK',
 }

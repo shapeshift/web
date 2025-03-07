@@ -2,18 +2,22 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { reactQueries } from 'react-queries'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
-import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import {
+  getAllThorchainLendingPositions,
+  getThorchainPoolInfo,
+} from '@/lib/utils/thorchain/lending'
+import { reactQueries } from '@/react-queries'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
   const poolDataQueryKey: [string, { assetId: AssetId }] = useMemo(

@@ -10,20 +10,24 @@ import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+
+import type { SendInput } from './Form'
+
 import {
   checkIsMetaMaskDesktop,
   checkIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertGetChainAdapter, contractAddressOrUndefined } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { store } from 'state/store'
-
-import type { SendInput } from './Form'
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { assertGetChainAdapter, contractAddressOrUndefined } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import {
+  selectAssetById,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export type EstimateFeesInput = {
   amountCryptoPrecision: string

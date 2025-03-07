@@ -1,13 +1,13 @@
-import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
+import type { KeyManager } from './KeyManager'
+
+import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 import {
   selectNativeWalletName,
   selectWalletDeviceId,
   selectWalletRdns,
   selectWalletType,
-} from 'state/slices/localWalletSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-import type { KeyManager } from './KeyManager'
+} from '@/state/slices/localWalletSlice/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useLocalWallet = () => {
   const dispatch = useAppDispatch()

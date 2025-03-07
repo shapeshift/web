@@ -1,22 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
+import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
-import { getConfig } from 'config'
-import { thornode } from 'react-queries/queries/thornode'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import {
-  selectLiquidityLockupTime,
-  selectRunePoolMaturityTime,
-} from 'lib/utils/thorchain/selectors'
-import type { ThorchainMimir } from 'lib/utils/thorchain/types'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -40,6 +27,20 @@ import type {
   ThorchainRunepoolReservePositionsResponse,
 } from './types'
 import { getMidgardPools, getThorchainSaversPosition } from './utils'
+
+import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import {
+  selectLiquidityLockupTime,
+  selectRunePoolMaturityTime,
+} from '@/lib/utils/thorchain/selectors'
+import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
+import { thornode } from '@/react-queries/queries/thornode'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -80,7 +81,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
     return acc
   }, [])
 
-  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+  if (getConfig().VITE_FEATURE_RUNEPOOL) {
     opportunityIds.push(thorchainAssetId as StakingId)
   }
 
@@ -183,13 +184,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   const asset = selectAssetById(state, thorchainAssetId)
 
-  if (getConfig().REACT_APP_FEATURE_RUNEPOOL && asset) {
+  if (getConfig().VITE_FEATURE_RUNEPOOL && asset) {
     const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
-      `${getConfig().REACT_APP_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
+      `${getConfig().VITE_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
     )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+        `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
       )
 
     const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
@@ -318,7 +319,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   try {
     const { data: mimir } = await axios.get<ThorchainMimir>(
-      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
+      `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
     )
 
     const liquidityLockupTime = selectLiquidityLockupTime(mimir)
@@ -365,14 +366,14 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         try {
           if (stakingOpportunityId === thorchainAssetId) {
             const { data } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
-              `${getConfig().REACT_APP_MIDGARD_URL}/runepool/${asset_address}`,
+              `${getConfig().VITE_MIDGARD_URL}/runepool/${asset_address}`,
             )
 
             return bnOrZero(data[0].dateLastAdded).plus(runePoolDepositMaturityTime).toNumber()
           }
 
           const { data } = await axios.get<MidgardSaverResponse>(
-            `${getConfig().REACT_APP_MIDGARD_URL}/saver/${asset_address}`,
+            `${getConfig().VITE_MIDGARD_URL}/saver/${asset_address}`,
           )
 
           const dateLastAdded = data.pools.find(({ pool }) => pool === accountPosition.asset)

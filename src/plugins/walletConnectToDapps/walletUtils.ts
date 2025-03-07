@@ -2,7 +2,8 @@ import type WalletConnectCore from '@walletconnect/core'
 import { Core } from '@walletconnect/core'
 import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { Web3Wallet } from '@walletconnect/web3wallet'
-import { getConfig } from 'config'
+
+import { getConfig } from '@/config'
 
 let walletConnectWallet: Promise<IWeb3Wallet>
 let core: WalletConnectCore
@@ -10,7 +11,7 @@ let core: WalletConnectCore
 // WalletConnect Core singleton
 export const getWalletConnectCore = () => {
   if (!core) {
-    const walletConnectToDappsProjectId = getConfig().REACT_APP_WALLET_CONNECT_TO_DAPPS_PROJECT_ID
+    const walletConnectToDappsProjectId = getConfig().VITE_WALLET_CONNECT_TO_DAPPS_PROJECT_ID
     core = new Core({
       projectId: walletConnectToDappsProjectId,
     })

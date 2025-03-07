@@ -11,7 +11,7 @@ import {
   Tag,
   Wrap,
 } from '@chakra-ui/react'
-import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -19,16 +19,17 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
+import { useHistory } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
-const Revocable = Default.Revocable
-const revocable = Default.revocable
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 

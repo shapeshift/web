@@ -1,7 +1,8 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Button, Flex, Link } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { middleEllipsis } from 'lib/utils'
+
+import { middleEllipsis } from '@/lib/utils'
 
 const Id = ({ id, ...rest }: FlexProps & { id: string }) => (
   <Flex alignItems='center' whiteSpace='nowrap' {...rest}>

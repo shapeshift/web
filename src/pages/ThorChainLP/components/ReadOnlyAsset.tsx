@@ -1,7 +1,8 @@
 import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { AssetIcon } from 'components/AssetIcon'
-import { AssetSymbol } from 'components/AssetSymbol'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { AssetSymbol } from '@/components/AssetSymbol'
 
 export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
   return (

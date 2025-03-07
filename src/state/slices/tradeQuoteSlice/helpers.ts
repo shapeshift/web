@@ -8,17 +8,17 @@ import type {
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
-import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import partition from 'lodash/partition'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ActiveQuoteMeta } from './types'
+
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { isSome } from '@/lib/utils'
+import type { ApiQuote } from '@/state/apis/swapper/types'
 
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
@@ -60,19 +60,6 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
     )
     return acc.plus(networkFeeFiatPrecision ?? '0')
   }, bn(0))
-}
-
-export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuote['steps'][number],
-  userCurrencyToUsdRate: string,
-  marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
-): string | undefined => {
-  return sumProtocolFeesToDenom({
-    marketDataByAssetIdUsd,
-    protocolFees: tradeQuoteStep.feeData.protocolFees,
-    outputExponent: 0,
-    outputAssetPriceUsd: userCurrencyToUsdRate,
-  })
 }
 
 /**

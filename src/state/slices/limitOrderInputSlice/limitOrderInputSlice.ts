@@ -79,14 +79,6 @@ export const limitOrderInput = createTradeInputBaseSlice({
         switch (state.limitPriceMode) {
           case LimitPriceMode.Market:
             return '1.00'
-          case LimitPriceMode.OnePercent:
-            return '1.01'
-          case LimitPriceMode.TwoPercent:
-            return '1.02'
-          case LimitPriceMode.FivePercent:
-            return '1.05'
-          case LimitPriceMode.TenPercent:
-            return '1.10'
           default:
             return assertUnreachable(state.limitPriceMode)
         }

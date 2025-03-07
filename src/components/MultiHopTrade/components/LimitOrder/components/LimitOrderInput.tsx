@@ -25,6 +25,7 @@ import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
+import { LimitOrderFooter } from './LimitOrderFooter'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
@@ -534,6 +535,7 @@ export const LimitOrderInput = ({
             ? undefined
             : limitPrice.buyAssetDenomination
         }
+        marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
@@ -548,7 +550,10 @@ export const LimitOrderInput = ({
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
         sellAsset={sellAsset}
       >
-        {renderedRecipientAddress}
+        <>
+          <LimitOrderFooter />
+          {renderedRecipientAddress}
+        </>
       </SharedTradeInputFooter>
     )
   }, [
@@ -561,9 +566,9 @@ export const LimitOrderInput = ({
     isLoading,
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
+    marketPriceBuyAsset,
     sellAccountId,
     isRecipientAddressEntryActive,
-    marketPriceBuyAsset,
     networkFeeUserCurrency,
     sellAsset,
     renderedRecipientAddress,

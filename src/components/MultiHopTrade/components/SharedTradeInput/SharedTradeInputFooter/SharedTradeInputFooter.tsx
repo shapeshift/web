@@ -10,6 +10,7 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -33,6 +34,7 @@ type SharedTradeInputFooterProps = {
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
   onGasRateRowClick?: () => void
+  marketRate?: string
 }
 
 export const SharedTradeInputFooter = ({
@@ -55,6 +57,7 @@ export const SharedTradeInputFooter = ({
   swapSource,
   networkFeeFiatUserCurrency,
   onGasRateRowClick,
+  marketRate,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
@@ -87,6 +90,22 @@ export const SharedTradeInputFooter = ({
     return <Text translation={quoteStatusTranslation} />
   }, [quoteStatusTranslation])
 
+  // Calculate the delta percentage between the limit price and market price
+  const deltaPercentage = useMemo(() => {
+    if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null
+
+    const percentDifference = bnOrZero(rate).minus(marketRate).div(marketRate).times(100)
+
+    if (percentDifference.isZero()) return null
+
+    // Format to show + or - sign and limit to 2 decimal places
+    const formattedPercentage = percentDifference.isPositive()
+      ? `+${percentDifference.toFixed(2)}%`
+      : `${percentDifference.toFixed(2)}%`
+
+    return formattedPercentage
+  }, [rate, marketRate])
+
   return (
     <>
       <CardFooter
@@ -103,6 +122,7 @@ export const SharedTradeInputFooter = ({
             sellAssetSymbol={sellAsset.symbol}
             isDisabled={shouldDisableGasRateRowClick}
             rate={rate}
+            deltaPercentage={deltaPercentage}
             isLoading={isLoading}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}

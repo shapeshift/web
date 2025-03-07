@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertIcon,
@@ -6,14 +5,8 @@ import {
   Button,
   Flex,
   HStack,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
   Skeleton,
   Stack,
-  Text as CText,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -29,53 +22,17 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { BigNumber, bn } from '@/lib/bignumber/bignumber'
-import { assertUnreachable } from '@/lib/utils'
-import {
-  ExpiryOption,
-  LimitPriceMode,
-  PriceDirection,
-} from '@/state/slices/limitOrderInputSlice/constants'
+import { bn } from '@/lib/bignumber/bignumber'
+import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
-  selectExpiry,
   selectLimitPrice,
   selectLimitPriceDirection,
   selectLimitPriceForSelectedPriceDirection,
-  selectLimitPriceMode,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from '@/state/store'
 
-const EXPIRY_OPTIONS = [
-  ExpiryOption.OneHour,
-  ExpiryOption.OneDay,
-  ExpiryOption.ThreeDays,
-  ExpiryOption.SevenDays,
-  ExpiryOption.TwentyEightDays,
-] as const
-
-const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
-  switch (expiryOption) {
-    case ExpiryOption.OneHour:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.OneDay:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.ThreeDays:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.SevenDays:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.TwentyEightDays:
-      return `limitOrder.expiryOption.${expiryOption}`
-    // TODO: implement custom expiry
-    // case ExpiryOption.Custom:
-    //   return `limitOrder.expiryOption.${expiryOption}`
-    default:
-      assertUnreachable(expiryOption)
-  }
-}
-
-const timePeriodRightIcon = <ChevronDownIcon />
 const swapIcon = <SwapIcon />
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 const swapPriceButtonProps = { pr: 4, _disabled: disabledProps }
@@ -85,6 +42,21 @@ type LimitOrderConfigProps = {
   buyAsset: Asset
   isLoading: boolean
   marketPriceBuyAsset: string
+}
+
+const linkAfter = {
+  content: '""',
+  display: 'block',
+  height: '1px',
+  borderBottom: '1px dotted',
+  borderColor: 'whiteAlpha.500',
+}
+
+const linkHover = {
+  _after: {
+    borderBottom: 'none',
+    height: '2px',
+  },
 }
 
 export const LimitOrderConfig = ({
@@ -101,26 +73,14 @@ export const LimitOrderConfig = ({
   )
   const limitPrice = useAppSelector(selectLimitPrice)
   const priceDirection = useAppSelector(selectLimitPriceDirection)
-  const expiry = useAppSelector(selectExpiry)
-  const limitPriceMode = useAppSelector(selectLimitPriceMode)
 
-  const { setLimitPriceDirection, setExpiry, setLimitPrice, setLimitPriceMode } = useActions(
+  const { setLimitPriceDirection, setLimitPrice, setLimitPriceMode } = useActions(
     limitOrderInput.actions,
   )
 
   const {
     number: { localeParts },
   } = useLocaleFormatter()
-
-  const expiryOptions = useMemo(() => {
-    return EXPIRY_OPTIONS.map(expiryOption => {
-      return (
-        <MenuItemOption value={expiryOption} key={expiryOption}>
-          <Text translation={getExpiryOptionTranslation(expiryOption)} />
-        </MenuItemOption>
-      )
-    })
-  }, [])
 
   const priceAsset = useMemo(() => {
     return priceDirection === PriceDirection.BuyAssetDenomination ? buyAsset : sellAsset
@@ -137,10 +97,6 @@ export const LimitOrderConfig = ({
       : bnOrZero(limitPriceForSelectedPriceDirection).toFixed(3)
   }, [limitPriceForSelectedPriceDirection])
 
-  const arrow = useMemo(() => {
-    return priceDirection === PriceDirection.BuyAssetDenomination ? '↑' : '↓'
-  }, [priceDirection])
-
   const handleSetPresetLimit = useCallback(
     (limitPriceMode: LimitPriceMode) => {
       if (limitPriceMode === LimitPriceMode.CustomValue) return
@@ -153,22 +109,6 @@ export const LimitOrderConfig = ({
 
   const handleSetMarketLimit = useCallback(() => {
     handleSetPresetLimit(LimitPriceMode.Market)
-  }, [handleSetPresetLimit])
-
-  const handleSetOnePercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.OnePercent)
-  }, [handleSetPresetLimit])
-
-  const handleSetTwoPercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.TwoPercent)
-  }, [handleSetPresetLimit])
-
-  const handleSetFivePercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.FivePercent)
-  }, [handleSetPresetLimit])
-
-  const handleSetTenPercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.TenPercent)
   }, [handleSetPresetLimit])
 
   const handleTogglePriceDirection = useCallback(() => {
@@ -193,45 +133,10 @@ export const LimitOrderConfig = ({
     priceAmountRef.current = values.value
   }, [])
 
-  const expiryOptionTranslation = useMemo(() => {
-    return getExpiryOptionTranslation(expiry)
-  }, [expiry])
-
-  const handleChangeExpiryOption = useCallback(
-    (newExpiry: string | string[]) => {
-      setExpiry(newExpiry as ExpiryOption)
-    },
-    [setExpiry],
-  )
-
   const delta = useMemo(
     () => bn(limitPrice.buyAssetDenomination).div(marketPriceBuyAsset).minus(1).times(100),
     [limitPrice.buyAssetDenomination, marketPriceBuyAsset],
   )
-
-  const renderDelta = useMemo(() => {
-    const prefix = (() => {
-      if (delta.gte('999')) return '>'
-      return delta.gt(0) ? '+' : ''
-    })()
-
-    if (
-      bnOrZero(limitPrice.buyAssetDenomination).isZero() ||
-      bnOrZero(marketPriceBuyAsset).isZero()
-    )
-      return null
-    if (isLoading) return null
-    if (delta.isZero()) return null
-
-    const deltaOrDefault = BigNumber.minimum(999, delta).toFixed(2)
-
-    return (
-      <CText color={delta.gt(0) ? 'text.success' : 'text.error'}>
-        ({prefix}
-        {deltaOrDefault}%)
-      </CText>
-    )
-  }, [delta, isLoading, limitPrice, marketPriceBuyAsset])
 
   const maybePriceWarning = useMemo(() => {
     if (
@@ -276,25 +181,48 @@ export const LimitOrderConfig = ({
     translate,
   ])
 
+  const displayAsset = useMemo(() => {
+    return priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset : buyAsset
+  }, [buyAsset, priceDirection, sellAsset])
+
+  const handleTokenTextClick = useCallback(() => {
+    handleTogglePriceDirection()
+  }, [handleTogglePriceDirection])
+
   return (
     <Stack spacing={4} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
-          <Text translation='limitOrder.whenPriceReaches' />
-          {renderDelta}
+          <Text translation='limitOrder.when' />
+          <Button
+            variant='unstyled'
+            onClick={handleTokenTextClick}
+            fontWeight='bold'
+            fontSize='sm'
+            position='relative'
+            _after={linkAfter}
+            _hover={linkHover}
+          >
+            1 {displayAsset.symbol}
+          </Button>
+          <Text translation='limitOrder.isWorth' />
         </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
-          <Text translation='limitOrder.expiry' mr={4} />
-          <Menu isLazy>
-            <MenuButton as={Button} rightIcon={timePeriodRightIcon} isDisabled={isLoading}>
-              <Text translation={expiryOptionTranslation} />
-            </MenuButton>
-            <MenuList zIndex='modal'>
-              <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
-                {expiryOptions}
-              </MenuOptionGroup>
-            </MenuList>
-          </Menu>
+          <Text translation='limitOrder.market' mr={2} />
+          <Button
+            variant='unstyled'
+            onClick={handleSetMarketLimit}
+            isDisabled={isLoading}
+            fontWeight='medium'
+            fontSize='sm'
+            position='relative'
+            _after={linkAfter}
+            _hover={linkHover}
+            opacity={isLoading ? 0.5 : 1}
+            cursor={isLoading ? 'not-allowed' : 'pointer'}
+          >
+            {bnOrZero(marketPriceBuyAsset).toFixed(6)} {priceAsset.symbol}
+          </Button>
         </Flex>
       </Flex>
       <HStack width='full' justify='space-between'>
@@ -320,53 +248,6 @@ export const LimitOrderConfig = ({
           isDisabled={isLoading}
         />
       </HStack>
-      <Flex justifyContent='space-between'>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.Market}
-          onClick={handleSetMarketLimit}
-          isDisabled={isLoading}
-        >
-          Market
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.OnePercent}
-          onClick={handleSetOnePercentLimit}
-          isDisabled={isLoading}
-        >
-          1% {arrow}
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.TwoPercent}
-          onClick={handleSetTwoPercentLimit}
-          isDisabled={isLoading}
-        >
-          2% {arrow}
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.FivePercent}
-          onClick={handleSetFivePercentLimit}
-          isDisabled={isLoading}
-        >
-          5% {arrow}
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.TenPercent}
-          onClick={handleSetTenPercentLimit}
-          isDisabled={isLoading}
-        >
-          10% {arrow}
-        </Button>
-      </Flex>
       {maybePriceWarning}
     </Stack>
   )

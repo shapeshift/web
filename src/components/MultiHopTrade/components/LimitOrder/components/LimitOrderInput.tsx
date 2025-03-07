@@ -55,10 +55,10 @@ import {
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
   selectLimitPriceMode,
+  selectSelectedBuyAssetChainId,
+  selectSelectedSellAssetChainId,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
-  selectSelectedSellAssetChainId,
-  selectSelectedBuyAssetChainId,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { calcLimitPriceBuyAsset } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
@@ -416,7 +416,7 @@ export const LimitOrderInput = ({
         assetFilterPredicate={sellAssetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         selectedSellAssetChainId={selectedSellAssetChainId}
-        onSellAssetChainChange={setSelectedSellAssetChainId}
+        onSellAssetChainIdChange={setSelectedSellAssetChainId}
       >
         <Stack>
           <LimitOrderBuyAsset
@@ -429,7 +429,7 @@ export const LimitOrderInput = ({
             assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
             selectedChainId={selectedBuyAssetChainId}
-            onChainChange={setSelectedBuyAssetChainId}
+            onSelectedChainIdChange={setSelectedBuyAssetChainId}
           />
           <Divider />
           <LimitOrderConfig

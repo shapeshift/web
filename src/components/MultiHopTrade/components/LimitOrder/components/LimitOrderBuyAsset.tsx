@@ -33,7 +33,7 @@ export type LimitOrderBuyAssetProps = {
   onSetBuyAsset: (asset: Asset) => void
   isLoading: boolean
   selectedChainId?: ChainId | 'All'
-  onChainChange?: (chainId: ChainId | 'All') => void
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
@@ -46,7 +46,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     onAccountIdChange,
     onSetBuyAsset,
     selectedChainId,
-    onChainChange,
+    onSelectedChainIdChange,
   }) => {
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
@@ -63,9 +63,16 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         assetFilterPredicate,
         chainIdFilterPredicate,
         selectedChainId,
-        onSelectedChainIdChange: onChainChange,
+        onSelectedChainIdChange,
       })
-    }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, onSetBuyAsset, selectedChainId, onChainChange])
+    }, [
+      assetFilterPredicate,
+      buyAssetSearch,
+      chainIdFilterPredicate,
+      onSetBuyAsset,
+      selectedChainId,
+      onSelectedChainIdChange,
+    ])
 
     const tradeAssetSelect = useMemo(
       () => (

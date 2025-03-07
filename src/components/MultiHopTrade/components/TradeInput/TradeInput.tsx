@@ -52,8 +52,8 @@ import {
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
-  selectSelectedSellAssetChainId,
   selectSelectedBuyAssetChainId,
+  selectSelectedSellAssetChainId,
 } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -441,7 +441,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         selectedSellAssetChainId={selectedSellAssetChainId}
-        onSellAssetChainChange={setSelectedSellAssetChainId}
+        onSellAssetChainIdChange={setSelectedSellAssetChainId}
       >
         <TradeAssetInput
           // Disable account selection when user set a manual receive address

@@ -1,5 +1,5 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
-import { foxAssetIds, foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
@@ -38,6 +38,7 @@ import {
 } from '@/state/apis/snapshot/selectors'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -62,7 +63,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -217,6 +218,19 @@ export const useGetTradeQuotes = () => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
   )
 
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
@@ -283,7 +297,7 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      const isFoxBuyAsset = foxAssetIds.includes(buyAsset.assetId)
+      const isFoxBuyAsset = relatedAssetIds.includes(buyAsset.assetId)
 
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
@@ -329,6 +343,7 @@ export const useGetTradeQuotes = () => {
     userSlippageTolerancePercentageDecimal,
     votingPower,
     wallet,
+    relatedAssetIds,
   ])
 
   const { data: tradeQuoteInput } = useQuery({

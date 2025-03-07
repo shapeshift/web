@@ -81,14 +81,6 @@ type ValidChainMap = {
   [k in ChainNamespace]: ChainReference[]
 }
 
-export const foxAssetIds = [
-  foxAssetId,
-  foxOnGnosisAssetId,
-  foxOnArbitrumOneAssetId,
-  foxOnOptimismAssetId,
-  foxOnPolygonAssetId,
-]
-
 export const CHAIN_REFERENCE = {
   EthereumMainnet: '1',
   BitcoinMainnet: '000000000019d6689c085ae165831e93',

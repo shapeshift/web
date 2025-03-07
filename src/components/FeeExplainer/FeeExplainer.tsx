@@ -1,6 +1,6 @@
 import type { CardProps, StackProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
-import { foxAssetIds, foxWifHatAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
@@ -37,8 +37,9 @@ import {
   selectVotingPower,
 } from '@/state/apis/snapshot/selectors'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type FeeChartProps = {
   tradeSize: number
@@ -277,7 +278,24 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
   )
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const isFoxBuyAsset = useMemo(() => foxAssetIds.includes(buyAsset?.assetId), [buyAsset])
+
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
+  const isFoxBuyAsset = useMemo(
+    () => relatedAssetIds.includes(buyAsset?.assetId),
+    [relatedAssetIds, buyAsset?.assetId],
+  )
 
   const {
     feeUsd,
@@ -309,12 +327,14 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
   const discountTypeTranslation = useMemo(() => {
     if (isFoxBuyAsset) return translate('foxDiscounts.foxBuy')
 
-    return translate(appliedDiscountType)
+    return translate(`foxDiscounts.${appliedDiscountType}`)
   }, [appliedDiscountType, isFoxBuyAsset, translate])
 
   const discountLabelTranslation: TextPropTypes['translation'] = useMemo(() => {
+    if (feeBps.isZero()) return 'foxDiscounts.breakdownHeader'
+
     return [`foxDiscounts.discountLabel`, { discountType: discountTypeTranslation }]
-  }, [discountTypeTranslation])
+  }, [discountTypeTranslation, feeBps])
 
   return (
     <Flex fontWeight='medium' pb={0}>

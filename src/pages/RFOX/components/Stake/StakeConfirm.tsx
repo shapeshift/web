@@ -334,7 +334,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             ) : (
               <TimelineItem>
                 <CustomRow>
-                  <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
+                  <Row.Label>{translate('trade.networkFee')}</Row.Label>
                   <Skeleton isLoaded={!isStakeFeesLoading}>
                     <Row.Value>
                       <Amount.Fiat value={stakeFees?.txFeeFiat ?? '0.0'} />

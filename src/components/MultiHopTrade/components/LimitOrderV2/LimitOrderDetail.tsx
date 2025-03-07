@@ -1,9 +1,6 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Card, HStack, Stack } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { useTranslate } from 'react-polyglot'
-
-import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Row } from '@/components/Row/Row'
@@ -26,7 +23,7 @@ export const LimitOrderDetail = () => {
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   return (
-    <Stack spacing={4} width='full'>
+    <Stack spacing={4} width='full' px={6}>
       <Row>
         <Row.Label>
           <Text translation='limitOrder.limitPrice' />
@@ -39,17 +36,6 @@ export const LimitOrderDetail = () => {
               value={limitPrice?.buyAssetDenomination}
               symbol={buyAsset?.symbol ?? ''}
             />
-          </HStack>
-        </Row.Value>
-      </Row>
-      <Row>
-        <Row.Label>
-          <Text translation='limitOrder.provider' />
-        </Row.Label>
-        <Row.Value textAlign='right'>
-          <HStack>
-            <SwapperIcon swapperName={SwapperName.CowSwap} />
-            <RawText>{SwapperName.CowSwap}</RawText>
           </HStack>
         </Row.Value>
       </Row>

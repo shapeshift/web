@@ -22,7 +22,7 @@ export const SharedConfirmBody: React.FC<SharedConfirmBodyProps> = ({
 }) => {
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
-      <HStack width='full' justifyContent='space-between' px={4}>
+      <HStack width='full' justifyContent='space-between' px={6}>
         <Stepper index={-1} orientation='vertical' gap='0' mb={6} width='full'>
           <AssetSummaryStep asset={sellAsset} amountCryptoBaseUnit={sellAmountCryptoBaseUnit} />
 

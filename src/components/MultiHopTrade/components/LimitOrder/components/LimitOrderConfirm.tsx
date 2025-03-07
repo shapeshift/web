@@ -219,7 +219,7 @@ export const LimitOrderConfirm = () => {
             </Row>
             <Row px={2}>
               <Row.Label>
-                <Text translation='limitOrder.networkFee' />
+                <Text translation='trade.networkFee' />
               </Row.Label>
               <Amount.Crypto value={networkFeeCryptoPrecision} symbol={feeAsset?.symbol ?? ''} />
             </Row>

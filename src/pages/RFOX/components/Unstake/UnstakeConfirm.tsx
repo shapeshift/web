@@ -142,7 +142,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
+                <Row.Label>{translate('trade.networkFee')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={!isUnstakeFeesLoading}>
                     <Row.Value>

@@ -24,7 +24,15 @@ export const SharedConfirm = ({
 }: SharedConfirmProps) => {
   return (
     <TradeSlideTransition>
-      <Card flex={1} borderRadius={cardBorderRadius} width='full' maxWidth='500px'>
+      <Card
+        flex={1}
+        borderRadius={cardBorderRadius}
+        width='full'
+        maxWidth='500px'
+        variant='dashboard'
+        borderColor='border.base'
+        bg='background.surface.raised.base'
+      >
         <CardHeader px={6} pt={4}>
           <WithBackButton onBack={onBack}>
             <Heading textAlign='center' fontSize='md'>
@@ -36,7 +44,7 @@ export const SharedConfirm = ({
           {bodyContent}
         </CardBody>
         {footerContent && (
-          <CardFooter bg='background.surface.overlay.base' borderBottomRadius='xl'>
+          <CardFooter borderTopWidth={1} borderColor='border.subtle' flexDir='column' px={0} py={0}>
             {footerContent}
           </CardFooter>
         )}

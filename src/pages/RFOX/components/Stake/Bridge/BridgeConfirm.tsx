@@ -175,7 +175,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
             )}
             <TimelineItem>
               <CustomRow>
-                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
+                <Row.Label>{translate('trade.networkFee')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={!!networkFeeUserCurrency}>
                     <Row.Value>

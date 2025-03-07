@@ -229,7 +229,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
             </TimelineItem>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
+                <Row.Label>{translate('trade.networkFee')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={!isClaimFeesLoading}>
                     <Row.Value>

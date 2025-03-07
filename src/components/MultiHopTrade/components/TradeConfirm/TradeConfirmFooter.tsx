@@ -30,11 +30,13 @@ import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 type TradeConfirmFooterProps = {
   tradeQuoteStep: TradeQuoteStep
   activeTradeId: string
+  isCompact: boolean | undefined
 }
 
 export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   tradeQuoteStep,
   activeTradeId,
+  isCompact,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const { currentTradeStep } = useStepperSteps()
@@ -125,7 +127,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const tradeResetStepSummary = useMemo(() => {
     return (
-      <Stack spacing={4} width='full'>
+      <Stack spacing={4} px={6} width='full'>
         <Row>
           <Row.Label>
             <Text translation='common.allowanceResetFee' />
@@ -163,7 +165,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
-      <Stack spacing={4} width='full'>
+      <Stack spacing={4} px={6} width='full'>
         <Row>
           <Row.Label>
             <Text translation='common.approvalFee' />
@@ -224,7 +226,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const tradeExecutionStepSummary = useMemo(() => {
     return (
-      <Stack spacing={4} width='full'>
+      <Stack spacing={4} px={6} width='full'>
         <Row>
           <Row.Label>
             <Text translation='trade.transactionFee' />
@@ -265,7 +267,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     switch (currentTradeStep) {
       // No trade step is active, quote is still to be confirmed
       case undefined:
-        return <TradeConfirmSummary />
+        return <TradeConfirmSummary isCompact={isCompact} />
       case StepperStep.FirstHopReset:
       case StepperStep.LastHopReset:
         return tradeResetStepSummary
@@ -279,6 +281,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         return null
     }
   }, [
+    isCompact,
     currentTradeStep,
     tradeResetStepSummary,
     tradeAllowanceStepSummary,

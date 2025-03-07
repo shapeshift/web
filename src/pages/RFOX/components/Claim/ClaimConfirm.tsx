@@ -241,7 +241,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
+                <Row.Label>{translate('trade.networkFee')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={!isClaimFeesLoading}>
                     <Row.Value>

@@ -140,6 +140,8 @@
     "needAsset": "Brauchen Sie %{asset}?",
     "buyNow": "Kaufe jetzt",
     "manage": "Verwalten",
+    "view": "Ansicht",
+    "viewOnly": "Nur Ansicht",
     "selectedAccount": "Ausgewähltes Konto",
     "allChains": "All Blockchains",
     "wallet": "Wallet",
@@ -512,9 +514,9 @@
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "myPositions": "Meine Positionen",
-    
+    "myPositionsBody": "Liste Ihrer aktuell aktiven Positionen in DeFi.",
     "myRewards": "Meine Belohnungen",
-    
+    "myRewardsBody": "Ihre aktiven DeFi-Positionen mit einforderbaren Belohnungen.",
     "viewAllPositions": "Alle Positionen anzeigen",
     "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "Es gibt eine Sperrfrist von %{time}. Während der Sperre können Sie nicht auf Ihre Liquidität zugreifen.",
@@ -528,8 +530,6 @@
     "poolValue": "Poolwert",
     "yearn": "Yearn Finance",
     "totalValue": "Gesamtwert",
-    "byAsset": "Nach Vermögenswert",
-    "byProvider": "Nach Anbieter",
     "claimableRewards": "Forderbare Belohnungen",
     "stakingPosition": "Stake Position",
     "liquidityPool": "Liquidity Pool",
@@ -590,6 +590,8 @@
     "assetStakingBalance": "%{assetSymbol} Staking Kontostand"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "Startseite",
     "activity": "Aktivität",
     "myWallet": "Meine Wallet",
@@ -624,7 +626,7 @@
     "lending": "Verleihen",
     "pools": "Pools",
     "rFOX": "rFOX",
-    "foxBenefits": "FOX Vorteile",
+    "foxEcosystem": "FOX Ökosystem",
     "markets": "Märkte",
     "actionMenu": {
       "send": {
@@ -2468,6 +2470,7 @@
     "repayNotice": "Um Ihre Sicherheiten zurückzuerhalten, müssen Sie 100 % Ihrer Schulden zurückzahlen.",
     "feesNotice": "Für die Sicherheiten, die Sie nach vollständiger Rückzahlung Ihrer Schulden zurückerhalten, fallen Gebühren an",
     "refetchQuote": "Angebot erneut abrufen",
+    "haltedAlert": "THORFi Dienste (Lending, Savers und RUNEPool) sind derzeit auf THORChain pausiert. Wir entschuldigen uns für etwaige Unannehmlichkeiten.",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2515,15 +2518,19 @@
     "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihr %{feature} erhalten. Passen Sie einfach die Schieberegler unten an, um die Ihrer FOX Guthaben\n und die %{featureLowerCase}-Größe in Fiat anzugeben, und beobachten Sie, wie sich Ihre potenziellen Einsparungen entfalten!",
     "featureSize": "%{feature} Größe",
     "totalFee": "Gesamtgebühr",
-    "foxPowerDiscount": "FOX Power Rabatt",
+    "discountLabel": "%{discountType} Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
-    "simulateFee": "Rabatt simulieren",
+    "simulateFee": "FOX Rabatt simulieren",
     "freeUnderThreshold": "%{feature} unter %{threshold} sind immer KOSTENLOS",
-    "breakdownHeader": "Ihr FOX Power Rabatt",
-    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer %{featureLowerCase}-Gebühren und des entsprechenden angewendeten FOX Power-Rabatts. Erfahren Sie, wie viel mehr Sie sparen können in der Registerkarte „Simulieren“ .",
+    "breakdownHeader": "Ihr Rabatt",
+    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer %{featureLowerCase} Gebühren und den entsprechenden Rabatt. Erfahren Sie, wie viel Sie auf der Registerkarte „Simulieren“ noch sparen können.",
     "featureFee": "%{feature} Gebühr",
-    "totalFeatureFee": "Gesamte %{feature} Gebühr"
+    "totalFeatureFee": "Gesamte %{feature} Gebühr",
+    "underThreshold": "geringer Handels - Rabatt",
+    "thorHolder": "THORSwap Halter",
+    "foxHolder": "FOX Halter",
+    "foxWifHatHolder": "FOX Wif Hat Halter"
   },
   "chart": {
     "interval": {
@@ -2564,6 +2571,7 @@
     "unsupportedDemoWalletExplainer": "Die Demo-Wallet wird nicht unterstützt. Bitte stellen Sie eine Verbindung zu einer echten Wallet her, um diese Funktion zu nutzen.",
     "unsupportedNetworkExplainer": "Ihre Wallet ist nicht mit %{network} verbunden. Bitte verbinden Sie sie oder wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
     "unsupportedNetworksExplainer": "Ihre Wallet ist nicht mit %{network1} und %{network2} verbunden. Bitte verbinden Sie sie  oder wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
+    "instabilityWarning": "Benutzer erhalten derzeit Rückerstattungen, wenn sie Einzahlungen in THORChain-Pools vornehmen. Bitte gehen Sie mit Vorsicht vor.",
     "shareOfPool": "Anteil am Pool",
     "assetDepositAmount": "%{asset} Einzahlungsbetrag",
     "totalLiquidity": "Gesamtliquidität",
@@ -2860,10 +2868,6 @@
       "noActiveProposals": "Keine aktiven Vorschläge verfügbar",
       "noClosedProposals": "Keine abgeschlossenen Vorschläge verfügbar"
     }
-  },
-  "thorFees": {
-    "title": "Hier von THORSwap?",
-    "description": "THOR-Inhaber können bis 2024 kostenlos handeln."
   },
   "chainAdapters": {
     "errors": {

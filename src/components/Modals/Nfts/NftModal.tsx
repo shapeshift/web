@@ -191,6 +191,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
 
     try {
       if (!nftCollection) throw new Error(`NFT collection for ${nftItem.collectionId} not found`)
+      if (!alchemyUri) throw new Error(`Alchemy URI for chainId ${chainId} not found`)
       dispatch(
         nft.actions.upsertCollection({
           ...nftCollection,
@@ -206,7 +207,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
       )
         return
 
-      await axios.get<string>(`${alchemyUri!}/reportSpam`, { params: { address } })
+      await axios.get<string>(`${alchemyUri}/reportSpam`, { params: { address } })
     } catch (e) {
       console.error(e)
     } finally {

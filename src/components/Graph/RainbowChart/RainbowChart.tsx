@@ -81,10 +81,16 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const renderTooltip = useCallback(
     (params: RenderTooltipParams<RainbowData>) => {
       const { tooltipData } = params
-      const { datum, key: assetId } = tooltipData?.nearestDatum!
+      const { datum, key: assetId } = tooltipData?.nearestDatum ?? {}
+
+      if (!datum || !assetId) return null
+
       const price = datum[assetId]
       const { date } = datum
-      const asset = assets[assetId]!
+      const asset = assets[assetId]
+
+      if (!asset) return null
+
       const { symbol } = asset
       return (
         <Stack

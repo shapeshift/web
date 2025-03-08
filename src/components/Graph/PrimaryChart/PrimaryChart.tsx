@@ -146,7 +146,10 @@ export const PrimaryChart = ({
 
   const renderTooltip = useCallback(
     ({ tooltipData }: RenderTooltipParams<HistoryData>) => {
-      const { datum } = tooltipData?.nearestDatum!
+      const { datum } = tooltipData?.nearestDatum ?? {}
+
+      if (!datum) return null
+
       const { date, price } = datum as HistoryData
       return (
         <CStack

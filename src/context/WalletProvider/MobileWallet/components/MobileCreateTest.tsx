@@ -102,9 +102,10 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
       ;(async () => {
         if (vault?.label && vault?.mnemonic) {
           const newWallet = await addWallet({ label: vault.label, mnemonic: vault.mnemonic })
+          if (!newWallet) throw new Error('Failed to add wallet')
 
           queryClient.invalidateQueries({ queryKey: ['listWallets'] })
-          history.replace('/mobile/success', { vault: newWallet! })
+          history.replace('/mobile/success', { vault: newWallet })
         }
       })()
 

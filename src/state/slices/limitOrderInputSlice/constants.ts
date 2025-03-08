@@ -15,9 +15,5 @@ export enum PriceDirection {
 
 export enum LimitPriceMode {
   Market = 'market',
-  OnePercent = 'onePercent',
-  TwoPercent = 'twoPercent',
-  FivePercent = 'fivePercent',
-  TenPercent = 'tenPercent',
   CustomValue = 'customValue',
 }

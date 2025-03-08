@@ -3,7 +3,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { FC, PropsWithChildren } from 'react'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -12,7 +12,7 @@ import { SwapperIcons } from './SwapperIcons'
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 
 type RateGasRowProps = {
   buyAssetSymbol: string
@@ -23,6 +23,7 @@ type RateGasRowProps = {
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
+  deltaPercentage?: string | null
   onClick?: () => void
 } & PropsWithChildren
 
@@ -44,10 +45,31 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     swapperName,
     swapSource,
     networkFeeFiatUserCurrency,
+    deltaPercentage,
     onClick,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+
+    const rateContent = useMemo(() => {
+      if (!rate) return null
+      return (
+        <Skeleton isLoaded={!isLoading}>
+          <RawText color='text.subtle' fontWeight='medium'>
+            1 {sellAssetSymbol} = {rate} {buyAssetSymbol}
+            {deltaPercentage && (
+              <RawText
+                as='span'
+                color={deltaPercentage.startsWith('+') ? 'green.500' : 'red.500'}
+                ml={1}
+              >
+                ({deltaPercentage})
+              </RawText>
+            )}
+          </RawText>
+        </Skeleton>
+      )
+    }, [buyAssetSymbol, deltaPercentage, isLoading, rate, sellAssetSymbol])
 
     switch (true) {
       case isLoading:
@@ -109,13 +131,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         borderColor='transparent'
                         alignItems='center'
                       >
-                        <Amount.Crypto
-                          fontSize='sm'
-                          value='1'
-                          symbol={sellAssetSymbol}
-                          suffix='='
-                        />
-                        <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                        {rateContent}
                         {!isDisabled && <ArrowUpDownIcon />}
                       </Stack>
                     </Row.Value>
@@ -128,6 +144,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     <FaGasPump />
                   </Row.Label>
                   <Row.Value>
+                    {' '}
                     {!networkFeeFiatUserCurrency ? (
                       <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                         <Text translation={'trade.unknownGas'} fontSize='sm' />

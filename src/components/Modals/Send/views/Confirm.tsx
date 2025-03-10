@@ -240,7 +240,7 @@ export const Confirm = () => {
         </Row>
         <Button
           colorScheme='blue'
-          disabled={!fees || isSubmitting}
+          isDisabled={!fees || isSubmitting}
           isLoading={isSubmitting}
           loadingText={translate('modals.send.broadcastingTransaction')}
           size='lg'

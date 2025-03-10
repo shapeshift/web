@@ -12,10 +12,34 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 const client = viemClientByNetworkId[arbitrum.id]
 
+export type timeInPoolQueryKey = [
+  'timeInPool', 
+  {
+    stakingAssetAccountAddress?: string,
+    stakingAssetId?: AssetId
+  },
+]
+
 type UseTimeInPoolQueryProps<SelectData = bigint> = {
   stakingAssetAccountAddress: string | undefined
   stakingAssetId: AssetId
   select?: (timeInPoolSeconds: bigint) => SelectData
+}
+
+export const getTimeInPoolQueryKey = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}: {
+  stakingAssetAccountAddress: string | undefined
+  stakingAssetId: AssetId | undefined
+}): timeInPoolQueryKey => {
+  return [
+    'timeInPool',
+    {
+      stakingAssetAccountAddress,
+      stakingAssetId,
+    },
+  ]
 }
 
 export const getTimeInPoolSeconds = async (sortedLogs: RFOXAccountLog[]) => {
@@ -72,8 +96,8 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
   stakingAssetId,
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
-  const queryKey = useMemo(
-    () => ['timeInPool', stakingAssetAccountAddress, stakingAssetId],
+  const queryKey: timeInPoolQueryKey = useMemo(
+    () => getTimeInPoolQueryKey({stakingAssetAccountAddress, stakingAssetId}),
     [stakingAssetAccountAddress, stakingAssetId],
   )
   const queryFn = useMemo(

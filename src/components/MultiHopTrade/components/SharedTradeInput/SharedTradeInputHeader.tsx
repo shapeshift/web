@@ -1,7 +1,8 @@
 import { CardHeader, Flex, Heading } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { useMultiHopTradeContext } from '../../context/MultiHopTradeContext'
 import { TradeInputTab } from '../../types'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -9,30 +10,18 @@ import { selectWalletId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputHeaderProps = {
-  initialTab: TradeInputTab
   rightContent?: JSX.Element
-  onChangeTab: (newTab: TradeInputTab) => void
 }
 
 export const SharedTradeInputHeader = ({
-  initialTab,
   rightContent,
-  onChangeTab,
 }: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
-  const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
+  const { activeTab, handleChangeTab } = useMultiHopTradeContext()
 
   const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
   const enableLimitOrders = useFeatureFlag('LimitOrders')
   const walletId = useAppSelector(selectWalletId)
-
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      setSelectedTab(newTab)
-      onChangeTab(newTab)
-    },
-    [onChangeTab],
-  )
 
   const handleClickTrade = useCallback(() => {
     handleChangeTab(TradeInputTab.Trade)
@@ -53,9 +42,10 @@ export const SharedTradeInputHeader = ({
           <Heading
             as='h5'
             fontSize='md'
-            color={selectedTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
+            color={activeTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
             onClick={handleClickTrade}
-            cursor={selectedTab !== TradeInputTab.Trade ? 'pointer' : undefined}
+            cursor={activeTab !== TradeInputTab.Trade ? 'pointer' : undefined}
+            data-testid="trade-tab"
           >
             {translate('navBar.trade')}
           </Heading>
@@ -63,9 +53,10 @@ export const SharedTradeInputHeader = ({
             <Heading
               as='h5'
               fontSize='md'
-              color={selectedTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
+              color={activeTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
               onClick={handleClickLimitOrder}
-              cursor={selectedTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
+              cursor={activeTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
+              data-testid="limitOrder-tab"
             >
               {translate('limitOrder.heading')}
             </Heading>
@@ -74,9 +65,10 @@ export const SharedTradeInputHeader = ({
             <Heading
               as='h5'
               fontSize='md'
-              color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
+              color={activeTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
               onClick={handleClickClaim}
-              cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+              cursor={activeTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+              data-testid="claim-tab"
             >
               {translate('bridge.claim')}
             </Heading>

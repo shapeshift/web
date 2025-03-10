@@ -1,7 +1,7 @@
 import { Card } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -10,16 +10,21 @@ import { ClaimStatus } from './ClaimStatus'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
-import { TradeInputTab } from '@/components/MultiHopTrade/types'
-
-const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
-
-export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
+export const Claim = () => {
   const location = useLocation()
+  const history = useHistory()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
+
+  // Redirect to the Select route when the component mounts
+  useEffect(() => {
+    // Only redirect if we're exactly on the /trade/claim route
+    if (location.pathname === '/trade/claim') {
+      history.replace(ClaimRoutePaths.Select)
+    }
+  }, [history, location.pathname])
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect setActiveClaim={setActiveClaim} />
@@ -52,27 +57,22 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   }, [activeClaim, claimTxHash, claimTxStatus])
 
   return (
-    <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
+    <Card flex={1} width='full' maxWidth='500px'>
+      <SharedTradeInputHeader />
       <Switch location={location}>
-        <Card flex={1} width='full' maxWidth='500px'>
-          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
-          <Route
-            key={ClaimRoutePaths.Select}
-            path={ClaimRoutePaths.Select}
-            render={renderClaimSelect}
-          />
-          <Route
-            key={ClaimRoutePaths.Confirm}
-            path={ClaimRoutePaths.Confirm}
-            render={renderClaimConfirm}
-          />
-          <Route
-            key={ClaimRoutePaths.Status}
-            path={ClaimRoutePaths.Status}
-            render={renderClaimStatus}
-          />
-        </Card>
+        <Route
+          path={ClaimRoutePaths.Select}
+          render={renderClaimSelect}
+        />
+        <Route
+          path={ClaimRoutePaths.Confirm}
+          render={renderClaimConfirm}
+        />
+        <Route
+          path={ClaimRoutePaths.Status}
+          render={renderClaimStatus}
+        />
       </Switch>
-    </MemoryRouter>
+    </Card>
   )
 }

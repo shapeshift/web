@@ -17,6 +17,7 @@ import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
+import { MultiHopTradeProvider } from './components/MultiHopTrade/context/MultiHopTradeContext'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
@@ -95,7 +96,9 @@ export function AppProviders({ children }: ProvidersProps) {
                                         <FoxEthProvider>
                                           <DefiManagerProvider>
                                             <RFOXProvider>
-                                              <FoxPageProvider>{children}</FoxPageProvider>
+                                              <MultiHopTradeProvider>
+                                                <FoxPageProvider>{children}</FoxPageProvider>
+                                              </MultiHopTradeProvider>
                                             </RFOXProvider>
                                           </DefiManagerProvider>
                                         </FoxEthProvider>

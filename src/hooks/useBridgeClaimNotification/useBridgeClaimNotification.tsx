@@ -17,12 +17,27 @@ import { useHistory } from 'react-router-dom'
 
 import { IconCircle } from '@/components/IconCircle'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { useMultiHopTradeContext } from '@/components/MultiHopTrade/context/MultiHopTradeContext'
+import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexAlignItems = { base: 'flex-start', md: 'center' }
+
+// Create a global function to handle the claim tab click
+// This will be called from the toast
+let handleClaimTabClickGlobal: (() => void) | null = null
+
+export const registerClaimTabClickHandler = (handler: () => void) => {
+  handleClaimTabClickGlobal = handler
+}
+
+export const triggerClaimTabClick = () => {
+  if (handleClaimTabClickGlobal) {
+    handleClaimTabClickGlobal()
+  }
+}
 
 export const useBridgeClaimNotification = () => {
   const toast = useToast()
@@ -30,6 +45,15 @@ export const useBridgeClaimNotification = () => {
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
   const toastIdRef = useRef<ToastId | undefined>()
+
+  // Try to get the context, but don't throw if it's not available
+  const multiHopTradeContext = (() => {
+    try {
+      return useMultiHopTradeContext()
+    } catch (e) {
+      return undefined
+    }
+  })()
 
   const {
     state: { deviceId: walletDeviceId },
@@ -63,7 +87,21 @@ export const useBridgeClaimNotification = () => {
     const _toastIdRef = toast({
       render: ({ onClose }) => {
         const handleCtaClick = () => {
+          // Try multiple approaches to ensure the tab changes
+          
+          // 1. Use the global handler if available
+          if (handleClaimTabClickGlobal) {
+            handleClaimTabClickGlobal()
+          }
+          
+          // 2. Use the context if available
+          if (multiHopTradeContext) {
+            multiHopTradeContext.handleChangeTab(TradeInputTab.Claim)
+          }
+          
+          // 3. Use the history as a fallback
           history.push(TradeRoutePaths.Claim)
+          
           onClose()
         }
 
@@ -101,5 +139,13 @@ export const useBridgeClaimNotification = () => {
 
     // don't spam user
     setIsDisabled(true)
-  }, [claimsByStatus.Available.length, history, isDisabled, isLoading, toast, translate])
+  }, [
+    claimsByStatus.Available.length,
+    history,
+    isDisabled,
+    isLoading,
+    toast,
+    translate,
+    multiHopTradeContext,
+  ])
 }

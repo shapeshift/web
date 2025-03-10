@@ -78,13 +78,11 @@ import { breakpoints } from '@/theme/theme'
 type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
-  onChangeTab: (newTab: TradeInputTab) => void
 }
 
 export const LimitOrderInput = ({
   isCompact,
   tradeInputRef,
-  onChangeTab,
 }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
@@ -588,7 +586,6 @@ export const LimitOrderInput = ({
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.LimitOrder}
         onSubmit={handleTradeQuoteConfirm}
-        onChangeTab={onChangeTab}
       />
     </>
   )

@@ -26,7 +26,6 @@ type SharedTradeInputProps = {
   shouldOpenSideComponent: boolean
   tradeInputRef: React.RefObject<HTMLDivElement>
   tradeInputTab: TradeInputTab
-  onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
 }
 
@@ -37,10 +36,8 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   isLoading,
   SideComponent,
   shouldOpenSideComponent,
-  tradeInputTab,
   tradeInputRef,
   footerContent,
-  onChangeTab,
   onSubmit,
 }) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -64,9 +61,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             onSubmit={onSubmit}
           >
             <SharedTradeInputHeader
-              initialTab={tradeInputTab}
               rightContent={headerRightContent}
-              onChangeTab={onChangeTab}
             />
             {bodyContent}
             {footerContent}

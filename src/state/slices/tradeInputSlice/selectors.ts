@@ -33,6 +33,8 @@ export const {
   selectIsInputtingFiatSellAmount,
   selectHasUserEnteredAmount,
   selectInputSellAmountCryptoPrecision,
+  selectSelectedSellAssetChainId,
+  selectSelectedBuyAssetChainId,
   // We don't want to export some of the selectors so we can give them more specific names
   ...privateSelectors
 } = createTradeInputBaseSelectors<TradeInputState>('tradeInput')

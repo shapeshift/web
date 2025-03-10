@@ -18,19 +18,27 @@ interface ParserArgs {
   provider: ethers.JsonRpcProvider
 }
 
+interface SupportedFunctions {
+  approveSigHash: string
+}
+
 export class Parser<T extends Tx> implements SubParser<T> {
   provider: ethers.JsonRpcProvider
 
   readonly chainId: ChainId
   readonly abiInterface = new ethers.Interface(I_BEP20_ABI)
-
-  readonly supportedFunctions = {
-    approveSigHash: this.abiInterface.getFunction('approve')!.selector,
-  }
+  private readonly supportedFunctions: SupportedFunctions
 
   constructor(args: ParserArgs) {
     this.provider = args.provider
     this.chainId = args.chainId
+
+    const approveSigHash = this.abiInterface.getFunction('approve')?.selector
+    if (!approveSigHash) throw new Error('Failed to get function selectors')
+
+    this.supportedFunctions = {
+      approveSigHash,
+    }
   }
 
   async parse(tx: T): Promise<TxSpecific | undefined> {

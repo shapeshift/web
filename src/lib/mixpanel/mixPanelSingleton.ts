@@ -7,7 +7,8 @@ let _mixPanel: typeof Mixpanel | undefined = undefined
 
 // we need to be able to access this outside react
 export const getMixPanel = (): MixPanelType | undefined => {
-  const mixPanelEnabled = import.meta.env.VITE_FEATURE_MIXPANEL
+  const mixPanelEnabled = import.meta.env.VITE_FEATURE_MIXPANEL === 'true'
+
   if (!mixPanelEnabled) return
   if (_mixPanel) return _mixPanel
 

@@ -2,16 +2,22 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
-import { getStakingBalanceOfQueryKey } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { getStakingInfoQueryKey } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
+
+import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
+import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
+import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 
@@ -84,25 +90,49 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   const queryClient = useQueryClient()
   const { stakingAssetId } = useRFOXContext()
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
   const stakingAssetAccountAddress = useMemo(() => {
     return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
   }, [confirmedQuote])
 
   const handleTxConfirmed = useCallback(async () => {
+    if (!confirmedQuote) return
+
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetId: confirmedQuote.stakingAssetId,
         stakingAssetAccountAddress,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetId: confirmedQuote.stakingAssetId,
         stakingAssetAccountAddress,
       }),
     })
-  }, [confirmedQuote, queryClient, stakingAssetAccountAddress])
+    await queryClient.invalidateQueries({
+      queryKey: getTimeInPoolQueryKey({
+        stakingAssetId: confirmedQuote.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getEpochHistoryQueryKey(),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getEarnedQueryKey({
+        stakingAssetId: confirmedQuote.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getAffiliateRevenueQueryKey({
+        startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
+        endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
+      }),
+    })
+  }, [confirmedQuote, queryClient, stakingAssetAccountAddress, currentEpochMetadataQuery.data])
 
   const renderStakeInput = useCallback(() => {
     return (

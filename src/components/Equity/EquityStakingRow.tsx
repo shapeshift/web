@@ -1,21 +1,24 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
+import qs from 'qs'
+import React, { useCallback, useMemo } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
+
+import { EquityRow } from './EquityRow'
+
+import { WalletActions } from '@/context/WalletProvider/actions'
 import {
   DefiAction,
   DefiTypeDisplayName,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import qs from 'qs'
-import React, { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { OpportunityId } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
@@ -23,10 +26,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunityApiPending,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { EquityRow } from './EquityRow'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EquityStakingRowProps = {
   opportunityId: OpportunityId
@@ -43,7 +44,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   color,
 }) => {
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const history = useHistory()
@@ -125,7 +126,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     } = opportunity
     const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-    if (!isConnected && isDemoWallet) {
+    if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -158,7 +159,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       }),
       state: { background: location },
     })
-  }, [assets, dispatch, history, isConnected, isDemoWallet, location, opportunity])
+  }, [assets, dispatch, history, isConnected, location, opportunity])
 
   if (!opportunity || !asset) return null
   return (

@@ -7,8 +7,9 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
 
 interface RadioCardProps extends UseRadioProps {
   label: string | [string, number | Polyglot.InterpolationOptions]

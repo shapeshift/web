@@ -6,12 +6,13 @@ import type { FC, PropsWithChildren } from 'react'
 import { memo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
 
 import { SwapperIcons } from './SwapperIcons'
+
+import { Amount } from '@/components/Amount/Amount'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
 
 type RateGasRowProps = {
   buyAssetSymbol: string

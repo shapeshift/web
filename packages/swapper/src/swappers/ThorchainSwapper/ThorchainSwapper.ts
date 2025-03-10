@@ -23,8 +23,8 @@ const getSupportedAssets = async (
   supportedSellAssetIds: AssetId[]
   supportedBuyAssetIds: AssetId[]
 }> => {
-  const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
-  const thorchainSwapLongtailEnabled = config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
+  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
+  const thorchainSwapLongtailEnabled = config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
   let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
   let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
   const poolResponse = await thorService.get<ThornodePoolResponse[]>(

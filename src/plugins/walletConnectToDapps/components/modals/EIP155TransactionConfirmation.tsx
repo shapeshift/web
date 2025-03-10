@@ -9,38 +9,39 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
-import { AmountCard } from 'plugins/walletConnectToDapps/components/modals/AmountCard'
-import { ContractInteractionBreakdown } from 'plugins/walletConnectToDapps/components/modals/ContractInteractionBreakdown'
-import { GasFeeEstimateLabel } from 'plugins/walletConnectToDapps/components/modals/GasFeeEstimateLabel'
-import { GasInput } from 'plugins/walletConnectToDapps/components/modals/GasInput'
-import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
-import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
-import { useCallRequestEvmFees } from 'plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import type {
-  CustomTransactionData,
-  EthSendTransactionCallRequest,
-  EthSignTransactionCallRequest,
-} from 'plugins/walletConnectToDapps/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
-import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
-import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { fromHex, isHex } from 'viem'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Text } from 'components/Text'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { Text } from '@/components/Text'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
+import { AmountCard } from '@/plugins/walletConnectToDapps/components/modals/AmountCard'
+import { ContractInteractionBreakdown } from '@/plugins/walletConnectToDapps/components/modals/ContractInteractionBreakdown'
+import { GasFeeEstimateLabel } from '@/plugins/walletConnectToDapps/components/modals/GasFeeEstimateLabel'
+import { GasInput } from '@/plugins/walletConnectToDapps/components/modals/GasInput'
+import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
+import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
+import { useCallRequestEvmFees } from '@/plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
+import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
+import type {
+  CustomTransactionData,
+  EthSendTransactionCallRequest,
+  EthSignTransactionCallRequest,
+} from '@/plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
+import { convertHexToNumber } from '@/plugins/walletConnectToDapps/utils'
+import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 const faGasPumpIcon = <FaGasPump />
@@ -74,13 +75,15 @@ export const EIP155TransactionConfirmation: FC<
     [feeAsset?.icon],
   )
 
+  const gas = useMemo(
+    () => transaction?.gasLimit ?? transaction?.gas,
+    [transaction?.gas, transaction?.gasLimit],
+  )
+
   const form = useForm<CustomTransactionData>({
     defaultValues: {
       nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
-      gasLimit:
-        transaction?.gasLimit ?? transaction?.gas
-          ? convertHexToNumber((transaction?.gasLimit ?? transaction?.gas)!).toString()
-          : undefined,
+      gasLimit: gas ? convertHexToNumber(gas).toString() : undefined,
       speed: FeeDataKey.Average,
       customFee: {
         baseFee: '0',

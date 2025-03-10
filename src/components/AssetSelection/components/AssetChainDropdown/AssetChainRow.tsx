@@ -2,17 +2,18 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
+
+import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetChainRowProps = {
   mainImplementationAssetId: AssetId

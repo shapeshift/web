@@ -1,6 +1,7 @@
 import { Box, Image } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 type DefiModalHeaderProps = {
   headerImageSrc: string

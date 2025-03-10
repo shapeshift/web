@@ -1,5 +1,4 @@
 import { Route, Switch } from 'react-router-dom'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
@@ -8,6 +7,8 @@ import type { RightPanelContentProps } from '../types'
 import { CoinbaseQrBody } from '../wallets/mipd/CoinbaseQrBody'
 import { FirstClassBody } from '../wallets/mipd/FirstClassBody'
 import { MipdBody } from '../wallets/mipd/MipdBody'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const MipdRoutes = ({
   isLoading,

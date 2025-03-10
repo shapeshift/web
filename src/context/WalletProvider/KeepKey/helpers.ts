@@ -1,10 +1,11 @@
 import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
-import { getConfig } from 'config'
 import type { KeyboardEvent } from 'react'
-import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 
-export const RELEASE_PAGE = getConfig().REACT_APP_KEEPKEY_UPDATER_RELEASE_PAGE
-export const UPDATER_BASE_URL = getConfig().REACT_APP_KEEPKEY_UPDATER_BASE_URL
+import { getConfig } from '@/config'
+import { VALID_ENTROPY_NUMBERS } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
+
+export const RELEASE_PAGE = getConfig().VITE_KEEPKEY_UPDATER_RELEASE_PAGE
+export const UPDATER_BASE_URL = getConfig().VITE_KEEPKEY_UPDATER_BASE_URL
 
 export const isValidInput = (
   e: KeyboardEvent,

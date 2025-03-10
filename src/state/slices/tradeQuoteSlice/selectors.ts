@@ -15,21 +15,31 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
-import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
-import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper/types'
-import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper/types'
-import { getEnabledSwappers } from 'state/helpers'
-import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
+
+import { selectIsWalletConnected, selectWalletConnectedChainIds } from '../common-selectors'
+import {
+  selectMarketDataUserCurrency,
+  selectUserCurrencyToUsdRate,
+} from '../marketDataSlice/selectors'
+import { selectFeatureFlags } from '../preferencesSlice/selectors'
+import { SWAPPER_USER_ERRORS } from './constants'
+import type { ActiveQuoteMeta } from './types'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
+import { TradeQuoteRequestError, TradeQuoteWarning } from '@/state/apis/swapper/types'
+import { getEnabledSwappers } from '@/state/helpers'
+import type { ReduxState } from '@/state/reducer'
+import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectHopIndexParamFromRequiredFilter,
   selectTradeIdParamFromRequiredFilter,
-} from 'state/selectors'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+} from '@/state/selectors'
+import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
   selectHasUserEnteredAmount,
@@ -43,23 +53,14 @@ import {
   selectSecondHopSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/tradeInputSlice/selectors'
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   getActiveQuoteMetaOrDefault,
   getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeUserCurrency,
   getTotalProtocolFeeByAsset,
   sortTradeQuotes,
-} from 'state/slices/tradeQuoteSlice/helpers'
-
-import { selectIsWalletConnected, selectWalletConnectedChainIds } from '../common-selectors'
-import {
-  selectMarketDataUserCurrency,
-  selectUserCurrencyToUsdRate,
-} from '../marketDataSlice/selectors'
-import { selectFeatureFlags } from '../preferencesSlice/selectors'
-import { SWAPPER_USER_ERRORS } from './constants'
-import type { ActiveQuoteMeta } from './types'
+} from '@/state/slices/tradeQuoteSlice/helpers'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =

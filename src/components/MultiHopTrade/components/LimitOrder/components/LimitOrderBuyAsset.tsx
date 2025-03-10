@@ -2,18 +2,19 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { useModal } from 'hooks/useModal/useModal'
-import { positiveOrZero } from 'lib/bignumber/bignumber'
+
+import { TradeAssetInput } from '../../TradeAssetInput'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { useModal } from '@/hooks/useModal/useModal'
+import { positiveOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectBuyAmountCryptoPrecision,
   selectBuyAmountUserCurrency,
   selectManualReceiveAddress,
-} from 'state/slices/limitOrderInputSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { TradeAssetInput } from '../../TradeAssetInput'
+} from '@/state/slices/limitOrderInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const emptyPercentOptions: number[] = []
 const formControlProps = {
@@ -31,6 +32,8 @@ export type LimitOrderBuyAssetProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
   onSetBuyAsset: (asset: Asset) => void
   isLoading: boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
@@ -42,6 +45,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     chainIdFilterPredicate,
     onAccountIdChange,
     onSetBuyAsset,
+    selectedChainId,
+    onSelectedChainIdChange,
   }) => {
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
@@ -57,8 +62,17 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         title: 'trade.tradeTo',
         assetFilterPredicate,
         chainIdFilterPredicate,
+        selectedChainId,
+        onSelectedChainIdChange,
       })
-    }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, onSetBuyAsset])
+    }, [
+      assetFilterPredicate,
+      buyAssetSearch,
+      chainIdFilterPredicate,
+      onSetBuyAsset,
+      selectedChainId,
+      onSelectedChainIdChange,
+    ])
 
     const tradeAssetSelect = useMemo(
       () => (

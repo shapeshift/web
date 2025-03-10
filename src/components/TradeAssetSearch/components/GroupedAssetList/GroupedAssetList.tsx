@@ -3,10 +3,11 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import type { TopItemListProps } from 'react-virtuoso'
 import { GroupedVirtuoso } from 'react-virtuoso'
-import { Text } from 'components/Text'
 
 import { GroupedAssetRow } from './components/GroupedAssetRow'
 import { GroupedAssetRowLoading } from './components/GroupedAssetRowLoading'
+
+import { Text } from '@/components/Text'
 
 const Footer = () => <Box height='0.5rem' />
 const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> // this cannot be Fragment as styles are applied

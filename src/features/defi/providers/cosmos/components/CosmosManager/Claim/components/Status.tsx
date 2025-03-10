@@ -1,34 +1,35 @@
 import { Box, Button, Center, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { IconCircle } from 'components/IconCircle'
-import { InlineCopyButton } from 'components/InlineCopyButton'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { Row } from 'components/Row/Row'
-import { RawText } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
+
+import { TxStatus } from '../ClaimCommon'
+import { ClaimContext } from '../ClaimContext'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { IconCircle } from '@/components/IconCircle'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { Row } from '@/components/Row/Row'
+import { RawText } from '@/components/Text'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { TxStatus } from '../ClaimCommon'
-import { ClaimContext } from '../ClaimContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const StatusInfo = {
   [TxStatus.PENDING]: {

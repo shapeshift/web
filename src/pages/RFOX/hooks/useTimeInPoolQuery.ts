@@ -4,17 +4,42 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import type { RFOXAccountLog } from '../types'
 import { getAccountLogsQueryFn, getAccountLogsQueryKey } from './useAccountLogsQuery'
 
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+
 const client = viemClientByNetworkId[arbitrum.id]
+
+export type TimeInPoolQueryKey = [
+  'timeInPool',
+  {
+    stakingAssetAccountAddress?: string
+    stakingAssetId?: AssetId
+  },
+]
 
 type UseTimeInPoolQueryProps<SelectData = bigint> = {
   stakingAssetAccountAddress: string | undefined
   stakingAssetId: AssetId
   select?: (timeInPoolSeconds: bigint) => SelectData
+}
+
+export const getTimeInPoolQueryKey = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}: {
+  stakingAssetAccountAddress: string | undefined
+  stakingAssetId: AssetId | undefined
+}): TimeInPoolQueryKey => {
+  return [
+    'timeInPool',
+    {
+      stakingAssetAccountAddress,
+      stakingAssetId,
+    },
+  ]
 }
 
 export const getTimeInPoolSeconds = async (sortedLogs: RFOXAccountLog[]) => {
@@ -71,8 +96,8 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
   stakingAssetId,
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
-  const queryKey = useMemo(
-    () => ['timeInPool', stakingAssetAccountAddress, stakingAssetId],
+  const queryKey: TimeInPoolQueryKey = useMemo(
+    () => getTimeInPoolQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
     [stakingAssetAccountAddress, stakingAssetId],
   )
   const queryFn = useMemo(

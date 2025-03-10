@@ -1,9 +1,10 @@
 import { forwardRef } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
-import { GlobalSearchResultType } from 'state/slices/search-selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+
+import { TransactionRow } from '@/components/TransactionHistoryRows/TransactionRow'
+import type { GlobalSearchResult } from '@/state/slices/search-selectors'
+import { GlobalSearchResultType } from '@/state/slices/search-selectors'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 
 type TxResultProps = {
   txId: TxId

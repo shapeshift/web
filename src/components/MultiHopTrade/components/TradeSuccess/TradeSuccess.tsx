@@ -12,26 +12,26 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import {
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  foxOnGnosisAssetId,
-  fromAssetId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
+import { foxAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { AnimatedCheck } from 'components/AnimatedCheck'
-import { AssetIcon } from 'components/AssetIcon'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { useTxDetails, useTxDetailsQuery } from 'hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+
+import { TwirlyToggle } from '../TwirlyToggle'
+import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
+import { YouSaved } from './components/YouSaved'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AnimatedCheck } from '@/components/AnimatedCheck'
+import { AssetIcon } from '@/components/AssetIcon'
+import { SlideTransition } from '@/components/SlideTransition'
+import { Text } from '@/components/Text'
+import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -40,13 +40,9 @@ import {
   selectLastHop,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeQuoteAffiliateFeeDiscountUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import { TwirlyToggle } from '../TwirlyToggle'
-import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
-import { YouSaved } from './components/YouSaved'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export type TradeSuccessProps = {
   handleBack: () => void
@@ -129,6 +125,19 @@ export const TradeSuccess = ({
       : undefined
   }, [transfers, buyAsset])
 
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
     if (!(sellAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
@@ -166,8 +175,7 @@ export const TradeSuccess = ({
   // values because the amount of FOX held in the wallet will have changed.
   // See https://github.com/shapeshift/web/issues/8028 for more details.
   const enableFoxDiscountSummary = useMemo(() => {
-    const foxAssetIds = [foxAssetId, foxOnGnosisAssetId, foxOnArbitrumOneAssetId]
-    const didTradeFox = foxAssetIds.some(assetId => {
+    const didTradeFox = relatedAssetIds.some(assetId => {
       return (
         firstHop?.buyAsset.assetId === assetId ||
         firstHop?.sellAsset.assetId === assetId ||
@@ -177,7 +185,7 @@ export const TradeSuccess = ({
     })
 
     return !didTradeFox
-  }, [firstHop, lastHop])
+  }, [firstHop, lastHop, relatedAssetIds])
 
   return (
     <>
@@ -195,11 +203,11 @@ export const TradeSuccess = ({
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate(buttonTranslation)}
           </Button>
-          {enableFoxDiscountSummary && hasFeeSaving && (
-            <YouSaved feeSavingUserCurrency={enableFoxDiscountSummary && feeSavingUserCurrency!} />
+          {enableFoxDiscountSummary && hasFeeSaving && feeSavingUserCurrency && (
+            <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
           )}
-          {couldHaveReducedFee && (
-            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency!} />
+          {couldHaveReducedFee && affiliateFeeUserCurrency && (
+            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
           )}
         </Stack>
       </CardBody>

@@ -2,32 +2,33 @@ import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
-import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
-  selectBip44ParamsByAccountId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 import { WithdrawTypeField } from './WithdrawType'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from '@/features/defi/components/Withdraw/Withdraw'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
+import {
+  selectBip44ParamsByAccountId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type FoxyWithdrawValues = {
   [Field.WithdrawType]: WithdrawType

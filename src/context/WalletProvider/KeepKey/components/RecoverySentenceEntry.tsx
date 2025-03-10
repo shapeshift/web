@@ -15,13 +15,18 @@ import {
 import type { KeyboardEvent, MouseEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { RawText, Text } from 'components/Text'
-import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvider/KeepKey/helpers'
-import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { isKeepKeyHDWallet } from 'lib/utils'
+
+import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { RawText, Text } from '@/components/Text'
+import {
+  inputValuesReducer,
+  isLetter,
+  isValidInput,
+} from '@/context/WalletProvider/KeepKey/helpers'
+import { useKeepKeyCancel } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
+import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from '@/lib/utils'
 
 const minInputLength = 3
 const maxInputLength = 4

@@ -1,10 +1,6 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
-import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
@@ -20,6 +16,11 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
+import { RawText } from '@/components/Text'
+import { Method } from '@/hooks/useTxDetails/useTxDetails'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
 export const TransactionMethod = ({
   txDetails,
   compactMode,
@@ -29,8 +30,8 @@ export const TransactionMethod = ({
   topRight,
 }: TransactionRowProps) => {
   const translate = useTranslate()
-  const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
-  const { method, parser } = txMetadata
+  const txMetadata = useMemo(() => txDetails.tx.data, [txDetails.tx.data])
+  const { method, parser } = txMetadata ?? {}
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
 
   const asset = useAppSelector(state =>
@@ -116,6 +117,8 @@ export const TransactionMethod = ({
       }
     }
   }, [transfersByType, method])
+
+  if (!txMetadata) return null
 
   return (
     <>

@@ -10,37 +10,38 @@ import type { FC } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { SlippageIcon } from 'components/Icons/Slippage'
-import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { RawText } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ApiQuote } from 'state/apis/swapper/types'
-import { TradeQuoteValidationError } from 'state/apis/swapper/types'
+
+import { CountdownSpinner } from './components/CountdownSpinner'
+import { TradeQuoteCard } from './components/TradeQuoteCard'
+import { TradeQuoteContent } from './components/TradeQuoteContent'
+
+import { Amount } from '@/components/Amount/Amount'
+import { SlippageIcon } from '@/components/Icons/Slippage'
+import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
+import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import type { ApiQuote } from '@/state/apis/swapper/types'
+import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/tradeInputSlice/selectors'
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
-} from 'state/slices/tradeQuoteSlice/helpers'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
-
-import { CountdownSpinner } from './components/CountdownSpinner'
-import { TradeQuoteCard } from './components/TradeQuoteCard'
-import { TradeQuoteContent } from './components/TradeQuoteContent'
+} from '@/state/slices/tradeQuoteSlice/helpers'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type TradeQuoteProps = {
   isActive: boolean
@@ -346,13 +347,25 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
     const headerContent = useMemo(() => {
+      const hasUnsupportedChainError = errors.some(
+        error =>
+          error.error === SwapperTradeQuoteError.UnsupportedChain ||
+          error.error === SwapperTradeQuoteError.CrossChainNotSupported ||
+          error.error === SwapperTradeQuoteError.UnsupportedTradePair,
+      )
+
       return (
         <Flex gap={2} alignItems='center'>
           <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-          <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
+          {!hasUnsupportedChainError && (
+            <CountdownSpinner
+              isLoading={isLoading || isRefetching}
+              initialTimeMs={pollingInterval}
+            />
+          )}
         </Flex>
       )
-    }, [isLoading, isRefetching, pollingInterval, tag])
+    }, [isLoading, isRefetching, pollingInterval, tag, errors])
 
     const bodyContent = useMemo(() => {
       return quote ? (

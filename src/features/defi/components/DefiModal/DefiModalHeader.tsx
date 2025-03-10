@@ -1,7 +1,8 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
+
+import { RawText } from '@/components/Text'
 
 type DefiModalHeaderProps = {
   title: string

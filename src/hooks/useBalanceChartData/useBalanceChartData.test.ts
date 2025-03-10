@@ -2,11 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { Asset, HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { ethereum, fox } from 'test/mocks/assets'
-import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { bn } from 'lib/bignumber/bignumber'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
 import type { Bucket } from './useBalanceChartData'
 import {
@@ -15,6 +11,11 @@ import {
   makeBuckets,
   timeframeMap,
 } from './useBalanceChartData'
+
+import { bn } from '@/lib/bignumber/bignumber'
+import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
+import { ethereum, fox } from '@/test/mocks/assets'
+import { ethereumTransactions, FOXSend } from '@/test/mocks/txs'
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
@@ -66,11 +67,11 @@ describe('bucketTxs', () => {
     const totalTxs = bucketedTxs.reduce<number>((acc, bucket: Bucket) => acc + bucket.txs.length, 0)
 
     // if this non null assertion is false we fail anyway
-    const expectedBucket = bucketedTxs.find(bucket => bucket.txs.length)!
+    const expectedBucket = bucketedTxs.find(bucket => bucket.txs.length)
     expect(totalTxs).toEqual(txs.length)
-    expect(expectedBucket.txs.length).toEqual(1)
-    expect(expectedBucket.start.isBefore(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
-    expect(expectedBucket.end.isAfter(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
+    expect(expectedBucket?.txs.length).toEqual(1)
+    expect(expectedBucket?.start.isBefore(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
+    expect(expectedBucket?.end.isAfter(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
   })
 })
 

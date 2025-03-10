@@ -1,21 +1,17 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata, EvmChainId } from '@shapeshiftoss/types'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { PartialFields } from 'lib/types'
-import { assertGetChainAdapter } from 'lib/utils'
-import type { GetFeesWithWalletEip1559SupportArgs } from 'lib/utils/evm'
-import { getErc20Allowance } from 'lib/utils/evm'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import { GetAllowanceErr } from '../types'
+
+import type { PartialFields } from '@/lib/types'
+import { assertGetChainAdapter } from '@/lib/utils'
+import type { GetFeesWithWalletEip1559SupportArgs } from '@/lib/utils/evm'
+import { getErc20Allowance } from '@/lib/utils/evm'
 
 export const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -57,35 +53,6 @@ export const common = createQueryKeys('common', {
 
       return Ok(allowanceOnChainCryptoBaseUnit)
     },
-  }),
-  thorchainFromAddress: ({
-    accountId,
-    assetId,
-    opportunityId,
-    wallet,
-    accountMetadata,
-    getPosition,
-  }: {
-    accountId: AccountId
-    assetId: AssetId
-    opportunityId?: string | undefined
-    wallet: HDWallet
-    accountMetadata: AccountMetadata
-    getPosition:
-      | typeof getThorchainLendingPosition
-      | typeof getThorchainSaversPosition
-      | typeof getThorchainLpPosition
-  }) => ({
-    queryKey: ['thorchainFromAddress', accountId, assetId, opportunityId],
-    queryFn: async () =>
-      await getThorchainFromAddress({
-        accountId,
-        assetId,
-        opportunityId,
-        getPosition,
-        accountMetadata,
-        wallet,
-      }),
   }),
   evmFees: ({
     data,

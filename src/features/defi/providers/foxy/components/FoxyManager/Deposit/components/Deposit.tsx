@@ -1,25 +1,26 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from '@/features/defi/components/Deposit/Deposit'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined

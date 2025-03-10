@@ -1,8 +1,9 @@
 // do not directly use or export, singleton
 import { getEthersProvider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
-import { MarketServiceManager } from 'lib/market-service'
+
+import { getConfig } from '@/config'
+import { MarketServiceManager } from '@/lib/market-service'
 
 let _marketServiceManager: MarketServiceManager | undefined
 
@@ -15,9 +16,9 @@ export const getMarketServiceManager: GetMarketServiceManager = () => {
       yearnChainReference: 1, // CHAIN_REFERENCE.EthereumMainnet is '1', yearn requires strict number union
       provider: getEthersProvider(KnownChainIds.EthereumMainnet),
       providerUrls: {
-        jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
-        unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-        unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+        jsonRpcProviderUrl: config.VITE_ETHEREUM_NODE_URL,
+        unchainedEthereumHttpUrl: config.VITE_UNCHAINED_ETHEREUM_HTTP_URL,
+        unchainedEthereumWsUrl: config.VITE_UNCHAINED_ETHEREUM_WS_URL,
       },
     })
   }

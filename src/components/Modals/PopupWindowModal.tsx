@@ -9,10 +9,11 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { breakpoints } from 'theme/theme'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { breakpoints } from '@/theme/theme'
 
 function popupCenterWindow(url: string, windowName: string, w: number, h: number) {
   if (!window.top) return window.open(url, '_blank')?.focus()

@@ -4,27 +4,28 @@ import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/rea
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { knownChainIds } from 'constants/chains'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
-import { AllChainMenu } from 'components/ChainMenu'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { sortChainIdsByDisplayName } from 'lib/utils'
-import {
-  selectAssetsSortedByMarketCap,
-  selectPortfolioFungibleAssetsSortedByBalance,
-  selectWalletConnectedChainIds,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useHistory } from 'react-router-dom'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
+
+import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
+import { AllChainMenu } from '@/components/ChainMenu'
+import { knownChainIds } from '@/constants/chains'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { sortChainIdsByDisplayName } from '@/lib/utils'
+import {
+  selectAssetsSortedByMarketCap,
+  selectPortfolioFungibleAssetsSortedByBalance,
+  selectWalletConnectedChainIds,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const buttonProps = {
   rightIcon: <ChevronDownIcon />,
@@ -48,6 +49,8 @@ export type TradeAssetSearchProps = {
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
@@ -55,12 +58,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
   chainIdFilterPredicate,
+  selectedChainId = 'All',
+  onSelectedChainIdChange,
 }) => {
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
   const translate = useTranslate()
   const history = useHistory()
-  const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
+  const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>(selectedChainId)
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
@@ -107,6 +112,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
+
+  const handleSelectedChainIdChange = useCallback(
+    (chainId: ChainId | 'All') => {
+      setActiveChainId(chainId)
+      onSelectedChainIdChange?.(chainId)
+    },
+    [onSelectedChainIdChange],
+  )
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
@@ -238,7 +251,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             chainIds={chainIds}
             isActiveChainIdSupported={true}
             isDisabled={false}
-            onMenuOptionClick={setActiveChainId}
+            onMenuOptionClick={handleSelectedChainIdChange}
             buttonProps={buttonProps}
             disableTooltip
           />

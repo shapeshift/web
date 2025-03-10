@@ -8,6 +8,10 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
+import { hexToString, isAddress, isHex, toHex } from 'viem'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
 import type {
   ConfirmData,
   CosmosSignAminoCallRequestParams,
@@ -16,10 +20,7 @@ import type {
   EthSignParams,
   TransactionParams,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/types'
-import { hexToString, isAddress, isHex, toHex } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
+} from '@/plugins/walletConnectToDapps/types'
 
 /**
  * Converts hex to utf8 string if it is valid bytes
@@ -64,10 +65,14 @@ export const getGasData = (
     bnOrZero(customFee?.priorityFee).gt(0)
     ? {
         maxPriorityFeePerGas: convertNumberToHex(
-          bnOrZero(customFee!.priorityFee).times(1e9).toString(), // to wei
+          bnOrZero(customFee?.priorityFee)
+            .times(1e9)
+            .toString(), // to wei
         ),
         maxFeePerGas: convertNumberToHex(
-          bnOrZero(customFee!.baseFee).times(1e9).toString(), // to wei
+          bnOrZero(customFee?.baseFee)
+            .times(1e9)
+            .toString(), // to wei
         ),
       }
     : {

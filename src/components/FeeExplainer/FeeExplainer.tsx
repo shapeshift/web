@@ -1,6 +1,6 @@
 import type { CardProps, StackProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
-import { foxWifHatAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
@@ -19,24 +19,27 @@ import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { bn } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { isSome } from 'lib/utils'
+
+import { CHART_TRADE_SIZE_MAX_USD } from './common'
+import { FeeSliders } from './FeeSliders'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { bn } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from '@/lib/fees/parameters'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { isSome } from '@/lib/utils'
 import {
   selectIsSnapshotApiQueriesPending,
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,
-} from 'state/apis/snapshot/selectors'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
-
-import { CHART_TRADE_SIZE_MAX_USD } from './common'
-import { FeeSliders } from './FeeSliders'
+} from '@/state/apis/snapshot/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type FeeChartProps = {
   tradeSize: number
@@ -274,6 +277,26 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
   )
 
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
+  const isFoxBuyAsset = useMemo(
+    () => relatedAssetIds.includes(buyAsset?.assetId),
+    [relatedAssetIds, buyAsset?.assetId],
+  )
+
   const {
     feeUsd,
     feeBps,
@@ -299,15 +322,19 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
     [feeUsdBeforeDiscount, feeBpsBeforeDiscount],
   )
 
-  const isFree = useMemo(() => bnOrZero(feeUsd).lte(0), [feeUsd])
+  const isFree = useMemo(() => bnOrZero(feeUsd).lte(0) || isFoxBuyAsset, [feeUsd, isFoxBuyAsset])
 
   const discountTypeTranslation = useMemo(() => {
-    return translate(appliedDiscountType)
-  }, [appliedDiscountType, translate])
+    if (isFoxBuyAsset) return translate('foxDiscounts.foxBuy')
+
+    return translate(`foxDiscounts.${appliedDiscountType}`)
+  }, [appliedDiscountType, isFoxBuyAsset, translate])
 
   const discountLabelTranslation: TextPropTypes['translation'] = useMemo(() => {
+    if (feeBps.isZero()) return 'foxDiscounts.breakdownHeader'
+
     return [`foxDiscounts.discountLabel`, { discountType: discountTypeTranslation }]
-  }, [discountTypeTranslation])
+  }, [discountTypeTranslation, feeBps])
 
   return (
     <Flex fontWeight='medium' pb={0}>
@@ -339,7 +366,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
             <Text color='text.subtle' translation={discountLabelTranslation} />
             <Amount.Percent
               fontSize='3xl'
-              value={foxDiscountPercent.div(100).toNumber()}
+              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
               color={'green.500'}
             />
           </Box>

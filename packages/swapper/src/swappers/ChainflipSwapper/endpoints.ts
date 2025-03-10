@@ -73,10 +73,12 @@ export const chainflipApi: SwapperApi = {
       chainSpecific: {
         gasLimit: fees.chainSpecific.gasLimit,
         contractAddress: isTokenSend ? assetReference : undefined,
-        ...(supportsEIP1559
+        ...(supportsEIP1559 &&
+        fees.chainSpecific.maxFeePerGas &&
+        fees.chainSpecific.maxPriorityFeePerGas
           ? {
-              maxFeePerGas: fees.chainSpecific.maxFeePerGas!,
-              maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas!,
+              maxFeePerGas: fees.chainSpecific.maxFeePerGas,
+              maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas,
             }
           : {
               gasPrice: fees.chainSpecific.gasPrice,
@@ -150,7 +152,7 @@ export const chainflipApi: SwapperApi = {
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub: xpub!,
+      xpub,
       to: step.chainflipSpecific.chainflipDepositAddress,
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
@@ -177,7 +179,7 @@ export const chainflipApi: SwapperApi = {
       to: step.chainflipSpecific.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
-        pubkey: xpub!,
+        pubkey: xpub,
       },
       sendMax: false,
     }
@@ -287,8 +289,8 @@ export const chainflipApi: SwapperApi = {
     // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap
     const swapId = swap.id
 
-    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
+    const brokerUrl = config.VITE_CHAINFLIP_API_URL
+    const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
       `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,

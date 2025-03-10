@@ -9,18 +9,19 @@ import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
-import { SwapBoldIcon } from 'components/Icons/SwapBold'
-import { RawText, Text } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { assertGetChainAdapter } from 'lib/utils'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { ChainIcon } from '@/components/ChainMenu'
+import { RawText, Text } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { assertGetChainAdapter } from '@/lib/utils'
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import {
   selectAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useSelectorWithArgs } from 'state/store'
+} from '@/state/slices/selectors'
+import { useSelectorWithArgs } from '@/state/store'
 
 export type LimitOrderCardProps = {
   uid: string
@@ -207,7 +208,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
           <Flex alignItems='flex-start' gap={4} flex={1} minWidth={0}>
             <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
               <Center borderRadius='full' boxSize='100%' bg='purple.500'>
-                <SwapBoldIcon boxSize='100%' />
+                <ChainIcon chainId={sellAsset.chainId} boxSize='100%' />
               </Center>
             </AssetIconWithBadge>
             <Flex gap={2} alignItems='flex-start' width='100%' minWidth={0}>

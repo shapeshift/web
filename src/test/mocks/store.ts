@@ -1,12 +1,12 @@
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import type { ReduxState } from 'state/reducer'
-import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import type { ReduxState } from '@/state/reducer'
+import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   ExpiryOption,
   LimitPriceMode,
   PriceDirection,
-} from 'state/slices/limitOrderInputSlice/constants'
-import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
+} from '@/state/slices/limitOrderInputSlice/constants'
+import { CurrencyFormats, HomeMarketView } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -246,6 +246,8 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
+    selectedBuyAssetChainId: 'All',
+    selectedSellAssetChainId: 'All',
   },
   limitOrderInput: {
     buyAsset: defaultAsset,
@@ -265,6 +267,8 @@ export const mockStore: ReduxState = {
     limitPriceMode: LimitPriceMode.Market,
     expiry: ExpiryOption.SevenDays,
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
+    selectedBuyAssetChainId: 'All',
+    selectedSellAssetChainId: 'All',
   },
   tradeQuoteSlice: {
     activeQuoteMeta: undefined,

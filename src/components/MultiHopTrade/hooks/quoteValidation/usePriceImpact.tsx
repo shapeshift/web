@@ -1,10 +1,11 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { selectUsdRateByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { selectUsdRateByAssetId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) => {
   // Avoid using tradeInputSlice selectors here due to inaccurate values during debouncing.
@@ -26,9 +27,9 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
     if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return
 
     // A quote always has a first hop
-    const firstHop = getHopByIndex(tradeQuote, 0)!
+    const firstHop = getHopByIndex(tradeQuote, 0)
     const sellAmountIncludingProtocolFeesCryptoBaseUnit =
-      firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
+      firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
     const sellAmountIncludingProtocolFeesCryptoPrecision = fromBaseUnit(
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -50,9 +51,9 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
 
     const lastHopIndex = (numSteps - 1) as SupportedTradeQuoteStepIndex
     // A quote always has a last hop since it always has a first hop
-    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)!
+    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-      lastHop.buyAmountBeforeFeesCryptoBaseUnit,
+      lastHop?.buyAmountBeforeFeesCryptoBaseUnit,
       buyAsset.precision,
     )
 

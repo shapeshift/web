@@ -2,21 +2,9 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
-import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { useModal } from 'hooks/useModal/useModal'
-import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
@@ -25,6 +13,19 @@ import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
 import { Details } from '../Send/views/Details'
 import { Status } from '../Send/views/Status'
+
+import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
+import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { useModal } from '@/hooks/useModal/useModal'
+import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
+import {
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectSelectedCurrency,
+} from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type QrCodeFormProps = {
   assetId?: AssetId

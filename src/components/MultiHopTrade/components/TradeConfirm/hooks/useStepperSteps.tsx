@@ -1,10 +1,4 @@
 import { useMemo } from 'react'
-import { selectIsActiveQuoteMultiHop } from 'state/slices/tradeInputSlice/selectors'
-import {
-  selectActiveQuote,
-  selectHopExecutionMetadata,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import {
   countStepperSteps,
@@ -13,6 +7,13 @@ import {
   getStepperSteps,
 } from '../helpers'
 import { useCurrentHopIndex } from './useCurrentHopIndex'
+
+import { selectIsActiveQuoteMultiHop } from '@/state/slices/tradeInputSlice/selectors'
+import {
+  selectActiveQuote,
+  selectHopExecutionMetadata,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useStepperSteps = () => {
   const activeTradeId = useAppSelector(selectActiveQuote)?.id

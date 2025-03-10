@@ -1,8 +1,9 @@
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
-import { mockAssetState } from 'test/mocks/assets'
-import { createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import { describe, expect, it } from 'vitest'
-import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
+
+import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
+import { mockAssetState } from '@/test/mocks/assets'
+import { createMockEthTxs, EthReceive, EthSend, TradeTx } from '@/test/mocks/txs'
 
 const [deposit] = createMockEthTxs('foo')
 
@@ -33,7 +34,8 @@ describe('useTxDetails', () => {
 
   it('should get correct type for a common tx', () => {
     const common = deposit
-    common.data!.method = 'common'
+    if (!common.data) throw new Error('Unhandled rejection in tests')
+    common.data.method = 'common'
     const transfers = getTransfers(common, mockAssetState().byId)
     const type = getTxType(common, transfers)
     expect(type).toEqual('common')

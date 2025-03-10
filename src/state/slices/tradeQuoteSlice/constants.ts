@@ -1,8 +1,9 @@
 import { TradeQuoteError } from '@shapeshiftoss/swapper'
-import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 
 import type { TradeQuoteSliceState } from './types'
 import { HopExecutionState, TradeExecutionState, TransactionExecutionState } from './types'
+
+import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 
 export const initialApprovalExecutionState = {
   state: TransactionExecutionState.AwaitingConfirmation,

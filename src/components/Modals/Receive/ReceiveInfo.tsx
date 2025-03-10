@@ -25,23 +25,25 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
-import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { QRCode } from 'components/QRCode/QRCode'
-import { Text } from 'components/Text'
-import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'
+
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
+import { QRCode } from '@/components/QRCode/QRCode'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { firstFourLastFour } from '@/lib/utils'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ReceivePropsType = {
   asset: Asset
@@ -137,7 +139,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       await navigator.clipboard.writeText(receiveAddress)
       const title = translate('modals.receive.copied', translatePayload)
       const status = 'success'
-      const description = receiveAddress
+      const description = firstFourLastFour(receiveAddress)
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('modals.receive.copyFailed', translatePayload)

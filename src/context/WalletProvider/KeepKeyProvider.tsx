@@ -22,12 +22,14 @@ import React, {
 } from 'react'
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import type { RadioOption } from 'components/Radio/Radio'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { poll } from 'lib/poll/poll'
-import { isKeepKeyHDWallet } from 'lib/utils'
 
+import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from './KeepKey/helpers'
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
+
+import type { RadioOption } from '@/components/Radio/Radio'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { poll } from '@/lib/poll/poll'
+import { isKeepKeyHDWallet } from '@/lib/utils'
 
 export enum DeviceTimeout {
   TenMinutes = '600000',
@@ -124,7 +126,10 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
-  const { versions, updaterUrl, isLTCSupportedFirmwareVersion } = useKeepKeyVersions()
+  const { versionsQuery, stableDesktopVersionQuery } = useKeepKeyVersions({ wallet })
+  const versions = versionsQuery.data?.versions
+  const isLTCSupportedFirmwareVersion = versionsQuery.data?.isLTCSupportedFirmwareVersion ?? false
+  const stableVersion = stableDesktopVersionQuery.data
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(
@@ -184,9 +189,31 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })()
   }, [keepKeyWallet, setDeviceTimeout, setHasPassphrase])
 
+  const platform = useMemo(() => getPlatform(), [])
+  const latestVersion = stableVersion
+
+  const platformFilename = useMemo(() => {
+    switch (platform) {
+      case 'Mac OS':
+        return `KeepKey-Desktop-${latestVersion}-universal.dmg`
+      case 'Windows':
+        return `KeepKey-Desktop-Setup-${latestVersion}.exe`
+      case 'Linux':
+        return `KeepKey-Desktop-${latestVersion}.AppImage`
+      default:
+        return null
+    }
+  }, [platform, latestVersion])
+
+  const updaterUrl = useMemo(
+    () =>
+      platformFilename ? `${UPDATER_BASE_URL}v${latestVersion}/${platformFilename}` : RELEASE_PAGE,
+    [platformFilename, latestVersion],
+  )
+
   useEffect(() => {
     if (!keepKeyWallet) return
-    if (!versions || !updaterUrl) return
+    if (!versions) return
 
     if (
       (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&

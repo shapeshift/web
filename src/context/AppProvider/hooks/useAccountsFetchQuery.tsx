@@ -6,16 +6,17 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { isUtxoChainId } from 'lib/utils/utxo'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectEnabledWalletAccountIds } from 'state/slices/selectors'
-import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
+import { isUtxoChainId } from '@/lib/utils/utxo'
+import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
+import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useAccountsFetchQuery = () => {
   const dispatch = useAppDispatch()

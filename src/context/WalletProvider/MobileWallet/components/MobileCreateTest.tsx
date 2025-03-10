@@ -7,11 +7,12 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText, Text } from 'components/Text'
 
 import { addWallet } from '../mobileMessageHandlers'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
+
+import { RawText, Text } from '@/components/Text'
 
 const TEST_COUNT_REQUIRED = 3
 
@@ -101,9 +102,10 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
       ;(async () => {
         if (vault?.label && vault?.mnemonic) {
           const newWallet = await addWallet({ label: vault.label, mnemonic: vault.mnemonic })
+          if (!newWallet) throw new Error('Failed to add wallet')
 
           queryClient.invalidateQueries({ queryKey: ['listWallets'] })
-          history.replace('/mobile/success', { vault: newWallet! })
+          history.replace('/mobile/success', { vault: newWallet })
         }
       })()
 

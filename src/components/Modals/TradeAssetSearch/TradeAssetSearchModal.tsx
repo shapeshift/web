@@ -3,22 +3,25 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
+
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import {
   DialogHeader,
   DialogHeaderMiddle,
   DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
-import type { TradeAssetSearchProps } from 'components/TradeAssetSearch/TradeAssetSearch'
-import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
-import { useModal } from 'hooks/useModal/useModal'
+} from '@/components/Modal/components/DialogHeader'
+import type { TradeAssetSearchProps } from '@/components/TradeAssetSearch/TradeAssetSearch'
+import { TradeAssetSearch } from '@/components/TradeAssetSearch/TradeAssetSearch'
+import { useModal } from '@/hooks/useModal/useModal'
 
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string
   onAssetClick: Required<TradeAssetSearchProps>['onAssetClick']
   assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
@@ -26,6 +29,8 @@ type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
   close: () => void
   assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
@@ -36,6 +41,8 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   title = 'common.selectAsset',
   assetFilterPredicate,
   chainIdFilterPredicate,
+  selectedChainId,
+  onSelectedChainIdChange,
 }) => {
   const translate = useTranslate()
 
@@ -59,6 +66,8 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        selectedChainId={selectedChainId}
+        onSelectedChainIdChange={onSelectedChainIdChange}
       />
     </Dialog>
   )

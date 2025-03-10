@@ -12,10 +12,11 @@ import {
 import { useCallback } from 'react'
 import { VscFeedback } from 'react-icons/vsc'
 import { useTranslate } from 'react-polyglot'
-import { DiscordIcon } from 'components/Icons/Discord'
-import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
+
+import { DiscordIcon } from '@/components/Icons/Discord'
+import { MainNavLink } from '@/components/Layout/Header/NavBar/MainNavLink'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 
 const chatIcon = <ChatIcon />
 const discordIcon = <DiscordIcon />

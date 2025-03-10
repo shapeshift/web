@@ -9,41 +9,43 @@ import type {
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
-import { arbitrumBridgeApi, getTradeQuoteWithWallet } from '@shapeshiftoss/swapper'
+import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
+import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
 import { useEffect, useMemo, useState } from 'react'
-import { reactQueries } from 'react-queries'
-import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swapper'
-import { swapper } from 'react-queries/queries/swapper'
-import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
-import { assertGetChainAdapter } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+
+import type { RfoxBridgeQuote } from '../types'
+
+import { getConfig } from '@/config'
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import { assertGetChainAdapter } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-} from 'lib/utils/evm'
-import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+} from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { reactQueries } from '@/react-queries'
+import type { ArbitrumBridgeTradeQuoteInput } from '@/react-queries/queries/swapper'
+import { swapper } from '@/react-queries/queries/swapper'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
-
-import type { RfoxBridgeQuote } from '../types'
+} from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type UseRfoxBridgeProps = { confirmedQuote: RfoxBridgeQuote }
 type UseRfoxBridgeReturn = {
@@ -233,7 +235,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
       const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-      const unsignedTx = await arbitrumBridgeApi.getUnsignedEvmTransaction!({
+      // This shouldn't happen but...
+      if (!arbitrumBridgeApi.getUnsignedEvmTransaction) throw new Error('Not implemented')
+
+      const unsignedTx = await arbitrumBridgeApi.getUnsignedEvmTransaction({
         tradeQuote,
         chainId: sellAsset.chainId,
         from: fromAccountId(confirmedQuote.sellAssetAccountId).account,

@@ -15,21 +15,6 @@ import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useModal } from 'hooks/useModal/useModal'
-import { bn } from 'lib/bignumber/bignumber'
-import {
-  selectFirstHopSellAccountId,
-  selectSecondHopSellAccountId,
-} from 'state/slices/tradeInputSlice/selectors'
-import {
-  selectActiveQuoteErrors,
-  selectHopExecutionMetadata,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../helpers'
 import { useHopProgress } from '../hooks/useHopProgress'
@@ -37,6 +22,23 @@ import { useStepperSteps } from '../hooks/useStepperSteps'
 import { useStreamingProgress } from '../hooks/useStreamingProgress'
 import { StepperStep as StepperStepComponent } from '../StepperStep'
 import { TxLabel } from '../TxLabel'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RATE_CHANGED_BPS_THRESHOLD } from '@/components/Modals/RateChanged/RateChanged'
+import { RawText, Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useModal } from '@/hooks/useModal/useModal'
+import { bn } from '@/lib/bignumber/bignumber'
+import {
+  selectFirstHopSellAccountId,
+  selectSecondHopSellAccountId,
+} from '@/state/slices/tradeInputSlice/selectors'
+import {
+  selectActiveQuoteErrors,
+  selectHopExecutionMetadata,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
@@ -197,6 +199,15 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     )
       return
     if (bn(firstHopAmountCryptoBaseUnit).gte(prevFirstHopAmountCryptoBaseUnit)) return
+
+    // Calculate difference in basis points (1% = 100 bps)
+    const bpsDiff = bn(firstHopAmountCryptoBaseUnit)
+      .minus(prevFirstHopAmountCryptoBaseUnit)
+      .div(prevFirstHopAmountCryptoBaseUnit)
+      .times(10000)
+      .abs()
+
+    if (bpsDiff.lt(RATE_CHANGED_BPS_THRESHOLD)) return
 
     rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
   }, [

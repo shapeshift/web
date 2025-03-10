@@ -8,26 +8,33 @@ import {
   Heading,
   HStack,
   Stack,
+  usePrevious,
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
-import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
-import { useActions } from 'hooks/useActions'
-import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
+import { useHistory } from 'react-router-dom'
+
+import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { WithBackButton } from '../../WithBackButton'
+import { getMixpanelLimitOrderEventData } from '../helpers'
+import { LimitOrderRoutePaths } from '../types'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetToAssetCard } from '@/components/AssetToAssetCard/AssetToAssetCard'
+import { Row } from '@/components/Row/Row'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
+import { useActions } from '@/hooks/useActions'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
@@ -40,20 +47,17 @@ import {
   selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAmountUserCurrency,
   selectActiveQuoteSellAsset,
-} from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector } from 'state/store'
-
-import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
-import { WithBackButton } from '../../WithBackButton'
-import { getMixpanelLimitOrderEventData } from '../helpers'
-import { LimitOrderRoutePaths } from '../types'
+} from '@/state/slices/limitOrderSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const cardBorderRadius = { base: '2xl' }
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const wallet = useWallet().state.wallet
+  const {
+    state: { wallet, isConnected },
+  } = useWallet()
   const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
@@ -70,6 +74,7 @@ export const LimitOrderConfirm = () => {
   const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
+  const prevIsConnected = usePrevious(isConnected)
 
   const [placeLimitOrder, { data, error, isLoading }] = usePlaceLimitOrderMutation()
 
@@ -91,6 +96,12 @@ export const LimitOrderConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
+
+  useEffect(() => {
+    if (prevIsConnected && !isConnected) {
+      handleBack()
+    }
+  }, [isConnected, prevIsConnected, handleBack])
 
   const handleConfirm = useCallback(async () => {
     const quoteId = activeQuote?.response.id

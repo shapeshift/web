@@ -14,10 +14,10 @@
     "noImplicitReturns": false,
 
     /* Module Resolution Options */
-    "baseUrl": "src",
+    "baseUrl": ".",
     "moduleResolution": "node",
     "paths": {
-      "@shapeshiftoss/*": ["./packages/$1/src/*"]
+      "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
 
@@ -31,9 +31,14 @@
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "jsx": "react-jsx",
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "scripts/generateAssetData",
+  "include": [
+    "src/**/*",
+    "src/**/*.json",
+    "packages/**/*",
+    "packages/**/*.json",
+    "scripts/generateAssetData",
     "scripts/generateTradableThorAssetMap"
   ],
   "exclude": [
@@ -42,7 +47,7 @@
     "**/__mocks__",
     "**/*.js",
     "src/lib/asset-service/service/encodedAssetData.json",
-    "src/lib/asset-service/service/encodedRelatedAssetIndex.json",
+    "src/lib/asset-service/service/encodedRelatedAssetIndex.json"
   ],
   "references": [
     { "path": "./packages/caip" },
@@ -52,6 +57,6 @@
     { "path": "./packages/types" },
     { "path": "./packages/unchained-client" },
     { "path": "./packages/swapper" },
-    { "path": "./packages/utils" },
+    { "path": "./packages/utils" }
   ]
 }

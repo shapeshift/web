@@ -12,21 +12,22 @@ import {
   Text,
   usePrevious,
 } from '@chakra-ui/react'
-import { knownChainIds } from 'constants/chains'
 import { useCallback, useMemo } from 'react'
 import { FaArrowRightArrowLeft } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { AssetIcon } from 'components/AssetIcon'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isSome } from 'lib/utils'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from 'state/slices/selectors'
-import { store } from 'state/store'
+import { useHistory } from 'react-router-dom'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
+import { knownChainIds } from '@/constants/chains'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isSome } from '@/lib/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const SnapIntro = ({
   isRemoved,
@@ -58,7 +59,9 @@ export const SnapIntro = ({
   const allNativeAssets = useMemo(() => {
     return knownChainIds
       .map(knownChainId => {
-        const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!
+        const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()
+        if (!assetId) return undefined
+
         const asset = selectAssetById(store.getState(), assetId)
         return asset
       })

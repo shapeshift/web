@@ -1,9 +1,10 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Center, Flex } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import type { Route } from 'Routes/helpers'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { Text } from '@/components/Text'
+import type { Route } from '@/Routes/helpers'
 
 type PageProps = {
   children: ReactNode

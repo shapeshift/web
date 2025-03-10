@@ -4,22 +4,23 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import type { ParseAddressInputReturn } from 'lib/address/address'
-import { parseAddressInputWithChainId } from 'lib/address/address'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+
+import { FiatRampAction } from '../FiatRampsCommon'
+import { Overview } from './Overview'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { ParseAddressInputReturn } from '@/lib/address/address'
+import { parseAddressInputWithChainId } from '@/lib/address/address'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectEnabledWalletAccountIds,
   selectHighestMarketCapFeeAsset,
   selectPortfolioAccountMetadata,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { FiatRampAction } from '../FiatRampsCommon'
-import { Overview } from './Overview'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputReturn>>
 
@@ -44,7 +45,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
 
   const {
-    state: { wallet, isDemoWallet },
+    state: { wallet },
   } = useWallet()
 
   const { data: ramps } = useGetFiatRampsQuery()
@@ -76,11 +77,6 @@ export const FiatForm: React.FC<FiatFormProps> = ({
    */
   useEffect(() => {
     if (!wallet) return
-    /**
-     * important - don't even attempt to generate addresses for the demo wallet
-     * we don't want users buying crypto into the demo wallet 🤦‍♂️
-     */
-    if (isDemoWallet) return
     ;(async () => {
       const plainAddressResults = await Promise.allSettled(
         walletAccountIds.map(accountId => {
@@ -130,7 +126,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
       setAddressByAccountId(addressesByAccountId)
     })()
-  }, [isDemoWallet, walletAccountIds, portfolioAccountMetadata, wallet])
+  }, [walletAccountIds, portfolioAccountMetadata, wallet])
 
   const { address, vanityAddress } = useMemo(() => {
     const empty = { address: '', vanityAddress: '' }

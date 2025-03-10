@@ -1,14 +1,18 @@
 import { Divider, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { BigNumber } from 'lib/bignumber/bignumber'
-import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { selectAppliedDiscountType, selectCalculatedFees } from 'state/apis/snapshot/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { Row } from '@/components/Row/Row'
+import { RawText, Text } from '@/components/Text'
+import { BigNumber } from '@/lib/bignumber/bignumber'
+import { FEE_MODEL_TO_FEATURE_NAME } from '@/lib/fees/parameters'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { selectAppliedDiscountType, selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const divider = <Divider />
 
@@ -32,16 +36,40 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
   )
   const greenColor = useColorModeValue('green.500', 'green.300')
 
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
+  const isFoxBuyAsset = useMemo(
+    () => relatedAssetIds.includes(buyAsset?.assetId),
+    [relatedAssetIds, buyAsset?.assetId],
+  )
+
   const discountTypeTranslation = useMemo(() => {
+    if (isFoxBuyAsset) return translate('foxDiscounts.foxBuy')
+
     return translate(`foxDiscounts.${appliedDiscountType}`)
-  }, [appliedDiscountType, translate])
+  }, [appliedDiscountType, isFoxBuyAsset, translate])
 
   const discountLabelTranslation = useMemo(() => {
+    if (feeBps.isZero()) return translate('foxDiscounts.breakdownHeader')
+
     return translate(`foxDiscounts.discountLabel`, { discountType: discountTypeTranslation })
-  }, [discountTypeTranslation, translate])
+  }, [discountTypeTranslation, translate, feeBps])
 
   const totalAmount = useMemo(() => {
-    if (feeBps.isZero())
+    if (feeBps.isZero() || isFoxBuyAsset)
       return (
         <Row.Value fontSize='lg'>
           <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
@@ -56,13 +84,14 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
         />
       </Row.Value>
     )
-  }, [affiliateFeeAmountUsd, feeBps, greenColor])
+  }, [affiliateFeeAmountUsd, feeBps, greenColor, isFoxBuyAsset])
 
   const totalDiscount = useMemo(() => {
-    if (feeBps.isZero()) return feeUsdBeforeDiscount.toFixed(2, BigNumber.ROUND_HALF_UP)
+    if (feeBps.isZero() || isFoxBuyAsset)
+      return feeUsdBeforeDiscount.toFixed(2, BigNumber.ROUND_HALF_UP)
 
     return foxDiscountUsd.toFixed(2, BigNumber.ROUND_HALF_UP)
-  }, [feeUsdBeforeDiscount, foxDiscountUsd, feeBps])
+  }, [feeUsdBeforeDiscount, foxDiscountUsd, feeBps, isFoxBuyAsset])
 
   return (
     <Stack spacing={0}>

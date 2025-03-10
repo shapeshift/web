@@ -1,38 +1,39 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
-import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { getAddress } from 'viem'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
+
+import { UniV2DepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import type { DepositValues } from '@/features/defi/components/Deposit/PairDeposit'
+import { PairDeposit } from '@/features/defi/components/Deposit/PairDeposit'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import type { LpId } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { UniV2DepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 type DepositProps = StepComponentProps & {
   accountId: AccountId | undefined
   onAccountIdChange?: AccountDropdownProps['onChange']

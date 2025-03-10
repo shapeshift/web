@@ -20,23 +20,23 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
-import { RawText } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+
+import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
+import { RawText } from '@/components/Text'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+} from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
+import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
-  selectAssets,
+  selectFeeAssetByChainId,
   selectMaybeNextAccountNumberByChainId,
   selectWalletConnectedChainIdsSorted,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const chainDropdownButtonProps = { width: 'full' }
 
@@ -49,7 +49,6 @@ export const AddAccountModal = () => {
     state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
 
-  const assets = useSelector(selectAssets)
   const chainIds = useSelector(selectWalletConnectedChainIdsSorted)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
@@ -89,16 +88,14 @@ export const AddAccountModal = () => {
     setSelectedChainId(chainIds[0])
   }, [chainIds])
 
-  const asset = useMemo(() => {
-    if (!selectedChainId) return
-    return assets?.[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
-  }, [assets, selectedChainId])
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, selectedChainId ?? ''))
 
   const handleAddAccount = useCallback(() => {
     if (!wallet) return
     if (!selectedChainId) return
     if (!nextAccountNumber) return
     if (!walletDeviceId) return
+    if (!feeAsset) return
     ;(async () => {
       const accountNumber = nextAccountNumber
       const chainIds = [selectedChainId]
@@ -122,8 +119,7 @@ export const AddAccountModal = () => {
         dispatch(getAccount.initiate({ accountId }, opts))
         dispatch(portfolio.actions.enableAccountId(accountId))
       })
-      const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
-      const { name } = assets[assetId] ?? {}
+      const { name } = feeAsset
       toast({
         position: 'top-right',
         title: translate('accounts.newAccountAdded', { name }),
@@ -135,7 +131,6 @@ export const AddAccountModal = () => {
       close()
     })()
   }, [
-    assets,
     close,
     dispatch,
     isSnapInstalled,
@@ -145,9 +140,8 @@ export const AddAccountModal = () => {
     translate,
     wallet,
     walletDeviceId,
+    feeAsset,
   ])
-
-  if (!asset) return null
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>

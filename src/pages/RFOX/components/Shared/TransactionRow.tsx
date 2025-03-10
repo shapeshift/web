@@ -7,15 +7,16 @@ import { useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { getTxLink } from 'lib/getTxLink'
-import { selectAssetById, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
-import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
 
 import type { MultiStepStatusStep } from './SharedMultiStepStatus'
+
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { getTxLink } from '@/lib/getTxLink'
+import { selectAssetById, selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
+import { deserializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { useAppSelector } from '@/state/store'
 
 type TransactionRowProps = {
   assetId: AssetId
@@ -69,11 +70,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [accountId, asset, maybeSafeTx, txId])
 
   const handleSignTx = useCallback(async () => {
-    if (!isActionable) return
+    if (!isActionable || !onSignAndBroadcast) return
 
     setIsSubmitting(true)
 
-    await onSignAndBroadcast!()
+    await onSignAndBroadcast()
 
     onStart()
   }, [isActionable, onSignAndBroadcast, onStart])

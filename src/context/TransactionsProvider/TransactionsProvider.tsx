@@ -1,44 +1,32 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import {
-  ethChainId,
-  foxAssetId,
-  foxatarAssetId,
-  fromAccountId,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { nftApi } from 'state/apis/nft/nftApi'
-import { snapshotApi } from 'state/apis/snapshot/snapshot'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+
+import { usePlugins } from '../PluginProvider/PluginProvider'
+
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { snapshotApi } from '@/state/apis/snapshot/snapshot'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from '@/state/slices/assetsSlice/utils'
+import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
+import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { fetchAllOpportunitiesUserDataByAccountId } from '@/state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
+import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
-  isSupportedThorchainSaversAssetId,
-  isSupportedThorchainSaversChainId,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectEnabledWalletAccountIds,
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
   selectStakingOpportunitiesById,
-} from 'state/slices/selectors'
-import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch } from 'state/store'
-
-import { usePlugins } from '../PluginProvider/PluginProvider'
+} from '@/state/slices/selectors'
+import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppDispatch } from '@/state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -52,22 +40,18 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const walletAccountIds = useSelector(selectEnabledWalletAccountIds)
   const { supportedChains } = usePlugins()
 
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
 
   const maybeRefetchOpportunities = useCallback(
-    ({ chainId, data, transfers, status, txid }: Transaction, accountId: AccountId) => {
+    ({ chainId, data, transfers, status }: Transaction, accountId: AccountId) => {
       if (status !== TxStatus.Confirmed) return
 
       const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
       const shouldRefetchRfoxOpportunity = data?.parser === 'rfox' && data.type === 'evm'
       const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
-      const shouldRefetchSaversOpportunities =
-        isSupportedThorchainSaversChainId(chainId) &&
-        transfers.some(({ assetId }) => isSupportedThorchainSaversAssetId(assetId))
 
       // Ugly catch-all that should go away now that we are fully migrated to the opportunities slice and know the Tx shape of the opportunities we're dealing with
       const shouldRefetchAllOpportunities = !(
@@ -126,26 +110,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             { forceRefetch: true },
           ),
         )
-      } else if (shouldRefetchSaversOpportunities) {
-        ;(async () => {
-          if (data?.parser !== 'thorchain' || data.liquidity?.type !== 'Savers') return
-
-          // All we care about here is to have refreshed THOR positions - we don't want to wait for the outbound to be signed/broadcasted
-          await waitForThorchainUpdate({ txId: txid, skipOutbound: true }).promise
-
-          dispatch(
-            getOpportunitiesUserData.initiate(
-              [
-                {
-                  accountId,
-                  defiProvider: DefiProvider.ThorchainSavers,
-                  defiType: DefiType.Staking,
-                },
-              ],
-              { forceRefetch: true },
-            ),
-          )
-        })()
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         // We don't know the chainId of the Tx, so we refetch all opportunities
@@ -173,23 +137,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       )
     },
     [dispatch, isConnected],
-  )
-
-  const maybeRefetchNfts = useCallback(
-    ({ transfers, status }: Transaction) => {
-      if (status !== TxStatus.Confirmed) return
-
-      // Only on FOXatar for now, we may want to generalize this to all NFTs with isNft(assetId) in the future
-      if (transfers.some(({ assetId }) => assetId.includes(foxatarAssetId))) {
-        const { getNftUserTokens } = nftApi.endpoints
-        dispatch(
-          getNftUserTokens.initiate({ accountIds: walletAccountIds }, { forceRefetch: true }),
-        )
-      }
-    },
-    // Disabling for safety similar to maybeRefetchOpportunities
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [walletAccountIds],
   )
 
   /**
@@ -243,7 +190,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
               maybeRefetchVotingPower(msg, chainId)
               maybeRefetchOpportunities(msg, accountId)
-              maybeRefetchNfts(msg)
 
               // upsert any new nft assets if detected
               dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
@@ -267,7 +213,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     portfolioAccountMetadata,
     wallet,
     maybeRefetchOpportunities,
-    maybeRefetchNfts,
     maybeRefetchVotingPower,
   ])
 

@@ -4,7 +4,8 @@ import { Box, Flex, Grid, IconButton, useToken } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
+
+import { Text } from '@/components/Text'
 
 type FeatureListProps = {
   slidesToShow?: number

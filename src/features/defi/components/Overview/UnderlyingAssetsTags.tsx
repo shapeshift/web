@@ -1,10 +1,11 @@
 import { Flex, Tag } from '@chakra-ui/react'
 import React from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 import type { AssetWithBalance } from './Overview'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
 
 type UnderlyingAssetsTagProps = {
   asset: AssetWithBalance

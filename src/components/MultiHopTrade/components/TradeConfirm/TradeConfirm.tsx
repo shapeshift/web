@@ -1,19 +1,7 @@
-import { Stepper } from '@chakra-ui/react'
+import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import type { TextPropTypes } from 'components/Text/Text'
-import { fromBaseUnit } from 'lib/math'
-import {
-  selectActiveQuote,
-  selectConfirmedTradeExecutionState,
-  selectFirstHop,
-  selectLastHop,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
@@ -23,10 +11,27 @@ import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeed
 import { TradeConfirmBody } from './TradeConfirmBody'
 import { TradeConfirmFooter } from './TradeConfirmFooter'
 
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
+import {
+  selectActiveQuote,
+  selectConfirmedTradeExecutionState,
+  selectFirstHop,
+  selectLastHop,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+
 export const TradeConfirm = () => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const history = useHistory()
   const dispatch = useAppDispatch()
+  const {
+    state: { isConnected },
+  } = useWallet()
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeTradeId = activeQuote?.id
   const currentHopIndex = useCurrentHopIndex()
@@ -37,6 +42,7 @@ export const TradeConfirm = () => {
   }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
 
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const prevIsConnected = usePrevious(isConnected)
 
   const isTradeComplete = useMemo(
     () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
@@ -50,6 +56,12 @@ export const TradeConfirm = () => {
 
     history.push(TradeRoutePaths.Input)
   }, [dispatch, history, isTradeComplete])
+
+  useEffect(() => {
+    if (prevIsConnected && !isConnected) {
+      handleBack()
+    }
+  }, [isConnected, prevIsConnected, handleBack])
 
   const headerTranslation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined

@@ -1,7 +1,8 @@
 import type { PersistPartial } from 'redux-persist/es/persistReducer'
-import type { OpportunitiesState } from 'state/slices/opportunitiesSlice/types'
 
 import { initialState } from '../slices/opportunitiesSlice/opportunitiesSlice'
+
+import type { OpportunitiesState } from '@/state/slices/opportunitiesSlice/types'
 
 export const clearOpportunities = (
   _state: OpportunitiesState,

@@ -1,5 +1,5 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
-import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
@@ -17,28 +17,33 @@ import {
 } from '@shapeshiftoss/swapper'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
-import { getTradeQuoteOrRateInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
-import { useHasFocus } from 'hooks/useHasFocus'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isSome } from 'lib/utils'
+
+import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
+import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
+
+import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
+import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
+import { useHasFocus } from '@/hooks/useHasFocus'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { calculateFees } from '@/lib/fees/model'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isSome } from '@/lib/utils'
 import {
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,
-} from 'state/apis/snapshot/selectors'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
-import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
+} from '@/state/apis/snapshot/selectors'
+import { swapperApi } from '@/state/apis/swapper/swapperApi'
+import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUsdRateByAssetId,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -47,7 +52,7 @@ import {
   selectInputSellAsset,
   selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/tradeInputSlice/selectors'
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
@@ -55,13 +60,10 @@ import {
   selectHopExecutionMetadata,
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
-
-import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
-import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -216,6 +218,19 @@ export const useGetTradeQuotes = () => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
   )
 
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
@@ -282,6 +297,8 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
+      const isFoxBuyAsset = relatedAssetIds.includes(buyAsset.assetId)
+
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
 
@@ -297,8 +314,8 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps,
-          potentialAffiliateBps,
+          affiliateBps: isFoxBuyAsset ? '0' : affiliateBps,
+          potentialAffiliateBps: isFoxBuyAsset ? '0' : potentialAffiliateBps,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
@@ -326,6 +343,7 @@ export const useGetTradeQuotes = () => {
     userSlippageTolerancePercentageDecimal,
     votingPower,
     wallet,
+    relatedAssetIds,
   ])
 
   const { data: tradeQuoteInput } = useQuery({

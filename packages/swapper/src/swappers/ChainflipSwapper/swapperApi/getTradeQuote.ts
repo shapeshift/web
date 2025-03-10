@@ -1,6 +1,7 @@
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -67,8 +68,8 @@ export const getTradeQuote = async (
 
   if (maybeTradeQuotes.isErr()) return Err(maybeTradeQuotes.unwrapErr())
 
-  const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
+  const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
+  const apiKey = deps.config.VITE_CHAINFLIP_API_KEY
 
   const tradeQuotes = maybeTradeQuotes.unwrap()
 
@@ -103,8 +104,8 @@ export const getTradeQuote = async (
         sourceAsset,
         minimumPrice,
         destinationAsset,
-        destinationAddress: input.receiveAddress,
-        refundAddress: input.sendAddress!,
+        destinationAddress: receiveAddress,
+        refundAddress: sendAddress,
         maxBoostFee: step.chainflipSpecific?.chainflipMaxBoostFee,
         numberOfChunks: step.chainflipSpecific?.chainflipNumberOfChunks,
         chunkIntervalBlocks: step.chainflipSpecific?.chainflipChunkIntervalBlocks,
@@ -114,7 +115,7 @@ export const getTradeQuote = async (
       if (maybeSwapResponse.isErr()) {
         const error = maybeSwapResponse.unwrapErr()
         const cause = error.cause as AxiosError<any, any>
-        throw Error(cause.response!.data.detail)
+        throw Error(cause.response?.data.detail)
       }
 
       const { data: swapResponse } = maybeSwapResponse.unwrap()
@@ -135,7 +136,7 @@ export const getTradeQuote = async (
               to: depositAddress,
               value: sellAmount,
               chainSpecific: {
-                from: input.sendAddress!,
+                from: sendAddress,
                 tokenId:
                   sellAsset.assetId === solAssetId
                     ? undefined
@@ -169,11 +170,21 @@ export const getTradeQuote = async (
   const quotesResult = Ok(tradeQuotes)
 
   return quotesResult.map(quotes =>
-    quotes.map(quote => ({
-      ...quote,
-      quoteOrRate: 'quote' as const,
-      receiveAddress: receiveAddress!,
-      steps: quote.steps.map(step => step) as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
-    })),
+    quotes
+      .map(quote => {
+        if (!quote.receiveAddress) {
+          console.error('receiveAddress is required')
+          return undefined
+        }
+        return {
+          ...quote,
+          quoteOrRate: 'quote' as const,
+          receiveAddress,
+          steps: quote.steps.map(step => step) as
+            | [TradeQuoteStep]
+            | [TradeQuoteStep, TradeQuoteStep],
+        }
+      })
+      .filter(isSome),
   )
 }

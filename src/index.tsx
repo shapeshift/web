@@ -1,5 +1,6 @@
+import './lib/global-polyfills'
 import './wdyr'
-import 'lib/polyfills'
+import '@/lib/polyfills'
 
 import {
   breadcrumbsIntegration,
@@ -9,18 +10,17 @@ import {
   init as initSentry,
   setUser,
 } from '@sentry/react'
-import { App } from 'App'
-import { AppProviders } from 'AppProviders'
 import { isAxiosError } from 'axios'
-import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { httpClientIntegration } from 'utils/sentry/httpclient'
 import { v4 as uuid } from 'uuid'
-import { renderConsoleArt } from 'lib/consoleArt'
-import { reportWebVitals } from 'lib/reportWebVitals'
 
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'
+import { App } from './App'
+import { AppProviders } from './AppProviders'
+import { getConfig } from './config'
+import { renderConsoleArt } from './lib/consoleArt'
+import { reportWebVitals } from './lib/reportWebVitals'
+import { httpClientIntegration } from './utils/sentry/httpclient'
 
 // Remove this condition to test sentry locally
 if (window.location.hostname !== 'localhost') {
@@ -46,7 +46,7 @@ if (window.location.hostname !== 'localhost') {
   })()
   initSentry({
     environment,
-    dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
+    dsn: getConfig().VITE_SENTRY_DSN_URL,
     attachStacktrace: true,
     // This is the default value, but we're setting it explicitly to make it clear that we're using it
     autoSessionTracking: true,
@@ -98,7 +98,7 @@ if (window.location.hostname !== 'localhost') {
         if (event.message.includes('status: 0')) {
           event.fingerprint = ['XMLHttpRequest Error']
         } else {
-          event.fingerprint = [event.request?.url!]
+          event.fingerprint = [event.request?.url ?? '']
         }
       }
       // Leave other errors untouched to leverage Sentry's default grouping
@@ -120,6 +120,8 @@ if (window.location.hostname !== 'localhost') {
   }
 }
 
+// This is actually an usage we can safely ignore, if we don't have #root, we have bigger problems
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)
 
@@ -133,8 +135,6 @@ root.render(
     </AppProviders>
   </React.StrictMode>,
 )
-
-serviceWorkerRegistration.register()
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

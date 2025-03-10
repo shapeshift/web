@@ -1,21 +1,22 @@
 import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { middleEllipsis } from 'lib/utils'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
-import { GlobalSearchResultType } from 'state/slices/search-selectors'
+
+import { ResultButton } from '../ResultButton'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { RawText } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { middleEllipsis } from '@/lib/utils'
+import type { GlobalSearchResult } from '@/state/slices/search-selectors'
+import { GlobalSearchResultType } from '@/state/slices/search-selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ResultButton } from '../ResultButton'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetResultProps = {
   assetId: AssetId

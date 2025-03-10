@@ -1,8 +1,9 @@
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
 import { describe, expect, it } from 'vitest'
 
 import { getRelatedAssetIds } from './utils'
+
+import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from '@/test/mocks/txs'
 
 describe('txHistorySlice:utils', () => {
   describe('getRelatedAssetIds', () => {

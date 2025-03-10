@@ -4,14 +4,15 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
-import { isSome } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
-import { selectFeeModelParamFromFilter } from 'state/selectors'
-import { selectPortfolioAssetBalancesBaseUnit } from 'state/slices/common-selectors'
-import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
+
+import type { CalculateFeeBpsReturn } from '@/lib/fees/model'
+import { calculateFees } from '@/lib/fees/model'
+import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { isSome } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
+import { selectFeeModelParamFromFilter } from '@/state/selectors'
+import { selectPortfolioAssetBalancesBaseUnit } from '@/state/slices/common-selectors'
+import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
 
@@ -33,12 +34,13 @@ export const selectVotingPower = createSelector(
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,
   (votingPowerByModel, feeModel, accountIdsbyChainId, isSnapshotApiQueriesRejected) => {
+    if (!feeModel) return '0'
     if (isSnapshotApiQueriesRejected) return '0'
 
     const ethAccountIds = accountIdsbyChainId[ethChainId]
     if (!ethAccountIds?.length) return '0'
 
-    return votingPowerByModel[feeModel!]
+    return votingPowerByModel[feeModel]
   },
 )
 

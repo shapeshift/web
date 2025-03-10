@@ -14,31 +14,32 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
-import { isMultiHopTradeQuote, isMultiHopTradeRate } from 'components/MultiHopTrade/utils'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
+
+import type { ErrorWithMeta, TradeQuoteError } from '../types'
+import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+
+import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
+import type { ReduxState } from '@/state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletConnectedChainIds,
   selectWalletId,
-} from 'state/slices/common-selectors'
+} from '@/state/slices/common-selectors'
 import {
   selectAssets,
   selectFeeAssetById,
   selectPortfolioAccountIdByNumberByChainId,
-} from 'state/slices/selectors'
+} from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
   selectSecondHopSellAccountId,
-} from 'state/slices/tradeInputSlice/selectors'
-import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
-
-import type { ErrorWithMeta, TradeQuoteError } from '../types'
-import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+} from '@/state/slices/tradeInputSlice/selectors'
+import { getTotalProtocolFeeByAssetForStep } from '@/state/slices/tradeQuoteSlice/helpers'
 
 export const validateTradeQuote = (
   state: ReduxState,
@@ -136,21 +137,21 @@ export const validateTradeQuote = (
   const walletId = selectWalletId(state)
 
   // A quote always consists of at least one hop
-  const firstHop = getHopByIndex(quote, 0)!
+  const firstHop = getHopByIndex(quote, 0)
   const secondHop = getHopByIndex(quote, 1)
 
   const isMultiHopTrade = isExecutableTradeQuote(quote)
     ? isMultiHopTradeQuote(quote)
     : isMultiHopTradeRate(quote)
 
-  const lastHop = (isMultiHopTrade ? secondHop : firstHop)!
+  const lastHop = isMultiHopTrade ? secondHop : firstHop
   const walletConnectedChainIds = selectWalletConnectedChainIds(state)
   const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
-  const sellAmountCryptoBaseUnit = firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
-  const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
+  const sellAmountCryptoBaseUnit = firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit
+  const buyAmountCryptoBaseUnit = lastHop?.buyAmountBeforeFeesCryptoBaseUnit
 
   // the network fee asset for the first hop in the trade
-  const firstHopSellFeeAsset = selectFeeAssetById(state, firstHop.sellAsset.assetId)
+  const firstHopSellFeeAsset = selectFeeAssetById(state, firstHop?.sellAsset.assetId ?? '')
 
   // the network fee asset for the second hop in the trade
   const secondHopSellFeeAsset =
@@ -179,7 +180,7 @@ export const validateTradeQuote = (
   const firstHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && firstHopSellFeeAsset
       ? fromBaseUnit(
-          bnOrZero(firstHop.feeData.networkFeeCryptoBaseUnit),
+          bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
           firstHopSellFeeAsset.precision,
         )
       : bn(0).toFixed()
@@ -193,12 +194,12 @@ export const validateTradeQuote = (
       : bn(0).toFixed()
 
   const firstHopTradeDeductionCryptoPrecision =
-    firstHopSellFeeAsset?.assetId === firstHop.sellAsset.assetId
+    firstHopSellFeeAsset?.assetId === firstHop?.sellAsset.assetId
       ? bnOrZero(sellAmountCryptoPrecision).toFixed()
       : bn(0).toFixed()
 
   const walletSupportsIntermediaryAssetChain =
-    !isMultiHopTrade || walletConnectedChainIds.includes(firstHop.buyAsset.chainId)
+    !isMultiHopTrade || walletConnectedChainIds.includes(firstHop?.buyAsset.chainId ?? '')
 
   const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
@@ -217,8 +218,8 @@ export const validateTradeQuote = (
 
   const portfolioAccountIdByNumberByChainId = selectPortfolioAccountIdByNumberByChainId(state)
   const portfolioAccountBalancesBaseUnit = selectPortfolioAccountBalancesBaseUnit(state)
-  const sellAssetAccountNumber = firstHop.accountNumber
-  const totalProtocolFeesByAsset = getTotalProtocolFeeByAssetForStep(firstHop)
+  const sellAssetAccountNumber = firstHop?.accountNumber
+  const totalProtocolFeesByAsset = firstHop ? getTotalProtocolFeeByAssetForStep(firstHop) : {}
 
   // This is an oversimplification where protocol fees are assumed to be only deducted from
   // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
@@ -238,11 +239,11 @@ export const validateTradeQuote = (
             // them kick the swapperName bit out of the condition
             if (
               firstHopSellFeeAsset?.assetId === assetId &&
-              firstHop.sellAsset.assetId === assetId &&
+              firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
               return bnOrZero(balanceCryptoBaseUnit)
-                .minus(sellAmountCryptoBaseUnit)
+                .minus(bnOrZero(sellAmountCryptoBaseUnit))
                 .minus(protocolFee.amountCryptoBaseUnit)
                 .lt(0)
             }
@@ -272,7 +273,7 @@ export const validateTradeQuote = (
   // Ensure the trade is not selling an amount higher than the user input, within a very safe threshold.
   // Threshold is required because cowswap sometimes quotes a sell amount a teeny-tiny bit more than you input.
   const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit).lt(
-    firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    bnOrZero(firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit),
   )
 
   return {
@@ -281,7 +282,7 @@ export const validateTradeQuote = (
         error: TradeQuoteValidationError.TradingInactiveOnSellChain,
         meta: {
           chainName: assertGetChainAdapter(
-            firstHop.sellAsset.chainId as KnownChainIds,
+            firstHop?.sellAsset.chainId as KnownChainIds,
           ).getDisplayName(),
         },
       },
@@ -289,7 +290,7 @@ export const validateTradeQuote = (
         error: TradeQuoteValidationError.TradingInactiveOnBuyChain,
         meta: {
           chainName: assertGetChainAdapter(
-            firstHop.buyAsset.chainId as KnownChainIds,
+            firstHop?.buyAsset.chainId as KnownChainIds,
           ).getDisplayName(),
         },
       },
@@ -305,7 +306,7 @@ export const validateTradeQuote = (
       walletId &&
         !firstHopHasSufficientBalanceForGas && {
           error:
-            firstHopSellFeeAsset?.assetId === firstHop.sellAsset.assetId
+            firstHopSellFeeAsset?.assetId === firstHop?.sellAsset.assetId
               ? TradeQuoteValidationError.InsufficientFirstHopAssetBalance
               : TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {

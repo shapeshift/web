@@ -4,13 +4,6 @@ import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapes
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import debounce from 'lodash/debounce'
 import pDebounce from 'p-debounce'
 import qs from 'qs'
@@ -18,42 +11,53 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { InfoAcknowledgement } from 'components/Acknowledgement/InfoAcknowledgement'
-import { Amount } from 'components/Amount/Amount'
-import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Row } from 'components/Row/Row'
-import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isToken } from 'lib/utils'
-import { assertGetEvmChainAdapter, getFeesWithWalletEIP1559Support } from 'lib/utils/evm'
-import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
-import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
-import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
-import { formatSecondsToDuration } from 'lib/utils/time'
-import { isUtxoChainId } from 'lib/utils/utxo'
-import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
+import { DepositContext } from '../DepositContext'
+
+import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
+import { InfoAcknowledgement } from '@/components/Acknowledgement/InfoAcknowledgement'
+import { Amount } from '@/components/Amount/Amount'
+import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { Row } from '@/components/Row/Row'
+import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from '@/features/defi/components/Deposit/Deposit'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isToken } from '@/lib/utils'
+import { assertGetEvmChainAdapter, getFeesWithWalletEIP1559Support } from '@/lib/utils/evm'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from '@/lib/utils/thorchain/balance'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from '@/lib/utils/thorchain/constants'
+import { useGetThorchainSaversDepositQuoteQuery } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import { formatSecondsToDuration } from '@/lib/utils/time'
+import { isUtxoChainId } from '@/lib/utils/utxo'
+import type { EstimatedFeesQueryKey } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { queryFn as getEstimatedFeesQueryFn } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
+import type { IsSweepNeededQueryKey } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import {
   getIsSweepNeeded,
   isGetSweepNeededInput,
   useIsSweepNeededQuery,
-} from 'pages/Lending/hooks/useIsSweepNeededQuery'
+} from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import {
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+} from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -63,11 +67,8 @@ import {
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { ThorchainSaversDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined

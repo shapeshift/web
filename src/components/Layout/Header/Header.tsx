@@ -1,4 +1,3 @@
-import { InfoIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
 import { btcAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -8,23 +7,6 @@ import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { METAMASK_RDNS } from 'lib/mipd'
-import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectEnabledWalletAccountIds,
-  selectPortfolioDegradedState,
-  selectShowSnapsModal,
-  selectWalletId,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -34,19 +16,34 @@ import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { METAMASK_RDNS } from '@/lib/mipd'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import {
+  selectEnabledWalletAccountIds,
+  selectPortfolioDegradedState,
+  selectShowSnapsModal,
+  selectWalletId,
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
+
 const WalletConnectToDappsHeaderButton = lazy(() =>
-  import('plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
+  import('@/plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
     ({ WalletConnectToDappsHeaderButton }) => ({ default: WalletConnectToDappsHeaderButton }),
   ),
 )
 
-const paddingBottomProp = { base: '0.5rem', md: 0 }
-const fontSizeProp = { base: 'sm', md: 'md' }
-const paddingTopProp1 = { base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }
 const pxProp = { base: 0, xl: 4 }
 const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
 const widthProp = { base: 'auto', md: 'full' }
+const paddingTopProp = { base: 'env(safe-area-inset-top)', md: 0 }
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
@@ -59,7 +56,7 @@ export const Header = memo(() => {
 
   const history = useHistory()
   const {
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, wallet },
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
@@ -92,11 +89,6 @@ export const Header = memo(() => {
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
-
-  const handleBannerClick = useCallback(
-    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
-    [dispatch],
-  )
 
   const connectedRdns = useAppSelector(selectWalletRdns)
   const previousConnectedRdns = usePrevious(connectedRdns)
@@ -175,40 +167,11 @@ export const Header = memo(() => {
     walletAccountIds,
   ])
 
-  const paddingTopProp2 = useMemo(
-    () => ({ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }),
-    [isDemoWallet],
-  )
-
   // Hide the header on mobile
   if (!isLargerThanMd) return null
 
   return (
     <>
-      {isDemoWallet && (
-        <Box
-          bg='blue.500'
-          width='full'
-          paddingTop={paddingTopProp1}
-          paddingBottom={paddingBottomProp}
-          minHeight='2.5rem'
-          fontSize={fontSizeProp}
-          as='button'
-          onClick={handleBannerClick}
-        >
-          <HStack
-            verticalAlign='middle'
-            justifyContent='center'
-            spacing={3}
-            color='white'
-            wrap='wrap'
-          >
-            <InfoIcon boxSize='1.3em' />
-            <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
-            <Text display='inline' translation='navBar.clickToConnect' />
-          </HStack>
-        </Box>
-      )}
       <Flex
         direction='column'
         width='full'
@@ -220,7 +183,7 @@ export const Header = memo(() => {
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={0}
-        paddingTop={paddingTopProp2}
+        paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>

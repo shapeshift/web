@@ -434,7 +434,7 @@ export const thorchainApi: SwapperApi = {
 
     return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
       value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub: xpub!,
+      xpub,
       to: vault,
       accountNumber,
       // skip address validation for thorchain vault addresses as they may exceed the risk score threshold, but are still valid for use
@@ -475,7 +475,7 @@ export const thorchainApi: SwapperApi = {
       to: vault,
       value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
-        pubkey: xpub!,
+        pubkey: xpub,
         opReturnData,
       },
       sendMax: false,
@@ -526,7 +526,7 @@ export const thorchainApi: SwapperApi = {
 
           const api = new cosmossdk.thorchain.V1Api(
             new cosmossdk.thorchain.Configuration({
-              basePath: config.REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
+              basePath: config.VITE_UNCHAINED_THORCHAIN_HTTP_URL,
             }),
           )
 
@@ -540,7 +540,7 @@ export const thorchainApi: SwapperApi = {
             gas,
           }
 
-          const daemonUrl = config.REACT_APP_THORCHAIN_NODE_URL
+          const daemonUrl = config.VITE_THORCHAIN_NODE_URL
           const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
           if (maybeGaiaAddressData.isErr()) throw maybeGaiaAddressData.unwrapErr()
           const gaiaAddressData = maybeGaiaAddressData.unwrap()
@@ -557,7 +557,7 @@ export const thorchainApi: SwapperApi = {
 
           const api = new cosmossdk.cosmos.V1Api(
             new cosmossdk.cosmos.Configuration({
-              basePath: config.REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+              basePath: config.VITE_UNCHAINED_COSMOS_HTTP_URL,
             }),
           )
 
@@ -629,10 +629,10 @@ export const thorchainApi: SwapperApi = {
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
       const [{ data: txData }, { data: txStatusData }] = await Promise.all([
         axios.get<ThornodeTxResponse>(
-          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
         ),
         axios.get<ThornodeStatusResponse>(
-          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
         ),
       ])
 

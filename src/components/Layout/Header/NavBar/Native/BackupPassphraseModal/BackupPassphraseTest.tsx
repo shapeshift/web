@@ -19,13 +19,14 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
+import { useHistory } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
+
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText, Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 
 const Revocable = crypto.Isolation.Engines.Default.Revocable
 const revocable = crypto.Isolation.Engines.Default.revocable
@@ -67,9 +68,12 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
       let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
       const targetWordIndex = shuffledNumbers[testCount]
-      const targetWord = words[targetWordIndex]!
+      const targetWord = words[targetWordIndex]
       randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+
+      if (!targetWord) return setError('walletProvider.shapeShift.create.error')
       randomWords.push(targetWord)
+
       randomWords = shuffle(randomWords)
       const correctAnswerIndex = randomWords.indexOf(targetWord)
       // Should never happen because we literally just added the word to the array

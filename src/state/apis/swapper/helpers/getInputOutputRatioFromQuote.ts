@@ -7,12 +7,16 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import type { ReduxState } from 'state/reducer'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataUsd, selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
+
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import type { ReduxState } from '@/state/reducer'
+import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
+import {
+  selectMarketDataUsd,
+  selectUsdRateByAssetId,
+} from '@/state/slices/marketDataSlice/selectors'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
@@ -103,38 +107,39 @@ export const getInputOutputRatioFromQuote = ({
   swapperName: SwapperName
 }): number => {
   // A quote always has a first step
-  const firstStep = getHopByIndex(quote, 0)!
-  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = firstStep
+  const firstStep = getHopByIndex(quote, 0)
+  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = firstStep ?? {}
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
   // A quote always has a last step since it always has a first
-  const lastStep = getHopByIndex(quote, lastStepIndex)!
-  const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } = lastStep
+  const lastStep = getHopByIndex(quote, lastStepIndex)
+  const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } =
+    lastStep ?? {}
 
   // If we are trading custom assets we might not have USD rates, so we cannot determine a ratio
-  const hasSellAssetUsdRate = selectUsdRateByAssetId(state, sellAsset.assetId) !== undefined
-  const hasBuyAssetUsdRate = selectUsdRateByAssetId(state, buyAsset.assetId) !== undefined
+  const hasSellAssetUsdRate = selectUsdRateByAssetId(state, sellAsset?.assetId ?? '') !== undefined
+  const hasBuyAssetUsdRate = selectUsdRateByAssetId(state, buyAsset?.assetId ?? '') !== undefined
   if (!hasSellAssetUsdRate || !hasBuyAssetUsdRate) return 0
 
   // TODO: implement this when we do multi-hop
   const buySideNetworkFeeCryptoBaseUnit = bn(0)
 
-  const netReceiveAmountUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    state,
-    buyAsset,
-    netReceiveAmountCryptoBaseUnit,
-  )
+  const netReceiveAmountUsdPrecision =
+    buyAsset && netReceiveAmountCryptoBaseUnit
+      ? _convertCryptoBaseUnitToUsdPrecision(state, buyAsset, netReceiveAmountCryptoBaseUnit)
+      : bn(0)
 
-  const buySideNetworkFeeUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    state,
-    buyAsset,
-    buySideNetworkFeeCryptoBaseUnit,
-  )
+  const buySideNetworkFeeUsdPrecision = buyAsset
+    ? _convertCryptoBaseUnitToUsdPrecision(state, buyAsset, buySideNetworkFeeCryptoBaseUnit)
+    : bn(0)
 
-  const sellAmountCryptoBaseUnit = _convertCryptoBaseUnitToUsdPrecision(
-    state,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  )
+  const sellAmountCryptoBaseUnit =
+    sellAsset && sellAmountIncludingProtocolFeesCryptoBaseUnit
+      ? _convertCryptoBaseUnitToUsdPrecision(
+          state,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        )
+      : bn(0)
 
   const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
 

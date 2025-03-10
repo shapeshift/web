@@ -2,7 +2,8 @@ import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { zeroAddress } from 'viem'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+
+import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
   pubkey: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
@@ -331,7 +332,7 @@ export const yearnVaultDeposit: Tx = {
   txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083',
 }
 
-export const createMockEthTxs = (account: string): Tx[] => {
+export const createMockEthTxs = (account: string) => {
   // UNI -> yvUNI
   const deposit: Tx = {
     pubkey: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',

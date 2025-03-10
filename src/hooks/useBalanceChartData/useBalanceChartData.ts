@@ -12,12 +12,16 @@ import last from 'lodash/last'
 import values from 'lodash/values'
 import without from 'lodash/without'
 import { useMemo } from 'react'
-import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtDate } from 'lib/charts'
-import type { SupportedFiatCurrencies } from 'lib/market-service'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
-import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+
+import { excludeTransaction } from './cosmosUtils'
+import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
+
+import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { priceAtDate } from '@/lib/charts'
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
+import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
+import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
@@ -27,12 +31,9 @@ import {
   selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
-} from 'state/slices/selectors'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
-
-import { excludeTransaction } from './cosmosUtils'
-import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
+} from '@/state/slices/selectors'
+import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from '@/state/store'
 
 type BalanceByAssetId = Record<AssetId, BigNumber> // map of asset to base units
 
@@ -126,8 +127,10 @@ export const makeBuckets: MakeBuckets = args => {
 
 export const bucketEvents = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
-  const start = head(buckets)!.start
-  const end = last(buckets)!.end
+  const start = head(buckets)?.start
+  const end = last(buckets)?.end
+
+  if (!start || !end) return []
 
   // events are potentially a lot longer than buckets, iterate the long list once
   return txs.reduce((acc, event) => {
@@ -177,11 +180,12 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
       priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
 
   for (const [assetId, assetCryptoBalance] of Object.entries(bucket.balance.crypto)) {
-    if (!cryptoPriceHistoryData[assetId]?.length) continue
+    const priceHistoryData = cryptoPriceHistoryData[assetId]
+    if (!priceHistoryData) continue
     if (!assets[assetId]) continue
-    const price = priceAtDate({ priceHistoryData: cryptoPriceHistoryData[assetId]!, date })
+    const price = priceAtDate({ priceHistoryData, date })
     balanceAtBucket[assetId] = assetCryptoBalance
-      .times(`1e-${assets[assetId]?.precision!}`)
+      .times(`1e-${assets[assetId]?.precision ?? '0'}`)
       .times(price)
     // dont unnecessarily multiply again
     if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)

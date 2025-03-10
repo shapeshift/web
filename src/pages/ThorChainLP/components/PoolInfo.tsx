@@ -3,14 +3,15 @@ import { Card, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { AssetSymbol } from 'components/AssetSymbol'
-import { ChangeTag } from 'components/ChangeTag/ChangeTag'
-import { Text } from 'components/Text'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { useAppSelector } from 'state/store'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { AssetSymbol } from '@/components/AssetSymbol'
+import { ChangeTag } from '@/components/ChangeTag/ChangeTag'
+import { Text } from '@/components/Text'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type PoolInfoProps = {
   assetIds: AssetId[]

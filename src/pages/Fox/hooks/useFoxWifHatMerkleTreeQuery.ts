@@ -3,10 +3,11 @@ import { foxWifHatAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/cai
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { IPFS_GATEWAY } from 'pages/RFOX/constants'
-import { selectAccountIdsByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { IPFS_GATEWAY } from '@/pages/RFOX/constants'
+import { selectAccountIdsByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type FoxWifHatClaim = { index: bigint; amount: string; proof: `0x${string}`[] }
 

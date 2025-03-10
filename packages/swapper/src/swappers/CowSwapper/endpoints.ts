@@ -44,9 +44,9 @@ export const cowApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       // A quote always has a first step
-      const firstStep = getHopByIndex(tradeQuote, 0)!
+      const firstStep = getHopByIndex(tradeQuote, 0)
       const id = uuid()
-      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, { chainId: firstStep?.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
     })
   },
@@ -58,9 +58,9 @@ export const cowApi: SwapperApi = {
 
     return tradeRateResult.map(tradeRate => {
       // A rate always has a first step
-      const firstStep = getHopByIndex(tradeRate, 0)!
+      const firstStep = getHopByIndex(tradeRate, 0)
       const id = uuid()
-      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, { chainId: firstStep?.sellAsset.chainId as EvmChainId })
       return [tradeRate]
     })
   },
@@ -172,7 +172,7 @@ export const cowApi: SwapperApi = {
     // order uid to fetch the trades and use their existence as indicating "complete"
     // https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/6.-checking-order-status
     const maybeTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
-      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/trades`,
+      `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/trades`,
       { params: { orderUid: txHash } },
     )
 

@@ -11,13 +11,14 @@ import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import partition from 'lodash/partition'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
-import type { ApiQuote } from 'state/apis/swapper/types'
 
 import type { ActiveQuoteMeta } from './types'
+
+import type { BigNumber } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { isSome } from '@/lib/utils'
+import type { ApiQuote } from '@/state/apis/swapper/types'
 
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,

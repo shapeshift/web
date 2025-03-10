@@ -1,9 +1,10 @@
 import { Stack, Tag } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Text } from 'components/Text'
-import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
 import { TransferColumn } from './TransferColumn'
+
+import { Text } from '@/components/Text'
+import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 
 type TransfersProps = {
   compactMode?: boolean

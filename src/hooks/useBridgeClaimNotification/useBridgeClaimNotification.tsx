@@ -18,7 +18,7 @@ import { useHistory } from 'react-router-dom'
 import { IconCircle } from '@/components/IconCircle'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { useMultiHopTradeContext } from '@/components/MultiHopTrade/context/MultiHopTradeContext'
-import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const flexGap = { base: 2, md: 3 }
@@ -27,16 +27,10 @@ const flexAlignItems = { base: 'flex-start', md: 'center' }
 
 // Create a global function to handle the claim tab click
 // This will be called from the toast
-let handleClaimTabClickGlobal: (() => void) | null = null
+let handleClaimTabClick: (() => void) | null = null
 
 export const registerClaimTabClickHandler = (handler: () => void) => {
-  handleClaimTabClickGlobal = handler
-}
-
-export const triggerClaimTabClick = () => {
-  if (handleClaimTabClickGlobal) {
-    handleClaimTabClickGlobal()
-  }
+  handleClaimTabClick = handler
 }
 
 export const useBridgeClaimNotification = () => {
@@ -87,21 +81,12 @@ export const useBridgeClaimNotification = () => {
     const _toastIdRef = toast({
       render: ({ onClose }) => {
         const handleCtaClick = () => {
-          // Try multiple approaches to ensure the tab changes
-          
-          // 1. Use the global handler if available
-          if (handleClaimTabClickGlobal) {
-            handleClaimTabClickGlobal()
-          }
-          
-          // 2. Use the context if available
+          handleClaimTabClick?.()
+
           if (multiHopTradeContext) {
             multiHopTradeContext.handleChangeTab(TradeInputTab.Claim)
           }
-          
-          // 3. Use the history as a fallback
-          history.push(TradeRoutePaths.Claim)
-          
+
           onClose()
         }
 

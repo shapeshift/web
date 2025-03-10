@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
 
@@ -15,8 +15,8 @@ import { MultiHopTradeProvider } from './context/MultiHopTradeContext'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import { TradeRoutePaths } from './types'
 
-import { fromBaseUnit } from '@/lib/math'
 import { registerClaimTabClickHandler } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectInputBuyAsset,
@@ -173,12 +173,11 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     )
   }, [location.pathname])
 
-  // Register the claim tab click handler
   useEffect(() => {
     const handleClaimTabClick = () => {
       history.push(TradeRoutePaths.Claim)
     }
-    
+
     registerClaimTabClickHandler(handleClaimTabClick)
   }, [history])
 
@@ -228,7 +227,10 @@ const TradeRoutesContent = memo(
             <Route key={`${TradeRoutePaths.Claim}/select`} path={`${TradeRoutePaths.Claim}/select`}>
               <Claim />
             </Route>
-            <Route key={`${TradeRoutePaths.Claim}/confirm`} path={`${TradeRoutePaths.Claim}/confirm`}>
+            <Route
+              key={`${TradeRoutePaths.Claim}/confirm`}
+              path={`${TradeRoutePaths.Claim}/confirm`}
+            >
               <Claim />
             </Route>
             <Route key={`${TradeRoutePaths.Claim}/status`} path={`${TradeRoutePaths.Claim}/status`}>

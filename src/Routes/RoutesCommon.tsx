@@ -145,7 +145,22 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     routes: [
       {
-        path: '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+        path: '/trade/confirm',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/trade/verify-addresses',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/trade/quote-list',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
         main: Trade,
         hide: true,
       },
@@ -268,5 +283,57 @@ export const routes: Route[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().VITE_LOCAL_IP,
     main: Flags,
+  },
+  {
+    path: '/limit',
+    label: '',
+    icon: <SwapIcon />,
+    hideDesktop: true,
+    main: Trade,
+    category: RouteCategory.Featured,
+    routes: [
+      {
+        path: '/limit/confirm',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/limit/allowance-approval',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/limit/place-order',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/limit/orders',
+        main: Trade,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/claim',
+    label: '',
+    hideDesktop: true,
+    icon: <SwapIcon />,
+    mobileNav: false,
+    priority: 4,
+    main: Trade,
+    category: RouteCategory.Featured,
+    routes: [
+      {
+        path: '/claim/confirm',
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: '/claim/status',
+        main: Trade,
+        hide: true,
+      },
+    ],
   },
 ]

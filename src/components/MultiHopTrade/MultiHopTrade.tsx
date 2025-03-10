@@ -3,13 +3,11 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
 
-import { LimitOrder } from './components/LimitOrder/LimitOrder'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
-import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
@@ -24,15 +22,6 @@ import {
 } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-const TradeRouteEntries = [
-  TradeRoutePaths.Input,
-  TradeRoutePaths.Confirm,
-  TradeRoutePaths.VerifyAddresses,
-  TradeRoutePaths.QuoteList,
-  TradeRoutePaths.Claim,
-  TradeRoutePaths.LimitOrder,
-]
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
@@ -57,12 +46,10 @@ const GetTradeRates = () => {
 
 export const MultiHopTrade = memo(
   ({ defaultBuyAssetId, defaultSellAssetId, isCompact, isRewritingUrl }: TradeCardProps) => {
-    const location = useLocation()
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
     const { assetSubId, chainId, sellAssetSubId, sellChainId, sellAmountCryptoBaseUnit } =
       useParams<MatchParams>()
-    const [initialIndex, setInitialIndex] = useState<number | undefined>()
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const history = useHistory()
@@ -82,15 +69,7 @@ export const MultiHopTrade = memo(
     }, [defaultSellAssetId, sellChainId, sellAssetSubId])
 
     const routeSellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
-
     const routeBuyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
-
-    // Handle deep linked route from other pages
-    useEffect(() => {
-      if (initialIndex !== undefined) return
-      const incomingIndex = TradeRouteEntries.indexOf(location.pathname as TradeRoutePaths)
-      setInitialIndex(incomingIndex === -1 ? 0 : incomingIndex)
-    }, [initialIndex, location])
 
     useEffect(() => {
       // Absolutely needed or else we'll end up in a loop
@@ -116,24 +95,14 @@ export const MultiHopTrade = memo(
     }, [dispatch, routeBuyAsset, routeSellAsset, sellAmountCryptoBaseUnit, isInitialized])
 
     useEffect(() => {
-      if (isRewritingUrl) {
-        const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? sellAmountCryptoBaseUnit ?? ''
+      if (isRewritingUrl && isInitialized) {
+        const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? ''
 
-        history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
+        if (buyAsset?.assetId && sellAsset?.assetId) {
+          history.replace(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit}`)
+        }
       }
-    }, [
-      isInitialized,
-      isRewritingUrl,
-      buyAsset,
-      sellAsset,
-      routeBuyAsset?.assetId,
-      routeSellAsset?.assetId,
-      sellAmountCryptoBaseUnit,
-      history,
-      sellInputAmountCryptoBaseUnit,
-      routeBuyAsset,
-      routeSellAsset,
-    ])
+    }, [isInitialized, isRewritingUrl, buyAsset, sellAsset, history, sellInputAmountCryptoBaseUnit])
 
     useEffect(() => {
       return () => {
@@ -141,14 +110,9 @@ export const MultiHopTrade = memo(
       }
     }, [dispatch])
 
-    // Prevent default behavior overriding deep linked route
-    if (initialIndex === undefined) return null
-
     return (
       <FormProvider {...methods}>
-        <MemoryRouter initialEntries={TradeRouteEntries} initialIndex={initialIndex}>
-          <TradeRoutes isCompact={isCompact} />
-        </MemoryRouter>
+        <TradeRoutes isCompact={isCompact} />
       </FormProvider>
     )
   },
@@ -166,7 +130,8 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
 
   const shouldUseTradeRates = useMemo(() => {
     // We only want to fetch rates when the user is on the trade input or quote list route
-    return [TradeRoutePaths.Input, TradeRoutePaths.QuoteList].includes(
+    // TODO(gomes): fixme
+    return [TradeRoutePaths.Input, '/trade/quote-list'].includes(
       location.pathname as TradeRoutePaths,
     )
   }, [location.pathname])
@@ -175,13 +140,13 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     (newTab: TradeInputTab) => {
       switch (newTab) {
         case TradeInputTab.Trade:
-          history.push(TradeRoutePaths.Input)
+          history.push('/trade')
           break
         case TradeInputTab.LimitOrder:
-          history.push(TradeRoutePaths.LimitOrder)
+          history.push('/limit')
           break
         case TradeInputTab.Claim:
-          history.push(TradeRoutePaths.Claim)
+          history.push('/claim')
           break
         default:
           assertUnreachable(newTab)
@@ -194,20 +159,13 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
-          <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-            <TradeInput
-              isCompact={isCompact}
-              tradeInputRef={tradeInputRef}
-              onChangeTab={handleChangeTab}
-            />
-          </Route>
-          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
+          <Route path={TradeRoutePaths.Confirm}>
             <TradeConfirm />
           </Route>
-          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
+          <Route path={TradeRoutePaths.VerifyAddresses}>
             <VerifyAddresses />
           </Route>
-          <Route key={TradeRoutePaths.QuoteList} path={TradeRoutePaths.QuoteList}>
+          <Route path={TradeRoutePaths.QuoteList}>
             <SlideTransitionRoute
               height={tradeInputRef.current?.offsetHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
@@ -215,11 +173,8 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
               parentRoute={TradeRoutePaths.Input}
             />
           </Route>
-          <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>
-            <Claim onChangeTab={handleChangeTab} />
-          </Route>
-          <Route key={TradeRoutePaths.LimitOrder} path={TradeRoutePaths.LimitOrder}>
-            <LimitOrder
+          <Route path={TradeRoutePaths.Input}>
+            <TradeInput
               isCompact={isCompact}
               tradeInputRef={tradeInputRef}
               onChangeTab={handleChangeTab}

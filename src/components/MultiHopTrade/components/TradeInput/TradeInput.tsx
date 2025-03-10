@@ -9,7 +9,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { Location } from 'history'
 import type { FormEvent } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -177,15 +177,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
   // Reset the trade quote slice to initial state on mount
   useEffect(() => {
-    // history.entries isn't officially documented but it exists
-    const entries = (history as any).entries as Location[]
-    const previousHistoryIndex = entries.length - 2
-    // Do not clear tradeQuoteSlice when navigating back from trade quotes list, or selecting a quote other than the default will reset the slice and break swapper until user changes input
-    if (entries.length > 1 && entries[previousHistoryIndex].pathname === TradeRoutePaths.QuoteList)
-      return
-
     dispatch(tradeQuoteSlice.actions.clearTradeQuotes())
-  }, [dispatch, history])
+  }, [dispatch])
 
   useEffect(() => {
     // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
@@ -276,13 +269,13 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
-      if (isLedger(wallet)) {
-        history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+      if (wallet && isLedger(wallet)) {
+        history.push({ pathname: '/trade/verify-addresses' })
         setIsConfirmationLoading(false)
         return
       }
 
-      history.push({ pathname: TradeRoutePaths.Confirm })
+      history.push({ pathname: '/trade/confirm' })
     } catch (e) {
       showErrorToast(e)
     }
@@ -505,6 +498,42 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       />
     )
   }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
+
+  const handleConfirm = useCallback(() => {
+    if (shouldShowWarningAcknowledgement) {
+      setShouldShowWarningAcknowledgement(false)
+      return
+    }
+
+    if (shouldShowStreamingAcknowledgement) {
+      setShouldShowStreamingAcknowledgement(false)
+      return
+    }
+
+    if (shouldShowArbitrumBridgeAcknowledgement) {
+      setShouldShowArbitrumBridgeAcknowledgement(false)
+      return
+    }
+
+    if (shouldShowThorchainSwapperVolatilityAcknowledgement) {
+      setShouldShowThorchainSwapperVolatilityAcknowledgement(false)
+      return
+    }
+
+    if (wallet && isLedger(wallet)) {
+      history.push({ pathname: '/trade/verify-addresses' })
+      return
+    }
+
+    history.push({ pathname: '/trade/confirm' })
+  }, [
+    history,
+    shouldShowArbitrumBridgeAcknowledgement,
+    shouldShowStreamingAcknowledgement,
+    shouldShowThorchainSwapperVolatilityAcknowledgement,
+    shouldShowWarningAcknowledgement,
+    wallet,
+  ])
 
   // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
   // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or

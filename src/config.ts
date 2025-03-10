@@ -58,6 +58,7 @@ const validators = {
   VITE_SOLANA_NODE_URL: url(),
   VITE_ALCHEMY_POLYGON_URL: url(),
   VITE_KEEPKEY_VERSIONS_URL: url(),
+  VITE_KEEPKEY_LATEST_RELEASE_URL: url(),
   VITE_WALLET_MIGRATION_URL: url(),
   VITE_EXCHANGERATEHOST_BASE_URL: url(),
   VITE_EXCHANGERATEHOST_API_KEY: str(),
@@ -111,13 +112,13 @@ const validators = {
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
-    default: 'https://github.com/keepkey/keepkey-updater/releases/latest',
+    default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
   }),
   VITE_KEEPKEY_UPDATER_BASE_URL: url({
-    default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
+    default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
   }),
   VITE_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
-  VITE_MIXPANEL_TOKEN: str(),
+  VITE_MIXPANEL_TOKEN: str({ default: '' }),
   VITE_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
   }),

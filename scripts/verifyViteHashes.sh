@@ -9,10 +9,10 @@ find ./build/assets -type f | {
   BAD=0
 
   while read -r FILE; do
-    NAME="$(basename "$FILE")"
+    NAME="${FILE#$BUILD_DIR/}"
 
-    EXPECTED_HASH=$(echo "$NAME" | sed -r 's/.*-([A-Za-z0-9]{8})\.[^.]+$/\1/')
-    ACTUAL_HASH=$(sha256sum "$FILE" | cut -d ' ' -f 1 | head -c 8)
+    EXPECTED_HASH=$(grep "$NAME" "$SHA256SUMS_FILE" | cut -d ' ' -f 1)
+    ACTUAL_HASH=$(sha256sum "$FILE" | cut -d ' ' -f 1)
 
     if [ "$EXPECTED_HASH" = "$ACTUAL_HASH" ]; then
       GOOD=$((GOOD + 1))

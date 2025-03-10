@@ -49,6 +49,8 @@ export type TradeAssetSearchProps = {
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
+  selectedChainId?: ChainId | 'All'
+  onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
@@ -56,12 +58,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
   chainIdFilterPredicate,
+  selectedChainId = 'All',
+  onSelectedChainIdChange,
 }) => {
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
   const translate = useTranslate()
   const history = useHistory()
-  const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
+  const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>(selectedChainId)
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
@@ -108,6 +112,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
+
+  const handleSelectedChainIdChange = useCallback(
+    (chainId: ChainId | 'All') => {
+      setActiveChainId(chainId)
+      onSelectedChainIdChange?.(chainId)
+    },
+    [onSelectedChainIdChange],
+  )
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
@@ -239,7 +251,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             chainIds={chainIds}
             isActiveChainIdSupported={true}
             isDisabled={false}
-            onMenuOptionClick={setActiveChainId}
+            onMenuOptionClick={handleSelectedChainIdChange}
             buttonProps={buttonProps}
             disableTooltip
           />

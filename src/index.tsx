@@ -97,7 +97,7 @@ if (window.location.hostname !== 'localhost') {
         if (event.message.includes('status: 0')) {
           event.fingerprint = ['XMLHttpRequest Error']
         } else {
-          event.fingerprint = [event.request?.url!]
+          event.fingerprint = [event.request?.url ?? '']
         }
       }
       // Leave other errors untouched to leverage Sentry's default grouping
@@ -119,6 +119,8 @@ if (window.location.hostname !== 'localhost') {
   }
 }
 
+// This is actually an usage we can safely ignore, if we don't have #root, we have bigger problems
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)
 

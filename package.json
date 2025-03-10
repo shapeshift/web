@@ -9,9 +9,10 @@
     "version": "independent"
   },
   "scripts": {
-    "dev": "yarn concurrently \"yarn dev:packages\" \"yarn dev:web\"",
+    "dev": "yarn concurrently \"yarn dev:packages\" \"yarn dev:web --mode=${MODE:-development}\"",
     "preview:prod": "MODE=production yarn build:web && vite preview",
     "preview:dev": "MODE=development yarn build:web && vite preview",
+    "preview:private": "MODE=private yarn build:web && vite preview",
     "analyze": "ANALYZE=true yarn build:web",
     "visualize": "VIZUALIZE=true yarn build:web",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",

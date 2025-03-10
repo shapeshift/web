@@ -83,10 +83,7 @@ export const useBridgeClaimNotification = () => {
       render: ({ onClose }) => {
         const handleCtaClick = () => {
           handleClaimTabClick?.()
-
-          if (multiHopTradeContext) {
-            multiHopTradeContext.handleChangeTab(TradeInputTab.Claim)
-          }
+          multiHopTradeContext?.handleChangeTab(TradeInputTab.Claim)
 
           onClose()
         }

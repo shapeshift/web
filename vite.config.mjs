@@ -5,10 +5,13 @@ import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { dirname, resolve } from 'path'
 import * as path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
+import { analyzer } from 'vite-bundle-analyzer'
 import checker from 'vite-plugin-checker'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { cspMeta, headers, serializeCsp } from './headers'
@@ -44,17 +47,38 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   publicFilesEnvVars[`VITE_CID_${mungedName}`] = JSON.stringify(cid)
 }
 
+// eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
       tsconfigPaths(),
+      nodePolyfills({
+        globals: {
+          process: true,
+          Buffer: true,
+          stream: true,
+        },
+        protocolImports: true,
+      }),
       checker({
         typescript: {
           typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
         },
         overlay: true,
       }),
+      process.env.VISUALIZE === 'true' &&
+        visualizer({
+          open: true,
+          filename: 'build/stats.html',
+          gzipSize: true,
+        }),
+      process.env.ANALYZE === 'true' &&
+        analyzer({
+          analyzerMode: 'server',
+          analyzerPort: 8888,
+          openAnalyzer: true,
+        }),
     ],
     define: {
       ...Object.fromEntries(
@@ -63,24 +87,13 @@ export default defineConfig(({ mode }) => {
       ...Object.fromEntries(
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
       ),
-      global: 'globalThis',
-      'global.Buffer': ['buffer', 'Buffer'],
     },
     server: {
       port: 3000,
-      watch: {
-        usePolling: true,
-      },
-      fs: {
-        allow: ['..'],
-      },
       headers,
     },
     preview: {
       port: 3000,
-      fs: {
-        allow: ['..'],
-      },
       headers,
     },
     resolve: {
@@ -88,21 +101,6 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, './src'),
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
-        crypto: 'crypto-browserify',
-        stream: 'stream-browserify',
-        assert: 'assert',
-        http: 'stream-http',
-        https: 'https-browserify',
-        os: 'os-browserify',
-        typescript: 'typescript',
-        url: 'url',
-        buffer: 'buffer',
-        process: 'process/browser',
-        'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
-        zlib: 'browserify-zlib',
-        fs: 'node:fs',
-        qs: 'qs',
-        path: 'path-browserify',
       },
     },
     build: {
@@ -118,30 +116,59 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           manualChunks(id) {
-            // Bundle React and polyfills together to ensure they're available
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('scheduler') ||
-              id.includes('buffer') ||
-              id.includes('process') ||
-              id.includes('polyfills')
-            ) {
-              return 'vendor-react'
+            if (id.includes('node_modules')) {
+              if (/(react)/.test(id)) {
+                return 'vendor-react'
+              }
+
+              if (
+                /(@chakra-ui|@emotion|@visx|embla|vaul|qr-image|styled-components|lightweight-charts|html)/.test(
+                  id,
+                )
+              ) {
+                return 'vendor-ui'
+              }
+
+              if (/(@shapeshiftoss\/hdwallet-|@keepkey|@ledgerhq|@walletconnect)/.test(id)) {
+                return 'vendor-wallet'
+              }
+
+              if (
+                /(@arbitrum|@cowprotocol|@uniswap|@jup-ag|@lifi|@metaplex|@solana|alchemy-sdk|viem|wagmi|ethers|mixpanel|mipd)/.test(
+                  id,
+                )
+              ) {
+                return 'vendor-sdks'
+              }
+
+              if (
+                /(@formatjs|@lukemorales|sentry|@sniptt|@tanstack|axios|bignumber\.js|bip|dayjs|lodash|myzod|p-|reselect|redux|qs|pretty-ms|web-vitals|uuid|node-polyglot|match-sorter|localforage|jsonrpc)/.test(
+                  id,
+                )
+              ) {
+                return 'vendor-utility'
+              }
+
+              return 'vendor-other'
             }
+
             return null
           },
           chunkFileNames: chunkInfo => {
             const prefix =
               {
-                polyfills: '00',
                 'vendor-react': '01',
+                'vendor-ui': '02',
+                'vendor-wallet': '03',
+                'vendor-sdks': '04',
+                'vendor-utility': '05',
               }[chunkInfo.name] || '99'
 
             return `assets/${prefix}-${chunkInfo.name}-[hash].js`
           },
+          hashCharacters: 'hex',
+          hashFunction: 'sha256',
           entryFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
         },
         onwarn(warning, warn) {
           // Ignore annotation warnings with /*#__PURE__*/ pattern
@@ -179,10 +206,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? false : 'esbuild',
-      sourcemap:
-        mode === 'development' && !process.env.DISABLE_SOURCE_MAP
-          ? 'eval-cheap-module-source-map'
-          : false,
+      sourcemap: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? 'inline' : false,
       outDir: 'build',
       emptyOutDir: true,
     },
@@ -194,8 +218,6 @@ export default defineConfig(({ mode }) => {
         '@chakra-ui/react',
         'ethers',
         'ethers5',
-        'buffer',
-        'process',
         '@shapeshiftoss/hdwallet-coinbase',
         '@shapeshiftoss/hdwallet-core',
         '@shapeshiftoss/hdwallet-keepkey',
@@ -205,20 +227,11 @@ export default defineConfig(({ mode }) => {
         '@shapeshiftoss/hdwallet-ledger-webusb',
         '@shapeshiftoss/hdwallet-metamask-multichain',
         '@shapeshiftoss/hdwallet-native',
-        '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines/default',
-        '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines',
         '@shapeshiftoss/hdwallet-native-vault',
         '@shapeshiftoss/hdwallet-phantom',
         '@shapeshiftoss/hdwallet-walletconnectv2',
         'dayjs',
-        'crypto-browserify',
-        'browserify-zlib',
       ],
-      esbuildOptions: {
-        define: {
-          global: 'globalThis',
-        },
-      },
     },
   }
 })

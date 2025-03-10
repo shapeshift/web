@@ -6,5 +6,8 @@
   },
   "include": ["src/**/*"],
   "exclude": ["dist"],
-  "references": [{ "path": "../caip" }, { "path": "../contracts" }]
+  "references": [
+    { "path": "../caip" },
+    { "path": "../contracts" }
+  ]
 }

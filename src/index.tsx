@@ -1,6 +1,5 @@
-import './lib/global-polyfills'
 import './wdyr'
-import '@/lib/polyfills'
+import './lib/polyfills'
 
 import {
   breadcrumbsIntegration,

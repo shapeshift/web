@@ -1,5 +1,5 @@
 import type { Nominal } from '@shapeshiftoss/caip'
-import type { TypedDataField } from 'ethers5'
+import type { TypedDataField } from 'ethers'
 import type { Address } from 'viem'
 
 import type { KnownChainIds } from './base'

@@ -106,7 +106,11 @@ export const parseMaybeUrl = async ({
       const maybeUrl = parseMaybeUrlWithChainId({ chainId, urlOrAddress })
       const isValidUrl = maybeUrl.maybeAddress !== urlOrAddress
 
-      const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()!
+      const adapter = getChainAdapterManager().get(chainId)
+
+      if (!adapter) throw new Error('Adapter not found')
+
+      const assetId = adapter.getFeeAssetId()
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
         return {

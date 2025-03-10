@@ -1,7 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Button,
-  Flex,
   Menu,
   MenuButton,
   MenuItemOption,
@@ -10,6 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 
+import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { assertUnreachable } from '@/lib/utils'
@@ -27,6 +27,16 @@ const EXPIRY_OPTIONS = [
 ] as const
 
 const chevronDownIcon = <ChevronDownIcon />
+
+const menuButtonSx = {
+  svg: {
+    color: 'text.subtle',
+    mb: '-3px',
+  },
+  '&:hover': {
+    opacity: 0.7,
+  },
+}
 
 const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
   switch (expiryOption) {
@@ -71,18 +81,30 @@ export const LimitOrderFooter = () => {
   )
 
   return (
-    <Flex justifyContent='space-between' alignItems='center' width='full' mb={4}>
-      <Text translation='limitOrder.expiry' />
-      <Menu isLazy>
-        <MenuButton as={Button} rightIcon={chevronDownIcon} size='sm'>
-          <Text translation={expiryOptionTranslation} />
-        </MenuButton>
-        <MenuList zIndex='modal'>
-          <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
-            {expiryOptions}
-          </MenuOptionGroup>
-        </MenuList>
-      </Menu>
-    </Flex>
+    <Row alignItems='center' fontSize='sm' fontWeight='medium'>
+      <Row.Label>
+        <Text translation='limitOrder.expiry' />
+      </Row.Label>
+      <Row.Value>
+        <Menu isLazy>
+          <MenuButton
+            as={Button}
+            rightIcon={chevronDownIcon}
+            size='sm'
+            variant='unstyled'
+            display='flex'
+            alignItems='center'
+            sx={menuButtonSx}
+          >
+            <Text translation={expiryOptionTranslation} />
+          </MenuButton>
+          <MenuList zIndex='modal'>
+            <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
+              {expiryOptions}
+            </MenuOptionGroup>
+          </MenuList>
+        </Menu>
+      </Row.Value>
+    </Row>
   )
 }

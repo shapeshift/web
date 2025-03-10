@@ -1088,6 +1088,19 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
+    "explanation": {
+      "priceReaches": {
+        "prefix": "When",
+        "middle": "'s price reaches"
+      },
+      "orderWill": {
+        "prefix": ", your limit order will automatically sell"
+      },
+      "ensuring": {
+        "prefix": ", ensuring you receive at least",
+        "suffix": "."
+      }
+    },
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",

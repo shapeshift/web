@@ -427,6 +427,7 @@ export const LimitOrderInput = ({
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
+            onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
             assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
             selectedChainId={selectedBuyAssetChainId}
@@ -438,6 +439,8 @@ export const LimitOrderInput = ({
             buyAsset={buyAsset}
             isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
+            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+            onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -533,7 +536,7 @@ export const LimitOrderInput = ({
         rate={
           bnOrZero(limitPrice.buyAssetDenomination).isZero()
             ? undefined
-            : limitPrice.buyAssetDenomination
+            : bnOrZero(limitPrice.buyAssetDenomination).toFixed(8)
         }
         marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}

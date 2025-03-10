@@ -18,6 +18,7 @@ import {
   selectInputSellAmountCryptoPrecision,
   selectManualReceiveAddress,
 } from '@/state/slices/limitOrderInputSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const emptyPercentOptions: number[] = []
@@ -38,6 +39,7 @@ export type LimitOrderBuyAssetProps = {
   isLoading: boolean
   selectedChainId?: ChainId | 'All'
   onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
+  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
 }
 
 export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
@@ -51,6 +53,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     onSetBuyAsset,
     selectedChainId,
     onSelectedChainIdChange,
+    isInputtingFiatSellAmount,
+    onChangeIsInputtingFiatSellAmount,
   }) => {
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
@@ -59,18 +63,31 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     const buyAmountUserCurrency = useAppSelector(selectBuyAmountUserCurrency)
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+    const assetMarketData = useAppSelector(state =>
+      selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
+    )
 
     const { setLimitPrice, setLimitPriceMode } = useActions(limitOrderInput.actions)
 
     const handleAmountChange = useCallback(
-      (value: string, isFiat?: boolean) => {
-        if (
-          !isFiat &&
-          sellAmountCryptoPrecision &&
-          Number(sellAmountCryptoPrecision) > 0 &&
-          Number(value) > 0
-        ) {
-          const newRate = bnOrZero(value).div(sellAmountCryptoPrecision).toString()
+      (value: string) => {
+        // Always process the input change, even if value is 0
+        if (sellAmountCryptoPrecision && Number(sellAmountCryptoPrecision) > 0) {
+          // If value is 0 or empty, set a zero rate
+          if (!value || Number(value) === 0) {
+            setLimitPriceMode(LimitPriceMode.CustomValue)
+            setLimitPrice({
+              marketPriceBuyAsset: '0',
+            })
+            return
+          }
+
+          // Convert value to crypto amount if it's in fiat
+          const cryptoValue = isInputtingFiatSellAmount
+            ? bnOrZero(value).div(assetMarketData.price).toString()
+            : value
+
+          const newRate = bnOrZero(cryptoValue).div(sellAmountCryptoPrecision).toString()
 
           setLimitPriceMode(LimitPriceMode.CustomValue)
           setLimitPrice({
@@ -78,7 +95,13 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
           })
         }
       },
-      [sellAmountCryptoPrecision, setLimitPrice, setLimitPriceMode],
+      [
+        sellAmountCryptoPrecision,
+        setLimitPrice,
+        setLimitPriceMode,
+        isInputtingFiatSellAmount,
+        assetMarketData.price,
+      ],
     )
 
     const handleAssetClick = useCallback(() => {
@@ -130,6 +153,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toFixed()}
         fiatAmount={positiveOrZero(buyAmountUserCurrency).toFixed()}
         percentOptions={emptyPercentOptions}
+        isFiat={isInputtingFiatSellAmount}
+        onToggleIsFiat={onChangeIsInputtingFiatSellAmount}
         showInputSkeleton={isLoading}
         showFiatSkeleton={isLoading}
         label={translate('limitOrder.youGet')}

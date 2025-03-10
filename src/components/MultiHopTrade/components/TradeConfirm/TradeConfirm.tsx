@@ -1,4 +1,4 @@
-import { Stepper } from '@chakra-ui/react'
+import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -13,6 +13,7 @@ import { TradeConfirmFooter } from './TradeConfirmFooter'
 
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import {
   selectActiveQuote,
@@ -28,6 +29,9 @@ export const TradeConfirm = () => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const history = useHistory()
   const dispatch = useAppDispatch()
+  const {
+    state: { isConnected },
+  } = useWallet()
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeTradeId = activeQuote?.id
   const currentHopIndex = useCurrentHopIndex()
@@ -38,6 +42,7 @@ export const TradeConfirm = () => {
   }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
 
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const prevIsConnected = usePrevious(isConnected)
 
   const isTradeComplete = useMemo(
     () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
@@ -51,6 +56,12 @@ export const TradeConfirm = () => {
 
     history.push(TradeRoutePaths.Input)
   }, [dispatch, history, isTradeComplete])
+
+  useEffect(() => {
+    if (prevIsConnected && !isConnected) {
+      handleBack()
+    }
+  }, [isConnected, prevIsConnected, handleBack])
 
   const headerTranslation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined

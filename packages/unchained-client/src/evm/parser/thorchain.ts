@@ -39,12 +39,31 @@ export class Parser implements SubParser<Tx> {
 
   constructor(args: ParserArgs) {
     this.abiInterface = new ethers.Interface(routerAbi)
+
+    const depositSigHash = this.abiInterface.getFunction('deposit')?.selector
+    const depositWithExpirySigHash = this.abiInterface.getFunction('depositWithExpiry')?.selector
+    const transferOutSigHash = this.abiInterface.getFunction('transferOut')?.selector
+    const transferOutAndCallSigHash = this.abiInterface.getFunction('transferOutAndCall')?.selector
+    const swapInSigHash = this.abiInterface.getFunction('swapIn')?.selector
+
+    if (
+      !(
+        depositSigHash &&
+        depositWithExpirySigHash &&
+        transferOutSigHash &&
+        transferOutAndCallSigHash &&
+        swapInSigHash
+      )
+    ) {
+      throw new Error('Failed to get function selectors')
+    }
+
     this.supportedFunctions = {
-      depositSigHash: this.abiInterface.getFunction('deposit')!.selector,
-      depositWithExpirySigHash: this.abiInterface.getFunction('depositWithExpiry')!.selector,
-      transferOutSigHash: this.abiInterface.getFunction('transferOut')!.selector,
-      transferOutAndCallSigHash: this.abiInterface.getFunction('transferOutAndCall')!.selector,
-      swapInSigHash: this.abiInterface.getFunction('swapIn')!.selector,
+      depositSigHash,
+      depositWithExpirySigHash,
+      transferOutSigHash,
+      transferOutAndCallSigHash,
+      swapInSigHash,
     }
     this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
     this.chainId = args.chainId

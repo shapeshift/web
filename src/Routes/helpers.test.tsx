@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import type { Route } from './helpers'
 import { generateAppRoutes, pathTo } from './helpers'
 
 const TestComp = () => <div />
@@ -63,7 +64,7 @@ describe('generateAppRoutes', () => {
     const flattenedRoutes = generateAppRoutes(routes)
     const parent = flattenedRoutes.find(route => route.path === '/')
     const child = flattenedRoutes.find(route => route.path === '/child2')
-    const result = pathTo(child!)
-    expect(result[0].path).toEqual(parent!.path)
+    const result = pathTo(child ?? ({} as Route))
+    expect(result[0].path).toEqual(parent?.path)
   })
 })

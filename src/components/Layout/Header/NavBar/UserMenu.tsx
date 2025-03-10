@@ -117,7 +117,7 @@ const WalletButton: FC<WalletButtonProps> = ({
     // ENS is registered for address and is successfully fetched. Set ENS name as label
     if (ensName) {
       setShouldShorten(false)
-      return setWalletLabel(ensName!)
+      return setWalletLabel(ensName)
     }
 
     // No label or ENS name, set regular wallet address as label

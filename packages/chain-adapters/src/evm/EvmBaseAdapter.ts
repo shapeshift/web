@@ -313,7 +313,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           }
         }
 
-        return { gasPrice: toHex(BigInt(gasPrice!)) }
+        if (!gasPrice) throw new Error('gasPrice is required for non EIP-1559 fees')
+        return { gasPrice: toHex(BigInt(gasPrice)) }
       })()
 
       const nonce =

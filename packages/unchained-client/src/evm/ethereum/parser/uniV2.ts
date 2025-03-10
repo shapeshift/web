@@ -27,22 +27,24 @@ export interface ParserArgs {
   provider: JsonRpcProvider
 }
 
+interface SupportedFunctions {
+  addLiquidityEthSigHash: string
+  removeLiquidityEthSigHash: string
+}
+
+interface SupportedStakingRewardsFunctions {
+  stakeSigHash: string
+  exitSigHash: string
+}
+
 export class Parser implements SubParser<Tx> {
   provider: JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
   readonly abiInterface = new Interface(UNISWAP_V2_ROUTER_02_ABI)
   readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI)
-
-  readonly supportedFunctions = {
-    addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')!.selector,
-    removeLiquidityEthSigHash: this.abiInterface.getFunction('removeLiquidityETH')!.selector,
-  }
-
-  readonly supportedStakingRewardsFunctions = {
-    stakeSigHash: this.stakingRewardsInterface.getFunction('stake')!.selector,
-    exitSigHash: this.stakingRewardsInterface.getFunction('exit')!.selector,
-  }
+  private readonly supportedFunctions: SupportedFunctions
+  private readonly supportedStakingRewardsFunctions: SupportedStakingRewardsFunctions
 
   constructor(args: ParserArgs) {
     this.chainId = args.chainId
@@ -51,6 +53,29 @@ export class Parser implements SubParser<Tx> {
     assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
 
     this.wethContract = WETH_TOKEN_CONTRACT
+
+    const addLiquidityEthSigHash = this.abiInterface.getFunction('addLiquidityETH')?.selector
+    const removeLiquidityEthSigHash = this.abiInterface.getFunction('removeLiquidityETH')?.selector
+
+    const stakeSigHash = this.stakingRewardsInterface.getFunction('stake')?.selector
+    const exitSigHash = this.stakingRewardsInterface.getFunction('exit')?.selector
+
+    if (!(addLiquidityEthSigHash && removeLiquidityEthSigHash)) {
+      throw new Error('Failed to get function selectors')
+    }
+    if (!(stakeSigHash && exitSigHash)) {
+      throw new Error('Failed to get function selectors')
+    }
+
+    this.supportedFunctions = {
+      addLiquidityEthSigHash,
+      removeLiquidityEthSigHash,
+    }
+
+    this.supportedStakingRewardsFunctions = {
+      stakeSigHash,
+      exitSigHash,
+    }
   }
 
   async parseUniV2(tx: Tx): Promise<TxSpecific | undefined> {

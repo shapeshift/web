@@ -19,16 +19,17 @@ export interface ParserArgs {
   provider: ethers.JsonRpcProvider
 }
 
+interface SupportedFunctions {
+  depositSigHash: string
+  withdrawalSigHash: string
+}
+
 export class Parser implements SubParser<Tx> {
   provider: ethers.JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
   readonly abiInterface = new ethers.Interface(WETH_ABI)
-
-  readonly supportedFunctions = {
-    depositSigHash: this.abiInterface.getFunction('deposit')!.selector,
-    withdrawalSigHash: this.abiInterface.getFunction('withdraw')!.selector,
-  }
+  private readonly supportedFunctions: SupportedFunctions
 
   constructor(args: ParserArgs) {
     this.chainId = args.chainId
@@ -37,6 +38,18 @@ export class Parser implements SubParser<Tx> {
     assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
 
     this.wethContract = WETH_TOKEN_CONTRACT
+
+    const depositSigHash = this.abiInterface.getFunction('deposit')?.selector
+    const withdrawalSigHash = this.abiInterface.getFunction('withdraw')?.selector
+
+    if (!(depositSigHash && withdrawalSigHash)) {
+      throw new Error('Failed to get function selectors')
+    }
+
+    this.supportedFunctions = {
+      depositSigHash,
+      withdrawalSigHash,
+    }
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

@@ -104,7 +104,7 @@ export class Parser implements SubParser<Tx> {
     switch (selectedAbi) {
       case this.arbSysAbi:
         switch (txSigHash) {
-          case this.arbSysAbi.getFunction('withdrawEth')!.selector:
+          case this.arbSysAbi.getFunction('withdrawEth')?.selector:
             return await Promise.resolve({
               data: {
                 ...data,
@@ -120,7 +120,7 @@ export class Parser implements SubParser<Tx> {
         switch (txSigHash) {
           case this.l2ArbitrumGatewayAbi.getFunction(
             'outboundTransfer(address,address,uint256,bytes)',
-          )!.selector: {
+          )?.selector: {
             const amount = decoded.args._amount as BigInt
             const l1Token = decoded.args._l1Token as string
 
@@ -139,7 +139,7 @@ export class Parser implements SubParser<Tx> {
               },
             })
           }
-          case this.l2ArbitrumGatewayAbi.getFunction('finalizeInboundTransfer')!.selector:
+          case this.l2ArbitrumGatewayAbi.getFunction('finalizeInboundTransfer')?.selector:
             return await Promise.resolve({
               data: {
                 ...data,

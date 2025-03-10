@@ -160,9 +160,10 @@ export const Overview: React.FC<OverviewProps> = ({
     const showOnDevice = true
     const { accountNumber } = bip44Params
     const payload = { accountType, accountNumber, wallet, showOnDevice }
-    const verifiedAddress = await getChainAdapterManager()
-      .get(fromAccountId(accountId).chainId)!
-      .getAddress(payload)
+    const adapter = getChainAdapterManager().get(fromAccountId(accountId).chainId)
+    if (!adapter) throw new Error('No adapter found')
+
+    const verifiedAddress = await adapter.getAddress(payload)
     const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])

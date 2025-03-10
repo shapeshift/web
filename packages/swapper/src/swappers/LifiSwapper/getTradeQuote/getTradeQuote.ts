@@ -9,6 +9,7 @@ import {
   convertPrecision,
   isFulfilled,
   isRejected,
+  isSome,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -350,11 +351,19 @@ export const getTradeQuote = async (
   const quotesResult = await getTrade({ input, deps, lifiChainMap })
 
   return quotesResult.map(quotes =>
-    quotes.map(quote => ({
-      ...quote,
-      quoteOrRate: 'quote' as const,
-      receiveAddress: quote.receiveAddress!,
-      steps: quote.steps.map(step => step) as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
-    })),
+    quotes
+      .map(quote => {
+        if (!quote.receiveAddress) return undefined
+
+        return {
+          ...quote,
+          quoteOrRate: 'quote' as const,
+          receiveAddress: quote.receiveAddress,
+          steps: quote.steps.map(step => step) as
+            | [TradeQuoteStep]
+            | [TradeQuoteStep, TradeQuoteStep],
+        }
+      })
+      .filter(isSome),
   )
 }

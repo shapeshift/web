@@ -41,7 +41,7 @@ export const GroupedAssetRow = ({
   const backgroundColor = useColorModeValue('gray.50', 'background.button.secondary.base')
   const translate = useTranslate()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
   const asset = assets[index] as Asset | undefined
   const assetId = asset?.assetId
@@ -92,9 +92,7 @@ export const GroupedAssetRow = ({
         <Flex
           gap={4}
           alignItems='center'
-          maxWidth={
-            (isConnected || isDemoWallet) && !hideAssetBalance ? 'calc(100% - 100px)' : '100%'
-          }
+          maxWidth={isConnected && !hideAssetBalance ? 'calc(100% - 100px)' : '100%'}
         >
           {icon}
           <Box textAlign='left' maxWidth='100%' overflow='hidden'>
@@ -129,7 +127,7 @@ export const GroupedAssetRow = ({
             </Flex>
           </Box>
         </Flex>
-        {(isConnected || isDemoWallet) && !hideAssetBalance && (
+        {isConnected && !hideAssetBalance && (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
             <Amount.Fiat
               color='text.base'
@@ -149,7 +147,6 @@ export const GroupedAssetRow = ({
     hideAssetBalance,
     icon,
     isConnected,
-    isDemoWallet,
     userCurrencyBalance,
   ])
 

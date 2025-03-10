@@ -45,7 +45,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
 
   const {
-    state: { wallet, isDemoWallet },
+    state: { wallet },
   } = useWallet()
 
   const { data: ramps } = useGetFiatRampsQuery()
@@ -77,11 +77,6 @@ export const FiatForm: React.FC<FiatFormProps> = ({
    */
   useEffect(() => {
     if (!wallet) return
-    /**
-     * important - don't even attempt to generate addresses for the demo wallet
-     * we don't want users buying crypto into the demo wallet 🤦‍♂️
-     */
-    if (isDemoWallet) return
     ;(async () => {
       const plainAddressResults = await Promise.allSettled(
         walletAccountIds.map(accountId => {
@@ -131,7 +126,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
       setAddressByAccountId(addressesByAccountId)
     })()
-  }, [isDemoWallet, walletAccountIds, portfolioAccountMetadata, wallet])
+  }, [walletAccountIds, portfolioAccountMetadata, wallet])
 
   const { address, vanityAddress } = useMemo(() => {
     const empty = { address: '', vanityAddress: '' }

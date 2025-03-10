@@ -48,7 +48,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
   const location = useLocation()
   const history = useHistory()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
@@ -83,7 +83,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         return
       }
 
-      if (!isConnected && isDemoWallet) {
+      if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
@@ -113,7 +113,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         state: { background: location },
       })
     },
-    [assets, dispatch, history, isConnected, isDemoWallet, location],
+    [assets, dispatch, history, isConnected, location],
   )
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [

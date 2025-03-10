@@ -280,7 +280,7 @@ export const getL1Rate = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber: accountNumber!,
+                  accountNumber,
                   allowanceContract: router,
                   feeData: {
                     networkFeeCryptoBaseUnit,
@@ -342,7 +342,7 @@ export const getL1Rate = async (
 
               const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
                 sellAsset,
-                xpub: (input as unknown as GetUtxoTradeQuoteInput).xpub!,
+                xpub: (input as unknown as GetUtxoTradeQuoteInput).xpub,
                 memo,
                 config: deps.config,
               })
@@ -392,7 +392,7 @@ export const getL1Rate = async (
                   sellAsset,
                   // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
                   // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
-                  accountNumber: accountNumber!,
+                  accountNumber,
                   allowanceContract: '0x0', // not applicable to UTXOs
                   feeData,
                 },

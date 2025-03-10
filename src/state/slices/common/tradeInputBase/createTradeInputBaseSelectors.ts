@@ -47,6 +47,16 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     tradeInput => tradeInput.sellAsset,
   )
 
+  const selectSelectedSellAssetChainId = createSelector(
+    selectBaseSlice,
+    tradeInput => tradeInput.selectedSellAssetChainId,
+  )
+
+  const selectSelectedBuyAssetChainId = createSelector(
+    selectBaseSlice,
+    tradeInput => tradeInput.selectedBuyAssetChainId,
+  )
+
   const selectInputSellAssetUsdRate = createSelector(
     selectInputSellAsset,
     selectMarketDataUsd,
@@ -235,5 +245,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectIsInputtingFiatSellAmount,
     selectHasUserEnteredAmount,
     selectInputSellAmountCryptoPrecision,
+    selectSelectedSellAssetChainId,
+    selectSelectedBuyAssetChainId,
   }
 }

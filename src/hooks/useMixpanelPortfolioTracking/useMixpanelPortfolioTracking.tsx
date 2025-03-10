@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { selectWalletId } from '@/state/slices/common-selectors'
 import { selectIsMarketDataLoaded } from '@/state/slices/marketDataSlice/selectors'
@@ -15,7 +14,6 @@ import { useAppSelector } from '@/state/store'
 export const useMixpanelPortfolioTracking = () => {
   const anonymizedPortfolio = useAppSelector(selectPortfolioAnonymized)
   const [isTracked, setIsTracked] = useState(false)
-  const { isDemoWallet } = useWallet().state
   const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
   const walletId = useAppSelector(selectWalletId)
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -23,8 +21,6 @@ export const useMixpanelPortfolioTracking = () => {
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
 
   useEffect(() => {
-    // only track anonymized portfolio for real wallets
-    if (isDemoWallet) return
     // only track once per wallet connection
     if (isTracked) return
     // only track if market data is loaded
@@ -52,7 +48,6 @@ export const useMixpanelPortfolioTracking = () => {
     setIsTracked(true)
   }, [
     anonymizedPortfolio,
-    isDemoWallet,
     isMarketDataLoaded,
     isTracked,
     selectedCurrency,

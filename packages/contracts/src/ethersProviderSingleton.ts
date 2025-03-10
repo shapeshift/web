@@ -49,7 +49,13 @@ export const getEthersProvider = (chainId: EvmChainId): JsonRpcProvider => {
     ethersProviders.set(chainId, provider)
     return provider
   } else {
-    return ethersProviders.get(chainId)!
+    // This really should be defined but I guess enough safety never hurts mang...
+    const provider = ethersProviders.get(chainId)
+    if (!provider) {
+      throw new Error(`No provider found for chainId ${chainId}`)
+    }
+
+    return provider
   }
 }
 
@@ -62,6 +68,11 @@ export const getEthersV5Provider = (
     ethersV5Providers.set(chainId, provider)
     return provider
   } else {
-    return ethersV5Providers.get(chainId)!
+    // This really should be defined but I guess enough safety never hurts mang...
+    const provider = ethersV5Providers.get(chainId)
+    if (!provider) {
+      throw new Error(`No provider found for chainId ${chainId}`)
+    }
+    return provider
   }
 }

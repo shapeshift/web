@@ -24,6 +24,7 @@ import { StepperStep as StepperStepComponent } from '../StepperStep'
 import { TxLabel } from '../TxLabel'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { RATE_CHANGED_BPS_THRESHOLD } from '@/components/Modals/RateChanged/RateChanged'
 import { RawText, Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -198,6 +199,15 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     )
       return
     if (bn(firstHopAmountCryptoBaseUnit).gte(prevFirstHopAmountCryptoBaseUnit)) return
+
+    // Calculate difference in basis points (1% = 100 bps)
+    const bpsDiff = bn(firstHopAmountCryptoBaseUnit)
+      .minus(prevFirstHopAmountCryptoBaseUnit)
+      .div(prevFirstHopAmountCryptoBaseUnit)
+      .times(10000)
+      .abs()
+
+    if (bpsDiff.lt(RATE_CHANGED_BPS_THRESHOLD)) return
 
     rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
   }, [

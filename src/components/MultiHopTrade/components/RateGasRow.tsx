@@ -52,10 +52,18 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
 
-    const shouldShowDeltaPercentage = useMemo(() => {
-      if (!deltaPercentage) return false
+    const deltaPercentagePercentage = useMemo(() => {
+      if (!deltaPercentage) return null
 
-      return deltaPercentage.isGreaterThan(0.01) || deltaPercentage.isLessThan(-0.01)
+      if (deltaPercentage.isGreaterThan(0.01) || deltaPercentage.isLessThan(-0.01)) {
+        return (
+          <RawText as='span' color={deltaPercentage.gt(0) ? 'green.500' : 'red.500'} ml={1}>
+            {` (${deltaPercentage.gt(0) ? '+' : '-'}${deltaPercentage.abs().toFixed(2)}%)`}
+          </RawText>
+        )
+      }
+
+      return null
     }, [deltaPercentage])
 
     const rateContent = useMemo(() => {
@@ -64,22 +72,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         <Skeleton isLoaded={!isLoading}>
           <RawText color='text.subtle' fontWeight='medium'>
             1 {sellAssetSymbol} = {rate} {buyAssetSymbol}
-            {shouldShowDeltaPercentage && deltaPercentage && (
-              <RawText as='span' color={deltaPercentage.gt(0) ? 'green.500' : 'red.500'} ml={1}>
-                ({deltaPercentage.toFixed(2)}%)
-              </RawText>
-            )}
+            {deltaPercentagePercentage}
           </RawText>
         </Skeleton>
       )
-    }, [
-      buyAssetSymbol,
-      deltaPercentage,
-      isLoading,
-      rate,
-      sellAssetSymbol,
-      shouldShowDeltaPercentage,
-    ])
+    }, [buyAssetSymbol, deltaPercentagePercentage, isLoading, rate, sellAssetSymbol])
 
     switch (true) {
       case isLoading:

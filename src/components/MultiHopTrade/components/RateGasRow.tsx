@@ -2,8 +2,9 @@ import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icon
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import type BigNumber from 'bignumber.js'
 import type { FC, PropsWithChildren } from 'react'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -12,7 +13,7 @@ import { SwapperIcons } from './SwapperIcons'
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 
 type RateGasRowProps = {
   buyAssetSymbol: string
@@ -23,6 +24,7 @@ type RateGasRowProps = {
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
+  deltaPercentage?: BigNumber | null
   onClick?: () => void
 } & PropsWithChildren
 
@@ -44,10 +46,37 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     swapperName,
     swapSource,
     networkFeeFiatUserCurrency,
+    deltaPercentage,
     onClick,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+
+    const deltaPercentagePercentage = useMemo(() => {
+      if (!deltaPercentage) return null
+
+      if (deltaPercentage.isGreaterThan(0.01) || deltaPercentage.isLessThan(-0.01)) {
+        return (
+          <RawText as='span' color={deltaPercentage.gt(0) ? 'green.500' : 'red.500'} ml={1}>
+            {` (${deltaPercentage.gt(0) ? '+' : '-'}${deltaPercentage.abs().toFixed(2)}%)`}
+          </RawText>
+        )
+      }
+
+      return null
+    }, [deltaPercentage])
+
+    const rateContent = useMemo(() => {
+      if (!rate) return null
+      return (
+        <Skeleton isLoaded={!isLoading}>
+          <RawText color='text.subtle' fontWeight='medium'>
+            1 {sellAssetSymbol} = {rate} {buyAssetSymbol}
+            {deltaPercentagePercentage}
+          </RawText>
+        </Skeleton>
+      )
+    }, [buyAssetSymbol, deltaPercentagePercentage, isLoading, rate, sellAssetSymbol])
 
     switch (true) {
       case isLoading:
@@ -109,13 +138,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         borderColor='transparent'
                         alignItems='center'
                       >
-                        <Amount.Crypto
-                          fontSize='sm'
-                          value='1'
-                          symbol={sellAssetSymbol}
-                          suffix='='
-                        />
-                        <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                        {rateContent}
                         {!isDisabled && <ArrowUpDownIcon />}
                       </Stack>
                     </Row.Value>
@@ -128,6 +151,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     <FaGasPump />
                   </Row.Label>
                   <Row.Value>
+                    {' '}
                     {!networkFeeFiatUserCurrency ? (
                       <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                         <Text translation={'trade.unknownGas'} fontSize='sm' />

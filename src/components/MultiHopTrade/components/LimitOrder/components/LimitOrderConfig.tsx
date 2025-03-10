@@ -1,16 +1,12 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
+import { InfoIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertIcon,
   AlertTitle,
+  Box,
   Button,
   Flex,
   HStack,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
   Skeleton,
   Stack,
   Text as CText,
@@ -24,58 +20,25 @@ import { useTranslate } from 'react-polyglot'
 
 import { AmountInput } from '../../TradeAmountInput'
 
+import { Amount } from '@/components/Amount/Amount'
 import { StyledAssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { BigNumber, bn } from '@/lib/bignumber/bignumber'
-import { assertUnreachable } from '@/lib/utils'
-import {
-  ExpiryOption,
-  LimitPriceMode,
-  PriceDirection,
-} from '@/state/slices/limitOrderInputSlice/constants'
+import { bn } from '@/lib/bignumber/bignumber'
+import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
-  selectExpiry,
+  selectInputSellAmountCryptoPrecision,
   selectLimitPrice,
   selectLimitPriceDirection,
   selectLimitPriceForSelectedPriceDirection,
-  selectLimitPriceMode,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const EXPIRY_OPTIONS = [
-  ExpiryOption.OneHour,
-  ExpiryOption.OneDay,
-  ExpiryOption.ThreeDays,
-  ExpiryOption.SevenDays,
-  ExpiryOption.TwentyEightDays,
-] as const
-
-const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
-  switch (expiryOption) {
-    case ExpiryOption.OneHour:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.OneDay:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.ThreeDays:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.SevenDays:
-      return `limitOrder.expiryOption.${expiryOption}`
-    case ExpiryOption.TwentyEightDays:
-      return `limitOrder.expiryOption.${expiryOption}`
-    // TODO: implement custom expiry
-    // case ExpiryOption.Custom:
-    //   return `limitOrder.expiryOption.${expiryOption}`
-    default:
-      assertUnreachable(expiryOption)
-  }
-}
-
-const timePeriodRightIcon = <ChevronDownIcon />
 const swapIcon = <SwapIcon />
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 const swapPriceButtonProps = { pr: 4, _disabled: disabledProps }
@@ -85,6 +48,24 @@ type LimitOrderConfigProps = {
   buyAsset: Asset
   isLoading: boolean
   marketPriceBuyAsset: string
+  isInputtingFiatSellAmount: boolean
+  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
+}
+
+const linkAfter = {
+  content: '""',
+  display: 'block',
+  height: '1px',
+  borderBottom: '1px dotted',
+  borderColor: 'whiteAlpha.500',
+  mb: '-2px',
+}
+
+const linkHover = {
+  _after: {
+    borderBottom: 'none',
+    height: '2px',
+  },
 }
 
 export const LimitOrderConfig = ({
@@ -92,6 +73,8 @@ export const LimitOrderConfig = ({
   buyAsset,
   isLoading,
   marketPriceBuyAsset,
+  isInputtingFiatSellAmount,
+  onChangeIsInputtingFiatSellAmount,
 }: LimitOrderConfigProps) => {
   const translate = useTranslate()
   const priceAmountRef = useRef<string | null>(null)
@@ -101,10 +84,8 @@ export const LimitOrderConfig = ({
   )
   const limitPrice = useAppSelector(selectLimitPrice)
   const priceDirection = useAppSelector(selectLimitPriceDirection)
-  const expiry = useAppSelector(selectExpiry)
-  const limitPriceMode = useAppSelector(selectLimitPriceMode)
 
-  const { setLimitPriceDirection, setExpiry, setLimitPrice, setLimitPriceMode } = useActions(
+  const { setLimitPriceDirection, setLimitPrice, setLimitPriceMode } = useActions(
     limitOrderInput.actions,
   )
 
@@ -112,19 +93,19 @@ export const LimitOrderConfig = ({
     number: { localeParts },
   } = useLocaleFormatter()
 
-  const expiryOptions = useMemo(() => {
-    return EXPIRY_OPTIONS.map(expiryOption => {
-      return (
-        <MenuItemOption value={expiryOption} key={expiryOption}>
-          <Text translation={getExpiryOptionTranslation(expiryOption)} />
-        </MenuItemOption>
-      )
-    })
-  }, [])
-
   const priceAsset = useMemo(() => {
     return priceDirection === PriceDirection.BuyAssetDenomination ? buyAsset : sellAsset
   }, [buyAsset, priceDirection, sellAsset])
+
+  const priceAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, priceAsset.assetId),
+  )
+
+  const fiatValue = useMemo(
+    () =>
+      bnOrZero(limitPriceForSelectedPriceDirection).times(priceAssetMarketData.price).toString(),
+    [limitPriceForSelectedPriceDirection, priceAssetMarketData.price],
+  )
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const priceCryptoFormatted = useMemo(() => {
@@ -136,10 +117,6 @@ export const LimitOrderConfig = ({
       ? limitPriceForSelectedPriceDirection
       : bnOrZero(limitPriceForSelectedPriceDirection).toFixed(3)
   }, [limitPriceForSelectedPriceDirection])
-
-  const arrow = useMemo(() => {
-    return priceDirection === PriceDirection.BuyAssetDenomination ? '↑' : '↓'
-  }, [priceDirection])
 
   const handleSetPresetLimit = useCallback(
     (limitPriceMode: LimitPriceMode) => {
@@ -155,22 +132,6 @@ export const LimitOrderConfig = ({
     handleSetPresetLimit(LimitPriceMode.Market)
   }, [handleSetPresetLimit])
 
-  const handleSetOnePercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.OnePercent)
-  }, [handleSetPresetLimit])
-
-  const handleSetTwoPercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.TwoPercent)
-  }, [handleSetPresetLimit])
-
-  const handleSetFivePercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.FivePercent)
-  }, [handleSetPresetLimit])
-
-  const handleSetTenPercentLimit = useCallback(() => {
-    handleSetPresetLimit(LimitPriceMode.TenPercent)
-  }, [handleSetPresetLimit])
-
   const handleTogglePriceDirection = useCallback(() => {
     const newPriceDirection =
       priceDirection === PriceDirection.BuyAssetDenomination
@@ -179,59 +140,58 @@ export const LimitOrderConfig = ({
     setLimitPriceDirection(newPriceDirection)
   }, [priceDirection, setLimitPriceDirection])
 
-  const handlePriceChange = useCallback(() => {
-    // onChange will send us the formatted value
-    // To get around this we need to get the value from the onChange using a ref
-    // Now when the preset price mode buttons are clicked the onChange will not fire
-    setLimitPriceMode(LimitPriceMode.CustomValue)
-    setLimitPrice({ marketPriceBuyAsset: priceAmountRef.current ?? '0' })
-  }, [setLimitPrice, setLimitPriceMode])
+  const handleInputChange = useCallback(
+    (value: string, isFiatValue?: boolean) => {
+      if (isFiatValue !== undefined) {
+        onChangeIsInputtingFiatSellAmount(isFiatValue)
+      }
+
+      let cryptoValue = value
+      if (isInputtingFiatSellAmount || isFiatValue) {
+        cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toString()
+      }
+
+      priceAmountRef.current = cryptoValue
+      setLimitPriceMode(LimitPriceMode.CustomValue)
+      setLimitPrice({ marketPriceBuyAsset: cryptoValue })
+    },
+    [
+      isInputtingFiatSellAmount,
+      priceAssetMarketData.price,
+      setLimitPrice,
+      setLimitPriceMode,
+      onChangeIsInputtingFiatSellAmount,
+    ],
+  )
 
   const handleValueChange = useCallback((values: NumberFormatValues) => {
-    // This fires anytime value changes including setting it on preset price mode click
-    // Store the value in a ref to send when we actually want the onChange to fire
     priceAmountRef.current = values.value
   }, [])
 
-  const expiryOptionTranslation = useMemo(() => {
-    return getExpiryOptionTranslation(expiry)
-  }, [expiry])
-
-  const handleChangeExpiryOption = useCallback(
-    (newExpiry: string | string[]) => {
-      setExpiry(newExpiry as ExpiryOption)
-    },
-    [setExpiry],
-  )
+  const oppositeCurrency = useMemo(() => {
+    return isInputtingFiatSellAmount ? (
+      <Amount.Crypto value={priceCryptoFormatted} symbol={priceAsset.symbol} prefix='≈' />
+    ) : (
+      <Amount.Fiat value={fiatValue} prefix='≈' />
+    )
+  }, [fiatValue, isInputtingFiatSellAmount, priceAsset.symbol, priceCryptoFormatted])
 
   const delta = useMemo(
     () => bn(limitPrice.buyAssetDenomination).div(marketPriceBuyAsset).minus(1).times(100),
     [limitPrice.buyAssetDenomination, marketPriceBuyAsset],
   )
 
-  const renderDelta = useMemo(() => {
-    const prefix = (() => {
-      if (delta.gte('999')) return '>'
-      return delta.gt(0) ? '+' : ''
-    })()
+  const isMarketButtonDisabled = useMemo(() => {
+    if (isLoading) return true
 
-    if (
-      bnOrZero(limitPrice.buyAssetDenomination).isZero() ||
-      bnOrZero(marketPriceBuyAsset).isZero()
-    )
-      return null
-    if (isLoading) return null
-    if (delta.isZero()) return null
-
-    const deltaOrDefault = BigNumber.minimum(999, delta).toFixed(2)
+    const marketPriceMinusOnePercent = bnOrZero(marketPriceBuyAsset).times(0.999)
+    const marketPricePlusOnePercent = bnOrZero(marketPriceBuyAsset).times(1.001)
 
     return (
-      <CText color={delta.gt(0) ? 'text.success' : 'text.error'}>
-        ({prefix}
-        {deltaOrDefault}%)
-      </CText>
+      bnOrZero(priceCryptoFormatted).gt(marketPriceMinusOnePercent) &&
+      bnOrZero(priceCryptoFormatted).lt(marketPricePlusOnePercent)
     )
-  }, [delta, isLoading, limitPrice, marketPriceBuyAsset])
+  }, [isLoading, priceCryptoFormatted, marketPriceBuyAsset])
 
   const maybePriceWarning = useMemo(() => {
     if (
@@ -276,41 +236,177 @@ export const LimitOrderConfig = ({
     translate,
   ])
 
+  const displayAsset = useMemo(() => {
+    return priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset : buyAsset
+  }, [buyAsset, priceDirection, sellAsset])
+
+  const handleTokenTextClick = useCallback(() => {
+    handleTogglePriceDirection()
+  }, [handleTogglePriceDirection])
+
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+
+  const handleToggleFiatSellAmount = useCallback(() => {
+    onChangeIsInputtingFiatSellAmount(!isInputtingFiatSellAmount)
+  }, [isInputtingFiatSellAmount, onChangeIsInputtingFiatSellAmount])
+
+  const handleInputValueChange = useCallback(() => {
+    handleInputChange(priceAmountRef.current ?? '0')
+  }, [handleInputChange])
+
+  const receiveAmount = useMemo(() => {
+    if (
+      bnOrZero(sellAmountCryptoPrecision).isZero() ||
+      bnOrZero(limitPrice.buyAssetDenomination).isZero()
+    ) {
+      return '0'
+    }
+
+    if (priceDirection === PriceDirection.BuyAssetDenomination) {
+      return bnOrZero(sellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination).toString()
+    }
+
+    return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
+  }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
+
+  const limitOrderExplanation = useMemo(() => {
+    if (
+      isLoading ||
+      bnOrZero(sellAmountCryptoPrecision).isZero() ||
+      bnOrZero(limitPriceForSelectedPriceDirection).isZero()
+    )
+      return null
+
+    const formattedPrice = bnOrZero(limitPriceForSelectedPriceDirection).toFixed(6)
+    const formattedSellAmount = bnOrZero(sellAmountCryptoPrecision).toFixed(6)
+    const formattedReceiveAmount = bnOrZero(receiveAmount).toFixed(6)
+
+    const assetSymbol =
+      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol
+
+    return (
+      <CText fontSize='sm' lineHeight='1.6'>
+        <Text
+          as='span'
+          color='text.subtle'
+          translation='limitOrder.explanation.priceReaches.prefix'
+        />
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {assetSymbol}
+        </CText>
+        <Text
+          as='span'
+          color='text.subtle'
+          translation='limitOrder.explanation.priceReaches.middle'
+        />
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {formattedPrice}
+        </CText>
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {priceAsset.symbol}
+        </CText>
+        <Text as='span' color='text.subtle' translation='limitOrder.explanation.orderWill.prefix' />
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {formattedSellAmount}
+        </CText>
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {sellAsset.symbol}
+        </CText>
+        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.prefix' />
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {formattedReceiveAmount}
+        </CText>
+        <CText as='span' color='white' fontWeight='medium'>
+          {' '}
+          {buyAsset.symbol}
+        </CText>
+        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.suffix' />
+      </CText>
+    )
+  }, [
+    isLoading,
+    sellAmountCryptoPrecision,
+    limitPriceForSelectedPriceDirection,
+    priceDirection,
+    sellAsset.symbol,
+    buyAsset.symbol,
+    priceAsset.symbol,
+    receiveAmount,
+  ])
+
   return (
     <Stack spacing={4} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
-          <Text translation='limitOrder.whenPriceReaches' />
-          {renderDelta}
+          <Text translation='limitOrder.when' />
+          <Button
+            variant='unstyled'
+            onClick={handleTokenTextClick}
+            fontWeight='bold'
+            fontSize='sm'
+            position='relative'
+            _after={linkAfter}
+            _hover={linkHover}
+          >
+            1 {displayAsset.symbol}
+          </Button>
+          <Text translation='limitOrder.isWorth' />
         </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
-          <Text translation='limitOrder.expiry' mr={4} />
-          <Menu isLazy>
-            <MenuButton as={Button} rightIcon={timePeriodRightIcon} isDisabled={isLoading}>
-              <Text translation={expiryOptionTranslation} />
-            </MenuButton>
-            <MenuList zIndex='modal'>
-              <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
-                {expiryOptions}
-              </MenuOptionGroup>
-            </MenuList>
-          </Menu>
+          <Text translation='limitOrder.market' mr={2} />
+          <Button
+            variant='unstyled'
+            onClick={handleSetMarketLimit}
+            isDisabled={isMarketButtonDisabled}
+            fontWeight='medium'
+            fontSize='sm'
+            position='relative'
+            _after={linkAfter}
+            _hover={linkHover}
+            opacity={isMarketButtonDisabled ? 0.5 : 1}
+            cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
+          >
+            {bnOrZero(marketPriceBuyAsset).toFixed(6)} {priceAsset.symbol}
+          </Button>
         </Flex>
       </Flex>
-      <HStack width='full' justify='space-between'>
-        <Skeleton height={6} isLoaded={!isLoading}>
-          <NumberFormat
-            customInput={AmountInput}
-            decimalScale={priceAsset.precision}
-            isNumericString={true}
-            decimalSeparator={localeParts.decimal}
-            inputMode='decimal'
-            allowedDecimalSeparators={allowedDecimalSeparators}
-            thousandSeparator={localeParts.group}
-            value={priceCryptoFormatted}
-            onValueChange={handleValueChange}
-            onChange={handlePriceChange}
-          />
+      <HStack width='full' justify='space-between' alignItems='flex-start'>
+        <Skeleton isLoaded={!isLoading} minHeight={6}>
+          <Flex direction='column' width='full'>
+            <NumberFormat
+              customInput={AmountInput}
+              decimalScale={isInputtingFiatSellAmount ? 2 : priceAsset.precision}
+              isNumericString={true}
+              decimalSeparator={localeParts.decimal}
+              inputMode='decimal'
+              allowedDecimalSeparators={allowedDecimalSeparators}
+              thousandSeparator={localeParts.group}
+              suffix={isInputtingFiatSellAmount ? localeParts.postfix : ''}
+              prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
+              value={
+                isInputtingFiatSellAmount ? bnOrZero(fiatValue).toFixed(2) : priceCryptoFormatted
+              }
+              onValueChange={handleValueChange}
+              onChange={handleInputValueChange}
+            />
+            <Button
+              onClick={handleToggleFiatSellAmount}
+              size='sm'
+              fontWeight='medium'
+              variant='link'
+              color='text.subtle'
+              alignSelf='flex-start'
+              mt={4}
+            >
+              {oppositeCurrency}
+            </Button>
+          </Flex>
         </Skeleton>
         <StyledAssetMenuButton
           rightIcon={swapIcon}
@@ -320,53 +416,27 @@ export const LimitOrderConfig = ({
           isDisabled={isLoading}
         />
       </HStack>
-      <Flex justifyContent='space-between'>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.Market}
-          onClick={handleSetMarketLimit}
-          isDisabled={isLoading}
-        >
-          Market
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.OnePercent}
-          onClick={handleSetOnePercentLimit}
-          isDisabled={isLoading}
-        >
-          1% {arrow}
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.TwoPercent}
-          onClick={handleSetTwoPercentLimit}
-          isDisabled={isLoading}
-        >
-          2% {arrow}
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.FivePercent}
-          onClick={handleSetFivePercentLimit}
-          isDisabled={isLoading}
-        >
-          5% {arrow}
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          isActive={limitPriceMode === LimitPriceMode.TenPercent}
-          onClick={handleSetTenPercentLimit}
-          isDisabled={isLoading}
-        >
-          10% {arrow}
-        </Button>
-      </Flex>
+
+      {!isLoading &&
+        !bnOrZero(sellAmountCryptoPrecision).isZero() &&
+        !bnOrZero(limitPriceForSelectedPriceDirection).isZero() && (
+          <Box
+            mt={4}
+            p={4}
+            borderWidth='1px'
+            borderStyle='dashed'
+            borderRadius='md'
+            borderColor='whiteAlpha.300'
+          >
+            <Flex alignItems='flex-start'>
+              <Box as='span' mr={2} mt={1}>
+                <InfoIcon boxSize={5} color='gray.500' />
+              </Box>
+              {limitOrderExplanation}
+            </Flex>
+          </Box>
+        )}
+
       {maybePriceWarning}
     </Stack>
   )

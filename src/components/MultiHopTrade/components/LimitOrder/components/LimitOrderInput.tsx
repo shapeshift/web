@@ -25,6 +25,7 @@ import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
+import { LimitOrderFooter } from './LimitOrderFooter'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
@@ -426,6 +427,7 @@ export const LimitOrderInput = ({
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
+            onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
             assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
             selectedChainId={selectedBuyAssetChainId}
@@ -437,6 +439,8 @@ export const LimitOrderInput = ({
             buyAsset={buyAsset}
             isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
+            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+            onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -532,8 +536,9 @@ export const LimitOrderInput = ({
         rate={
           bnOrZero(limitPrice.buyAssetDenomination).isZero()
             ? undefined
-            : limitPrice.buyAssetDenomination
+            : bnOrZero(limitPrice.buyAssetDenomination).toFixed(8)
         }
+        marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
@@ -548,7 +553,10 @@ export const LimitOrderInput = ({
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
         sellAsset={sellAsset}
       >
-        {renderedRecipientAddress}
+        <>
+          <LimitOrderFooter />
+          {renderedRecipientAddress}
+        </>
       </SharedTradeInputFooter>
     )
   }, [
@@ -561,9 +569,9 @@ export const LimitOrderInput = ({
     isLoading,
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
+    marketPriceBuyAsset,
     sellAccountId,
     isRecipientAddressEntryActive,
-    marketPriceBuyAsset,
     networkFeeUserCurrency,
     sellAsset,
     renderedRecipientAddress,

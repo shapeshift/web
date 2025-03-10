@@ -1,6 +1,6 @@
 import type { Draft, PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -16,6 +16,8 @@ export interface TradeInputBaseState {
   isManualReceiveAddressValidating: boolean
   isManualReceiveAddressEditing: boolean
   isManualReceiveAddressValid: boolean | undefined
+  selectedSellAssetChainId: ChainId | 'All'
+  selectedBuyAssetChainId: ChainId | 'All'
 }
 
 const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
@@ -75,7 +77,7 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
     // Avoid division by zero
     state.sellAmountCryptoPrecision = bnOrZero(buyAssetUsdRate).isZero()
       ? '0'
-      : sellAmountUsd.div(buyAssetUsdRate!).toFixed()
+      : sellAmountUsd.div(bnOrZero(buyAssetUsdRate)).toFixed()
 
     const buyAsset = state.sellAsset
     state.sellAsset = state.buyAsset
@@ -84,6 +86,11 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
     const sellAssetAccountId = state.sellAccountId
     state.sellAccountId = state.buyAccountId
     state.buyAccountId = sellAssetAccountId
+
+    // Also switch the selected chain IDs
+    const selectedSellAssetChainId = state.selectedSellAssetChainId
+    state.selectedSellAssetChainId = state.selectedBuyAssetChainId
+    state.selectedBuyAssetChainId = selectedSellAssetChainId
 
     state.manualReceiveAddress = undefined
   },
@@ -101,6 +108,12 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   },
   setIsInputtingFiatSellAmount: (state: Draft<T>, action: PayloadAction<boolean>) => {
     state.isInputtingFiatSellAmount = action.payload
+  },
+  setSelectedSellAssetChainId: (state: Draft<T>, action: PayloadAction<ChainId | 'All'>) => {
+    state.selectedSellAssetChainId = action.payload
+  },
+  setSelectedBuyAssetChainId: (state: Draft<T>, action: PayloadAction<ChainId | 'All'>) => {
+    state.selectedBuyAssetChainId = action.payload
   },
 })
 

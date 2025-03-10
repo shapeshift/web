@@ -347,13 +347,25 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
     const headerContent = useMemo(() => {
+      const hasUnsupportedChainError = errors.some(
+        error =>
+          error.error === SwapperTradeQuoteError.UnsupportedChain ||
+          error.error === SwapperTradeQuoteError.CrossChainNotSupported ||
+          error.error === SwapperTradeQuoteError.UnsupportedTradePair,
+      )
+
       return (
         <Flex gap={2} alignItems='center'>
           <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-          <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
+          {!hasUnsupportedChainError && (
+            <CountdownSpinner
+              isLoading={isLoading || isRefetching}
+              initialTimeMs={pollingInterval}
+            />
+          )}
         </Flex>
       )
-    }, [isLoading, isRefetching, pollingInterval, tag])
+    }, [isLoading, isRefetching, pollingInterval, tag, errors])
 
     const bodyContent = useMemo(() => {
       return quote ? (

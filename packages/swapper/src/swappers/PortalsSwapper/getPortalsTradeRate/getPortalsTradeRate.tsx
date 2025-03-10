@@ -25,7 +25,7 @@ import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/h
 
 export async function getPortalsTradeRate(
   input: GetEvmTradeRateInput,
-  _assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   swapperConfig: SwapperConfig,
 ): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
@@ -38,6 +38,7 @@ export async function getPortalsTradeRate(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
   } = input
+  const adapter = assertGetEvmChainAdapter(chainId)
 
   const sellAssetChainId = sellAsset.chainId
   const buyAssetChainId = buyAsset.chainId
@@ -130,6 +131,11 @@ export async function getPortalsTradeRate(
       .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
       .toFixed(0)
 
+    const gasLimit = quoteEstimateResponse.context.gasLimit
+    const { average } = await adapter.getGasFeeData()
+
+    const networkFeeCryptoBaseUnit = bnOrZero(average.gasPrice).times(gasLimit).toFixed(0)
+
     const tradeRate = {
       id: uuid(),
       quoteOrRate: 'rate' as const,
@@ -158,7 +164,7 @@ export async function getPortalsTradeRate(
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
-            networkFeeCryptoBaseUnit: undefined,
+            networkFeeCryptoBaseUnit,
             protocolFees: undefined, // We don't have protocol fees on Portals during the estimate step
           },
           source: SwapperName.Portals,

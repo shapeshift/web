@@ -60,9 +60,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             as='form'
             onSubmit={onSubmit}
           >
-            <SharedTradeInputHeader
-              rightContent={headerRightContent}
-            />
+            <SharedTradeInputHeader rightContent={headerRightContent} />
             {bodyContent}
             {footerContent}
           </Card>

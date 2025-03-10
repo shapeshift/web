@@ -80,10 +80,7 @@ type LimitOrderInputProps = {
   isCompact?: boolean
 }
 
-export const LimitOrderInput = ({
-  isCompact,
-  tradeInputRef,
-}: LimitOrderInputProps) => {
+export const LimitOrderInput = ({ isCompact, tradeInputRef }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected },

@@ -79,7 +79,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const history = useHistory()
   const translate = useTranslate()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
@@ -116,7 +116,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-      if (!isConnected || isDemoWallet) {
+      if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
@@ -146,7 +146,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         state: { background: location },
       })
     },
-    [assets, dispatch, history, isConnected, isDemoWallet, location],
+    [assets, dispatch, history, isConnected, location],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

@@ -614,7 +614,6 @@
     "foxToken": "FOX Opportunities",
     "dApps": "dApps",
     "featureFlags": "Feature Flags",
-    "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
@@ -1507,12 +1506,13 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
+      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support.",
+      "walletVersionTooOld": "Unable to pair your wallet. Please update your wallet to the latest version."
     },
     "keepKey": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with your KeepKey",
-        "updateAlert": "Firmware 6.1.0 or later is required to use your Keepkey with this client. Please update your device.",
+        "updateAlert": "Firmware %{version} or later is required to use your KeepKey with this client. Please update your device.",
         "pinCancelled": "PIN entry was cancelled",
         "pinInvalid": "The PIN you entered is not valid",
         "pinMismatch": "The two PINs you entered do not match"
@@ -2530,7 +2530,8 @@
     "underThreshold": "Low Trade",
     "thorHolder": "THORSwap Holder",
     "foxHolder": "FOX Holder",
-    "foxWifHatHolder": "FOX Wif Hat Holder"
+    "foxWifHatHolder": "FOX Wif Hat Holder",
+    "foxBuy": "FOX Buy"
   },
   "chart": {
     "interval": {
@@ -2568,7 +2569,6 @@
     "withdrawTypeNotAvailable": "This withdrawal type is not available for this pool.",
     "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
-    "unsupportedDemoWalletExplainer": "The demo wallet is not supported, please connect to a wallet to use this feature.",
     "unsupportedNetworkExplainer": "Your wallet isn't connected to %{network}. Please connect this chain or switch to a wallet that supports this network.",
     "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
     "instabilityWarning": "Users are currently experiencing refunds while depositing to THORChain pools. Please proceed with caution.",

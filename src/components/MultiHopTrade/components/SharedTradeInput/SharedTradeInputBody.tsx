@@ -44,6 +44,8 @@ type SharedTradeInputBodyProps = {
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   setSellAsset: (asset: Asset) => void
   setSellAccountId: (accountId: AccountId) => void
+  selectedSellAssetChainId?: ChainId | 'All'
+  onSellAssetChainIdChange?: (chainId: ChainId | 'All') => void
 }
 
 export const SharedTradeInputBody = ({
@@ -62,6 +64,8 @@ export const SharedTradeInputBody = ({
   onChangeSellAmountCryptoPrecision,
   setSellAsset,
   setSellAccountId,
+  selectedSellAssetChainId,
+  onSellAssetChainIdChange,
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
 
@@ -116,8 +120,17 @@ export const SharedTradeInputBody = ({
       title: 'trade.tradeFrom',
       assetFilterPredicate,
       chainIdFilterPredicate,
+      selectedChainId: selectedSellAssetChainId,
+      onSelectedChainIdChange: onSellAssetChainIdChange,
     })
-  }, [assetFilterPredicate, chainIdFilterPredicate, sellAssetSearch, setSellAsset])
+  }, [
+    assetFilterPredicate,
+    chainIdFilterPredicate,
+    sellAssetSearch,
+    setSellAsset,
+    selectedSellAssetChainId,
+    onSellAssetChainIdChange,
+  ])
 
   const sellTradeAssetSelect = useMemo(
     () => (

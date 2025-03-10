@@ -84,7 +84,7 @@ describe('WalletProvider', () => {
           type: WalletActions.SET_WALLET,
           payload: {
             wallet: {} as unknown as HDWallet,
-            connectedType: KeyManager.Demo,
+            connectedType: KeyManager.Native,
             ...walletInfoPayload,
           },
         })
@@ -177,7 +177,7 @@ describe('WalletProvider', () => {
           type: WalletActions.SET_WALLET,
           payload: {
             wallet: { disconnect: walletDisconnect } as unknown as HDWallet,
-            connectedType: KeyManager.Demo,
+            connectedType: KeyManager.Native,
             ...walletInfoPayload,
           },
         })

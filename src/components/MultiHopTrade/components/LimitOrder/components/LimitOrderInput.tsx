@@ -55,6 +55,8 @@ import {
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
   selectLimitPriceMode,
+  selectSelectedBuyAssetChainId,
+  selectSelectedSellAssetChainId,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
@@ -86,7 +88,7 @@ export const LimitOrderInput = ({
 }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
 
   const history = useHistory()
@@ -116,6 +118,8 @@ export const LimitOrderInput = ({
   const limitPriceMode = useAppSelector(selectLimitPriceMode)
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
+  const selectedSellAssetChainId = useAppSelector(selectSelectedSellAssetChainId)
+  const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
 
   const {
     switchAssets,
@@ -126,6 +130,8 @@ export const LimitOrderInput = ({
     setLimitPrice,
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
+    setSelectedSellAssetChainId,
+    setSelectedBuyAssetChainId,
   } = useActions(limitOrderInput.actions)
   const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
@@ -256,8 +262,8 @@ export const LimitOrderInput = ({
   }, [limitPriceMode, marketPriceBuyAsset, setLimitPrice])
 
   const onSubmit = useCallback(async () => {
-    // No preview happening if wallet isn't connected i.e is using the demo wallet
-    if (!isConnected || isDemoWallet) {
+    // No preview happening if wallet isn't connected
+    if (!isConnected) {
       return handleConnect()
     }
 
@@ -326,7 +332,6 @@ export const LimitOrderInput = ({
     }
   }, [
     isConnected,
-    isDemoWallet,
     quoteResponse,
     limitOrderQuoteParams,
     sellAccountId,
@@ -410,6 +415,8 @@ export const LimitOrderInput = ({
         setSellAccountId={setSellAccountId}
         assetFilterPredicate={sellAssetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        selectedSellAssetChainId={selectedSellAssetChainId}
+        onSellAssetChainIdChange={setSelectedSellAssetChainId}
       >
         <Stack>
           <LimitOrderBuyAsset
@@ -421,6 +428,8 @@ export const LimitOrderInput = ({
             onSetBuyAsset={setBuyAsset}
             assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
+            selectedChainId={selectedBuyAssetChainId}
+            onSelectedChainIdChange={setSelectedBuyAssetChainId}
           />
           <Divider />
           <LimitOrderConfig
@@ -452,6 +461,10 @@ export const LimitOrderInput = ({
     setBuyAsset,
     buyAssetFilterPredicate,
     marketPriceBuyAsset,
+    selectedBuyAssetChainId,
+    setSelectedBuyAssetChainId,
+    selectedSellAssetChainId,
+    setSelectedSellAssetChainId,
   ])
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
@@ -484,8 +497,8 @@ export const LimitOrderInput = ({
       case quoteResponseError !== undefined:
         // Catch-all of non-cowswap quote errors
         return { quoteStatusTranslation: 'trade.errors.quoteError', isError: true }
-      case !isConnected || isDemoWallet:
-        // We got a happy path quote, but we may still be in the context of the demo wallet
+      case !isConnected:
+        // We got a happy path quote, but we're not connected
         return { quoteStatusTranslation: 'common.connectWallet', isError: false }
       default:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
@@ -496,7 +509,6 @@ export const LimitOrderInput = ({
     hasUserEnteredAmount,
     isAccountsMetadataLoading,
     isConnected,
-    isDemoWallet,
     quoteResponseError,
     recipientAddress,
     sellAccountId,

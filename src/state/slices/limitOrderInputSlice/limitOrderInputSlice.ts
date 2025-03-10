@@ -33,6 +33,8 @@ const initialState: LimitOrderInputState = {
   isManualReceiveAddressValidating: false,
   isManualReceiveAddressValid: undefined,
   isManualReceiveAddressEditing: false,
+  selectedSellAssetChainId: 'All',
+  selectedBuyAssetChainId: 'All',
   limitPriceDirection: PriceDirection.BuyAssetDenomination,
   limitPrice: {
     [PriceDirection.BuyAssetDenomination]: '0',

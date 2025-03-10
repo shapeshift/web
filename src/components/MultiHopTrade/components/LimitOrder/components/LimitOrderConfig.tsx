@@ -181,6 +181,18 @@ export const LimitOrderConfig = ({
     [limitPrice.buyAssetDenomination, marketPriceBuyAsset],
   )
 
+  const isMarketButtonDisabled = useMemo(() => {
+    if (isLoading) return true
+
+    const marketPriceMinusOnePercent = bnOrZero(marketPriceBuyAsset).times(0.999)
+    const marketPricePlusOnePercent = bnOrZero(marketPriceBuyAsset).times(1.001)
+
+    return (
+      bnOrZero(priceCryptoFormatted).gt(marketPriceMinusOnePercent) &&
+      bnOrZero(priceCryptoFormatted).lt(marketPricePlusOnePercent)
+    )
+  }, [isLoading, priceCryptoFormatted, marketPriceBuyAsset])
+
   const maybePriceWarning = useMemo(() => {
     if (
       bnOrZero(limitPrice.buyAssetDenomination).isZero() ||
@@ -351,14 +363,14 @@ export const LimitOrderConfig = ({
           <Button
             variant='unstyled'
             onClick={handleSetMarketLimit}
-            isDisabled={isLoading}
+            isDisabled={isMarketButtonDisabled}
             fontWeight='medium'
             fontSize='sm'
             position='relative'
             _after={linkAfter}
             _hover={linkHover}
-            opacity={isLoading ? 0.5 : 1}
-            cursor={isLoading ? 'not-allowed' : 'pointer'}
+            opacity={isMarketButtonDisabled ? 0.5 : 1}
+            cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
           >
             {bnOrZero(marketPriceBuyAsset).toFixed(6)} {priceAsset.symbol}
           </Button>

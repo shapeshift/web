@@ -98,12 +98,7 @@ export const SharedTradeInputFooter = ({
 
     if (percentDifference.isZero()) return null
 
-    // Format to show + or - sign and limit to 2 decimal places
-    const formattedPercentage = percentDifference.isPositive()
-      ? `+${percentDifference.toFixed(2)}%`
-      : `${percentDifference.toFixed(2)}%`
-
-    return formattedPercentage
+    return percentDifference
   }, [rate, marketRate])
 
   return (

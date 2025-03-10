@@ -10,8 +10,13 @@ import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
+import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
+import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
@@ -85,6 +90,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   const queryClient = useQueryClient()
   const { stakingAssetId } = useRFOXContext()
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
   const stakingAssetAccountAddress = useMemo(() => {
     return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
@@ -101,6 +107,27 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
         stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getTimeInPoolQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getEpochHistoryQueryKey(),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getEarnedQueryKey({
+        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetAccountAddress,
+      }),
+    })
+    await queryClient.invalidateQueries({
+      queryKey: getAffiliateRevenueQueryKey({
+        startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
+        endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
       }),
     })
   }, [confirmedQuote, queryClient, stakingAssetAccountAddress])

@@ -118,7 +118,7 @@ const validators = {
     default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
   }),
   VITE_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
-  VITE_MIXPANEL_TOKEN: str(),
+  VITE_MIXPANEL_TOKEN: str({ default: '' }),
   VITE_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
   }),

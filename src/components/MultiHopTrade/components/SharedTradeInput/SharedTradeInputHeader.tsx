@@ -13,9 +13,7 @@ type SharedTradeInputHeaderProps = {
   rightContent?: JSX.Element
 }
 
-export const SharedTradeInputHeader = ({
-  rightContent,
-}: SharedTradeInputHeaderProps) => {
+export const SharedTradeInputHeader = ({ rightContent }: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
   const { activeTab, handleChangeTab } = useMultiHopTradeContext()
 
@@ -45,7 +43,6 @@ export const SharedTradeInputHeader = ({
             color={activeTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
             onClick={handleClickTrade}
             cursor={activeTab !== TradeInputTab.Trade ? 'pointer' : undefined}
-            data-testid="trade-tab"
           >
             {translate('navBar.trade')}
           </Heading>
@@ -56,7 +53,6 @@ export const SharedTradeInputHeader = ({
               color={activeTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
               onClick={handleClickLimitOrder}
               cursor={activeTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
-              data-testid="limitOrder-tab"
             >
               {translate('limitOrder.heading')}
             </Heading>
@@ -68,7 +64,6 @@ export const SharedTradeInputHeader = ({
               color={activeTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
               onClick={handleClickClaim}
               cursor={activeTab !== TradeInputTab.Claim ? 'pointer' : undefined}
-              data-testid="claim-tab"
             >
               {translate('bridge.claim')}
             </Heading>

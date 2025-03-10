@@ -2,7 +2,6 @@ import { Flex } from '@chakra-ui/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
-import { useMultiHopTradeContext } from '../../context/MultiHopTradeContext'
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { AllowanceApproval } from './components/AllowanceApproval'
@@ -31,23 +30,9 @@ export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
   const location = useLocation()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
   const memoryRouterHistoryRef = useRef<any>(null)
-  const { activeTab } = useMultiHopTradeContext()
-
-  // Navigate the MemoryRouter to the Input route when the active tab changes to LimitOrder
-  useEffect(() => {
-    if (memoryRouterHistoryRef.current && activeTab === 'limitOrder') {
-      // Navigate to the Input route in the MemoryRouter
-      memoryRouterHistoryRef.current.push(LimitOrderRoutePaths.Input)
-    }
-  }, [activeTab])
 
   const renderLimitOrderInput = useCallback(() => {
-    return (
-      <LimitOrderInput
-        isCompact={isCompact}
-        tradeInputRef={tradeInputRef}
-      />
-    )
+    return <LimitOrderInput isCompact={isCompact} tradeInputRef={tradeInputRef} />
   }, [isCompact, tradeInputRef])
 
   const renderLimitOrderConfirm = useCallback(() => {
@@ -69,12 +54,12 @@ export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
   // This component will be rendered inside the MemoryRouter
   const LimitOrderContent = () => {
     const history = useHistory()
-    
+
     // Store the history object in the ref so we can access it from outside
     useEffect(() => {
       memoryRouterHistoryRef.current = history
     }, [history])
-    
+
     return (
       <Switch location={location}>
         <Flex flex={1} width='full' justifyContent='center'>

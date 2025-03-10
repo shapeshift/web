@@ -12,9 +12,10 @@ import {
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { usePrevious } from '@chakra-ui/react'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
@@ -54,7 +55,9 @@ const cardBorderRadius = { base: '2xl' }
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const wallet = useWallet().state.wallet
+  const {
+    state: { wallet, isConnected },
+  } = useWallet()
   const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
@@ -71,6 +74,7 @@ export const LimitOrderConfirm = () => {
   const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
+  const prevIsConnected = usePrevious(isConnected)
 
   const [placeLimitOrder, { data, error, isLoading }] = usePlaceLimitOrderMutation()
 
@@ -92,6 +96,15 @@ export const LimitOrderConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
+
+  // Monitor wallet connection state and redirect to input page when disconnected
+  useEffect(() => {
+    if (prevIsConnected && !isConnected) {
+      // User has disconnected their wallet during the confirmation step
+      // Redirect back to trade input to ensure the wrong wallet isn't used
+      handleBack()
+    }
+  }, [isConnected, prevIsConnected, handleBack])
 
   const handleConfirm = useCallback(async () => {
     const quoteId = activeQuote?.response.id

@@ -1,4 +1,4 @@
-import { Button, HStack, Skeleton, Stack } from '@chakra-ui/react'
+import { Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -69,6 +69,21 @@ export const LimitOrderConfirm = () => {
 
   const mixpanel = getMixPanel()
   const hasConfirmedRef = useRef(false)
+  const prevIsConnected = usePrevious(isConnected)
+
+  const handleBack = useCallback(() => {
+    dispatch(limitOrderSlice.actions.clear())
+    history.push(LimitOrderRoutePaths.Input)
+  }, [dispatch, history])
+
+  // Monitor wallet connection state and redirect to input page when disconnected
+  useEffect(() => {
+    if (prevIsConnected && !isConnected) {
+      // User has disconnected their wallet during the confirmation step
+      // Redirect back to trade input to ensure the wrong wallet isn't used
+      handleBack()
+    }
+  }, [isConnected, prevIsConnected, handleBack])
 
   const { isLoading: isLoadingSetIsApprovalInitiallyNeeded } = useSetIsApprovalInitiallyNeeded()
 
@@ -118,11 +133,6 @@ export const LimitOrderConfirm = () => {
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset &&
       allowanceReset.state !== TransactionExecutionState.Pending,
   })
-
-  const handleBack = useCallback(() => {
-    dispatch(limitOrderSlice.actions.clear())
-    history.push(LimitOrderRoutePaths.Input)
-  }, [dispatch, history])
 
   const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
     usePlaceLimitOrderMutation({ fixedCacheKey: quoteId as string | undefined })

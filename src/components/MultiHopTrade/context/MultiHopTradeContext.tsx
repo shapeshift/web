@@ -5,23 +5,18 @@ import { TradeInputTab, TradeRoutePaths } from '../types'
 
 import { assertUnreachable } from '@/lib/utils'
 
-// Define action types
-type MultiHopTradeAction =
-  | { type: 'SET_ACTIVE_TAB'; payload: TradeInputTab }
+type MultiHopTradeAction = { type: 'SET_ACTIVE_TAB'; payload: TradeInputTab }
 
-// Define the state type
 type MultiHopTradeState = {
-  activeTab: TradeInputTab
+  selectedTab: TradeInputTab
 }
 
-// Define the context type
 type MultiHopTradeContextType = MultiHopTradeState & {
   handleChangeTab: (newTab: TradeInputTab) => void
 }
 
-// Create the initial state
 const initialState: MultiHopTradeState = {
-  activeTab: TradeInputTab.Trade
+  selectedTab: TradeInputTab.Trade,
 }
 
 // Create the reducer function
@@ -33,7 +28,7 @@ export const multiHopTradeReducer = (
     case 'SET_ACTIVE_TAB':
       return {
         ...state,
-        activeTab: action.payload
+        selectedTab: action.payload,
       }
     default:
       return state
@@ -68,7 +63,7 @@ export const MultiHopTradeProvider: React.FC<React.PropsWithChildren> = ({ child
     (newTab: TradeInputTab) => {
       // Update the active tab state
       dispatch({ type: 'SET_ACTIVE_TAB', payload: newTab })
-      
+
       // Navigate to the corresponding route
       switch (newTab) {
         case TradeInputTab.Trade:
@@ -84,12 +79,12 @@ export const MultiHopTradeProvider: React.FC<React.PropsWithChildren> = ({ child
           assertUnreachable(newTab)
       }
     },
-    [history]
+    [history],
   )
 
   const value = {
     ...state,
-    handleChangeTab
+    handleChangeTab,
   }
 
   return <MultiHopTradeContext.Provider value={value}>{children}</MultiHopTradeContext.Provider>

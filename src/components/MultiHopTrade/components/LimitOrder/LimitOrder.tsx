@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
-import { useCallback, useEffect, useRef } from 'react'
-import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
@@ -13,14 +13,6 @@ import { LimitOrderRoutePaths } from './types'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
-const LimitOrderRouteEntries = [
-  LimitOrderRoutePaths.Input,
-  LimitOrderRoutePaths.Confirm,
-  LimitOrderRoutePaths.AllowanceApproval,
-  LimitOrderRoutePaths.PlaceOrder,
-  LimitOrderRoutePaths.Orders,
-]
-
 type LimitOrderProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
@@ -28,8 +20,14 @@ type LimitOrderProps = {
 
 export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
   const location = useLocation()
+  const history = useHistory()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
-  const memoryRouterHistoryRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (location.pathname === '/trade/limit-order') {
+      history.replace(LimitOrderRoutePaths.Input)
+    }
+  }, [history, location.pathname])
 
   const renderLimitOrderInput = useCallback(() => {
     return <LimitOrderInput isCompact={isCompact} tradeInputRef={tradeInputRef} />
@@ -51,54 +49,25 @@ export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
     return <PlaceLimitOrder isCompact={isCompact} />
   }, [isCompact])
 
-  // This component will be rendered inside the MemoryRouter
-  const LimitOrderContent = () => {
-    const history = useHistory()
-
-    // Store the history object in the ref so we can access it from outside
-    useEffect(() => {
-      memoryRouterHistoryRef.current = history
-    }, [history])
-
-    return (
-      <Switch location={location}>
-        <Flex flex={1} width='full' justifyContent='center'>
-          <Route
-            key={LimitOrderRoutePaths.Input}
-            path={LimitOrderRoutePaths.Input}
-            render={renderLimitOrderInput}
-          />
-          <Route
-            key={LimitOrderRoutePaths.Confirm}
-            path={LimitOrderRoutePaths.Confirm}
-            render={isNewLimitFlowEnabled ? renderLimitOrderShared : renderLimitOrderConfirm}
-          />
-          <Route
-            key={LimitOrderRoutePaths.AllowanceApproval}
-            path={LimitOrderRoutePaths.AllowanceApproval}
-            render={renderAllowanceApproval}
-          />
-          <Route
-            key={LimitOrderRoutePaths.PlaceOrder}
-            path={LimitOrderRoutePaths.PlaceOrder}
-            render={renderPlaceOrder}
-          />
-          <Route key={LimitOrderRoutePaths.Orders} path={LimitOrderRoutePaths.Orders}>
-            <SlideTransitionRoute
-              height={tradeInputRef.current?.offsetHeight ?? '500px'}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              component={LimitOrderList}
-              parentRoute={LimitOrderRoutePaths.Input}
-            />
-          </Route>
-        </Flex>
-      </Switch>
-    )
-  }
-
   return (
-    <MemoryRouter initialEntries={LimitOrderRouteEntries} initialIndex={0}>
-      <LimitOrderContent />
-    </MemoryRouter>
+    <Switch location={location}>
+      <Flex flex={1} width='full' justifyContent='center'>
+        <Route path={LimitOrderRoutePaths.Input} render={renderLimitOrderInput} />
+        <Route
+          path={LimitOrderRoutePaths.Confirm}
+          render={isNewLimitFlowEnabled ? renderLimitOrderShared : renderLimitOrderConfirm}
+        />
+        <Route path={LimitOrderRoutePaths.AllowanceApproval} render={renderAllowanceApproval} />
+        <Route path={LimitOrderRoutePaths.PlaceOrder} render={renderPlaceOrder} />
+        <Route path={LimitOrderRoutePaths.Orders}>
+          <SlideTransitionRoute
+            height={tradeInputRef.current?.offsetHeight ?? '500px'}
+            width={tradeInputRef.current?.offsetWidth ?? 'full'}
+            component={LimitOrderList}
+            parentRoute={LimitOrderRoutePaths.Input}
+          />
+        </Route>
+      </Flex>
+    </Switch>
   )
 }

@@ -18,9 +18,7 @@ export const Claim = () => {
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
 
-  // Redirect to the Select route when the component mounts
   useEffect(() => {
-    // Only redirect if we're exactly on the /trade/claim route
     if (location.pathname === '/trade/claim') {
       history.replace(ClaimRoutePaths.Select)
     }
@@ -60,18 +58,9 @@ export const Claim = () => {
     <Card flex={1} width='full' maxWidth='500px'>
       <SharedTradeInputHeader />
       <Switch location={location}>
-        <Route
-          path={ClaimRoutePaths.Select}
-          render={renderClaimSelect}
-        />
-        <Route
-          path={ClaimRoutePaths.Confirm}
-          render={renderClaimConfirm}
-        />
-        <Route
-          path={ClaimRoutePaths.Status}
-          render={renderClaimStatus}
-        />
+        <Route path={ClaimRoutePaths.Select} render={renderClaimSelect} />
+        <Route path={ClaimRoutePaths.Confirm} render={renderClaimConfirm} />
+        <Route path={ClaimRoutePaths.Status} render={renderClaimStatus} />
       </Switch>
     </Card>
   )

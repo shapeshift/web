@@ -25,8 +25,9 @@ const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexAlignItems = { base: 'flex-start', md: 'center' }
 
-// Create a global function to handle the claim tab click
-// This will be called from the toast
+// Create a "global" (as in, a singleton that will be instantiated when swapper mounts) function to handle the claim tab click from swapper
+// This will be called from the toast, so that it works from within swapper
+// It's high time we stop the memory router madness and just use global routing or something else, this is getting out of hand
 let handleClaimTabClick: (() => void) | null = null
 
 export const registerClaimTabClickHandler = (handler: () => void) => {

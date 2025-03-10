@@ -239,6 +239,23 @@ const TradeRoutesContent = memo(
             <Route key={TradeRoutePaths.LimitOrder} path={TradeRoutePaths.LimitOrder}>
               <LimitOrder isCompact={isCompact} tradeInputRef={tradeInputRef} />
             </Route>
+            <Route key={`${TradeRoutePaths.LimitOrder}/input`} path={`${TradeRoutePaths.LimitOrder}/input`}>
+              <LimitOrder isCompact={isCompact} tradeInputRef={tradeInputRef} />
+            </Route>
+            <Route key={`${TradeRoutePaths.LimitOrder}/confirm`} path={`${TradeRoutePaths.LimitOrder}/confirm`}>
+              <LimitOrder isCompact={isCompact} tradeInputRef={tradeInputRef} />
+            </Route>
+            <Route key={`${TradeRoutePaths.LimitOrder}/allowance-approval`} path={`${TradeRoutePaths.LimitOrder}/allowance-approval`}>
+              <LimitOrder isCompact={isCompact} tradeInputRef={tradeInputRef} />
+            </Route>
+            <Route key={`${TradeRoutePaths.LimitOrder}/place-order`} path={`${TradeRoutePaths.LimitOrder}/place-order`}>
+              <LimitOrder isCompact={isCompact} tradeInputRef={tradeInputRef} />
+            </Route>
+            <Route key={`${TradeRoutePaths.LimitOrder}/orders`} path={`${TradeRoutePaths.LimitOrder}/orders`}
+            
+            >
+              <LimitOrder isCompact={isCompact} tradeInputRef={tradeInputRef} />
+            </Route>
           </Switch>
         </AnimatePresence>
         {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}

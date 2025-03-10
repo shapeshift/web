@@ -15,7 +15,7 @@ type SharedTradeInputHeaderProps = {
 
 export const SharedTradeInputHeader = ({ rightContent }: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
-  const { activeTab, handleChangeTab } = useMultiHopTradeContext()
+  const { selectedTab, handleChangeTab } = useMultiHopTradeContext()
 
   const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
   const enableLimitOrders = useFeatureFlag('LimitOrders')
@@ -40,9 +40,9 @@ export const SharedTradeInputHeader = ({ rightContent }: SharedTradeInputHeaderP
           <Heading
             as='h5'
             fontSize='md'
-            color={activeTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
+            color={selectedTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
             onClick={handleClickTrade}
-            cursor={activeTab !== TradeInputTab.Trade ? 'pointer' : undefined}
+            cursor={selectedTab !== TradeInputTab.Trade ? 'pointer' : undefined}
           >
             {translate('navBar.trade')}
           </Heading>
@@ -50,9 +50,9 @@ export const SharedTradeInputHeader = ({ rightContent }: SharedTradeInputHeaderP
             <Heading
               as='h5'
               fontSize='md'
-              color={activeTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
+              color={selectedTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
               onClick={handleClickLimitOrder}
-              cursor={activeTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
+              cursor={selectedTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
             >
               {translate('limitOrder.heading')}
             </Heading>
@@ -61,9 +61,9 @@ export const SharedTradeInputHeader = ({ rightContent }: SharedTradeInputHeaderP
             <Heading
               as='h5'
               fontSize='md'
-              color={activeTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
+              color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
               onClick={handleClickClaim}
-              cursor={activeTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+              cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
             >
               {translate('bridge.claim')}
             </Heading>

@@ -76,11 +76,8 @@ export const LimitOrderConfirm = () => {
     history.push(LimitOrderRoutePaths.Input)
   }, [dispatch, history])
 
-  // Monitor wallet connection state and redirect to input page when disconnected
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
-      // User has disconnected their wallet during the confirmation step
-      // Redirect back to trade input to ensure the wrong wallet isn't used
       handleBack()
     }
   }, [isConnected, prevIsConnected, handleBack])

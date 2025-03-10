@@ -8,6 +8,7 @@ import {
   Heading,
   HStack,
   Stack,
+  usePrevious,
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
@@ -15,7 +16,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { usePrevious } from '@chakra-ui/react'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
@@ -97,11 +97,8 @@ export const LimitOrderConfirm = () => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
 
-  // Monitor wallet connection state and redirect to input page when disconnected
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
-      // User has disconnected their wallet during the confirmation step
-      // Redirect back to trade input to ensure the wrong wallet isn't used
       handleBack()
     }
   }, [isConnected, prevIsConnected, handleBack])

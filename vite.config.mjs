@@ -166,8 +166,6 @@ export default defineConfig(({ mode }) => {
 
             return `assets/${prefix}-${chunkInfo.name}-[hash].js`
           },
-          hashCharacters: 'hex',
-          hashFunction: 'sha256',
           entryFileNames: 'assets/[name]-[hash].js',
         },
         onwarn(warning, warn) {

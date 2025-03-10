@@ -144,6 +144,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
     return (
       <TradeAssetInput
+        // Disable account selection when user set a manual receive address
         isAccountSelectionHidden={Boolean(manualReceiveAddress)}
         accountId={accountId}
         onAccountIdChange={onAccountIdChange}

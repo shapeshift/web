@@ -13,7 +13,7 @@ import {
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 

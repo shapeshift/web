@@ -1,6 +1,6 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'

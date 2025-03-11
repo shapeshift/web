@@ -3,7 +3,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { FC, PropsWithChildren } from 'react'
-import { memo } from 'react'
+import { useState, memo, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -48,6 +48,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+    const [useInverse, setUseInverse] = useState(false)
+    
+    // Compute the inverse rate for toggling between display formats:
+    const displayedRate = useMemo(() => {
+      const computedRate = rate ? parseFloat(rate) : 0
+      return computedRate !== 0 ? (1 / computedRate).toFixed(8) : '0'
+    }, [rate])
 
     switch (true) {
       case isLoading:
@@ -95,8 +102,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                       display='flex'
                       alignItems='center'
                       gap={2}
-                      _hover={!isDisabled ? rateHover : undefined}
-                      onClick={onClick}
+                      _hover={rateHover}
+                      onClick={() => {
+                        setUseInverse(!useInverse)
+                        onClick && onClick()
+                      }}
                     >
                       <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
                       <Stack
@@ -109,13 +119,27 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         borderColor='transparent'
                         alignItems='center'
                       >
-                        <Amount.Crypto
-                          fontSize='sm'
-                          value='1'
-                          symbol={sellAssetSymbol}
-                          suffix='='
-                        />
-                        <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                        {!useInverse ? (
+                          <>
+                            <Amount.Crypto
+                              fontSize='sm'
+                              value='1'
+                              symbol={sellAssetSymbol}
+                              suffix='='
+                            />
+                            <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                          </>
+                        ) : (
+                          <>
+                            <Amount.Crypto
+                              fontSize='sm'
+                              value='1'
+                              symbol={buyAssetSymbol}
+                              suffix='='
+                            />
+                            <Amount.Crypto fontSize='sm' value={displayedRate} symbol={sellAssetSymbol} />
+                          </>
+                        )}
                         {!isDisabled && <ArrowUpDownIcon />}
                       </Stack>
                     </Row.Value>

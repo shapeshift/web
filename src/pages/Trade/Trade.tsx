@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react'
-import { memo, useRef } from 'react'
+import { memo, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useLocation } from 'react-router-dom'
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -69,19 +69,19 @@ export const Trade = memo(() => {
     }
   }
 
-  // Check if we're on a limit route
-  const isLimitRoute = location.pathname.startsWith(LimitOrderRoutePaths.Input)
-
-  // Check if we're on a claim route
-  const isClaimRoute = location.pathname.startsWith(ClaimRoutePaths.Select)
+  const title = useMemo(() => {
+    if (location.pathname.startsWith(LimitOrderRoutePaths.Input)) {
+      return translate('navBar.limitOrder')
+    }
+    if (location.pathname.startsWith(ClaimRoutePaths.Select)) {
+      return translate('navBar.claim')
+    }
+    return translate('navBar.trade')
+  }, [location.pathname, translate])
 
   return (
     <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
-      <SEO
-        title={translate(
-          isLimitRoute ? 'navBar.limitOrder' : isClaimRoute ? 'navBar.claim' : 'navBar.trade',
-        )}
-      />
+      <SEO title={title} />
       <Flex
         pt={12}
         px={padding}
@@ -91,17 +91,21 @@ export const Trade = memo(() => {
         gap={4}
       >
         <FormProvider {...methods}>
-          {isLimitRoute ? (
-            <LimitOrder tradeInputRef={tradeInputRef} onChangeTab={handleChangeTab} />
-          ) : isClaimRoute ? (
-            <Claim onChangeTab={handleChangeTab} />
-          ) : (
-            <MultiHopTrade
-              isRewritingUrl
-              defaultBuyAssetId={defaultBuyAssetId}
-              defaultSellAssetId={defaultSellAssetId}
-            />
-          )}
+          <Switch location={location}>
+            <Route path={LimitOrderRoutePaths.Input}>
+              <LimitOrder tradeInputRef={tradeInputRef} onChangeTab={handleChangeTab} />
+            </Route>
+            <Route path={ClaimRoutePaths.Select}>
+              <Claim onChangeTab={handleChangeTab} />
+            </Route>
+            <Route path={TradeRoutePaths.Input}>
+              <MultiHopTrade
+                isRewritingUrl
+                defaultBuyAssetId={defaultBuyAssetId}
+                defaultSellAssetId={defaultSellAssetId}
+              />
+            </Route>
+          </Switch>
         </FormProvider>
       </Flex>
     </Main>

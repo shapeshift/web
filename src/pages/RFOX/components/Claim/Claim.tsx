@@ -123,6 +123,11 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
       <Switch location={location}>
         <Suspense fallback={suspenseFallback}>
           <Route
+            key={ClaimRoutePaths.Select}
+            path={ClaimRoutePaths.Select}
+            render={renderClaimSelect}
+          />
+          <Route
             key={ClaimRoutePaths.Confirm}
             path={ClaimRoutePaths.Confirm}
             render={renderClaimConfirm}
@@ -131,11 +136,6 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
             key={ClaimRoutePaths.Status}
             path={ClaimRoutePaths.Status}
             render={renderClaimStatus}
-          />
-          <Route
-            key={ClaimRoutePaths.Select}
-            path={ClaimRoutePaths.Select}
-            render={renderClaimSelect}
           />
         </Suspense>
       </Switch>

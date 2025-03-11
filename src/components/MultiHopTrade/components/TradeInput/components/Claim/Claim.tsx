@@ -53,9 +53,9 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
     <Switch location={location}>
       <Card flex={1} width='full' maxWidth='500px'>
         <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
-        <Route path={ClaimRoutePaths.Select} render={renderClaimSelect} />
         <Route path={ClaimRoutePaths.Confirm} render={renderClaimConfirm} />
         <Route path={ClaimRoutePaths.Status} render={renderClaimStatus} />
+        <Route path={ClaimRoutePaths.Select} render={renderClaimSelect} exact />
       </Card>
     </Switch>
   )

@@ -136,7 +136,6 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}
             render={renderClaimSelect}
-            exact
           />
         </Suspense>
       </Switch>

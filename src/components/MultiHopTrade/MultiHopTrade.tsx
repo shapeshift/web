@@ -121,7 +121,15 @@ export const MultiHopTrade = memo(
 
         history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
       }
-    }, [isInitialized, isRewritingUrl, buyAsset, sellAsset, history, sellInputAmountCryptoBaseUnit])
+    }, [
+      isInitialized,
+      isRewritingUrl,
+      buyAsset,
+      sellAsset,
+      history,
+      sellInputAmountCryptoBaseUnit,
+      sellAmountCryptoBaseUnit,
+    ])
 
     useEffect(() => {
       return () => {

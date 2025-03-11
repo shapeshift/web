@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
@@ -11,9 +11,7 @@ import { LimitOrderList } from './components/LimitOrderList'
 import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderRoutePaths } from './types'
 
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 type LimitOrderProps = {
@@ -22,39 +20,19 @@ type LimitOrderProps = {
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
+export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrderProps) => {
   const location = useLocation()
-  const history = useHistory()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
-
-  const handleTabChange = useCallback(
-    (tab: TradeInputTab) => {
-      switch (tab) {
-        case 'trade':
-          history.push(TradeRoutePaths.Input)
-          break
-        case 'claim':
-          history.push(ClaimRoutePaths.Select)
-          break
-        case 'limitOrder':
-          // Already on limit order, do nothing
-          break
-        default:
-          break
-      }
-    },
-    [history],
-  )
 
   const renderLimitOrderInput = useCallback(() => {
     return (
       <LimitOrderInput
         isCompact={isCompact}
         tradeInputRef={tradeInputRef}
-        onChangeTab={handleTabChange}
+        onChangeTab={onChangeTab}
       />
     )
-  }, [isCompact, tradeInputRef, handleTabChange])
+  }, [isCompact, tradeInputRef, onChangeTab])
 
   const renderLimitOrderConfirm = useCallback(() => {
     return <LimitOrderConfirm />

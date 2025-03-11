@@ -498,42 +498,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     )
   }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
 
-  const handleConfirm = useCallback(() => {
-    if (shouldShowWarningAcknowledgement) {
-      setShouldShowWarningAcknowledgement(false)
-      return
-    }
-
-    if (shouldShowStreamingAcknowledgement) {
-      setShouldShowStreamingAcknowledgement(false)
-      return
-    }
-
-    if (shouldShowArbitrumBridgeAcknowledgement) {
-      setShouldShowArbitrumBridgeAcknowledgement(false)
-      return
-    }
-
-    if (shouldShowThorchainSwapperVolatilityAcknowledgement) {
-      setShouldShowThorchainSwapperVolatilityAcknowledgement(false)
-      return
-    }
-
-    if (wallet && isLedger(wallet)) {
-      history.push({ pathname: TradeRoutePaths.VerifyAddresses })
-      return
-    }
-
-    history.push({ pathname: TradeRoutePaths.Confirm })
-  }, [
-    history,
-    shouldShowArbitrumBridgeAcknowledgement,
-    shouldShowStreamingAcknowledgement,
-    shouldShowThorchainSwapperVolatilityAcknowledgement,
-    shouldShowWarningAcknowledgement,
-    wallet,
-  ])
-
   // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
   // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or
   // ArbitrumBridgeAcknowledgement, but never both. While the current implementation works, its by

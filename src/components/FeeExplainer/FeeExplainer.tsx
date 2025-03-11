@@ -47,7 +47,7 @@ type FeeChartProps = {
   feeModel: ParameterModel
 }
 
-const xyChartMargin = { left: 30, right: 30, top: 0, bottom: 30 }
+const xyChartMargin = { left: 30, right: 30, top: 5, bottom: 30 }
 
 // how many points to generate for the chart, higher is more accurate but slower
 const CHART_GRANULARITY = 200

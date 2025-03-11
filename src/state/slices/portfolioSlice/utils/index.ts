@@ -91,7 +91,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       if (pubkey.startsWith('xpub')) return 'Legacy'
       if (pubkey.startsWith('ypub')) return 'Segwit'
       // TODO(gomes): This assumes bc prefix *is* a SegWit Native address, but this will consider both bc1p (P2WPKH) and bc1q (taproot) as SegWit Native
-      // which is wrong, but fine for now as we don't support Taproot.
+      // which is wrong, but fine for now as we don't support Taproot accounts (P2TR is supported however).
       if (pubkey.startsWith('zpub') || bech32.decode(pubkey).prefix === 'bc') return 'Segwit Native'
       return ''
     case bchChainId:

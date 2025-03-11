@@ -140,6 +140,8 @@
     "needAsset": "需要一些 %{asset} 吗？",
     "buyNow": "立即购买",
     "manage": "管理",
+    "view": "查看",
+    "viewOnly": "仅查看",
     "selectedAccount": "所选账户",
     "allChains": "所有的链",
     "wallet": "钱包",
@@ -512,9 +514,9 @@
     "clickHereToEarn": "单击此处通过收益挖矿 ETH-FOX 流动性池代币赚取 %{apr} APR*",
     "overview": "总览",
     "myPositions": "我的仓位",
-    
+    "myPositionsBody": "您当前在 DeFi 中的活跃仓位列表。",
     "myRewards": "我的奖励",
-    
+    "myRewardsBody": "您在 DeFi 中的活跃仓位及可领取奖励。",
     "viewAllPositions": "查看所有仓位",
     "liquidityPools": "流动资金池",
     "liquidityLockupWarning": "锁定期为 %{time}。在锁定期间，你无法动用你的流动性。",
@@ -528,8 +530,6 @@
     "poolValue": "矿池价值",
     "yearn": "Yearn Finance",
     "totalValue": "总价值",
-    "byAsset": "资产",
-    "byProvider": "提供者",
     "claimableRewards": "领取奖励",
     "stakingPosition": "质押仓位",
     "liquidityPool": "流动资金池",
@@ -590,6 +590,8 @@
     "assetStakingBalance": "%{assetSymbol} 质押余额"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "主页",
     "activity": "活动",
     "myWallet": "我的钱包",
@@ -624,7 +626,7 @@
     "lending": "贷款",
     "pools": "流动性池",
     "rFOX": "rFOX",
-    "foxBenefits": "FOX 优势",
+    "foxEcosystem": "FOX 生态系统",
     "markets": "市场",
     "actionMenu": {
       "send": {
@@ -2468,6 +2470,7 @@
     "repayNotice": "要拿回抵押品，你需要偿还 100% 的债务。",
     "feesNotice": "偿还 100% 债务后你将收到的抵押品费用",
     "refetchQuote": "重新获取报价",
+    "haltedAlert": "THORChain 上的 THORFi 服务（借贷、储蓄和 RUNEPool）目前已暂停。我们对造成的任何不便深表歉意。",
     "faq": {
       "title": "常见问题",
       "lending": {
@@ -2515,15 +2518,19 @@
     "simulateBody": "使用这个便捷的计算器来确定您的总费用以及您在 %{feature} 上将获得的折扣。只需调整下面的滑块，输入您的 FOX 持有数量和 %{featureLowerCase} 的法币价值，便可查看您的潜在节省！",
     "featureSize": "%{feature} 规模",
     "totalFee": "总费用",
-    "foxPowerDiscount": "FOX Power 折扣",
+    "discountLabel": "%{discountType} 折扣",
     "basedOnFee": "基于费用：%{fee}",
     "feeSummary": "费用概要",
-    "simulateFee": "模拟折扣",
+    "simulateFee": "模拟 FOX 折扣",
     "freeUnderThreshold": "%{threshold} 以下的 %{feature} 始终免费",
-    "breakdownHeader": "你的 FOX Power 折扣",
-    "breakdownBody": "以下是你的 %{featureLowerCase} 费用和所应用的相应 FOX Power 折扣的明细。了解在“模拟”选项卡上你还可以节省多少费用。",
+    "breakdownHeader": "您的折扣",
+    "breakdownBody": "以下是您的 %{featureLowerCase} 费用明细以及相应的折扣。前往模拟选项卡，了解您还能节省多少费用。",
     "featureFee": "%{feature} 费用",
-    "totalFeatureFee": "总费用%{feature}"
+    "totalFeatureFee": "总费用%{feature}",
+    "underThreshold": "低交易量",
+    "thorHolder": "THORSwap 持有者",
+    "foxHolder": "FOX 持有者",
+    "foxWifHatHolder": "FOX Wif Hat 持有者"
   },
   "chart": {
     "interval": {
@@ -2564,6 +2571,7 @@
     "unsupportedDemoWalletExplainer": "不支持演示钱包，请连接到钱包以使用此功能。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
+    "instabilityWarning": "目前，用户在向 THORChain 流动性池存款时可能会收到退款，请谨慎操作。",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
     "totalLiquidity": "总流动性",
@@ -2860,10 +2868,6 @@
       "noActiveProposals": "没有可用的活跃提案",
       "noClosedProposals": "没有可用的已关闭提案"
     }
-  },
-  "thorFees": {
-    "title": "来自 THORSwap 吗？",
-    "description": "THOR 持有者可免费交易至 2024 年。"
   },
   "chainAdapters": {
     "errors": {

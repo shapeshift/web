@@ -3,7 +3,7 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
@@ -48,8 +48,20 @@ export const MultiHopTrade = memo(
   ({ defaultBuyAssetId, defaultSellAssetId, isCompact, isRewritingUrl }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
-    const { assetSubId, chainId, sellAssetSubId, sellChainId, sellAmountCryptoBaseUnit } =
-      useParams<MatchParams>()
+    const location = useLocation()
+
+    // Extract params directly from location.pathname using matchPath instead of useParams()
+    // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
+    // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
+    // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
+    const match = matchPath<MatchParams>(location.pathname, {
+      path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+      exact: true,
+    })
+
+    const { chainId, assetSubId, sellChainId, sellAssetSubId, sellAmountCryptoBaseUnit } =
+      match?.params || {}
+
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const history = useHistory()
@@ -98,8 +110,15 @@ export const MultiHopTrade = memo(
       if (isRewritingUrl && isInitialized) {
         const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? ''
 
-        if (isRewritingUrl) {
-          history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit}`)
+        if (isRewritingUrl && buyAsset?.assetId && sellAsset?.assetId) {
+          // Split the asset IDs into chainId and assetSubId parts to match the route definition
+          const [buyChainId, buyAssetSubId] = buyAsset.assetId.split('/')
+          const [sellChainId, sellAssetSubId] = sellAsset.assetId.split('/')
+
+          // Generate the URL according to the route definition
+          history.push(
+            `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${sellAmountBaseUnit}`,
+          )
         }
       }
     }, [isInitialized, isRewritingUrl, buyAsset, sellAsset, history, sellInputAmountCryptoBaseUnit])

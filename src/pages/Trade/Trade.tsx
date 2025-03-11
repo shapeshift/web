@@ -2,17 +2,14 @@ import { Flex } from '@chakra-ui/react'
 import { memo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation, useParams } from 'react-router-dom'
+import { matchPath, useHistory, useLocation } from 'react-router-dom'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
-import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 
 const padding = { base: 0, md: 8 }
 
@@ -27,10 +24,20 @@ type MatchParams = {
 export const Trade = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
-  const params = useParams<MatchParams>()
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const methods = useForm({ mode: 'onChange' })
   const history = useHistory()
+
+  // Extract params directly from location.pathname using matchPath instead of useParams()
+  // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
+  // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
+  // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
+  const match = matchPath<MatchParams>(location.pathname, {
+    path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+    exact: true,
+  })
+
+  const params = match?.params || {}
 
   // Extract asset IDs from params if available
   const defaultBuyAssetId =

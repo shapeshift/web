@@ -84,7 +84,7 @@ export const Trade = memo(() => {
       return translate('navBar.limitOrder')
     }
     if (location.pathname.startsWith(ClaimRoutePaths.Select)) {
-      return translate('navBar.claim')
+      return translate('navBar.claims')
     }
     return translate('navBar.trade')
   }, [location.pathname, translate])

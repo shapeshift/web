@@ -2,8 +2,7 @@ import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useMemo } from 'react'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetChart } from './AssetHeader/AssetChart'
@@ -13,15 +12,12 @@ import { AssetMarketData } from './AssetHeader/AssetMarketData'
 import { Equity } from './Equity/Equity'
 import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
-import { LimitOrderRoutePaths } from './MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from './MultiHopTrade/components/TradeInput/components/Claim/types'
-import { TradeInputTab, TradeRoutePaths } from './MultiHopTrade/types'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import type { Route } from '@/Routes/helpers'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -38,7 +34,6 @@ const display = { base: 'none', md: 'block' }
 const contentPaddingY = { base: 0, md: 8 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
-  const history = useHistory()
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
@@ -50,25 +45,6 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
   const nativeSellAssetId = useMemo(() => {
     return getChainAdapterManager().get(fromAssetId(assetId).chainId)?.getFeeAssetId()
   }, [assetId])
-
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      switch (newTab) {
-        case TradeInputTab.Trade:
-          history.push(TradeRoutePaths.Input)
-          break
-        case TradeInputTab.LimitOrder:
-          history.push(LimitOrderRoutePaths.Input)
-          break
-        case TradeInputTab.Claim:
-          history.push(ClaimRoutePaths.Select)
-          break
-        default:
-          break
-      }
-    },
-    [history],
-  )
 
   return (
     <Main headerComponent={assetHeader} py={contentPaddingY} isSubPage>
@@ -84,11 +60,10 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
         </Stack>
         <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={maxWidth} gap={4}>
           <Flex display={display}>
-            <MultiHopTrade
+            <StandaloneTrade
               isCompact
               defaultBuyAssetId={assetId}
               defaultSellAssetId={nativeSellAssetId}
-              onChangeTab={handleChangeTab}
             />
           </Flex>
           {marketData && <AssetMarketData assetId={assetId} />}

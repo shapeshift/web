@@ -98,8 +98,8 @@ export const MultiHopTrade = memo(
       if (isRewritingUrl && isInitialized) {
         const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? ''
 
-        if (buyAsset?.assetId && sellAsset?.assetId) {
-          history.replace(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit}`)
+        if (isRewritingUrl) {
+          history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit}`)
         }
       }
     }, [isInitialized, isRewritingUrl, buyAsset, sellAsset, history, sellInputAmountCryptoBaseUnit])
@@ -129,20 +129,20 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
   const shouldUseTradeRates = useMemo(() => {
-    // We want to fetch rates when the user is on the trade input or asset selection routes
-    // This includes /trade and /trade/<buyAssetId>/<sellAssetId>/<amount> but does *not*
-    // include any other /trade route
+    // We want to fetch rates when the user is on the trade input or any asset-specific trade route
+    // but not on confirm, verify-addresses, etc.
     const pathname = location.pathname
 
-    const excludedRoutes = Object.values(TradeRoutePaths).filter(
-      route => route !== TradeRoutePaths.Input,
-    )
+    // Check if it's the base trade path or a path with asset IDs
+    const isTradeInputPath = pathname === TradeRoutePaths.Input
+    const isAssetSpecificPath =
+      pathname.startsWith(TradeRoutePaths.Input) &&
+      !pathname.includes(TradeRoutePaths.Confirm) &&
+      !pathname.includes(TradeRoutePaths.VerifyAddresses) &&
+      !pathname.includes(TradeRoutePaths.QuoteList) &&
+      !pathname.includes(TradeRoutePaths.Quotes)
 
-    // Check if the current path is exactly /trade or starts with /trade/ but is not an excluded route
-    return (
-      pathname === TradeRoutePaths.Input ||
-      (pathname.startsWith('/trade/') && !excludedRoutes.some(route => pathname === route))
-    )
+    return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
 
   const handleChangeTab = useCallback(

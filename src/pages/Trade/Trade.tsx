@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { memo, useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
@@ -35,39 +35,49 @@ export const Trade = memo(() => {
   // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
   // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
-  const match = matchPath<MatchParams>(location.pathname, {
-    path:
-      TradeRoutePaths.Input +
-      '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
-    exact: true,
-  })
+  const match = useMemo(
+    () =>
+      matchPath<MatchParams>(location.pathname, {
+        path: `${TradeRoutePaths.Input}/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit`,
+        exact: true,
+      }),
+    [location.pathname],
+  )
 
   const params = match?.params || {}
 
-  // Extract asset IDs from params if available
-  const defaultBuyAssetId =
-    params.chainId && params.assetSubId ? `${params.chainId}/${params.assetSubId}` : undefined
+  const defaultBuyAssetId = useMemo(
+    () =>
+      params.chainId && params.assetSubId ? `${params.chainId}/${params.assetSubId}` : undefined,
+    [params.chainId, params.assetSubId],
+  )
 
-  const defaultSellAssetId =
-    params.sellChainId && params.sellAssetSubId
-      ? `${params.sellChainId}/${params.sellAssetSubId}`
-      : undefined
+  const defaultSellAssetId = useMemo(
+    () =>
+      params.sellChainId && params.sellAssetSubId
+        ? `${params.sellChainId}/${params.sellAssetSubId}`
+        : undefined,
+    [params.sellChainId, params.sellAssetSubId],
+  )
 
-  const handleChangeTab = (newTab: TradeInputTab) => {
-    switch (newTab) {
-      case 'trade':
-        history.push(TradeRoutePaths.Input)
-        break
-      case 'limitOrder':
-        history.push(LimitOrderRoutePaths.Input)
-        break
-      case 'claim':
-        history.push(ClaimRoutePaths.Select)
-        break
-      default:
-        break
-    }
-  }
+  const handleChangeTab = useCallback(
+    (newTab: TradeInputTab) => {
+      switch (newTab) {
+        case 'trade':
+          history.push(TradeRoutePaths.Input)
+          break
+        case 'limitOrder':
+          history.push(LimitOrderRoutePaths.Input)
+          break
+        case 'claim':
+          history.push(ClaimRoutePaths.Select)
+          break
+        default:
+          break
+      }
+    },
+    [history],
+  )
 
   const title = useMemo(() => {
     if (location.pathname.startsWith(LimitOrderRoutePaths.Input)) {

@@ -129,10 +129,19 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
   const shouldUseTradeRates = useMemo(() => {
-    // We only want to fetch rates when the user is on the trade input or quote list route
-    // TODO(gomes): fixme
-    return [TradeRoutePaths.Input, '/trade/quote-list'].includes(
-      location.pathname as TradeRoutePaths,
+    // We want to fetch rates when the user is on the trade input or asset selection routes
+    // This includes /trade and /trade/<buyAssetId>/<sellAssetId>/<amount> but does *not*
+    // include any other /trade route
+    const pathname = location.pathname
+
+    const excludedRoutes = Object.values(TradeRoutePaths).filter(
+      route => route !== TradeRoutePaths.Input,
+    )
+
+    // Check if the current path is exactly /trade or starts with /trade/ but is not an excluded route
+    return (
+      pathname === TradeRoutePaths.Input ||
+      (pathname.startsWith('/trade/') && !excludedRoutes.some(route => pathname === route))
     )
   }, [location.pathname])
 

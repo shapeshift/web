@@ -12,7 +12,6 @@ import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderRoutePaths } from './types'
 
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 type LimitOrderProps = {
@@ -21,7 +20,7 @@ type LimitOrderProps = {
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrderProps) => {
+export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
   const location = useLocation()
   const history = useHistory()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')

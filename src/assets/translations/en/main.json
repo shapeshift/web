@@ -1870,7 +1870,10 @@
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?",
-        "success": "Wallet renamed successfully"
+        "success": "Wallet renamed successfully",
+        "error": {
+          "empty": "Wallet name cannot be empty"
+        }
       },
       "delete": {
         "header": "Delete your wallet",

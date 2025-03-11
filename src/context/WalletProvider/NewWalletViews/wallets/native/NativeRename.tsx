@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import type { NativeWalletValues } from '@/context/WalletProvider/NativeWallet/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -27,6 +28,7 @@ export const NativeRename = () => {
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
   const { state, dispatch } = useWallet()
+  const { setLocalNativeWalletName } = useLocalWallet()
   const [revocableWallet, setRevocableWallet] = useState(
     createRevocableWallet({
       id: state.walletInfo?.deviceId,
@@ -59,18 +61,16 @@ export const NativeRename = () => {
         const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const vault = await Vault.open(revocableWallet.id, values.password)
         if (values.name.length === 0) {
-          const result = window.confirm(translate('walletProvider.shapeShift.rename.confirmDelete'))
-          if (result) {
-            vault.meta.delete('name')
-            await vault.save()
-            dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-            dispatch({ type: WalletActions.SET_WALLET_LABEL, payload: '' })
-          }
+          return setError('name', {
+            type: 'manual',
+            message: translate('walletProvider.shapeShift.rename.error.empty'),
+          })
         } else {
           vault.meta.set('name', values.name)
           await vault.save()
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           dispatch({ type: WalletActions.SET_WALLET_LABEL, payload: values.name })
+          setLocalNativeWalletName(values.name)
         }
 
         toast({
@@ -87,7 +87,7 @@ export const NativeRename = () => {
         })
       }
     },
-    [dispatch, revocableWallet.id, setError, toast, translate],
+    [dispatch, revocableWallet.id, setError, toast, translate, setLocalNativeWalletName],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

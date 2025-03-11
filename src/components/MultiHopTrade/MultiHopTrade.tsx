@@ -1,19 +1,17 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
-import { LimitOrderRoutePaths } from './components/LimitOrder/types'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
-import { ClaimRoutePaths } from './components/TradeInput/components/Claim/types'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
-import { TradeInputTab, TradeRoutePaths } from './types'
+import type { TradeInputTab } from './types'
+import { TradeRoutePaths } from './types'
 
 import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -30,6 +28,7 @@ export type TradeCardProps = {
   defaultSellAssetId?: AssetId
   isCompact?: boolean
   isRewritingUrl?: boolean
+  onChangeTab: (newTab: TradeInputTab) => void
 }
 
 type MatchParams = {
@@ -47,7 +46,13 @@ const GetTradeRates = () => {
 }
 
 export const MultiHopTrade = memo(
-  ({ defaultBuyAssetId, defaultSellAssetId, isCompact, isRewritingUrl }: TradeCardProps) => {
+  ({
+    defaultBuyAssetId,
+    defaultSellAssetId,
+    isCompact,
+    isRewritingUrl,
+    onChangeTab,
+  }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
     const location = useLocation()
@@ -126,7 +131,7 @@ export const MultiHopTrade = memo(
 
     return (
       <FormProvider {...methods}>
-        <TradeRoutes isCompact={isCompact} />
+        <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} />
       </FormProvider>
     )
   },
@@ -134,10 +139,10 @@ export const MultiHopTrade = memo(
 
 type TradeRoutesProps = {
   isCompact?: boolean
+  onChangeTab: (newTab: TradeInputTab) => void
 }
 
-const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
-  const history = useHistory()
+const TradeRoutes = memo(({ isCompact, onChangeTab }: TradeRoutesProps) => {
   const location = useLocation()
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
@@ -159,25 +164,6 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
 
     return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
-
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      switch (newTab) {
-        case TradeInputTab.Trade:
-          history.push(TradeRoutePaths.Input)
-          break
-        case TradeInputTab.LimitOrder:
-          history.push(LimitOrderRoutePaths.Input)
-          break
-        case TradeInputTab.Claim:
-          history.push(ClaimRoutePaths.Select)
-          break
-        default:
-          assertUnreachable(newTab)
-      }
-    },
-    [history],
-  )
 
   return (
     <>
@@ -201,7 +187,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
             <TradeInput
               isCompact={isCompact}
               tradeInputRef={tradeInputRef}
-              onChangeTab={handleChangeTab}
+              onChangeTab={onChangeTab}
             />
           </Route>
         </Switch>

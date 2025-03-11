@@ -11,8 +11,7 @@ import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/Limi
 import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
-import type { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 
 const padding = { base: 0, md: 8 }
 
@@ -63,13 +62,13 @@ export const Trade = memo(() => {
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
       switch (newTab) {
-        case 'trade':
+        case TradeInputTab.Trade:
           history.push(TradeRoutePaths.Input)
           break
-        case 'limitOrder':
+        case TradeInputTab.LimitOrder:
           history.push(LimitOrderRoutePaths.Input)
           break
-        case 'claim':
+        case TradeInputTab.Claim:
           history.push(ClaimRoutePaths.Select)
           break
         default:
@@ -113,6 +112,7 @@ export const Trade = memo(() => {
                 isRewritingUrl
                 defaultBuyAssetId={defaultBuyAssetId}
                 defaultSellAssetId={defaultSellAssetId}
+                onChangeTab={handleChangeTab}
               />
             </Route>
           </Switch>

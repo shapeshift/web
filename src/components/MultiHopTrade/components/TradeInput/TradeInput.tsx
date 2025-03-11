@@ -268,7 +268,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
-      if (wallet && isLedger(wallet)) {
+      if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
         setIsConfirmationLoading(false)
         return

@@ -113,12 +113,14 @@ export const getQuote = async (
   const { sellAsset, sellAmountCryptoBaseUnit, affiliateBps } = input
 
   // don't apply an affiliate fee if it's below the outbound fee for the inbound pool
-  const thresholdedAffiliateBps = await getThresholdedAffiliateBps({
+  // @ts-ignore - temporary fix for THORChain affiliate fee bug
+  const _thresholdedAffiliateBps = await getThresholdedAffiliateBps({
     sellAsset,
     sellAmountCryptoBaseUnit,
     affiliateBps,
     config: deps.config,
   })
 
-  return _getQuote({ ...input, affiliateBps: thresholdedAffiliateBps }, deps)
+  // TODO: Change me back to thresholdedAffiliateBps once the THORChain affiliate fee bug is fixed
+  return _getQuote({ ...input, affiliateBps: '0' }, deps)
 }

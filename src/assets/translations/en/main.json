@@ -1864,7 +1864,7 @@
         "button": "Next"
       },
       "rename": {
-        "header": "Rename your wallet",
+        "header": "Rename my wallet",
         "walletName": "New nickname for your wallet",
         "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
         "mobileBody": "Enter the new nickname of your wallet.",
@@ -1876,7 +1876,7 @@
         }
       },
       "delete": {
-        "header": "Delete your wallet",
+        "header": "Delete my wallet",
         "body": "Enter your password to delete %{name}.",
         "confirmDelete": "Confirm",
         "success": "Wallet deleted successfully"

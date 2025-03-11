@@ -59,6 +59,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
@@ -324,7 +325,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",
-      "switchWallet": "Switch Wallet Provider",
+      "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
       "connecting": "Connecting..."
@@ -1869,6 +1870,9 @@
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+      },
+      "delete": {
+        "header": "Delete your wallet"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Log In is being Deprecated",

@@ -76,6 +76,8 @@ const ConnectedMenu = memo(
               {translate('connectWallet.menu.connecting')}
             </MenuItem>
           )}
+        </MenuGroup>
+        <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
           <MenuDivider />
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>

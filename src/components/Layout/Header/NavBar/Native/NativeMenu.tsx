@@ -5,7 +5,10 @@ import { useTranslate } from 'react-polyglot'
 
 import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const downloadIcon = <TbDownload />
 const editIcon = <TbEdit />
@@ -18,6 +21,7 @@ type NativeMenuProps = {
 export const NativeMenu: React.FC<NativeMenuProps> = ({ onClose }) => {
   const backupNativePassphrase = useModal('backupNativePassphrase')
   const translate = useTranslate()
+  const { dispatch } = useWallet()
 
   const handleBackupMenuItemClick = useCallback(() => {
     onClose && onClose()
@@ -25,12 +29,26 @@ export const NativeMenu: React.FC<NativeMenuProps> = ({ onClose }) => {
   }, [backupNativePassphrase, onClose])
 
   const handleRenameClick = useCallback(() => {
+    dispatch({
+      type: WalletActions.SET_INITIAL_ROUTE,
+      payload: NativeWalletRoutes.Rename,
+    })
+
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+
     onClose && onClose()
-  }, [onClose])
+  }, [dispatch, onClose])
 
   const handleDeleteClick = useCallback(() => {
+    dispatch({
+      type: WalletActions.SET_INITIAL_ROUTE,
+      payload: NativeWalletRoutes.Delete,
+    })
+
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+
     onClose && onClose()
-  }, [onClose])
+  }, [dispatch, onClose])
 
   return (
     <>

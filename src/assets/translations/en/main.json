@@ -1869,10 +1869,14 @@
         "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
-        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?",
+        "success": "Wallet renamed successfully"
       },
       "delete": {
-        "header": "Delete your wallet"
+        "header": "Delete your wallet",
+        "body": "Enter your password to delete %{name}.",
+        "confirmDelete": "Confirm",
+        "success": "Wallet deleted successfully"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Log In is being Deprecated",

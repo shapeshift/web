@@ -11,7 +11,9 @@ import { LimitOrderList } from './components/LimitOrderList'
 import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderRoutePaths } from './types'
 
+import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 type LimitOrderProps = {
@@ -29,10 +31,10 @@ export const LimitOrder = ({ isCompact, tradeInputRef }: LimitOrderProps) => {
     (tab: TradeInputTab) => {
       switch (tab) {
         case 'trade':
-          history.push('/trade')
+          history.push(TradeRoutePaths.Input)
           break
         case 'claim':
-          history.push('/claim')
+          history.push(ClaimRoutePaths.Select)
           break
         case 'limitOrder':
           // Already on limit order, do nothing

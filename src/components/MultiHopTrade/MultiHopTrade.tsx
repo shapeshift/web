@@ -5,9 +5,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
+import { LimitOrderRoutePaths } from './components/LimitOrder/types'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
+import { ClaimRoutePaths } from './components/TradeInput/components/Claim/types'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
@@ -55,7 +57,9 @@ export const MultiHopTrade = memo(
     // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
     // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
     const match = matchPath<MatchParams>(location.pathname, {
-      path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+      path:
+        TradeRoutePaths.Input +
+        '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
       exact: true,
     })
 
@@ -117,7 +121,7 @@ export const MultiHopTrade = memo(
 
           // Generate the URL according to the route definition
           history.push(
-            `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${sellAmountBaseUnit}`,
+            `${TradeRoutePaths.Input}/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${sellAmountBaseUnit}`,
           )
         }
       }
@@ -168,13 +172,13 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     (newTab: TradeInputTab) => {
       switch (newTab) {
         case TradeInputTab.Trade:
-          history.push('/trade')
+          history.push(TradeRoutePaths.Input)
           break
         case TradeInputTab.LimitOrder:
-          history.push('/limit')
+          history.push(LimitOrderRoutePaths.Input)
           break
         case TradeInputTab.Claim:
-          history.push('/claim')
+          history.push(ClaimRoutePaths.Select)
           break
         default:
           assertUnreachable(newTab)

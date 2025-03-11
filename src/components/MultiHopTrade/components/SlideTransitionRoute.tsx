@@ -35,9 +35,7 @@ export const SlideTransitionRoute = ({
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
 
   const handleBack = useCallback(() => {
-    // Extract the base route from the parent route
-    const baseRoute = parentRoute.split('/')[1]
-    history.push(`/${baseRoute}`)
+    history.push({ pathname: parentRoute })
   }, [history, parentRoute])
 
   const cardProps: CardProps = useMemo(

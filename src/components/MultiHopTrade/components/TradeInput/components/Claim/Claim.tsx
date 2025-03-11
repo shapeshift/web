@@ -10,8 +10,8 @@ import { ClaimStatus } from './ClaimStatus'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
-import { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
   const location = useLocation()
@@ -21,21 +21,24 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
 
-  const handleTabChange = useCallback((tab: TradeInputTab) => {
-    switch (tab) {
-      case 'trade':
-        history.push('/trade')
-        break
-      case 'limitOrder':
-        history.push('/limit')
-        break
-      case 'claim':
-        // Already on claim, do nothing
-        break
-      default:
-        break
-    }
-  }, [history])
+  const handleTabChange = useCallback(
+    (tab: TradeInputTab) => {
+      switch (tab) {
+        case 'trade':
+          history.push(TradeRoutePaths.Input)
+          break
+        case 'limitOrder':
+          history.push(LimitOrderRoutePaths.Input)
+          break
+        case 'claim':
+          // Already on claim, do nothing
+          break
+        default:
+          break
+      }
+    },
+    [history],
+  )
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect setActiveClaim={setActiveClaim} />
@@ -70,19 +73,10 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   return (
     <Switch location={location}>
       <Card flex={1} width='full' maxWidth='500px'>
-        <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={handleTabChange} />
-        <Route
-          path={ClaimRoutePaths.Select}
-          render={renderClaimSelect}
-        />
-        <Route
-          path={ClaimRoutePaths.Confirm}
-          render={renderClaimConfirm}
-        />
-        <Route
-          path={ClaimRoutePaths.Status}
-          render={renderClaimStatus}
-        />
+        <SharedTradeInputHeader initialTab={TradeInputTab.Claim} />
+        <Route path={ClaimRoutePaths.Select} render={renderClaimSelect} />
+        <Route path={ClaimRoutePaths.Confirm} render={renderClaimConfirm} />
+        <Route path={ClaimRoutePaths.Status} render={renderClaimStatus} />
       </Card>
     </Switch>
   )

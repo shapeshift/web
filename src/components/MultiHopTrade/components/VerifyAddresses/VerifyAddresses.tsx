@@ -135,7 +135,7 @@ export const VerifyAddresses = () => {
   }, [shouldVerifyBuyAddress])
 
   const handleContinue = useCallback(() => {
-    history.push({ pathname: '/trade/confirm' })
+    history.push({ pathname: TradeRoutePaths.Confirm })
   }, [history])
 
   const fetchAddresses = useCallback(async () => {

@@ -7,9 +7,12 @@ import { matchPath, useHistory, useLocation } from 'react-router-dom'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
+import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
+import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 
 const padding = { base: 0, md: 8 }
 
@@ -33,7 +36,9 @@ export const Trade = memo(() => {
   // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
   const match = matchPath<MatchParams>(location.pathname, {
-    path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+    path:
+      TradeRoutePaths.Input +
+      '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
     exact: true,
   })
 
@@ -51,13 +56,13 @@ export const Trade = memo(() => {
   const handleChangeTab = (newTab: TradeInputTab) => {
     switch (newTab) {
       case 'trade':
-        history.push('/trade')
+        history.push(TradeRoutePaths.Input)
         break
       case 'limitOrder':
-        history.push('/limit')
+        history.push(LimitOrderRoutePaths.Input)
         break
       case 'claim':
-        history.push('/claim')
+        history.push(ClaimRoutePaths.Select)
         break
       default:
         break
@@ -65,10 +70,10 @@ export const Trade = memo(() => {
   }
 
   // Check if we're on a limit route
-  const isLimitRoute = location.pathname.startsWith('/limit')
+  const isLimitRoute = location.pathname.startsWith(LimitOrderRoutePaths.Input)
 
   // Check if we're on a claim route
-  const isClaimRoute = location.pathname.startsWith('/claim')
+  const isClaimRoute = location.pathname.startsWith(ClaimRoutePaths.Select)
 
   return (
     <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>

@@ -7,9 +7,8 @@ import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/Thorch
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
-import type { Location } from 'history'
 import type { FormEvent } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -270,12 +269,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (wallet && isLedger(wallet)) {
-        history.push({ pathname: '/trade/verify-addresses' })
+        history.push({ pathname: TradeRoutePaths.VerifyAddresses })
         setIsConfirmationLoading(false)
         return
       }
 
-      history.push({ pathname: '/trade/confirm' })
+      history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
       showErrorToast(e)
     }
@@ -521,11 +520,11 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     }
 
     if (wallet && isLedger(wallet)) {
-      history.push({ pathname: '/trade/verify-addresses' })
+      history.push({ pathname: TradeRoutePaths.VerifyAddresses })
       return
     }
 
-    history.push({ pathname: '/trade/confirm' })
+    history.push({ pathname: TradeRoutePaths.Confirm })
   }, [
     history,
     shouldShowArbitrumBridgeAcknowledgement,

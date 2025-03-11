@@ -17,7 +17,6 @@ import { useHistory } from 'react-router-dom'
 
 import { IconCircle } from '@/components/IconCircle'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ClaimRoutePaths } from '@/pages/RFOX/components/Claim/types'
 

@@ -54,7 +54,7 @@ export const TradeConfirm = () => {
       dispatch(tradeQuoteSlice.actions.clear())
     }
 
-    history.push('/trade')
+    history.push(TradeRoutePaths.Input)
   }, [dispatch, history, isTradeComplete])
 
   useEffect(() => {

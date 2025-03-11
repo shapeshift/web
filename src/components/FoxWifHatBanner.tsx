@@ -4,11 +4,15 @@ import { useTranslate } from 'react-polyglot'
 import { RawText } from './Text'
 
 import FoxWifHatIcon from '@/assets/foxwifhat-logo-no-bg.png'
+import { FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS } from '@/lib/fees/constant'
 
 const display = { base: 'none', md: 'flex' }
 
 export const FoxWifHatBanner = () => {
   const translate = useTranslate()
+
+  // Hide the banner after the campaign ends
+  if (Date.now() > FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS) return null
 
   return (
     <Card overflow='hidden' position='relative' mb={4} display={display}>

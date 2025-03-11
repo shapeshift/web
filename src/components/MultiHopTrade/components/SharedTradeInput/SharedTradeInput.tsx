@@ -5,7 +5,7 @@ import type { FormEvent } from 'react'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 
-import { FoxWifHatBanner } from '@/components/FOXWifHatBanner'
+import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { breakpoints } from '@/theme/theme'
 

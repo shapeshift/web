@@ -177,13 +177,13 @@ const TradeRoutes = memo(({ isCompact, onChangeTab }: TradeRoutesProps) => {
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
-          <Route path={TradeRoutePaths.Confirm}>
+          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
             <TradeConfirm />
           </Route>
-          <Route path={TradeRoutePaths.VerifyAddresses}>
+          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
             <VerifyAddresses />
           </Route>
-          <Route path={TradeRoutePaths.QuoteList}>
+          <Route key={TradeRoutePaths.QuoteList} path={TradeRoutePaths.QuoteList}>
             <SlideTransitionRoute
               height={tradeInputRef.current?.offsetHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
@@ -191,7 +191,7 @@ const TradeRoutes = memo(({ isCompact, onChangeTab }: TradeRoutesProps) => {
               parentRoute={TradeRoutePaths.Input}
             />
           </Route>
-          <Route path={TradeRoutePaths.Input}>
+          <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
             <TradeInput
               isCompact={isCompact}
               tradeInputRef={tradeInputRef}

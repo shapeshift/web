@@ -101,13 +101,13 @@ export const Trade = memo(() => {
       >
         <FormProvider {...methods}>
           <Switch location={location}>
-            <Route path={LimitOrderRoutePaths.Input}>
+            <Route key={LimitOrderRoutePaths.Input} path={LimitOrderRoutePaths.Input}>
               <LimitOrder tradeInputRef={tradeInputRef} onChangeTab={handleChangeTab} />
             </Route>
-            <Route path={ClaimRoutePaths.Select}>
+            <Route key={ClaimRoutePaths.Select} path={ClaimRoutePaths.Select}>
               <Claim onChangeTab={handleChangeTab} />
             </Route>
-            <Route path={TradeRoutePaths.Input}>
+            <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
               <MultiHopTrade
                 isRewritingUrl
                 defaultBuyAssetId={defaultBuyAssetId}

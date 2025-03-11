@@ -54,12 +54,21 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
     <Switch location={location}>
       <Flex flex={1} width='full' justifyContent='center'>
         <Route
+          key={LimitOrderRoutePaths.Confirm}
           path={LimitOrderRoutePaths.Confirm}
           render={isNewLimitFlowEnabled ? renderLimitOrderShared : renderLimitOrderConfirm}
         />
-        <Route path={LimitOrderRoutePaths.AllowanceApproval} render={renderAllowanceApproval} />
-        <Route path={LimitOrderRoutePaths.PlaceOrder} render={renderPlaceOrder} />
-        <Route path={LimitOrderRoutePaths.Orders}>
+        <Route
+          key={LimitOrderRoutePaths.AllowanceApproval}
+          path={LimitOrderRoutePaths.AllowanceApproval}
+          render={renderAllowanceApproval}
+        />
+        <Route
+          key={LimitOrderRoutePaths.PlaceOrder}
+          path={LimitOrderRoutePaths.PlaceOrder}
+          render={renderPlaceOrder}
+        />
+        <Route key={LimitOrderRoutePaths.Orders} path={LimitOrderRoutePaths.Orders}>
           <SlideTransitionRoute
             height={tradeInputRef.current?.offsetHeight ?? '500px'}
             width={tradeInputRef.current?.offsetWidth ?? 'full'}
@@ -67,7 +76,12 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
             parentRoute={LimitOrderRoutePaths.Input}
           />
         </Route>
-        <Route path={LimitOrderRoutePaths.Input} exact render={renderLimitOrderInput} />
+        <Route
+          key={LimitOrderRoutePaths.Input}
+          path={LimitOrderRoutePaths.Input}
+          exact
+          render={renderLimitOrderInput}
+        />
       </Flex>
     </Switch>
   )

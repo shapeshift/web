@@ -3,7 +3,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { FC, PropsWithChildren } from 'react'
-import { useState, memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -49,7 +49,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
     const [useInverse, setUseInverse] = useState(false)
-    
+
     // Compute the inverse rate for toggling between display formats:
     const displayedRate = useMemo(() => {
       const computedRate = rate ? parseFloat(rate) : 0
@@ -137,7 +137,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                               symbol={buyAssetSymbol}
                               suffix='='
                             />
-                            <Amount.Crypto fontSize='sm' value={displayedRate} symbol={sellAssetSymbol} />
+                            <Amount.Crypto
+                              fontSize='sm'
+                              value={displayedRate}
+                              symbol={sellAssetSymbol}
+                            />
                           </>
                         )}
                         {!isDisabled && <ArrowUpDownIcon />}

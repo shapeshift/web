@@ -145,6 +145,11 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     routes: [
       {
+        path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+        main: Trade,
+        hide: true,
+      },
+      {
         path: '/trade/confirm',
         main: Trade,
         hide: true,
@@ -156,11 +161,6 @@ export const routes: Route[] = [
       },
       {
         path: '/trade/quote-list',
-        main: Trade,
-        hide: true,
-      },
-      {
-        path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
         main: Trade,
         hide: true,
       },

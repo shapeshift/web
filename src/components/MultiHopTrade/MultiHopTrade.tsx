@@ -111,19 +111,10 @@ export const MultiHopTrade = memo(
     }, [dispatch, routeBuyAsset, routeSellAsset, sellAmountCryptoBaseUnit, isInitialized])
 
     useEffect(() => {
-      if (isRewritingUrl && isInitialized) {
-        const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? ''
+      if (isRewritingUrl) {
+        const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? sellAmountCryptoBaseUnit ?? ''
 
-        if (isRewritingUrl && buyAsset?.assetId && sellAsset?.assetId) {
-          // Split the asset IDs into chainId and assetSubId parts to match the route definition
-          const [buyChainId, buyAssetSubId] = buyAsset.assetId.split('/')
-          const [sellChainId, sellAssetSubId] = sellAsset.assetId.split('/')
-
-          // Generate the URL according to the route definition
-          history.push(
-            `${TradeRoutePaths.Input}/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${sellAmountBaseUnit}`,
-          )
-        }
+        history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
       }
     }, [isInitialized, isRewritingUrl, buyAsset, sellAsset, history, sellInputAmountCryptoBaseUnit])
 
@@ -156,8 +147,9 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     // but not on confirm, verify-addresses, etc.
     const pathname = location.pathname
 
-    // Check if it's the base trade path or a path with asset IDs
     const isTradeInputPath = pathname === TradeRoutePaths.Input
+    // Poor man's matchPath to check if the path is an asset-specific trade route i.e if it starts with /trade
+    // but is none of /trade subroutes
     const isAssetSpecificPath =
       pathname.startsWith(TradeRoutePaths.Input) &&
       !pathname.includes(TradeRoutePaths.Confirm) &&

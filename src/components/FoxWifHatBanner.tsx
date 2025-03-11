@@ -5,11 +5,13 @@ import { RawText } from './Text'
 
 import FoxWifHatIcon from '@/assets/foxwifhat-logo-no-bg.png'
 
+const display = { base: 'none', md: 'flex' }
+
 export const FoxWifHatBanner = () => {
   const translate = useTranslate()
 
   return (
-    <Card overflow='hidden' position='relative' mb={4}>
+    <Card overflow='hidden' position='relative' mb={4} display={display}>
       <CardBody
         display='flex'
         alignItems='center'

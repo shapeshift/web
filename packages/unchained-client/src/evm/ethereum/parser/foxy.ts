@@ -10,14 +10,33 @@ export interface TxMetadata extends BaseTxMetadata {
   parser: 'foxy'
 }
 
+interface SupportedFunctions {
+  stakeSigHash: string
+  unstakeSigHash: string
+  instantUnstakeSigHash: string
+  claimWithdrawSigHash: string
+}
+
 export class Parser implements SubParser<Tx> {
   readonly abiInterface = new ethers.Interface(FOXY_STAKING_ABI)
+  private readonly supportedFunctions: SupportedFunctions
 
-  readonly supportedFunctions = {
-    stakeSigHash: this.abiInterface.getFunction('stake(uint256,address)')!.selector,
-    unstakeSigHash: this.abiInterface.getFunction('unstake')!.selector,
-    instantUnstakeSigHash: this.abiInterface.getFunction('instantUnstake')!.selector,
-    claimWithdrawSigHash: this.abiInterface.getFunction('claimWithdraw')!.selector,
+  constructor() {
+    const stakeSigHash = this.abiInterface.getFunction('stake(uint256,address)')?.selector
+    const unstakeSigHash = this.abiInterface.getFunction('unstake')?.selector
+    const instantUnstakeSigHash = this.abiInterface.getFunction('instantUnstake')?.selector
+    const claimWithdrawSigHash = this.abiInterface.getFunction('claimWithdraw')?.selector
+
+    if (!(stakeSigHash && unstakeSigHash && instantUnstakeSigHash && claimWithdrawSigHash)) {
+      throw new Error('Failed to get function selectors')
+    }
+
+    this.supportedFunctions = {
+      stakeSigHash,
+      unstakeSigHash,
+      instantUnstakeSigHash,
+      claimWithdrawSigHash,
+    }
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

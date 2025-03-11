@@ -246,6 +246,8 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
+    selectedBuyAssetChainId: 'All',
+    selectedSellAssetChainId: 'All',
   },
   limitOrderInput: {
     buyAsset: defaultAsset,
@@ -265,6 +267,8 @@ export const mockStore: ReduxState = {
     limitPriceMode: LimitPriceMode.Market,
     expiry: ExpiryOption.SevenDays,
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
+    selectedBuyAssetChainId: 'All',
+    selectedSellAssetChainId: 'All',
   },
   tradeQuoteSlice: {
     activeQuoteMeta: undefined,

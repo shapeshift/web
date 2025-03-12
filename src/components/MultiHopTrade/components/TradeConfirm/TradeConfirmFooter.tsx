@@ -281,7 +281,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         return null
     }
   }, [
-    isCompact,
     currentTradeStep,
     tradeResetStepSummary,
     tradeAllowanceStepSummary,

@@ -79,13 +79,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const feeMessage = useMemo(() => {
       if (!affiliateBps || bnOrZero(affiliateBps).isZero())
         return translate('trade.freeTrade', {
-          foxBalance: bnOrZero(foxBalanceCryptoPrecision).toFixed(2),
+          foxBalance: bnOrZero(foxBalanceCryptoPrecision).toFixed(0),
         })
 
       const feePercentage = bnOrZero(affiliateBps).div(100).toString()
       return translate('trade.feeExplainer', {
         feePercentage,
-        foxBalance: bnOrZero(foxBalanceCryptoPrecision).toFixed(2),
+        foxBalance: bnOrZero(foxBalanceCryptoPrecision).toFixed(0),
       })
     }, [affiliateBps, foxBalanceCryptoPrecision, translate])
 

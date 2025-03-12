@@ -111,9 +111,9 @@ export const LimitOrderConfig = ({
     ).precision(true)
 
     return cryptoAmountIntegerCount <= 8
-      ? limitPriceForSelectedPriceDirection
+      ? bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
       : bnOrZero(limitPriceForSelectedPriceDirection).toFixed(3)
-  }, [limitPriceForSelectedPriceDirection])
+  }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
   const handleSetPresetLimit = useCallback(
     (limitPriceMode: LimitPriceMode) => {
@@ -149,14 +149,20 @@ export const LimitOrderConfig = ({
 
       let cryptoValue = value
       if (isInputtingFiatSellAmount || isFiatValue) {
-        cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toString()
+        cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toFixed(priceAsset.precision)
       }
 
       priceAmountRef.current = cryptoValue
       setLimitPriceMode(LimitPriceMode.CustomValue)
       setLimitPrice({ marketPriceBuyAsset: cryptoValue })
     },
-    [isInputtingFiatSellAmount, priceAssetMarketData.price, setLimitPrice, setLimitPriceMode],
+    [
+      isInputtingFiatSellAmount,
+      priceAssetMarketData.price,
+      priceAsset.precision,
+      setLimitPrice,
+      setLimitPriceMode,
+    ],
   )
 
   const handleValueChange = useCallback((values: NumberFormatValues) => {
@@ -178,6 +184,7 @@ export const LimitOrderConfig = ({
 
   const isMarketButtonDisabled = useMemo(() => {
     if (isLoading) return true
+    if (bnOrZero(marketPriceBuyAsset).isZero()) return true
 
     const marketPriceMinusOnePercent = bnOrZero(marketPriceBuyAsset).times(0.999)
     const marketPricePlusOnePercent = bnOrZero(marketPriceBuyAsset).times(1.001)
@@ -342,9 +349,15 @@ export const LimitOrderConfig = ({
     if (bnOrZero(marketPriceBuyAsset).isZero()) return '0'
 
     return priceDirection === PriceDirection.BuyAssetDenomination
-      ? marketPriceBuyAsset
-      : bnOrZero(1).div(marketPriceBuyAsset).toString()
+      ? bnOrZero(marketPriceBuyAsset).toFixed(6)
+      : bnOrZero(1).div(marketPriceBuyAsset).toFixed(6)
   }, [marketPriceBuyAsset, priceDirection])
+
+  const marketPriceText = useMemo(() => {
+    if (bnOrZero(marketPriceCryptoPrecision).isZero()) return 'N/A'
+
+    return `${marketPriceCryptoPrecision} ${priceAsset.symbol}`
+  }, [marketPriceCryptoPrecision, priceAsset.symbol])
 
   return (
     <Stack spacing={4} px={6} py={4}>
@@ -366,20 +379,22 @@ export const LimitOrderConfig = ({
         </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
           <Text translation='limitOrder.market' mr={2} />
-          <Button
-            variant='unstyled'
-            onClick={handleSetMarketLimit}
-            isDisabled={isMarketButtonDisabled}
-            fontWeight='medium'
-            fontSize='sm'
-            position='relative'
-            _after={linkAfter}
-            _hover={linkHover}
-            opacity={isMarketButtonDisabled ? 0.5 : 1}
-            cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
-          >
-            {bnOrZero(marketPriceCryptoPrecision).toFixed(6)} {priceAsset.symbol}
-          </Button>
+          <Skeleton isLoaded={!isLoading}>
+            <Button
+              variant='unstyled'
+              onClick={handleSetMarketLimit}
+              isDisabled={isMarketButtonDisabled}
+              fontWeight='medium'
+              fontSize='sm'
+              position='relative'
+              _after={linkAfter}
+              _hover={linkHover}
+              opacity={isMarketButtonDisabled ? 0.5 : 1}
+              cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
+            >
+              {marketPriceText}
+            </Button>
+          </Skeleton>
         </Flex>
       </Flex>
       <HStack width='full' justify='space-between' alignItems='flex-start'>

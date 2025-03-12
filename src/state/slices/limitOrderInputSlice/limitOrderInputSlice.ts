@@ -69,7 +69,7 @@ export const limitOrderInput = createTradeInputBaseSlice({
           [state.limitPriceDirection]: marketPriceBuyAsset,
           [oppositePriceDirection]: bnOrZero(marketPriceBuyAsset).isZero()
             ? '0'
-            : bn(1).div(marketPriceBuyAsset).toFixed(),
+            : bn(1).div(marketPriceBuyAsset).toFixed(state.sellAsset.precision),
         } as Record<PriceDirection, string>
 
         return
@@ -88,7 +88,9 @@ export const limitOrderInput = createTradeInputBaseSlice({
 
       state.limitPrice = {
         [PriceDirection.BuyAssetDenomination]: adjustedLimitPriceBuyAsset,
-        [PriceDirection.SellAssetDenomination]: bn(1).div(adjustedLimitPriceBuyAsset).toFixed(),
+        [PriceDirection.SellAssetDenomination]: bn(1)
+          .div(adjustedLimitPriceBuyAsset)
+          .toFixed(state.sellAsset.precision),
       }
     },
     setLimitPriceMode: (state: LimitOrderInputState, action: PayloadAction<LimitPriceMode>) => {

@@ -75,6 +75,8 @@ export const LimitOrderFooter = () => {
 
   const handleChangeExpiryOption = useCallback(
     (newExpiry: string | string[]) => {
+      if (typeof newExpiry !== 'string') throw new Error('Invalid expiry option')
+
       setExpiry(newExpiry as ExpiryOption)
     },
     [setExpiry],

@@ -72,8 +72,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
     const handleAmountChange = useCallback(
       (value: string) => {
-        // Always process the input change, even if value is 0
-        if (sellAmountCryptoPrecision && Number(sellAmountCryptoPrecision) > 0) {
+        if (bnOrZero(sellAmountCryptoPrecision).gt(0)) {
           // Convert value to crypto amount if it's in fiat
           const cryptoValue = isInputtingFiatSellAmount
             ? bnOrZero(value).div(marketData.price).toString()

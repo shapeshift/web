@@ -171,11 +171,11 @@ const sortApiQuotes = (
           const totalExecutionTime = quote.quote.steps.reduce((total: number, step) => {
             // If estimatedExecutionTimeMs is undefined, don't add anything
             if (step?.estimatedExecutionTimeMs === undefined) return total
-            
+
             // Add the execution time to the total
             return total + step.estimatedExecutionTimeMs
           }, 0)
-          
+
           // If no steps had execution time data, return MAX_SORT_VALUE to place at the end
           return totalExecutionTime > 0 ? totalExecutionTime : MAX_SORT_VALUE
         },
@@ -217,7 +217,6 @@ export const sortTradeQuotes = (
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>>,
   sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
 ): ApiQuote[] => {
-  console.log('sortTradeQuotes called with sortOption:', sortOption)
   const allQuotes = Object.values(tradeQuotes)
     .filter(isSome)
     .map(swapperQuotes => Object.values(swapperQuotes))

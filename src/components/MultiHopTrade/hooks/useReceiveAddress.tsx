@@ -104,6 +104,6 @@ export const useReceiveAddress = ({
 
   return {
     walletReceiveAddress: walletReceiveAddress ?? undefined,
-    isLoading: isInitializing || isLoading,
+    isLoading,
   }
 }

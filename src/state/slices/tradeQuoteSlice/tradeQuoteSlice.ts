@@ -1,11 +1,16 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { orderBy, uniqBy } from 'lodash'
+import { uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type { HopProgress, StreamingSwapMetadata, TradeExecutionMetadata } from './types'
+import type {
+  HopProgress,
+  QuoteSortOption,
+  StreamingSwapMetadata,
+  TradeExecutionMetadata,
+} from './types'
 import {
   AllowanceKey,
   HopExecutionState,
@@ -413,6 +418,7 @@ export const tradeQuoteSlice = createSlice({
       }>,
     ) => {
       const { isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes } = action.payload
+      const sortOption = state.sortOption
 
       // Mark stale quotes as stale.
       // Assign the original array index so we can keep loading quotes roughly in their original spot
@@ -429,20 +435,20 @@ export const tradeQuoteSlice = createSlice({
           )
         })
 
-      const sortedQuotesWithOriginalIndex = sortedQuotes.map((quoteData, originalIndex) => {
-        return Object.assign({}, quoteData, { isStale: false, originalIndex })
+      // Don't use the original index from sortedQuotes, as they might be sorted with a different option
+      const sortedQuotesWithoutOriginalIndex = sortedQuotes.map(quoteData => {
+        return Object.assign({}, quoteData, { isStale: false })
       })
 
-      const allQuotes = uniqBy(sortedQuotesWithOriginalIndex.concat(staleQuotes), 'id')
+      const allQuotes = uniqBy(sortedQuotesWithoutOriginalIndex.concat(staleQuotes), 'id')
 
+      // Use the sortOption from the state to determine how to sort the quotes
       const sortQuotes = (
-        unorderedQuotes: ({ originalIndex: number } & ApiQuote)[],
+        unorderedQuotes: (ApiQuote & { isStale?: boolean; originalIndex?: number })[],
       ): ApiQuote[] => {
-        return orderBy(
-          unorderedQuotes,
-          ['originalIndex', 'inputOutputRatio', 'swapperName'],
-          ['asc', 'desc', 'asc'],
-        )
+        // The quotes are already sorted by the sortTradeQuotes function in helpers.ts
+        // We should preserve that sorting and not re-sort here
+        return unorderedQuotes
       }
 
       const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
@@ -468,6 +474,9 @@ export const tradeQuoteSlice = createSlice({
         progress,
         status,
       }
+    },
+    setSortOption: (state, action: PayloadAction<QuoteSortOption>) => {
+      state.sortOption = action.payload
     },
   },
 })

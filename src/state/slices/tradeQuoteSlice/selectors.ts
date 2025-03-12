@@ -23,7 +23,7 @@ import {
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../preferencesSlice/selectors'
 import { SWAPPER_USER_ERRORS } from './constants'
-import type { ActiveQuoteMeta } from './types'
+import type { ActiveQuoteMeta, QuoteSortOption } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -187,10 +187,14 @@ export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
   },
 )
 
+export const selectQuoteSortOption = (state: ReduxState): QuoteSortOption =>
+  state.tradeQuoteSlice.sortOption
+
 export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
-  selectTradeQuotes,
-  tradeQuotes => {
-    return sortTradeQuotes(tradeQuotes)
+  [selectTradeQuotes, selectQuoteSortOption],
+  (tradeQuotes, sortOption) => {
+    const result = sortTradeQuotes(tradeQuotes, sortOption)
+    return result
   },
 )
 
@@ -599,6 +603,10 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
 export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
   tradeQuoteSlice => {
+    console.log(
+      'selectTradeQuoteDisplayCache called with tradeQuoteSlice.tradeQuoteDisplayCache:',
+      tradeQuoteSlice.tradeQuoteDisplayCache,
+    )
     return tradeQuoteSlice.tradeQuoteDisplayCache
   },
 )

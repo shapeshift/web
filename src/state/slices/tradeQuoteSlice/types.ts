@@ -14,6 +14,7 @@ export type TradeQuoteSliceState = {
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
   tradeQuoteDisplayCache: ApiQuote[]
   isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
+  sortOption: QuoteSortOption // the selected quote sorting option
 }
 
 export enum TransactionExecutionState {
@@ -30,6 +31,13 @@ export enum HopExecutionState {
   AwaitingPermit2Eip712Sign = 'AwaitingPermit2Eip712Sign',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
+}
+
+export enum QuoteSortOption {
+  AUTO = 'AUTO',         // Default sorting (current implementation)
+  BEST_RATE = 'BEST_RATE',
+  LOWEST_GAS = 'LOWEST_GAS',
+  FASTEST = 'FASTEST'
 }
 
 export enum TradeExecutionState {

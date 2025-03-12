@@ -22,6 +22,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 
+import { QuoteSortSelector } from './QuoteSortSelector'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
@@ -205,6 +206,10 @@ export const SharedSlippagePopover: FC<SharedSlippagePopoverProps> = memo(
                 </AlertDescription>
               </Alert>
             )}
+            
+            <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4}>
+              <QuoteSortSelector isDisabled={isDisabled} />
+            </Box>
           </PopoverBody>
         </PopoverContent>
       </Popover>

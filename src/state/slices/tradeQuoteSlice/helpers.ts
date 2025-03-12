@@ -20,7 +20,7 @@ import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 
-// Maximum value for sorting - used to place items at the end of sorted lists
+// Placeholder for the sort iteratee for those bad bois to go last
 const MAX_SORT_VALUE = Number.MAX_SAFE_INTEGER
 
 export const getHopTotalNetworkFeeUserCurrency = (
@@ -139,60 +139,97 @@ const sortApiQuotes = (
 
   switch (sortOption) {
     case QuoteSortOption.LOWEST_GAS:
-      // For LOWEST_GAS, create a custom iteratee that calculates the total network fee
-      // and handles undefined values by placing them at the end
       iteratees = [
+        // First sort by whether the quote has valid gas data
         (quote: ApiQuote) => {
-          // If quote or steps are undefined, return MAX_SORT_VALUE to place at the end
-          if (!quote.quote?.steps) return MAX_SORT_VALUE
+          // Assume latest if no steps are present
+          if (!quote.quote?.steps) return true // Will be sorted after quotes with steps
 
-          const totalNetworkFee = quote.quote.steps.reduce((total: bigint, step) => {
-            if (!step?.feeData?.networkFeeCryptoBaseUnit) return total
+          // Unknown gas - assume latest
+          if (quote.quote.steps.every(step => !step?.feeData?.networkFeeCryptoBaseUnit))
+            return true // Will be sorted after quotes with known gas fees
 
-            return total + BigInt(step.feeData.networkFeeCryptoBaseUnit)
-          }, BigInt(0))
-
-          // Parse as number for consistent sorting (safe for reasonable fee values)
-          // If the value is too large for a number, it will be Infinity which is fine for sorting
-          return Number(totalNetworkFee)
+          return false // Valid gas data comes first
         },
+        // Then sort by the actual fee amount
+        (quote: ApiQuote) => {
+          if (!quote.quote?.steps) return bn(MAX_SORT_VALUE)
+
+          const totalNetworkFee = quote.quote.steps.reduce((total, step) => {
+            if (!step?.feeData?.networkFeeCryptoBaseUnit) return total
+            return total.plus(bnOrZero(step.feeData.networkFeeCryptoBaseUnit))
+          }, bn(0))
+
+          return totalNetworkFee
+        }
       ]
-      sortOrders = ['asc'] // Ascending order for lowest gas
+      sortOrders = ['asc', 'asc'] // Ascending order for lowest gas
       break
 
     case QuoteSortOption.FASTEST:
-      // Sort by estimated execution time, with undefined values at the end
       iteratees = [
+        // Custom function that returns a comparable value for sorting
         (quote: ApiQuote) => {
-          // If quote or steps are undefined, return MAX_SORT_VALUE to place at the end
-          if (!quote.quote?.steps) return MAX_SORT_VALUE
+          // If quote or steps are undefined, sort after quotes with steps
+          if (!quote.quote?.steps) return true
 
           // Calculate the total execution time across all steps
-          const totalExecutionTime = quote.quote.steps.reduce((total: number, step) => {
-            // If estimatedExecutionTimeMs is undefined, don't add anything
+          const totalExecutionTime = quote.quote.steps.reduce((total, step) => {
             if (step?.estimatedExecutionTimeMs === undefined) return total
+            return total.plus(bnOrZero(step.estimatedExecutionTimeMs))
+          }, bn(0))
 
-            // Add the execution time to the total
-            return total + step.estimatedExecutionTimeMs
-          }, 0)
-
-          // If no steps had execution time data, return MAX_SORT_VALUE to place at the end
-          return totalExecutionTime > 0 ? totalExecutionTime : MAX_SORT_VALUE
+          // If no steps had execution time data, sort after quotes with time data
+          return totalExecutionTime.eq(0)
         },
+        // Secondary sort by the actual execution time
+        (quote: ApiQuote) => {
+          if (!quote.quote?.steps) return bn(MAX_SORT_VALUE)
+
+          const totalExecutionTime = quote.quote.steps.reduce((total, step) => {
+            if (step?.estimatedExecutionTimeMs === undefined) return total
+            return total.plus(bnOrZero(step.estimatedExecutionTimeMs))
+          }, bn(0))
+
+          return totalExecutionTime
+        }
       ]
-      sortOrders = ['asc'] // Ascending order for fastest
+      sortOrders = ['asc', 'asc'] // Ascending order for fastest
       break
 
     case QuoteSortOption.BEST_RATE:
     default:
-      // Use the original sorting logic with custom iteratees to handle undefined values
       iteratees = [
-        (quote: ApiQuote) =>
-          quote.inputOutputRatio !== undefined ? quote.inputOutputRatio : -MAX_SORT_VALUE,
-        (quote: ApiQuote) => (quote.quote?.rate !== undefined ? quote.quote.rate : -MAX_SORT_VALUE),
+        // First sort by whether the quote has valid steps
+        (quote: ApiQuote) => !quote.quote?.steps?.length,
+        // Then sort by the actual buy amount after fees
+        (quote: ApiQuote) => {
+          // Log the quote details for debugging
+          console.log(`Quote ${quote.swapperName}: inputOutputRatio=${quote.inputOutputRatio}, buyAmount=${quote.quote?.steps?.[0]?.buyAmountAfterFeesCryptoBaseUnit}`);
+          
+          if (!quote.quote?.steps?.length) return bn(0);
+          
+          // Get the last step for multi-hop trades
+          const steps = quote.quote.steps;
+          const lastStep = steps[steps.length - 1];
+          
+          // Use buyAmountAfterFeesCryptoBaseUnit which should match the displayed amount
+          const buyAmount = bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit);
+          
+          // Log the value we're using for sorting
+          console.log(`  Using buyAmount for sorting: ${buyAmount.toString()}`);
+          
+          return buyAmount;
+        },
+        // Then by inputOutputRatio as a fallback
+        (quote: ApiQuote) => quote.inputOutputRatio !== undefined 
+          ? bnOrZero(quote.inputOutputRatio) 
+          : bn(0),
+        // Finally by swapper name
         (quote: ApiQuote) => quote.swapperName,
       ]
-      sortOrders = ['desc', 'desc', 'asc']
+      sortOrders = ['asc', 'desc', 'desc', 'asc'] // First asc (false before true), then desc for values
+      break
   }
 
   // Log the sort option for debugging

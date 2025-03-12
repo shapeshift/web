@@ -1,6 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import React, { memo, useCallback, useMemo, useState } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { TradeAssetInput } from '../../TradeAssetInput'
@@ -9,7 +9,7 @@ import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountD
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useActions } from '@/hooks/useActions'
 import { useModal } from '@/hooks/useModal/useModal'
-import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { LimitPriceMode } from '@/state/slices/limitOrderInputSlice/constants'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -63,6 +63,16 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
     )
+    const [inputValue, setInputValue] = useState('')
+
+    useEffect(() => {
+      if (bnOrZero(buyAmountCryptoPrecision).isZero()) {
+        setInputValue('')
+        return
+      }
+
+      setInputValue(buyAmountCryptoPrecision)
+    }, [buyAmountCryptoPrecision])
 
     const { setLimitPrice, setLimitPriceMode } = useActions(limitOrderInput.actions)
 
@@ -72,6 +82,15 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
     const handleAmountChange = useCallback(
       (value: string) => {
+        if (value === '') {
+          setInputValue('')
+          setLimitPriceMode(LimitPriceMode.CustomValue)
+          setLimitPrice({
+            marketPriceBuyAsset: '0',
+          })
+          return
+        }
+
         if (bnOrZero(sellAmountCryptoPrecision).gt(0)) {
           // Convert value to crypto amount if it's in fiat
           const cryptoValue = isInputtingFiatSellAmount
@@ -80,6 +99,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
           const newRate = bnOrZero(cryptoValue).div(sellAmountCryptoPrecision).toString()
 
+          setInputValue(value)
           setLimitPriceMode(LimitPriceMode.CustomValue)
           setLimitPrice({
             marketPriceBuyAsset: newRate,
@@ -141,8 +161,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         assetId={asset.assetId}
         assetSymbol={asset.symbol}
         assetIcon={asset.icon}
-        cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toFixed()}
-        fiatAmount={positiveOrZero(buyAmountUserCurrency).toFixed()}
+        cryptoAmount={inputValue}
+        fiatAmount={bnOrZero(buyAmountUserCurrency).isZero() ? '' : buyAmountUserCurrency}
         percentOptions={emptyPercentOptions}
         isFiat={isInputtingFiatSellAmount}
         onToggleIsFiat={handleToggleIsFiat}

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -81,6 +81,7 @@ export const LimitOrderConfig = ({
   )
   const limitPrice = useAppSelector(selectLimitPrice)
   const priceDirection = useAppSelector(selectLimitPriceDirection)
+  const [inputValue, setInputValue] = useState('')
 
   const { setLimitPriceDirection, setLimitPrice, setLimitPriceMode } = useActions(
     limitOrderInput.actions,
@@ -104,7 +105,15 @@ export const LimitOrderConfig = ({
     [limitPriceForSelectedPriceDirection, priceAssetMarketData.price],
   )
 
-  // Lower the decimal places when the integer is greater than 8 significant digits for better UI
+  useEffect(() => {
+    if (bnOrZero(limitPriceForSelectedPriceDirection).isZero()) {
+      setInputValue('')
+      return
+    }
+
+    setInputValue(bnOrZero(limitPriceForSelectedPriceDirection).toFixed())
+  }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
+
   const limitPriceCryptoPrecision = useMemo(() => {
     return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
@@ -136,7 +145,7 @@ export const LimitOrderConfig = ({
   }, [])
 
   const handleInputChange = useCallback(
-    (value: string, isFiatValue?: boolean) => {
+    (value: string | null, isFiatValue?: boolean) => {
       if (isFiatValue !== undefined) {
         setIsInputtingFiatSellAmount(isFiatValue)
       }
@@ -148,7 +157,7 @@ export const LimitOrderConfig = ({
 
       priceAmountRef.current = cryptoValue
       setLimitPriceMode(LimitPriceMode.CustomValue)
-      setLimitPrice({ marketPriceBuyAsset: cryptoValue })
+      setLimitPrice({ marketPriceBuyAsset: cryptoValue ?? '0' })
     },
     [
       isInputtingFiatSellAmount,
@@ -251,7 +260,7 @@ export const LimitOrderConfig = ({
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   const handleInputValueChange = useCallback(() => {
-    handleInputChange(priceAmountRef.current ?? '0')
+    handleInputChange(priceAmountRef.current)
   }, [handleInputChange])
 
   const receiveAmount = useMemo(() => {
@@ -406,8 +415,10 @@ export const LimitOrderConfig = ({
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
               value={
                 isInputtingFiatSellAmount
-                  ? bnOrZero(fiatValue).toFixed(2)
-                  : limitPriceCryptoPrecision
+                  ? bnOrZero(fiatValue).isZero()
+                    ? ''
+                    : bnOrZero(fiatValue).toFixed(2)
+                  : inputValue
               }
               onValueChange={handleValueChange}
               onChange={handleInputValueChange}

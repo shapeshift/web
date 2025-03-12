@@ -14,7 +14,7 @@ import {
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -22,6 +22,8 @@ import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+
+const MIN_PASSWORD_LENGTH = 8
 
 export const NativeDelete = () => {
   const translate = useTranslate()
@@ -46,11 +48,14 @@ export const NativeDelete = () => {
   }, [])
 
   const {
+    control,
     setError,
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm<{ password: string }>({ mode: 'onChange' })
+
+  const password = useWatch({ control, name: 'password' })
 
   const handleShowClick = useCallback(() => setShowPw(!showPw), [showPw])
 
@@ -95,8 +100,10 @@ export const NativeDelete = () => {
       register('password', {
         required: translate('modals.shapeShift.password.error.required'),
         minLength: {
-          value: 8,
-          message: translate('modals.shapeShift.password.error.length', { length: 8 }),
+          value: MIN_PASSWORD_LENGTH,
+          message: translate('modals.shapeShift.password.error.length', {
+            length: MIN_PASSWORD_LENGTH,
+          }),
         },
       }),
     [register, translate],
@@ -136,7 +143,14 @@ export const NativeDelete = () => {
             </InputGroup>
             <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
           </FormControl>
-          <Button colorScheme='red' size='lg' width='full' type='submit' isLoading={isSubmitting}>
+          <Button
+            colorScheme='red'
+            size='lg'
+            width='full'
+            type='submit'
+            isDisabled={isSubmitting || password?.length < MIN_PASSWORD_LENGTH}
+            isLoading={isSubmitting}
+          >
             <Text translation={'walletProvider.shapeShift.delete.confirmDelete'} />
           </Button>
         </form>

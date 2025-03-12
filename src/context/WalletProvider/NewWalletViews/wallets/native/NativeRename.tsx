@@ -11,6 +11,7 @@ import {
   useToast,
   useUnmountEffect,
 } from '@chakra-ui/react'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -114,13 +115,18 @@ export const NativeRename = () => {
       }),
     [register, translate],
   )
+
+  const walletTranslations: [string, number | InterpolationOptions] = useMemo(() => {
+    return ['walletProvider.shapeShift.rename.body', { name: state.walletInfo?.meta?.label }]
+  }, [state.walletInfo?.meta?.label])
+
   return (
     <>
       <ModalHeader>
         <Text translation={'walletProvider.shapeShift.rename.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
+        <Text mb={6} color='text.subtle' translation={walletTranslations} />
         <form onSubmit={handleFormSubmit}>
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input

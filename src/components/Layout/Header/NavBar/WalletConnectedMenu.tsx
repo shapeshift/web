@@ -77,6 +77,7 @@ const ConnectedMenu = memo(
             </MenuItem>
           )}
         </MenuGroup>
+        <MenuDivider />
         <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
           <MenuDivider />

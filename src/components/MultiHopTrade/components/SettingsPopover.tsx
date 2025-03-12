@@ -43,4 +43,3 @@ export const SettingsPopover: FC<SettingsPopoverProps> = memo(
     )
   },
 )
-

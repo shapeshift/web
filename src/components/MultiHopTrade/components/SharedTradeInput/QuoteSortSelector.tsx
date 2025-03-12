@@ -1,9 +1,4 @@
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  InputGroup,
-} from '@chakra-ui/react'
+import { Button, ButtonGroup, FormControl, InputGroup } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,9 +6,9 @@ import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
-import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { selectQuoteSortOption } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 enum SortType {
@@ -31,9 +26,7 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const currentSortOption = useAppSelector(selectQuoteSortOption)
-  
-  console.log('QuoteSortSelector rendered with currentSortOption:', currentSortOption);
-  
+
   const getSortType = useCallback((option: QuoteSortOption): SortType => {
     switch (option) {
       case QuoteSortOption.BEST_RATE:
@@ -47,41 +40,52 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
         return SortType.Auto
     }
   }, [])
-  
+
   const currentSortType = getSortType(currentSortOption)
-  
-  const handleSortTypeChange = useCallback((sortType: SortType) => {
-    let sortOption: QuoteSortOption
-    switch (sortType) {
-      case SortType.BestRate:
-        sortOption = QuoteSortOption.BEST_RATE
-        break
-      case SortType.LowestGas:
-        sortOption = QuoteSortOption.LOWEST_GAS
-        break
-      case SortType.Fastest:
-        sortOption = QuoteSortOption.FASTEST
-        break
-      case SortType.Auto:
-      default:
-        sortOption = QuoteSortOption.AUTO
-    }
-    console.log('Setting sort option to:', sortOption);
-    dispatch(tradeQuoteSlice.actions.setSortOption(sortOption))
-  }, [dispatch])
-  
-  const handleAutoSortTypeChange = useCallback(() => 
-    handleSortTypeChange(SortType.Auto), [handleSortTypeChange])
-  
-  const handleBestRateSortTypeChange = useCallback(() => 
-    handleSortTypeChange(SortType.BestRate), [handleSortTypeChange])
-  
-  const handleLowestGasSortTypeChange = useCallback(() => 
-    handleSortTypeChange(SortType.LowestGas), [handleSortTypeChange])
-  
-  const handleFastestSortTypeChange = useCallback(() => 
-    handleSortTypeChange(SortType.Fastest), [handleSortTypeChange])
-  
+
+  const handleSortTypeChange = useCallback(
+    (sortType: SortType) => {
+      let sortOption: QuoteSortOption
+      switch (sortType) {
+        case SortType.BestRate:
+          sortOption = QuoteSortOption.BEST_RATE
+          break
+        case SortType.LowestGas:
+          sortOption = QuoteSortOption.LOWEST_GAS
+          break
+        case SortType.Fastest:
+          sortOption = QuoteSortOption.FASTEST
+          break
+        case SortType.Auto:
+        default:
+          sortOption = QuoteSortOption.AUTO
+      }
+      console.log('Setting sort option to:', sortOption)
+      dispatch(tradeQuoteSlice.actions.setSortOption(sortOption))
+    },
+    [dispatch],
+  )
+
+  const handleAutoSortTypeChange = useCallback(
+    () => handleSortTypeChange(SortType.Auto),
+    [handleSortTypeChange],
+  )
+
+  const handleBestRateSortTypeChange = useCallback(
+    () => handleSortTypeChange(SortType.BestRate),
+    [handleSortTypeChange],
+  )
+
+  const handleLowestGasSortTypeChange = useCallback(
+    () => handleSortTypeChange(SortType.LowestGas),
+    [handleSortTypeChange],
+  )
+
+  const handleFastestSortTypeChange = useCallback(
+    () => handleSortTypeChange(SortType.Fastest),
+    [handleSortTypeChange],
+  )
+
   return (
     <>
       <Row>
@@ -142,4 +146,4 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
       </Row>
     </>
   )
-}) 
+})

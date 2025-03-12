@@ -34,10 +34,10 @@ export enum HopExecutionState {
 }
 
 export enum QuoteSortOption {
-  AUTO = 'AUTO',         // Default sorting (current implementation)
+  AUTO = 'AUTO', // Default sorting (current implementation)
   BEST_RATE = 'BEST_RATE',
   LOWEST_GAS = 'LOWEST_GAS',
-  FASTEST = 'FASTEST'
+  FASTEST = 'FASTEST',
 }
 
 export enum TradeExecutionState {

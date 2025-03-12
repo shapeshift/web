@@ -418,7 +418,6 @@ export const tradeQuoteSlice = createSlice({
       }>,
     ) => {
       const { isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes } = action.payload
-      const sortOption = state.sortOption
 
       // Mark stale quotes as stale.
       // Assign the original array index so we can keep loading quotes roughly in their original spot

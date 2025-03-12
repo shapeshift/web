@@ -491,9 +491,7 @@ describe('EthereumChainAdapter', () => {
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        /a provider or signer is needed to resolve ENS names/,
-      )
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(/Address .+ is invalid/)
     })
 
     it('should throw if passed tx has no "value" property', async () => {

@@ -12394,7 +12394,6 @@ __metadata:
     reselect-tools: ^0.0.7
     resize-observer-polyfill: ^1.5.1
     retry-axios: ^2.6.0
-    rollup-plugin-visualizer: ^5.14.0
     scroll-into-view-if-needed: ^3.0.10
     simple-git: ^3.16.0
     ssri: ^8.0.1
@@ -12411,6 +12410,7 @@ __metadata:
     vite-bundle-analyzer: ^0.17.1
     vite-plugin-checker: ^0.9.0
     vite-plugin-circular-dependency: ^0.5.0
+    vite-plugin-dynamic-import: ^1.6.0
     vite-plugin-node-polyfills: ^0.23.0
     vite-tsconfig-paths: ^5.1.4
     vitest: 1.1.1
@@ -16714,6 +16714,15 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: 677880034aee5bdf7434cc2d25b641d7bedb0b5ef47868a78dadabedccf58e1c5457526d9d8249cd253f2df087e081c3fe7d903b448d8e19e5131a3065b83c07
+  languageName: node
+  linkType: hard
+
+"acorn@npm:^8.12.1":
+  version: 8.14.1
+  resolution: "acorn@npm:8.14.1"
+  bin:
+    acorn: bin/acorn
+  checksum: 260d9bb6017a1b6e42d31364687f0258f78eb20210b36ef2baad38fd619d78d4e95ff7dde9b3dbe0d81f137f79a8d651a845363a26e6985997f7b71145dc5e94
   languageName: node
   linkType: hard
 
@@ -21958,6 +21967,13 @@ __metadata:
   version: 1.4.1
   resolution: "es-module-lexer@npm:1.4.1"
   checksum: a11b5a256d4e8e9c7d94c2fd87415ccd1591617b6edd847e064503f8eaece2d25e2e9078a02c5ce3ed5e83bb748f5b4820efbe78072c8beb07ac619c2edec35d
+  languageName: node
+  linkType: hard
+
+"es-module-lexer@npm:^1.5.4":
+  version: 1.6.0
+  resolution: "es-module-lexer@npm:1.6.0"
+  checksum: 4413a9aed9bf581de62b98174f3eea3f23ce2994fb6832df64bdd6504f6977da1a3b5ebd3c10f75e3c2f214dcf1a1d8b54be5e62c71b7110e6ccedbf975d2b7d
   languageName: node
   linkType: hard
 
@@ -27643,7 +27659,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.3":
+"magic-string@npm:^0.30.11, magic-string@npm:^0.30.3":
   version: 0.30.17
   resolution: "magic-string@npm:0.30.17"
   dependencies:
@@ -32281,28 +32297,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"rollup-plugin-visualizer@npm:^5.14.0":
-  version: 5.14.0
-  resolution: "rollup-plugin-visualizer@npm:5.14.0"
-  dependencies:
-    open: ^8.4.0
-    picomatch: ^4.0.2
-    source-map: ^0.7.4
-    yargs: ^17.5.1
-  peerDependencies:
-    rolldown: 1.x
-    rollup: 2.x || 3.x || 4.x
-  peerDependenciesMeta:
-    rolldown:
-      optional: true
-    rollup:
-      optional: true
-  bin:
-    rollup-plugin-visualizer: dist/bin/cli.js
-  checksum: 8ef5b05c91bd74bc1bb536609dd0ef2f1995066ec623393d192d638c209620fd2318c902d185ae648873d0a2788131cbaec11595c91322f0c2661ef6a1cc7e42
-  languageName: node
-  linkType: hard
-
 "rollup-plugin-visualizer@npm:^5.9.2":
   version: 5.12.0
   resolution: "rollup-plugin-visualizer@npm:5.12.0"
@@ -36223,6 +36217,18 @@ pvutils@latest:
     "@rollup/pluginutils": ^5.1.0
     chalk: ^4.1.2
   checksum: 921a95a524855fa80fde91f3c0911b5309ade4c6a1321bf5e0e3bfd6e35049049c7bede5e671a8f08b1cf533aebad84c78d2b1cae22db39938a60a1f7d8d5037
+  languageName: node
+  linkType: hard
+
+"vite-plugin-dynamic-import@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "vite-plugin-dynamic-import@npm:1.6.0"
+  dependencies:
+    acorn: ^8.12.1
+    es-module-lexer: ^1.5.4
+    fast-glob: ^3.3.2
+    magic-string: ^0.30.11
+  checksum: 46b009c80db82a8ed935c6ec7c08a8d3d7e5d3118fbfb1b4e18f13e4e9c34db6b3f28fa697d7f78d3f36edae69479a0ba2dfae1b76d2b2ca8e3e06dcf1e9870c
   languageName: node
   linkType: hard
 

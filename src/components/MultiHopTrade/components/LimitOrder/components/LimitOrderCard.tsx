@@ -1,5 +1,5 @@
 import { CloseIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Center, Flex, IconButton, Progress, Tag, Td, Tooltip, Tr } from '@chakra-ui/react'
+import { Center, Flex, IconButton, Progress, Tag, Td, Tr } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
@@ -13,7 +13,9 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { ChainIcon } from '@/components/ChainMenu'
+import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import {
@@ -45,6 +47,11 @@ const iconButtonSx = {
   },
 }
 
+const fontSize = {
+  base: 'xs',
+  sm: 'sm',
+}
+
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   uid,
   buyAmountCryptoBaseUnit,
@@ -60,6 +67,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   executedSellAmountCryptoBaseUnit,
 }) => {
   const translate = useTranslate()
+
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
   const buyAsset = useSelectorWithArgs(selectAssetById, buyAssetId)
   const sellAsset = useSelectorWithArgs(selectAssetById, sellAssetId)
@@ -106,19 +117,29 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   }, [onCancelClick, uid])
 
   const sellAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision ?? 0, 6),
+    () => fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
     [sellAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
   const buyAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision ?? 0, 6),
+    () => fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision ?? 0),
     [buyAmountCryptoBaseUnit, buyAsset?.precision],
+  )
+
+  const sellAmountCryptoFormatted = useMemo(
+    () => toCrypto(sellAmountCryptoPrecision, sellAsset?.symbol ?? ''),
+    [sellAmountCryptoPrecision, toCrypto, sellAsset],
+  )
+
+  const buyAmountCryptoFormatted = useMemo(
+    () => toCrypto(buyAmountCryptoPrecision, buyAsset?.symbol ?? ''),
+    [buyAmountCryptoPrecision, toCrypto, buyAsset],
   )
 
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0, 6)
+        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0)
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -126,19 +147,29 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0, 6)
+        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0)
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
   const limitPrice = useMemo(() => {
-    return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed(6)
+    return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed()
   }, [buyAmountCryptoPrecision, sellAmountCryptoPrecision])
 
   const executionPrice = useMemo(() => {
     if (!executedBuyAmountCryptoPrecision || !executedSellAmountCryptoPrecision) return '0'
-    return bn(executedBuyAmountCryptoPrecision).div(executedSellAmountCryptoPrecision).toFixed(6)
+    return bn(executedBuyAmountCryptoPrecision).div(executedSellAmountCryptoPrecision).toFixed()
   }, [executedBuyAmountCryptoPrecision, executedSellAmountCryptoPrecision])
+
+  const limitPriceCryptoFormatted = useMemo(
+    () => toCrypto(limitPrice, buyAsset?.symbol ?? ''),
+    [limitPrice, toCrypto, buyAsset],
+  )
+
+  const executionPriceCryptoFormatted = useMemo(
+    () => toCrypto(executionPrice, buyAsset?.symbol ?? ''),
+    [executionPrice, toCrypto, buyAsset],
+  )
 
   const tagColorScheme = useMemo(() => {
     switch (status) {
@@ -172,11 +203,13 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const expiryText = useMemo(
     () =>
       validTo && status !== OrderStatus.FULFILLED
-        ? formatDistanceToNow(validTo * 1000, {
-            addSuffix: true,
+        ? translate('limitOrder.expires', {
+            time: formatDistanceToNow(validTo * 1000, {
+              addSuffix: true,
+            }),
           })
         : undefined,
-    [status, validTo],
+    [status, validTo, translate],
   )
 
   const warningText = useMemo(() => {
@@ -215,35 +248,49 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
             </Center>
           </AssetIconWithBadge>
           <Flex direction='column'>
-            <Amount.Crypto
-              value={sellAmountCryptoPrecision}
-              symbol={sellAsset.symbol}
-              fontSize='sm'
-            />
-            <Amount.Crypto
-              value={buyAmountCryptoPrecision}
-              symbol={buyAsset.symbol}
-              fontSize='sm'
-            />
+            <HoverTooltip placement='top' label={sellAmountCryptoFormatted}>
+              <Amount.Crypto
+                value={sellAmountCryptoPrecision}
+                symbol={sellAsset.symbol}
+                fontSize={fontSize}
+                maximumFractionDigits={6}
+              />
+            </HoverTooltip>
+            <HoverTooltip placement='top' label={buyAmountCryptoFormatted}>
+              <Amount.Crypto
+                value={buyAmountCryptoPrecision}
+                symbol={buyAsset.symbol}
+                fontSize={fontSize}
+                maximumFractionDigits={6}
+              />
+            </HoverTooltip>
           </Flex>
         </Flex>
       </Td>
 
       <Td>
         <Flex direction='column' gap={1}>
-          <Amount.Crypto
-            value={limitPrice}
-            symbol={buyAsset.symbol}
-            color={status === OrderStatus.FULFILLED ? 'text.subtle' : 'text.base'}
-            fontSize='sm'
-          />
-          {status === OrderStatus.FULFILLED && (
+          <HoverTooltip placement='top' label={limitPriceCryptoFormatted}>
             <Amount.Crypto
-              value={executionPrice}
+              value={limitPrice}
               symbol={buyAsset.symbol}
-              fontSize='sm'
-              color='text.base'
+              color={status === OrderStatus.FULFILLED ? 'text.subtle' : 'text.base'}
+              fontSize={fontSize}
+              maximumFractionDigits={6}
+              prefix='~'
             />
+          </HoverTooltip>
+          {status === OrderStatus.FULFILLED && (
+            <HoverTooltip placement='top' label={executionPriceCryptoFormatted}>
+              <Amount.Crypto
+                value={executionPrice}
+                symbol={buyAsset.symbol}
+                fontSize={fontSize}
+                color='text.base'
+                maximumFractionDigits={6}
+                prefix='~'
+              />
+            </HoverTooltip>
           )}
         </Flex>
       </Td>
@@ -262,16 +309,16 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               />
             </Flex>
           ) : (
-            <Tooltip label={expiryText} isDisabled={status !== OrderStatus.OPEN}>
+            <HoverTooltip label={expiryText} isDisabled={status !== OrderStatus.OPEN}>
               <Tag size='sm' colorScheme={tagColorScheme} variant='subtle'>
                 {translate(`limitOrder.status.${status}`)}
               </Tag>
-            </Tooltip>
+            </HoverTooltip>
           )}
           {warningText && (
-            <Tooltip label={warningText}>
+            <HoverTooltip label={warningText}>
               <WarningTwoIcon color='yellow.500' boxSize={4} />
-            </Tooltip>
+            </HoverTooltip>
           )}
         </Flex>
       </Td>

@@ -1093,6 +1093,7 @@
       "twentyEightDays": "28 days",
       "custom": "Custom"
     },
+    "expires": "Expires %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "Native sell asset not supported",
       "insufficientValidTo": "Order expiry too soon",

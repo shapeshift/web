@@ -267,7 +267,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     switch (currentTradeStep) {
       // No trade step is active, quote is still to be confirmed
       case undefined:
-        return <TradeConfirmSummary isCompact={isCompact} />
+        return <TradeConfirmSummary />
       case StepperStep.FirstHopReset:
       case StepperStep.LastHopReset:
         return tradeResetStepSummary

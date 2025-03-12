@@ -223,7 +223,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
-      <CardFooter flexDir='column' gap={2} px={0} pb={0} borderTop='none'>
+      <CardFooter flexDir='column' gap={2} px={3} pb={0} borderTop='none'>
         {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
           confirmedTradeExecutionState,
         ) && tradeWarnings}

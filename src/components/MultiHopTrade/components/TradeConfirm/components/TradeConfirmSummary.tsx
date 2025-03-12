@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Divider, HStack, Icon, Link, Stack, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { Divider, HStack, Icon, Link, Stack, Tooltip } from '@chakra-ui/react'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
@@ -35,9 +35,8 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
-export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefined }) => {
+export const TradeConfirmSummary = () => {
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
   const activeQuote = useAppSelector(selectActiveQuote)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -79,8 +78,6 @@ export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefi
     return fromBaseUnit(secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision ?? 0)
   }, [secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
 
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-
   const networkFeeTooltipBody = useCallback(
     () => <RawText>{translate('trade.tooltip.minerFee')}</RawText>,
     [translate],
@@ -91,13 +88,13 @@ export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefi
       affiliateBps={affiliateBps}
       buyAssetSymbol={buyAsset.symbol}
       sellAssetSymbol={sellAsset.symbol}
-      isDisabled={Boolean(isSmallerThanXl || isCompact)}
       rate={bnOrZero(rate).toFixed(buyAsset.precision)}
       isLoading={isLoading}
       networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
       swapperName={activeQuote?.swapperName}
       swapSource={tradeQuoteFirstHop?.source}
       isOpen
+      isDisabled // disable swapper switcher, we're at the confirm step with a swapper already selected
     >
       <Stack spacing={4} px={6} pb={3} width='full'>
         <Row Tooltipbody={networkFeeTooltipBody}>

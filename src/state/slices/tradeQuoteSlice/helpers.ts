@@ -158,6 +158,26 @@ const sortApiQuotes = (
   // First, filter out quotes with errors - those belong in the unavailable section
   const quotesWithoutErrors = unorderedQuotes.filter(quote => quote.errors.length === 0)
 
+  // For FASTEST sorting, use a custom sorting function to properly handle execution times
+  if (sortOption === QuoteSortOption.FASTEST) {
+    const sorted = [...quotesWithoutErrors].sort((a, b) => {
+      // Modified helper - keep 0ms as valid value
+      const getExecutionTime = (quote: ApiQuote) =>
+        quote.quote?.steps?.[0]?.estimatedExecutionTimeMs // Remove "&& time > 0" check
+
+      const aTime = getExecutionTime(a)
+      const bTime = getExecutionTime(b)
+
+      // Handle undefined cases first
+      if (aTime === undefined && bTime === undefined) return 0
+      if (aTime === undefined) return 1 // Push undefined to bottom
+      if (bTime === undefined) return -1 // Keep defined above undefined
+
+      // Now compare numerically (0ms will be first)
+      return aTime - bTime
+    })
+    return sorted
+  }
   const iteratees: ((quote: ApiQuote) => any)[] = (() => {
     switch (sortOption) {
       case QuoteSortOption.LOWEST_GAS:
@@ -175,25 +195,6 @@ const sortApiQuotes = (
           // Then sort by the actual fee amount in user currency
           (quote: ApiQuote) => {
             return getNetworkFeeUserCurrency(quote.quote)
-          },
-        ]
-      case QuoteSortOption.FASTEST:
-        return [
-          // Presort by un/available est. execution time
-          (quote: ApiQuote) => {
-            if (!quote.quote?.steps) return true
-            if (quote.quote.steps.every(step => step?.estimatedExecutionTimeMs === undefined))
-              return true
-            return false
-          },
-          // Secondary sort by actual execution time (fixed)
-          (quote: ApiQuote) => {
-            if (!quote.quote?.steps) return MAX_SORT_VALUE
-            const totalExecutionTime = quote.quote.steps.reduce((total, step) => {
-              if (step?.estimatedExecutionTimeMs === undefined) return total
-              return total.plus(bnOrZero(step.estimatedExecutionTimeMs))
-            }, bn(0))
-            return totalExecutionTime.toNumber()
           },
         ]
       case QuoteSortOption.BEST_RATE:
@@ -219,14 +220,13 @@ const sortApiQuotes = (
     switch (sortOption) {
       case QuoteSortOption.LOWEST_GAS:
         return ['asc', 'asc'] // Lowest to highest network fees
-      case QuoteSortOption.FASTEST:
-        return ['asc', 'asc'] // Lowest to highest est. execution time
       case QuoteSortOption.BEST_RATE:
       default:
         return ['desc'] // Highest to lowest received amount after fees
     }
   })()
 
+  // Only use orderBy for non-FASTEST sorting options
   const ordered = orderBy(quotesWithoutErrors, iteratees, sortOrders)
 
   console.log({ quotesWithoutErrors, ordered })
@@ -249,6 +249,8 @@ export const sortTradeQuotes = (
 
   // Only sort quotes without errors
   const sortedHappyQuotes = sortApiQuotes(quotesWithoutErrors, sortOption)
+
+  console.log({ sortedHappyQuotes })
 
   // Return sorted quotes without errors first, then quotes with errors
   return [...sortedHappyQuotes, ...quotesWithErrors]

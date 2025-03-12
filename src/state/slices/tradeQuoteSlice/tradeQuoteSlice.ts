@@ -7,7 +7,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { initialState, initialTradeExecutionState } from './constants'
 import type {
   HopProgress,
-  QuoteSortOption,
   StreamingSwapMetadata,
   TradeExecutionMetadata,
 } from './types'
@@ -15,6 +14,7 @@ import {
   AllowanceKey,
   HopExecutionState,
   HopKey,
+  QuoteSortOption,
   TradeExecutionState,
   TransactionExecutionState,
 } from './types'
@@ -33,6 +33,7 @@ export const tradeQuoteSlice = createSlice({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       activeQuoteMeta: state.activeQuoteMeta, // And the activeQuoteMeta too, or we'll lose the active quote when backing out from preview
+      sortOption: state.sortOption, // Preserve the sort option
     }),
     setIsTradeQuoteRequestAborted: (state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
@@ -445,8 +446,50 @@ export const tradeQuoteSlice = createSlice({
       const sortQuotes = (
         unorderedQuotes: (ApiQuote & { isStale?: boolean; originalIndex?: number })[],
       ): ApiQuote[] => {
-        // The quotes are already sorted by the sortTradeQuotes function in helpers.ts
-        // We should preserve that sorting and not re-sort here
+        // For quotes without errors, we need to sort them according to the current sort option
+        if (state.sortOption === QuoteSortOption.FASTEST) {
+          // Log execution times for debugging
+          console.log('Sorting by FASTEST in updateTradeQuoteDisplayCache, execution times:')
+          unorderedQuotes.forEach(quote => {
+            const executionTime = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
+            console.log(`${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`)
+          })
+
+          // Sort by execution time
+          const sorted = [...unorderedQuotes].sort((a, b) => {
+            // Get execution times, defaulting to MAX_SAFE_INTEGER if undefined
+            const aTime = a.quote?.steps?.[0]?.estimatedExecutionTimeMs
+            const bTime = b.quote?.steps?.[0]?.estimatedExecutionTimeMs
+
+            // Special case: 0x swapper with 0ms execution time should be treated as unknown
+            const aIsZeroX = a.swapperName === '0x'
+            const bIsZeroX = b.swapperName === '0x'
+            
+            // If both have undefined execution times or are 0x with 0ms, maintain original order
+            if ((aTime === undefined && bTime === undefined) || 
+                (aIsZeroX && aTime === 0 && bIsZeroX && bTime === 0)) {
+              return 0
+            }
+            
+            // Quotes with undefined execution time or 0x with 0ms go last
+            if (aTime === undefined || (aIsZeroX && aTime === 0)) return 1
+            if (bTime === undefined || (bIsZeroX && bTime === 0)) return -1
+            
+            // Sort by execution time (ascending)
+            return aTime - bTime
+          })
+
+          // Log sorted execution times for debugging
+          console.log('After sorting by FASTEST in updateTradeQuoteDisplayCache:')
+          sorted.forEach(quote => {
+            const executionTime = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
+            console.log(`${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`)
+          })
+
+          return sorted
+        }
+
+        // For other sort options, preserve the sorting from sortedQuotes
         return unorderedQuotes
       }
 

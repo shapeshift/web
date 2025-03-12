@@ -2,6 +2,7 @@ import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icon
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { memo, useCallback, useMemo} from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -32,6 +33,7 @@ const rowHover = { bg: 'background.surface.raised.base' }
 const rateHover = {
   cursor: 'pointer',
   '.rate': { borderColor: 'text.link' },
+  userSelect: 'none',
 }
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
@@ -53,8 +55,8 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
 
     // Compute the inverse rate for toggling between display formats:
     const inverseRate = useMemo(() => {
-      const parsedRate = rate ? parseFloat(rate) : 0
-      return parsedRate === 0 ? '0' : (1 / parsedRate).toFixed(8)
+      const parsedRate = bnOrZero(rate)
+      return parsedRate.isZero() ? '0' : parsedRate.isPositive() ? bnOrZero(1).div(parsedRate).toFixed(8) : '0'
     }, [rate])
 
     const handleClick = useCallback(() => {

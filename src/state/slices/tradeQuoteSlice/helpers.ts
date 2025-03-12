@@ -9,7 +9,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
-import { orderBy, partition } from 'lodash'
+import { orderBy } from 'lodash'
 
 import type { ActiveQuoteMeta } from './types'
 import { QuoteSortOption } from './types'
@@ -151,10 +151,6 @@ export const getTotalProtocolFeeByAsset = (
     {},
   )
 
-const isKnownNetworkFees = (quote: ApiQuote): boolean => {
-  return Boolean(quote?.quote?.steps?.every(step => Boolean(step.feeData.networkFeeCryptoBaseUnit)))
-}
-
 const sortApiQuotes = (
   unorderedQuotes: ApiQuote[],
   sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
@@ -162,88 +158,81 @@ const sortApiQuotes = (
   // First, filter out quotes with errors - those belong in the unavailable section
   const quotesWithoutErrors = unorderedQuotes.filter(quote => quote.errors.length === 0)
 
-  let iteratees: ((quote: ApiQuote) => any)[] = []
-  let sortOrders: ('asc' | 'desc')[] = []
+  const iteratees: ((quote: ApiQuote) => any)[] = (() => {
+    switch (sortOption) {
+      case QuoteSortOption.LOWEST_GAS:
+        return [
+          // Presort by un/available network fees
+          (quote: ApiQuote) => {
+            if (!quote.quote?.steps) return true
 
-  switch (sortOption) {
-    case QuoteSortOption.LOWEST_GAS:
-      iteratees = [
-        // Presort by un/available network fees
-        (quote: ApiQuote) => {
-          if (!quote.quote?.steps) return true
+            // Unknown gas - assume latest
+            if (quote.quote.steps.every(step => !step?.feeData?.networkFeeCryptoBaseUnit))
+              return true
 
-          // Unknown gas - assume latest
-          if (quote.quote.steps.every(step => !step?.feeData?.networkFeeCryptoBaseUnit)) return true
+            return false
+          },
+          // Then sort by the actual fee amount in user currency
+          (quote: ApiQuote) => {
+            return getNetworkFeeUserCurrency(quote.quote)
+          },
+        ]
+      case QuoteSortOption.FASTEST:
+        return [
+          // Presort by un/available est. execution time
+          (quote: ApiQuote) => {
+            if (!quote.quote?.steps) return true
 
-          return false
-        },
-        // Then sort by the actual fee amount in user currency
-        (quote: ApiQuote) => {
-          return getNetworkFeeUserCurrency(quote.quote)
-        },
-      ]
-      sortOrders = ['asc', 'asc'] // Lowest to highest network fees
-      break
+            if (quote.quote.steps.every(step => step?.estimatedExecutionTimeMs === undefined))
+              return true
 
-    case QuoteSortOption.FASTEST:
-      iteratees = [
-        // Presort by un/available est. execution time
-        (quote: ApiQuote) => {
-          if (!quote.quote?.steps) return true
+            return false
+          },
+          // Secondary sort by the actual execution time
+          (quote: ApiQuote) => {
+            if (!quote.quote?.steps) return bn(MAX_SORT_VALUE)
 
-          if (quote.quote.steps.every(step => step?.estimatedExecutionTimeMs === undefined))
-            return true
+            const totalExecutionTime = quote.quote.steps.reduce((total, step) => {
+              if (step?.estimatedExecutionTimeMs === undefined) return total
+              return total.plus(bnOrZero(step.estimatedExecutionTimeMs))
+            }, bn(0))
 
-          return false
-        },
-        // Secondary sort by the actual execution time
-        (quote: ApiQuote) => {
-          if (!quote.quote?.steps) return bn(MAX_SORT_VALUE)
+            return totalExecutionTime
+          },
+        ]
+      case QuoteSortOption.BEST_RATE:
+      default:
+        return [
+          (quote: ApiQuote) => {
+            if (!quote.quote?.steps?.length) return bn(0)
 
-          const totalExecutionTime = quote.quote.steps.reduce((total, step) => {
-            if (step?.estimatedExecutionTimeMs === undefined) return total
-            return total.plus(bnOrZero(step.estimatedExecutionTimeMs))
-          }, bn(0))
+            // Get the last step for multi-hop trades
+            const steps = quote.quote.steps
+            const lastStep = steps[steps.length - 1]
 
-          return totalExecutionTime
-        },
-      ]
-      sortOrders = ['asc', 'asc'] // Lowest to highest est. execution time
-      break
+            // Use buyAmountAfterFeesCryptoBaseUnit which should match the displayed amount
+            const buyAmount = bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
 
-    case QuoteSortOption.BEST_RATE:
-    default:
-      iteratees = [
-        (quote: ApiQuote) => {
-          if (!quote.quote?.steps?.length) return bn(0)
+            return buyAmount
+          },
+        ]
+    }
+  })()
 
-          // Get the last step for multi-hop trades
-          const steps = quote.quote.steps
-          const lastStep = steps[steps.length - 1]
+  const sortOrders: ('asc' | 'desc')[] = (() => {
+    switch (sortOption) {
+      case QuoteSortOption.LOWEST_GAS:
+        return ['asc', 'asc'] // Lowest to highest network fees
+      case QuoteSortOption.FASTEST:
+        return ['asc', 'asc'] // Lowest to highest est. execution time
+      case QuoteSortOption.BEST_RATE:
+      default:
+        return ['desc'] // Highest to lowest received amount after fees
+    }
+  })()
 
-          // Use buyAmountAfterFeesCryptoBaseUnit which should match the displayed amount
-          const buyAmount = bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
-
-          return buyAmount
-        },
-      ]
-      sortOrders = ['desc'] // Highest to lowest received amount after fees
-      break
-  }
-
-  const orderedQuotes = orderBy(quotesWithoutErrors, iteratees, sortOrders)
-
-  // Only use partitioning for the BEST_RATE option (previously AUTO)
-  if (sortOption === QuoteSortOption.BEST_RATE) {
-    const [quotesWithKnownFees, quotesWithUnknownFees] = partition(
-      orderedQuotes,
-      isKnownNetworkFees,
-    )
-    return [...quotesWithKnownFees, ...quotesWithUnknownFees]
-  }
-
-  // For specific criteria, return the sorted list directly
-  return orderedQuotes
+  // Simply return the ordered quotes without any special partitioning
+  return orderBy(quotesWithoutErrors, iteratees, sortOrders)
 }
 
 export const sortTradeQuotes = (

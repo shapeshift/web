@@ -100,6 +100,23 @@ export const TradeQuoteContent = ({
     }
   }, [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentage, translate])
 
+  const eta = useMemo(() => {
+    if (totalEstimatedExecutionTimeMs === undefined) return null
+
+    return (
+      <Skeleton isLoaded={!isLoading}>
+        <Flex gap={2} alignItems='center'>
+          <RawText color='text.subtle'>
+            <FaRegClock />
+          </RawText>
+          {totalEstimatedExecutionTimeMs === 0
+            ? '0s'
+            : prettyMilliseconds(totalEstimatedExecutionTimeMs)}
+        </Flex>
+      </Skeleton>
+    )
+  }, [totalEstimatedExecutionTimeMs, isLoading])
+
   return (
     <>
       <CardBody py={2} px={4} display='flex' alignItems='center' justifyContent='space-between'>
@@ -178,16 +195,7 @@ export const TradeQuoteContent = ({
           )}
 
           {slippage}
-          {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (
-            <Skeleton isLoaded={!isLoading}>
-              <Flex gap={2} alignItems='center'>
-                <RawText color='text.subtle'>
-                  <FaRegClock />
-                </RawText>
-                {prettyMilliseconds(totalEstimatedExecutionTimeMs)}
-              </Flex>
-            </Skeleton>
-          )}
+          {totalEstimatedExecutionTimeMs !== undefined && eta}
           <Skeleton isLoaded={!isLoading}>
             {numHops > 1 && (
               <Tooltip label={translate('trade.numHops', { numHops })}>

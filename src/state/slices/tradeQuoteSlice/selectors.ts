@@ -602,13 +602,7 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
 
 export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
-  tradeQuoteSlice => {
-    console.log(
-      'selectTradeQuoteDisplayCache called with tradeQuoteSlice.tradeQuoteDisplayCache:',
-      tradeQuoteSlice.tradeQuoteDisplayCache,
-    )
-    return tradeQuoteSlice.tradeQuoteDisplayCache
-  },
+  tradeQuoteSlice => tradeQuoteSlice.tradeQuoteDisplayCache,
 )
 
 export const selectIsTradeQuoteRequestAborted = createSelector(

@@ -47,7 +47,7 @@ export const initialState: TradeQuoteSliceState = {
   tradeQuotes: {},
   tradeQuoteDisplayCache: [],
   isTradeQuoteRequestAborted: false,
-  sortOption: QuoteSortOption.AUTO,
+  sortOption: QuoteSortOption.BEST_RATE,
 }
 
 export const SWAPPER_USER_ERRORS = [

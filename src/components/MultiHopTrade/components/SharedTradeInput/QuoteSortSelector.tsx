@@ -12,7 +12,6 @@ import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 enum SortType {
-  Auto = 'Auto',
   BestRate = 'BestRate',
   LowestGas = 'LowestGas',
   Fastest = 'Fastest',
@@ -29,15 +28,13 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
 
   const getSortType = useCallback((option: QuoteSortOption): SortType => {
     switch (option) {
-      case QuoteSortOption.BEST_RATE:
-        return SortType.BestRate
       case QuoteSortOption.LOWEST_GAS:
         return SortType.LowestGas
       case QuoteSortOption.FASTEST:
         return SortType.Fastest
-      case QuoteSortOption.AUTO:
+      case QuoteSortOption.BEST_RATE:
       default:
-        return SortType.Auto
+        return SortType.BestRate
     }
   }, [])
 
@@ -47,28 +44,19 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
     (sortType: SortType) => {
       let sortOption: QuoteSortOption
       switch (sortType) {
-        case SortType.BestRate:
-          sortOption = QuoteSortOption.BEST_RATE
-          break
         case SortType.LowestGas:
           sortOption = QuoteSortOption.LOWEST_GAS
           break
         case SortType.Fastest:
           sortOption = QuoteSortOption.FASTEST
           break
-        case SortType.Auto:
+        case SortType.BestRate:
         default:
-          sortOption = QuoteSortOption.AUTO
+          sortOption = QuoteSortOption.BEST_RATE
       }
-      console.log('Setting sort option to:', sortOption)
       dispatch(tradeQuoteSlice.actions.setSortOption(sortOption))
     },
     [dispatch],
-  )
-
-  const handleAutoSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.Auto),
-    [handleSortTypeChange],
   )
 
   const handleBestRateSortTypeChange = useCallback(
@@ -95,7 +83,6 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
           </HelperTooltip>
         </Row.Label>
         <Row.Value>
-          {currentSortType === SortType.Auto && translate('trade.sort.auto')}
           {currentSortType === SortType.BestRate && translate('trade.sort.bestRate')}
           {currentSortType === SortType.LowestGas && translate('trade.sort.lowestGas')}
           {currentSortType === SortType.Fastest && translate('trade.sort.fastest')}
@@ -114,13 +101,8 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
                 variant='ghost'
                 isAttached
                 isDisabled={isDisabled}
+                width='full'
               >
-                <Button
-                  onClick={handleAutoSortTypeChange}
-                  isActive={currentSortType === SortType.Auto}
-                >
-                  {translate('trade.sort.auto')}
-                </Button>
                 <Button
                   onClick={handleBestRateSortTypeChange}
                   isActive={currentSortType === SortType.BestRate}

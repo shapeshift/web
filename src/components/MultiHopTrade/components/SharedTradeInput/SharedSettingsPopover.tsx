@@ -161,6 +161,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                   py={1}
                   borderRadius='xl'
                   variant='ghost'
+                  width='full'
                 >
                   <Button
                     onClick={handleAutoSlippageTypeChange}

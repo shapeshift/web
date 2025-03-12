@@ -129,7 +129,7 @@ const isKnownNetworkFees = (quote: ApiQuote): boolean => {
 
 const sortApiQuotes = (
   unorderedQuotes: ApiQuote[],
-  sortOption: QuoteSortOption = QuoteSortOption.AUTO,
+  sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE
 ): ApiQuote[] => {
   let iteratees: ((quote: ApiQuote) => any)[] = []
   let sortOrders: ('asc' | 'desc')[] = []
@@ -182,18 +182,6 @@ const sortApiQuotes = (
       break
 
     case QuoteSortOption.BEST_RATE:
-      // Sort by input/output ratio, with undefined values at the end
-      iteratees = [
-        (quote: ApiQuote) => {
-          const ratio = quote.inputOutputRatio
-          // If ratio is undefined, return -Infinity to place at the end (since we sort desc)
-          return ratio !== undefined ? ratio : -Infinity
-        },
-      ]
-      sortOrders = ['desc'] // Descending order for best rate
-      break
-
-    case QuoteSortOption.AUTO:
     default:
       // Use the original sorting logic with custom iteratees to handle undefined values
       iteratees = [
@@ -210,8 +198,8 @@ const sortApiQuotes = (
 
   const orderedQuotes = orderBy(unorderedQuotes, iteratees, sortOrders)
 
-  // Only use partitioning for the AUTO option
-  if (sortOption === QuoteSortOption.AUTO) {
+  // Only use partitioning for the BEST_RATE option (previously AUTO)
+  if (sortOption === QuoteSortOption.BEST_RATE) {
     const [quotesWithKnownFees, quotesWithUnknownFees] = partition(
       orderedQuotes,
       isKnownNetworkFees,
@@ -225,7 +213,7 @@ const sortApiQuotes = (
 
 export const sortTradeQuotes = (
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>>,
-  sortOption: QuoteSortOption = QuoteSortOption.AUTO,
+  sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE
 ): ApiQuote[] => {
   console.log('sortTradeQuotes called with sortOption:', sortOption)
   const allQuotes = Object.values(tradeQuotes)

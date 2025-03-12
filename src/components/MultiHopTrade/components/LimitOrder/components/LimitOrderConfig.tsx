@@ -105,14 +105,8 @@ export const LimitOrderConfig = ({
   )
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
-  const priceCryptoFormatted = useMemo(() => {
-    const cryptoAmountIntegerCount = bnOrZero(
-      bnOrZero(limitPriceForSelectedPriceDirection).toFixed(0),
-    ).precision(true)
-
-    return cryptoAmountIntegerCount <= 8
-      ? bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
-      : bnOrZero(limitPriceForSelectedPriceDirection).toFixed(3)
+  const limitPriceCryptoPrecision = useMemo(() => {
+    return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
   const handleSetPresetLimit = useCallback(
@@ -171,11 +165,11 @@ export const LimitOrderConfig = ({
 
   const oppositeCurrency = useMemo(() => {
     return isInputtingFiatSellAmount ? (
-      <Amount.Crypto value={priceCryptoFormatted} symbol={priceAsset.symbol} prefix='≈' />
+      <Amount.Crypto value={limitPriceCryptoPrecision} symbol={priceAsset.symbol} prefix='≈' />
     ) : (
       <Amount.Fiat value={fiatValue} prefix='≈' />
     )
-  }, [fiatValue, isInputtingFiatSellAmount, priceAsset.symbol, priceCryptoFormatted])
+  }, [fiatValue, isInputtingFiatSellAmount, priceAsset.symbol, limitPriceCryptoPrecision])
 
   const delta = useMemo(
     () => bn(limitPrice.buyAssetDenomination).div(marketPriceBuyAsset).minus(1).times(100),
@@ -191,17 +185,17 @@ export const LimitOrderConfig = ({
 
     if (priceDirection === PriceDirection.BuyAssetDenomination) {
       return (
-        bnOrZero(priceCryptoFormatted).gt(marketPriceMinusOnePercent) &&
-        bnOrZero(priceCryptoFormatted).lt(marketPricePlusOnePercent)
+        bnOrZero(limitPriceCryptoPrecision).gt(marketPriceMinusOnePercent) &&
+        bnOrZero(limitPriceCryptoPrecision).lt(marketPricePlusOnePercent)
       )
     }
 
-    const invertedPrice = bnOrZero(1).div(priceCryptoFormatted)
+    const invertedPrice = bnOrZero(1).div(limitPriceCryptoPrecision)
 
     return (
       invertedPrice.gt(marketPriceMinusOnePercent) && invertedPrice.lt(marketPricePlusOnePercent)
     )
-  }, [isLoading, priceCryptoFormatted, marketPriceBuyAsset, priceDirection])
+  }, [isLoading, limitPriceCryptoPrecision, marketPriceBuyAsset, priceDirection])
 
   const maybePriceWarning = useMemo(() => {
     if (
@@ -411,7 +405,9 @@ export const LimitOrderConfig = ({
               suffix={isInputtingFiatSellAmount ? localeParts.postfix : ''}
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
               value={
-                isInputtingFiatSellAmount ? bnOrZero(fiatValue).toFixed(2) : priceCryptoFormatted
+                isInputtingFiatSellAmount
+                  ? bnOrZero(fiatValue).toFixed(2)
+                  : limitPriceCryptoPrecision
               }
               onValueChange={handleValueChange}
               onChange={handleInputValueChange}

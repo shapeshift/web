@@ -123,8 +123,11 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@cosmjs')) return '@cosmjs'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@shapeshiftoss/hdwallet')) return '@shapeshiftoss/hdwallet'
+              return null
             }
-            return null
+            if (id.includes('packages')) return `pkg-${id.split('packages')[1].split('/')[1]}`
+            if (id.includes('src')) return `src-${id.split('src')[1].split('/')[1]}`
+            return 'common'
           },
         },
         onwarn(warning, warn) {

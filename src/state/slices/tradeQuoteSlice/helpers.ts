@@ -20,6 +20,9 @@ import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 
+// Maximum value for sorting - used to place items at the end of sorted lists
+const MAX_SORT_VALUE = Number.MAX_SAFE_INTEGER
+
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
@@ -129,7 +132,7 @@ const isKnownNetworkFees = (quote: ApiQuote): boolean => {
 
 const sortApiQuotes = (
   unorderedQuotes: ApiQuote[],
-  sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE
+  sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
 ): ApiQuote[] => {
   let iteratees: ((quote: ApiQuote) => any)[] = []
   let sortOrders: ('asc' | 'desc')[] = []
@@ -140,29 +143,18 @@ const sortApiQuotes = (
       // and handles undefined values by placing them at the end
       iteratees = [
         (quote: ApiQuote) => {
-          // If quote or steps are undefined, return Infinity to place at the end
-          if (!quote.quote?.steps) return Infinity
+          // If quote or steps are undefined, return MAX_SORT_VALUE to place at the end
+          if (!quote.quote?.steps) return MAX_SORT_VALUE
 
-          // Calculate the total network fee across all steps
-          try {
-            const totalNetworkFee = quote.quote.steps.reduce((total: bigint, step) => {
-              // If networkFeeCryptoBaseUnit is undefined, treat as maximum value
-              if (!step?.feeData?.networkFeeCryptoBaseUnit) return total
+          const totalNetworkFee = quote.quote.steps.reduce((total: bigint, step) => {
+            if (!step?.feeData?.networkFeeCryptoBaseUnit) return total
 
-              try {
-                return total + BigInt(step.feeData.networkFeeCryptoBaseUnit)
-              } catch (e) {
-                // If we can't parse as BigInt, just return the current total
-                return total
-              }
-            }, BigInt(0))
+            return total + BigInt(step.feeData.networkFeeCryptoBaseUnit)
+          }, BigInt(0))
 
-            // Return the string representation for sorting
-            return totalNetworkFee.toString()
-          } catch (e) {
-            // If any error occurs during calculation, place at the end
-            return Infinity
-          }
+          // Parse as number for consistent sorting (safe for reasonable fee values)
+          // If the value is too large for a number, it will be Infinity which is fine for sorting
+          return Number(totalNetworkFee)
         },
       ]
       sortOrders = ['asc'] // Ascending order for lowest gas
@@ -172,10 +164,20 @@ const sortApiQuotes = (
       // Sort by estimated execution time, with undefined values at the end
       iteratees = [
         (quote: ApiQuote) => {
-          // Access estimatedExecutionTimeMs from the quote object
-          const time = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
-          // If time is undefined, return Infinity to place at the end
-          return time !== undefined ? time : Infinity
+          // If quote or steps are undefined, return MAX_SORT_VALUE to place at the end
+          if (!quote.quote?.steps) return MAX_SORT_VALUE
+
+          // Calculate the total execution time across all steps
+          const totalExecutionTime = quote.quote.steps.reduce((total: number, step) => {
+            // If estimatedExecutionTimeMs is undefined, don't add anything
+            if (step?.estimatedExecutionTimeMs === undefined) return total
+            
+            // Add the execution time to the total
+            return total + step.estimatedExecutionTimeMs
+          }, 0)
+          
+          // If no steps had execution time data, return MAX_SORT_VALUE to place at the end
+          return totalExecutionTime > 0 ? totalExecutionTime : MAX_SORT_VALUE
         },
       ]
       sortOrders = ['asc'] // Ascending order for fastest
@@ -186,8 +188,8 @@ const sortApiQuotes = (
       // Use the original sorting logic with custom iteratees to handle undefined values
       iteratees = [
         (quote: ApiQuote) =>
-          quote.inputOutputRatio !== undefined ? quote.inputOutputRatio : -Infinity,
-        (quote: ApiQuote) => (quote.quote?.rate !== undefined ? quote.quote.rate : -Infinity),
+          quote.inputOutputRatio !== undefined ? quote.inputOutputRatio : -MAX_SORT_VALUE,
+        (quote: ApiQuote) => (quote.quote?.rate !== undefined ? quote.quote.rate : -MAX_SORT_VALUE),
         (quote: ApiQuote) => quote.swapperName,
       ]
       sortOrders = ['desc', 'desc', 'asc']
@@ -213,7 +215,7 @@ const sortApiQuotes = (
 
 export const sortTradeQuotes = (
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>>,
-  sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE
+  sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
 ): ApiQuote[] => {
   console.log('sortTradeQuotes called with sortOption:', sortOption)
   const allQuotes = Object.values(tradeQuotes)

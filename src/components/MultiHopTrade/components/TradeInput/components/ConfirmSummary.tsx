@@ -1,5 +1,4 @@
 import { Alert, AlertIcon, useMediaQuery } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
@@ -25,7 +24,7 @@ import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isKeepKeyHDWallet, isToken } from '@/lib/utils'
+import { isToken } from '@/lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
@@ -71,7 +70,7 @@ export const ConfirmSummary = ({
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { isConnected },
   } = useWallet()
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -180,20 +179,8 @@ export const ConfirmSummary = ({
     isWalletReceiveAddressLoading,
   })
 
-  // Taproot sends are unsupported for KeepKey, and Chainflip uses Taproot address for BTC sells.
-  const isUnsupportedKeepKeyP2TrTx = useMemo(() => {
-    return (
-      wallet &&
-      sellAsset?.assetId === btcAssetId &&
-      isKeepKeyHDWallet(wallet) &&
-      activeSwapperName === SwapperName.Chainflip
-    )
-  }, [activeSwapperName, sellAsset?.assetId, wallet])
-
   const shouldDisablePreviewButton = useMemo(() => {
     return (
-      // No dice for KK BTC sends
-      isUnsupportedKeepKeyP2TrTx ||
       // don't execute trades while address is validating
       isManualReceiveAddressRequired ||
       isManualReceiveAddressValidating ||
@@ -212,7 +199,6 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
-    isUnsupportedKeepKeyP2TrTx,
     isManualReceiveAddressRequired,
     isManualReceiveAddressValidating,
     isManualReceiveAddressEditing,
@@ -246,11 +232,12 @@ export const ConfirmSummary = ({
           tradeQuoteError.error === TradeQuoteError.FinalQuoteExecutionReverted):
         return 'trade.previewTrade'
       case !!tradeQuoteError:
-        return getQuoteErrorTranslation(tradeQuoteError!)
+        // TS pls
+        return tradeQuoteError ? getQuoteErrorTranslation(tradeQuoteError) : 'common.error'
       case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:
         return 'trade.noRateAvailable'
-      case !isConnected || isDemoWallet:
-        // We got a happy path quote, but we may still be in the context of the demo wallet
+      case !isConnected:
+        // We got a happy path quote, but no wallet connected
         return 'common.connectWallet'
       default:
         return 'trade.previewTrade'
@@ -267,7 +254,6 @@ export const ConfirmSummary = ({
     isAnyTradeQuoteLoading,
     isAnySwapperQuoteAvailable,
     isConnected,
-    isDemoWallet,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {
@@ -299,16 +285,9 @@ export const ConfirmSummary = ({
           <Text translation={nativeAssetBridgeWarning} />
         </Alert>
       )
-    if (isUnsupportedKeepKeyP2TrTx)
-      return (
-        <Alert status='info' borderRadius='lg'>
-          <AlertIcon />
-          <Text translation='trade.disableChainflipKeepKeyTaprootReceive' />
-        </Alert>
-      )
 
     return null
-  }, [isUnsupportedKeepKeyP2TrTx, nativeAssetBridgeWarning])
+  }, [nativeAssetBridgeWarning])
 
   const manualAddressEntryDescription = useMemo(() => {
     if (shouldDisableThorNativeSmartContractReceive)

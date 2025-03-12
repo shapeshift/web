@@ -78,14 +78,12 @@ export const WalletConnected = (props: WalletConnectedProps) => {
 
 type WalletButtonProps = {
   isConnected: boolean
-  isDemoWallet: boolean
   isLoadingLocalWallet: boolean
   onConnect: () => void
 } & Pick<InitialState, 'walletInfo'>
 
 const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
-  isDemoWallet,
   walletInfo,
   onConnect,
   isLoadingLocalWallet,
@@ -119,7 +117,7 @@ const WalletButton: FC<WalletButtonProps> = ({
     // ENS is registered for address and is successfully fetched. Set ENS name as label
     if (ensName) {
       setShouldShorten(false)
-      return setWalletLabel(ensName!)
+      return setWalletLabel(ensName)
     }
 
     // No label or ENS name, set regular wallet address as label
@@ -130,11 +128,11 @@ const WalletButton: FC<WalletButtonProps> = ({
   const leftIcon = useMemo(
     () => (
       <HStack>
-        {!(isConnected || isDemoWallet) && <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+        {!isConnected && <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
         <WalletImage walletInfo={maybeMipdProvider?.info || walletInfo} />
       </HStack>
     ),
-    [isConnected, isDemoWallet, maybeMipdProvider, walletInfo],
+    [isConnected, maybeMipdProvider, walletInfo],
   )
   const connectIcon = useMemo(() => <FaWallet />, [])
 
@@ -172,8 +170,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
-    state
+  const { isConnected, walletInfo, connectedType, isLocked, isLoadingLocalWallet } = state
 
   const maybeRdns = useAppSelector(selectWalletRdns)
 
@@ -193,7 +190,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
             onConnect={handleConnect}
             walletInfo={walletInfo}
             isConnected={isConnected && !isLocked}
-            isDemoWallet={isDemoWallet}
             isLoadingLocalWallet={isLoadingLocalWallet}
             data-test='navigation-wallet-dropdown-button'
           />
@@ -206,7 +202,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
           >
             {hasWallet || isLoadingLocalWallet ? (
               <WalletConnected
-                isConnected={isConnected || isDemoWallet}
+                isConnected={isConnected}
                 walletInfo={maybeMipdProvider?.info || walletInfo}
                 onDisconnect={disconnect}
                 onSwitchProvider={handleConnect}

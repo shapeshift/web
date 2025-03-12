@@ -183,8 +183,7 @@ export const SelectModal = () => {
   )
 
   const wallets = useMemo(
-    () =>
-      Object.values(KeyManager).filter(key => key !== KeyManager.Demo && key !== KeyManager.Native),
+    () => Object.values(KeyManager).filter(key => key !== KeyManager.Native),
     [],
   )
 

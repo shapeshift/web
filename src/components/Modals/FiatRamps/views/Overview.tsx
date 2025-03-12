@@ -99,7 +99,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const toast = useToast()
   const assets = useAppSelector(selectAssets)
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { wallet, isConnected },
     dispatch,
   } = useWallet()
 
@@ -160,9 +160,10 @@ export const Overview: React.FC<OverviewProps> = ({
     const showOnDevice = true
     const { accountNumber } = bip44Params
     const payload = { accountType, accountNumber, wallet, showOnDevice }
-    const verifiedAddress = await getChainAdapterManager()
-      .get(fromAccountId(accountId).chainId)!
-      .getAddress(payload)
+    const adapter = getChainAdapterManager().get(fromAccountId(accountId).chainId)
+    if (!adapter) throw new Error('No adapter found')
+
+    const verifiedAddress = await adapter.getAddress(payload)
     const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
@@ -216,7 +217,7 @@ export const Overview: React.FC<OverviewProps> = ({
       .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
       .map(rampId => {
         const ramp = supportedFiatRamps[rampId]
-        const passedAddress = isDemoWallet ? '' : address
+        const passedAddress = address
         return (
           <FiatRampButton
             key={rampId}
@@ -236,7 +237,6 @@ export const Overview: React.FC<OverviewProps> = ({
     fiatCurrency,
     fiatRampAction,
     handlePopupClick,
-    isDemoWallet,
     isRampsLoading,
     ramps,
   ])
@@ -325,7 +325,7 @@ export const Overview: React.FC<OverviewProps> = ({
             {description && (
               <Text translation={description} color='text.subtle' mt='15px' mb='8px' />
             )}
-            {isConnected && !isDemoWallet ? (
+            {isConnected ? (
               <>
                 {isUnsupportedAsset ? (
                   <Button

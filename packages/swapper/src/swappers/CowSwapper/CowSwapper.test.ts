@@ -288,7 +288,7 @@ describe('cowApi', () => {
           Ok({ data: cowswapQuoteResponse } as unknown as AxiosResponse<OrderQuoteResponse>),
         ),
       )
-      const actual = await cowApi.getUnsignedEvmMessage!({
+      const actual = await cowApi.getUnsignedEvmMessage?.({
         from,
         slippageTolerancePercentageDecimal,
         tradeQuote,

@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -53,7 +53,7 @@ export const LimitOrderConfirm = () => {
     limitOrderSlice.actions,
   )
   const {
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -69,6 +69,18 @@ export const LimitOrderConfirm = () => {
 
   const mixpanel = getMixPanel()
   const hasConfirmedRef = useRef(false)
+  const prevIsConnected = usePrevious(isConnected)
+
+  const handleBack = useCallback(() => {
+    dispatch(limitOrderSlice.actions.clear())
+    history.push(LimitOrderRoutePaths.Input)
+  }, [dispatch, history])
+
+  useEffect(() => {
+    if (prevIsConnected && !isConnected) {
+      handleBack()
+    }
+  }, [isConnected, prevIsConnected, handleBack])
 
   const { isLoading: isLoadingSetIsApprovalInitiallyNeeded } = useSetIsApprovalInitiallyNeeded()
 
@@ -118,11 +130,6 @@ export const LimitOrderConfirm = () => {
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset &&
       allowanceReset.state !== TransactionExecutionState.Pending,
   })
-
-  const handleBack = useCallback(() => {
-    dispatch(limitOrderSlice.actions.clear())
-    history.push(LimitOrderRoutePaths.Input)
-  }, [dispatch, history])
 
   const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
     usePlaceLimitOrderMutation({ fixedCacheKey: quoteId as string | undefined })
@@ -258,7 +265,7 @@ export const LimitOrderConfirm = () => {
 
   const buttonTranslation: string | [string, number | InterpolationOptions] | undefined =
     useMemo(() => {
-      if (!isConnected || isDemoWallet) return 'common.connectWallet'
+      if (!isConnected) return 'common.connectWallet'
       switch (orderSubmissionState) {
         case LimitOrderSubmissionState.AwaitingAllowanceApproval:
           return ['trade.approveAsset', { symbol: sellAsset?.symbol }]
@@ -269,10 +276,10 @@ export const LimitOrderConfirm = () => {
         default:
           return undefined
       }
-    }, [isConnected, isDemoWallet, orderSubmissionState, sellAsset?.symbol])
+    }, [isConnected, orderSubmissionState, sellAsset?.symbol])
 
   const handleConfirm = useCallback(async () => {
-    if (!isConnected || isDemoWallet) {
+    if (!isConnected) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -341,7 +348,6 @@ export const LimitOrderConfirm = () => {
     buyAsset,
     dispatch,
     isConnected,
-    isDemoWallet,
     mixpanel,
     orderSubmissionState,
     placeLimitOrder,

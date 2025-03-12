@@ -7,7 +7,7 @@ const env = loadEnv(mode, process.cwd(), '')
 
 export const csp: Csp = {
   'connect-src': [
-    env.VITE_WALLET_CONNECT_RELAY_URL!,
+    env.VITE_WALLET_CONNECT_RELAY_URL,
     'wss://*.bridge.walletconnect.org/',
     'wss://*.relay.walletconnect.org/',
     'wss://relay.walletconnect.org/',

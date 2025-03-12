@@ -75,13 +75,15 @@ export const EIP155TransactionConfirmation: FC<
     [feeAsset?.icon],
   )
 
+  const gas = useMemo(
+    () => transaction?.gasLimit ?? transaction?.gas,
+    [transaction?.gas, transaction?.gasLimit],
+  )
+
   const form = useForm<CustomTransactionData>({
     defaultValues: {
       nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
-      gasLimit:
-        transaction?.gasLimit ?? transaction?.gas
-          ? convertHexToNumber((transaction?.gasLimit ?? transaction?.gas)!).toString()
-          : undefined,
+      gasLimit: gas ? convertHexToNumber(gas).toString() : undefined,
       speed: FeeDataKey.Average,
       customFee: {
         baseFee: '0',

@@ -3,8 +3,6 @@ import { useColorModeValue } from '@chakra-ui/react'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { crypto } from '@shapeshiftoss/hdwallet-native'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
@@ -27,7 +25,6 @@ import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
-import { PublicWalletXpubs } from '@/constants/PublicWalletXpubs'
 import type { Entropy } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
@@ -89,7 +86,6 @@ export type InitialState = {
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
-  isDemoWallet: boolean
   wcV2Provider: EthereumProviderType | null
   isLocked: boolean
   modal: boolean
@@ -121,7 +117,6 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
-  isDemoWallet: false,
   wcV2Provider: null,
   isLocked: false,
   modal: false,
@@ -145,7 +140,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         store.dispatch(localWalletSlice.actions.clearLocalWallet())
         store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       }
-      const { deviceId, name, wallet, icon, meta, isDemoWallet, connectedType } = action.payload
+      const { deviceId, name, wallet, icon, meta, connectedType } = action.payload
       // set wallet metadata in redux store
       const walletMeta = {
         walletId: deviceId,
@@ -155,7 +150,6 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       return {
         ...state,
         deviceId,
-        isDemoWallet: Boolean(isDemoWallet),
         wallet,
         connectedType,
         walletInfo: {
@@ -368,12 +362,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const isDarkMode = useColorModeValue(false, true)
 
   // Internal state, for memoization and persistence purposes only
-  const {
-    localWalletType: walletType,
-    localWalletDeviceId,
-    setLocalWallet,
-    setLocalNativeWalletName,
-  } = useLocalWallet()
+  const { localWalletType: walletType, localWalletDeviceId } = useLocalWallet()
 
   const mipdProviders = useMipdProviders()
 
@@ -802,10 +791,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             break
           }
           default:
-            /**
-             * The fall-through case also handles clearing
-             * any demo wallet state on refresh/rerender.
-             */
             disconnect()
             break
         }
@@ -836,50 +821,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })
     }
   }, [])
-
-  const connectDemo = useCallback(async () => {
-    const { name, icon, adapters } = SUPPORTED_WALLETS[KeyManager.Demo]
-    // For the demo wallet, we use the name, DemoWallet, as the deviceId
-    const deviceId = name
-    setLocalWallet({ type: KeyManager.Demo, deviceId })
-    setLocalNativeWalletName(name)
-    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
-
-    try {
-      const Adapter = await adapters[0].loadAdapter()
-      // eslint is drunk, this isn't a hook
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const adapterInstance = Adapter.useKeyring(state.keyring)
-
-      const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
-      const { create } = crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
-      await wallet.loadDevice({
-        mnemonic: await create(PublicWalletXpubs),
-        deviceId,
-      })
-      await wallet.initialize()
-      dispatch({
-        type: WalletActions.SET_WALLET,
-        payload: {
-          isDemoWallet: true,
-          wallet,
-          name,
-          icon,
-          deviceId,
-          meta: { label: name },
-          connectedType: KeyManager.Demo,
-        },
-      })
-      dispatch({
-        type: WalletActions.SET_IS_CONNECTED,
-        payload: false,
-      })
-    } catch (error) {
-      console.error(error)
-    } finally {
-      dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-    }
-  }, [setLocalNativeWalletName, setLocalWallet, state.keyring])
 
   const create = useCallback((type: KeyManager) => {
     dispatch({
@@ -940,19 +881,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      connectDemo,
     }),
-    [
-      state,
-      getAdapter,
-      connect,
-      create,
-      importWallet,
-      disconnect,
-      load,
-      setDeviceState,
-      connectDemo,
-    ],
+    [state, getAdapter, connect, create, importWallet, disconnect, load, setDeviceState],
   )
 
   return (

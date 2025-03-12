@@ -140,6 +140,8 @@
     "needAsset": "Нужно немного %{asset}?",
     "buyNow": "Купить сейчас",
     "manage": "Управлять",
+    "view": "Посмотреть",
+    "viewOnly": "Только просмотр",
     "selectedAccount": "Выбранный счет",
     "allChains": "Все сети",
     "wallet": "Кошелек",
@@ -512,9 +514,9 @@
     "clickHereToEarn": "Нажмите здесь, чтобы заработать %{apr} APR* фармингом пула ликвидности ETH-FOX",
     "overview": "Обзор",
     "myPositions": "Мои позиции",
-    
+    "myPositionsBody": "Список ваших текущих активных позиций в DeFi.",
     "myRewards": "Мои награды",
-    
+    "myRewardsBody": "Ваши активные позиции DeFi с возможностью получения вознаграждения.",
     "viewAllPositions": "Посмотреть все позиции",
     "liquidityPools": "Пулы ликвидности",
     "liquidityLockupWarning": "Существует период блокировки %{time}. Во время блокировки вы не можете получить доступ к своей ликвидности.",
@@ -528,8 +530,6 @@
     "poolValue": "Обьем пула",
     "yearn": "Yearn Finance",
     "totalValue": "Общая стоимость",
-    "byAsset": "По активам",
-    "byProvider": "По провайдеру",
     "claimableRewards": "Вознаграждения, на которые можно претендовать",
     "stakingPosition": "Позиция стейкинга",
     "liquidityPool": "Пул ликвидности",
@@ -590,6 +590,8 @@
     "assetStakingBalance": "%{assetSymbol} Баланс стейкинга"
   },
   "navBar": {
+    "thorchain": "THORChain",
+    "fox": "fox",
     "home": "На главную",
     "activity": "Активность",
     "myWallet": "Мой кошелёк",
@@ -624,7 +626,7 @@
     "lending": "Кредитование",
     "pools": "Пулы",
     "rFOX": "rFOX",
-    "foxBenefits": "Преимущества FOX",
+    "foxEcosystem": "Экосистема FOX ",
     "markets": "Рынки",
     "actionMenu": {
       "send": {
@@ -2468,6 +2470,7 @@
     "repayNotice": "Для возврата залога необходимо погасить 100% долга.",
     "feesNotice": "Комиссионные, начисленные на залог, который вы получите обратно после погашения 100% долга",
     "refetchQuote": "Refetch Quote",
+    "haltedAlert": "Услуги THORFi (Lending, Savers и RUNEPool) в настоящее время приостановлены на THORChain. Мы приносим извинения за возможные неудобства.",
     "faq": {
       "title": "ЧАСТЫЕ ВОПРОСЫ",
       "lending": {
@@ -2515,15 +2518,19 @@
     "simulateBody": "Воспользуйтесь этим удобным калькулятором, чтобы определить общую сумму сборов и скидку, которую вы получите на %{feature}. Просто установите ползунки ниже, чтобы указать сумму держателя FOX и размер %{featureLowerCase} в фиатах, и наблюдайте за потенциальной экономией!",
     "featureSize": "%{feature} Размер",
     "totalFee": "Общая комиссия",
-    "foxPowerDiscount": "Скидка FOX Power",
+    "discountLabel": "%{discountType} Скидка",
     "basedOnFee": "На основе вознаграждения в размере: %{fee}",
     "feeSummary": "Сводка расходов за газ",
-    "simulateFee": "Имитировать скидку",
+    "simulateFee": "Имитация скидки FOX",
     "freeUnderThreshold": "%{feature} ниже %{threshold} всегда БЕСПЛАТНО",
-    "breakdownHeader": "Ваша скидка силы FOX ",
-    "breakdownBody": "Ниже приведена разбивка ваших %{featureLowerCase} расходов и соответствующей примененной скидки FOX Power Discount. Узнайте, сколько еще вы можете сэкономить на вкладке \"Моделирование\".",
+    "breakdownHeader": "Ваша скидка",
+    "breakdownBody": "Ниже приведена разбивка ваших %{featureLowerCase} затрат и соответствующей примененной скидки. Узнайте, сколько еще вы можете сэкономить на вкладке «Моделирование».",
     "featureFee": "%{feature} Комиссии",
-    "totalFeatureFee": "Общая комиссия %{feature} "
+    "totalFeatureFee": "Общая комиссия %{feature} ",
+    "underThreshold": "Низкий уровень торговли",
+    "thorHolder": "Холдеры THORSwap ",
+    "foxHolder": "Холдеры FOX ",
+    "foxWifHatHolder": "Холдеры FOX Wif Hat "
   },
   "chart": {
     "interval": {
@@ -2564,6 +2571,7 @@
     "unsupportedDemoWalletExplainer": "Демо-кошелек не поддерживается, пожалуйста, подключитесь к кошельку, чтобы использовать эту функцию.",
     "unsupportedNetworkExplainer": "Ваш кошелек не подключен к %{network}. Пожалуйста, подключите эту сеть или переключитесь на кошелек, поддерживающий эту сеть.",
     "unsupportedNetworksExplainer": "Ваш кошелек не подключен к %{network1} и %{network2}. Пожалуйста, подключите эту цепочку или переключитесь на кошелек, поддерживающий эти сети.",
+    "instabilityWarning": "В настоящее время пользователи сталкиваются с проблемой возврата средств при пополнении пулов THORChain. Пожалуйста, будьте осторожны.",
     "shareOfPool": "Доля пула",
     "assetDepositAmount": "Сумма депозита %{asset} ",
     "totalLiquidity": "Общая ликвидность",
@@ -2860,10 +2868,6 @@
       "noActiveProposals": "Активные предложения отсутствуют",
       "noClosedProposals": "Закрытые предложения отсутствуют"
     }
-  },
-  "thorFees": {
-    "title": "Здесь из THORSwap?",
-    "description": "Обладатели THOR будут торговать бесплатно до 2024 года."
   },
   "chainAdapters": {
     "errors": {

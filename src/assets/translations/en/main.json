@@ -59,6 +59,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
@@ -324,7 +325,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",
-      "switchWallet": "Switch Wallet Provider",
+      "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
       "connecting": "Connecting..."
@@ -1867,12 +1868,22 @@
         "button": "Next"
       },
       "rename": {
-        "header": "Rename your wallet",
+        "header": "Rename my wallet",
         "walletName": "New nickname for your wallet",
-        "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
+        "body": "Enter the new nickname of your wallet and your password to decrypt %{name}.",
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
-        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?",
+        "success": "Wallet renamed successfully",
+        "error": {
+          "empty": "Wallet name cannot be empty"
+        }
+      },
+      "delete": {
+        "header": "Delete my wallet",
+        "body": "Enter your password to delete %{name}.",
+        "confirmDelete": "Confirm",
+        "success": "Wallet deleted successfully"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Log In is being Deprecated",

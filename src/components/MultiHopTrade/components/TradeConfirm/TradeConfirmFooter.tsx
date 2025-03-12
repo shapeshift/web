@@ -36,7 +36,6 @@ type TradeConfirmFooterProps = {
 export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   tradeQuoteStep,
   activeTradeId,
-  isCompact,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const { currentTradeStep } = useStepperSteps()

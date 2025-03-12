@@ -17,11 +17,7 @@ enum SortType {
   Fastest = 'Fastest',
 }
 
-type QuoteSortSelectorProps = {
-  isDisabled?: boolean
-}
-
-export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled }) => {
+export const QuoteSortSelector: FC = memo(() => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const currentSortOption = useAppSelector(selectQuoteSortOption)
@@ -100,7 +96,6 @@ export const QuoteSortSelector: FC<QuoteSortSelectorProps> = memo(({ isDisabled 
                 borderRadius='xl'
                 variant='ghost'
                 isAttached
-                isDisabled={isDisabled}
                 width='full'
               >
                 <Button

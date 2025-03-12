@@ -231,7 +231,6 @@ const sortApiQuotes = (
     }
   })()
 
-  // Simply return the ordered quotes without any special partitioning
   return orderBy(quotesWithoutErrors, iteratees, sortOrders)
 }
 

@@ -14,6 +14,7 @@ import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
 import { fromBaseUnit } from '@/lib/math'
+import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectInputBuyAsset,
@@ -62,9 +63,7 @@ export const MultiHopTrade = memo(
     // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
     // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
     const match = matchPath<MatchParams>(location.pathname, {
-      path:
-        TradeRoutePaths.Input +
-        '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+      path: TRADE_ROUTE_ASSET_SPECIFIC,
       exact: true,
     })
 

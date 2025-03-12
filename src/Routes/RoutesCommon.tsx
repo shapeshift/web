@@ -20,6 +20,9 @@ import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
+export const TRADE_ROUTE_ASSET_SPECIFIC =
+  '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
+
 const Home = makeSuspenseful(
   lazy(() =>
     import('@/pages/Home/Home').then(({ Home }) => ({
@@ -145,7 +148,7 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     routes: [
       {
-        path: '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+        path: TRADE_ROUTE_ASSET_SPECIFIC,
         main: Trade,
         hide: true,
       },

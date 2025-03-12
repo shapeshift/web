@@ -12,6 +12,7 @@ import { Claim } from '@/components/MultiHopTrade/components/TradeInput/componen
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
 const padding = { base: 0, md: 8 }
 
@@ -37,7 +38,7 @@ export const Trade = memo(() => {
   const match = useMemo(
     () =>
       matchPath<MatchParams>(location.pathname, {
-        path: `${TradeRoutePaths.Input}/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit`,
+        path: TRADE_ROUTE_ASSET_SPECIFIC,
         exact: true,
       }),
     [location.pathname],

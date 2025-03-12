@@ -1085,6 +1085,9 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
+    "sellBuy": "Sell → Buy",
+    "limitExecution": "Limit/Execution",
+    "statusHead": "Status",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",

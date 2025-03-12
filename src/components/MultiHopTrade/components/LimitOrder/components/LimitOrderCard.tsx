@@ -277,7 +277,6 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               color={status === OrderStatus.FULFILLED ? 'text.subtle' : 'text.base'}
               fontSize={fontSize}
               maximumFractionDigits={6}
-              prefix='~'
             />
           </HoverTooltip>
           {status === OrderStatus.FULFILLED && (
@@ -288,7 +287,6 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
                 fontSize={fontSize}
                 color='text.base'
                 maximumFractionDigits={6}
-                prefix='~'
               />
             </HoverTooltip>
           )}

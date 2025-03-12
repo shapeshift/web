@@ -199,9 +199,15 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                   <Table variant='unstyled' size='sm' sx={tableStyles}>
                     <Thead>
                       <Tr>
-                        <Th {...thSx}>Sell → Buy</Th>
-                        <Th {...thSx}>Limit/Execution</Th>
-                        <Th {...thSx}>Status</Th>
+                        <Th {...thSx}>
+                          <Text translation='limitOrder.sellBuy' />
+                        </Th>
+                        <Th {...thSx}>
+                          <Text translation='limitOrder.limitExecution' />
+                        </Th>
+                        <Th {...thSx}>
+                          <Text translation='limitOrder.statusHead' />
+                        </Th>
                         <Th {...thSx} width='48px'></Th>
                       </Tr>
                     </Thead>
@@ -246,9 +252,15 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                   <Table variant='unstyled' size='sm' sx={tableStyles}>
                     <Thead>
                       <Tr>
-                        <Th {...thSx}>Sell → Buy</Th>
-                        <Th {...thSx}>Limit/Execution</Th>
-                        <Th {...thSx}>Status</Th>
+                        <Th {...thSx}>
+                          <Text translation='limitOrder.sellBuy' />
+                        </Th>
+                        <Th {...thSx}>
+                          <Text translation='limitOrder.limitExecution' />
+                        </Th>
+                        <Th {...thSx}>
+                          <Text translation='limitOrder.statusHead' />
+                        </Th>
                       </Tr>
                     </Thead>
                     <Tbody>

@@ -287,10 +287,8 @@ export const routes: Route[] = [
   {
     path: '/limit',
     label: '',
-    icon: <SwapIcon />,
     hideDesktop: true,
     main: Trade,
-    category: RouteCategory.Featured,
     routes: [
       {
         path: '/limit/confirm',
@@ -318,11 +316,9 @@ export const routes: Route[] = [
     path: '/claim',
     label: '',
     hideDesktop: true,
-    icon: <SwapIcon />,
     mobileNav: false,
     priority: 4,
     main: Trade,
-    category: RouteCategory.Featured,
     routes: [
       {
         path: '/claim/confirm',

@@ -10,6 +10,7 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -33,6 +34,7 @@ type SharedTradeInputFooterProps = {
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
   onGasRateRowClick?: () => void
+  noExpand?: boolean
 }
 
 export const SharedTradeInputFooter = ({
@@ -55,6 +57,7 @@ export const SharedTradeInputFooter = ({
   swapSource,
   networkFeeFiatUserCurrency,
   onGasRateRowClick,
+  noExpand,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
@@ -99,15 +102,17 @@ export const SharedTradeInputFooter = ({
       >
         {hasUserEnteredAmount && (
           <RateGasRow
+            affiliateBps={affiliateBps}
             buyAssetSymbol={buyAsset.symbol}
             sellAssetSymbol={sellAsset.symbol}
             isDisabled={shouldDisableGasRateRowClick}
-            rate={rate}
+            rate={bnOrZero(rate).toFixed(buyAsset.precision)}
             isLoading={isLoading}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
             onClick={onGasRateRowClick}
+            noExpand={noExpand}
           >
             <ReceiveSummary
               isLoading={isLoading}

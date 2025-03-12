@@ -4,7 +4,7 @@ on:
   # Allows manual triggering if we ever want to
   workflow_dispatch:
   schedule:
-  - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
+  - cron: '0 9 * * *' # 9AM UTC every day
 
 jobs:
   regenerate-and-create-pr:

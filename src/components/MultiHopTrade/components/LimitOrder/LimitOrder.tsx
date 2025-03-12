@@ -38,6 +38,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         isCompact={isCompact}
         tradeInputRef={tradeInputRef}
         onChangeTab={onChangeTab}
+        noExpand
       />
     )
   }, [isCompact, onChangeTab, tradeInputRef])

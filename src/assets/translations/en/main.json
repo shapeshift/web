@@ -59,6 +59,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
@@ -324,7 +325,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",
-      "switchWallet": "Switch Wallet Provider",
+      "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
       "connecting": "Connecting..."
@@ -1045,7 +1046,12 @@
       "buyFox": "Buy FOX",
       "share": "Share",
       "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!"
-    }
+    },
+    "networkFee": "Network Fee",
+    "learnMoreAboutFox": "Learn more about FOX Benefits",
+    "freeTrade": "This trade is free based on your FOX holdings of %{foxBalance} FOX",
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based on your FOX holdings of %{foxBalance} FOX."
+
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1071,7 +1077,6 @@
     "executionPrice": "Execution Price",
     "provider": "Provider",
     "expiration": "Expiration",
-    "networkFee": "Network Fee",
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
     "learnMore": "Learn More",
     "previewOrder": "Preview Order",
@@ -1085,6 +1090,9 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
+    "sellBuy": "Sell → Buy",
+    "limitExecution": "Limit/Execution",
+    "statusHead": "Status",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",
@@ -1093,6 +1101,7 @@
       "twentyEightDays": "28 days",
       "custom": "Custom"
     },
+    "expires": "Expires %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "Native sell asset not supported",
       "insufficientValidTo": "Order expiry too soon",
@@ -1863,12 +1872,22 @@
         "button": "Next"
       },
       "rename": {
-        "header": "Rename your wallet",
+        "header": "Rename my wallet",
         "walletName": "New nickname for your wallet",
-        "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
+        "body": "Enter the new nickname of your wallet and your password to decrypt %{name}.",
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
-        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?",
+        "success": "Wallet renamed successfully",
+        "error": {
+          "empty": "Wallet name cannot be empty"
+        }
+      },
+      "delete": {
+        "header": "Delete my wallet",
+        "body": "Enter your password to delete %{name}.",
+        "confirmDelete": "Confirm",
+        "success": "Wallet deleted successfully"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Log In is being Deprecated",
@@ -2688,7 +2707,6 @@
     "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
     "shareOfPool": "Share of Pool",
-    "networkFee": "Network Fee",
     "thorchainRewardAddress": "THORChain Reward Address",
     "rewardAddressHelper": "This is where rewards will be sent",
     "useWalletAddress": "Use wallet address",

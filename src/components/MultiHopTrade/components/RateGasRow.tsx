@@ -3,7 +3,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { FC, PropsWithChildren } from 'react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo} from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -13,6 +13,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 
 type RateGasRowProps = {
   buyAssetSymbol: string
@@ -48,13 +49,18 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const [useInverse, setUseInverse] = useState(false)
+    const [useInverse, toggleUseInverse] = useToggle(false)
 
     // Compute the inverse rate for toggling between display formats:
-    const displayedRate = useMemo(() => {
-      const computedRate = rate ? parseFloat(rate) : 0
-      return computedRate !== 0 ? (1 / computedRate).toFixed(8) : '0'
+    const inverseRate = useMemo(() => {
+      const parsedRate = rate ? parseFloat(rate) : 0
+      return parsedRate === 0 ? '0' : (1 / parsedRate).toFixed(8)
     }, [rate])
+
+    const handleClick = useCallback(() => {
+      toggleUseInverse()
+      onClick && onClick()
+    }, [toggleUseInverse, onClick])
 
     switch (true) {
       case isLoading:
@@ -103,10 +109,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                       alignItems='center'
                       gap={2}
                       _hover={rateHover}
-                      onClick={() => {
-                        setUseInverse(!useInverse)
-                        onClick && onClick()
-                      }}
+                      onClick={handleClick}
                     >
                       <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
                       <Stack
@@ -139,7 +142,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                             />
                             <Amount.Crypto
                               fontSize='sm'
-                              value={displayedRate}
+                              value={inverseRate}
                               symbol={sellAssetSymbol}
                             />
                           </>

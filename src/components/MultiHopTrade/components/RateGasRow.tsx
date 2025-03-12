@@ -4,7 +4,7 @@ import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@c
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
-import { memo, useCallback, useMemo} from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -56,7 +56,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     // Compute the inverse rate for toggling between display formats:
     const inverseRate = useMemo(() => {
       const parsedRate = bnOrZero(rate)
-      return parsedRate.isZero() ? '0' : parsedRate.isPositive() ? bnOrZero(1).div(parsedRate).toFixed(8) : '0'
+      return parsedRate.isZero()
+        ? '0'
+        : parsedRate.isPositive()
+        ? bnOrZero(1).div(parsedRate).toFixed(8)
+        : '0'
     }, [rate])
 
     const handleClick = useCallback(() => {

@@ -111,6 +111,13 @@ export const limitOrderInput = createTradeInputBaseSlice({
       baseReducers.setSellAsset(state, action)
       resetLimitOrderConfig(state)
     },
+    setSellAmountCryptoPrecision: (state: LimitOrderInputState, action: PayloadAction<string>) => {
+      state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
+
+      if (bnOrZero(state.limitPrice[state.limitPriceDirection]).isZero()) {
+        state.limitPriceMode = LimitPriceMode.Market
+      }
+    },
     switchAssets: (
       state: LimitOrderInputState,
       action: PayloadAction<{

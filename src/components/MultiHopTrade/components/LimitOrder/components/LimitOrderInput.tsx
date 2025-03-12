@@ -39,7 +39,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
-import { LimitPriceMode } from '@/state/slices/limitOrderInputSlice/constants'
+import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -55,6 +55,7 @@ import {
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
+  selectLimitPriceDirection,
   selectLimitPriceMode,
   selectSelectedBuyAssetChainId,
   selectSelectedSellAssetChainId,
@@ -137,6 +138,8 @@ export const LimitOrderInput = ({
   const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
+
+  const priceDirection = useAppSelector(selectLimitPriceDirection)
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -424,10 +427,8 @@ export const LimitOrderInput = ({
             isLoading={isLoading}
             asset={buyAsset}
             accountId={buyAccountId}
-            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
-            onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
             assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
             selectedChainId={selectedBuyAssetChainId}
@@ -439,8 +440,6 @@ export const LimitOrderInput = ({
             buyAsset={buyAsset}
             isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
-            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-            onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -523,22 +522,33 @@ export const LimitOrderInput = ({
   ])
 
   const footerContent = useMemo(() => {
+    const shouldInvertRate = priceDirection === PriceDirection.SellAssetDenomination
+
+    const displaySellAsset = shouldInvertRate ? buyAsset : sellAsset
+    const displayBuyAsset = shouldInvertRate ? sellAsset : buyAsset
+    const displayRate = bnOrZero(limitPrice.buyAssetDenomination).isZero()
+      ? undefined
+      : shouldInvertRate
+      ? bnOrZero(1).div(limitPrice.buyAssetDenomination).toFixed(8)
+      : bnOrZero(limitPrice.buyAssetDenomination).toFixed(8)
+    const displayMarketRate = bnOrZero(marketPriceBuyAsset).isZero()
+      ? '0'
+      : shouldInvertRate
+      ? bnOrZero(1).div(marketPriceBuyAsset).toFixed(8)
+      : marketPriceBuyAsset
+
     return (
       <SharedTradeInputFooter
         affiliateBps={feeBps.toFixed(0)}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
-        buyAsset={buyAsset}
+        buyAsset={displayBuyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
         inputAmountUsd={inputSellAmountUsd}
         isError={isError}
         isLoading={isLoading}
         quoteStatusTranslation={quoteStatusTranslation}
-        rate={
-          bnOrZero(limitPrice.buyAssetDenomination).isZero()
-            ? undefined
-            : bnOrZero(limitPrice.buyAssetDenomination).toFixed(8)
-        }
-        marketRate={marketPriceBuyAsset}
+        rate={displayRate}
+        marketRate={displayMarketRate}
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
@@ -551,7 +561,7 @@ export const LimitOrderInput = ({
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
-        sellAsset={sellAsset}
+        sellAsset={displaySellAsset}
       >
         <>
           <LimitOrderFooter />
@@ -563,6 +573,8 @@ export const LimitOrderInput = ({
     feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
+    priceDirection,
+    sellAsset,
     hasUserEnteredAmount,
     inputSellAmountUsd,
     isError,
@@ -573,7 +585,6 @@ export const LimitOrderInput = ({
     sellAccountId,
     isRecipientAddressEntryActive,
     networkFeeUserCurrency,
-    sellAsset,
     renderedRecipientAddress,
   ])
 

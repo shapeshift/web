@@ -1,6 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import React, { memo, useCallback, useMemo } from 'react'
+import React, { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { TradeAssetInput } from '../../TradeAssetInput'
@@ -31,7 +31,6 @@ const formControlProps = {
 export type LimitOrderBuyAssetProps = {
   asset: Asset
   accountId?: AccountId
-  isInputtingFiatSellAmount: boolean
   assetFilterPredicate: (assetId: AssetId) => boolean
   chainIdFilterPredicate: (chainId: ChainId) => boolean
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -39,7 +38,6 @@ export type LimitOrderBuyAssetProps = {
   isLoading: boolean
   selectedChainId?: ChainId | 'All'
   onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
-  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
 }
 
 export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
@@ -53,9 +51,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     onSetBuyAsset,
     selectedChainId,
     onSelectedChainIdChange,
-    isInputtingFiatSellAmount,
-    onChangeIsInputtingFiatSellAmount,
   }) => {
+    const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
 
@@ -63,28 +60,23 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     const buyAmountUserCurrency = useAppSelector(selectBuyAmountUserCurrency)
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
-    const assetMarketData = useAppSelector(state =>
+    const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
     )
 
     const { setLimitPrice, setLimitPriceMode } = useActions(limitOrderInput.actions)
 
+    const handleToggleIsFiat = useCallback(() => {
+      setIsInputtingFiatSellAmount(prev => !prev)
+    }, [])
+
     const handleAmountChange = useCallback(
       (value: string) => {
         // Always process the input change, even if value is 0
         if (sellAmountCryptoPrecision && Number(sellAmountCryptoPrecision) > 0) {
-          // If value is 0 or empty, set a zero rate
-          if (!value || Number(value) === 0) {
-            setLimitPriceMode(LimitPriceMode.CustomValue)
-            setLimitPrice({
-              marketPriceBuyAsset: '0',
-            })
-            return
-          }
-
           // Convert value to crypto amount if it's in fiat
           const cryptoValue = isInputtingFiatSellAmount
-            ? bnOrZero(value).div(assetMarketData.price).toString()
+            ? bnOrZero(value).div(marketData.price).toString()
             : value
 
           const newRate = bnOrZero(cryptoValue).div(sellAmountCryptoPrecision).toString()
@@ -100,7 +92,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         setLimitPrice,
         setLimitPriceMode,
         isInputtingFiatSellAmount,
-        assetMarketData.price,
+        marketData.price,
       ],
     )
 
@@ -144,7 +136,6 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
     return (
       <TradeAssetInput
-        // Disable account selection when user set a manual receive address
         isAccountSelectionHidden={Boolean(manualReceiveAddress)}
         accountId={accountId}
         onAccountIdChange={onAccountIdChange}
@@ -155,7 +146,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         fiatAmount={positiveOrZero(buyAmountUserCurrency).toFixed()}
         percentOptions={emptyPercentOptions}
         isFiat={isInputtingFiatSellAmount}
-        onToggleIsFiat={onChangeIsInputtingFiatSellAmount}
+        onToggleIsFiat={handleToggleIsFiat}
         showInputSkeleton={isLoading}
         showFiatSkeleton={isLoading}
         label={translate('limitOrder.youGet')}

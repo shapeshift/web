@@ -2,7 +2,7 @@ import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icon
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import type BigNumber from 'bignumber.js'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { memo, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -24,7 +24,7 @@ type RateGasRowProps = {
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
-  deltaPercentage?: BigNumber | null
+  deltaPercentage?: string | null
   onClick?: () => void
 } & PropsWithChildren
 
@@ -52,18 +52,21 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
 
-    const deltaPercentagePercentage = useMemo(() => {
+    const deltaPercentageFormatted = useMemo(() => {
       if (!deltaPercentage) return null
+      const deltaPercentageDecimals = bnOrZero(deltaPercentage).abs().toFixed(2)
 
-      if (deltaPercentage.isGreaterThan(0.01) || deltaPercentage.isLessThan(-0.01)) {
-        return (
-          <RawText as='span' color={deltaPercentage.gt(0) ? 'green.500' : 'red.500'} ml={1}>
-            {` (${deltaPercentage.gt(0) ? '+' : '-'}${deltaPercentage.abs().toFixed(2)}%)`}
-          </RawText>
-        )
-      }
+      if (bnOrZero(deltaPercentageDecimals).isZero()) return null
 
-      return null
+      return (
+        <RawText
+          as='span'
+          color={bnOrZero(deltaPercentageDecimals).gt(0) ? 'green.500' : 'red.500'}
+          ml={1}
+        >
+          {` (${bnOrZero(deltaPercentageDecimals).gt(0) ? '+' : '-'}${deltaPercentageDecimals}%)`}
+        </RawText>
+      )
     }, [deltaPercentage])
 
     const rateContent = useMemo(() => {
@@ -72,11 +75,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         <Skeleton isLoaded={!isLoading}>
           <RawText color='text.subtle' fontWeight='medium'>
             1 {sellAssetSymbol} = {rate} {buyAssetSymbol}
-            {deltaPercentagePercentage}
+            {deltaPercentageFormatted}
           </RawText>
         </Skeleton>
       )
-    }, [buyAssetSymbol, deltaPercentagePercentage, isLoading, rate, sellAssetSymbol])
+    }, [buyAssetSymbol, deltaPercentageFormatted, isLoading, rate, sellAssetSymbol])
 
     switch (true) {
       case isLoading:

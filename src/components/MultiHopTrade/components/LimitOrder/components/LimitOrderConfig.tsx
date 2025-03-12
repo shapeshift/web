@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -48,8 +48,6 @@ type LimitOrderConfigProps = {
   buyAsset: Asset
   isLoading: boolean
   marketPriceBuyAsset: string
-  isInputtingFiatSellAmount: boolean
-  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
 }
 
 const linkAfter = {
@@ -73,11 +71,10 @@ export const LimitOrderConfig = ({
   buyAsset,
   isLoading,
   marketPriceBuyAsset,
-  isInputtingFiatSellAmount,
-  onChangeIsInputtingFiatSellAmount,
 }: LimitOrderConfigProps) => {
   const translate = useTranslate()
   const priceAmountRef = useRef<string | null>(null)
+  const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
 
   const limitPriceForSelectedPriceDirection = useAppSelector(
     selectLimitPriceForSelectedPriceDirection,
@@ -140,10 +137,14 @@ export const LimitOrderConfig = ({
     setLimitPriceDirection(newPriceDirection)
   }, [priceDirection, setLimitPriceDirection])
 
+  const handleToggleFiatSellAmount = useCallback(() => {
+    setIsInputtingFiatSellAmount(prev => !prev)
+  }, [])
+
   const handleInputChange = useCallback(
     (value: string, isFiatValue?: boolean) => {
       if (isFiatValue !== undefined) {
-        onChangeIsInputtingFiatSellAmount(isFiatValue)
+        setIsInputtingFiatSellAmount(isFiatValue)
       }
 
       let cryptoValue = value
@@ -155,13 +156,7 @@ export const LimitOrderConfig = ({
       setLimitPriceMode(LimitPriceMode.CustomValue)
       setLimitPrice({ marketPriceBuyAsset: cryptoValue })
     },
-    [
-      isInputtingFiatSellAmount,
-      priceAssetMarketData.price,
-      setLimitPrice,
-      setLimitPriceMode,
-      onChangeIsInputtingFiatSellAmount,
-    ],
+    [isInputtingFiatSellAmount, priceAssetMarketData.price, setLimitPrice, setLimitPriceMode],
   )
 
   const handleValueChange = useCallback((values: NumberFormatValues) => {
@@ -187,11 +182,19 @@ export const LimitOrderConfig = ({
     const marketPriceMinusOnePercent = bnOrZero(marketPriceBuyAsset).times(0.999)
     const marketPricePlusOnePercent = bnOrZero(marketPriceBuyAsset).times(1.001)
 
+    if (priceDirection === PriceDirection.BuyAssetDenomination) {
+      return (
+        bnOrZero(priceCryptoFormatted).gt(marketPriceMinusOnePercent) &&
+        bnOrZero(priceCryptoFormatted).lt(marketPricePlusOnePercent)
+      )
+    }
+
+    const invertedPrice = bnOrZero(1).div(priceCryptoFormatted)
+
     return (
-      bnOrZero(priceCryptoFormatted).gt(marketPriceMinusOnePercent) &&
-      bnOrZero(priceCryptoFormatted).lt(marketPricePlusOnePercent)
+      invertedPrice.gt(marketPriceMinusOnePercent) && invertedPrice.lt(marketPricePlusOnePercent)
     )
-  }, [isLoading, priceCryptoFormatted, marketPriceBuyAsset])
+  }, [isLoading, priceCryptoFormatted, marketPriceBuyAsset, priceDirection])
 
   const maybePriceWarning = useMemo(() => {
     if (
@@ -246,10 +249,6 @@ export const LimitOrderConfig = ({
 
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
-  const handleToggleFiatSellAmount = useCallback(() => {
-    onChangeIsInputtingFiatSellAmount(!isInputtingFiatSellAmount)
-  }, [isInputtingFiatSellAmount, onChangeIsInputtingFiatSellAmount])
-
   const handleInputValueChange = useCallback(() => {
     handleInputChange(priceAmountRef.current ?? '0')
   }, [handleInputChange])
@@ -277,10 +276,6 @@ export const LimitOrderConfig = ({
     )
       return null
 
-    const formattedPrice = bnOrZero(limitPriceForSelectedPriceDirection).toFixed(6)
-    const formattedSellAmount = bnOrZero(sellAmountCryptoPrecision).toFixed(6)
-    const formattedReceiveAmount = bnOrZero(receiveAmount).toFixed(6)
-
     const assetSymbol =
       priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol
 
@@ -300,32 +295,35 @@ export const LimitOrderConfig = ({
           color='text.subtle'
           translation='limitOrder.explanation.priceReaches.middle'
         />
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {formattedPrice}
-        </CText>
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {priceAsset.symbol}
-        </CText>
+        <Amount.Crypto
+          as='span'
+          color='white'
+          ml={1}
+          fontWeight='medium'
+          value={limitPriceForSelectedPriceDirection}
+          symbol={priceAsset.symbol}
+          omitDecimalTrailingZeros
+        />
         <Text as='span' color='text.subtle' translation='limitOrder.explanation.orderWill.prefix' />
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {formattedSellAmount}
-        </CText>
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {sellAsset.symbol}
-        </CText>
+        <Amount.Crypto
+          as='span'
+          color='white'
+          ml={1}
+          fontWeight='medium'
+          value={sellAmountCryptoPrecision}
+          symbol={sellAsset.symbol}
+          omitDecimalTrailingZeros
+        />
         <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.prefix' />
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {formattedReceiveAmount}
-        </CText>
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {buyAsset.symbol}
-        </CText>
+        <Amount.Crypto
+          as='span'
+          color='white'
+          ml={1}
+          fontWeight='medium'
+          value={receiveAmount}
+          symbol={buyAsset.symbol}
+          omitDecimalTrailingZeros
+        />
         <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.suffix' />
       </CText>
     )
@@ -339,6 +337,14 @@ export const LimitOrderConfig = ({
     priceAsset.symbol,
     receiveAmount,
   ])
+
+  const marketPriceCryptoPrecision = useMemo(() => {
+    if (bnOrZero(marketPriceBuyAsset).isZero()) return '0'
+
+    return priceDirection === PriceDirection.BuyAssetDenomination
+      ? marketPriceBuyAsset
+      : bnOrZero(1).div(marketPriceBuyAsset).toString()
+  }, [marketPriceBuyAsset, priceDirection])
 
   return (
     <Stack spacing={4} px={6} py={4}>
@@ -372,7 +378,7 @@ export const LimitOrderConfig = ({
             opacity={isMarketButtonDisabled ? 0.5 : 1}
             cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
           >
-            {bnOrZero(marketPriceBuyAsset).toFixed(6)} {priceAsset.symbol}
+            {bnOrZero(marketPriceCryptoPrecision).toFixed(6)} {priceAsset.symbol}
           </Button>
         </Flex>
       </Flex>

@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Divider, HStack, Icon, Link, Stack, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { PriceImpact } from '../../PriceImpact'
@@ -81,6 +81,11 @@ export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefi
 
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
+  const networkFeeTooltipBody = useCallback(
+    () => <RawText>{translate('trade.tooltip.minerFee')}</RawText>,
+    [translate],
+  )
+
   return (
     <RateGasRow
       affiliateBps={affiliateBps}
@@ -95,7 +100,7 @@ export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefi
       isOpen
     >
       <Stack spacing={4} px={6} pb={3} width='full'>
-        <Row>
+        <Row Tooltipbody={networkFeeTooltipBody}>
           <Row.Label>
             <Text translation='trade.networkFee' />
           </Row.Label>

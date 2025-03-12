@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Divider, HStack, Icon, Link, Stack, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -87,7 +87,7 @@ export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefi
       buyAssetSymbol={buyAsset.symbol}
       sellAssetSymbol={sellAsset.symbol}
       isDisabled={Boolean(isSmallerThanXl || isCompact)}
-      rate={rate}
+      rate={bnOrZero(rate).toFixed(buyAsset.precision)}
       isLoading={isLoading}
       networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
       swapperName={activeQuote?.swapperName}

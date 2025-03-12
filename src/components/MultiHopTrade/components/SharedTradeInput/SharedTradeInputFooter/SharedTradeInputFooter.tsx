@@ -10,6 +10,7 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -105,7 +106,7 @@ export const SharedTradeInputFooter = ({
             buyAssetSymbol={buyAsset.symbol}
             sellAssetSymbol={sellAsset.symbol}
             isDisabled={shouldDisableGasRateRowClick}
-            rate={rate}
+            rate={bnOrZero(rate).toFixed(buyAsset.precision)}
             isLoading={isLoading}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}

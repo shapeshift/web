@@ -138,50 +138,48 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             fontSize='sm'
           >
             <Flex alignItems='center' justifyContent='space-between' px={6} py={4} width='full'>
-              <Box>
-                <Row fontSize='sm' flex={1}>
-                  <Row.Value
-                    fontSize='sm'
-                    display='flex'
+              <Row fontSize='sm' flex={1}>
+                <Row.Value
+                  fontSize='sm'
+                  display='flex'
+                  alignItems='center'
+                  gap={2}
+                  _hover={!isDisabled ? rateHover : undefined}
+                  onClick={onClick}
+                >
+                  <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
+                  <Stack
+                    width='full'
+                    direction='row'
+                    spacing={1}
+                    color={!isDisabled ? 'text.link' : 'text.base'}
+                    className='rate'
+                    borderBottomWidth={1}
+                    borderColor='transparent'
                     alignItems='center'
-                    gap={2}
-                    _hover={!isDisabled ? rateHover : undefined}
-                    onClick={onClick}
                   >
-                    <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
-                    <Stack
-                      width='full'
-                      direction='row'
-                      spacing={1}
-                      color={!isDisabled ? 'text.link' : 'text.base'}
-                      className='rate'
-                      borderBottomWidth={1}
-                      borderColor='transparent'
-                      alignItems='center'
+                    <Amount.Crypto fontSize='sm' value='1' symbol={sellAssetSymbol} suffix='=' />
+                    <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                    {!isDisabled && <ArrowUpDownIcon />}
+                    <Popover
+                      trigger='hover'
+                      placement='top'
+                      isLazy
+                      openDelay={0}
+                      closeDelay={300}
+                      gutter={8}
                     >
-                      <Amount.Crypto fontSize='sm' value='1' symbol={sellAssetSymbol} suffix='=' />
-                      <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
-                      {!isDisabled && <ArrowUpDownIcon />}
-                      <Popover
-                        trigger='hover'
-                        placement='top'
-                        isLazy
-                        openDelay={0}
-                        closeDelay={300}
-                        gutter={8}
-                      >
-                        <PopoverTrigger>
-                          <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
-                        </PopoverTrigger>
-                        <PopoverContent width='auto' maxWidth='300px' zIndex={9999}>
-                          <PopoverArrow />
-                          <PopoverBody p={3}>{feePopoverContent}</PopoverBody>
-                        </PopoverContent>
-                      </Popover>
-                    </Stack>
-                  </Row.Value>
-                </Row>
-              </Box>
+                      <PopoverTrigger>
+                        <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
+                      </PopoverTrigger>
+                      <PopoverContent width='auto' maxWidth='300px' zIndex={9999}>
+                        <PopoverArrow />
+                        <PopoverBody p={3}>{feePopoverContent}</PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </Stack>
+                </Row.Value>
+              </Row>
               <Flex
                 gap={1}
                 alignItems='center'

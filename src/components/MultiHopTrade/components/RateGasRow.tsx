@@ -43,6 +43,7 @@ type RateGasRowProps = {
   networkFeeFiatUserCurrency: string | undefined
   onClick?: () => void
   noExpand?: boolean
+  isOpen?: boolean
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -66,9 +67,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     networkFeeFiatUserCurrency,
     onClick,
     noExpand,
+    isOpen: defaultIsOpen,
   }) => {
     const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure()
+    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
 
     const foxBalanceCryptoPrecision = useAppSelector(state =>
       selectVotingPower(state, { feeModel: 'SWAPPER' }),

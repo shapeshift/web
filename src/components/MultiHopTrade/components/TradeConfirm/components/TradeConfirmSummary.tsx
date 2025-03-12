@@ -92,6 +92,7 @@ export const TradeConfirmSummary = ({ isCompact }: { isCompact: boolean | undefi
       networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
       swapperName={activeQuote?.swapperName}
       swapSource={tradeQuoteFirstHop?.source}
+      isOpen
     >
       <Stack spacing={4} px={6} pb={3} width='full'>
         <Row>

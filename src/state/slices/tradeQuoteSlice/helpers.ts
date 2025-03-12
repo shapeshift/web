@@ -182,22 +182,18 @@ const sortApiQuotes = (
           // Presort by un/available est. execution time
           (quote: ApiQuote) => {
             if (!quote.quote?.steps) return true
-
             if (quote.quote.steps.every(step => step?.estimatedExecutionTimeMs === undefined))
               return true
-
             return false
           },
-          // Secondary sort by the actual execution time
+          // Secondary sort by actual execution time (fixed)
           (quote: ApiQuote) => {
-            if (!quote.quote?.steps) return bn(MAX_SORT_VALUE)
-
+            if (!quote.quote?.steps) return MAX_SORT_VALUE
             const totalExecutionTime = quote.quote.steps.reduce((total, step) => {
               if (step?.estimatedExecutionTimeMs === undefined) return total
               return total.plus(bnOrZero(step.estimatedExecutionTimeMs))
             }, bn(0))
-
-            return totalExecutionTime
+            return totalExecutionTime.toNumber()
           },
         ]
       case QuoteSortOption.BEST_RATE:
@@ -231,7 +227,11 @@ const sortApiQuotes = (
     }
   })()
 
-  return orderBy(quotesWithoutErrors, iteratees, sortOrders)
+  const ordered = orderBy(quotesWithoutErrors, iteratees, sortOrders)
+
+  console.log({ quotesWithoutErrors, ordered })
+
+  return ordered
 }
 
 export const sortTradeQuotes = (

@@ -56,11 +56,8 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     // Compute the inverse rate for toggling between display formats:
     const inverseRate = useMemo(() => {
       const parsedRate = bnOrZero(rate)
-      return parsedRate.isZero()
-        ? '0'
-        : parsedRate.isPositive()
-        ? bnOrZero(1).div(parsedRate).toFixed(8)
-        : '0'
+      if (parsedRate.isZero() || parsedRate.isNegative()) return '0'
+      return bnOrZero(1).div(parsedRate).toFixed(8)
     }, [rate])
 
     const handleClick = useCallback(() => {

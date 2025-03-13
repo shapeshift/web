@@ -16,8 +16,9 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -26,10 +27,10 @@ import { SwapperIcons } from './SwapperIcons'
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
-import { Text } from '@/components/Text'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { RawText, Text } from '@/components/Text'
 import { selectVotingPower } from '@/state/apis/snapshot/selectors'
 import { useAppSelector } from '@/state/store'
+import { clickableLinkSx } from '@/theme/styles'
 
 type RateGasRowProps = {
   affiliateBps: string | undefined
@@ -41,7 +42,9 @@ type RateGasRowProps = {
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
+  deltaPercentage?: string | null
   onClick?: () => void
+  invertRate?: boolean
   noExpand?: boolean
   isOpen?: boolean
 } & PropsWithChildren
@@ -65,13 +68,15 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     swapperName,
     swapSource,
     networkFeeFiatUserCurrency,
+    deltaPercentage,
     onClick,
     noExpand,
-    isOpen: defaultIsOpen,
+    invertRate,
   }) => {
     const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
-
+    const { isOpen, onToggle } = useDisclosure()
+    const [shouldInvertRate, setShouldInvertRate] = useState(invertRate ?? false)
+    const [hasClickedRate, setHasClickedRate] = useState(false)
     const foxBalanceCryptoPrecision = useAppSelector(state =>
       selectVotingPower(state, { feeModel: 'SWAPPER' }),
     )
@@ -99,6 +104,74 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         </Stack>
       )
     }, [feeMessage])
+
+    useEffect(() => {
+      if (!hasClickedRate) {
+        setShouldInvertRate(!!invertRate)
+      }
+    }, [invertRate, hasClickedRate, setShouldInvertRate])
+
+    const handleRateClick = useCallback(() => {
+      setHasClickedRate(true)
+      setShouldInvertRate(prev => !prev)
+    }, [])
+
+    // Compute the inverse rate for toggling between display formats:
+    const inverseRate = useMemo(() => {
+      const parsedRate = bnOrZero(rate)
+      if (parsedRate.isZero() || parsedRate.isNegative()) return '0'
+      return bnOrZero(1).div(parsedRate).toFixed(8)
+    }, [rate])
+
+    const deltaPercentageFormatted = useMemo(() => {
+      if (!deltaPercentage) return null
+      const deltaPercentageDecimals = bnOrZero(deltaPercentage).abs().toFixed(2)
+
+      if (bnOrZero(deltaPercentageDecimals).isZero()) return null
+
+      return (
+        <RawText
+          as='span'
+          color={bnOrZero(deltaPercentageDecimals).gt(0) ? 'green.500' : 'red.500'}
+          ml={1}
+        >
+          {` (${bnOrZero(deltaPercentageDecimals).gt(0) ? '+' : '-'}${deltaPercentageDecimals}%)`}
+        </RawText>
+      )
+    }, [deltaPercentage])
+
+    const rateContent = useMemo(() => {
+      if (!rate) return null
+      const rateText = shouldInvertRate
+        ? `1 ${buyAssetSymbol} = ${inverseRate} ${sellAssetSymbol}`
+        : `1 ${sellAssetSymbol} = ${rate} ${buyAssetSymbol}`
+
+      return (
+        <Skeleton isLoaded={!isLoading}>
+          <RawText
+            color='text.subtle'
+            fontWeight='medium'
+            onClick={handleRateClick}
+            sx={clickableLinkSx}
+            cursor='pointer'
+            mb='0'
+            userSelect='none'
+          >
+            {rateText}
+            {deltaPercentageFormatted}
+          </RawText>
+        </Skeleton>
+      )
+    }, [
+      buyAssetSymbol,
+      deltaPercentageFormatted,
+      handleRateClick,
+      isLoading,
+      rate,
+      sellAssetSymbol,
+      inverseRate,
+      shouldInvertRate,
+    ])
 
     switch (true) {
       case isLoading:
@@ -158,8 +231,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     borderColor='transparent'
                     alignItems='center'
                   >
-                    <Amount.Crypto fontSize='sm' value='1' symbol={sellAssetSymbol} suffix='=' />
-                    <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                    {rateContent}
                     {!isDisabled && <ArrowUpDownIcon />}
                     <Popover
                       trigger='hover'

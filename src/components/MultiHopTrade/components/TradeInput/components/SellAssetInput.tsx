@@ -26,6 +26,7 @@ export type SellAssetInputProps = {
   onChangeAccountId: AccountDropdownProps['onChange']
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
+  placeholder?: string
 }
 
 export const SellAssetInput = memo(

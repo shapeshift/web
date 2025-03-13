@@ -177,7 +177,7 @@ const TradeRoutes = memo(({ isCompact, onChangeTab }: TradeRoutesProps) => {
       <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
           <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-            <TradeConfirm />
+            <TradeConfirm isCompact={isCompact} />
           </Route>
           <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
             <VerifyAddresses />

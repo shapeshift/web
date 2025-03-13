@@ -228,7 +228,7 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
             </Card>
             <Row px={2}>
               <Row.Label>
-                <Text translation='limitOrder.networkFee' />
+                <Text translation='trade.networkFee' />
               </Row.Label>
               <Amount.Crypto value={'0'} symbol={feeAsset?.symbol ?? ''} />
             </Row>

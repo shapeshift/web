@@ -104,6 +104,7 @@ export const Trade = memo(() => {
       <Flex
         pt={12}
         px={padding}
+        pb={12}
         alignItems='flex-start'
         width='full'
         justifyContent='center'

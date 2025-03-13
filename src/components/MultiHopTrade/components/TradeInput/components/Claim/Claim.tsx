@@ -1,4 +1,4 @@
-import { Card } from '@chakra-ui/react'
+import { Card, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
@@ -10,6 +10,7 @@ import { ClaimStatus } from './ClaimStatus'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
+import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
@@ -51,25 +52,28 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
 
   return (
     <Switch location={location}>
-      <Card flex={1} width='full' maxWidth='500px'>
-        <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
-        <Route
-          key={ClaimRoutePaths.Confirm}
-          path={ClaimRoutePaths.Confirm}
-          render={renderClaimConfirm}
-        />
-        <Route
-          key={ClaimRoutePaths.Status}
-          path={ClaimRoutePaths.Status}
-          render={renderClaimStatus}
-        />
-        <Route
-          key={ClaimRoutePaths.Select}
-          path={ClaimRoutePaths.Select}
-          render={renderClaimSelect}
-          exact
-        />
-      </Card>
+      <Stack spacing={0} width='full' maxWidth='500px'>
+        <FoxWifHatBanner />
+        <Card flex={1}>
+          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
+          <Route
+            key={ClaimRoutePaths.Confirm}
+            path={ClaimRoutePaths.Confirm}
+            render={renderClaimConfirm}
+          />
+          <Route
+            key={ClaimRoutePaths.Status}
+            path={ClaimRoutePaths.Status}
+            render={renderClaimStatus}
+          />
+          <Route
+            key={ClaimRoutePaths.Select}
+            path={ClaimRoutePaths.Select}
+            render={renderClaimSelect}
+            exact
+          />
+        </Card>
+      </Stack>
     </Switch>
   )
 }

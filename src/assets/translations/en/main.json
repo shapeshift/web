@@ -620,6 +620,8 @@
     "explore": "Explore",
     "rewards": "Rewards",
     "trade": "Trade/Bridge",
+    "limitOrder": "Limit Orders",
+    "claims": "Claims",
     "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",

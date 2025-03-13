@@ -2,11 +2,11 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Order } from '@shapeshiftoss/types'
 
 export enum LimitOrderRoutePaths {
-  Input = '/trade/limit-order/input',
-  Confirm = '/trade/limit-order/confirm',
-  AllowanceApproval = '/trade/limit-order/allowance-approval',
-  PlaceOrder = '/trade/limit-order/place-order',
-  Orders = '/trade/limit-order/orders',
+  Input = '/limit',
+  Confirm = '/limit/confirm',
+  AllowanceApproval = '/limit/allowance-approval',
+  PlaceOrder = '/limit/place-order',
+  Orders = '/limit/orders',
 }
 
 export type OrderToCancel = {

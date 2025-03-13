@@ -67,8 +67,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     const { setLimitPrice, setLimitPriceMode } = useActions(limitOrderInput.actions)
 
     const handleToggleIsFiat = useCallback(() => {
-      setIsInputtingFiatSellAmount(prev => !prev)
-    }, [])
+      setIsInputtingFiatSellAmount(!isInputtingFiatSellAmount)
+    }, [isInputtingFiatSellAmount])
 
     const handleAmountChange = useCallback(
       (value: string) => {

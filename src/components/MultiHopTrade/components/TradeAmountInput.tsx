@@ -74,7 +74,7 @@ export const AmountInput = (props: InputProps) => {
       type='number'
       textAlign='left'
       variant='inline'
-      placeholder={translate('common.enterAmount')}
+      placeholder={props.placeholder ?? translate('common.enterAmount')}
       style={cryptoInputStyle}
       autoComplete='off'
       errorBorderColor='red.500'
@@ -120,6 +120,7 @@ export type TradeAmountInputProps = {
   isFiat?: boolean
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
   inputOutputDifferenceDecimalPercentage?: string
+  placeholder?: string
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -156,6 +157,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     children,
     showInputSkeleton,
     showFiatSkeleton,
+    placeholder,
     formControlProps,
     label,
     rightComponent: RightComponent,
@@ -251,6 +253,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             inputMode='decimal'
             allowedDecimalSeparators={allowedDecimalSeparators}
             thousandSeparator={localeParts.group}
+            placeholder={placeholder}
             value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
             // this is already within a useCallback, we don't need to memo this
             // eslint-disable-next-line react-memo/require-usememo
@@ -290,6 +293,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         handleOnFocus,
         handleValueChange,
         isFiat,
+        placeholder,
         isReadOnly,
         localeParts.decimal,
         localeParts.group,

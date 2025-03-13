@@ -18,7 +18,7 @@ import {
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -71,12 +71,12 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     deltaPercentage,
     onClick,
     noExpand,
-    invertRate = false,
+    invertRate,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const [shouldInvertRate, setShouldInvertRate] = useState(invertRate)
-    const hasClickedRate = useRef(false)
+    const [shouldInvertRate, setShouldInvertRate] = useState(invertRate ?? false)
+    const [hasClickedRate, setHasClickedRate] = useState(false)
     const foxBalanceCryptoPrecision = useAppSelector(state =>
       selectVotingPower(state, { feeModel: 'SWAPPER' }),
     )
@@ -106,13 +106,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     }, [feeMessage])
 
     useEffect(() => {
-      if (!hasClickedRate.current) {
-        setShouldInvertRate(invertRate)
+      if (!hasClickedRate) {
+        setShouldInvertRate(!!invertRate)
       }
-    }, [invertRate])
+    }, [invertRate, hasClickedRate, setShouldInvertRate])
 
     const handleRateClick = useCallback(() => {
-      hasClickedRate.current = true
+      setHasClickedRate(true)
       setShouldInvertRate(prev => !prev)
     }, [])
 

@@ -15,9 +15,9 @@ import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import type { Route } from '@/Routes/helpers'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -60,7 +60,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
         </Stack>
         <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={maxWidth} gap={4}>
           <Flex display={display}>
-            <MultiHopTrade
+            <StandaloneTrade
               isCompact
               defaultBuyAssetId={assetId}
               defaultSellAssetId={nativeSellAssetId}

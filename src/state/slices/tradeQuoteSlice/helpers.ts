@@ -161,9 +161,10 @@ const sortApiQuotes = (
   // For FASTEST sorting, use a custom sorting function to properly handle execution times
   if (sortOption === QuoteSortOption.FASTEST) {
     const sorted = [...quotesWithoutErrors].sort((a, b) => {
-      // Modified helper - keep 0ms as valid value
-      const getExecutionTime = (quote: ApiQuote) =>
-        quote.quote?.steps?.[0]?.estimatedExecutionTimeMs // Remove "&& time > 0" check
+      const getExecutionTime = (quote: ApiQuote) => {
+        // Get the execution time from the first step
+        return quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
+      }
 
       const aTime = getExecutionTime(a)
       const bTime = getExecutionTime(b)
@@ -173,7 +174,7 @@ const sortApiQuotes = (
       if (aTime === undefined) return 1 // Push undefined to bottom
       if (bTime === undefined) return -1 // Keep defined above undefined
 
-      // Now compare numerically (0ms will be first)
+      // Now compare numerically (lower times first, including 0ms)
       return aTime - bTime
     })
     return sorted

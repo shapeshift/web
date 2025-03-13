@@ -604,7 +604,6 @@ export const LimitOrderInput = ({
         tradeInputTab={TradeInputTab.LimitOrder}
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
-        noExpand={noExpand}
       />
     </>
   )

@@ -14,6 +14,7 @@ import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
@@ -153,17 +154,17 @@ export const routes: Route[] = [
         hide: true,
       },
       {
-        path: '/trade/confirm',
+        path: TradeRoutePaths.Confirm,
         main: Trade,
         hide: true,
       },
       {
-        path: '/trade/verify-addresses',
+        path: TradeRoutePaths.VerifyAddresses,
         main: Trade,
         hide: true,
       },
       {
-        path: '/trade/quote-list',
+        path: TradeRoutePaths.QuoteList,
         main: Trade,
         hide: true,
       },

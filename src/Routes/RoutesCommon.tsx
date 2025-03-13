@@ -15,6 +15,7 @@ import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
@@ -326,12 +327,12 @@ export const routes: Route[] = [
     main: Trade,
     routes: [
       {
-        path: '/claim/confirm',
+        path: ClaimRoutePaths.Confirm,
         main: Trade,
         hide: true,
       },
       {
-        path: '/claim/status',
+        path: ClaimRoutePaths.Status,
         main: Trade,
         hide: true,
       },

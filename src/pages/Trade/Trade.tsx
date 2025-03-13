@@ -4,6 +4,8 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
+import type { TradeRouterMatchParams } from './types'
+
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
@@ -15,14 +17,6 @@ import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
 const padding = { base: 0, md: 8 }
-
-type MatchParams = {
-  chainId?: string
-  assetSubId?: string
-  sellAssetSubId?: string
-  sellChainId?: string
-  sellAmountCryptoBaseUnit?: string
-}
 
 export const Trade = memo(() => {
   const translate = useTranslate()
@@ -37,7 +31,7 @@ export const Trade = memo(() => {
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
   const match = useMemo(
     () =>
-      matchPath<MatchParams>(location.pathname, {
+      matchPath<TradeRouterMatchParams>(location.pathname, {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
         exact: true,
       }),

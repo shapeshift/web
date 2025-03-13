@@ -22,9 +22,6 @@ import type { ApiQuote } from '@/state/apis/swapper/types'
 import { selectFeeAssetById, selectMarketDataByFilter } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
-// Placeholder for the sort iteratee for those bad bois to go last
-const MAX_SORT_VALUE = Number.MAX_SAFE_INTEGER
-
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
@@ -68,7 +65,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
 }
 
 const getNetworkFeeUserCurrency = (quote: TradeQuote | TradeRate | undefined): BigNumber => {
-  if (!quote) return bn(MAX_SORT_VALUE)
+  if (!quote) return bn(Number.MAX_SAFE_INTEGER)
 
   const state = store.getState()
   const getFeeAsset = (assetId: AssetId) => {
@@ -86,7 +83,7 @@ const getNetworkFeeUserCurrency = (quote: TradeQuote | TradeRate | undefined): B
 
   return (
     getTotalNetworkFeeUserCurrencyPrecision(quote, getFeeAsset, getFeeAssetUserCurrencyRate) ??
-    bn(MAX_SORT_VALUE)
+    bn(Number.MAX_SAFE_INTEGER)
   )
 }
 

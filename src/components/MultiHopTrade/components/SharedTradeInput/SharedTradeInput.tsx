@@ -29,7 +29,6 @@ type SharedTradeInputProps = {
   tradeInputTab: TradeInputTab
   onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
-  noExpand?: boolean
 }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
@@ -44,7 +43,6 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   footerContent,
   onChangeTab,
   onSubmit,
-  noExpand = false,
 }) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const totalHeight = useSharedHeight(tradeInputRef)
@@ -76,15 +74,13 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             {footerContent}
           </Card>
         </Box>
-        {!noExpand && (
-          <SideComponent
-            isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
-            isLoading={isLoading}
-            width={tradeInputRef.current?.offsetWidth ?? 'full'}
-            height={totalHeight ?? 'full'}
-            ml={4}
-          />
-        )}
+        <SideComponent
+          isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
+          isLoading={isLoading}
+          width={tradeInputRef.current?.offsetWidth ?? 'full'}
+          height={totalHeight ?? 'full'}
+          ml={4}
+        />
       </Center>
     </Flex>
   )

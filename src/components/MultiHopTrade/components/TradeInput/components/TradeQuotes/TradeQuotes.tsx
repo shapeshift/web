@@ -116,6 +116,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
       return []
     }
 
+    console.log({ availableTradeQuotesDisplayCache })
     return availableTradeQuotesDisplayCache.map((quoteData, i) => {
       const { id, errors } = quoteData
 

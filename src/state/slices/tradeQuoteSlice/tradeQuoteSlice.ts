@@ -5,11 +5,7 @@ import { uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type {
-  HopProgress,
-  StreamingSwapMetadata,
-  TradeExecutionMetadata,
-} from './types'
+import type { HopProgress, StreamingSwapMetadata, TradeExecutionMetadata } from './types'
 import {
   AllowanceKey,
   HopExecutionState,
@@ -448,11 +444,11 @@ export const tradeQuoteSlice = createSlice({
       ): ApiQuote[] => {
         // For quotes without errors, we need to sort them according to the current sort option
         if (state.sortOption === QuoteSortOption.FASTEST) {
-          // Log execution times for debugging
-          console.log('Sorting by FASTEST in updateTradeQuoteDisplayCache, execution times:')
           unorderedQuotes.forEach(quote => {
             const executionTime = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
-            console.log(`${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`)
+            console.log(
+              `${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`,
+            )
           })
 
           // Sort by execution time
@@ -464,26 +460,28 @@ export const tradeQuoteSlice = createSlice({
             // Special case: 0x swapper with 0ms execution time should be treated as unknown
             const aIsZeroX = a.swapperName === '0x'
             const bIsZeroX = b.swapperName === '0x'
-            
+
             // If both have undefined execution times or are 0x with 0ms, maintain original order
-            if ((aTime === undefined && bTime === undefined) || 
-                (aIsZeroX && aTime === 0 && bIsZeroX && bTime === 0)) {
+            if (
+              (aTime === undefined && bTime === undefined) ||
+              (aIsZeroX && aTime === 0 && bIsZeroX && bTime === 0)
+            ) {
               return 0
             }
-            
+
             // Quotes with undefined execution time or 0x with 0ms go last
             if (aTime === undefined || (aIsZeroX && aTime === 0)) return 1
             if (bTime === undefined || (bIsZeroX && bTime === 0)) return -1
-            
+
             // Sort by execution time (ascending)
             return aTime - bTime
           })
 
-          // Log sorted execution times for debugging
-          console.log('After sorting by FASTEST in updateTradeQuoteDisplayCache:')
           sorted.forEach(quote => {
             const executionTime = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
-            console.log(`${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`)
+            console.log(
+              `${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`,
+            )
           })
 
           return sorted

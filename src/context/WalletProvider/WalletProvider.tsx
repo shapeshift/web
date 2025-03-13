@@ -162,6 +162,16 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
           },
         },
       }
+    case WalletActions.SET_WALLET_LABEL:
+      if (!state.walletInfo) return state
+
+      return {
+        ...state,
+        walletInfo: {
+          ...state.walletInfo,
+          meta: { ...state.walletInfo?.meta, label: action.payload },
+        },
+      }
     case WalletActions.SET_WCV2_PROVIDER:
       return { ...state, wcV2Provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:

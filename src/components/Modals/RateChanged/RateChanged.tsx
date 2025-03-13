@@ -26,6 +26,9 @@ import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketData
 import { selectLastHop } from '@/state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
+// 100 basis points = 1%
+export const RATE_CHANGED_BPS_THRESHOLD = 100
+
 export type RateChangedModalProps = {
   prevAmountCryptoBaseUnit: string
 }

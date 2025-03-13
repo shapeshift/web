@@ -24,6 +24,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '@/state/slices/opportunitiesSlice/types'
+import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
@@ -115,6 +116,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         highestBalanceAccountAddress,
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
+
+      if (provider === DefiProvider.rFOX) {
+        return history.push('/rfox')
+      }
 
       if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

@@ -9,9 +9,10 @@
     "version": "independent"
   },
   "scripts": {
-    "dev": "yarn concurrently \"yarn dev:packages\" \"yarn dev:web\"",
+    "dev": "yarn concurrently \"yarn dev:packages\" \"yarn dev:web --mode=${MODE:-development}\"",
     "preview:prod": "MODE=production yarn build:web && vite preview",
     "preview:dev": "MODE=development yarn build:web && vite preview",
+    "preview:private": "MODE=private yarn build:web && vite preview",
     "analyze": "ANALYZE=true yarn build:web",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
     "build:web": "yarn build:packages && NODE_OPTIONS=--max-old-space-size=12288 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true vite build --mode=${MODE:-production} && ./scripts/sha256sums.sh && ./scripts/verifyViteHashes.sh && tsx ./scripts/writeBuildMetadata.ts",

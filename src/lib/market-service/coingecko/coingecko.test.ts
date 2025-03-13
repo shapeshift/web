@@ -262,8 +262,8 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')[0]
       const ethAssetId = adapters.coingeckoToAssetIds('ethereum')[0]
-      expect(result[btcAssetId!]).toEqual(btcResult)
-      expect(result[ethAssetId!]).toEqual(ethResult)
+      expect(result[btcAssetId]).toEqual(btcResult)
+      expect(result[ethAssetId]).toEqual(ethResult)
     })
 
     it('extract correct values for fox', async () => {
@@ -279,7 +279,7 @@ describe('CoinGecko market service', () => {
       mocks.get.mockResolvedValue({ data: [fox] })
       const result = await coinGeckoMarketService.findAll()
       const foxAssetId = adapters.coingeckoToAssetIds('shapeshift-fox-token')[0]
-      expect(result[foxAssetId!]).toEqual(foxResult)
+      expect(result[foxAssetId]).toEqual(foxResult)
     })
   })
 

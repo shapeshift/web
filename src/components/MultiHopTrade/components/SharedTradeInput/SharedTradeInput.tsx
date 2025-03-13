@@ -5,6 +5,7 @@ import type { FormEvent } from 'react'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 
+import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { breakpoints } from '@/theme/theme'
 
@@ -28,6 +29,7 @@ type SharedTradeInputProps = {
   tradeInputTab: TradeInputTab
   onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
+  noExpand?: boolean
 }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
@@ -42,6 +44,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   footerContent,
   onChangeTab,
   onSubmit,
+  noExpand = false,
 }) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const totalHeight = useSharedHeight(tradeInputRef)
@@ -55,6 +58,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
     >
       <Center width='inherit' alignItems='flex-end'>
         <Box width='full' maxWidth='500px'>
+          <FoxWifHatBanner />
           <Card
             flex={1}
             width='full'
@@ -72,13 +76,15 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             {footerContent}
           </Card>
         </Box>
-        <SideComponent
-          isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
-          isLoading={isLoading}
-          width={tradeInputRef.current?.offsetWidth ?? 'full'}
-          height={totalHeight ?? 'full'}
-          ml={4}
-        />
+        {!noExpand && (
+          <SideComponent
+            isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
+            isLoading={isLoading}
+            width={tradeInputRef.current?.offsetWidth ?? 'full'}
+            height={totalHeight ?? 'full'}
+            ml={4}
+          />
+        )}
       </Center>
     </Flex>
   )

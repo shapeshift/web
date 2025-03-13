@@ -1,8 +1,7 @@
-import { Alert, AlertIcon, Divider, HStack, useMediaQuery } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { Alert, AlertIcon, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
-import { bnOrZero, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,20 +15,18 @@ import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
 import { MaxSlippage } from './MaxSlippage'
 import { RecipientAddress } from './RecipientAddress'
 
-import { Amount } from '@/components/Amount/Amount'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
 import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isKeepKeyHDWallet, isToken } from '@/lib/utils'
+import { isToken } from '@/lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
-import { selectFeeAssetById, selectMarketDataUserCurrency } from '@/state/slices/selectors'
+import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -50,7 +47,6 @@ import {
   selectIsAnyTradeQuoteLoading,
   selectShouldShowTradeQuoteOrAwaitInput,
   selectTotalNetworkFeeUserCurrency,
-  selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeQuoteRequestErrors,
   selectTradeQuoteResponseErrors,
@@ -65,10 +61,6 @@ type ConfirmSummaryProps = {
   receiveAddress: string | undefined
 }
 
-const ProtocolFeeToolTip = () => {
-  return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
-}
-
 export const ConfirmSummary = ({
   isCompact,
   isLoading: isParentLoading,
@@ -78,7 +70,7 @@ export const ConfirmSummary = ({
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { wallet, isConnected },
+    state: { isConnected },
   } = useWallet()
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -87,7 +79,6 @@ export const ConfirmSummary = ({
   const isManualReceiveAddressEditing = useAppSelector(selectIsManualReceiveAddressEditing)
   const isManualReceiveAddressValid = useAppSelector(selectIsManualReceiveAddressValid)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
@@ -104,7 +95,6 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
@@ -189,20 +179,8 @@ export const ConfirmSummary = ({
     isWalletReceiveAddressLoading,
   })
 
-  // Taproot sends are unsupported for KeepKey, and Chainflip uses Taproot address for BTC sells.
-  const isUnsupportedKeepKeyP2TrTx = useMemo(() => {
-    return (
-      wallet &&
-      sellAsset?.assetId === btcAssetId &&
-      isKeepKeyHDWallet(wallet) &&
-      activeSwapperName === SwapperName.Chainflip
-    )
-  }, [activeSwapperName, sellAsset?.assetId, wallet])
-
   const shouldDisablePreviewButton = useMemo(() => {
     return (
-      // No dice for KK BTC sends
-      isUnsupportedKeepKeyP2TrTx ||
       // don't execute trades while address is validating
       isManualReceiveAddressRequired ||
       isManualReceiveAddressValidating ||
@@ -221,7 +199,6 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
-    isUnsupportedKeepKeyP2TrTx,
     isManualReceiveAddressRequired,
     isManualReceiveAddressValidating,
     isManualReceiveAddressEditing,
@@ -308,16 +285,9 @@ export const ConfirmSummary = ({
           <Text translation={nativeAssetBridgeWarning} />
         </Alert>
       )
-    if (isUnsupportedKeepKeyP2TrTx)
-      return (
-        <Alert status='info' borderRadius='lg'>
-          <AlertIcon />
-          <Text translation='trade.disableChainflipKeepKeyTaprootReceive' />
-        </Alert>
-      )
 
     return null
-  }, [isUnsupportedKeepKeyP2TrTx, nativeAssetBridgeWarning])
+  }, [nativeAssetBridgeWarning])
 
   const manualAddressEntryDescription = useMemo(() => {
     if (shouldDisableThorNativeSmartContractReceive)
@@ -338,17 +308,11 @@ export const ConfirmSummary = ({
   }, [isReceiveAddressByteCodeLoading, isParentLoading])
 
   const receiveSummaryDetails = useMemo(() => {
-    const protocolFeesParsed = totalProtocolFees
-      ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
-      : undefined
-
     const intermediaryTransactionOutputs = tradeQuoteStep?.intermediaryTransactionOutputs
 
     const intermediaryTransactionOutputsParsed = intermediaryTransactionOutputs
       ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
       : undefined
-
-    const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
 
     const hasIntermediaryTransactionOutputs =
       intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0
@@ -366,43 +330,14 @@ export const ConfirmSummary = ({
         />
 
         {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
-        <Divider borderColor='border.base' />
-
-        {hasProtocolFees && (
-          <Row Tooltipbody={ProtocolFeeToolTip} isLoading={isLoading}>
-            <Row.Label>
-              <Text translation='trade.protocolFee' />
-            </Row.Label>
-            <Row.Value color='text.base'>
-              {protocolFeesParsed?.map(({ amountCryptoPrecision, assetId, symbol }) => (
-                <HStack key={assetId} justifyContent='flex-end'>
-                  <Amount.Crypto value={amountCryptoPrecision} symbol={symbol} />
-                  {assetId && (
-                    <Amount.Fiat
-                      color={'text.subtle'}
-                      prefix='('
-                      suffix=')'
-                      noSpace
-                      value={bnOrZero(marketDataUserCurrency[assetId]?.price ?? 0)
-                        .times(amountCryptoPrecision)
-                        .toNumber()}
-                    />
-                  )}
-                </HStack>
-              ))}
-            </Row.Value>
-          </Row>
-        )}
       </>
     )
   }, [
     buyAmountAfterFeesCryptoPrecision,
     buyAsset.symbol,
     isLoading,
-    marketDataUserCurrency,
     priceImpactPercentage,
     slippagePercentageDecimal,
-    totalProtocolFees,
     tradeQuoteStep?.intermediaryTransactionOutputs,
     tradeQuoteStep?.source,
   ])

@@ -123,12 +123,6 @@ export const MultiHopTrade = memo(
       sellAmountCryptoBaseUnit,
     ])
 
-    useEffect(() => {
-      return () => {
-        dispatch(tradeInput.actions.clear())
-      }
-    }, [dispatch])
-
     return (
       <FormProvider {...methods}>
         <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} />

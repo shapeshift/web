@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -38,6 +38,7 @@ import {
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { clickableLinkSx } from '@/theme/styles'
 
 const swapIcon = <SwapIcon />
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
@@ -48,22 +49,6 @@ type LimitOrderConfigProps = {
   buyAsset: Asset
   isLoading: boolean
   marketPriceBuyAsset: string
-}
-
-const linkAfter = {
-  content: '""',
-  display: 'block',
-  height: '1px',
-  borderBottom: '1px dotted',
-  borderColor: 'whiteAlpha.500',
-  mb: '-2px',
-}
-
-const linkHover = {
-  _after: {
-    borderBottom: 'none',
-    height: '2px',
-  },
 }
 
 export const LimitOrderConfig = ({
@@ -81,7 +66,6 @@ export const LimitOrderConfig = ({
   )
   const limitPrice = useAppSelector(selectLimitPrice)
   const priceDirection = useAppSelector(selectLimitPriceDirection)
-  const [inputValue, setInputValue] = useState('')
 
   const { setLimitPriceDirection, setLimitPrice, setLimitPriceMode } = useActions(
     limitOrderInput.actions,
@@ -105,16 +89,13 @@ export const LimitOrderConfig = ({
     [limitPriceForSelectedPriceDirection, priceAssetMarketData.price],
   )
 
-  useEffect(() => {
-    if (bnOrZero(limitPriceForSelectedPriceDirection).isZero()) {
-      setInputValue('')
-      return
-    }
-
-    setInputValue(bnOrZero(limitPriceForSelectedPriceDirection).toFixed())
+  const limitPriceCryptoPrecision = useMemo(() => {
+    return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
-  const limitPriceCryptoPrecision = useMemo(() => {
+  const inputValue = useMemo(() => {
+    if (bnOrZero(limitPriceForSelectedPriceDirection).isZero()) return ''
+
     return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
@@ -373,8 +354,7 @@ export const LimitOrderConfig = ({
             fontWeight='bold'
             fontSize='sm'
             position='relative'
-            _after={linkAfter}
-            _hover={linkHover}
+            sx={clickableLinkSx}
           >
             1 {displayAsset.symbol}
           </Button>
@@ -390,8 +370,7 @@ export const LimitOrderConfig = ({
               fontWeight='medium'
               fontSize='sm'
               position='relative'
-              _after={linkAfter}
-              _hover={linkHover}
+              sx={clickableLinkSx}
               opacity={isMarketButtonDisabled ? 0.5 : 1}
               cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
             >
@@ -411,6 +390,7 @@ export const LimitOrderConfig = ({
               inputMode='decimal'
               allowedDecimalSeparators={allowedDecimalSeparators}
               thousandSeparator={localeParts.group}
+              placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
               suffix={isInputtingFiatSellAmount ? localeParts.postfix : ''}
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
               value={

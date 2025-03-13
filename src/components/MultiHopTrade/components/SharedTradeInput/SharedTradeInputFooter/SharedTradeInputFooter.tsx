@@ -35,6 +35,7 @@ type SharedTradeInputFooterProps = {
   networkFeeFiatUserCurrency: string | undefined
   onGasRateRowClick?: () => void
   marketRate?: string
+  invertRate?: boolean
 }
 
 export const SharedTradeInputFooter = ({
@@ -58,6 +59,7 @@ export const SharedTradeInputFooter = ({
   networkFeeFiatUserCurrency,
   onGasRateRowClick,
   marketRate,
+  invertRate,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
@@ -123,6 +125,7 @@ export const SharedTradeInputFooter = ({
             swapperName={swapperName}
             swapSource={swapSource}
             onClick={onGasRateRowClick}
+            invertRate={invertRate}
           >
             <ReceiveSummary
               isLoading={isLoading}

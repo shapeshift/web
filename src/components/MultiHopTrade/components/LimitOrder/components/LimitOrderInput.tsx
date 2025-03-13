@@ -407,8 +407,12 @@ export const LimitOrderInput = ({
         buyAsset={buyAsset}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
-        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={inputSellAmountUserCurrency}
+        sellAmountCryptoPrecision={
+          bnOrZero(sellAmountCryptoPrecision).isZero() ? '' : sellAmountCryptoPrecision
+        }
+        sellAmountUserCurrency={
+          bnOrZero(inputSellAmountUserCurrency).isZero() ? '' : inputSellAmountUserCurrency
+        }
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         onSwitchAssets={handleSwitchAssets}
@@ -524,31 +528,18 @@ export const LimitOrderInput = ({
   const footerContent = useMemo(() => {
     const shouldInvertRate = priceDirection === PriceDirection.SellAssetDenomination
 
-    const displaySellAsset = shouldInvertRate ? buyAsset : sellAsset
-    const displayBuyAsset = shouldInvertRate ? sellAsset : buyAsset
-    const displayRate = bnOrZero(limitPrice.buyAssetDenomination).isZero()
-      ? undefined
-      : shouldInvertRate
-      ? bnOrZero(1).div(limitPrice.buyAssetDenomination).toFixed(8)
-      : bnOrZero(limitPrice.buyAssetDenomination).toFixed(8)
-    const displayMarketRate = bnOrZero(marketPriceBuyAsset).isZero()
-      ? '0'
-      : shouldInvertRate
-      ? bnOrZero(1).div(marketPriceBuyAsset).toFixed(8)
-      : marketPriceBuyAsset
-
     return (
       <SharedTradeInputFooter
         affiliateBps={feeBps.toFixed(0)}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
-        buyAsset={displayBuyAsset}
+        buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
         inputAmountUsd={inputSellAmountUsd}
         isError={isError}
         isLoading={isLoading}
         quoteStatusTranslation={quoteStatusTranslation}
-        rate={displayRate}
-        marketRate={displayMarketRate}
+        rate={limitPrice.buyAssetDenomination}
+        marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
@@ -561,7 +552,8 @@ export const LimitOrderInput = ({
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
-        sellAsset={displaySellAsset}
+        sellAsset={sellAsset}
+        invertRate={shouldInvertRate}
       >
         <>
           <LimitOrderFooter />

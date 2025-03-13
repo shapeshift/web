@@ -4,7 +4,7 @@ import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@c
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -14,6 +14,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
+import { clickableLinkSx } from '@/theme/styles'
 
 type RateGasRowProps = {
   buyAssetSymbol: string
@@ -26,6 +27,7 @@ type RateGasRowProps = {
   networkFeeFiatUserCurrency: string | undefined
   deltaPercentage?: string | null
   onClick?: () => void
+  invertRate?: boolean
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -48,9 +50,30 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     networkFeeFiatUserCurrency,
     deltaPercentage,
     onClick,
+    invertRate = false,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+    const [shouldInvertRate, setShouldInvertRate] = useState(invertRate)
+    const hasClickedRate = useRef(false)
+
+    useEffect(() => {
+      if (!hasClickedRate.current) {
+        setShouldInvertRate(invertRate)
+      }
+    }, [invertRate])
+
+    const handleRateClick = useCallback(() => {
+      hasClickedRate.current = true
+      setShouldInvertRate(prev => !prev)
+    }, [])
+
+    // Compute the inverse rate for toggling between display formats:
+    const inverseRate = useMemo(() => {
+      const parsedRate = bnOrZero(rate)
+      if (parsedRate.isZero() || parsedRate.isNegative()) return '0'
+      return bnOrZero(1).div(parsedRate).toFixed(8)
+    }, [rate])
 
     const deltaPercentageFormatted = useMemo(() => {
       if (!deltaPercentage) return null
@@ -71,15 +94,36 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
 
     const rateContent = useMemo(() => {
       if (!rate) return null
+      const rateText = shouldInvertRate
+        ? `1 ${buyAssetSymbol} = ${inverseRate} ${sellAssetSymbol}`
+        : `1 ${sellAssetSymbol} = ${rate} ${buyAssetSymbol}`
+
       return (
         <Skeleton isLoaded={!isLoading}>
-          <RawText color='text.subtle' fontWeight='medium'>
-            1 {sellAssetSymbol} = {rate} {buyAssetSymbol}
+          <RawText
+            color='text.subtle'
+            fontWeight='medium'
+            onClick={handleRateClick}
+            sx={clickableLinkSx}
+            cursor='pointer'
+            mb='0'
+            userSelect='none'
+          >
+            {rateText}
             {deltaPercentageFormatted}
           </RawText>
         </Skeleton>
       )
-    }, [buyAssetSymbol, deltaPercentageFormatted, isLoading, rate, sellAssetSymbol])
+    }, [
+      buyAssetSymbol,
+      deltaPercentageFormatted,
+      handleRateClick,
+      isLoading,
+      rate,
+      sellAssetSymbol,
+      inverseRate,
+      shouldInvertRate,
+    ])
 
     switch (true) {
       case isLoading:

@@ -1062,6 +1062,9 @@
     "placeOrder": "Place Order",
     "placeAnotherOrder": "Place Another Order",
     "orderSummary": "Order Summary",
+    "when": "When",
+    "isWorth": "is worth",
+    "market": "Market:",
     "success": "Limit order placed successfully",
     "cancel": {
       "cancelOrder": "Cancel Limit Order",
@@ -1090,6 +1093,19 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
+    "explanation": {
+      "priceReaches": {
+        "prefix": "When",
+        "middle": "'s price reaches"
+      },
+      "orderWill": {
+        "prefix": ", your limit order will automatically sell"
+      },
+      "ensuring": {
+        "prefix": ", ensuring you receive at least",
+        "suffix": "."
+      }
+    },
     "sellBuy": "Sell → Buy",
     "limitExecution": "Limit/Execution",
     "statusHead": "Status",

@@ -160,7 +160,7 @@ const sortApiQuotes = (
     const sorted = [...quotesWithoutErrors].sort((a, b) => {
       const getExecutionTime = (quote: ApiQuote) => {
         if (!quote.quote?.steps?.length) return undefined
- 
+
         // Note, we *need* this and don't want to sum to 0. undefined and 0 have two v. diff meanings
         if (quote.quote.steps.every(step => step.estimatedExecutionTimeMs === undefined)) {
           return undefined

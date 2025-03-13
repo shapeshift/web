@@ -2012,18 +2012,18 @@
         "share": "Don't share it with anyone else",
         "lose": "If you lose it, we can't recover it"
       },
-      "button": "Continue to Backup"
+      "button": "I understand"
     },
     "manualBackup": {
-      "header": "Manual Backup",
+      "header": "Secure Your Wallet",
       "subHeader": "Save your Secret Recovery Phrase in a secure place that only you control.",
       "copyToClipboard": "Copy to clipboard",
       "copied": "Copied!",
       "nextStep": "Next you'll be asked to confirm the positions of certain words in your Secret Recovery Phrase.",
-      "button": "Continue backup",
+      "button": "Continue to confirm",
       "success": {
-        "title": "Manual Backup Complete",
-        "description": "Your wallet has been successfully backed up.",
+        "title": "Backup Confirmed",
+        "description": "You’ve verified your Secret Recovery Phrase. Be sure to store it securely—this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
     }

@@ -5,12 +5,16 @@ import { uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type { HopProgress, StreamingSwapMetadata, TradeExecutionMetadata } from './types'
+import type {
+  HopProgress,
+  QuoteSortOption,
+  StreamingSwapMetadata,
+  TradeExecutionMetadata,
+} from './types'
 import {
   AllowanceKey,
   HopExecutionState,
   HopKey,
-  QuoteSortOption,
   TradeExecutionState,
   TransactionExecutionState,
 } from './types'
@@ -439,54 +443,8 @@ export const tradeQuoteSlice = createSlice({
 
       const allQuotes = uniqBy(sortedQuotesWithoutOriginalIndex.concat(staleQuotes), 'id')
 
-      // Use the sortOption from the state to determine how to sort the quotes
-      const sortQuotes = (
-        unorderedQuotes: (ApiQuote & { isStale?: boolean; originalIndex?: number })[],
-      ): ApiQuote[] => {
-        // For quotes without errors, we need to sort them according to the current sort option
-        if (state.sortOption === QuoteSortOption.FASTEST) {
-          unorderedQuotes.forEach(quote => {
-            const executionTime = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
-            console.log(
-              `${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`,
-            )
-          })
-
-          // Sort by execution time
-          const sorted = [...unorderedQuotes].sort((a, b) => {
-            // Get execution times, defaulting to MAX_SAFE_INTEGER if undefined
-            const aTime = a.quote?.steps?.[0]?.estimatedExecutionTimeMs
-            const bTime = b.quote?.steps?.[0]?.estimatedExecutionTimeMs
-
-            // If both have undefined execution times, maintain original order
-            if (aTime === undefined && bTime === undefined) {
-              return 0
-            }
-
-            // Quotes with undefined execution time go last
-            if (aTime === undefined) return 1
-            if (bTime === undefined) return -1
-
-            // Sort by execution time (ascending)
-            return aTime - bTime
-          })
-
-          sorted.forEach(quote => {
-            const executionTime = quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
-            console.log(
-              `${quote.id}: ${executionTime !== undefined ? executionTime : 'undefined'} ms`,
-            )
-          })
-
-          return sorted
-        }
-
-        // For other sort options, preserve the sorting from sortedQuotes
-        return unorderedQuotes
-      }
-
-      const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
-      const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+      const happyQuotes = allQuotes.filter(({ errors }) => errors.length === 0)
+      const errorQuotes = allQuotes.filter(({ errors }) => errors.length > 0)
 
       state.tradeQuoteDisplayCache = happyQuotes.concat(errorQuotes)
     },

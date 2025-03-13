@@ -34,7 +34,7 @@ export enum HopExecutionState {
 }
 
 export enum QuoteSortOption {
-  BEST_RATE = 'BEST_RATE', // Default sorting - best rate (highest input/output ratio)
+  BEST_RATE = 'BEST_RATE', // Default sorting - best receive amount after all fees
   LOWEST_GAS = 'LOWEST_GAS',
   FASTEST = 'FASTEST',
 }

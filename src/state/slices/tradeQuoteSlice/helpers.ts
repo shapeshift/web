@@ -159,19 +159,27 @@ const sortApiQuotes = (
   if (sortOption === QuoteSortOption.FASTEST) {
     const sorted = [...quotesWithoutErrors].sort((a, b) => {
       const getExecutionTime = (quote: ApiQuote) => {
-        // Get the execution time from the first step
-        return quote.quote?.steps?.[0]?.estimatedExecutionTimeMs
+        if (!quote.quote?.steps?.length) return undefined
+ 
+        // Note, we *need* this and don't want to sum to 0. undefined and 0 have two v. diff meanings
+        if (quote.quote.steps.every(step => step.estimatedExecutionTimeMs === undefined)) {
+          return undefined
+        }
+
+        return quote.quote.steps.reduce((total, step) => {
+          // Opt chain to keep tsc happy, we already know it will be defined after the above check
+          return total + (step.estimatedExecutionTimeMs ?? 0)
+        }, 0)
       }
 
       const aTime = getExecutionTime(a)
       const bTime = getExecutionTime(b)
 
-      // Handle undefined cases first
       if (aTime === undefined && bTime === undefined) return 0
-      if (aTime === undefined) return 1 // Push undefined to bottom
-      if (bTime === undefined) return -1 // Keep defined above undefined
+      if (aTime === undefined) return 1 // Push undefined to last, we don't know the ETA here
+      if (bTime === undefined) return -1 // Keep defined ETA above undefined
 
-      // Now compare numerically (lower times first, including 0ms)
+      // Number compare is safe since we're dealing with unix timestamps
       return aTime - bTime
     })
     return sorted

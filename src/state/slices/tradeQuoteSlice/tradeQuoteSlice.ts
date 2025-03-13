@@ -457,21 +457,14 @@ export const tradeQuoteSlice = createSlice({
             const aTime = a.quote?.steps?.[0]?.estimatedExecutionTimeMs
             const bTime = b.quote?.steps?.[0]?.estimatedExecutionTimeMs
 
-            // Special case: 0x swapper with 0ms execution time should be treated as unknown
-            const aIsZeroX = a.swapperName === '0x'
-            const bIsZeroX = b.swapperName === '0x'
-
-            // If both have undefined execution times or are 0x with 0ms, maintain original order
-            if (
-              (aTime === undefined && bTime === undefined) ||
-              (aIsZeroX && aTime === 0 && bIsZeroX && bTime === 0)
-            ) {
+            // If both have undefined execution times, maintain original order
+            if (aTime === undefined && bTime === undefined) {
               return 0
             }
 
-            // Quotes with undefined execution time or 0x with 0ms go last
-            if (aTime === undefined || (aIsZeroX && aTime === 0)) return 1
-            if (bTime === undefined || (bIsZeroX && bTime === 0)) return -1
+            // Quotes with undefined execution time go last
+            if (aTime === undefined) return 1
+            if (bTime === undefined) return -1
 
             // Sort by execution time (ascending)
             return aTime - bTime

@@ -1,10 +1,8 @@
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
-import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import type { TradeCardProps } from '@/components/MultiHopTrade/MultiHopTrade'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
@@ -19,16 +17,6 @@ const initialEntries = [
   TradeRoutePaths.VerifyAddresses,
   TradeRoutePaths.QuoteList,
   TradeRoutePaths.Quotes,
-
-  LimitOrderRoutePaths.Input,
-  LimitOrderRoutePaths.Confirm,
-  LimitOrderRoutePaths.AllowanceApproval,
-  LimitOrderRoutePaths.PlaceOrder,
-  LimitOrderRoutePaths.Orders,
-
-  ClaimRoutePaths.Select,
-  ClaimRoutePaths.Confirm,
-  ClaimRoutePaths.Status,
 ]
 
 // A standalone version of the trade page routing as an HOC, without it being a page, and without leveraging top-level routes but rather
@@ -48,7 +36,6 @@ export const StandaloneTrade: React.FC<StandaloneTradeProps> = props => {
 const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
   const history = useHistory()
   const location = useLocation()
-  const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const methods = useForm({ mode: 'onChange' })
 
   const handleChangeTab = useCallback(
@@ -73,14 +60,8 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
   return (
     <FormProvider {...methods}>
       <Switch location={location}>
-        <Route key={LimitOrderRoutePaths.Input} path={LimitOrderRoutePaths.Input}>
-          <LimitOrder tradeInputRef={tradeInputRef} onChangeTab={handleChangeTab} />
-        </Route>
-        <Route key={ClaimRoutePaths.Select} path={ClaimRoutePaths.Select}>
-          <Claim onChangeTab={handleChangeTab} />
-        </Route>
         <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-          <MultiHopTrade {...props} onChangeTab={handleChangeTab} />
+          <MultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />
         </Route>
       </Switch>
     </FormProvider>

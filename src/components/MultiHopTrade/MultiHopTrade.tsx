@@ -30,6 +30,7 @@ export type TradeCardProps = {
   defaultSellAssetId?: AssetId
   isCompact?: boolean
   isRewritingUrl?: boolean
+  isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
@@ -46,6 +47,7 @@ export const MultiHopTrade = memo(
     isCompact,
     isRewritingUrl,
     onChangeTab,
+    isStandalone,
   }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
@@ -125,7 +127,7 @@ export const MultiHopTrade = memo(
 
     return (
       <FormProvider {...methods}>
-        <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} />
+        <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} isStandalone={isStandalone} />
       </FormProvider>
     )
   },
@@ -133,10 +135,11 @@ export const MultiHopTrade = memo(
 
 type TradeRoutesProps = {
   isCompact?: boolean
+  isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-const TradeRoutes = memo(({ isCompact, onChangeTab }: TradeRoutesProps) => {
+const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesProps) => {
   const location = useLocation()
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
@@ -182,6 +185,7 @@ const TradeRoutes = memo(({ isCompact, onChangeTab }: TradeRoutesProps) => {
               isCompact={isCompact}
               tradeInputRef={tradeInputRef}
               onChangeTab={onChangeTab}
+              isStandalone={isStandalone}
             />
           </Route>
         </Switch>

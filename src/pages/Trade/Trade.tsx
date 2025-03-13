@@ -74,13 +74,14 @@ export const Trade = memo(() => {
   )
 
   const title = useMemo(() => {
-    if (location.pathname.startsWith(LimitOrderRoutePaths.Input)) {
-      return translate('navBar.limitOrder')
+    switch (true) {
+      case location.pathname.startsWith(LimitOrderRoutePaths.Input):
+        return translate('navBar.limitOrder')
+      case location.pathname.startsWith(ClaimRoutePaths.Select):
+        return translate('navBar.claims')
+      default:
+        return translate('navBar.trade')
     }
-    if (location.pathname.startsWith(ClaimRoutePaths.Select)) {
-      return translate('navBar.claims')
-    }
-    return translate('navBar.trade')
   }, [location.pathname, translate])
 
   // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm

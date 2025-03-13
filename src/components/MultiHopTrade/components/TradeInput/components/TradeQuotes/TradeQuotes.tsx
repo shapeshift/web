@@ -79,7 +79,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   }, [buyAsset?.assetId, sellAsset?.assetId])
 
   useEffect(() => {
-    // Force an update of the trade quotes (rates) display cache when sorted/quotes change
     dispatch(
       tradeQuoteSlice.actions.updateTradeQuoteDisplayCache({
         isTradeQuoteApiQueryPending,
@@ -116,7 +115,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
       return []
     }
 
-    console.log({ availableTradeQuotesDisplayCache })
     return availableTradeQuotesDisplayCache.map((quoteData, i) => {
       const { id, errors } = quoteData
 

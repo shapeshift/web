@@ -158,7 +158,7 @@ const sortApiQuotes = (
   // First, filter out quotes with errors - those belong in the unavailable section
   const quotesWithoutErrors = unorderedQuotes.filter(quote => quote.errors.length === 0)
 
-  // For FASTEST sorting, use a custom sorting function to properly handle execution times
+  // Custom sorting function rather than an orderBy iteratee to keep my sanity, since this didn't play too well with it
   if (sortOption === QuoteSortOption.FASTEST) {
     const sorted = [...quotesWithoutErrors].sort((a, b) => {
       const getExecutionTime = (quote: ApiQuote) => {
@@ -227,10 +227,7 @@ const sortApiQuotes = (
     }
   })()
 
-  // Only use orderBy for non-FASTEST sorting options
   const ordered = orderBy(quotesWithoutErrors, iteratees, sortOrders)
-
-  console.log({ quotesWithoutErrors, ordered })
 
   return ordered
 }
@@ -250,8 +247,6 @@ export const sortTradeQuotes = (
 
   // Only sort quotes without errors
   const sortedHappyQuotes = sortApiQuotes(quotesWithoutErrors, sortOption)
-
-  console.log({ sortedHappyQuotes })
 
   // Return sorted quotes without errors first, then quotes with errors
   return [...sortedHappyQuotes, ...quotesWithErrors]

@@ -195,7 +195,7 @@ export const TradeQuoteContent = ({
           )}
 
           {slippage}
-          {totalEstimatedExecutionTimeMs !== undefined && eta}
+          {eta}
           <Skeleton isLoaded={!isLoading}>
             {numHops > 1 && (
               <Tooltip label={translate('trade.numHops', { numHops })}>

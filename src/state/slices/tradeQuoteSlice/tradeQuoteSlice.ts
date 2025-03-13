@@ -24,6 +24,7 @@ export const tradeQuoteSlice = createSlice({
     clear: state => ({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
+      sortOption: state.sortOption, // Preserve the sort option
     }),
     clearTradeQuotes: state => ({
       ...initialState,

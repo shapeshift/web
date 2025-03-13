@@ -7,7 +7,6 @@ import {
   PriceDirection,
 } from '@/state/slices/limitOrderInputSlice/constants'
 import { CurrencyFormats, HomeMarketView } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { SortType } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({

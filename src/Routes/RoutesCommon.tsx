@@ -14,6 +14,7 @@ import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
@@ -295,22 +296,22 @@ export const routes: Route[] = [
     main: Trade,
     routes: [
       {
-        path: '/limit/confirm',
+        path: LimitOrderRoutePaths.Confirm,
         main: Trade,
         hide: true,
       },
       {
-        path: '/limit/allowance-approval',
+        path: LimitOrderRoutePaths.AllowanceApproval,
         main: Trade,
         hide: true,
       },
       {
-        path: '/limit/place-order',
+        path: LimitOrderRoutePaths.PlaceOrder,
         main: Trade,
         hide: true,
       },
       {
-        path: '/limit/orders',
+        path: LimitOrderRoutePaths.Orders,
         main: Trade,
         hide: true,
       },

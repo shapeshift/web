@@ -1,4 +1,4 @@
-import { MenuItem } from '@chakra-ui/react'
+import { MenuDivider, MenuItem } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -55,6 +55,7 @@ export const LedgerMenu: React.FC<LedgerMenuProps> = ({ onClose }) => {
 
   return (
     <>
+      <MenuDivider />
       <ManageAccountsMenuItem onClose={onClose} />
       {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}
       {(!isAccountManagementEnabled || !isLedgerAccountManagementEnabled) && (

@@ -9,8 +9,6 @@ import { NativePassword } from '../../NativeWallet/components/NativePassword'
 import { NativeSuccess } from '../../NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from '../../NativeWallet/components/NativeTestPhrase'
 import type { NativeSetupProps } from '../../NativeWallet/types'
-import { NativeDelete } from '../wallets/native/NativeDelete'
-import { NativeRename } from '../wallets/native/NativeRename'
 import { NativeStart } from '../wallets/native/NativeStart'
 
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
@@ -54,20 +52,6 @@ export const NativeRoutes = () => (
       // we need to pass an arg here, so we need an anonymous function wrapper
       // eslint-disable-next-line react-memo/require-usememo
       render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.Rename}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={() => <NativeRename />}
-    />
-    <Route
-      exact
-      path={NativeWalletRoutes.Delete}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={() => <NativeDelete />}
     />
     <Route exact path={NativeWalletRoutes.EnterPassword}>
       <EnterPassword />

@@ -14,7 +14,7 @@ import { Claim } from '@/components/MultiHopTrade/components/TradeInput/componen
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
+import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
 const padding = { base: 0, md: 8 }
 
@@ -29,7 +29,7 @@ export const Trade = memo(() => {
   // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
   // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
-  const match = useMemo(
+  const spotMatch = useMemo(
     () =>
       matchPath<TradeRouterMatchParams>(location.pathname, {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -38,7 +38,16 @@ export const Trade = memo(() => {
     [location.pathname],
   )
 
-  const params = match?.params || {}
+  const limitMatch = useMemo(
+    () =>
+      matchPath<TradeRouterMatchParams>(location.pathname, {
+        path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
+        exact: true,
+      }),
+    [location.pathname],
+  )
+
+  const params = spotMatch?.params || limitMatch?.params || {}
 
   const defaultBuyAssetId = useMemo(
     () =>
@@ -87,8 +96,8 @@ export const Trade = memo(() => {
   // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm
   const isRewritingUrl = useMemo(
     () =>
-      ![TradeRoutePaths.Confirm, TradeRoutePaths.VerifyAddresses].includes(
-        location.pathname as TradeRoutePaths,
+      ![TradeRoutePaths.Confirm, LimitOrderRoutePaths.Confirm].includes(
+        location.pathname as TradeRoutePaths | LimitOrderRoutePaths,
       ),
     [location.pathname],
   )
@@ -108,7 +117,13 @@ export const Trade = memo(() => {
         <FormProvider {...methods}>
           <Switch location={location}>
             <Route key={LimitOrderRoutePaths.Input} path={LimitOrderRoutePaths.Input}>
-              <LimitOrder tradeInputRef={tradeInputRef} onChangeTab={handleChangeTab} />
+              <LimitOrder
+                tradeInputRef={tradeInputRef}
+                onChangeTab={handleChangeTab}
+                isRewritingUrl={isRewritingUrl}
+                defaultBuyAssetId={defaultBuyAssetId}
+                defaultSellAssetId={defaultSellAssetId}
+              />
             </Route>
             <Route key={ClaimRoutePaths.Select} path={ClaimRoutePaths.Select}>
               <Claim onChangeTab={handleChangeTab} />

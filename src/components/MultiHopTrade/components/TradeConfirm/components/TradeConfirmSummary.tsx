@@ -1,5 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Divider, HStack, Icon, Link, Stack, Tooltip } from '@chakra-ui/react'
+import { Divider, HStack, Stack, Tooltip } from '@chakra-ui/react'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
@@ -13,9 +12,9 @@ import { useIsApprovalInitiallyNeeded } from '../hooks/useIsApprovalInitiallyNee
 import { Amount } from '@/components/Amount/Amount'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { RecipientAddressRow } from '@/components/RecipientAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
-import { middleEllipsis } from '@/lib/utils'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
@@ -161,23 +160,10 @@ export const TradeConfirmSummary = () => {
         />
         {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
         <Divider />
-        <Row>
-          <Row.Label>
-            <Text translation='trade.recipientAddress' />
-          </Row.Label>
-          <Row.Value>
-            <HStack>
-              <RawText>{middleEllipsis(receiveAddress ?? '')}</RawText>
-              <Link
-                href={`${sellAsset.explorerAddressLink}${receiveAddress}`}
-                isExternal
-                aria-label='View on block explorer'
-              >
-                <Icon as={ExternalLinkIcon} />
-              </Link>
-            </HStack>
-          </Row.Value>
-        </Row>
+        <RecipientAddressRow
+          explorerAddressLink={sellAsset.explorerAddressLink}
+          recipientAddress={receiveAddress ?? ''}
+        />
       </Stack>
     </RateGasRow>
   )

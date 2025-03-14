@@ -324,7 +324,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Conectar billetera",
-      "switchWallet": "Cambiar Proveedor de Billetera",
       "disconnect": "Desconectar",
       "disconnected": "(Desconectado)",
       "connecting": "Conectando..."
@@ -1863,9 +1862,7 @@
         "button": "Siguiente"
       },
       "rename": {
-        "header": "Cambia el nombre de tu billetera",
         "walletName": "Nuevo apodo para tu billetera",
-        "body": "Ingrese el nuevo apodo de su billetera y su contraseña para descifrar su billetera.",
         "mobileBody": "Ingresa el nuevo apodo de tu billetera.",
         "button": "Siguiente",
         "confirmDelete": "¿Está seguro de que desea eliminar el apodo de esta billetera?"
@@ -1976,19 +1973,14 @@
       "bulletPoints": {
         "share": "No la compartas con nadie más",
         "lose": "Si la pierdes, no podemos recuperarla"
-      },
-      "button": "Continuar con la copia de seguridad"
+      }
     },
     "manualBackup": {
-      "header": "Copia de seguridad Manual",
       "subHeader": "Guarde su Frase Secreta de Recuperación en un lugar seguro que sólo usted controle.",
       "copyToClipboard": "Copiar al portapapeles",
       "copied": "Copiado!",
       "nextStep": "A continuación se le pedirá confirmar posiciones de ciertas palabras en su Frase Secreta de Recuperación.",
-      "button": "Continuar copia de seguridad",
       "success": {
-        "title": "Copia de Seguridad Manual Completa",
-        "description": "Su billetera ha sido respaldada exitosamente.",
         "viewWallet": "Ver Billetera"
       }
     }
@@ -2850,7 +2842,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Reclama tu FOXwifhat. Actúa rápido: los descuentos se agotan con el tiempo. Cuanto más FOX o FOXwifhat tengas, más ahorrarás. Acumula más tokens FOX para obtener ahorros continuos, además de beneficios de distribución de ingresos, gobernanza y cultivo de rendimiento. Obtén más información sobre esos programas en el resto de esta página.",
       "discount": "*El descuento disminuye linealmente con el tiempo y vence el %{date}. ¡Aprovecha tu descuento del %{percent}% antes de que disminuya aún más!",
       "claim": "Reclamar",
       "claimed": "Reclamado",

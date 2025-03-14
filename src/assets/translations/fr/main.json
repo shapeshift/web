@@ -324,7 +324,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connecter un porte-monnaie",
-      "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
       "disconnected": "(Déconnecté)",
       "connecting": "Connexion..."
@@ -1863,9 +1862,7 @@
         "button": "Suivant"
       },
       "rename": {
-        "header": "Renommer votre porte-monnaie",
         "walletName": "Nouveau surnom pour votre porte-monnaie",
-        "body": "Saisissez le nouveau surnom de votre porte-monnaie et votre mot de passe pour décrypter votre porte-monnaie.",
         "mobileBody": "Entrez le nouveau surnom de votre porte-monnaie.",
         "button": "Suivant",
         "confirmDelete": "Êtes-vous sûr de vouloir supprimer le surnom de ce porte-monnaie ?"
@@ -1976,19 +1973,14 @@
       "bulletPoints": {
         "share": "Ne la partagez avec personne d'autre",
         "lose": "Si vous la perdez, nous ne pouvons pas la récupérer"
-      },
-      "button": "Continuer vers la sauvegarde"
+      }
     },
     "manualBackup": {
-      "header": "Sauvegarde manuelle",
       "subHeader": "Enregistrez votre Phrase de Récupération Secrète dans un endroit sûr que vous seul contrôlez.",
       "copyToClipboard": "Copier dans le presse-papiers",
       "copied": "Copié !",
       "nextStep": "Par la suite, il va vous être demandé de confirmer la position de certains mots dans votre Phrase de Récupération Secrète.",
-      "button": "Continuer la sauvegarde",
       "success": {
-        "title": "Sauvegarde manuelle terminée",
-        "description": "Votre porte-monnaie a été sauvegardé avec succès.",
         "viewWallet": "Voir le porte-monnaie"
       }
     }
@@ -2850,7 +2842,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Réclamez votre FOXwifhat. Agissez vite : ces remises diminuent avec le temps. Plus vous détenez de FOX ou de FOXwifhat, plus vous économisez. Accumulez plus de jetons FOX pour des économies continues et des avantages en matière de partage de revenus, gouvernance et revenus de farming. Apprenez-en plus sur ces programmes sur le reste de cette page.",
       "discount": "*Cette remise diminue de manière linéaire au fil du temps et expire le %{date}. Profitez de votre remise de %{percent}% avant qu'elle ne diminue davantage !",
       "claim": "Réclamer",
       "claimed": "Réclamé",

@@ -324,7 +324,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Conectar Carteira",
-      "switchWallet": "Trocar de Carteira",
       "disconnect": "Desconectar",
       "disconnected": "(Sem conexão)",
       "connecting": "Conectando..."
@@ -1863,9 +1862,7 @@
         "button": "Avançar"
       },
       "rename": {
-        "header": "Renomeie sua carteira",
         "walletName": "Novo apelido para sua carteira",
-        "body": "Digite o novo apelido de sua carteira e sua senha para descriptografar sua carteira.",
         "mobileBody": "Digite o novo apelido da sua carteira.",
         "button": "Avançar",
         "confirmDelete": "Tem certeza de que deseja excluir o apelido desta carteira?"
@@ -1976,19 +1973,14 @@
       "bulletPoints": {
         "share": "Não compartilhe com mais ninguém",
         "lose": "Se você perder, não poderemos recuperá-lo"
-      },
-      "button": "Continuar para backup"
+      }
     },
     "manualBackup": {
-      "header": "Backup manual",
       "subHeader": "Salve sua Frase Secreta de Recuperação em um lugar seguro que só você controla.",
       "copyToClipboard": "Copiar para área de transferência",
       "copied": "Copiado!",
       "nextStep": "Em seguida, você será solicitado a confirmar as posições de certas palavras na sua Frase Secreta de Recuperação.",
-      "button": "Continuar backup",
       "success": {
-        "title": "Backup manual concluído",
-        "description": "O backup da sua carteira foi feito com sucesso.",
         "viewWallet": "Ver carteira"
       }
     }
@@ -2850,7 +2842,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Resgate seu FOXwifhat. Aja rápido - os descontos diminuem com o tempo. Quanto mais FOX ou FOXwifhat você tiver, mais você economiza. Acumule mais tokens FOX para economias contínuas, além de compartilhamento de receita, governança e vantagens de yield farming. Saiba mais sobre esses programas no restante desta página.",
       "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em %{date}. Aproveite seu desconto de %{percent}% antes que ele diminua ainda mais!",
       "claim": "Resgate",
       "claimed": "Resgatado",

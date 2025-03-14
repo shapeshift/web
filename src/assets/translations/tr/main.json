@@ -324,7 +324,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Cüzdanı Bağla",
-      "switchWallet": "Cüzdan Sağlayıcıyı Değiştir",
       "disconnect": "Bağlantıyı kes",
       "disconnected": "(Bağlantı kesildi)",
       "connecting": "Bağlanıyor..."
@@ -1863,9 +1862,7 @@
         "button": "Sonraki"
       },
       "rename": {
-        "header": "Cüzdanını yeniden adlandır",
         "walletName": "Cüzdanınız için yeni takma ad",
-        "body": "Cüzdanınızın şifresini çözmek için cüzdanınızın yeni takma adını ve şifrenizi girin.",
         "mobileBody": "Cüzdanınızın yeni takma adını girin.",
         "button": "Sonraki",
         "confirmDelete": "Bu cüzdanın takma adını silmek istediğinizden emin misiniz?"
@@ -1976,19 +1973,14 @@
       "bulletPoints": {
         "share": "Başka kimseyle paylaşmayın",
         "lose": "Kaybederseniz, onu geri alamayız"
-      },
-      "button": "Yedeklemeye Devam Et"
+      }
     },
     "manualBackup": {
-      "header": "Manuel Yedekleme",
       "subHeader": "Gizli Kurtarma Cümlenizi yalnızca sizin kontrolünüzde olan güvenli bir yerde saklayın.",
       "copyToClipboard": "Panoya kopyala",
       "copied": "Kopyalandı!",
       "nextStep": "Daha sonra Gizli Kurtarma Cümlenizdeki belirli kelimelerin yerlerini onaylamanız istenecek.",
-      "button": "Yedeklemeye devam et",
       "success": {
-        "title": "Manuel Yedekleme Tamamlandı",
-        "description": "Cüzdanınız başarıyla yedeklendi.",
         "viewWallet": "Cüzdanı Görüntüle"
       }
     }
@@ -2850,7 +2842,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "FOXwifhat'inizi talep edin. Hızlı davranın - indirimler zamanla azalır. Ne kadar çok FOX veya FOXwifhat'iniz varsa o kadar çok tasarruf edersiniz. Sürekli tasarruf artı gelir paylaşımı, yönetim ve verim çiftçiliği avantajları için daha fazla FOX token'ı biriktirin. Bu programlar hakkında daha fazla bilgiyi bu sayfanın geri kalanında bulabilirsiniz.",
       "discount": "*İndirim zamanla doğrusal olarak azalır ve %{date} tarihinde sona erer. Daha fazla azalmadan önce %{percent}% indiriminizden yararlanın!",
       "claim": "Topla",
       "claimed": "Toplanan",

@@ -324,7 +324,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Wallet verbinden",
-      "switchWallet": "Wallet-Anbieter wechseln",
       "disconnect": "Trennen",
       "disconnected": "(Getrennt)",
       "connecting": "Verbinde..."
@@ -1863,9 +1862,7 @@
         "button": "Weiter"
       },
       "rename": {
-        "header": "Wallet umbenennen",
         "walletName": "Neuer Spitzname für Ihre Wallet ",
-        "body": "Geben Sie den neuen Spitznamen Ihrer Wallet und Ihr Passwort ein, um Ihre Wallet zu entschlüsseln.",
         "mobileBody": "Geben Sie den neuen Spitznamen Ihrer Wallet ein.",
         "button": "Weiter",
         "confirmDelete": "Möchten Sie den Spitznamen dieser Wallet wirklich löschen?"
@@ -1976,19 +1973,14 @@
       "bulletPoints": {
         "share": "Geben Sie sie nicht an andere weiter",
         "lose": "Wenn Sie sie verlieren, können wir sie nicht wiederherstellen"
-      },
-      "button": "Weiter zur Datensicherung"
+      }
     },
     "manualBackup": {
-      "header": "Manuelle Sicherung",
       "subHeader": "Speichern Sie Ihre geheime Wiederherstellungsphrase an einem sicheren Ort, über den nur Sie Kontrolle haben.",
       "copyToClipboard": "In die Zwischenablage kopieren",
       "copied": "Kopiert!",
       "nextStep": "Als Nächstes werden Sie aufgefordert, die Positionen bestimmter Wörter in Ihrer geheimen Wiederherstellungsphrase zu bestätigen.",
-      "button": "Sicherung fortsetzen",
       "success": {
-        "title": "Manuelle Sicherung abgeschlossen",
-        "description": "Ihr Wallet wurde erfolgreich gesichert.",
         "viewWallet": "Wallet anzeigen"
       }
     }
@@ -2850,7 +2842,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Fordern Sie Ihren FOXwifhat an. Handeln Sie schnell – Rabatte verfallen mit der Zeit. Je mehr FOX oder FOXwifhat Sie besitzen, desto mehr sparen Sie. Halten Sie mehr FOX Token für kontinuierliche Einsparungen sowie Umsatzbeteiligung, Governance und Yield Farming-Vergünstigungen. Weitere Informationen zu diesen Programmen finden Sie auf der restlichen Seite dieser Seite.",
       "discount": "*Der Rabatt verringert sich mit der Zeit linear und läuft am %{date} ab. Nutzen Sie Ihren %{percent}%-Rabatt, bevor er weiter verringert wird!",
       "claim": "Beanspruchen",
       "claimed": "Beansprucht",

@@ -1511,7 +1511,7 @@
     "keepKey": {
       "errors": {
         "unknown": "与你的 KeepKey 通信时发生意外错误",
-        "updateAlert": "需要固件 6.1.0 或更高版本才能在此客户端上使用 Keepkey。请更新你的设备。",
+        "updateAlert": "需要固件 %{version} 或更高版本才能在此客户端上使用 KeepKey。请更新你的设备。",
         "pinCancelled": "PIN 输入已取消",
         "pinInvalid": "你输入的 PIN 码无效",
         "pinMismatch": "你输入的两个 PIN 码不匹配"

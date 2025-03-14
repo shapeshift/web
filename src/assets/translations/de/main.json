@@ -1511,7 +1511,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Bei der Kommunikation mit Ihrem KeepKey ist ein unerwarteter Fehler aufgetreten",
-        "updateAlert": "Firmware 6.1.0 oder höher ist erforderlich, um Ihren Keepkey mit diesem Client zu verwenden. Bitte aktualisieren Sie Ihr Gerät.",
+        "updateAlert": "Firmware %{version} oder höher ist erforderlich, um Ihren KeepKey mit diesem Client zu verwenden. Bitte aktualisieren Sie Ihr Gerät.",
         "pinCancelled": "PIN-Eingabe wurde abgebrochen",
         "pinInvalid": "Die eingegebene PIN ist ungültig",
         "pinMismatch": "Die beiden eingegebenen PINs stimmen nicht überein"

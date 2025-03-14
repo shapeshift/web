@@ -1511,7 +1511,7 @@
     "keepKey": {
       "errors": {
         "unknown": "KeepKeyとの通信で予期せぬエラーが発生しました",
-        "updateAlert": "このクライアントでKeepkeyを使用するには、ファームウェア 6.1.0 以降が必要です。デバイスを更新してください。",
+        "updateAlert": "このクライアントでKeepKeyを使用するには、ファームウェア %{version} 以降が必要です。デバイスを更新してください。",
         "pinCancelled": "PIN入力がキャンセルされました",
         "pinInvalid": "入力したPINは無効です",
         "pinMismatch": "入力した2つのPINが一致しません"

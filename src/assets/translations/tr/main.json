@@ -1511,7 +1511,7 @@
     "keepKey": {
       "errors": {
         "unknown": "KeepKey'inizle iletişim kurulurken beklenmeyen bir hata oluştu",
-        "updateAlert": "Keepkey'inizi bu istemciyle kullanmak için Firmware 6.1.0 veya üstü gereklidir. Lütfen cihazınızı güncelleyin.",
+        "updateAlert": "KeepKey'inizi bu istemciyle kullanmak için Firmware %{version} veya üstü gereklidir. Lütfen cihazınızı güncelleyin.",
         "pinCancelled": "PIN girişi iptal edildi",
         "pinInvalid": "Girdiğiniz PIN geçerli değil",
         "pinMismatch": "Girdiğiniz iki PIN eşleşmiyor"

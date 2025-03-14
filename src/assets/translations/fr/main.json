@@ -1511,7 +1511,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
-        "updateAlert": "Le firmware 6.1.0 ou ultérieur est requis pour utiliser votre Keepkey avec ce client. Veuillez mettre à jour votre appareil.",
+        "updateAlert": "Le firmware %{version} ou ultérieur est requis pour utiliser votre KeepKey avec ce client. Veuillez mettre à jour votre appareil.",
         "pinCancelled": "La saisie du NIP a été annulée",
         "pinInvalid": "Le NIP que vous avez saisi n'est pas valide",
         "pinMismatch": "Les deux NIP que vous avez saisis ne correspondent pas"

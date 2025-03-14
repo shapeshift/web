@@ -1511,7 +1511,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
-        "updateAlert": "O firmware 6.1.0 ou posterior é necessário para usar a Keepkey. Atualize seu dispositivo.",
+        "updateAlert": "O firmware %{version} ou posterior é necessário para usar a KeepKey. Atualize seu dispositivo.",
         "pinCancelled": "Entrada do PIN foi cancelada",
         "pinInvalid": "O PIN que você digitou não é válido",
         "pinMismatch": "Os PINs que você digitou não correspondem"

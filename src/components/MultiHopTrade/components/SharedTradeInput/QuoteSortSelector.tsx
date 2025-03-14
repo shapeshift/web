@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, FormControl, InputGroup } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -22,8 +22,8 @@ export const QuoteSortSelector: FC = memo(() => {
   const translate = useTranslate()
   const currentSortOption = useAppSelector(selectQuoteSortOption)
 
-  const getSortType = useCallback((option: QuoteSortOption): SortType => {
-    switch (option) {
+  const currentSortType = useMemo(() => {
+    switch (currentSortOption) {
       case QuoteSortOption.LOWEST_GAS:
         return SortType.LowestGas
       case QuoteSortOption.FASTEST:
@@ -32,9 +32,7 @@ export const QuoteSortSelector: FC = memo(() => {
       default:
         return SortType.BestRate
     }
-  }, [])
-
-  const currentSortType = getSortType(currentSortOption)
+  }, [currentSortOption])
 
   const handleSortTypeChange = useCallback(
     (sortType: SortType) => {

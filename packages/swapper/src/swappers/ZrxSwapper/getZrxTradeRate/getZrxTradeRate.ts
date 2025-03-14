@@ -85,7 +85,8 @@ export async function getZrxTradeRate(
     swapperName: SwapperName.Zrx,
     steps: [
       {
-        estimatedExecutionTimeMs: undefined,
+        // Assume instant execution since this is a same-chain AMM Tx which will happen within the same block
+        estimatedExecutionTimeMs: 0,
         allowanceContract:
           isNativeEvmAsset(sellAsset.assetId) || isWrappedNative ? undefined : PERMIT2_CONTRACT,
         buyAsset,

@@ -115,10 +115,6 @@ const styles = {
     '.app-height': {
       minHeight: '100vh',
     },
-    '.scroll-container': {
-      visibility: 'hidden',
-      transition: 'visibility .5s ease-in-out',
-    },
     '.scroll-container::-webkit-scrollbar': {
       background: 'transparent',
       width: '8px',

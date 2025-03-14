@@ -1,7 +1,7 @@
 import { Card, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -15,7 +15,6 @@ import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
   const location = useLocation()
-  const history = useHistory()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
@@ -29,7 +28,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
     // We should always have an active claim at confirm step.
     // If we don't, we've either rehydrated, tried to access /claim/confirm directly, or something went wrong.
     // Either way, route back to select
-    if (!activeClaim) return history.push(ClaimRoutePaths.Select)
+    if (!activeClaim) return <Redirect to={ClaimRoutePaths.Select} />
 
     return (
       <ClaimConfirm

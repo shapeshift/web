@@ -11,7 +11,18 @@ import {
   LimitOrderSubmissionState,
 } from './constants'
 import { buildUnsignedLimitOrder } from './helpers'
-import type { LimitOrderActiveQuote } from './types'
+import type { LimitOrderActiveQuote, LimitOrderState, LimitOrderSubmissionMetadata } from './types'
+
+// Create a type-safe immer draft that will populate the orderSubmission object if undefined
+const makeOrderSubmissionDraft = (
+  orderSubmission: LimitOrderState['orderSubmission'],
+  id: QuoteId,
+): LimitOrderSubmissionMetadata => {
+  if (!orderSubmission[id]) {
+    orderSubmission[id] = limitOrderSubmissionInitialState
+  }
+  return orderSubmission[id] as LimitOrderSubmissionMetadata
+}
 
 export const limitOrderSlice = createSlice({
   name: 'limitOrder',
@@ -38,7 +49,8 @@ export const limitOrderSlice = createSlice({
       state.orderSubmission[quoteId] = limitOrderSubmissionInitialState
     },
     setLimitOrderInitialized: (state, action: PayloadAction<QuoteId>) => {
-      state.orderSubmission[action.payload].state = LimitOrderSubmissionState.Previewing
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, action.payload)
+      draftOrderSubmission.state = LimitOrderSubmissionState.Previewing
     },
     confirmSubmit: (state, action: PayloadAction<QuoteId>) => {
       const limitOrderQuoteId = action.payload
@@ -62,10 +74,12 @@ export const limitOrderSlice = createSlice({
 
       // This should never actually happen because the view layer should prevent calling this when
       // the state isn't valid, but it's here to protect us from ourselves.
-      if (state.orderSubmission[limitOrderQuoteId].state !== LimitOrderSubmissionState.Previewing) {
-        if (
-          state.orderSubmission[limitOrderQuoteId].state === LimitOrderSubmissionState.Initializing
-        ) {
+      const draftOrderSubmission = makeOrderSubmissionDraft(
+        state.orderSubmission,
+        limitOrderQuoteId,
+      )
+      if (draftOrderSubmission.state !== LimitOrderSubmissionState.Previewing) {
+        if (draftOrderSubmission.state === LimitOrderSubmissionState.Initializing) {
           console.error('Attempted to confirm an uninitialized limit order')
         } else {
           console.error('Attempted to confirm an in-progress limit order')
@@ -73,82 +87,86 @@ export const limitOrderSlice = createSlice({
         return
       }
 
-      const allowanceResetRequired =
-        state.orderSubmission[limitOrderQuoteId].allowanceReset.isRequired
-      const approvalRequired =
-        state.orderSubmission[limitOrderQuoteId].allowanceApproval.isInitiallyRequired
+      const allowanceResetRequired = draftOrderSubmission.allowanceReset.isRequired
+      const approvalRequired = draftOrderSubmission.allowanceApproval.isInitiallyRequired
 
       switch (true) {
         case allowanceResetRequired:
-          state.orderSubmission[limitOrderQuoteId].state =
-            LimitOrderSubmissionState.AwaitingAllowanceReset
+          draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingAllowanceReset
           break
         case approvalRequired:
-          state.orderSubmission[limitOrderQuoteId].state =
-            LimitOrderSubmissionState.AwaitingAllowanceApproval
+          draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingAllowanceApproval
           break
         default:
-          state.orderSubmission[limitOrderQuoteId].state =
-            LimitOrderSubmissionState.AwaitingLimitOrderSubmission
+          draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingLimitOrderSubmission
           break
       }
     },
     setAllowanceResetTxPending: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].allowanceReset.state = TransactionExecutionState.Pending
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceReset.state = TransactionExecutionState.Pending
     },
     setAllowanceApprovalTxPending: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Pending
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Pending
     },
     setAllowanceResetTxFailed: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Failed
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Failed
     },
     setAllowanceApprovalTxFailed: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Failed
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Failed
     },
     setAllowanceResetTxComplete: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].allowanceReset.state = TransactionExecutionState.Complete
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceReset.state = TransactionExecutionState.Complete
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setAllowanceApprovalTxComplete: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Complete
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Complete
     },
     // This is deliberately disjoint to the allowance reset transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceResetStepComplete: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
 
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       // Don't update the state if we're on a different stage of the flow
-      if (state.orderSubmission[id].state !== LimitOrderSubmissionState.AwaitingAllowanceReset) {
+      if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceReset) {
         return
       }
 
-      state.orderSubmission[id].state = LimitOrderSubmissionState.AwaitingAllowanceApproval
+      draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingAllowanceApproval
     },
     // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceApprovalStepComplete: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
 
-      // Don't update the state if we're on a different stage of the flow
-      if (state.orderSubmission[id].state !== LimitOrderSubmissionState.AwaitingAllowanceApproval) {
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceApproval) {
         return
       }
 
-      state.orderSubmission[id].state = LimitOrderSubmissionState.AwaitingLimitOrderSubmission
+      draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingLimitOrderSubmission
     },
     setLimitOrderTxPending: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].limitOrder.state = TransactionExecutionState.Pending
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.limitOrder.state = TransactionExecutionState.Pending
     },
     setLimitOrderTxFailed: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
-      state.orderSubmission[id].limitOrder.state = TransactionExecutionState.Failed
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.limitOrder.state = TransactionExecutionState.Failed
     },
     setLimitOrderTxMessage: (
       state,
@@ -159,31 +177,40 @@ export const limitOrderSlice = createSlice({
       }>,
     ) => {
       const { id, message } = action.payload
-      state.orderSubmission[id].limitOrder.message = message
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.limitOrder.message = message
     },
     setLimitOrderTxComplete: (state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
 
-      state.orderSubmission[id].limitOrder.state = TransactionExecutionState.Complete
-      state.orderSubmission[id].limitOrder.message = undefined
-      state.orderSubmission[id].state = LimitOrderSubmissionState.Complete
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.limitOrder.state = TransactionExecutionState.Complete
+      draftOrderSubmission.limitOrder.message = undefined
+      draftOrderSubmission.state = LimitOrderSubmissionState.Complete
     },
     setInitialApprovalRequirements: (
       state,
       action: PayloadAction<{ isAllowanceApprovalRequired: boolean | undefined; id: QuoteId }>,
     ) => {
-      state.orderSubmission[action.payload.id].allowanceApproval.isRequired =
+      const draftOrderSubmission = makeOrderSubmissionDraft(
+        state.orderSubmission,
+        action.payload.id,
+      )
+      draftOrderSubmission.allowanceApproval.isRequired =
         action.payload?.isAllowanceApprovalRequired
-      state.orderSubmission[action.payload.id].allowanceApproval.isInitiallyRequired =
+      draftOrderSubmission.allowanceApproval.isInitiallyRequired =
         action.payload?.isAllowanceApprovalRequired
     },
     setAllowanceResetRequirements: (
       state,
       action: PayloadAction<{ isAllowanceResetRequired: boolean | undefined; id: QuoteId }>,
     ) => {
-      state.orderSubmission[action.payload.id].allowanceReset.isRequired =
-        action.payload?.isAllowanceResetRequired
-      state.orderSubmission[action.payload.id].allowanceReset.isInitiallyRequired =
+      const draftOrderSubmission = makeOrderSubmissionDraft(
+        state.orderSubmission,
+        action.payload.id,
+      )
+      draftOrderSubmission.allowanceReset.isRequired = action.payload?.isAllowanceResetRequired
+      draftOrderSubmission.allowanceReset.isInitiallyRequired =
         action.payload?.isAllowanceResetRequired
     },
     setAllowanceResetTxHash: (
@@ -194,7 +221,8 @@ export const limitOrderSlice = createSlice({
       }>,
     ) => {
       const { txHash, id } = action.payload
-      state.orderSubmission[id].allowanceReset.txHash = txHash
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceReset.txHash = txHash
     },
     setAllowanceApprovalTxHash: (
       state,
@@ -204,14 +232,19 @@ export const limitOrderSlice = createSlice({
       }>,
     ) => {
       const { txHash, id } = action.payload
-      state.orderSubmission[id].allowanceApproval.txHash = txHash
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceApproval.txHash = txHash
     },
     setLimitOrderSubmissionTxHash: (
       state,
       action: PayloadAction<{ txHash: string; id: QuoteId }>,
     ) => {
       const { txHash } = action.payload
-      state.orderSubmission[action.payload.id].limitOrder.txHash = txHash
+      const draftOrderSubmission = makeOrderSubmissionDraft(
+        state.orderSubmission,
+        action.payload.id,
+      )
+      draftOrderSubmission.limitOrder.txHash = txHash
     },
   },
 })

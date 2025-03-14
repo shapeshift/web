@@ -10,7 +10,7 @@ import {
   selectUserCurrencyToUsdRate,
 } from '../selectors'
 import { calcLimitPriceBuyAsset } from './helpers'
-import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
+import type { LimitOrderState } from './types'
 
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -193,7 +193,7 @@ export const selectConfirmedLimitOrder = createSelector(
 export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(
   selectLimitOrderSlice,
   selectQuoteIdParamFromRequiredFilter,
-  (limitOrders, quoteId): LimitOrderSubmissionMetadata | undefined => {
+  (limitOrders, quoteId) => {
     return limitOrders.orderSubmission[quoteId]
   },
 )

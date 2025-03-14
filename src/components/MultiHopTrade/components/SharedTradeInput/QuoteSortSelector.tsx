@@ -36,18 +36,17 @@ export const QuoteSortSelector: FC = memo(() => {
 
   const handleSortTypeChange = useCallback(
     (sortType: SortType) => {
-      let sortOption: QuoteSortOption
-      switch (sortType) {
-        case SortType.LowestGas:
-          sortOption = QuoteSortOption.LOWEST_GAS
-          break
-        case SortType.Fastest:
-          sortOption = QuoteSortOption.FASTEST
-          break
-        case SortType.BestRate:
-        default:
-          sortOption = QuoteSortOption.BEST_RATE
-      }
+      const sortOption: QuoteSortOption = (() => {
+        switch (sortType) {
+          case SortType.LowestGas:
+            return QuoteSortOption.LOWEST_GAS
+          case SortType.Fastest:
+            return QuoteSortOption.FASTEST
+          case SortType.BestRate:
+          default:
+            return QuoteSortOption.BEST_RATE
+        }
+      })()
       dispatch(tradeQuoteSlice.actions.setSortOption(sortOption))
     },
     [dispatch],

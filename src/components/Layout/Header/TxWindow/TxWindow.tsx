@@ -18,7 +18,11 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { TxHistoryIcon } from '@/components/Icons/TxHistory'
 import { RawText } from '@/components/Text'
 import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
-import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from '@/state/slices/selectors'
+import {
+  selectIsAnyTxHistoryApiQueryPending,
+  selectTxIdsByFilter,
+  selectTxIdsByFilterWithPendingFirst,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -33,7 +37,7 @@ export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => 
     () => ({ txStatus: txStatus === 'all' ? undefined : txStatus }),
     [txStatus],
   )
-  const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
+  const txIds = useAppSelector(state => selectTxIdsByFilterWithPendingFirst(state, filter))
   const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
   const limitTxIds = useMemo(() => {
     return txIds.slice(0, Number(limit))

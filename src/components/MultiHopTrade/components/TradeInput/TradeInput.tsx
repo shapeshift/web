@@ -81,10 +81,16 @@ const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 type TradeInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
+  isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInputProps) => {
+export const TradeInput = ({
+  isCompact,
+  isStandalone,
+  tradeInputRef,
+  onChangeTab,
+}: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, wallet },
@@ -544,6 +550,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         tradeInputTab={TradeInputTab.Trade}
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
+        isStandalone={isStandalone}
       />
     </>
   )

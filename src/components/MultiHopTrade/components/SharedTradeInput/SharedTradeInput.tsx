@@ -29,6 +29,7 @@ type SharedTradeInputProps = {
   tradeInputTab: TradeInputTab
   onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
+  isStandalone?: boolean
 }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
@@ -43,6 +44,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   footerContent,
   onChangeTab,
   onSubmit,
+  isStandalone,
 }) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const totalHeight = useSharedHeight(tradeInputRef)
@@ -69,6 +71,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               initialTab={tradeInputTab}
               rightContent={headerRightContent}
               onChangeTab={onChangeTab}
+              isStandalone={isStandalone}
             />
             {bodyContent}
             {footerContent}

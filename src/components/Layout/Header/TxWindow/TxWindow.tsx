@@ -1,4 +1,3 @@
-import type { TabProps } from '@chakra-ui/react'
 import {
   Box,
   Circle,
@@ -10,11 +9,6 @@ import {
   Flex,
   IconButton,
   Select,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { memo, useCallback, useMemo, useState } from 'react'
@@ -28,27 +22,17 @@ import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from '@/stat
 import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
-const selectedProp = { color: 'text.base' }
-const hoverProp = { cursor: 'pointer' }
 
-const CustomTab: React.FC<TabProps> = props => (
-  <Tab
-    px={0}
-    fontWeight='medium'
-    color='text.subtle'
-    cursor='pointer'
-    _selected={selectedProp}
-    _hover={hoverProp}
-    {...props}
-  />
-)
 type TxsByStatusProps = {
-  txStatus: TxStatus
+  txStatus: TxStatus | 'all'
   limit: string
 }
 export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   const translate = useTranslate()
-  const filter = useMemo(() => ({ txStatus }), [txStatus])
+  const filter = useMemo(
+    () => ({ txStatus: txStatus === 'all' ? undefined : txStatus }),
+    [txStatus],
+  )
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
   const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
   const limitTxIds = useMemo(() => {
@@ -110,63 +94,49 @@ export const TxWindow = memo(() => {
       </Box>
       <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
-        <DrawerContent
-          minHeight='100vh'
-          maxHeight='100vh'
-          overflow='auto'
-          paddingTop='env(safe-area-inset-top)'
-        >
-          <DrawerCloseButton top='calc(var(--chakra-space-2) + env(safe-area-inset-top))' />
-          <DrawerHeader px={paddingProp} display='flex' alignItems='center' gap={2}>
-            <TxHistoryIcon color='text.subtle' />
-            {translate('navBar.transactions')}
-          </DrawerHeader>
-          <Tabs variant='unstyled' isLazy>
-            <Flex
-              gap={4}
-              justifyContent='space-between'
-              px={paddingProp}
-              bg='background.surface.overlay.base'
-              position='sticky'
-              top={0}
-              py={2}
-              zIndex='banner'
-            >
-              <TabList gap={4}>
-                <CustomTab>{translate('transactionRow.pending')}</CustomTab>
-                <CustomTab>{translate('transactionRow.confirmed')}</CustomTab>
-                <CustomTab>{translate('transactionRow.failed')}</CustomTab>
-              </TabList>
-              <Flex alignItems='center' gap={2}>
-                <RawText fontSize='sm' color='text.subtle'>
-                  {translate('common.show')}
-                </RawText>
-                <Select
-                  size='sm'
-                  variant='filled'
-                  value={limit}
-                  onChange={handleSetLimit}
-                  borderRadius='lg'
-                  fontWeight='medium'
-                >
-                  <option value='25'>25</option>
-                  <option value='50'>50</option>
-                  <option value='100'>100</option>
-                </Select>
-              </Flex>
+
+        <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
+          <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
+          <DrawerHeader
+            px={paddingProp}
+            display='flex'
+            alignItems='center'
+            gap={2}
+            justifyContent='space-between'
+          >
+            <Flex alignItems='center' gap={2}>
+              <TxHistoryIcon color='text.subtle' />
+              {translate('navBar.transactions')}
             </Flex>
-            <TabPanels>
-              <TabPanel px={0}>
-                <TxsByStatus txStatus={TxStatus.Pending} limit={limit} />
-              </TabPanel>
-              <TabPanel px={0}>
-                <TxsByStatus txStatus={TxStatus.Confirmed} limit={limit} />
-              </TabPanel>
-              <TabPanel px={0}>
-                <TxsByStatus txStatus={TxStatus.Failed} limit={limit} />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+
+            <Flex alignItems='center' gap={2} me={8}>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('common.show')}
+              </RawText>
+              <Select
+                size='sm'
+                variant='filled'
+                value={limit}
+                onChange={handleSetLimit}
+                borderRadius='lg'
+                fontWeight='medium'
+              >
+                <option value='25'>25</option>
+                <option value='50'>50</option>
+                <option value='100'>100</option>
+              </Select>
+            </Flex>
+          </DrawerHeader>
+
+          <Box pe={2}>
+            <Box
+              overflow='auto'
+              height='calc(100vh - 70px - env(safe-area-inset-top))'
+              className='scroll-container'
+            >
+              <TxsByStatus txStatus='all' limit={limit} />
+            </Box>
+          </Box>
         </DrawerContent>
       </Drawer>
     </>

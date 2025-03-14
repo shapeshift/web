@@ -117,7 +117,6 @@ const styles = {
     },
     '.scroll-container': {
       visibility: 'hidden',
-      paddingRight: '12px',
       transition: 'visibility .5s ease-in-out',
     },
     '.scroll-container::-webkit-scrollbar': {

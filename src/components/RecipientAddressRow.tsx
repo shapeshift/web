@@ -15,7 +15,7 @@ export const RecipientAddressRow = ({
   explorerAddressLink,
   recipientAddress,
 }: RecipientAddressRowProps) => {
-  const { translate } = useTranslate()
+  const translate = useTranslate()
   return (
     <Row>
       <Row.Label>

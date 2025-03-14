@@ -104,11 +104,7 @@ export const LimitOrderConfirm = () => {
         allowanceApproval: undefined,
         allowanceReset: undefined,
       }
-    return {
-      state: limitOrderSubmissionMetadata.state,
-      allowanceApproval: limitOrderSubmissionMetadata.allowanceApproval,
-      allowanceReset: limitOrderSubmissionMetadata.allowanceReset,
-    }
+    return limitOrderSubmissionMetadata
   }, [limitOrderSubmissionMetadata])
 
   useEffect(() => {

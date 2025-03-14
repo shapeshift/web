@@ -1,5 +1,10 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { OrderQuoteResponse, QuoteId, UnsignedOrderCreation } from '@shapeshiftoss/types'
+import type {
+  OrderQuoteResponse,
+  PartialRecord,
+  QuoteId,
+  UnsignedOrderCreation,
+} from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { ApprovalExecutionMetadata, TransactionExecutionState } from '../tradeQuoteSlice/types'
@@ -37,5 +42,5 @@ export type LimitOrderState = {
     QuoteId,
     { params: LimitOrderCreationParams; unsignedOrderCreation: UnsignedOrderCreation }
   >
-  orderSubmission: Record<QuoteId, LimitOrderSubmissionMetadata>
+  orderSubmission: PartialRecord<QuoteId, LimitOrderSubmissionMetadata>
 }

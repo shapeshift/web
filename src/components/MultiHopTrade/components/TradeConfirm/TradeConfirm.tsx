@@ -1,7 +1,7 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { Redirect, useHistory } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
@@ -128,6 +128,8 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
     return <TradeConfirmBody />
   }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
 
+  // We should have some execution state here... unless we're rehydrating or trying to access /trade/confirm directly
+  if (!confirmedTradeExecutionState) return <Redirect to={TradeRoutePaths.Input} />
   if (!headerTranslation) return null
 
   return (

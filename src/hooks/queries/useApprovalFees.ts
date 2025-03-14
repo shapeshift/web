@@ -15,7 +15,7 @@ export enum AllowanceType {
 }
 
 type UseApprovalFeesInput = {
-  assetId: AssetId
+  assetId: AssetId | undefined
   from: string | undefined
   spender: string
   amountCryptoBaseUnit: string
@@ -34,11 +34,13 @@ export const useApprovalFees = ({
   isRefetchEnabled,
 }: UseApprovalFeesInput) => {
   const { assetReference: to, chainId } = useMemo(() => {
+    if (!assetId) return { assetReference: undefined, chainId: undefined }
+
     return fromAssetId(assetId)
   }, [assetId])
 
   const approveContractData = useMemo(() => {
-    if (!amountCryptoBaseUnit || !spender || !enabled) return
+    if (!amountCryptoBaseUnit || !spender || !to || !chainId || !enabled) return
 
     return getApproveContractData({
       approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(

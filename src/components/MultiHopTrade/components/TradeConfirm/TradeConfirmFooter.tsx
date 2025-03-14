@@ -1,5 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { HStack, Skeleton, Stack, Switch, Icon, Link } from '@chakra-ui/react'
+import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -12,25 +11,22 @@ import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useStepperSteps } from './hooks/useStepperSteps'
 import { useTradeNetworkFeeCryptoBaseUnit } from './hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { TradeFooterButton } from './TradeFooterButton'
-import { middleEllipsis } from '@/lib/utils'
 
 import { Amount } from '@/components/Amount/Amount'
+import { RecipientAddressRow } from '@/components/RecipientAddressRow'
 import { Row } from '@/components/Row/Row'
-import { RawText } from '@/components/Text'
 import { Text } from '@/components/Text/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
+  selectActiveQuote,
   selectHopExecutionMetadata,
   selectIsActiveSwapperQuoteLoading,
-  selectActiveQuote
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import {
-  selectInputSellAsset
-} from '@/state/slices/tradeInputSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
@@ -261,23 +257,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        <Row>
-          <Row.Label>
-              <Text translation='trade.recipientAddress' />
-            </Row.Label>
-            <Row.Value>
-              <HStack>
-                <RawText>{middleEllipsis(receiveAddress ?? '')}</RawText>
-                <Link
-                  href={`${sellAsset.explorerAddressLink}${receiveAddress}`}
-                  isExternal
-                  aria-label='View on block explorer'
-                >
-                  <Icon as={ExternalLinkIcon} />
-                </Link>
-              </HStack>
-            </Row.Value>
-          </Row>
+        <RecipientAddressRow sellAsset={sellAsset} recipientAddress={receiveAddress} />
       </Stack>
     )
   }, [
@@ -287,6 +267,8 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isNetworkFeeCryptoBaseUnitRefetching,
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
+    sellAsset,
+    receiveAddress,
   ])
 
   const tradeDetail = useMemo(() => {

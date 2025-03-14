@@ -11,12 +11,12 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type SlippagePopoverProps = {
+type SettingsPopoverProps = {
   isDisabled?: boolean
   tooltipTranslation?: string
 }
 
-export const SlippagePopover: FC<SlippagePopoverProps> = memo(
+export const SettingsPopover: FC<SettingsPopoverProps> = memo(
   ({ tooltipTranslation, isDisabled }) => {
     const dispatch = useAppDispatch()
     const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
@@ -38,7 +38,7 @@ export const SlippagePopover: FC<SlippagePopoverProps> = memo(
         tooltipTranslation={tooltipTranslation}
         userSlippagePercentage={userSlippagePercentage}
         setUserSlippagePercentage={setSlippagePreferencePercentage}
-        enableSortBy={false}
+        enableSortBy
       />
     )
   },

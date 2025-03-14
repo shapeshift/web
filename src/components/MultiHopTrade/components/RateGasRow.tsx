@@ -15,6 +15,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
@@ -29,16 +30,17 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { selectVotingPower } from '@/state/apis/snapshot/selectors'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { clickableLinkSx } from '@/theme/styles'
 
 type RateGasRowProps = {
   affiliateBps: string | undefined
-  buyAssetSymbol: string
+  buyAssetId: AssetId
   isDisabled?: boolean
   isLoading?: boolean
   rate: string | undefined
-  sellAssetSymbol: string
+  sellAssetId: AssetId
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
@@ -59,12 +61,12 @@ const rateHover = {
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
     affiliateBps,
-    buyAssetSymbol,
+    buyAssetId,
     children,
     isDisabled,
     isLoading,
     rate,
-    sellAssetSymbol,
+    sellAssetId,
     swapperName,
     swapSource,
     networkFeeFiatUserCurrency,
@@ -75,8 +77,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const [shouldInvertRate, setShouldInvertRate] = useState(invertRate ?? false)
+    const [shouldInvertRate, setShouldInvertRate] = useState<boolean | undefined>(invertRate)
     const [hasClickedRate, setHasClickedRate] = useState(false)
+    const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
+    const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
     const foxBalanceCryptoPrecision = useAppSelector(state =>
       selectVotingPower(state, { feeModel: 'SWAPPER' }),
     )
@@ -107,21 +111,25 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
 
     useEffect(() => {
       if (!hasClickedRate) {
-        setShouldInvertRate(!!invertRate)
+        setShouldInvertRate(invertRate)
       }
     }, [invertRate, hasClickedRate, setShouldInvertRate])
 
     const handleRateClick = useCallback(() => {
       setHasClickedRate(true)
-      setShouldInvertRate(prev => !prev)
-    }, [])
+      setShouldInvertRate(!shouldInvertRate)
+    }, [shouldInvertRate])
 
-    // Compute the inverse rate for toggling between display formats:
-    const inverseRate = useMemo(() => {
-      const parsedRate = bnOrZero(rate)
-      if (parsedRate.isZero() || parsedRate.isNegative()) return '0'
-      return bnOrZero(1).div(parsedRate).toFixed(8)
-    }, [rate])
+    // Returns either the rate, or the inverted one as directed per shouldInvertRate
+    // And strip it to 8dp max for display purposes
+    const rateOrInvertedRate = useMemo(() => {
+      const rateBn = bnOrZero(rate)
+
+      if (!shouldInvertRate) return rateBn.decimalPlaces(8).toString()
+      if (rateBn.isZero() || rateBn.isNegative()) return '0'
+
+      return bnOrZero(1).div(rateBn).decimalPlaces(8).toString()
+    }, [rate, shouldInvertRate])
 
     const deltaPercentageFormatted = useMemo(() => {
       if (!deltaPercentage) return null
@@ -141,10 +149,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     }, [deltaPercentage])
 
     const rateContent = useMemo(() => {
-      if (!rate) return null
+      if (!(rate && buyAsset && sellAsset)) return null
+
       const rateText = shouldInvertRate
-        ? `1 ${buyAssetSymbol} = ${inverseRate} ${sellAssetSymbol}`
-        : `1 ${sellAssetSymbol} = ${rate} ${buyAssetSymbol}`
+        ? `1 ${buyAsset.symbol} = ${rateOrInvertedRate} ${sellAsset.symbol}`
+        : `1 ${sellAsset.symbol} = ${rateOrInvertedRate} ${buyAsset.symbol}`
 
       return (
         <Skeleton isLoaded={!isLoading}>
@@ -163,14 +172,14 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         </Skeleton>
       )
     }, [
-      buyAssetSymbol,
-      deltaPercentageFormatted,
-      handleRateClick,
-      isLoading,
       rate,
-      sellAssetSymbol,
-      inverseRate,
+      buyAsset,
+      sellAsset,
       shouldInvertRate,
+      rateOrInvertedRate,
+      isLoading,
+      handleRateClick,
+      deltaPercentageFormatted,
     ])
 
     switch (true) {

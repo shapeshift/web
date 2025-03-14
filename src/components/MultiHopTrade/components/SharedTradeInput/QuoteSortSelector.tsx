@@ -34,6 +34,19 @@ export const QuoteSortSelector: FC = memo(() => {
     }
   }, [currentSortOption])
 
+  const sortTypeTranslation = useMemo(() => {
+    switch (currentSortType) {
+      case SortType.BestRate:
+        return translate('trade.sort.bestRate')
+      case SortType.LowestGas:
+        return translate('trade.sort.lowestGas')
+      case SortType.Fastest:
+        return translate('trade.sort.fastest')
+      default:
+        return ''
+    }
+  }, [currentSortType, translate])
+
   const handleSortTypeChange = useCallback(
     (sortType: SortType) => {
       const sortOption: QuoteSortOption = (() => {
@@ -75,11 +88,7 @@ export const QuoteSortSelector: FC = memo(() => {
             <Text translation='trade.sort.sortBy' />
           </HelperTooltip>
         </Row.Label>
-        <Row.Value>
-          {currentSortType === SortType.BestRate && translate('trade.sort.bestRate')}
-          {currentSortType === SortType.LowestGas && translate('trade.sort.lowestGas')}
-          {currentSortType === SortType.Fastest && translate('trade.sort.fastest')}
-        </Row.Value>
+        <Row.Value>{sortTypeTranslation}</Row.Value>
       </Row>
       <Row py={2} gap={2} mt={2}>
         <Row.Value>

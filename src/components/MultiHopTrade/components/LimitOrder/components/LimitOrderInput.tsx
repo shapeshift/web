@@ -25,6 +25,7 @@ import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
+import { LimitOrderFooter } from './LimitOrderFooter'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
@@ -38,7 +39,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
-import { LimitPriceMode } from '@/state/slices/limitOrderInputSlice/constants'
+import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -54,6 +55,7 @@ import {
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
+  selectLimitPriceDirection,
   selectLimitPriceMode,
   selectSelectedBuyAssetChainId,
   selectSelectedSellAssetChainId,
@@ -138,6 +140,8 @@ export const LimitOrderInput = ({
   const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
+
+  const priceDirection = useAppSelector(selectLimitPriceDirection)
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -405,8 +409,12 @@ export const LimitOrderInput = ({
         buyAsset={buyAsset}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
-        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={inputSellAmountUserCurrency}
+        sellAmountCryptoPrecision={
+          bnOrZero(sellAmountCryptoPrecision).isZero() ? '' : sellAmountCryptoPrecision
+        }
+        sellAmountUserCurrency={
+          bnOrZero(inputSellAmountUserCurrency).isZero() ? '' : inputSellAmountUserCurrency
+        }
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         onSwitchAssets={handleSwitchAssets}
@@ -425,7 +433,6 @@ export const LimitOrderInput = ({
             isLoading={isLoading}
             asset={buyAsset}
             accountId={buyAccountId}
-            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
             assetFilterPredicate={buyAssetFilterPredicate}
@@ -521,6 +528,8 @@ export const LimitOrderInput = ({
   ])
 
   const footerContent = useMemo(() => {
+    const shouldInvertRate = priceDirection === PriceDirection.SellAssetDenomination
+
     return (
       <SharedTradeInputFooter
         affiliateBps={feeBps.toFixed(0)}
@@ -531,11 +540,8 @@ export const LimitOrderInput = ({
         isError={isError}
         isLoading={isLoading}
         quoteStatusTranslation={quoteStatusTranslation}
-        rate={
-          bnOrZero(limitPrice.buyAssetDenomination).isZero()
-            ? undefined
-            : limitPrice.buyAssetDenomination
-        }
+        rate={limitPrice.buyAssetDenomination}
+        marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
@@ -549,26 +555,31 @@ export const LimitOrderInput = ({
         swapSource={SwapperName.CowSwap}
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
         sellAsset={sellAsset}
+        invertRate={shouldInvertRate}
         noExpand={noExpand}
       >
-        {renderedRecipientAddress}
+        <>
+          <LimitOrderFooter />
+          {renderedRecipientAddress}
+        </>
       </SharedTradeInputFooter>
     )
   }, [
     feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
+    priceDirection,
+    sellAsset,
     hasUserEnteredAmount,
     inputSellAmountUsd,
     isError,
     isLoading,
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
+    marketPriceBuyAsset,
     sellAccountId,
     isRecipientAddressEntryActive,
-    marketPriceBuyAsset,
     networkFeeUserCurrency,
-    sellAsset,
     renderedRecipientAddress,
     noExpand,
   ])
@@ -593,7 +604,6 @@ export const LimitOrderInput = ({
         tradeInputTab={TradeInputTab.LimitOrder}
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
-        noExpand={noExpand}
       />
     </>
   )

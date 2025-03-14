@@ -85,8 +85,8 @@ export const TradeConfirmSummary = () => {
   return (
     <RateGasRow
       affiliateBps={affiliateBps}
-      buyAssetSymbol={buyAsset.symbol}
-      sellAssetSymbol={sellAsset.symbol}
+      buyAssetId={buyAsset.assetId}
+      sellAssetId={sellAsset.assetId}
       rate={bnOrZero(rate).toFixed(buyAsset.precision)}
       isLoading={isLoading}
       networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}

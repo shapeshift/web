@@ -148,7 +148,8 @@ export async function getPortalsTradeRate(
       swapperName: SwapperName.Portals,
       steps: [
         {
-          estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
+          // Assume instant execution since this is a same-chain AMM Tx which will happen within the same block
+          estimatedExecutionTimeMs: 0,
           allowanceContract,
           accountNumber,
           rate: inputOutputRate,

@@ -1,11 +1,16 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { orderBy, uniqBy } from 'lodash'
+import { uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type { HopProgress, StreamingSwapMetadata, TradeExecutionMetadata } from './types'
+import type {
+  HopProgress,
+  QuoteSortOption,
+  StreamingSwapMetadata,
+  TradeExecutionMetadata,
+} from './types'
 import {
   AllowanceKey,
   HopExecutionState,
@@ -23,11 +28,13 @@ export const tradeQuoteSlice = createSlice({
     clear: state => ({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
+      sortOption: state.sortOption, // Preserve the sort option
     }),
     clearTradeQuotes: state => ({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       activeQuoteMeta: state.activeQuoteMeta, // And the activeQuoteMeta too, or we'll lose the active quote when backing out from preview
+      sortOption: state.sortOption, // Preserve the sort option
     }),
     setIsTradeQuoteRequestAborted: (state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
@@ -429,24 +436,15 @@ export const tradeQuoteSlice = createSlice({
           )
         })
 
-      const sortedQuotesWithOriginalIndex = sortedQuotes.map((quoteData, originalIndex) => {
-        return Object.assign({}, quoteData, { isStale: false, originalIndex })
+      // Don't use the original index from sortedQuotes, as they might be sorted with a different option
+      const sortedQuotesWithoutOriginalIndex = sortedQuotes.map(quoteData => {
+        return Object.assign({}, quoteData, { isStale: false })
       })
 
-      const allQuotes = uniqBy(sortedQuotesWithOriginalIndex.concat(staleQuotes), 'id')
+      const allQuotes = uniqBy(sortedQuotesWithoutOriginalIndex.concat(staleQuotes), 'id')
 
-      const sortQuotes = (
-        unorderedQuotes: ({ originalIndex: number } & ApiQuote)[],
-      ): ApiQuote[] => {
-        return orderBy(
-          unorderedQuotes,
-          ['originalIndex', 'inputOutputRatio', 'swapperName'],
-          ['asc', 'desc', 'asc'],
-        )
-      }
-
-      const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
-      const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+      const happyQuotes = allQuotes.filter(({ errors }) => errors.length === 0)
+      const errorQuotes = allQuotes.filter(({ errors }) => errors.length > 0)
 
       state.tradeQuoteDisplayCache = happyQuotes.concat(errorQuotes)
     },
@@ -468,6 +466,9 @@ export const tradeQuoteSlice = createSlice({
         progress,
         status,
       }
+    },
+    setSortOption: (state, action: PayloadAction<QuoteSortOption>) => {
+      state.sortOption = action.payload
     },
   },
 })

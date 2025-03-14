@@ -159,6 +159,7 @@ export const SharedTradeInputBody = ({
         asset={sellAsset}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
+        placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
         label={translate('trade.payWith')}
         labelPostFix={sellTradeAssetSelect}
         percentOptions={percentOptions}

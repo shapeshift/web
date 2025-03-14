@@ -69,7 +69,7 @@ export const limitOrderInput = createTradeInputBaseSlice({
           [state.limitPriceDirection]: marketPriceBuyAsset,
           [oppositePriceDirection]: bnOrZero(marketPriceBuyAsset).isZero()
             ? '0'
-            : bn(1).div(marketPriceBuyAsset).toFixed(),
+            : bn(1).div(marketPriceBuyAsset).toFixed(state.sellAsset.precision),
         } as Record<PriceDirection, string>
 
         return
@@ -79,14 +79,6 @@ export const limitOrderInput = createTradeInputBaseSlice({
         switch (state.limitPriceMode) {
           case LimitPriceMode.Market:
             return '1.00'
-          case LimitPriceMode.OnePercent:
-            return '1.01'
-          case LimitPriceMode.TwoPercent:
-            return '1.02'
-          case LimitPriceMode.FivePercent:
-            return '1.05'
-          case LimitPriceMode.TenPercent:
-            return '1.10'
           default:
             return assertUnreachable(state.limitPriceMode)
         }
@@ -96,7 +88,9 @@ export const limitOrderInput = createTradeInputBaseSlice({
 
       state.limitPrice = {
         [PriceDirection.BuyAssetDenomination]: adjustedLimitPriceBuyAsset,
-        [PriceDirection.SellAssetDenomination]: bn(1).div(adjustedLimitPriceBuyAsset).toFixed(),
+        [PriceDirection.SellAssetDenomination]: bn(1)
+          .div(adjustedLimitPriceBuyAsset)
+          .toFixed(state.sellAsset.precision),
       }
     },
     setLimitPriceMode: (state: LimitOrderInputState, action: PayloadAction<LimitPriceMode>) => {
@@ -118,6 +112,13 @@ export const limitOrderInput = createTradeInputBaseSlice({
     setSellAsset: (state: LimitOrderInputState, action: PayloadAction<Asset>) => {
       baseReducers.setSellAsset(state, action)
       resetLimitOrderConfig(state)
+    },
+    setSellAmountCryptoPrecision: (state: LimitOrderInputState, action: PayloadAction<string>) => {
+      state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
+
+      if (bnOrZero(state.limitPrice[state.limitPriceDirection]).isZero()) {
+        state.limitPriceMode = LimitPriceMode.Market
+      }
     },
     switchAssets: (
       state: LimitOrderInputState,

@@ -4,7 +4,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import qs from 'qs'
-import { getAddress, isAddressEqual, zeroAddress } from 'viem'
+import { getAddress, isAddress, isAddressEqual, zeroAddress } from 'viem'
 
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
 import type {
@@ -99,7 +99,7 @@ export const fetchPortalsTokens = async ({
 
     const pageTokens = pageResponse.data.tokens.filter(
       // Filter out native assets as 0x0 tokens, or problems
-      ({ address }) => !isAddressEqual(getAddress(address), zeroAddress),
+      ({ address }) => isAddress(address) && !isAddressEqual(getAddress(address), zeroAddress),
     )
 
     const newTokens = accTokens.concat(pageTokens)

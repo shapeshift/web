@@ -11,10 +11,10 @@ import { AccountBalance } from './AccountBalance'
 
 import { AssetAccounts } from '@/components/AssetAccounts/AssetAccounts'
 import { Equity } from '@/components/Equity/Equity'
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { EarnOpportunities } from '@/components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 
 export type MatchParams = {
@@ -66,7 +66,7 @@ export const AccountToken = () => {
         gap={4}
         display={multiHopTradeDisplay}
       >
-        <MultiHopTrade isCompact defaultBuyAssetId={id} defaultSellAssetId={nativeSellAssetId} />
+        <StandaloneTrade isCompact defaultBuyAssetId={id} defaultSellAssetId={nativeSellAssetId} />
       </Flex>
     </Stack>
   )

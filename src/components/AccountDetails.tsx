@@ -11,10 +11,10 @@ import { Equity } from './Equity/Equity'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { AccountBalance } from '@/pages/Accounts/AccountToken/AccountBalance'
+import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import type { Route } from '@/Routes/helpers'
 
 type AccountDetailsProps = {
@@ -58,7 +58,7 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         gap={4}
         display={displayMdBlock}
       >
-        <MultiHopTrade isCompact defaultBuyAssetId={defaultBuyAssetId} />
+        <StandaloneTrade isCompact defaultBuyAssetId={defaultBuyAssetId} />
       </Flex>
     </Stack>
   )

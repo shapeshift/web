@@ -1,7 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 
 export enum ClaimRoutePaths {
-  Select = '/claim/select',
+  Select = '/claim',
   Confirm = '/claim/confirm',
   Status = '/claim/status',
 }

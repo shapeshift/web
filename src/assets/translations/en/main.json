@@ -59,6 +59,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
@@ -324,7 +325,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",
-      "switchWallet": "Switch Wallet Provider",
+      "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
       "connecting": "Connecting..."
@@ -619,6 +620,8 @@
     "explore": "Explore",
     "rewards": "Rewards",
     "trade": "Trade/Bridge",
+    "limitOrder": "Limit Orders",
+    "claims": "Claims",
     "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
@@ -1061,6 +1064,9 @@
     "placeOrder": "Place Order",
     "placeAnotherOrder": "Place Another Order",
     "orderSummary": "Order Summary",
+    "when": "When",
+    "isWorth": "is worth",
+    "market": "Market:",
     "success": "Limit order placed successfully",
     "cancel": {
       "cancelOrder": "Cancel Limit Order",
@@ -1089,6 +1095,19 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
+    "explanation": {
+      "priceReaches": {
+        "prefix": "When",
+        "middle": "'s price reaches"
+      },
+      "orderWill": {
+        "prefix": ", your limit order will automatically sell"
+      },
+      "ensuring": {
+        "prefix": ", ensuring you receive at least",
+        "suffix": "."
+      }
+    },
     "sellBuy": "Sell → Buy",
     "limitExecution": "Limit/Execution",
     "statusHead": "Status",
@@ -1871,12 +1890,22 @@
         "button": "Next"
       },
       "rename": {
-        "header": "Rename your wallet",
+        "header": "Rename my wallet",
         "walletName": "New nickname for your wallet",
-        "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
+        "body": "Enter the new nickname of your wallet and your password to decrypt %{name}.",
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
-        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?",
+        "success": "Wallet renamed successfully",
+        "error": {
+          "empty": "Wallet name cannot be empty"
+        }
+      },
+      "delete": {
+        "header": "Delete my wallet",
+        "body": "Enter your password to delete %{name}.",
+        "confirmDelete": "Confirm",
+        "success": "Wallet deleted successfully"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Log In is being Deprecated",
@@ -1985,18 +2014,18 @@
         "share": "Don't share it with anyone else",
         "lose": "If you lose it, we can't recover it"
       },
-      "button": "Continue to Backup"
+      "button": "I understand"
     },
     "manualBackup": {
-      "header": "Manual Backup",
+      "header": "Secure Your Wallet",
       "subHeader": "Save your Secret Recovery Phrase in a secure place that only you control.",
       "copyToClipboard": "Copy to clipboard",
       "copied": "Copied!",
       "nextStep": "Next you'll be asked to confirm the positions of certain words in your Secret Recovery Phrase.",
-      "button": "Continue backup",
+      "button": "Continue to confirm",
       "success": {
-        "title": "Manual Backup Complete",
-        "description": "Your wallet has been successfully backed up.",
+        "title": "Backup Confirmed",
+        "description": "You’ve verified your Secret Recovery Phrase. Be sure to store it securely—this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
     }

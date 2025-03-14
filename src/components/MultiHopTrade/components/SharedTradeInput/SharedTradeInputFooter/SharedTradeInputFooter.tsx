@@ -34,6 +34,8 @@ type SharedTradeInputFooterProps = {
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
   onGasRateRowClick?: () => void
+  marketRate?: string
+  invertRate?: boolean
   noExpand?: boolean
 }
 
@@ -57,6 +59,8 @@ export const SharedTradeInputFooter = ({
   swapSource,
   networkFeeFiatUserCurrency,
   onGasRateRowClick,
+  marketRate,
+  invertRate,
   noExpand,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
@@ -90,6 +94,17 @@ export const SharedTradeInputFooter = ({
     return <Text translation={quoteStatusTranslation} />
   }, [quoteStatusTranslation])
 
+  // Calculate the delta percentage between the limit price and market price
+  const deltaPercentage = useMemo(() => {
+    if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null
+
+    const percentDifference = bnOrZero(rate).minus(marketRate).div(marketRate).times(100)
+
+    if (percentDifference.isZero()) return null
+
+    return percentDifference
+  }, [rate, marketRate])
+
   return (
     <>
       <CardFooter
@@ -103,15 +118,17 @@ export const SharedTradeInputFooter = ({
         {hasUserEnteredAmount && (
           <RateGasRow
             affiliateBps={affiliateBps}
-            buyAssetSymbol={buyAsset.symbol}
-            sellAssetSymbol={sellAsset.symbol}
+            buyAssetId={buyAsset.assetId}
+            sellAssetId={sellAsset.assetId}
             isDisabled={shouldDisableGasRateRowClick}
-            rate={bnOrZero(rate).toFixed(buyAsset.precision)}
+            rate={rate}
+            deltaPercentage={deltaPercentage?.toString()}
             isLoading={isLoading}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
             onClick={onGasRateRowClick}
+            invertRate={invertRate}
             noExpand={noExpand}
           >
             <ReceiveSummary

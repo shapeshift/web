@@ -18,10 +18,20 @@ export const useSetIsApprovalInitiallyNeeded = () => {
     return { quoteId: activeQuote?.response.id ?? 0 }
   }, [activeQuote?.response.id])
 
-  const { allowanceReset, allowanceApproval } = useSelectorWithArgs(
+  const limitOrderSubmissionMeta = useSelectorWithArgs(
     selectLimitOrderSubmissionMetadata,
     orderSubmissionMetadataFilter,
   )
+
+  const { allowanceApproval, allowanceReset } = useMemo(() => {
+    if (!limitOrderSubmissionMeta)
+      return { allowanceApproval: undefined, allowanceReset: undefined }
+
+    return {
+      allowanceApproval: limitOrderSubmissionMeta.allowanceApproval,
+      allowanceReset: limitOrderSubmissionMeta.allowanceReset,
+    }
+  }, [limitOrderSubmissionMeta])
 
   const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
     useIsAllowanceApprovalRequired({
@@ -29,7 +39,7 @@ export const useSetIsApprovalInitiallyNeeded = () => {
       assetId: activeQuote?.params.sellAssetId,
       from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      isDisabled: allowanceApproval.isInitiallyRequired !== undefined,
+      isDisabled: allowanceApproval?.isInitiallyRequired !== undefined,
     })
 
   const { isAllowanceResetRequired, isLoading: isAllowanceResetRequirementsLoading } =
@@ -38,7 +48,7 @@ export const useSetIsApprovalInitiallyNeeded = () => {
       assetId: activeQuote?.params.sellAssetId,
       from: activeQuote?.params.sellAccountAddress,
       spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      isDisabled: allowanceReset.isInitiallyRequired !== undefined,
+      isDisabled: allowanceReset?.isInitiallyRequired !== undefined,
     })
 
   // Reset the approval requirements if the trade quote ID changes
@@ -64,8 +74,8 @@ export const useSetIsApprovalInitiallyNeeded = () => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (
-      allowanceReset.isInitiallyRequired !== undefined ||
-      allowanceApproval.isInitiallyRequired !== undefined
+      allowanceReset?.isInitiallyRequired !== undefined ||
+      allowanceApproval?.isInitiallyRequired !== undefined
     )
       return
 
@@ -93,8 +103,8 @@ export const useSetIsApprovalInitiallyNeeded = () => {
     isAllowanceResetRequired,
     dispatch,
     activeQuote?.response.id,
-    allowanceReset.isInitiallyRequired,
-    allowanceApproval.isInitiallyRequired,
+    allowanceReset?.isInitiallyRequired,
+    allowanceApproval?.isInitiallyRequired,
   ])
 
   return {

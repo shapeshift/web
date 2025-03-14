@@ -160,7 +160,10 @@ export const TradeConfirmSummary = () => {
         />
         {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
         <Divider />
-        <RecipientAddressRow sellAsset={sellAsset} recipientAddress={receiveAddress} />
+        <RecipientAddressRow
+          explorerAddressLink={sellAsset.explorerAddressLink}
+          recipientAddress={receiveAddress ?? ''}
+        />
       </Stack>
     </RateGasRow>
   )

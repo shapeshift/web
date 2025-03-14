@@ -257,7 +257,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        <RecipientAddressRow sellAsset={sellAsset} recipientAddress={receiveAddress} />
+        <RecipientAddressRow
+          explorerAddressLink={sellAsset.explorerAddressLink}
+          recipientAddress={receiveAddress ?? ''}
+        />
       </Stack>
     )
   }, [
@@ -267,7 +270,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isNetworkFeeCryptoBaseUnitRefetching,
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
-    sellAsset,
+    sellAsset.explorerAddressLink,
     receiveAddress,
   ])
 

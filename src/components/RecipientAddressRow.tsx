@@ -1,17 +1,21 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { HStack, Icon, Link } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import { useTranslate } from 'react-polyglot'
 
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { middleEllipsis } from '@/lib/utils'
 
 type RecipientAddressRowProps = {
-  sellAsset: Asset
-  recipientAddress: string | undefined
+  explorerAddressLink: string
+  recipientAddress: string
 }
 
-export const RecipientAddressRow = ({ sellAsset, recipientAddress }: RecipientAddressRowProps) => {
+export const RecipientAddressRow = ({
+  explorerAddressLink,
+  recipientAddress,
+}: RecipientAddressRowProps) => {
+  const { translate } = useTranslate()
   return (
     <Row>
       <Row.Label>
@@ -19,11 +23,11 @@ export const RecipientAddressRow = ({ sellAsset, recipientAddress }: RecipientAd
       </Row.Label>
       <Row.Value>
         <HStack>
-          <RawText>{middleEllipsis(recipientAddress ?? '')}</RawText>
+          <RawText>{middleEllipsis(recipientAddress)}</RawText>
           <Link
-            href={`${sellAsset.explorerAddressLink}${recipientAddress}`}
+            href={`${explorerAddressLink}${recipientAddress}`}
             isExternal
-            aria-label='View on block explorer'
+            aria-label={translate('trade.viewOnBlockExplorer')}
           >
             <Icon as={ExternalLinkIcon} />
           </Link>

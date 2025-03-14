@@ -152,6 +152,7 @@ export const limitOrderSlice = createSlice({
       const id = action.payload
 
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      // Don't update the state if we're on a different stage of the flow
       if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceApproval) {
         return
       }

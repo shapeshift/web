@@ -118,8 +118,8 @@ export const SharedTradeInputFooter = ({
         {hasUserEnteredAmount && (
           <RateGasRow
             affiliateBps={affiliateBps}
-            buyAssetSymbol={buyAsset.symbol}
-            sellAssetSymbol={sellAsset.symbol}
+            buyAssetId={buyAsset.assetId}
+            sellAssetId={sellAsset.assetId}
             isDisabled={shouldDisableGasRateRowClick}
             rate={rate}
             deltaPercentage={deltaPercentage?.toString()}

@@ -31,6 +31,7 @@ import {
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
+  selectQuoteSortOption,
   selectSortedTradeQuotes,
   selectUserAvailableTradeQuotes,
   selectUserUnavailableTradeQuotes,
@@ -71,6 +72,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const bestTotalReceiveAmountCryptoPrecision = useAppSelector(
     selectBuyAmountAfterFeesCryptoPrecision,
   )
+  const sortOption = useAppSelector(selectQuoteSortOption)
 
   const shouldUseComisSansMs = useMemo(() => {
     return buyAsset?.assetId === dogeAssetId || sellAsset?.assetId === dogeAssetId
@@ -84,7 +86,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         isSwapperQuoteAvailable,
       }),
     )
-  }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes])
+  }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes, sortOption])
 
   const isQuoteRefetching = useCallback(
     (quoteData: ApiQuote) => {

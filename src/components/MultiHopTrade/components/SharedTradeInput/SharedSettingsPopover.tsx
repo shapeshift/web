@@ -22,6 +22,8 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 
+import { QuoteSortSelector } from './QuoteSortSelector'
+
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
@@ -38,16 +40,17 @@ const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 const faGear = <FaGear />
 
-type SharedSlippagePopoverProps = {
+type SharedSettingsPopoverProps = {
   defaultSlippagePercentage: string | undefined
   isDisabled?: boolean
   quoteSlippagePercentage: string | undefined
   tooltipTranslation?: string
   userSlippagePercentage: string | undefined
   setUserSlippagePercentage: (slippagePercentage: string | undefined) => void
+  enableSortBy?: boolean
 }
 
-export const SharedSlippagePopover: FC<SharedSlippagePopoverProps> = memo(
+export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
   ({
     defaultSlippagePercentage,
     isDisabled,
@@ -55,6 +58,7 @@ export const SharedSlippagePopover: FC<SharedSlippagePopoverProps> = memo(
     tooltipTranslation,
     userSlippagePercentage,
     setUserSlippagePercentage,
+    enableSortBy,
   }) => {
     const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
     const [slippageAmount, setSlippageAmount] = useState<string | undefined>(
@@ -157,6 +161,7 @@ export const SharedSlippagePopover: FC<SharedSlippagePopoverProps> = memo(
                   py={1}
                   borderRadius='xl'
                   variant='ghost'
+                  width='full'
                 >
                   <Button
                     onClick={handleAutoSlippageTypeChange}
@@ -204,6 +209,12 @@ export const SharedSlippagePopover: FC<SharedSlippagePopoverProps> = memo(
                   {translate('trade.slippage.lowSlippage')}
                 </AlertDescription>
               </Alert>
+            )}
+
+            {enableSortBy && (
+              <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4}>
+                <QuoteSortSelector />
+              </Box>
             )}
           </PopoverBody>
         </PopoverContent>

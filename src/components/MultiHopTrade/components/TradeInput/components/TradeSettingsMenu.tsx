@@ -2,7 +2,7 @@ import { useMediaQuery } from '@chakra-ui/react'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 
-import { SlippagePopover } from '../../SlippagePopover'
+import { SettingsPopover } from '../../SettingsPopover'
 import { CountdownSpinner } from './TradeQuotes/components/CountdownSpinner'
 
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
@@ -39,7 +39,7 @@ export const TradeSettingsMenu = ({ isCompact, isLoading }: TradeSettingsMenuPro
       {activeQuote && (isCompact || isSmallerThanXl) && (
         <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
       )}
-      <SlippagePopover />
+      <SettingsPopover />
     </>
   )
 }

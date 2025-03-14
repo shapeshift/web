@@ -48,8 +48,8 @@ export const LimitOrderDetail = () => {
   return (
     <RateGasRow
       affiliateBps={feeBps?.toFixed(0)}
-      buyAssetSymbol={buyAsset?.symbol ?? ''}
-      sellAssetSymbol={sellAsset?.symbol ?? ''}
+      buyAssetId={buyAsset?.assetId ?? ''}
+      sellAssetId={sellAsset?.assetId ?? ''}
       rate={bnOrZero(limitPrice?.buyAssetDenomination).toFixed(buyAsset?.precision ?? 0)}
       networkFeeFiatUserCurrency='0' // no network fees for CoW, this is a message signing
       swapperName={SwapperName.CowSwap}

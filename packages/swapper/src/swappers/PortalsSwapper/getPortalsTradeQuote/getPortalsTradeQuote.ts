@@ -259,7 +259,8 @@ export async function getPortalsTradeQuote(
             },
           },
           source: SwapperName.Portals,
-          estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
+          // Assume instant execution since this is a same-chain AMM Tx which will happen within the same block
+          estimatedExecutionTimeMs: 0,
           portalsTransactionMetadata: tx,
         },
       ] as SingleHopTradeQuoteSteps,

@@ -1,7 +1,12 @@
 import { TradeQuoteError } from '@shapeshiftoss/swapper'
 
 import type { TradeQuoteSliceState } from './types'
-import { HopExecutionState, TradeExecutionState, TransactionExecutionState } from './types'
+import {
+  HopExecutionState,
+  QuoteSortOption,
+  TradeExecutionState,
+  TransactionExecutionState,
+} from './types'
 
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 
@@ -42,6 +47,7 @@ export const initialState: TradeQuoteSliceState = {
   tradeQuotes: {},
   tradeQuoteDisplayCache: [],
   isTradeQuoteRequestAborted: false,
+  sortOption: QuoteSortOption.BEST_RATE,
 }
 
 export const SWAPPER_USER_ERRORS = [

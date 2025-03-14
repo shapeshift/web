@@ -7,6 +7,7 @@ import {
   PriceDirection,
 } from '@/state/slices/limitOrderInputSlice/constants'
 import { CurrencyFormats, HomeMarketView } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -278,6 +279,7 @@ export const mockStore: ReduxState = {
     tradeQuotes: {},
     tradeQuoteDisplayCache: [],
     isTradeQuoteRequestAborted: false,
+    sortOption: QuoteSortOption.BEST_RATE,
   },
   limitOrderSlice: {
     activeQuote: undefined,

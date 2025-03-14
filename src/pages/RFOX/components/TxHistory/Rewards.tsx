@@ -46,7 +46,8 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     return lifetimeRewardDistributionsQuery.data.reduce<
       Record<string, RewardDistributionWithMetadata>
     >((acc, rewardDistribution) => {
-      acc[rewardDistribution.txId] = rewardDistribution
+      // use staking contract address as placeholder "txid" for pending reward transactions which have no on chain txid yet.
+      acc[rewardDistribution.txId || rewardDistribution.stakingContract] = rewardDistribution
       return acc
     }, {})
   }, [lifetimeRewardDistributionsQuery])
@@ -69,7 +70,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
 
       const tx: Tx = {
         pubkey: distribution.rewardAddress,
-        status: TxStatus.Confirmed,
+        status: distribution.status === 'pending' ? TxStatus.Pending : TxStatus.Confirmed,
         chainId: thorchainChainId,
         blockHeight: 0,
         blockTime: 0,

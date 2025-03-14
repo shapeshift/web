@@ -2,7 +2,7 @@ import { bnOrZero, isSome } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
-import type { RewardDistribution } from '../types'
+import type { Epoch, RewardDistribution } from '../types'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
@@ -12,6 +12,7 @@ type UseLifetimeRewardDistributionsQueryProps = {
 
 export type RewardDistributionWithMetadata = RewardDistribution & {
   epoch: number
+  status: Epoch['distributionStatus']
   stakingAddress: string
   stakingContract: string
   ipfsHash: string
@@ -33,25 +34,26 @@ export const useLifetimeRewardDistributionsQuery = ({
           stakingAssetAccountAddresses.flatMap(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)
 
-            return Object.entries(epoch.detailsByStakingContract).map(
-              ([stakingContract, details]) => {
-                const distribution = details.distributionsByStakingAddress[stakingAddress]
+            return Object.entries(
+              epoch.detailsByStakingContract,
+            ).map<RewardDistributionWithMetadata | null>(([stakingContract, details]) => {
+              const distribution = details.distributionsByStakingAddress[stakingAddress]
 
-                if (!distribution) return null
+              if (!distribution) return null
 
-                // filter out genesis "distributions"
-                if (bnOrZero(distribution.amount).eq(0)) return null
-                if (epoch.distributionStatus === 'complete' && !distribution.txId) return null
+              // filter out genesis "distributions"
+              if (bnOrZero(distribution.amount).eq(0)) return null
+              if (epoch.distributionStatus === 'complete' && !distribution.txId) return null
 
-                return {
-                  epoch: epoch.number,
-                  stakingAddress,
-                  stakingContract,
-                  ipfsHash: epoch.ipfsHash,
-                  ...distribution,
-                }
-              },
-            )
+              return {
+                epoch: epoch.number,
+                status: epoch.distributionStatus,
+                stakingAddress,
+                stakingContract,
+                ipfsHash: epoch.ipfsHash,
+                ...distribution,
+              }
+            })
           }),
         )
         .filter(isSome)

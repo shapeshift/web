@@ -1,7 +1,7 @@
 import { Card, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -12,8 +12,6 @@ import { ClaimRoutePaths } from './types'
 
 import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
-
-const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
   const location = useLocation()
@@ -53,30 +51,29 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   }, [activeClaim, claimTxHash, claimTxStatus])
 
   return (
-    <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
-      <Switch location={location}>
-        <Stack spacing={0} width='full' maxWidth='500px'>
-          <FoxWifHatBanner />
-          <Card flex={1}>
-            <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
-            <Route
-              key={ClaimRoutePaths.Select}
-              path={ClaimRoutePaths.Select}
-              render={renderClaimSelect}
-            />
-            <Route
-              key={ClaimRoutePaths.Confirm}
-              path={ClaimRoutePaths.Confirm}
-              render={renderClaimConfirm}
-            />
-            <Route
-              key={ClaimRoutePaths.Status}
-              path={ClaimRoutePaths.Status}
-              render={renderClaimStatus}
-            />
-          </Card>
-        </Stack>
-      </Switch>
-    </MemoryRouter>
+    <Switch location={location}>
+      <Stack spacing={0} width='full' maxWidth='500px'>
+        <FoxWifHatBanner />
+        <Card flex={1}>
+          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
+          <Route
+            key={ClaimRoutePaths.Confirm}
+            path={ClaimRoutePaths.Confirm}
+            render={renderClaimConfirm}
+          />
+          <Route
+            key={ClaimRoutePaths.Status}
+            path={ClaimRoutePaths.Status}
+            render={renderClaimStatus}
+          />
+          <Route
+            key={ClaimRoutePaths.Select}
+            path={ClaimRoutePaths.Select}
+            render={renderClaimSelect}
+            exact
+          />
+        </Card>
+      </Stack>
+    </Switch>
   )
 }

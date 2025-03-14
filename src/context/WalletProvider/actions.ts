@@ -8,7 +8,6 @@ import type { DeviceState, InitialState, WalletInfo } from './WalletProvider'
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
   SET_WALLET = 'SET_WALLET',
-  SET_WALLET_LABEL = 'SET_WALLET_LABEL',
   SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
   SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
@@ -41,10 +40,6 @@ export type ActionTypes =
         wallet: HDWallet | null
         connectedType: KeyManager
       }
-    }
-  | {
-      type: WalletActions.SET_WALLET_LABEL
-      payload: string
     }
   | {
       type: WalletActions.SET_IS_CONNECTED

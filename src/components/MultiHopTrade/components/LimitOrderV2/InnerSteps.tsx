@@ -60,12 +60,27 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
     return { quoteId: quoteId ?? 0 }
   }, [quoteId])
 
+  const limitOrderSubmissionMetadata = useSelectorWithArgs(
+    selectLimitOrderSubmissionMetadata,
+    orderSubmissionMetadataFilter,
+  )
+
   const {
     state: orderSubmissionState,
     allowanceReset,
     allowanceApproval,
     limitOrder,
-  } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
+  } = useMemo(() => {
+    if (!limitOrderSubmissionMetadata)
+      return {
+        state: undefined,
+        allowanceReset: undefined,
+        allowanceApproval: undefined,
+        limitOrder: undefined,
+      }
+
+    return limitOrderSubmissionMetadata
+  }, [limitOrderSubmissionMetadata])
 
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
@@ -140,9 +155,9 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         <Text translation='trade.resetTitle' />
-        {allowanceReset.txHash && sellAsset && sellAccountId && (
+        {allowanceReset?.txHash && sellAsset && sellAccountId && (
           <TxLabel
-            txHash={allowanceReset.txHash}
+            txHash={allowanceReset?.txHash}
             explorerBaseUrl={sellAsset.explorerTxLink}
             accountId={sellAccountId}
             stepSource={undefined} // no swapper base URL here, this is an allowance Tx
@@ -151,15 +166,15 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
         )}
       </Flex>
     )
-  }, [allowanceReset.txHash, sellAccountId, sellAsset])
+  }, [allowanceReset?.txHash, sellAccountId, sellAsset])
 
   const allowanceApprovalTitle = useMemo(() => {
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         <Text translation='trade.approvalTitle' />
-        {allowanceApproval.txHash && sellAsset && sellAccountId && (
+        {allowanceApproval?.txHash && sellAsset && sellAccountId && (
           <TxLabel
-            txHash={allowanceApproval.txHash}
+            txHash={allowanceApproval?.txHash}
             explorerBaseUrl={sellAsset.explorerTxLink}
             accountId={sellAccountId}
             stepSource={undefined} // no swapper base URL here, this is an allowance Tx
@@ -168,7 +183,9 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
         )}
       </Flex>
     )
-  }, [allowanceApproval.txHash, sellAccountId, sellAsset])
+  }, [allowanceApproval?.txHash, sellAccountId, sellAsset])
+
+  if (currentStep === undefined || !allowanceReset || !allowanceApproval) return null
 
   return (
     <Skeleton isLoaded={!!orderSubmissionState && !isLoading} width='100%'>

@@ -19,7 +19,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -70,6 +70,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
     const [shouldInvertRate, setShouldInvertRate] = useState(Boolean(invertRate))
+    const [hasClickedRate, setHasClickedRate] = useState(false)
     const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
     const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
     const foxBalanceCryptoPrecision = useAppSelector(state =>
@@ -100,8 +101,15 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
       )
     }, [feeMessage])
 
+    useEffect(() => {
+      if (!hasClickedRate) {
+        setShouldInvertRate(Boolean(invertRate))
+      }
+    }, [invertRate, hasClickedRate, setShouldInvertRate])
+
     const handleRateClick = useCallback((e: React.MouseEvent) => {
       e.stopPropagation()
+      setHasClickedRate(true)
       setShouldInvertRate(prev => !prev)
     }, [])
 

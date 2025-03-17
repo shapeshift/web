@@ -170,85 +170,83 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         )
       default:
         return (
-          <>
-            <Stack
-              fontWeight='medium'
-              spacing={0}
-              bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
-              transitionProperty='common'
-              transitionDuration='normal'
-              fontSize='sm'
+          <Stack
+            fontWeight='medium'
+            spacing={0}
+            bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
+            transitionProperty='common'
+            transitionDuration='normal'
+            fontSize='sm'
+          >
+            <Flex
+              _hover={noExpand ? undefined : rowHover}
+              onClick={noExpand ? undefined : onToggle}
+              cursor={noExpand ? 'default' : 'pointer'}
+              alignItems='center'
+              justifyContent='space-between'
+              px={4}
+              py={4}
+              width='full'
             >
-              <Flex
-                _hover={noExpand ? undefined : rowHover}
-                onClick={noExpand ? undefined : onToggle}
-                cursor={noExpand ? 'default' : 'pointer'}
-                alignItems='center'
-                justifyContent='space-between'
-                px={4}
-                py={4}
-                width='full'
-              >
-                <Row fontSize='sm' flex={1}>
-                  <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
-                    <Stack
-                      width='full'
-                      direction='row'
-                      className='rate'
-                      borderColor='transparent'
-                      alignItems='center'
+              <Row fontSize='sm' flex={1}>
+                <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
+                  <Stack
+                    width='full'
+                    direction='row'
+                    className='rate'
+                    borderColor='transparent'
+                    alignItems='center'
+                  >
+                    <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
+                    {rateContent}
+                    <Popover
+                      trigger='hover'
+                      placement='top'
+                      isLazy
+                      openDelay={0}
+                      closeDelay={300}
+                      gutter={8}
                     >
-                      <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
-                      {rateContent}
-                      <Popover
-                        trigger='hover'
-                        placement='top'
-                        isLazy
-                        openDelay={0}
-                        closeDelay={300}
-                        gutter={8}
-                      >
-                        <PopoverTrigger>
-                          <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
-                        </PopoverTrigger>
-                        <PopoverContent width='auto' maxWidth='300px' zIndex={9999}>
-                          <PopoverArrow />
-                          <PopoverBody p={3}>{feePopoverContent}</PopoverBody>
-                        </PopoverContent>
-                      </Popover>
-                    </Stack>
-                  </Row.Value>
-                </Row>
-                <Flex gap={1} alignItems='center'>
-                  <Tooltip label={translate('trade.tooltip.continueSwapping')}>
-                    <Box>
-                      <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
-                        <Row.Label fontSize='sm'>
-                          <FaGasPump />
-                        </Row.Label>
-                        <Row.Value>
-                          {!networkFeeFiatUserCurrency ? (
-                            <Tooltip label={translate('trade.tooltip.continueSwapping')}>
-                              <Text translation={'trade.unknownGas'} fontSize='sm' />
-                            </Tooltip>
-                          ) : (
-                            <Amount.Fiat fontSize='sm' value={networkFeeFiatUserCurrency} />
-                          )}
-                        </Row.Value>
-                      </Row>
-                    </Box>
-                  </Tooltip>
-                  {!noExpand &&
-                    (isOpen ? (
-                      <ChevronUpIcon color='text.subtle' boxSize='1.25rem' />
-                    ) : (
-                      <ChevronDownIcon color='text.subtle' boxSize='1.25rem' />
-                    ))}
-                </Flex>
+                      <PopoverTrigger>
+                        <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
+                      </PopoverTrigger>
+                      <PopoverContent width='auto' maxWidth='300px' zIndex={9999}>
+                        <PopoverArrow />
+                        <PopoverBody p={3}>{feePopoverContent}</PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </Stack>
+                </Row.Value>
+              </Row>
+              <Flex gap={1} alignItems='center'>
+                <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                  <Box>
+                    <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
+                      <Row.Label fontSize='sm'>
+                        <FaGasPump />
+                      </Row.Label>
+                      <Row.Value>
+                        {!networkFeeFiatUserCurrency ? (
+                          <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                            <Text translation={'trade.unknownGas'} fontSize='sm' />
+                          </Tooltip>
+                        ) : (
+                          <Amount.Fiat fontSize='sm' value={networkFeeFiatUserCurrency} />
+                        )}
+                      </Row.Value>
+                    </Row>
+                  </Box>
+                </Tooltip>
+                {!noExpand &&
+                  (isOpen ? (
+                    <ChevronUpIcon color='text.subtle' boxSize='1.25rem' />
+                  ) : (
+                    <ChevronDownIcon color='text.subtle' boxSize='1.25rem' />
+                  ))}
               </Flex>
-              {children && <Collapse in={isOpen}>{children}</Collapse>}
-            </Stack>
-          </>
+            </Flex>
+            {children && <Collapse in={isOpen}>{children}</Collapse>}
+          </Stack>
         )
     }
   },

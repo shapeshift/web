@@ -62,9 +62,10 @@ import {
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
-import { calcLimitPriceBuyAsset } from '@/state/slices/limitOrderSlice/helpers'
+import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
+import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUsdRateByAssetId,
@@ -83,6 +84,8 @@ type LimitOrderInputProps = {
   onChangeTab: (newTab: TradeInputTab) => void
   noExpand?: boolean
 }
+
+const MARKET_DATA_POLLING_INTERVAL = 10_000
 
 export const LimitOrderInput = ({
   isCompact,
@@ -238,26 +241,30 @@ export const LimitOrderInput = ({
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
-  const marketPriceBuyAsset = useMemo(() => {
-    // Ensure we zero out the price if there is an error, and when we are fetching, as `quoteResponse` will be stale data in both cases
-    if (isLimitOrderQuoteFetching || quoteResponseError) return '0'
-    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
-    if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
+  useFindMarketDataByAssetIdQuery(sellAsset.assetId, {
+    pollingInterval: MARKET_DATA_POLLING_INTERVAL,
+  })
 
-    return calcLimitPriceBuyAsset({
-      sellAmountCryptoBaseUnit: quoteResponse.quote.sellAmount,
-      buyAmountCryptoBaseUnit: quoteResponse.quote.buyAmount,
-      sellAsset,
-      buyAsset,
+  useFindMarketDataByAssetIdQuery(buyAsset.assetId, {
+    pollingInterval: MARKET_DATA_POLLING_INTERVAL,
+  })
+
+  const sellAssetMarketDataUsd = useAppSelector(state =>
+    selectUsdRateByAssetId(state, sellAsset.assetId),
+  )
+  const buyAssetMarketDataUsd = useAppSelector(state =>
+    selectUsdRateByAssetId(state, buyAsset.assetId),
+  )
+
+  const marketPriceBuyAsset = useMemo(() => {
+    if (!(sellAssetMarketDataUsd && buyAssetMarketDataUsd)) return '0'
+
+    return makeLimitInputOutputRatio({
+      sellPriceUsd: sellAssetMarketDataUsd,
+      buyPriceUsd: buyAssetMarketDataUsd,
+      targetAssetPrecision: buyAsset.precision,
     })
-  }, [
-    isLimitOrderQuoteFetching,
-    quoteResponseError,
-    quoteResponse,
-    limitOrderQuoteParams,
-    sellAsset,
-    buyAsset,
-  ])
+  }, [sellAssetMarketDataUsd, buyAssetMarketDataUsd, buyAsset])
 
   // Update the limit price when the market price changes.
   useEffect(() => {
@@ -376,7 +383,6 @@ export const LimitOrderInput = ({
   const isLoading = useMemo(() => {
     return (
       isCheckingAllowance ||
-      isLimitOrderQuoteFetching ||
       // No account meta loaded for that chain
       !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
@@ -388,7 +394,6 @@ export const LimitOrderInput = ({
   }, [
     isCheckingAllowance,
     isAnyAccountMetadataLoadedForChainId,
-    isLimitOrderQuoteFetching,
     isTradeQuoteRequestAborted,
     isVotingPowerLoading,
     shouldShowTradeQuoteOrAwaitInput,
@@ -538,7 +543,7 @@ export const LimitOrderInput = ({
         hasUserEnteredAmount={hasUserEnteredAmount}
         inputAmountUsd={inputSellAmountUsd}
         isError={isError}
-        isLoading={isLoading}
+        isLoading={isLimitOrderQuoteFetching}
         quoteStatusTranslation={quoteStatusTranslation}
         rate={limitPrice.buyAssetDenomination}
         marketRate={marketPriceBuyAsset}
@@ -573,7 +578,6 @@ export const LimitOrderInput = ({
     hasUserEnteredAmount,
     inputSellAmountUsd,
     isError,
-    isLoading,
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
     marketPriceBuyAsset,
@@ -582,6 +586,7 @@ export const LimitOrderInput = ({
     networkFeeUserCurrency,
     renderedRecipientAddress,
     noExpand,
+    isLimitOrderQuoteFetching,
   ])
 
   return (

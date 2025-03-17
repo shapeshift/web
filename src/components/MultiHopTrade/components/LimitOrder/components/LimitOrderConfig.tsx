@@ -94,10 +94,28 @@ export const LimitOrderConfig = ({
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
   const inputValue = useMemo(() => {
-    if (bnOrZero(limitPriceForSelectedPriceDirection).isZero()) return ''
+    if (isInputtingFiatSellAmount) {
+      if (!fiatValue || (bnOrZero(fiatValue).isZero() && !priceAmountRef.current)) {
+        return ''
+      }
+
+      return bnOrZero(fiatValue).toFixed(2)
+    }
+
+    if (
+      !limitPriceForSelectedPriceDirection ||
+      (bnOrZero(limitPriceForSelectedPriceDirection).isZero() && !priceAmountRef.current)
+    )
+      return ''
 
     return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
-  }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
+  }, [
+    limitPriceForSelectedPriceDirection,
+    priceAsset.precision,
+    fiatValue,
+    isInputtingFiatSellAmount,
+    priceAmountRef,
+  ])
 
   const handleSetPresetLimit = useCallback(
     (limitPriceMode: LimitPriceMode) => {
@@ -136,7 +154,6 @@ export const LimitOrderConfig = ({
         cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toFixed(priceAsset.precision)
       }
 
-      priceAmountRef.current = cryptoValue
       setLimitPriceMode(LimitPriceMode.CustomValue)
       setLimitPrice({ marketPriceBuyAsset: cryptoValue ?? '0' })
     },
@@ -244,7 +261,7 @@ export const LimitOrderConfig = ({
     handleInputChange(priceAmountRef.current)
   }, [handleInputChange])
 
-  const receiveAmount = useMemo(() => {
+  const receiveAmountFormatted = useMemo(() => {
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
       bnOrZero(limitPrice.buyAssetDenomination).isZero()
@@ -253,11 +270,23 @@ export const LimitOrderConfig = ({
     }
 
     if (priceDirection === PriceDirection.BuyAssetDenomination) {
-      return bnOrZero(sellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination).toString()
+      return bnOrZero(sellAmountCryptoPrecision)
+        .times(limitPrice.buyAssetDenomination)
+        .decimalPlaces(buyAsset.precision)
+        .toString()
     }
 
-    return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
-  }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
+    return bnOrZero(sellAmountCryptoPrecision)
+      .div(limitPrice.sellAssetDenomination)
+      .decimalPlaces(sellAsset.precision)
+      .toString()
+  }, [
+    limitPrice,
+    priceDirection,
+    sellAmountCryptoPrecision,
+    buyAsset.precision,
+    sellAsset.precision,
+  ])
 
   const limitOrderExplanation = useMemo(() => {
     if (
@@ -311,7 +340,7 @@ export const LimitOrderConfig = ({
           color='white'
           ml={1}
           fontWeight='medium'
-          value={receiveAmount}
+          value={receiveAmountFormatted}
           symbol={buyAsset.symbol}
           omitDecimalTrailingZeros
         />
@@ -326,7 +355,7 @@ export const LimitOrderConfig = ({
     sellAsset.symbol,
     buyAsset.symbol,
     priceAsset.symbol,
-    receiveAmount,
+    receiveAmountFormatted,
   ])
 
   const marketPriceCryptoPrecision = useMemo(() => {
@@ -393,13 +422,7 @@ export const LimitOrderConfig = ({
               placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
               suffix={isInputtingFiatSellAmount ? localeParts.postfix : ''}
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
-              value={
-                isInputtingFiatSellAmount
-                  ? bnOrZero(fiatValue).isZero()
-                    ? ''
-                    : bnOrZero(fiatValue).toFixed(2)
-                  : inputValue
-              }
+              value={inputValue}
               onValueChange={handleValueChange}
               onChange={handleInputValueChange}
             />

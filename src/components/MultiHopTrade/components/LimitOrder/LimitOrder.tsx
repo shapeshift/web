@@ -17,11 +17,15 @@ import { fromBaseUnit } from '@/lib/math'
 import type { TradeRouterMatchParams } from '@/pages/Trade/types'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import type { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoBaseUnit,
   selectInputSellAsset,
+  selectLimitPriceDirection,
+  selectLimitPriceForSelectedPriceDirection,
+  selectLimitPriceMode,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -57,13 +61,24 @@ export const LimitOrder = ({
     [location.pathname],
   )
 
-  const { chainId, assetSubId, sellChainId, sellAssetSubId, sellAmountCryptoBaseUnit } =
-    match?.params || {}
+  const {
+    chainId,
+    assetSubId,
+    sellChainId,
+    sellAssetSubId,
+    sellAmountCryptoBaseUnit,
+    limitPriceMode: routeLimitPriceMode,
+    limitPriceDirection: routeLimitPriceDirection,
+    limitPrice: routeLimitPrice,
+  } = match?.params || {}
 
   // Get the necessary state for URL rewriting
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
+  const limitPriceMode = useAppSelector(selectLimitPriceMode)
+  const limitPriceDirection = useAppSelector(selectLimitPriceDirection)
+  const limitPriceForSelectedDirection = useAppSelector(selectLimitPriceForSelectedPriceDirection)
 
   const buyAssetId = useMemo(() => {
     if (defaultBuyAssetId) return defaultBuyAssetId
@@ -98,15 +113,47 @@ export const LimitOrder = ({
       )
     }
 
+    if (routeLimitPriceDirection) {
+      dispatch(
+        limitOrderInput.actions.setLimitPriceDirection(routeLimitPriceDirection as PriceDirection),
+      )
+    }
+
+    if (routeLimitPriceMode) {
+      dispatch(limitOrderInput.actions.setLimitPriceMode(routeLimitPriceMode as LimitPriceMode))
+    }
+
+    if (routeLimitPrice && routeLimitPrice !== '0') {
+      dispatch(
+        limitOrderInput.actions.setLimitPrice({
+          marketPriceBuyAsset: routeLimitPrice,
+        }),
+      )
+    }
+
     setIsInitialized(true)
-  }, [dispatch, routeBuyAsset, routeSellAsset, sellAmountCryptoBaseUnit, isInitialized])
+  }, [
+    dispatch,
+    routeBuyAsset,
+    routeSellAsset,
+    sellAmountCryptoBaseUnit,
+    routeLimitPriceMode,
+    routeLimitPriceDirection,
+    routeLimitPrice,
+    isInitialized,
+  ])
 
   // Implement URL rewriting logic
   useEffect(() => {
     if (isRewritingUrl && isInitialized && buyAsset && sellAsset) {
       const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? sellAmountCryptoBaseUnit ?? ''
+      const currentLimitPriceMode = limitPriceMode
+      const currentLimitPriceDirection = limitPriceDirection
+      const currentLimitPrice = limitPriceForSelectedDirection
 
-      history.push(`/limit/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
+      history.push(
+        `/limit/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit}/${currentLimitPriceMode}/${currentLimitPriceDirection}/${currentLimitPrice}`,
+      )
     }
   }, [
     isInitialized,
@@ -116,6 +163,9 @@ export const LimitOrder = ({
     history,
     sellInputAmountCryptoBaseUnit,
     sellAmountCryptoBaseUnit,
+    limitPriceMode,
+    limitPriceDirection,
+    limitPriceForSelectedDirection,
   ])
 
   const renderLimitOrderInput = useCallback(() => {

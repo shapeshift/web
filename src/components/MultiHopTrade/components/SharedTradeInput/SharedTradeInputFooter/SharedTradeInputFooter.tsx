@@ -123,7 +123,7 @@ export const SharedTradeInputFooter = ({
             isDisabled={shouldDisableGasRateRowClick}
             rate={rate}
             deltaPercentage={deltaPercentage?.toString()}
-            isLoading={isLoading}
+            isLoading={isLoading && !rate}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
@@ -156,8 +156,8 @@ export const SharedTradeInputFooter = ({
         {children}
 
         <ButtonWalletPredicate
-          isLoading={isAccountsMetadataLoading && !sellAccountId}
-          loadingText={buttonText}
+          isLoading={isLoading || (isAccountsMetadataLoading && !sellAccountId)}
+          loadingText={isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'

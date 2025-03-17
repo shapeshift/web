@@ -9,10 +9,11 @@ import {
   HStack,
   Skeleton,
   Stack,
-  Text as CText,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
@@ -60,6 +61,7 @@ export const LimitOrderConfig = ({
   const translate = useTranslate()
   const priceAmountRef = useRef<string | null>(null)
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
+  const explanationTextColor = useColorModeValue('black', 'white')
 
   const limitPriceForSelectedPriceDirection = useAppSelector(
     selectLimitPriceForSelectedPriceDirection,
@@ -72,7 +74,7 @@ export const LimitOrderConfig = ({
   )
 
   const {
-    number: { localeParts },
+    number: { localeParts, toCrypto },
   } = useLocaleFormatter()
 
   const priceAsset = useMemo(() => {
@@ -259,6 +261,46 @@ export const LimitOrderConfig = ({
     return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
   }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
 
+  const explanationSx = useMemo(
+    () => ({
+      span: {
+        color: explanationTextColor,
+        fontWeight: 'medium',
+      },
+    }),
+    [explanationTextColor],
+  )
+
+  const limitOrderExplanationTranslation: [string, InterpolationOptions] = useMemo(() => {
+    const assetSymbol =
+      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol
+
+    return [
+      'limitOrder.explanation',
+      {
+        assetSymbol,
+        price: toCrypto(limitPriceForSelectedPriceDirection, priceAsset.symbol, {
+          omitDecimalTrailingZeros: true,
+        }),
+        sellAmount: toCrypto(sellAmountCryptoPrecision, sellAsset.symbol, {
+          omitDecimalTrailingZeros: true,
+        }),
+        receiveAmount: toCrypto(receiveAmount, buyAsset.symbol, {
+          omitDecimalTrailingZeros: true,
+        }),
+      },
+    ]
+  }, [
+    limitPriceForSelectedPriceDirection,
+    priceAsset.symbol,
+    sellAmountCryptoPrecision,
+    sellAsset.symbol,
+    buyAsset.symbol,
+    receiveAmount,
+    priceDirection,
+    toCrypto,
+  ])
+
   const limitOrderExplanation = useMemo(() => {
     if (
       isLoading ||
@@ -267,66 +309,21 @@ export const LimitOrderConfig = ({
     )
       return null
 
-    const assetSymbol =
-      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol
-
     return (
-      <CText fontSize='sm' lineHeight='1.6'>
-        <Text
-          as='span'
-          color='text.subtle'
-          translation='limitOrder.explanation.priceReaches.prefix'
-        />
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {assetSymbol}
-        </CText>
-        <Text
-          as='span'
-          color='text.subtle'
-          translation='limitOrder.explanation.priceReaches.middle'
-        />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={limitPriceForSelectedPriceDirection}
-          symbol={priceAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.orderWill.prefix' />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={sellAmountCryptoPrecision}
-          symbol={sellAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.prefix' />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={receiveAmount}
-          symbol={buyAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.suffix' />
-      </CText>
+      <Text
+        color='text.subtle'
+        fontSize='sm'
+        lineHeight='1.6'
+        sx={explanationSx}
+        translation={limitOrderExplanationTranslation}
+      />
     )
   }, [
     isLoading,
-    sellAmountCryptoPrecision,
+    limitOrderExplanationTranslation,
     limitPriceForSelectedPriceDirection,
-    priceDirection,
-    sellAsset.symbol,
-    buyAsset.symbol,
-    priceAsset.symbol,
-    receiveAmount,
+    sellAmountCryptoPrecision,
+    explanationSx,
   ])
 
   const marketPriceCryptoPrecision = useMemo(() => {

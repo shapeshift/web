@@ -1062,7 +1062,6 @@
     "learnMoreAboutFox": "Learn more about FOX Benefits",
     "freeTrade": "This trade is free based on your FOX holdings of %{foxBalance} FOX",
     "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based on your FOX holdings of %{foxBalance} FOX."
-
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1161,7 +1160,8 @@
         "insufficientBalance": "Your wallet currently has insufficient %{symbol} balance on %{chainName} to execute this order. The order is still open and will become executable when you top up your %{symbol} balance on %{chainName}.",
         "insufficientAllowance": "This order requires a additional allowance of %{symbol} on %{chainName} to be approved for CoW Swap to execute this order. The order is still open and will become executable when you complete the allowance approval."
       }
-    }
+    },
+    "explanation": "When [span]%{assetSymbol}'s[/span] price reaches [span]%{price}[/span], your limit order will automatically sell [span]%{sellAmount}[/span], ensuring you receive at least [span]%{receiveAmount}[/span]."
   },
   "modals": {
     "assetSearch": {

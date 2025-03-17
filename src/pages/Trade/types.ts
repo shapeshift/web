@@ -4,4 +4,7 @@ export type TradeRouterMatchParams = {
   sellAssetSubId?: string
   sellChainId?: string
   sellAmountCryptoBaseUnit?: string
+  limitPriceMode?: string
+  limitPriceDirection?: string
+  limitPrice?: string
 }

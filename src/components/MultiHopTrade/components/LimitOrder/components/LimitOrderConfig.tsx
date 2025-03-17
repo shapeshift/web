@@ -94,7 +94,11 @@ export const LimitOrderConfig = ({
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
   const inputValue = useMemo(() => {
-    if (bnOrZero(limitPriceForSelectedPriceDirection).isZero()) return ''
+    if (
+      !limitPriceForSelectedPriceDirection ||
+      (bnOrZero(limitPriceForSelectedPriceDirection).isZero() && !priceAmountRef.current)
+    )
+      return ''
 
     return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
@@ -395,7 +399,7 @@ export const LimitOrderConfig = ({
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
               value={
                 isInputtingFiatSellAmount
-                  ? bnOrZero(fiatValue).isZero()
+                  ? !fiatValue || (bnOrZero(fiatValue).isZero() && !priceAmountRef.current)
                     ? ''
                     : bnOrZero(fiatValue).toFixed(2)
                   : inputValue

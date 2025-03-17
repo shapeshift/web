@@ -53,6 +53,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     onSelectedChainIdChange,
   }) => {
     const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
+    const [buyAmount, setBuyAmount] = useState<string | null>(null)
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
 
@@ -72,8 +73,9 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
     const handleAmountChange = useCallback(
       (value: string) => {
+        setBuyAmount(value)
+
         if (bnOrZero(sellAmountCryptoPrecision).gt(0)) {
-          // Convert value to crypto amount if it's in fiat
           const cryptoValue = isInputtingFiatSellAmount
             ? bnOrZero(value).div(marketData.price).toString()
             : value
@@ -142,8 +144,16 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         assetSymbol={asset.symbol}
         assetIcon={asset.icon}
         placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
-        cryptoAmount={bnOrZero(buyAmountCryptoPrecision).isZero() ? '' : buyAmountCryptoPrecision}
-        fiatAmount={bnOrZero(buyAmountUserCurrency).isZero() ? '' : buyAmountUserCurrency}
+        cryptoAmount={
+          bnOrZero(buyAmountCryptoPrecision).isZero() && (buyAmount === '' || buyAmount === null)
+            ? ''
+            : buyAmountCryptoPrecision
+        }
+        fiatAmount={
+          bnOrZero(buyAmountUserCurrency).isZero() && (buyAmount === '' || buyAmount === null)
+            ? ''
+            : buyAmountUserCurrency
+        }
         percentOptions={emptyPercentOptions}
         isFiat={isInputtingFiatSellAmount}
         onToggleIsFiat={handleToggleIsFiat}

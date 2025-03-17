@@ -244,7 +244,7 @@ export const LimitOrderConfig = ({
     handleInputChange(priceAmountRef.current)
   }, [handleInputChange])
 
-  const receiveAmount = useMemo(() => {
+  const receiveAmountFormatted = useMemo(() => {
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
       bnOrZero(limitPrice.buyAssetDenomination).isZero()
@@ -253,11 +253,23 @@ export const LimitOrderConfig = ({
     }
 
     if (priceDirection === PriceDirection.BuyAssetDenomination) {
-      return bnOrZero(sellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination).toString()
+      return bnOrZero(sellAmountCryptoPrecision)
+        .times(limitPrice.buyAssetDenomination)
+        .decimalPlaces(buyAsset.precision)
+        .toString()
     }
 
-    return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
-  }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
+    return bnOrZero(sellAmountCryptoPrecision)
+      .div(limitPrice.sellAssetDenomination)
+      .decimalPlaces(sellAsset.precision)
+      .toString()
+  }, [
+    limitPrice,
+    priceDirection,
+    sellAmountCryptoPrecision,
+    buyAsset.precision,
+    sellAsset.precision,
+  ])
 
   const limitOrderExplanation = useMemo(() => {
     if (
@@ -311,7 +323,7 @@ export const LimitOrderConfig = ({
           color='white'
           ml={1}
           fontWeight='medium'
-          value={receiveAmount}
+          value={receiveAmountFormatted}
           symbol={buyAsset.symbol}
           omitDecimalTrailingZeros
         />
@@ -326,7 +338,7 @@ export const LimitOrderConfig = ({
     sellAsset.symbol,
     buyAsset.symbol,
     priceAsset.symbol,
-    receiveAmount,
+    receiveAmountFormatted,
   ])
 
   const marketPriceCryptoPrecision = useMemo(() => {

@@ -9,7 +9,7 @@ import {
   selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
 } from '../selectors'
-import { calcLimitPriceBuyAsset } from './helpers'
+import { calcLimitPriceTargetAsset } from './helpers'
 import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
 
 import type { ReduxState } from '@/state/reducer'
@@ -169,7 +169,7 @@ export const selectActiveQuoteLimitPrice = createSelector(
   (sellAmountCryptoBaseUnit, buyAmountCryptoBaseUnit, sellAsset, buyAsset) => {
     if (!sellAsset || !buyAsset) return
 
-    const marketPriceBuyAsset = calcLimitPriceBuyAsset({
+    const marketPriceBuyAsset = calcLimitPriceTargetAsset({
       sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       sellAsset,

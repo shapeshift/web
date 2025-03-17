@@ -131,7 +131,6 @@ export const LimitOrderConfig = ({
 
   const handleInputChange = useCallback(
     (value: string | null, isFiatValue?: boolean) => {
-      console.log(value, 'handleInputChange')
       if (isFiatValue !== undefined) {
         setIsInputtingFiatSellAmount(isFiatValue)
       }
@@ -140,8 +139,6 @@ export const LimitOrderConfig = ({
       if (isInputtingFiatSellAmount || isFiatValue) {
         cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toFixed(priceAsset.precision)
       }
-
-      console.log(cryptoValue, 'cryptoValue')
 
       setLimitPriceMode(LimitPriceMode.CustomValue)
       setLimitPrice({ marketPriceBuyAsset: cryptoValue ?? '0' })

@@ -54,7 +54,6 @@ export const LimitOrderDetail = () => {
       networkFeeFiatUserCurrency='0' // no network fees for CoW, this is a message signing
       swapperName={SwapperName.CowSwap}
       swapSource={SwapperName.CowSwap}
-      isDisabled // disable swapper switcher, we're only dealing with CoW here
     >
       <Stack spacing={4} width='full' px={6} pb={3}>
         <Row>

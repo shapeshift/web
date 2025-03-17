@@ -23,7 +23,7 @@ import { AmountInput } from '../../TradeAmountInput'
 import { Amount } from '@/components/Amount/Amount'
 import { StyledAssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from '@/lib/bignumber/bignumber'
@@ -373,38 +373,34 @@ export const LimitOrderConfig = ({
   }, [marketPriceCryptoPrecision, priceAsset.symbol])
 
   return (
-    <Stack spacing={4} px={6} py={4}>
+    <Stack spacing={6} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
           <Text translation='limitOrder.when' />
-          <Button
-            variant='unstyled'
+          <RawText
             onClick={handleTokenTextClick}
             fontWeight='bold'
             fontSize='sm'
-            position='relative'
             sx={clickableLinkSx}
+            cursor='pointer'
           >
             1 {displayAsset.symbol}
-          </Button>
+          </RawText>
           <Text translation='limitOrder.isWorth' />
         </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
           <Text translation='limitOrder.market' mr={2} />
           <Skeleton isLoaded={!isLoading}>
-            <Button
-              variant='unstyled'
-              onClick={handleSetMarketLimit}
-              isDisabled={isMarketButtonDisabled}
+            <RawText
+              onClick={isMarketButtonDisabled ? undefined : handleSetMarketLimit}
               fontWeight='medium'
               fontSize='sm'
-              position='relative'
               sx={clickableLinkSx}
               opacity={isMarketButtonDisabled ? 0.5 : 1}
               cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
             >
               {marketPriceText}
-            </Button>
+            </RawText>
           </Skeleton>
         </Flex>
       </Flex>
@@ -452,7 +448,6 @@ export const LimitOrderConfig = ({
         !bnOrZero(sellAmountCryptoPrecision).isZero() &&
         !bnOrZero(limitPriceForSelectedPriceDirection).isZero() && (
           <Box
-            mt={4}
             p={4}
             borderWidth='1px'
             borderStyle='dashed'

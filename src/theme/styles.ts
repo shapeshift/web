@@ -1,11 +1,15 @@
 export const clickableLinkSx = {
+  position: 'relative',
+  userSelect: 'none',
   '&:after': {
     content: '""',
-    display: 'block',
+    position: 'absolute',
+    bottom: -1,
+    left: 0,
+    right: 0,
     height: '1px',
     borderBottom: '1px dotted',
     borderColor: 'whiteAlpha.500',
-    mb: '-4px',
   },
   '&:hover': {
     '&:after': {

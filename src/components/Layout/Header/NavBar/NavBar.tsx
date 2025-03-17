@@ -9,7 +9,7 @@ import { MainNavLink } from './MainNavLink'
 
 import { Text } from '@/components/Text'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
-import type { Route } from '@/Routes/helpers'
+import type { NavRoute } from '@/Routes/helpers'
 import { RouteCategory } from '@/Routes/helpers'
 import { routes } from '@/Routes/RoutesCommon'
 import { breakpoints } from '@/theme/theme'
@@ -37,10 +37,9 @@ export const NavBar = (props: NavBarProps) => {
 
   const navItemGroups = useMemo(() => {
     const groups = union(routes, pluginRoutes)
-      .filter((route): route is Extract<Route, { label: string }> =>
-        isLargerThanMd
-          ? !route.disable && !route.hide && !route.hideDesktop
-          : !route.disable && !route.hide && !route.mobileNav,
+      .filter(route => 'label' in route)
+      .filter((route): route is NavRoute =>
+        isLargerThanMd ? !route.disable && !route.hideDesktop : !route.disable && !route.mobileNav,
       )
       .reduce(
         (entryMap, currentRoute) =>
@@ -48,7 +47,7 @@ export const NavBar = (props: NavBarProps) => {
             ...(entryMap.get(currentRoute.category) || []),
             currentRoute,
           ]),
-        new Map<RouteCategory | undefined, Extract<Route, { label: string }>[]>(),
+        new Map<RouteCategory | undefined, NavRoute[]>(),
       )
     return Array.from(groups.entries())
   }, [isLargerThanMd, pluginRoutes])

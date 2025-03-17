@@ -153,27 +153,22 @@ export const routes: Route[] = [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
         main: Trade,
-        hide: true,
       },
       {
         path: TradeRoutePaths.Confirm,
         main: Trade,
-        hide: true,
       },
       {
         path: TradeRoutePaths.VerifyAddresses,
         main: Trade,
-        hide: true,
       },
       {
         path: TradeRoutePaths.QuoteList,
         main: Trade,
-        hide: true,
       },
       ...assetIdPaths.map<Route>(assetIdPath => ({
         path: assetIdPath,
         main: Trade,
-        hide: true,
       })),
     ],
   },
@@ -274,67 +269,53 @@ export const routes: Route[] = [
   {
     path: '/assets',
     main: Assets,
-    hide: true,
     routes: assetIdPaths.map(assetIdPath => ({
       path: assetIdPath,
       main: Asset,
-      hide: true,
     })),
   },
   {
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide:
+    hideDesktop:
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().VITE_LOCAL_IP,
     main: Flags,
   },
   {
     path: '/limit',
-    label: '',
-    hideDesktop: true,
     main: Trade,
     routes: [
       {
         path: LimitOrderRoutePaths.Confirm,
         main: Trade,
-        hide: true,
       },
       {
         path: LimitOrderRoutePaths.AllowanceApproval,
         main: Trade,
-        hide: true,
       },
       {
         path: LimitOrderRoutePaths.PlaceOrder,
         main: Trade,
-        hide: true,
       },
       {
         path: LimitOrderRoutePaths.Orders,
         main: Trade,
-        hide: true,
       },
     ],
   },
   {
     path: '/claim',
-    label: '',
-    hideDesktop: true,
-    mobileNav: false,
-    priority: 4,
     main: Trade,
     routes: [
       {
         path: ClaimRoutePaths.Confirm,
         main: Trade,
-        hide: true,
       },
       {
         path: ClaimRoutePaths.Status,
         main: Trade,
-        hide: true,
       },
     ],
   },

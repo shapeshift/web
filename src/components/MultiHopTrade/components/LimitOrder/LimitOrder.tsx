@@ -124,8 +124,6 @@ export const LimitOrder = ({
     }
 
     if (routeLimitPrice && routeLimitPrice !== '0') {
-      // When setting the limit price, we need to use the marketPriceBuyAsset parameter
-      // which will then calculate the opposite direction price correctly
       dispatch(
         limitOrderInput.actions.setLimitPrice({
           marketPriceBuyAsset: routeLimitPrice,

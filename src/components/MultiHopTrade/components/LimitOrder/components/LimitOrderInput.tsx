@@ -383,8 +383,6 @@ export const LimitOrderInput = ({
   const isLoading = useMemo(() => {
     return (
       isCheckingAllowance ||
-      // No account meta loaded for that chain
-      !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue

@@ -135,6 +135,26 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
       ],
     )
 
+    const isUserTypedAmount = useMemo(() => {
+      return buyAmount !== '' && buyAmount !== null
+    }, [buyAmount])
+
+    const cryptoAmount = useMemo(() => {
+      if (bnOrZero(buyAmountCryptoPrecision).isZero() && !isUserTypedAmount) {
+        return ''
+      }
+
+      return buyAmountCryptoPrecision
+    }, [buyAmountCryptoPrecision, isUserTypedAmount])
+
+    const fiatAmount = useMemo(() => {
+      if (bnOrZero(buyAmountUserCurrency).isZero() && !isUserTypedAmount) {
+        return ''
+      }
+
+      return buyAmountUserCurrency
+    }, [buyAmountUserCurrency, isUserTypedAmount])
+
     return (
       <TradeAssetInput
         isAccountSelectionHidden={Boolean(manualReceiveAddress)}
@@ -144,16 +164,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         assetSymbol={asset.symbol}
         assetIcon={asset.icon}
         placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
-        cryptoAmount={
-          bnOrZero(buyAmountCryptoPrecision).isZero() && (buyAmount === '' || buyAmount === null)
-            ? ''
-            : buyAmountCryptoPrecision
-        }
-        fiatAmount={
-          bnOrZero(buyAmountUserCurrency).isZero() && (buyAmount === '' || buyAmount === null)
-            ? ''
-            : buyAmountUserCurrency
-        }
+        cryptoAmount={cryptoAmount}
+        fiatAmount={fiatAmount}
         percentOptions={emptyPercentOptions}
         isFiat={isInputtingFiatSellAmount}
         onToggleIsFiat={handleToggleIsFiat}

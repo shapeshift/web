@@ -94,6 +94,14 @@ export const LimitOrderConfig = ({
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
   const inputValue = useMemo(() => {
+    if (isInputtingFiatSellAmount) {
+      if (!fiatValue || (bnOrZero(fiatValue).isZero() && !priceAmountRef.current)) {
+        return ''
+      }
+
+      return bnOrZero(fiatValue).toFixed(2)
+    }
+
     if (
       !limitPriceForSelectedPriceDirection ||
       (bnOrZero(limitPriceForSelectedPriceDirection).isZero() && !priceAmountRef.current)
@@ -101,7 +109,13 @@ export const LimitOrderConfig = ({
       return ''
 
     return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
-  }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
+  }, [
+    limitPriceForSelectedPriceDirection,
+    priceAsset.precision,
+    fiatValue,
+    isInputtingFiatSellAmount,
+    priceAmountRef,
+  ])
 
   const handleSetPresetLimit = useCallback(
     (limitPriceMode: LimitPriceMode) => {
@@ -396,13 +410,7 @@ export const LimitOrderConfig = ({
               placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
               suffix={isInputtingFiatSellAmount ? localeParts.postfix : ''}
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
-              value={
-                isInputtingFiatSellAmount
-                  ? !fiatValue || (bnOrZero(fiatValue).isZero() && !priceAmountRef.current)
-                    ? ''
-                    : bnOrZero(fiatValue).toFixed(2)
-                  : inputValue
-              }
+              value={inputValue}
               onValueChange={handleValueChange}
               onChange={handleInputValueChange}
             />

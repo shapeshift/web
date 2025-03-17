@@ -146,8 +146,8 @@ export const LimitOrder = ({
   }, [isCompact])
 
   return (
-    <Switch location={location}>
-      <Flex flex={1} width='full' justifyContent='center'>
+    <Flex flex={1} width='full' justifyContent='center'>
+      <Switch location={location}>
         <Route
           key={LimitOrderRoutePaths.Confirm}
           path={LimitOrderRoutePaths.Confirm}
@@ -176,7 +176,7 @@ export const LimitOrder = ({
           path={LimitOrderRoutePaths.Input}
           render={renderLimitOrderInput}
         />
-      </Flex>
-    </Switch>
+      </Switch>
+    </Flex>
   )
 }

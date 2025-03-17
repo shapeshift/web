@@ -25,6 +25,8 @@ import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
+export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
+  '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 
 const Home = makeSuspenseful(
   lazy(() =>
@@ -296,6 +298,11 @@ export const routes: Route[] = [
     hideDesktop: true,
     main: Trade,
     routes: [
+      {
+        path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
+        main: Trade,
+        hide: true,
+      },
       {
         path: LimitOrderRoutePaths.Confirm,
         main: Trade,

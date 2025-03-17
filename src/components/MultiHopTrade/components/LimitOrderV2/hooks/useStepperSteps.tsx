@@ -74,13 +74,28 @@ export const useStepperSteps = () => {
     return { quoteId: quoteId ?? 0 }
   }, [quoteId])
 
+  const limitOrderSubmissionMetadata = useSelectorWithArgs(
+    selectLimitOrderSubmissionMetadata,
+    orderSubmissionMetadataFilter,
+  )
+
   const {
     state: orderSubmissionState,
     allowanceReset,
     allowanceApproval,
-  } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
+  } = useMemo(() => {
+    if (!limitOrderSubmissionMetadata)
+      return {
+        state: LimitOrderSubmissionState.Initializing,
+        allowanceReset: undefined,
+        allowanceApproval: undefined,
+      }
+    return limitOrderSubmissionMetadata
+  }, [limitOrderSubmissionMetadata])
 
-  const params: StepperStepParams = useMemo(() => {
+  const params: StepperStepParams | undefined = useMemo(() => {
+    if (!(allowanceReset && allowanceApproval)) return undefined
+
     return {
       allowanceReset,
       allowanceApproval,
@@ -89,18 +104,22 @@ export const useStepperSteps = () => {
   }, [allowanceReset, allowanceApproval, orderSubmissionState])
 
   const limitOrderSteps = useMemo(() => {
+    if (!params) return
     return getStepperSteps(params)
   }, [params])
 
   const totalSteps = useMemo(() => {
+    if (!params) return
     return countStepperSteps(params)
   }, [params])
 
   const currentLimitOrderStep = useMemo(() => {
+    if (!params) return
     return getCurrentStepperStep(params)
   }, [params])
 
   const currentLimitOrderStepIndex = useMemo(() => {
+    if (!params) return
     return getCurrentStepperStepIndex(params)
   }, [params])
 

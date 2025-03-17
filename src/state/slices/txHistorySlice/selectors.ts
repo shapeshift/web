@@ -4,6 +4,7 @@ import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -167,6 +168,25 @@ export const selectTxIdsByFilter = createCachedSelector(
         filter.assetId ?? 'assetId'
       }`
     : 'txIdsByFilter',
+)
+
+export const selectTxIdsByFilterWithPendingFirst = createCachedSelector(
+  selectTxs,
+  selectTxIdsByFilter,
+  (txs, filteredTxIds): TxId[] => {
+    return [...filteredTxIds].sort((a, b) => {
+      if (txs[a].status === TxStatus.Pending && txs[b].status !== TxStatus.Pending) return -1
+      if (txs[b].status === TxStatus.Pending && txs[a].status !== TxStatus.Pending) return 1
+
+      return 0
+    })
+  },
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
+        filter.assetId ?? 'assetId'
+      }`
+    : 'txIdsByFilterWithPendingFirst',
 )
 
 export const selectTxIdsBasedOnSearchTermAndFilters = createCachedSelector(

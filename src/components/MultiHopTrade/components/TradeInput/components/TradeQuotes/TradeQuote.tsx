@@ -292,13 +292,13 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     ].includes(errors?.[0]?.error)
     const showSwapper = !!quote || showSwapperError
 
-    const totalEstimatedExecutionTimeMs = useMemo(
-      () =>
-        quote?.steps.reduce((acc, step) => {
-          return acc + (step.estimatedExecutionTimeMs ?? 0)
-        }, 0),
-      [quote?.steps],
-    )
+    const totalEstimatedExecutionTimeMs = useMemo(() => {
+      if (quote?.steps.every(step => step.estimatedExecutionTimeMs === undefined)) return
+
+      return quote?.steps.reduce((acc, step) => {
+        return acc + (step.estimatedExecutionTimeMs ?? 0)
+      }, 0)
+    }, [quote?.steps])
 
     const slippage = useMemo(() => {
       if (!quote) return

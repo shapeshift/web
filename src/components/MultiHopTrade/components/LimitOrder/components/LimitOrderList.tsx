@@ -41,21 +41,6 @@ const textSelectedProps = {
   color: 'text.base',
 }
 
-const customScrollbarSx = {
-  '&::-webkit-scrollbar': {
-    width: '6px',
-    backgroundColor: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: 'gray.600',
-    borderRadius: '3px',
-    '&:hover': {
-      backgroundColor: 'gray.500',
-    },
-  },
-  paddingRight: '6px',
-}
-
 const tableStyles = {
   'tr:not(:last-of-type)': {
     borderBottom: '1px solid',
@@ -179,7 +164,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             <Text translation='limitOrder.orderHistory' />
           </Tab>
         </TabList>
-        <CardBody flex='1' minH={0} px={2} py={0}>
+        <CardBody flex='1' minH={0} px={2} py={0} pe={1}>
           <TabPanels height='100%'>
             <TabPanel px={0} py={0} height='100%'>
               {isLoading && (
@@ -194,7 +179,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                 <TableContainer
                   height={tableContainerHeight}
                   overflowY='auto'
-                  sx={customScrollbarSx}
+                  className='scroll-container'
                 >
                   <Table variant='unstyled' size='sm' sx={tableStyles}>
                     <Thead>
@@ -247,7 +232,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                 <TableContainer
                   height={tableContainerHeight}
                   overflowY='auto'
-                  sx={customScrollbarSx}
+                  className='scroll-container'
                 >
                   <Table variant='unstyled' size='sm' sx={tableStyles}>
                     <Thead>

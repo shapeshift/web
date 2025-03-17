@@ -65,7 +65,7 @@ import {
 import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
-import { useFindByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUsdRateByAssetId,
@@ -241,11 +241,11 @@ export const LimitOrderInput = ({
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
-  useFindByAssetIdQuery(sellAsset.assetId, {
+  useFindMarketDataByAssetIdQuery(sellAsset.assetId, {
     pollingInterval: MARKET_DATA_POLLING_INTERVAL,
   })
 
-  useFindByAssetIdQuery(buyAsset.assetId, {
+  useFindMarketDataByAssetIdQuery(buyAsset.assetId, {
     pollingInterval: MARKET_DATA_POLLING_INTERVAL,
   })
 

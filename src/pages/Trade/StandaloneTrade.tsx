@@ -74,7 +74,7 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
     if (isInitialMount.current) {
       isInitialMount.current = false
 
-      // Check if we're coming from another page (not a mini swapper)
+      // Check if we're coming from another page (not a mini swapper page, as there is no unmount then)
       // We do so by checking if the current assets are matching (or not) the default assets
       // Which it won't if we're going from /trade to an asset page, and vice versa
       const shouldResetState =

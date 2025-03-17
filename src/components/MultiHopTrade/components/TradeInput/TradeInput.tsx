@@ -185,6 +185,14 @@ export const TradeInput = ({
     dispatch(tradeQuoteSlice.actions.clearTradeQuotes())
   }, [dispatch])
 
+  // Reset the sell amount to zero on mount if this is a standalone swapper, since we may be coming from a different
+  // sell asset in regular swapper
+  useEffect(() => {
+    if (isStandalone) {
+      dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
+    }
+  }, [dispatch, isStandalone])
+
   useEffect(() => {
     // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
     // user has not yet confirmed the previous one

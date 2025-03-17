@@ -22,7 +22,7 @@ export const buildUnsignedLimitOrder = ({
   }
 }
 
-export const calcLimitPriceBuyAsset = ({
+export const calcLimitPriceTargetAsset = ({
   sellAmountCryptoBaseUnit,
   buyAmountCryptoBaseUnit,
   sellAsset,
@@ -36,4 +36,18 @@ export const calcLimitPriceBuyAsset = ({
   return bnOrZero(fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision))
     .div(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision))
     .toFixed()
+}
+
+export const makeLimitInputOutputRatio = ({
+  sellPriceUsd,
+  buyPriceUsd,
+  targetAssetPrecision,
+}: {
+  sellPriceUsd: string
+  buyPriceUsd: string
+  targetAssetPrecision: number
+}): string => {
+  const ratio = bnOrZero(buyPriceUsd).div(bnOrZero(sellPriceUsd))
+
+  return ratio.toFixed(targetAssetPrecision)
 }

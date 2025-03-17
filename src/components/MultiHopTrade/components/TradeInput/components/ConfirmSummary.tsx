@@ -13,6 +13,7 @@ import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslation'
 import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
 import { MaxSlippage } from './MaxSlippage'
+import { Protocol } from './Protocol'
 import { RecipientAddress } from './RecipientAddress'
 
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
@@ -258,7 +259,7 @@ export const ConfirmSummary = ({
 
   const handleOpenCompactQuoteList = useCallback(() => {
     if (!isCompact && !isSmallerThanXl) return
-    history.push({ pathname: TradeRoutePaths.QuoteList })
+    history.push(TradeRoutePaths.QuoteList)
   }, [history, isCompact, isSmallerThanXl])
 
   const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =
@@ -351,13 +352,11 @@ export const ConfirmSummary = ({
       inputAmountUsd={inputAmountUsd}
       isError={quoteHasError}
       isLoading={isLoading}
-      onGasRateRowClick={handleOpenCompactQuoteList}
       quoteStatusTranslation={quoteStatusTranslation}
       rate={activeQuote?.rate}
       receiveSummaryDetails={receiveSummaryDetails}
       sellAccountId={sellAssetAccountId}
       sellAsset={sellAsset}
-      shouldDisableGasRateRowClick={!Boolean(isSmallerThanXl || isCompact)}
       shouldDisablePreviewButton={shouldDisablePreviewButton}
       swapperName={activeSwapperName}
       swapSource={tradeQuoteStep?.source}
@@ -365,6 +364,13 @@ export const ConfirmSummary = ({
     >
       <>
         {maybeWarning}
+        {(isCompact || isSmallerThanXl) && (
+          <Protocol
+            onClick={handleOpenCompactQuoteList}
+            swapSource={tradeQuoteStep?.source}
+            swapperName={activeSwapperName}
+          />
+        )}
         <RecipientAddress
           shouldForceManualAddressEntry={shouldDisableThorNativeSmartContractReceive}
           recipientAddressDescription={

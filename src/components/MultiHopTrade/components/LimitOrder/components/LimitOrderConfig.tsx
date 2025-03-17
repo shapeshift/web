@@ -373,7 +373,7 @@ export const LimitOrderConfig = ({
   }, [marketPriceCryptoPrecision, priceAsset.symbol])
 
   return (
-    <Stack spacing={4} px={6} py={4}>
+    <Stack spacing={6} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
           <Text translation='limitOrder.when' />
@@ -382,7 +382,6 @@ export const LimitOrderConfig = ({
             onClick={handleTokenTextClick}
             fontWeight='bold'
             fontSize='sm'
-            position='relative'
             sx={clickableLinkSx}
           >
             1 {displayAsset.symbol}
@@ -398,7 +397,6 @@ export const LimitOrderConfig = ({
               isDisabled={isMarketButtonDisabled}
               fontWeight='medium'
               fontSize='sm'
-              position='relative'
               sx={clickableLinkSx}
               opacity={isMarketButtonDisabled ? 0.5 : 1}
               cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
@@ -452,7 +450,6 @@ export const LimitOrderConfig = ({
         !bnOrZero(sellAmountCryptoPrecision).isZero() &&
         !bnOrZero(limitPriceForSelectedPriceDirection).isZero() && (
           <Box
-            mt={4}
             p={4}
             borderWidth='1px'
             borderStyle='dashed'

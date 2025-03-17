@@ -93,7 +93,6 @@ export const TradeConfirmSummary = () => {
       swapperName={activeQuote?.swapperName}
       swapSource={tradeQuoteFirstHop?.source}
       isOpen
-      isDisabled // disable swapper switcher, we're at the confirm step with a swapper already selected
     >
       <Stack spacing={4} px={6} pb={3} width='full'>
         <Row Tooltipbody={networkFeeTooltipBody}>

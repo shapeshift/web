@@ -137,6 +137,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 aria-label={translate('trade.tradeSettings')}
                 icon={faGear}
                 variant='ghost'
+                minWidth={0}
                 isDisabled={isDisabled}
               />
             </PopoverTrigger>

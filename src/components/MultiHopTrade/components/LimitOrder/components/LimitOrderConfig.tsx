@@ -23,7 +23,7 @@ import { AmountInput } from '../../TradeAmountInput'
 import { Amount } from '@/components/Amount/Amount'
 import { StyledAssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
-import { RawText, Text } from '@/components/Text'
+import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from '@/lib/bignumber/bignumber'
@@ -377,22 +377,24 @@ export const LimitOrderConfig = ({
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
           <Text translation='limitOrder.when' />
-          <RawText
+          <Button
+            variant='unstyled'
             onClick={handleTokenTextClick}
             fontWeight='bold'
             fontSize='sm'
             sx={clickableLinkSx}
-            cursor='pointer'
           >
             1 {displayAsset.symbol}
-          </RawText>
+          </Button>
           <Text translation='limitOrder.isWorth' />
         </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
           <Text translation='limitOrder.market' mr={2} />
           <Skeleton isLoaded={!isLoading}>
-            <RawText
-              onClick={isMarketButtonDisabled ? undefined : handleSetMarketLimit}
+            <Button
+              variant='unstyled'
+              onClick={handleSetMarketLimit}
+              isDisabled={isMarketButtonDisabled}
               fontWeight='medium'
               fontSize='sm'
               sx={clickableLinkSx}
@@ -400,7 +402,7 @@ export const LimitOrderConfig = ({
               cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
             >
               {marketPriceText}
-            </RawText>
+            </Button>
           </Skeleton>
         </Flex>
       </Flex>

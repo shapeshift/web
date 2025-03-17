@@ -533,7 +533,6 @@ export const LimitOrderInput = ({
         rate={limitPrice.buyAssetDenomination}
         marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
-        shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
           !hasUserEnteredAmount ||
           isError ||

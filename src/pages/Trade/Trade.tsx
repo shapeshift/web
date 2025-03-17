@@ -96,9 +96,12 @@ export const Trade = memo(() => {
   // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm
   const isRewritingUrl = useMemo(
     () =>
-      ![TradeRoutePaths.Confirm, LimitOrderRoutePaths.Confirm].includes(
-        location.pathname as TradeRoutePaths | LimitOrderRoutePaths,
-      ),
+      ![
+        TradeRoutePaths.Confirm,
+        TradeRoutePaths.QuoteList,
+        TradeRoutePaths.VerifyAddresses,
+        LimitOrderRoutePaths.Confirm,
+      ].includes(location.pathname as TradeRoutePaths),
     [location.pathname],
   )
 

@@ -66,7 +66,6 @@ import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helper
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
 import { useFindByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataUsd } from '@/state/slices/marketDataSlice/selectors'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUsdRateByAssetId,
@@ -250,18 +249,22 @@ export const LimitOrderInput = ({
     pollingInterval: MARKET_DATA_POLLING_INTERVAL,
   })
 
-  const sellAssetMarketData = useAppSelector(state => selectMarketDataUsd(state)[sellAsset.assetId])
-  const buyAssetMarketData = useAppSelector(state => selectMarketDataUsd(state)[buyAsset.assetId])
+  const sellAssetMarketDataUsd = useAppSelector(state =>
+    selectUsdRateByAssetId(state, sellAsset.assetId),
+  )
+  const buyAssetMarketDataUsd = useAppSelector(state =>
+    selectUsdRateByAssetId(state, buyAsset.assetId),
+  )
 
   const marketPriceBuyAsset = useMemo(() => {
-    if (!(sellAssetMarketData?.price && buyAssetMarketData?.price)) return '0'
+    if (!(sellAssetMarketDataUsd && buyAssetMarketDataUsd)) return '0'
 
     return makeLimitInputOutputRatio({
-      sellPriceUsd: sellAssetMarketData.price,
-      buyPriceUsd: buyAssetMarketData.price,
+      sellPriceUsd: sellAssetMarketDataUsd,
+      buyPriceUsd: buyAssetMarketDataUsd,
       targetAssetPrecision: buyAsset.precision,
     })
-  }, [sellAssetMarketData, buyAssetMarketData, buyAsset])
+  }, [sellAssetMarketDataUsd, buyAssetMarketDataUsd, buyAsset])
 
   // Update the limit price when the market price changes.
   useEffect(() => {

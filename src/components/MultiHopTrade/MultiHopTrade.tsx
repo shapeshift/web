@@ -110,6 +110,14 @@ export const MultiHopTrade = memo(
     }, [dispatch, routeBuyAsset, routeSellAsset, sellAmountCryptoBaseUnit, isInitialized])
 
     useEffect(() => {
+      // Poor man's check for input route. Do not rewrite URL on those routes, or problems.
+      const isInputRoute =
+        !location.pathname.includes(TradeRoutePaths.QuoteList) &&
+        !location.pathname.includes(TradeRoutePaths.Quotes) &&
+        !location.pathname.includes(TradeRoutePaths.VerifyAddresses)
+
+      if (!isInputRoute) return
+
       if (isRewritingUrl) {
         const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? sellAmountCryptoBaseUnit ?? ''
 
@@ -123,6 +131,7 @@ export const MultiHopTrade = memo(
       history,
       sellInputAmountCryptoBaseUnit,
       sellAmountCryptoBaseUnit,
+      location.pathname,
     ])
 
     return (

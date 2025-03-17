@@ -23,6 +23,7 @@ import { AmountInput } from '../../TradeAmountInput'
 import { Amount } from '@/components/Amount/Amount'
 import { StyledAssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { StyledTranslation } from '@/components/StyledTranslation'
 import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -259,6 +260,60 @@ export const LimitOrderConfig = ({
     return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
   }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
 
+  const assetSymbol = useMemo(
+    () =>
+      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol,
+    [priceDirection, sellAsset.symbol, buyAsset.symbol],
+  )
+
+  const components = useMemo(
+    () => ({
+      assetSymbol: (
+        <CText as='span' color='white' fontWeight='medium'>
+          {assetSymbol}
+        </CText>
+      ),
+      limitPrice: (
+        <Amount.Crypto
+          as='span'
+          color='white'
+          fontWeight='medium'
+          value={limitPriceForSelectedPriceDirection}
+          symbol={priceAsset.symbol}
+          omitDecimalTrailingZeros
+        />
+      ),
+      sellAmount: (
+        <Amount.Crypto
+          as='span'
+          color='white'
+          fontWeight='medium'
+          value={sellAmountCryptoPrecision}
+          symbol={sellAsset.symbol}
+          omitDecimalTrailingZeros
+        />
+      ),
+      receiveAmount: (
+        <Amount.Crypto
+          as='span'
+          color='white'
+          fontWeight='medium'
+          value={receiveAmount}
+          symbol={buyAsset.symbol}
+          omitDecimalTrailingZeros
+        />
+      ),
+    }),
+    [
+      assetSymbol,
+      limitPriceForSelectedPriceDirection,
+      priceAsset.symbol,
+      sellAmountCryptoPrecision,
+      sellAsset.symbol,
+      receiveAmount,
+      buyAsset.symbol,
+    ],
+  )
   const limitOrderExplanation = useMemo(() => {
     if (
       isLoading ||
@@ -267,67 +322,12 @@ export const LimitOrderConfig = ({
     )
       return null
 
-    const assetSymbol =
-      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol
-
     return (
-      <CText fontSize='sm' lineHeight='1.6'>
-        <Text
-          as='span'
-          color='text.subtle'
-          translation='limitOrder.explanation.priceReaches.prefix'
-        />
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {assetSymbol}
-        </CText>
-        <Text
-          as='span'
-          color='text.subtle'
-          translation='limitOrder.explanation.priceReaches.middle'
-        />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={limitPriceForSelectedPriceDirection}
-          symbol={priceAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.orderWill.prefix' />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={sellAmountCryptoPrecision}
-          symbol={sellAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.prefix' />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={receiveAmount}
-          symbol={buyAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.suffix' />
+      <CText fontSize='sm' lineHeight='1.6' color='text.subtle'>
+        <StyledTranslation i18nKey='limitOrder.explanation' components={components} />
       </CText>
     )
-  }, [
-    isLoading,
-    sellAmountCryptoPrecision,
-    limitPriceForSelectedPriceDirection,
-    priceDirection,
-    sellAsset.symbol,
-    buyAsset.symbol,
-    priceAsset.symbol,
-    receiveAmount,
-  ])
+  }, [isLoading, sellAmountCryptoPrecision, limitPriceForSelectedPriceDirection, components])
 
   const marketPriceCryptoPrecision = useMemo(() => {
     if (bnOrZero(marketPriceBuyAsset).isZero()) return '0'

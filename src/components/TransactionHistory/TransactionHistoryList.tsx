@@ -179,7 +179,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             mb='4'
           />
         )}
-        {txIds.length > 0 && showLoadMore && (
+        {(txIds.length > 0 || paginationState.hasMore) && showLoadMore && (
           <Button
             mx={2}
             my={2}

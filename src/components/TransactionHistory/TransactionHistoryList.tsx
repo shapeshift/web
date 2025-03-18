@@ -57,7 +57,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             }
           >,
         ),
-      [],
+      [_paginationState, allAccountIds],
     )
 
     // TODO(gomes): also leverage selectPagination
@@ -66,7 +66,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       if (!accountId) return { hasMore: true, currentPage: 0, totalPages: 0, cursors: {} }
       const pagination = _paginationState[accountId]
       return pagination || { hasMore: true, currentPage: 0, totalPages: 0, cursors: {} }
-    }, [])
+    }, [_paginationState, accountId])
 
     // TODO(gomes): and this one too
     const { isFetching } = accountId

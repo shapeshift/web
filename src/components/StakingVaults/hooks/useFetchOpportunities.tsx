@@ -3,7 +3,6 @@ import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
 import { knownChainIds } from '@/constants/chains'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
 import {
   useGetPortalsAppsBalancesOutputQuery,
@@ -20,9 +19,6 @@ import {
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useFetchOpportunities = () => {
-  const {
-    state: { isConnected },
-  } = useWallet()
   const dispatch = useAppDispatch()
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)

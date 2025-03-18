@@ -32,7 +32,7 @@ import {
   selectTxStatusParamFromFilter,
 } from '@/state/selectors'
 
-const selectTxHistoryPagination = (state: ReduxState) => state.txHistory.pagination
+export const selectTxHistoryPagination = (state: ReduxState) => state.txHistory.pagination
 const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
 export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector(
   selectTxHistoryApiQueries,
@@ -385,7 +385,7 @@ export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
 )
 
 export const selectHasMoreTxsByAccountId = createSelector(
-  (state: ReduxState) => state.txHistory.pagination,
+  selectTxHistoryPagination,
   (_: ReduxState, accountId: AccountId) => accountId,
   (pagination, accountId) => {
     const paginationForAccount = pagination[accountId]
@@ -395,7 +395,7 @@ export const selectHasMoreTxsByAccountId = createSelector(
 )
 
 export const selectPaginationStateByAccountId = createSelector(
-  (state: ReduxState) => state.txHistory.pagination,
+  selectTxHistoryPagination,
   (_: ReduxState, accountId: AccountId) => accountId,
   (pagination, accountId) => {
     return pagination[accountId] || { currentPage: 1, totalPages: 1, hasMore: false, cursors: {} }

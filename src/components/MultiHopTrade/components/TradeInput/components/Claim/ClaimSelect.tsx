@@ -13,7 +13,10 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
-import { selectAccountIdsByChainIdFilter } from '@/state/slices/selectors'
+import {
+  selectAccountIdsByChainIdFilter,
+  selectTxHistoryPagination,
+} from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -35,7 +38,7 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
   )
 
   // Get pagination state for all accounts
-  const paginationState = useAppSelector(state => state.txHistory.pagination)
+  const paginationState = useAppSelector(selectTxHistoryPagination)
 
   const handleClaimClick = useCallback(
     (claim: ClaimDetails) => {
@@ -67,7 +70,7 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
           {
             accountId,
             page: 1,
-            pageSize: 25,
+            pageSize: 100,
           },
           { forceRefetch: true },
         ),
@@ -100,6 +103,9 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     // Keep loading pages until we find new claims or hit the limit
     while (!foundNewClaims) {
       try {
+        // Local reassignment for closure purposes only, don't try to optimize me, this is on purpose
+        const pageToFetch = nextPage
+
         // Load the next page for all Arbitrum accounts
         await Promise.all(
           arbitrumAccountIds.map(accountId =>
@@ -107,8 +113,8 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
               txHistoryApi.endpoints.getAllTxHistory.initiate(
                 {
                   accountId,
-                  page: nextPage,
-                  pageSize: 25,
+                  page: pageToFetch,
+                  pageSize: 100,
                 },
                 { forceRefetch: true },
               ),

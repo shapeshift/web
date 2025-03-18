@@ -49,7 +49,13 @@ export const useAccountsFetchQuery = () => {
 
     // Note no force refetch here - only fetch Tx history once per account
     enabledWalletAccountIds.map(requestedAccountId =>
-      dispatch(getAllTxHistory.initiate(requestedAccountId)),
+      dispatch(
+        getAllTxHistory.initiate({
+          accountId: requestedAccountId,
+          page: 1,
+          pageSize: 10,
+        }),
+      ),
     )
   }, [dispatch, enabledWalletAccountIds])
 

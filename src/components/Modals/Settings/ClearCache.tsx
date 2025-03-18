@@ -84,8 +84,14 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())
     dispatch(txHistoryApi.util.resetApiState())
-    requestedAccountIds.forEach(requestedAccountId =>
-      dispatch(txHistoryApi.endpoints.getAllTxHistory.initiate(requestedAccountId)),
+    requestedAccountIds.map(requestedAccountId =>
+      dispatch(
+        txHistoryApi.endpoints.getAllTxHistory.initiate({
+          accountId: requestedAccountId,
+          page: 1,
+          pageSize: 10,
+        }),
+      ),
     )
   }, [dispatch, requestedAccountIds])
 

@@ -325,15 +325,24 @@ export const selectTxsByQuery = createCachedSelector(
 
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
+  (state: ReduxState) => state.txHistory.pagination,
   selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
-  (hydrationMeta, walletAccountIds, accountId, timeframe) => {
+  (hydrationMeta, paginationState, walletAccountIds, accountId, timeframe) => {
     const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
 
     const checkIsTxHistoryAvailable = (accountId: AccountId) => {
       const hydrationMetaForAccount = hydrationMeta[accountId]
+      // TODO(gomes): selectAccountIdPagination
+      const paginationForAccount = paginationState[accountId]
 
+      // If we have pagination data for this account, we have started fetching tx history
+      if (paginationForAccount) {
+        return true
+      }
+
+      // Legacy check for accounts that were loaded with the old method
       // Completely missing account here likely means it's yet to be fetched
       if (hydrationMetaForAccount === undefined) {
         return false
@@ -371,5 +380,23 @@ export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
       .filter(([_accountId, hydrationMetaForAccountId]) => hydrationMetaForAccountId?.isErrored)
       .map(([accountId, _hydrationMetaForAccountId]) => accountId)
       .filter(accountId => walletEnabledAccountIds.includes(accountId))
+  },
+)
+
+export const selectHasMoreTxsByAccountId = createSelector(
+  (state: ReduxState) => state.txHistory.pagination,
+  (_: ReduxState, accountId: AccountId) => accountId,
+  (pagination, accountId) => {
+    const paginationForAccount = pagination[accountId]
+    if (!paginationForAccount) return false
+    return paginationForAccount.hasMore
+  },
+)
+
+export const selectPaginationStateByAccountId = createSelector(
+  (state: ReduxState) => state.txHistory.pagination,
+  (_: ReduxState, accountId: AccountId) => accountId,
+  (pagination, accountId) => {
+    return pagination[accountId] || { currentPage: 1, totalPages: 1, hasMore: false, cursors: {} }
   },
 )

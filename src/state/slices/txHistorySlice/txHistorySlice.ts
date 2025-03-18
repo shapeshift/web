@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, isNft } from '@shapeshiftoss/caip'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import PQueue from 'p-queue'
@@ -67,6 +67,19 @@ export type TxHistory = {
     AccountId,
     { isHydrated: boolean; minTxBlockTime?: number; isErrored: boolean }
   >
+  // See https://redux-toolkit.js.org/rtk-query/usage/pagination
+  // RTK doesn't have first-class pagination support, but can be driven by a simple pagination API
+  // For the sake of simplicity, we're attaching the pagination state to the txHistory slice, so consumers
+  // know of the pagination state and can drive it as-needed.
+  pagination: Record<
+    AccountId,
+    {
+      currentPage: number
+      totalPages: number
+      hasMore: boolean
+      cursors: Record<number, string>
+    }
+  >
 }
 
 export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
@@ -81,6 +94,7 @@ export const initialState: TxHistory = {
     ids: [], // sorted, newest first
   },
   hydrationMeta: {},
+  pagination: {},
 }
 
 const checkIsSpam = (tx: Tx): boolean => {
@@ -170,20 +184,74 @@ export const txHistory = createSlice({
         isErrored: true,
       }
     },
+    updatePagination: (
+      txState,
+      {
+        payload,
+      }: {
+        payload: {
+          accountId: AccountId
+          page: number
+          cursor: string
+          hasMore: boolean
+        }
+      },
+    ) => {
+      const { accountId, page, cursor, hasMore } = payload
+
+      if (!txState.pagination[accountId]) {
+        txState.pagination[accountId] = {
+          currentPage: page,
+          totalPages: hasMore ? page + 1 : page,
+          hasMore,
+          cursors: {},
+        }
+      } else {
+        if (hasMore) {
+          txState.pagination[accountId].totalPages = Math.max(
+            page + 1,
+            txState.pagination[accountId].totalPages,
+          )
+        } else if (page > txState.pagination[accountId].totalPages) {
+          txState.pagination[accountId].totalPages = page
+        }
+      }
+
+      txState.pagination[accountId].cursors[page] = cursor
+      txState.pagination[accountId].hasMore = hasMore
+      txState.pagination[accountId].currentPage = page
+    },
   },
   extraReducers: builder => {
     builder.addCase(PURGE, () => initialState)
   },
 })
 
+// Add types for API requests and responses
+type TxHistoryResponse = {
+  page: number
+  per_page: number
+  total: number
+  total_pages: number
+  data: Tx[]
+  cursor: string
+}
+
+type TxHistoryRequest = {
+  accountId: AccountId
+  page?: number
+  pageSize?: number
+}
+
 const requestQueue = new PQueue({ concurrency: 2 })
 
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
+  tagTypes: ['TxHistory'],
   endpoints: build => ({
-    getAllTxHistory: build.query<null, AccountId>({
-      queryFn: async (accountId, { dispatch, getState }) => {
+    getAllTxHistory: build.query<TxHistoryResponse, TxHistoryRequest>({
+      queryFn: async ({ accountId, page = 1, pageSize = 10 }, { dispatch, getState }) => {
         const { chainId, account: pubkey } = fromAccountId(accountId)
         const adapter = getChainAdapterManager().get(chainId)
 
@@ -192,76 +260,68 @@ export const txHistoryApi = createApi({
           return { error: { data, status: 400 } }
         }
 
-        const fetch = async (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) => {
-          for await (const getTxHistory of getTxHistoryFns) {
-            try {
-              let currentCursor = ''
+        try {
+          // Get the stored cursor for this page if available
+          const state = getState() as State
+          const paginationState = state.txHistory.pagination[accountId] || {}
 
-              do {
-                const pageSize = 10
-                const requestCursor = currentCursor
+          // Use the cursor from the previous page to fetch the next page
+          // For page 1, we start with an empty cursor
+          const storedCursor = page === 1 ? '' : paginationState.cursors?.[page - 1] || ''
 
-                const { cursor, transactions } = await getTxHistory({
-                  cursor: requestCursor,
-                  pubkey,
-                  pageSize,
-                  requestQueue,
-                })
+          const { cursor, transactions } = await adapter.getTxHistory({
+            cursor: storedCursor,
+            pubkey,
+            pageSize,
+            requestQueue,
+          })
 
-                const state = getState() as State
-                const txsById = state.txHistory.txs.byId
+          // Store the transactions
+          const results: TransactionsByAccountId = { [accountId]: transactions }
+          dispatch(txHistory.actions.upsertTxsByAccountId(results))
 
-                const hasTx = transactions.some(
-                  tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
-                )
+          // Store the cursor for pagination
+          dispatch(
+            txHistory.actions.updatePagination({
+              accountId,
+              page,
+              cursor,
+              hasMore: !!cursor,
+            }),
+          )
 
-                const results: TransactionsByAccountId = { [accountId]: transactions }
-                dispatch(txHistory.actions.upsertTxsByAccountId(results))
+          // Estimate total pages based on cursor presence
+          const hasMore = !!cursor
+          const estimatedTotalPages = hasMore
+            ? Math.max(page + 1, paginationState.totalPages || 0)
+            : page
 
-                /**
-                 * We have run into a transaction that already exists in the store, stop fetching more history
-                 *
-                 * Two edge cases exist currently:
-                 *
-                 * 1) If there was an error fetching transaction history after at least one page was fetched,
-                 * the user would be missing all transactions thereafter. The next time we fetch tx history,
-                 * we will think we ran into the latest existing transaction in the store and stop fetching.
-                 * This means we will never upsert those missing transactions until the cache is cleared and
-                 * they are successfully fetched again.
-                 *
-                 * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
-                 *
-                 * 2) Cached pending transactions will not be updated to completed if they are older than the
-                 * last page found containing cached transactions.
-                 *
-                 * We can either invalidate tx history and refetch all, or refetch on a per transaction basis any cached pending txs
-                 */
-                if (hasTx) return
+          // Update the estimated total count
+          const estimatedTotal = (estimatedTotalPages - 1) * pageSize + transactions.length
 
-                currentCursor = cursor
-              } while (currentCursor)
-
-              // Mark this account as hydrated so downstream can determine the difference between an
-              // account starting part-way thru a time period and "still hydrating".
-              dispatch(txHistory.actions.setAccountIdHydrated(accountId))
-            } catch (err) {
-              console.error(err)
-              dispatch(txHistory.actions.setAccountIdErrored(accountId))
-            }
+          return {
+            data: {
+              page,
+              per_page: pageSize,
+              total: estimatedTotal,
+              total_pages: estimatedTotalPages,
+              data: transactions,
+              cursor,
+            },
           }
+        } catch (err) {
+          console.error(err)
+          dispatch(txHistory.actions.setAccountIdErrored(accountId))
+          return { error: { data: String(err), status: 500 } }
         }
-
-        if (chainId === thorchainChainId) {
-          // fetch transaction history for both thorchain-1 (mainnet) and thorchain-mainnet-v1 (legacy)
-          await fetch([
-            adapter.getTxHistory.bind(adapter),
-            (adapter as thorchain.ChainAdapter).getTxHistoryV1.bind(adapter),
-          ])
-        } else {
-          await fetch([adapter.getTxHistory.bind(adapter)])
-        }
-        return { data: null }
       },
+      providesTags: (result, _error, { accountId, page }) =>
+        result
+          ? [
+              { type: 'TxHistory', id: `${accountId}-page-${page}` },
+              { type: 'TxHistory', id: accountId },
+            ]
+          : [{ type: 'TxHistory', id: accountId }],
     }),
   }),
 })

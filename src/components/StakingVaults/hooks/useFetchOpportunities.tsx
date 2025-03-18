@@ -12,11 +12,12 @@ import {
 import {
   selectEnabledWalletAccountIds,
   selectEvmAccountIds,
+  selectIsAnyTxHistoryApiQueryPending,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
 } from '@/state/slices/selectors'
-import { useAppDispatch } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useFetchOpportunities = () => {
   const {
@@ -28,6 +29,7 @@ export const useFetchOpportunities = () => {
   const evmAccountIds = useSelector(selectEvmAccountIds)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
+  const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
 
   const { isLoading: isPortalsAppsBalancesOutputLoading } = useGetPortalsAppsBalancesOutputQuery(
     { evmAccountIds },
@@ -48,7 +50,13 @@ export const useFetchOpportunities = () => {
       knownChainIds,
     ),
     enabled:
-      !isConnected || Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
+      // Only fetch if we're connected, not currently loading (this one is weird as we may be going back and forth between loading and idle)
+      // *and* as a last resort *if* we're not fetching Tx history, which is a bit of a hack, but it's a last resort to avoid blocking the main thread
+      Boolean(
+        portfolioLoadingStatus !== 'loading' &&
+          requestedAccountIds.length &&
+          !isAnyTxHistoryApiQueryPending,
+      ),
     staleTime: Infinity,
     // Note the default gcTime of react-query below. Doesn't need to be explicit, but given how bug-prone this is, leaving  here as explicit so it
     // can be easily updated if needed

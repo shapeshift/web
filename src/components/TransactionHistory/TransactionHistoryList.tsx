@@ -144,12 +144,13 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     )
 
     // We show the Load More button if at least one account has more transactions
+    // or if we're currently loading
     const showLoadMore = useMemo(() => {
       // If no specific account ID is passed and we're not in global view, don't show button
       if (!accountId && !allAccountIds.length) return false
 
-      // Don't show if we're loading transaction history
-      if (isFetching || isAnyTxHistoryApiQueryPending) return false
+      // If we're fetching, show the button in a disabled (loading) state
+      if (isFetching || isAnyTxHistoryApiQueryPending) return true
 
       // For a specific account view, check if this account has more transactions
       if (accountId) return paginationState.hasMore
@@ -179,7 +180,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             mb='4'
           />
         )}
-        {(txIds.length > 0 || paginationState.hasMore) && showLoadMore && (
+        {(txIds.length > 0 || paginationState.hasMore || showLoadMore) && (
           <Button
             mx={2}
             my={2}

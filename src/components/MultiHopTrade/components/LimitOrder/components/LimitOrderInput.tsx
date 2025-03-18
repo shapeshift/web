@@ -25,6 +25,7 @@ import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
+import { LimitOrderFooter } from './LimitOrderFooter'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
@@ -38,7 +39,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
-import { LimitPriceMode } from '@/state/slices/limitOrderInputSlice/constants'
+import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -54,20 +55,18 @@ import {
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
+  selectLimitPriceDirection,
   selectLimitPriceMode,
   selectSelectedBuyAssetChainId,
   selectSelectedSellAssetChainId,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
-import { calcLimitPriceBuyAsset } from '@/state/slices/limitOrderSlice/helpers'
+import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
-import {
-  selectIsAnyAccountMetadataLoadedForChainId,
-  selectUsdRateByAssetId,
-  selectUserCurrencyToUsdRate,
-} from '@/state/slices/selectors'
+import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectUsdRateByAssetId, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import {
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
@@ -79,12 +78,16 @@ type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
+  noExpand?: boolean
 }
+
+const MARKET_DATA_POLLING_INTERVAL = 10_000
 
 export const LimitOrderInput = ({
   isCompact,
   tradeInputRef,
   onChangeTab,
+  noExpand,
 }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
@@ -137,6 +140,8 @@ export const LimitOrderInput = ({
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
+  const priceDirection = useAppSelector(selectLimitPriceDirection)
+
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
     [inputSellAmountUsd],
@@ -153,14 +158,6 @@ export const LimitOrderInput = ({
 
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [isCheckingAllowance, setIsCheckingAllowance] = useState(false)
-
-  const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
-    () => ({ chainId: sellAsset.chainId }),
-    [sellAsset.chainId],
-  )
-  const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
-    selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
-  )
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -232,26 +229,30 @@ export const LimitOrderInput = ({
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
-  const marketPriceBuyAsset = useMemo(() => {
-    // Ensure we zero out the price if there is an error, and when we are fetching, as `quoteResponse` will be stale data in both cases
-    if (isLimitOrderQuoteFetching || quoteResponseError) return '0'
-    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
-    if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
+  useFindMarketDataByAssetIdQuery(sellAsset.assetId, {
+    pollingInterval: MARKET_DATA_POLLING_INTERVAL,
+  })
 
-    return calcLimitPriceBuyAsset({
-      sellAmountCryptoBaseUnit: quoteResponse.quote.sellAmount,
-      buyAmountCryptoBaseUnit: quoteResponse.quote.buyAmount,
-      sellAsset,
-      buyAsset,
+  useFindMarketDataByAssetIdQuery(buyAsset.assetId, {
+    pollingInterval: MARKET_DATA_POLLING_INTERVAL,
+  })
+
+  const sellAssetMarketDataUsd = useAppSelector(state =>
+    selectUsdRateByAssetId(state, sellAsset.assetId),
+  )
+  const buyAssetMarketDataUsd = useAppSelector(state =>
+    selectUsdRateByAssetId(state, buyAsset.assetId),
+  )
+
+  const marketPriceBuyAsset = useMemo(() => {
+    if (!(sellAssetMarketDataUsd && buyAssetMarketDataUsd)) return '0'
+
+    return makeLimitInputOutputRatio({
+      sellPriceUsd: sellAssetMarketDataUsd,
+      buyPriceUsd: buyAssetMarketDataUsd,
+      targetAssetPrecision: buyAsset.precision,
     })
-  }, [
-    isLimitOrderQuoteFetching,
-    quoteResponseError,
-    quoteResponse,
-    limitOrderQuoteParams,
-    sellAsset,
-    buyAsset,
-  ])
+  }, [sellAssetMarketDataUsd, buyAssetMarketDataUsd, buyAsset])
 
   // Update the limit price when the market price changes.
   useEffect(() => {
@@ -370,9 +371,6 @@ export const LimitOrderInput = ({
   const isLoading = useMemo(() => {
     return (
       isCheckingAllowance ||
-      isLimitOrderQuoteFetching ||
-      // No account meta loaded for that chain
-      !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
@@ -381,8 +379,6 @@ export const LimitOrderInput = ({
     )
   }, [
     isCheckingAllowance,
-    isAnyAccountMetadataLoadedForChainId,
-    isLimitOrderQuoteFetching,
     isTradeQuoteRequestAborted,
     isVotingPowerLoading,
     shouldShowTradeQuoteOrAwaitInput,
@@ -403,8 +399,12 @@ export const LimitOrderInput = ({
         buyAsset={buyAsset}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
-        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={inputSellAmountUserCurrency}
+        sellAmountCryptoPrecision={
+          bnOrZero(sellAmountCryptoPrecision).isZero() ? '' : sellAmountCryptoPrecision
+        }
+        sellAmountUserCurrency={
+          bnOrZero(inputSellAmountUserCurrency).isZero() ? '' : inputSellAmountUserCurrency
+        }
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         onSwitchAssets={handleSwitchAssets}
@@ -423,7 +423,6 @@ export const LimitOrderInput = ({
             isLoading={isLoading}
             asset={buyAsset}
             accountId={buyAccountId}
-            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
             assetFilterPredicate={buyAssetFilterPredicate}
@@ -519,6 +518,8 @@ export const LimitOrderInput = ({
   ])
 
   const footerContent = useMemo(() => {
+    const shouldInvertRate = priceDirection === PriceDirection.SellAssetDenomination
+
     return (
       <SharedTradeInputFooter
         affiliateBps={feeBps.toFixed(0)}
@@ -527,15 +528,11 @@ export const LimitOrderInput = ({
         hasUserEnteredAmount={hasUserEnteredAmount}
         inputAmountUsd={inputSellAmountUsd}
         isError={isError}
-        isLoading={isLoading}
+        isLoading={isLimitOrderQuoteFetching}
         quoteStatusTranslation={quoteStatusTranslation}
-        rate={
-          bnOrZero(limitPrice.buyAssetDenomination).isZero()
-            ? undefined
-            : limitPrice.buyAssetDenomination
-        }
+        rate={limitPrice.buyAssetDenomination}
+        marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
-        shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
           !hasUserEnteredAmount ||
           isError ||
@@ -547,26 +544,33 @@ export const LimitOrderInput = ({
         swapSource={SwapperName.CowSwap}
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
         sellAsset={sellAsset}
+        invertRate={shouldInvertRate}
+        noExpand={noExpand}
       >
-        {renderedRecipientAddress}
+        <>
+          <LimitOrderFooter />
+          {renderedRecipientAddress}
+        </>
       </SharedTradeInputFooter>
     )
   }, [
     feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
+    priceDirection,
+    sellAsset,
     hasUserEnteredAmount,
     inputSellAmountUsd,
     isError,
-    isLoading,
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
+    marketPriceBuyAsset,
     sellAccountId,
     isRecipientAddressEntryActive,
-    marketPriceBuyAsset,
     networkFeeUserCurrency,
-    sellAsset,
     renderedRecipientAddress,
+    noExpand,
+    isLimitOrderQuoteFetching,
   ])
 
   return (

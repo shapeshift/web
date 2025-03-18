@@ -1,4 +1,5 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { memo, useMemo } from 'react'
 
 import { Text } from '@/components/Text'
@@ -55,16 +56,16 @@ const RewardTransaction = memo(
         useCompactMode={useCompactMode}
         parentWidth={entry?.contentRect.width ?? 360}
         txDetails={txDetails}
-        disableCollapse={!txid}
+        disableCollapse={txDetails.tx.status === TxStatus.Pending}
         topRight={
-          txid ? undefined : (
+          txDetails.tx.status === TxStatus.Pending ? (
             <Text
               fontSize='sm'
               fontWeight='bold'
               color='yellow.300'
               translation='RFOX.pendingDistribution'
             />
-          )
+          ) : undefined
         }
       />
     )

@@ -2,13 +2,10 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 
 export enum TradeRoutePaths {
-  Input = '/trade/input',
+  Input = '/trade',
   Confirm = '/trade/confirm',
-  Quotes = '/trade/quotes',
   VerifyAddresses = '/trade/verify-addresses',
   QuoteList = '/trade/quote-list',
-  Claim = '/trade/claim',
-  LimitOrder = '/trade/limit-order',
 }
 
 export type GetReceiveAddressArgs = {

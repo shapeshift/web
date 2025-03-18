@@ -10,6 +10,7 @@ import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
+  isStandalone?: boolean
   rightContent?: JSX.Element
   onChangeTab: (newTab: TradeInputTab) => void
 }
@@ -18,6 +19,7 @@ export const SharedTradeInputHeader = ({
   initialTab,
   rightContent,
   onChangeTab,
+  isStandalone,
 }: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
   const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
@@ -59,7 +61,7 @@ export const SharedTradeInputHeader = ({
           >
             {translate('navBar.trade')}
           </Heading>
-          {enableLimitOrders && (
+          {enableLimitOrders && !isStandalone && (
             <Heading
               as='h5'
               fontSize='md'
@@ -70,7 +72,7 @@ export const SharedTradeInputHeader = ({
               {translate('limitOrder.heading')}
             </Heading>
           )}
-          {enableBridgeClaims && walletId && (
+          {enableBridgeClaims && walletId && !isStandalone && (
             <Heading
               as='h5'
               fontSize='md'

@@ -10,6 +10,7 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -27,12 +28,13 @@ type SharedTradeInputFooterProps = {
   receiveSummaryDetails?: JSX.Element | null
   sellAccountId: string | undefined
   sellAsset: Asset
-  shouldDisableGasRateRowClick?: boolean
   shouldDisablePreviewButton: boolean | undefined
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
-  onGasRateRowClick?: () => void
+  marketRate?: string
+  invertRate?: boolean
+  noExpand?: boolean
 }
 
 export const SharedTradeInputFooter = ({
@@ -49,12 +51,13 @@ export const SharedTradeInputFooter = ({
   receiveSummaryDetails,
   sellAccountId,
   sellAsset,
-  shouldDisableGasRateRowClick,
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   swapperName,
   swapSource,
   networkFeeFiatUserCurrency,
-  onGasRateRowClick,
+  marketRate,
+  invertRate,
+  noExpand,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
@@ -87,6 +90,17 @@ export const SharedTradeInputFooter = ({
     return <Text translation={quoteStatusTranslation} />
   }, [quoteStatusTranslation])
 
+  // Calculate the delta percentage between the limit price and market price
+  const deltaPercentage = useMemo(() => {
+    if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null
+
+    const percentDifference = bnOrZero(rate).minus(marketRate).div(marketRate).times(100)
+
+    if (percentDifference.isZero()) return null
+
+    return percentDifference
+  }, [rate, marketRate])
+
   return (
     <>
       <CardFooter
@@ -99,15 +113,17 @@ export const SharedTradeInputFooter = ({
       >
         {hasUserEnteredAmount && (
           <RateGasRow
-            buyAssetSymbol={buyAsset.symbol}
-            sellAssetSymbol={sellAsset.symbol}
-            isDisabled={shouldDisableGasRateRowClick}
+            affiliateBps={affiliateBps}
+            buyAssetId={buyAsset.assetId}
+            sellAssetId={sellAsset.assetId}
             rate={rate}
-            isLoading={isLoading}
+            deltaPercentage={deltaPercentage?.toString()}
+            isLoading={isLoading && !rate}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
-            onClick={onGasRateRowClick}
+            invertRate={invertRate}
+            noExpand={noExpand}
           >
             <ReceiveSummary
               isLoading={isLoading}
@@ -134,8 +150,8 @@ export const SharedTradeInputFooter = ({
         {children}
 
         <ButtonWalletPredicate
-          isLoading={isAccountsMetadataLoading && !sellAccountId}
-          loadingText={buttonText}
+          isLoading={isLoading || (isAccountsMetadataLoading && !sellAccountId)}
+          loadingText={isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'

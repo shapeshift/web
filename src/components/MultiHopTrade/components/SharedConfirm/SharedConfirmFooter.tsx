@@ -7,7 +7,7 @@ type SharedConfirmFooterProps = {
 
 export const SharedConfirmFooter = ({ detail, button }: SharedConfirmFooterProps) => {
   return (
-    <Stack width='full'>
+    <Stack width='full' py={4} bg='background.surface.raised.accent'>
       {detail}
       {button}
     </Stack>

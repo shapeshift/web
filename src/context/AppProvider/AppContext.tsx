@@ -20,7 +20,7 @@ import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import {
   marketApi,
   marketData,
-  useFindAllQuery,
+  useFindAllMarketDataQuery,
 } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -90,7 +90,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // load top 1000 assets market data
   // this is needed to sort assets by market cap
   // and covers most assets users will have
-  useFindAllQuery()
+  useFindAllMarketDataQuery()
 
   // Master hook for accounts fetch as a react-query
   useAccountsFetchQuery()
@@ -98,7 +98,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   useEffect(() => {
     if (selectedLocale in LanguageTypeEnum) {
-      void import(`dayjs/locale/${selectedLocale}`)
+      void import(`dayjs/locale/${selectedLocale}.js`)
     }
   }, [selectedLocale])
 

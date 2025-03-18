@@ -1,8 +1,8 @@
-import { Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
+import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useHistory } from 'react-router-dom'
+import { Redirect, useHistory } from 'react-router-dom'
 
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
@@ -88,11 +88,24 @@ export const LimitOrderConfirm = () => {
     return { quoteId: quoteId ?? 0 }
   }, [quoteId])
 
+  const limitOrderSubmissionMetadata = useSelectorWithArgs(
+    selectLimitOrderSubmissionMetadata,
+    orderSubmissionMetadataFilter,
+  )
+
   const {
     state: orderSubmissionState,
     allowanceReset,
     allowanceApproval,
-  } = useSelectorWithArgs(selectLimitOrderSubmissionMetadata, orderSubmissionMetadataFilter)
+  } = useMemo(() => {
+    if (!limitOrderSubmissionMetadata)
+      return {
+        state: undefined,
+        allowanceApproval: undefined,
+        allowanceReset: undefined,
+      }
+    return limitOrderSubmissionMetadata
+  }, [limitOrderSubmissionMetadata])
 
   useEffect(() => {
     if (isLoadingSetIsApprovalInitiallyNeeded) return
@@ -109,12 +122,12 @@ export const LimitOrderConfirm = () => {
     approvalNetworkFeeCryptoBaseUnit,
   } = useAllowanceApproval({
     activeQuote,
-    isQueryEnabled: !!allowanceApproval.isInitiallyRequired && !!activeQuote,
+    isQueryEnabled: !!allowanceApproval?.isInitiallyRequired && !!activeQuote,
     // Stop refetching when the approval tx is pending, but keep it enabled (see above) so we can leverage stale data, see
     // https://github.com/shapeshift/web/issues/8702
     isRefetchEnabled:
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceApproval &&
-      allowanceApproval.state !== TransactionExecutionState.Pending,
+      allowanceApproval?.state !== TransactionExecutionState.Pending,
   })
 
   const {
@@ -123,12 +136,12 @@ export const LimitOrderConfirm = () => {
     allowanceResetNetworkFeeCryptoBaseUnit,
   } = useAllowanceReset({
     activeQuote,
-    isQueryEnabled: !!allowanceReset.isInitiallyRequired && !!activeQuote,
+    isQueryEnabled: !!allowanceReset?.isInitiallyRequired && !!activeQuote,
     // Stop refetching when the reset tx is pending, but keep it enabled (see above) so we can leverage stale data, see
     // https://github.com/shapeshift/web/issues/8702
     isRefetchEnabled:
       orderSubmissionState === LimitOrderSubmissionState.AwaitingAllowanceReset &&
-      allowanceReset.state !== TransactionExecutionState.Pending,
+      allowanceReset?.state !== TransactionExecutionState.Pending,
   })
 
   const [placeLimitOrder, { data: _data, error: _error, isLoading: isLoadingLimitOrderPlacement }] =
@@ -188,10 +201,10 @@ export const LimitOrderConfirm = () => {
           .times(feeAssetRateUserCurrency)
           .toFixed()
         return (
-          <Stack spacing={4} width='full'>
+          <Stack spacing={4} width='full' px={6}>
             <Row>
               <Row.Label>
-                <Text translation='limitOrder.networkFee' />
+                <Text translation='trade.networkFee' />
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoadingAllowanceApproval}>
@@ -222,10 +235,10 @@ export const LimitOrderConfirm = () => {
           .times(feeAssetRateUserCurrency)
           .toFixed()
         return (
-          <Stack spacing={4} width='full'>
+          <Stack spacing={4} width='full' px={6}>
             <Row>
               <Row.Label>
-                <Text translation='limitOrder.networkFee' />
+                <Text translation='trade.networkFee' />
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoadingAllowanceReset}>
@@ -385,16 +398,18 @@ export const LimitOrderConfirm = () => {
       }
     })()
     return (
-      <Button
-        colorScheme={'blue'}
-        size='lg'
-        width='full'
-        onClick={handleConfirm}
-        isLoading={isLoading}
-        isDisabled={!activeQuote}
-      >
-        <Text translation={buttonTranslation} />
-      </Button>
+      <Box px={6} width='full'>
+        <Button
+          colorScheme={'blue'}
+          size='lg'
+          width='full'
+          onClick={handleConfirm}
+          isLoading={isLoading}
+          isDisabled={!activeQuote}
+        >
+          <Text translation={buttonTranslation} />
+        </Button>
+      </Box>
     )
   }, [
     buttonTranslation,
@@ -416,6 +431,8 @@ export const LimitOrderConfirm = () => {
     return <SharedConfirmFooter detail={detail} button={button} />
   }, [detail, button])
 
+  // We should have some submission state here... unless we're rehydrating or trying to access /limit/confirm directly
+  if (!orderSubmissionState) return <Redirect to={LimitOrderRoutePaths.Input} />
   if (!body) return null
   return (
     <SharedConfirm

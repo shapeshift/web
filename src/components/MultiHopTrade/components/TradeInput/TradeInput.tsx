@@ -6,7 +6,6 @@ import { isArbitrumBridgeTradeQuoteOrRate, SwapperName } from '@shapeshiftoss/sw
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
-import type { Location } from 'history'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -81,10 +80,16 @@ const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 type TradeInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
+  isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInputProps) => {
+export const TradeInput = ({
+  isCompact,
+  isStandalone,
+  tradeInputRef,
+  onChangeTab,
+}: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, wallet },
@@ -176,15 +181,16 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
   // Reset the trade quote slice to initial state on mount
   useEffect(() => {
-    // history.entries isn't officially documented but it exists
-    const entries = (history as any).entries as Location[]
-    const previousHistoryIndex = entries.length - 2
-    // Do not clear tradeQuoteSlice when navigating back from trade quotes list, or selecting a quote other than the default will reset the slice and break swapper until user changes input
-    if (entries.length > 1 && entries[previousHistoryIndex].pathname === TradeRoutePaths.QuoteList)
-      return
-
     dispatch(tradeQuoteSlice.actions.clearTradeQuotes())
-  }, [dispatch, history])
+  }, [dispatch])
+
+  // Reset the sell amount to zero on mount if this is a standalone swapper, since we may be coming from a different
+  // sell asset in regular swapper
+  useEffect(() => {
+    if (isStandalone) {
+      dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
+    }
+  }, [dispatch, isStandalone])
 
   useEffect(() => {
     // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
@@ -551,6 +557,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         tradeInputTab={TradeInputTab.Trade}
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
+        isStandalone={isStandalone}
       />
     </>
   )

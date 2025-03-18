@@ -13,6 +13,7 @@ import { useTradeNetworkFeeCryptoBaseUnit } from './hooks/useTradeNetworkFeeCryp
 import { TradeFooterButton } from './TradeFooterButton'
 
 import { Amount } from '@/components/Amount/Amount'
+import { RecipientAddressRow } from '@/components/RecipientAddressRow'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
@@ -20,7 +21,9 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
+  selectActiveQuote,
   selectHopExecutionMetadata,
   selectIsActiveSwapperQuoteLoading,
 } from '@/state/slices/tradeQuoteSlice/selectors'
@@ -30,6 +33,7 @@ import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 type TradeConfirmFooterProps = {
   tradeQuoteStep: TradeQuoteStep
   activeTradeId: string
+  isCompact: boolean | undefined
 }
 
 export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
@@ -65,6 +69,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isExactAllowance,
     activeTradeId,
   })
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const receiveAddress = activeQuote?.receiveAddress
 
   const hopExecutionMetadataFilter = useMemo(() => {
     if (!activeTradeId) return undefined
@@ -125,7 +132,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const tradeResetStepSummary = useMemo(() => {
     return (
-      <Stack spacing={4} width='full'>
+      <Stack spacing={4} px={6} width='full'>
         <Row>
           <Row.Label>
             <Text translation='common.allowanceResetFee' />
@@ -163,7 +170,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
-      <Stack spacing={4} width='full'>
+      <Stack spacing={4} px={6} width='full'>
         <Row>
           <Row.Label>
             <Text translation='common.approvalFee' />
@@ -224,7 +231,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const tradeExecutionStepSummary = useMemo(() => {
     return (
-      <Stack spacing={4} width='full'>
+      <Stack spacing={4} px={6} width='full'>
         <Row>
           <Row.Label>
             <Text translation='trade.transactionFee' />
@@ -250,6 +257,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
+        <RecipientAddressRow
+          explorerAddressLink={sellAsset.explorerAddressLink}
+          recipientAddress={receiveAddress ?? ''}
+        />
       </Stack>
     )
   }, [
@@ -259,6 +270,8 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isNetworkFeeCryptoBaseUnitRefetching,
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
+    sellAsset.explorerAddressLink,
+    receiveAddress,
   ])
 
   const tradeDetail = useMemo(() => {

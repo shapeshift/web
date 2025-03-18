@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 
-import { SharedSlippagePopover } from './SharedTradeInput/SharedSlippagePopover'
+import { SharedSettingsPopover } from './SharedTradeInput/SharedSettingsPopover'
 
 import { selectUserSlippagePercentage } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -31,13 +31,14 @@ export const SlippagePopover: FC<SlippagePopoverProps> = memo(
     )
 
     return (
-      <SharedSlippagePopover
+      <SharedSettingsPopover
         defaultSlippagePercentage={defaultSlippagePercentage}
         isDisabled={isDisabled}
         quoteSlippagePercentage={quoteSlippagePercentage}
         tooltipTranslation={tooltipTranslation}
         userSlippagePercentage={userSlippagePercentage}
         setUserSlippagePercentage={setSlippagePreferencePercentage}
+        enableSortBy={false}
       />
     )
   },

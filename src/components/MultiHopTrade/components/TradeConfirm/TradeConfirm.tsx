@@ -1,7 +1,7 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { Redirect, useHistory } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
@@ -25,7 +25,7 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const TradeConfirm = () => {
+export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const history = useHistory()
   const dispatch = useAppDispatch()
@@ -83,8 +83,14 @@ export const TradeConfirm = () => {
   const footer = useMemo(() => {
     if (isTradeComplete && activeQuote && tradeQuoteLastHop) return null
     if (!tradeQuoteStep || !activeTradeId) return null
-    return <TradeConfirmFooter tradeQuoteStep={tradeQuoteStep} activeTradeId={activeTradeId} />
-  }, [isTradeComplete, activeQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId])
+    return (
+      <TradeConfirmFooter
+        isCompact={isCompact}
+        tradeQuoteStep={tradeQuoteStep}
+        activeTradeId={activeTradeId}
+      />
+    )
+  }, [isTradeComplete, activeQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId, isCompact])
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
     return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
@@ -122,6 +128,8 @@ export const TradeConfirm = () => {
     return <TradeConfirmBody />
   }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
 
+  // We should have some execution state here... unless we're rehydrating or trying to access /trade/confirm directly
+  if (!confirmedTradeExecutionState) return <Redirect to={TradeRoutePaths.Input} />
   if (!headerTranslation) return null
 
   return (

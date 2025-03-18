@@ -59,6 +59,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
@@ -324,7 +325,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",
-      "switchWallet": "Switch Wallet Provider",
+      "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
       "connecting": "Connecting..."
@@ -619,6 +620,8 @@
     "explore": "Explore",
     "rewards": "Rewards",
     "trade": "Trade/Bridge",
+    "limitOrder": "Limit Orders",
+    "claims": "Claims",
     "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
@@ -844,6 +847,14 @@
       "warning": "High slippage tolerances can result in unfavorable trades.",
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
+    "sort": {
+      "sortBy": "Sort By",
+      "auto": "Auto",
+      "bestRate": "Best Rate",
+      "lowestGas": "Lowest Gas",
+      "fastest": "Fastest",
+      "info": "Choose how to sort available quotes"
+    },
     "from": "From",
     "to": "To",
     "on": "on",
@@ -897,6 +908,7 @@
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
+    "viewOnBlockExplorer": "View on block explorer",
     "tooltip": {
       "continueSwapping": "Continue swapping for final details",
       "changeQuote": "Change quote",
@@ -1045,7 +1057,12 @@
       "buyFox": "Buy FOX",
       "share": "Share",
       "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!"
-    }
+    },
+    "networkFee": "Network Fee",
+    "learnMoreAboutFox": "Learn more about FOX Benefits",
+    "freeTrade": "This trade is free based on your FOX holdings of %{foxBalance} FOX",
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based on your FOX holdings of %{foxBalance} FOX."
+
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1056,6 +1073,9 @@
     "placeOrder": "Place Order",
     "placeAnotherOrder": "Place Another Order",
     "orderSummary": "Order Summary",
+    "when": "When",
+    "isWorth": "is worth",
+    "market": "Market:",
     "success": "Limit order placed successfully",
     "cancel": {
       "cancelOrder": "Cancel Limit Order",
@@ -1071,7 +1091,6 @@
     "executionPrice": "Execution Price",
     "provider": "Provider",
     "expiration": "Expiration",
-    "networkFee": "Network Fee",
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
     "learnMore": "Learn More",
     "previewOrder": "Preview Order",
@@ -1085,6 +1104,22 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
+    "explanation": {
+      "priceReaches": {
+        "prefix": "When",
+        "middle": "'s price reaches"
+      },
+      "orderWill": {
+        "prefix": ", your limit order will automatically sell"
+      },
+      "ensuring": {
+        "prefix": ", ensuring you receive at least",
+        "suffix": "."
+      }
+    },
+    "sellBuy": "Sell → Buy",
+    "limitExecution": "Limit/Execution",
+    "statusHead": "Status",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",
@@ -1093,6 +1128,7 @@
       "twentyEightDays": "28 days",
       "custom": "Custom"
     },
+    "expires": "Expires %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "Native sell asset not supported",
       "insufficientValidTo": "Order expiry too soon",
@@ -1863,12 +1899,22 @@
         "button": "Next"
       },
       "rename": {
-        "header": "Rename your wallet",
+        "header": "Rename my wallet",
         "walletName": "New nickname for your wallet",
-        "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
+        "body": "Enter the new nickname of your wallet and your password to decrypt %{name}.",
         "mobileBody": "Enter the new nickname of your wallet.",
         "button": "Next",
-        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?",
+        "success": "Wallet renamed successfully",
+        "error": {
+          "empty": "Wallet name cannot be empty"
+        }
+      },
+      "delete": {
+        "header": "Delete my wallet",
+        "body": "Enter your password to delete %{name}.",
+        "confirmDelete": "Confirm",
+        "success": "Wallet deleted successfully"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Log In is being Deprecated",
@@ -1977,18 +2023,18 @@
         "share": "Don't share it with anyone else",
         "lose": "If you lose it, we can't recover it"
       },
-      "button": "Continue to Backup"
+      "button": "I understand"
     },
     "manualBackup": {
-      "header": "Manual Backup",
+      "header": "Secure Your Wallet",
       "subHeader": "Save your Secret Recovery Phrase in a secure place that only you control.",
       "copyToClipboard": "Copy to clipboard",
       "copied": "Copied!",
       "nextStep": "Next you'll be asked to confirm the positions of certain words in your Secret Recovery Phrase.",
-      "button": "Continue backup",
+      "button": "Continue to confirm",
       "success": {
-        "title": "Manual Backup Complete",
-        "description": "Your wallet has been successfully backed up.",
+        "title": "Backup Confirmed",
+        "description": "You’ve verified your Secret Recovery Phrase. Be sure to store it securely—this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
     }
@@ -2688,7 +2734,6 @@
     "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
     "shareOfPool": "Share of Pool",
-    "networkFee": "Network Fee",
     "thorchainRewardAddress": "THORChain Reward Address",
     "rewardAddressHelper": "This is where rewards will be sent",
     "useWalletAddress": "Use wallet address",
@@ -2850,12 +2895,17 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Claim your FOXwifhat. Act fast - discounts decay over time. The more FOX or FOXwifhat you hold, the more you save. Stack more FOX tokens for continuous savings plus revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
+      "description": "Claim your FOX Wif Hat (FWH). Act fast - discounts decay over time. The more FOX or FWH you hold, the more you save. Stack more FOX tokens for continuous savings plus revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
       "discount": "*The discount decreases linearly over time, expiring on %{date}. Take advantage of your %{percent}% discount before it decreases further!",
       "claim": "Claim",
       "claimed": "Claimed",
       "discountText": "*%{percent}% off trade fees",
-      "noClaims": "No claims available"
+      "noClaims": "No claims available",
+      "banner": {
+        "title": "Put a hat on it.",
+        "description": "The more FOX or FWH you hold, the more tokens you get per swap.",
+        "cta": "Learn More"
+      }
     },
     "governance": {
       "title": "Governance",

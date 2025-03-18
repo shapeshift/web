@@ -14,11 +14,19 @@ import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
+
+export const TRADE_ROUTE_ASSET_SPECIFIC =
+  '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
+export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
+  '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
 
 const Home = makeSuspenseful(
   lazy(() =>
@@ -145,7 +153,22 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     routes: [
       {
-        path: '/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit',
+        path: TRADE_ROUTE_ASSET_SPECIFIC,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: TradeRoutePaths.Confirm,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: TradeRoutePaths.VerifyAddresses,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: TradeRoutePaths.QuoteList,
         main: Trade,
         hide: true,
       },
@@ -268,5 +291,58 @@ export const routes: Route[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().VITE_LOCAL_IP,
     main: Flags,
+  },
+  {
+    path: '/limit',
+    label: '',
+    hideDesktop: true,
+    main: Trade,
+    routes: [
+      {
+        path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: LimitOrderRoutePaths.Confirm,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: LimitOrderRoutePaths.AllowanceApproval,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: LimitOrderRoutePaths.PlaceOrder,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: LimitOrderRoutePaths.Orders,
+        main: Trade,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/claim',
+    label: '',
+    hideDesktop: true,
+    mobileNav: false,
+    priority: 4,
+    main: Trade,
+    routes: [
+      {
+        path: ClaimRoutePaths.Confirm,
+        main: Trade,
+        hide: true,
+      },
+      {
+        path: ClaimRoutePaths.Status,
+        main: Trade,
+        hide: true,
+      },
+    ],
   },
 ]

@@ -10,7 +10,6 @@ import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import checker from 'vite-plugin-checker'
-import dynamicImport from 'vite-plugin-dynamic-import'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -61,13 +60,6 @@ export default defineConfig(({ mode }) => {
         },
         protocolImports: true,
       }),
-      dynamicImport({
-        filter: id => {
-          if (id.includes('node_modules')) {
-            if (id.includes('dayjs')) return true
-          }
-        },
-      }),
       checker({
         typescript: true,
         overlay: true,
@@ -100,6 +92,7 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, './src'),
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
+        'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
       },
     },
     build: {
@@ -119,15 +112,11 @@ export default defineConfig(({ mode }) => {
               if (id.includes('dayjs')) return 'dayjs'
               if (id.includes('lodash')) return 'lodash'
               if (id.includes('@formatjs')) return '@formatjs'
-              if (id.includes('protobufjs')) return 'protobufjs'
-              if (id.includes('@cosmjs')) return '@cosmjs'
-              if (id.includes('osmojs')) return 'osmojs'
-              if (id.includes('@shapeshiftoss/hdwallet')) return '@shapeshiftoss/hdwallet'
+              if (id.includes('cosmjs-types')) return 'cosmjs-types'
               return null
             }
-            if (id.includes('packages')) return `pkg-${id.split('packages')[1].split('/')[1]}`
-            if (id.includes('src')) return `src-${id.split('src')[1].split('/')[1]}`
-            return 'common'
+            if (id.includes('src/assets/translations')) return 'translations'
+            return null
           },
         },
         onwarn(warning, warn) {
@@ -153,11 +142,10 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
       outDir: 'build',
     },
     optimizeDeps: {
-      include: ['dayjs'],
       force: true,
     },
   }

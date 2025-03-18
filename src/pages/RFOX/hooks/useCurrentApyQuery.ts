@@ -49,7 +49,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
 
-      const previousEpoch = epochs[epochs.length - 1]
+      const previousEpoch = epochs[0]
 
       const closestRunePrice = runePriceHistory.find(
         (price, index) =>
@@ -60,7 +60,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       const closestFoxPrice = stakingAssetPriceHistory.find(
         (price, index) =>
           price.date <= previousEpoch.endTimestamp &&
-          runePriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
+          stakingAssetPriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
       )
 
       const previousDistributionRate =

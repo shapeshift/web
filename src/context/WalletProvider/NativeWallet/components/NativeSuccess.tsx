@@ -1,5 +1,6 @@
 import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
 import { useNativeSuccess } from '../hooks/useNativeSuccess'
 import type { NativeSetupProps } from '../types'
@@ -11,9 +12,21 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const queryClient = useQueryClient()
   const { isSuccessful } = useNativeSuccess({ vault: location.state.vault })
 
-  queryClient.invalidateQueries({
-    queryKey: reactQueries.common.hdwalletNativeVaultsList().queryKey,
-  })
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: reactQueries.common.hdwalletNativeVaultsList().queryKey,
+    })
+    queryClient.invalidateQueries({
+      queryKey: ['native-create-vault'],
+      exact: false,
+      refetchType: 'all',
+    })
+    queryClient.invalidateQueries({
+      queryKey: ['native-create-words'],
+      exact: false,
+      refetchType: 'all',
+    })
+  }, [queryClient])
 
   return (
     <>

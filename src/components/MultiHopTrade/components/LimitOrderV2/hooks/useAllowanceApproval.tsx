@@ -53,7 +53,7 @@ export const useAllowanceApproval = ({
 
   const { evmFeesResult } = useApprovalFees({
     amountCryptoBaseUnit: activeQuote?.params.sellAmountCryptoBaseUnit ?? '',
-    assetId: activeQuote?.params.sellAssetId ?? '',
+    assetId: activeQuote?.params.sellAssetId,
     from: activeQuote?.params.sellAccountAddress,
     allowanceType: AllowanceType.Unlimited, // All limit order approvals are unlimited
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,

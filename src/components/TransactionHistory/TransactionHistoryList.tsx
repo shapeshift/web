@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -8,10 +8,11 @@ import { Text } from '@/components/Text'
 import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import {
+  selectAccountIdsByChainIdFilter,
   selectIsAnyTxHistoryApiQueryPending,
   selectTxHistoryPagination,
 } from '@/state/slices/selectors'
-import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import type { TxHistory, TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -20,10 +21,11 @@ type TransactionHistoryListProps = {
   useCompactMode?: boolean
   initialTxsCount?: number
   accountId?: AccountId
+  chainId?: ChainId
 }
 
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = memo(
-  ({ txIds, useCompactMode = false, initialTxsCount = 10, accountId }) => {
+  ({ txIds, useCompactMode = false, initialTxsCount = 10, accountId, chainId }) => {
     const [page, setPage] = useState(1)
     const translate = useTranslate()
     const dispatch = useAppDispatch()
@@ -33,43 +35,54 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
     const _paginationState = useAppSelector(selectTxHistoryPagination)
 
+    const chainAccountIds = useAppSelector(state =>
+      chainId ? selectAccountIdsByChainIdFilter(state, { chainId }) : [],
+    )
+
+    const accountIdsToFetch = useMemo(() => {
+      if (accountId) {
+        return [accountId]
+      }
+      if (chainId) {
+        return chainAccountIds
+      }
+
+      return allAccountIds
+    }, [accountId, chainId, chainAccountIds, allAccountIds])
+
     // TODO(gomes): selectPagination and then reduce in-place, this is a Cursor monstrocity while prototyping architecture
     const accountPaginationStates = useMemo(
       () =>
-        allAccountIds.reduce(
-          (acc, accId) => {
-            const pagination = _paginationState[accId] || {
-              currentPage: 0,
-              totalPages: 0,
-              hasMore: true,
-              cursors: {},
-            }
-            acc[accId] = pagination
-            return acc
-          },
-          {} as Record<
-            AccountId,
-            {
-              currentPage: number
-              totalPages: number
-              hasMore: boolean
-              cursors: Record<number, string>
-            }
-          >,
-        ),
-      [_paginationState, allAccountIds],
+        accountIdsToFetch.reduce<TxHistory['pagination']>((acc, _accountId) => {
+          const pagination = _paginationState[_accountId]
+          acc[_accountId] = pagination
+          return acc
+        }, {}),
+      [_paginationState, accountIdsToFetch],
     )
 
-    // TODO(gomes): also leverage selectPagination
+    // Get effective pagination state - different logic depending on whether we're viewing
+    // an account, a chain, or global
     const paginationState = useMemo(() => {
-      // TODO(gomes): dis correct?
-      if (!accountId) return { hasMore: true, currentPage: 0, totalPages: 0, cursors: {} }
-      const pagination = _paginationState[accountId]
-      return pagination || { hasMore: true, currentPage: 0, totalPages: 0, cursors: {} }
-    }, [_paginationState, accountId])
+      if (accountId) {
+        const pagination = _paginationState[accountId]
+        return pagination
+      }
 
-    // TODO(gomes): and this one too
-    const { isFetching } = accountId
+      if (chainId && chainAccountIds.length > 0) {
+        const isAnyChainAccountIdHasMore = chainAccountIds.some(
+          accId => _paginationState[accId]?.hasMore,
+        )
+        return {
+          hasMore: isAnyChainAccountIdHasMore,
+        }
+      }
+
+      return { hasMore: true }
+    }, [_paginationState, accountId, chainId, chainAccountIds, page])
+
+    // Query for transactions when we have a specific accountId
+    const { isFetching: isAccountIdFetching } = accountId
       ? txHistoryApi.endpoints.getAllTxHistory.useQuery(
           {
             accountId,
@@ -89,7 +102,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       return Object.entries(accountPaginationStates)
         .filter(([_, pagination]) => {
           // Only include accounts that have hasMore=true in state
-          if (!pagination.hasMore) return false
+          if (!pagination?.hasMore) return false
 
           // Find the highest page number that has a cursor
           const pageNumbers = Object.keys(pagination.cursors || {}).map(Number)
@@ -105,73 +118,79 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
           return true
         })
-        .map(([accId]) => accId as AccountId)
+        .map(([_accountId]) => _accountId as AccountId)
     }, [accountPaginationStates])
 
     const handleLoadMore = useCallback(() => {
-      if (accountId) {
-        // For single account view, only fetch more if this account has more transactions
-        if (paginationState.hasMore) {
-          setPage(prevPage => prevPage + 1)
-        }
-      } else {
-        // For global view (no accountId), fetch next page only for accounts that have more transactions
-        setPage(prevPage => {
-          const newPage = prevPage + 1
-
-          // Only fetch from accounts that have hasMore=true
-          if (accountsWithMoreTxs.length > 0) {
-            accountsWithMoreTxs.forEach(accId => {
-              dispatch(
-                txHistoryApi.endpoints.getAllTxHistory.initiate(
-                  {
-                    accountId: accId,
-                    page: newPage,
-                    pageSize: initialTxsCount,
-                  },
-                  {
-                    forceRefetch: true,
-                  },
-                ),
-              )
-            })
-          }
-
-          return newPage
-        })
+      if (accountId && paginationState.hasMore) {
+        setPage(prevPage => prevPage + 1)
       }
-    }, [accountId, paginationState.hasMore, accountsWithMoreTxs, dispatch, initialTxsCount])
 
-    const loadMoreRightIcon = useMemo(
-      () =>
-        isFetching || isAnyTxHistoryApiQueryPending ? (
-          <CircularProgress isIndeterminate size={6} />
-        ) : undefined,
-      [isFetching, isAnyTxHistoryApiQueryPending],
-    )
+      setPage(prevPage => {
+        const newPage = prevPage + 1
 
-    // We show the Load More button if at least one account has more transactions
+        // Get accounts to load more from (intersection of accounts with more txs and relevant accounts)
+        const accountsToLoadFrom = accountsWithMoreTxs.filter(accId =>
+          accountIdsToFetch.includes(accId),
+        )
+
+        // Only fetch from accounts that have hasMore=true
+        if (accountsToLoadFrom.length > 0) {
+          accountsToLoadFrom.forEach(accId => {
+            dispatch(
+              txHistoryApi.endpoints.getAllTxHistory.initiate(
+                {
+                  accountId: accId,
+                  page: newPage,
+                  pageSize: initialTxsCount,
+                },
+                {
+                  forceRefetch: true,
+                },
+              ),
+            )
+          })
+        }
+
+        return newPage
+      })
+    }, [
+      accountId,
+      paginationState.hasMore,
+      accountsWithMoreTxs,
+      accountIdsToFetch,
+      dispatch,
+      initialTxsCount,
+    ])
+
+    // Determine the correct loading state based on whether we're in account-specific, chain-specific, or global mode
+    const isLoading = useMemo(() => {
+      // If we have a specific accountId, use its loading state
+      if (accountId) {
+        return isAccountIdFetching
+      }
+      // Otherwise use the global loading state
+      return isAnyTxHistoryApiQueryPending
+    }, [accountId, isAccountIdFetching, isAnyTxHistoryApiQueryPending])
+
+    // We show the Load More button if at least one relevant account has more transactions
     // or if we're currently loading
     const showLoadMore = useMemo(() => {
-      // If no specific account ID is passed and we're not in global view, don't show button
-      if (!accountId && !allAccountIds.length) return false
+      // If no accounts available for the specified criteria, don't show button
+      if (accountIdsToFetch.length === 0) return false
 
-      // If we're fetching, show the button in a disabled (loading) state
-      if (isFetching || isAnyTxHistoryApiQueryPending) return true
+      // If we're loading, show the button in a disabled (loading) state
+      if (isLoading) return true
 
       // For a specific account view, check if this account has more transactions
       if (accountId) return paginationState.hasMore
 
-      // For global view, show the button if any account has more transactions
-      return accountsWithMoreTxs.length > 0
-    }, [
-      accountId,
-      allAccountIds.length,
-      paginationState.hasMore,
-      accountsWithMoreTxs.length,
-      isFetching,
-      isAnyTxHistoryApiQueryPending,
-    ])
+      // For chain or global view, show the button if any relevant account has more transactions
+      const relevantAccountsWithMoreTxs = accountsWithMoreTxs.filter(accId =>
+        accountIdsToFetch.includes(accId),
+      )
+      return relevantAccountsWithMoreTxs.length > 0
+    }, [accountIdsToFetch, accountId, paginationState.hasMore, accountsWithMoreTxs, isLoading])
 
     return (
       <>
@@ -192,8 +211,12 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             mx={2}
             my={2}
             onClick={handleLoadMore}
-            isDisabled={isFetching || isAnyTxHistoryApiQueryPending || !accountsWithMoreTxs.length}
-            rightIcon={loadMoreRightIcon}
+            isDisabled={
+              isLoading ||
+              accountsWithMoreTxs.filter(accId => accountIdsToFetch.includes(accId)).length === 0
+            }
+            isLoading={isLoading}
+            rightIcon={isLoading ? <CircularProgress isIndeterminate size={6} /> : undefined}
           >
             {translate('common.loadMore')}
           </Button>

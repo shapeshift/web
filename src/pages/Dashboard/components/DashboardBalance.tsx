@@ -14,19 +14,18 @@ const displayMdFlex = { base: 'none', md: 'flex' }
 
 export const DashboardBalance = () => {
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
-  const loading = useAppSelector(selectIsPortfolioLoading)
-  const isLoaded = !loading
+  const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
 
   return (
     <Flex flexDir='column' justifyContent='center' alignItems='center' display={displayMdFlex}>
       <Heading as='div' color='text.subtle'>
-        <Skeleton isLoaded={isLoaded}>
+        <Skeleton isLoaded={!isPortfolioLoading}>
           <Text translation='defi.walletBalance' />
         </Skeleton>
       </Heading>
       <Flex>
         <Heading as='h2' fontSize='4xl' lineHeight='1' mr={2}>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!isPortfolioLoading}>
             <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />
           </Skeleton>
         </Heading>

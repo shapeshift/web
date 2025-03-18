@@ -50,7 +50,12 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
           )}
         </Heading>
       </CardHeader>
-      <TransactionHistoryList txIds={txIds} useCompactMode={useCompactMode} accountId={accountId} />
+      <TransactionHistoryList
+        txIds={txIds}
+        useCompactMode={useCompactMode}
+        accountId={accountId}
+        chainId={chainId}
+      />
     </Card>
   )
 }

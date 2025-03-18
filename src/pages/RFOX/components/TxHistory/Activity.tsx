@@ -27,7 +27,6 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
 
-  // Get Arbitrum account IDs
   const arbitrumAccountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
   )
@@ -74,11 +73,9 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
   }, [arbitrumAccountIds, dispatch])
 
   // Check if any arbitrum account has more pages
-  const checkIfAnyAccountHasMore = useCallback(() => {
-    // If no accounts, there are no more pages
+  const isAnyAccountIdHasMore = useCallback(() => {
     if (arbitrumAccountIds.length === 0) return false
 
-    // Check if any arbitrum account has more pages
     return arbitrumAccountIds.some(accountId => {
       const pagination = paginationState[accountId]
       return pagination?.hasMore
@@ -115,25 +112,21 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
           ),
         )
 
-        // Small delay to allow state to update
-        await new Promise(resolve => setTimeout(resolve, 100))
-
-        // Check if we have more transactions now than before
         if (txIdsLengthRef.current > initialTxCount) {
-          // Found new RFOX transactions!
           foundNewTxs = true
-        } else {
-          // No new RFOX transactions, try next page
-          nextPage++
+          break
+        }
 
-          // Check if any account has more pages based on pagination state
-          const anyAccountHasMore = checkIfAnyAccountHasMore()
+        // No new RFOX transactions, try next page
+        nextPage++
 
-          // If no account has more pages, stop loading
-          if (!anyAccountHasMore) {
-            setHasMore(false)
-            break
-          }
+        // Check if any account has more pages based on pagination state
+        const anyAccountHasMore = isAnyAccountIdHasMore()
+
+        // If no account has more pages, stop loading
+        if (!anyAccountHasMore) {
+          setHasMore(false)
+          break
         }
       } catch (error) {
         console.error('Error loading transactions:', error)
@@ -144,7 +137,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
     // Update page number and loading state
     setCurrentPage(nextPage)
     setIsLoadingMore(false)
-  }, [arbitrumAccountIds, checkIfAnyAccountHasMore, currentPage, dispatch, hasMore, isLoadingMore])
+  }, [arbitrumAccountIds, isAnyAccountIdHasMore, currentPage, dispatch, hasMore, isLoadingMore])
 
   return (
     <CardBody>

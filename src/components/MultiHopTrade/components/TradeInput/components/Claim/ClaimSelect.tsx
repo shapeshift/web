@@ -48,30 +48,27 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
 
   const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus()
 
-  // Use refs to track the current claims counts for comparison
   const availableClaimsCountRef = useRef(0)
   const pendingClaimsCountRef = useRef(0)
 
-  // Update refs when claims change
   useEffect(() => {
     availableClaimsCountRef.current = claimsByStatus.Available.length
     pendingClaimsCountRef.current = claimsByStatus.Pending.length
   }, [claimsByStatus.Available.length, claimsByStatus.Pending.length])
 
   // Load initial transactions on mount
+  // Note, it looks like this may be redundant with the txHistorySlice initial page load but it is not, we load pages of 100 here
+  // vs. 10 in the txHistorySlice default pageSize. Loading more here means less round trips, since we may have to go v. v. far in history
   useEffect(() => {
     if (arbitrumAccountIds.length === 0) return
 
     arbitrumAccountIds.forEach(accountId => {
       dispatch(
-        txHistoryApi.endpoints.getAllTxHistory.initiate(
-          {
-            accountId,
-            page: 1,
-            pageSize: 100,
-          },
-          { forceRefetch: true },
-        ),
+        txHistoryApi.endpoints.getAllTxHistory.initiate({
+          accountId,
+          page: 1,
+          pageSize: 100,
+        }),
       )
     })
   }, [arbitrumAccountIds, dispatch])
@@ -85,7 +82,6 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     })
   }, [arbitrumAccountIds, paginationState])
 
-  // Keep loading until we find new claims
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || arbitrumAccountIds.length === 0 || !hasMore) return
 
@@ -95,24 +91,19 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     let initialPendingClaimsCount = pendingClaimsCountRef.current
     let hasNewClaimTxs = false
 
-    // Keep loading pages until we find new claims or hit the limit
     while (!hasNewClaimTxs) {
       try {
         // Local reassignment for closure purposes only, don't try to optimize me, this is on purpose
         const pageToFetch = nextPage
 
-        // Load the next page for all Arbitrum accounts
         await Promise.all(
           arbitrumAccountIds.map(accountId =>
             dispatch(
-              txHistoryApi.endpoints.getAllTxHistory.initiate(
-                {
-                  accountId,
-                  page: pageToFetch,
-                  pageSize: 100,
-                },
-                { forceRefetch: true },
-              ),
+              txHistoryApi.endpoints.getAllTxHistory.initiate({
+                accountId,
+                page: pageToFetch,
+                pageSize: 100,
+              }),
             ).unwrap(),
           ),
         )
@@ -122,12 +113,10 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
           availableClaimsCountRef.current > initialAvailableClaimsCount ||
           pendingClaimsCountRef.current > initialPendingClaimsCount
         ) {
-          // Found new claims!
           hasNewClaimTxs = true
           break
         }
 
-        // No new claims, try next page
         nextPage++
 
         const anyAccountHasMore = isAnyAccountIdHasMore()

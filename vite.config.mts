@@ -50,16 +50,9 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
+      nodePolyfills(),
       react(),
       tsconfigPaths(),
-      nodePolyfills({
-        globals: {
-          Buffer: true,
-          global: true,
-          process: true,
-        },
-        protocolImports: true,
-      }),
       checker({
         typescript: {
           typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
@@ -117,7 +110,8 @@ export default defineConfig(({ mode }) => {
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               return null
             }
-            if (id.includes('src/assets/translations')) return 'translations'
+            if (id.includes('assets/translations')) return 'translations'
+            if (id.includes('packages/unchained-client')) return 'unchained-client'
             return null
           },
         },
@@ -144,7 +138,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
       outDir: 'build',
     },
     optimizeDeps: {

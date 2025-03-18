@@ -29,7 +29,7 @@ import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { Route } from '@/Routes/helpers'
+import type { NavRoute } from '@/Routes/helpers'
 import { routes } from '@/Routes/RoutesCommon'
 
 const displayProp = { base: 'grid', md: 'none' }
@@ -145,11 +145,10 @@ export const MobileNavBar = memo(() => {
   const history = useHistory()
   const allRoutes = useMemo(() => {
     return union(routes, pluginRoutes)
+      .filter(route => 'label' in route)
       .filter(
-        (
-          route,
-        ): route is Extract<Route, { priority: number }> & Extract<Route, { label: string }> =>
-          !route.disable && !route.hide && !!route.mobileNav,
+        (route): route is Extract<NavRoute, { priority: number }> =>
+          !route.disable && !!route.mobileNav,
       )
       .sort((a, b) => bnOrZero(a.priority).minus(b.priority).toNumber())
   }, [pluginRoutes])

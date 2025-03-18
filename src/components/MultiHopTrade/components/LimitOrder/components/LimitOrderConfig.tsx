@@ -23,7 +23,6 @@ import { AmountInput } from '../../TradeAmountInput'
 import { Amount } from '@/components/Amount/Amount'
 import { StyledAssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
-import { StyledTranslation } from '@/components/StyledTranslation'
 import { Text } from '@/components/Text'
 import { useActions } from '@/hooks/useActions'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -266,7 +265,7 @@ export const LimitOrderConfig = ({
     [priceDirection, sellAsset.symbol, buyAsset.symbol],
   )
 
-  const components = useMemo(
+  const humanReadableExplanationComponents = useMemo(
     () => ({
       assetSymbol: (
         <CText as='span' color='white' fontWeight='medium'>
@@ -323,11 +322,20 @@ export const LimitOrderConfig = ({
       return null
 
     return (
-      <CText fontSize='sm' lineHeight='1.6' color='text.subtle'>
-        <StyledTranslation i18nKey='limitOrder.explanation' components={components} />
-      </CText>
+      <Text
+        translation='limitOrder.explanation'
+        components={humanReadableExplanationComponents}
+        fontSize='sm'
+        lineHeight='1.6'
+        color='text.subtle'
+      />
     )
-  }, [isLoading, sellAmountCryptoPrecision, limitPriceForSelectedPriceDirection, components])
+  }, [
+    isLoading,
+    sellAmountCryptoPrecision,
+    limitPriceForSelectedPriceDirection,
+    humanReadableExplanationComponents,
+  ])
 
   const marketPriceCryptoPrecision = useMemo(() => {
     if (bnOrZero(marketPriceBuyAsset).isZero()) return '0'

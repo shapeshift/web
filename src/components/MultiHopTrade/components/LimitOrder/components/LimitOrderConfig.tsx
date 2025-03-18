@@ -270,23 +270,11 @@ export const LimitOrderConfig = ({
     }
 
     if (priceDirection === PriceDirection.BuyAssetDenomination) {
-      return bnOrZero(sellAmountCryptoPrecision)
-        .times(limitPrice.buyAssetDenomination)
-        .decimalPlaces(buyAsset.precision)
-        .toString()
+      return bnOrZero(sellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination).toString()
     }
 
-    return bnOrZero(sellAmountCryptoPrecision)
-      .div(limitPrice.sellAssetDenomination)
-      .decimalPlaces(sellAsset.precision)
-      .toString()
-  }, [
-    limitPrice,
-    priceDirection,
-    sellAmountCryptoPrecision,
-    buyAsset.precision,
-    sellAsset.precision,
-  ])
+    return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
+  }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
 
   const limitOrderExplanation = useMemo(() => {
     if (

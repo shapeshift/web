@@ -58,6 +58,7 @@ const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'whit
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
+  const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string | null>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
@@ -77,6 +78,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!accountMetadata) return
       if (!wallet) return
+      setIsAddressLoading(true)
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
@@ -88,6 +90,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             : undefined,
       })
       setReceiveAddress(selectedAccountAddress)
+      setIsAddressLoading(false)
     })()
   }, [
     setReceiveAddress,
@@ -209,10 +212,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             >
               <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
-                  <Skeleton isLoaded={!!receiveAddress} mb={2}>
+                  <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
-                  <Skeleton isLoaded={!!receiveAddress}>
+                  <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
                     <Flex
                       color='text.subtle'
                       alignItems='center'

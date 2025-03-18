@@ -124,6 +124,29 @@ export default defineConfig(({ mode }) => {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
+          manualChunks(id) {
+            // Bundle React and polyfills together to ensure they're available
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('scheduler') ||
+              id.includes('buffer') ||
+              id.includes('process') ||
+              id.includes('polyfills')
+            ) {
+              return 'vendor-react'
+            }
+            return null
+          },
+          chunkFileNames: chunkInfo => {
+            const prefix =
+              {
+                polyfills: '00',
+                'vendor-react': '01',
+              }[chunkInfo.name] || '99'
+
+            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
+          },
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },

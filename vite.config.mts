@@ -61,7 +61,9 @@ export default defineConfig(({ mode }) => {
         protocolImports: true,
       }),
       checker({
-        typescript: true,
+        typescript: {
+          typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
+        },
         overlay: true,
       }),
       process.env.ANALYZE === 'true' &&

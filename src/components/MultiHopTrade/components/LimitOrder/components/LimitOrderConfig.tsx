@@ -330,7 +330,7 @@ export const LimitOrderConfig = ({
       buyAsset.symbol,
     ],
   )
-  const limitOrderExplanation = useMemo(() => {
+  const limitOrderExplainer = useMemo(() => {
     if (
       isLoading ||
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
@@ -456,7 +456,7 @@ export const LimitOrderConfig = ({
               <Box as='span' mr={2} mt={1}>
                 <InfoIcon boxSize={5} color='gray.500' />
               </Box>
-              {limitOrderExplanation}
+              {limitOrderExplainer}
             </Flex>
           </Box>
         )}

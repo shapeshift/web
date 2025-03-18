@@ -30,7 +30,7 @@ export const Text = forwardRef<TextPropTypes, 'p'>(({ components, translation, .
       )
     }
 
-    if (!components) {
+    if (typeof translation === 'string' && !components) {
       return (
         <CText {...props} ref={ref}>
           {translate(translation)}
@@ -51,7 +51,7 @@ export const Text = forwardRef<TextPropTypes, 'p'>(({ components, translation, .
 
           if (match) {
             const key = match[1]
-            return components[key] ? (
+            return components?.[key] ? (
               cloneElement(components[key], { key: index })
             ) : (
               <span key={index}>{part}</span>

@@ -32,12 +32,10 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
 
-  // Get Arbitrum account IDs
   const arbitrumAccountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
   )
 
-  // Get pagination state for all accounts
   const paginationState = useAppSelector(selectTxHistoryPagination)
 
   const handleClaimClick = useCallback(
@@ -78,19 +76,16 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     })
   }, [arbitrumAccountIds, dispatch])
 
-  // Check if any arbitrum account has more pages
-  const checkIfAnyAccountHasMore = useCallback(() => {
-    // If no accounts, there are no more pages
+  const isAnyAccountIdHasMore = useCallback(() => {
     if (arbitrumAccountIds.length === 0) return false
 
-    // Check if any arbitrum account has more pages
     return arbitrumAccountIds.some(accountId => {
       const pagination = paginationState[accountId]
       return pagination?.hasMore
     })
   }, [arbitrumAccountIds, paginationState])
 
-  // Custom load more handler - keep loading until we find new claims
+  // Keep loading until we find new claims
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || arbitrumAccountIds.length === 0 || !hasMore) return
 
@@ -98,10 +93,10 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     let nextPage = currentPage + 1
     let initialAvailableClaimsCount = availableClaimsCountRef.current
     let initialPendingClaimsCount = pendingClaimsCountRef.current
-    let foundNewClaims = false
+    let hasNewClaimTxs = false
 
     // Keep loading pages until we find new claims or hit the limit
-    while (!foundNewClaims) {
+    while (!hasNewClaimTxs) {
       try {
         // Local reassignment for closure purposes only, don't try to optimize me, this is on purpose
         const pageToFetch = nextPage
@@ -122,39 +117,34 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
           ),
         )
 
-        // Small delay to allow state to update and arbitrumWithdrawTxs to be populated
-        await new Promise(resolve => setTimeout(resolve, 300))
-
         // Check if we have more claims now than before
         if (
           availableClaimsCountRef.current > initialAvailableClaimsCount ||
           pendingClaimsCountRef.current > initialPendingClaimsCount
         ) {
           // Found new claims!
-          foundNewClaims = true
-        } else {
-          // No new claims, try next page
-          nextPage++
+          hasNewClaimTxs = true
+          break
+        }
 
-          // Check if any account has more pages based on pagination state
-          const anyAccountHasMore = checkIfAnyAccountHasMore()
+        // No new claims, try next page
+        nextPage++
 
-          // If no account has more pages, stop loading
-          if (!anyAccountHasMore) {
-            setHasMore(false)
-            break
-          }
+        const anyAccountHasMore = isAnyAccountIdHasMore()
+
+        if (!anyAccountHasMore) {
+          setHasMore(false)
+          break
         }
       } catch (error) {
-        console.error('Error loading transactions:', error)
+        console.error('Error loading Tx history:', error)
         break
       }
     }
 
-    // Update page number and loading state
     setCurrentPage(nextPage)
     setIsLoadingMore(false)
-  }, [arbitrumAccountIds, checkIfAnyAccountHasMore, currentPage, dispatch, hasMore, isLoadingMore])
+  }, [arbitrumAccountIds, isAnyAccountIdHasMore, currentPage, dispatch, hasMore, isLoadingMore])
 
   const AvailableClaims = useMemo(() => {
     if (isLoading) return <Skeleton height={16} />

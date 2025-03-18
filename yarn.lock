@@ -12397,6 +12397,7 @@ __metadata:
     vite: ^6.1.1
     vite-plugin-checker: ^0.9.0
     vite-plugin-circular-dependency: ^0.5.0
+    vite-plugin-compression: ^0.5.1
     vite-tsconfig-paths: ^5.1.4
     vitest: 1.1.1
     wagmi: ^2.9.2
@@ -36193,6 +36194,19 @@ pvutils@latest:
     "@rollup/pluginutils": ^5.1.0
     chalk: ^4.1.2
   checksum: 921a95a524855fa80fde91f3c0911b5309ade4c6a1321bf5e0e3bfd6e35049049c7bede5e671a8f08b1cf533aebad84c78d2b1cae22db39938a60a1f7d8d5037
+  languageName: node
+  linkType: hard
+
+"vite-plugin-compression@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "vite-plugin-compression@npm:0.5.1"
+  dependencies:
+    chalk: ^4.1.2
+    debug: ^4.3.3
+    fs-extra: ^10.0.0
+  peerDependencies:
+    vite: ">=2.0.0"
+  checksum: 55f01e7d6c9203776245614d30fa14df995bdf3cdb12ea4e2c0b9120741b74bd010b3aa5c467316f008aceaea6e2fd18fb394143cce06d22da9787d722da5223
   languageName: node
   linkType: hard
 

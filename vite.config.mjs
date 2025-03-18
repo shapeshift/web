@@ -9,6 +9,7 @@ import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 import checker from 'vite-plugin-checker'
+import compression from 'vite-plugin-compression'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { cspMeta, headers, serializeCsp } from './headers'
@@ -54,6 +55,12 @@ export default defineConfig(({ mode }) => {
           typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
         },
         overlay: true,
+      }),
+      compression({
+        algorithm: 'gzip',
+        ext: '.gz',
+        threshold: 1024,
+        deleteOriginFile: false,
       }),
     ],
     define: {
@@ -117,29 +124,6 @@ export default defineConfig(({ mode }) => {
           main: resolve(__dirname, 'index.html'),
         },
         output: {
-          manualChunks(id) {
-            // Bundle React and polyfills together to ensure they're available
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('scheduler') ||
-              id.includes('buffer') ||
-              id.includes('process') ||
-              id.includes('polyfills')
-            ) {
-              return 'vendor-react'
-            }
-            return null
-          },
-          chunkFileNames: chunkInfo => {
-            const prefix =
-              {
-                polyfills: '00',
-                'vendor-react': '01',
-              }[chunkInfo.name] || '99'
-
-            return `assets/${prefix}-${chunkInfo.name}-[hash].js`
-          },
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
@@ -178,11 +162,9 @@ export default defineConfig(({ mode }) => {
           warn(warning)
         },
       },
-      minify: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? false : 'esbuild',
-      sourcemap:
-        mode === 'development' && !process.env.DISABLE_SOURCE_MAP
-          ? 'eval-cheap-module-source-map'
-          : false,
+      minify: mode === 'development' ? false : 'esbuild',
+      sourcemap: mode === 'development' ? 'eval-cheap-module-source-map' : true,
+      sourcemapMinify: true,
       outDir: 'build',
       emptyOutDir: true,
     },

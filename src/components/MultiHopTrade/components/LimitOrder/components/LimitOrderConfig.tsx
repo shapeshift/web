@@ -94,10 +94,28 @@ export const LimitOrderConfig = ({
   }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
 
   const inputValue = useMemo(() => {
-    if (bnOrZero(limitPriceForSelectedPriceDirection).isZero()) return ''
+    if (isInputtingFiatSellAmount) {
+      if (!fiatValue || (bnOrZero(fiatValue).isZero() && !priceAmountRef.current)) {
+        return ''
+      }
+
+      return bnOrZero(fiatValue).toFixed(2)
+    }
+
+    if (
+      !limitPriceForSelectedPriceDirection ||
+      (bnOrZero(limitPriceForSelectedPriceDirection).isZero() && !priceAmountRef.current)
+    )
+      return ''
 
     return bnOrZero(limitPriceForSelectedPriceDirection).toFixed(priceAsset.precision)
-  }, [limitPriceForSelectedPriceDirection, priceAsset.precision])
+  }, [
+    limitPriceForSelectedPriceDirection,
+    priceAsset.precision,
+    fiatValue,
+    isInputtingFiatSellAmount,
+    priceAmountRef,
+  ])
 
   const handleSetPresetLimit = useCallback(
     (limitPriceMode: LimitPriceMode) => {
@@ -136,7 +154,6 @@ export const LimitOrderConfig = ({
         cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toFixed(priceAsset.precision)
       }
 
-      priceAmountRef.current = cryptoValue
       setLimitPriceMode(LimitPriceMode.CustomValue)
       setLimitPrice({ marketPriceBuyAsset: cryptoValue ?? '0' })
     },
@@ -244,7 +261,7 @@ export const LimitOrderConfig = ({
     handleInputChange(priceAmountRef.current)
   }, [handleInputChange])
 
-  const receiveAmount = useMemo(() => {
+  const receiveAmountFormatted = useMemo(() => {
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
       bnOrZero(limitPrice.buyAssetDenomination).isZero()
@@ -297,7 +314,7 @@ export const LimitOrderConfig = ({
           as='span'
           color='white'
           fontWeight='medium'
-          value={receiveAmount}
+          value={receiveAmountFormatted}
           symbol={buyAsset.symbol}
           omitDecimalTrailingZeros
         />
@@ -309,7 +326,7 @@ export const LimitOrderConfig = ({
       priceAsset.symbol,
       sellAmountCryptoPrecision,
       sellAsset.symbol,
-      receiveAmount,
+      receiveAmountFormatted,
       buyAsset.symbol,
     ],
   )
@@ -352,7 +369,7 @@ export const LimitOrderConfig = ({
   }, [marketPriceCryptoPrecision, priceAsset.symbol])
 
   return (
-    <Stack spacing={4} px={6} py={4}>
+    <Stack spacing={6} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
           <Text translation='limitOrder.when' />
@@ -361,7 +378,6 @@ export const LimitOrderConfig = ({
             onClick={handleTokenTextClick}
             fontWeight='bold'
             fontSize='sm'
-            position='relative'
             sx={clickableLinkSx}
           >
             1 {displayAsset.symbol}
@@ -377,7 +393,6 @@ export const LimitOrderConfig = ({
               isDisabled={isMarketButtonDisabled}
               fontWeight='medium'
               fontSize='sm'
-              position='relative'
               sx={clickableLinkSx}
               opacity={isMarketButtonDisabled ? 0.5 : 1}
               cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
@@ -401,13 +416,7 @@ export const LimitOrderConfig = ({
               placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
               suffix={isInputtingFiatSellAmount ? localeParts.postfix : ''}
               prefix={isInputtingFiatSellAmount ? localeParts.prefix : ''}
-              value={
-                isInputtingFiatSellAmount
-                  ? bnOrZero(fiatValue).isZero()
-                    ? ''
-                    : bnOrZero(fiatValue).toFixed(2)
-                  : inputValue
-              }
+              value={inputValue}
               onValueChange={handleValueChange}
               onChange={handleInputValueChange}
             />
@@ -437,7 +446,6 @@ export const LimitOrderConfig = ({
         !bnOrZero(sellAmountCryptoPrecision).isZero() &&
         !bnOrZero(limitPriceForSelectedPriceDirection).isZero() && (
           <Box
-            mt={4}
             p={4}
             borderWidth='1px'
             borderStyle='dashed'

@@ -137,6 +137,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 aria-label={translate('trade.tradeSettings')}
                 icon={faGear}
                 variant='ghost'
+                minWidth={0}
                 isDisabled={isDisabled}
               />
             </PopoverTrigger>
@@ -177,22 +178,24 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                   </Button>
                 </ButtonGroup>
               </Row.Value>
-              <Row.Value>
-                <FormControl isInvalid={isInvalid}>
-                  <InputGroup variant='filled'>
-                    <Input
-                      placeholder={slippageAmount}
-                      value={slippageAmount}
-                      type='number'
-                      _focus={focusStyle}
-                      onChange={handleChange}
-                      ref={inputRef}
-                      isDisabled={slippageType === SlippageType.Auto}
-                    />
-                    <InputRightElement>%</InputRightElement>
-                  </InputGroup>
-                </FormControl>
-              </Row.Value>
+              {slippageType === SlippageType.Custom && (
+                <Row.Value>
+                  <FormControl isInvalid={isInvalid}>
+                    <InputGroup variant='filled'>
+                      <Input
+                        placeholder={slippageAmount}
+                        value={slippageAmount}
+                        type='number'
+                        _focus={focusStyle}
+                        onChange={handleChange}
+                        ref={inputRef}
+                        autoFocus
+                      />
+                      <InputRightElement>%</InputRightElement>
+                    </InputGroup>
+                  </FormControl>
+                </Row.Value>
+              )}
             </Row>
             {isHighSlippage && (
               <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>

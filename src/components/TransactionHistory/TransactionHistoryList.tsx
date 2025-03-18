@@ -94,25 +94,17 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
         )
       : { isFetching: false }
 
-    // Filter to get only account IDs that have more transactions
-    // Also ensure that we're not requesting with an empty cursor (which indicates no more txs)
     const accountsIdsWithMore = useMemo(() => {
       return Object.entries(accountPaginationStates)
         .filter(([_, pagination]) => {
-          // Only include accounts that have hasMore=true in state
           if (!pagination?.hasMore) return false
 
-          // Find the highest page number that has a cursor
           const pageNumbers = Object.keys(pagination.cursors || {}).map(Number)
           const lastPage = Math.max(...pageNumbers, 0)
 
-          // Get the cursor for the last page
           const lastCursor = pagination.cursors?.[lastPage]
 
-          // If the most recent cursor is empty or undefined, there are no more txs
-          if (lastPage > 0 && (lastCursor === undefined || lastCursor === '')) {
-            return false
-          }
+          if (lastPage > 0 && !lastCursor) return false
 
           return true
         })
@@ -121,29 +113,28 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
     const handleLoadMore = useCallback(() => {
       if (accountId && paginationState.hasMore) {
-        setPage(prevPage => prevPage + 1)
+        setPage(page + 1)
+        return
       }
 
-      setPage(prevPage => {
-        const newPage = prevPage + 1
+      const newPage = page + 1
 
-        // Ensure we do not fetch *all* AccountIds, but only the ones with more pages
-        const _accountIdsToFetch = accountsIdsWithMore.filter(_accountId =>
-          accountIdsToFetch.includes(_accountId),
+      // Ensure we do not fetch *all* AccountIds, but only the ones with more pages
+      const _accountIdsToFetch = accountsIdsWithMore.filter(_accountId =>
+        accountIdsToFetch.includes(_accountId),
+      )
+
+      _accountIdsToFetch.forEach(_accountId => {
+        dispatch(
+          txHistoryApi.endpoints.getAllTxHistory.initiate({
+            accountId: _accountId,
+            page: newPage,
+            pageSize: initialTxsCount,
+          }),
         )
-
-        _accountIdsToFetch.forEach(_accountId => {
-          dispatch(
-            txHistoryApi.endpoints.getAllTxHistory.initiate({
-              accountId: _accountId,
-              page: newPage,
-              pageSize: initialTxsCount,
-            }),
-          )
-        })
-
-        return newPage
       })
+
+      return newPage
     }, [
       accountId,
       paginationState.hasMore,

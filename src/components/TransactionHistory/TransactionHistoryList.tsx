@@ -30,8 +30,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     const translate = useTranslate()
     const dispatch = useAppDispatch()
 
-    // Get all account IDs if we're in the global view (no specific accountId)
-    const allAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+    const enabledAccountIds = useAppSelector(selectEnabledWalletAccountIds)
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
     const _paginationState = useAppSelector(selectTxHistoryPagination)
 
@@ -47,10 +46,9 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
         return chainAccountIds
       }
 
-      return allAccountIds
-    }, [accountId, chainId, chainAccountIds, allAccountIds])
+      return enabledAccountIds
+    }, [accountId, chainId, chainAccountIds, enabledAccountIds])
 
-    // TODO(gomes): selectPagination and then reduce in-place, this is a Cursor monstrocity while prototyping architecture
     const accountPaginationStates = useMemo(
       () =>
         accountIdsToFetch.reduce<TxHistory['pagination']>((acc, _accountId) => {
@@ -61,8 +59,6 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       [_paginationState, accountIdsToFetch],
     )
 
-    // Get effective pagination state - different logic depending on whether we're viewing
-    // an account, a chain, or global
     const paginationState = useMemo(() => {
       if (accountId) {
         const pagination = _paginationState[accountId]
@@ -98,7 +94,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
     // Filter to get only account IDs that have more transactions
     // Also ensure that we're not requesting with an empty cursor (which indicates no more txs)
-    const accountsWithMoreTxs = useMemo(() => {
+    const accountsIdsWithMore = useMemo(() => {
       return Object.entries(accountPaginationStates)
         .filter(([_, pagination]) => {
           // Only include accounts that have hasMore=true in state
@@ -129,68 +125,49 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       setPage(prevPage => {
         const newPage = prevPage + 1
 
-        // Get accounts to load more from (intersection of accounts with more txs and relevant accounts)
-        const accountsToLoadFrom = accountsWithMoreTxs.filter(accId =>
-          accountIdsToFetch.includes(accId),
+        // Ensure we do not fetch *all* AccountIds, but only the ones with more pages
+        const _accountIdsToFetch = accountsIdsWithMore.filter(_accountId =>
+          accountIdsToFetch.includes(_accountId),
         )
 
-        // Only fetch from accounts that have hasMore=true
-        if (accountsToLoadFrom.length > 0) {
-          accountsToLoadFrom.forEach(accId => {
-            dispatch(
-              txHistoryApi.endpoints.getAllTxHistory.initiate(
-                {
-                  accountId: accId,
-                  page: newPage,
-                  pageSize: initialTxsCount,
-                },
-                {
-                  forceRefetch: true,
-                },
-              ),
-            )
-          })
-        }
+        _accountIdsToFetch.forEach(_accountId => {
+          dispatch(
+            txHistoryApi.endpoints.getAllTxHistory.initiate({
+              accountId: _accountId,
+              page: newPage,
+              pageSize: initialTxsCount,
+            }),
+          )
+        })
 
         return newPage
       })
     }, [
       accountId,
       paginationState.hasMore,
-      accountsWithMoreTxs,
+      accountsIdsWithMore,
       accountIdsToFetch,
       dispatch,
       initialTxsCount,
     ])
 
-    // Determine the correct loading state based on whether we're in account-specific, chain-specific, or global mode
     const isLoading = useMemo(() => {
-      // If we have a specific accountId, use its loading state
       if (accountId) {
         return isAccountIdFetching
       }
-      // Otherwise use the global loading state
       return isAnyTxHistoryApiQueryPending
     }, [accountId, isAccountIdFetching, isAnyTxHistoryApiQueryPending])
 
-    // We show the Load More button if at least one relevant account has more transactions
-    // or if we're currently loading
     const showLoadMore = useMemo(() => {
-      // If no accounts available for the specified criteria, don't show button
-      if (accountIdsToFetch.length === 0) return false
+      if (!accountIdsToFetch.length) return false
 
-      // If we're loading, show the button in a disabled (loading) state
-      if (isLoading) return true
-
-      // For a specific account view, check if this account has more transactions
       if (accountId) return paginationState.hasMore
 
-      // For chain or global view, show the button if any relevant account has more transactions
-      const relevantAccountsWithMoreTxs = accountsWithMoreTxs.filter(accId =>
+      const relevantAccountsWithMoreTxs = accountsIdsWithMore.filter(accId =>
         accountIdsToFetch.includes(accId),
       )
       return relevantAccountsWithMoreTxs.length > 0
-    }, [accountIdsToFetch, accountId, paginationState.hasMore, accountsWithMoreTxs, isLoading])
+    }, [accountIdsToFetch, accountId, paginationState.hasMore, accountsIdsWithMore, isLoading])
 
     return (
       <>
@@ -213,7 +190,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             onClick={handleLoadMore}
             isDisabled={
               isLoading ||
-              accountsWithMoreTxs.filter(accId => accountIdsToFetch.includes(accId)).length === 0
+              accountsIdsWithMore.filter(accId => accountIdsToFetch.includes(accId)).length === 0
             }
             isLoading={isLoading}
             rightIcon={isLoading ? <CircularProgress isIndeterminate size={6} /> : undefined}

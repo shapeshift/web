@@ -10,6 +10,7 @@ import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import {
   selectAccountIdsByChainIdFilter,
   selectIsAnyTxHistoryApiQueryPending,
+  selectPaginationStateByAccountId,
   selectTxHistoryPagination,
 } from '@/state/slices/selectors'
 import type { TxHistory, TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -33,6 +34,9 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     const enabledAccountIds = useAppSelector(selectEnabledWalletAccountIds)
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
     const _paginationState = useAppSelector(selectTxHistoryPagination)
+    const accountIdPaginationState = useAppSelector(state =>
+      selectPaginationStateByAccountId(state, { accountId: accountId ?? '' }),
+    )
 
     const chainAccountIds = useAppSelector(state =>
       chainId ? selectAccountIdsByChainIdFilter(state, { chainId }) : [],
@@ -61,8 +65,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
     const paginationState = useMemo(() => {
       if (accountId) {
-        const pagination = _paginationState[accountId]
-        return pagination
+        return accountIdPaginationState
       }
 
       if (chainId && chainAccountIds.length > 0) {
@@ -75,7 +78,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       }
 
       return { hasMore: true }
-    }, [_paginationState, accountId, chainId, chainAccountIds])
+    }, [_paginationState, accountId, chainId, chainAccountIds, accountIdPaginationState])
 
     // Query for transactions when we have a specific accountId
     const { isFetching: isAccountIdFetching } = accountId
@@ -86,7 +89,6 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             pageSize: initialTxsCount,
           },
           {
-            // This ensures we refetch when page changes
             refetchOnMountOrArgChange: true,
           },
         )

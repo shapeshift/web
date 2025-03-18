@@ -324,26 +324,32 @@ export const selectTxsByQuery = createCachedSelector(
     : 'txsByQuery',
 )
 
+export const selectPaginationStateByAccountId = createSelector(
+  selectTxHistoryPagination,
+  selectAccountIdParamFromFilter,
+  (pagination, accountId) => {
+    return pagination[accountId ?? '']
+  },
+)
+
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
   selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
   selectTxHistoryPagination,
-  (hydrationMeta, walletAccountIds, accountId, timeframe, paginationState) => {
+  selectPaginationStateByAccountId,
+  (hydrationMeta, walletAccountIds, accountId, timeframe, accountPaginationState) => {
     const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
 
     const checkIsTxHistoryAvailable = (accountId: AccountId) => {
       const hydrationMetaForAccount = hydrationMeta[accountId]
-      // TODO(gomes): selectAccountIdPagination
-      const paginationForAccount = paginationState[accountId]
 
       // If we have pagination data for this account, we have started fetching tx history
-      if (paginationForAccount) {
+      if (accountPaginationState) {
         return true
       }
 
-      // Legacy check for accounts that were loaded with the old method
       // Completely missing account here likely means it's yet to be fetched
       if (hydrationMetaForAccount === undefined) {
         return false
@@ -386,18 +392,10 @@ export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
 
 export const selectHasMoreTxsByAccountId = createSelector(
   selectTxHistoryPagination,
-  (_: ReduxState, accountId: AccountId) => accountId,
+  selectAccountIdParamFromFilter,
   (pagination, accountId) => {
-    const paginationForAccount = pagination[accountId]
+    const paginationForAccount = pagination[accountId ?? '']
     if (!paginationForAccount) return false
     return paginationForAccount.hasMore
-  },
-)
-
-export const selectPaginationStateByAccountId = createSelector(
-  selectTxHistoryPagination,
-  (_: ReduxState, accountId: AccountId) => accountId,
-  (pagination, accountId) => {
-    return pagination[accountId] || { currentPage: 1, totalPages: 1, hasMore: false, cursors: {} }
   },
 )

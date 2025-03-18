@@ -1104,19 +1104,7 @@
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "orderPlacement": "Place order on %{swapperName}",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "When",
-        "middle": "'s price reaches"
-      },
-      "orderWill": {
-        "prefix": ", your limit order will automatically sell"
-      },
-      "ensuring": {
-        "prefix": ", ensuring you receive at least",
-        "suffix": "."
-      }
-    },
+    "explanation": "When %{assetSymbol}'s price reaches %{limitPrice}, your limit order will automatically sell %{sellAmount}, ensuring you receive at least %{receiveAmount}.",
     "sellBuy": "Sell → Buy",
     "limitExecution": "Limit/Execution",
     "statusHead": "Status",

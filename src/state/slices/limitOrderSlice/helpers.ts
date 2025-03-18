@@ -47,7 +47,7 @@ export const makeLimitInputOutputRatio = ({
   buyPriceUsd: string
   targetAssetPrecision: number
 }): string => {
-  const ratio = bnOrZero(buyPriceUsd).div(bnOrZero(sellPriceUsd))
+  const ratio = bnOrZero(sellPriceUsd).div(bnOrZero(buyPriceUsd))
 
   return ratio.toFixed(targetAssetPrecision)
 }

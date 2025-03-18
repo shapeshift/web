@@ -21,7 +21,6 @@ const initialEntries = [
   TradeRoutePaths.Confirm,
   TradeRoutePaths.VerifyAddresses,
   TradeRoutePaths.QuoteList,
-  TradeRoutePaths.Quotes,
 ]
 
 // A standalone version of the trade page routing as an HOC, without it being a page, and without leveraging top-level routes but rather

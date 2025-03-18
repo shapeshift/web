@@ -1,4 +1,4 @@
-import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import {
   Box,
@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -37,7 +37,6 @@ import { clickableLinkSx } from '@/theme/styles'
 type RateGasRowProps = {
   affiliateBps: string | undefined
   buyAssetId: AssetId
-  isDisabled?: boolean
   isLoading?: boolean
   rate: string | undefined
   sellAssetId: AssetId
@@ -45,7 +44,6 @@ type RateGasRowProps = {
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
   deltaPercentage?: string | null
-  onClick?: () => void
   invertRate?: boolean
   noExpand?: boolean
   isOpen?: boolean
@@ -53,17 +51,12 @@ type RateGasRowProps = {
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
 const rowHover = { bg: 'background.surface.raised.base' }
-const rateHover = {
-  cursor: 'pointer',
-  '.rate': { borderColor: 'text.link' },
-}
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
     affiliateBps,
     buyAssetId,
     children,
-    isDisabled,
     isLoading,
     rate,
     sellAssetId,
@@ -71,13 +64,12 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     swapSource,
     networkFeeFiatUserCurrency,
     deltaPercentage,
-    onClick,
     noExpand,
     invertRate,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const [shouldInvertRate, setShouldInvertRate] = useState<boolean | undefined>(invertRate)
+    const [shouldInvertRate, setShouldInvertRate] = useState(Boolean(invertRate))
     const [hasClickedRate, setHasClickedRate] = useState(false)
     const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
     const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
@@ -111,39 +103,24 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
 
     useEffect(() => {
       if (!hasClickedRate) {
-        setShouldInvertRate(invertRate)
+        setShouldInvertRate(Boolean(invertRate))
       }
     }, [invertRate, hasClickedRate, setShouldInvertRate])
 
-    const handleRateClick = useCallback(() => {
+    const handleRateClick = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation()
       setHasClickedRate(true)
-      setShouldInvertRate(!shouldInvertRate)
-    }, [shouldInvertRate])
-
-    // Returns either the rate, or the inverted one as directed per shouldInvertRate
-    // And strip it to 8dp max for display purposes
-    const rateOrInvertedRate = useMemo(() => {
-      const rateBn = bnOrZero(rate)
-
-      if (!shouldInvertRate) return rateBn.decimalPlaces(8).toString()
-      if (rateBn.isZero() || rateBn.isNegative()) return '0'
-
-      return bnOrZero(1).div(rateBn).decimalPlaces(8).toString()
-    }, [rate, shouldInvertRate])
+      setShouldInvertRate(prev => !prev)
+    }, [])
 
     const deltaPercentageFormatted = useMemo(() => {
       if (!deltaPercentage) return null
-      const deltaPercentageDecimals = bnOrZero(deltaPercentage).abs().toFixed(2)
-
+      const deltaPercentageDecimals = bnOrZero(deltaPercentage).toFixed(2)
       if (bnOrZero(deltaPercentageDecimals).isZero()) return null
 
       return (
-        <RawText
-          as='span'
-          color={bnOrZero(deltaPercentageDecimals).gt(0) ? 'green.500' : 'red.500'}
-          ml={1}
-        >
-          {` (${bnOrZero(deltaPercentageDecimals).gt(0) ? '+' : '-'}${deltaPercentageDecimals}%)`}
+        <RawText color={bnOrZero(deltaPercentageDecimals).gt(0) ? 'green.500' : 'red.500'} ml={1}>
+          {` (${bnOrZero(deltaPercentageDecimals).gt(0) ? '+' : ''}${deltaPercentageDecimals}%)`}
         </RawText>
       )
     }, [deltaPercentage])
@@ -151,36 +128,27 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const rateContent = useMemo(() => {
       if (!(rate && buyAsset && sellAsset)) return null
 
-      const rateText = shouldInvertRate
-        ? `1 ${buyAsset.symbol} = ${rateOrInvertedRate} ${sellAsset.symbol}`
-        : `1 ${sellAsset.symbol} = ${rateOrInvertedRate} ${buyAsset.symbol}`
+      const prefix = shouldInvertRate ? `1 ${buyAsset.symbol} =` : `1 ${sellAsset.symbol} =`
+      const value = shouldInvertRate ? bn(1).div(rate).toString() : rate
+      const symbol = shouldInvertRate ? sellAsset.symbol : buyAsset.symbol
 
       return (
-        <Skeleton isLoaded={!isLoading}>
-          <RawText
+        <Flex>
+          <Amount.Crypto
             color='text.subtle'
             fontWeight='medium'
             onClick={handleRateClick}
             sx={clickableLinkSx}
             cursor='pointer'
-            mb='0'
             userSelect='none'
-          >
-            {rateText}
-            {deltaPercentageFormatted}
-          </RawText>
-        </Skeleton>
+            prefix={prefix}
+            value={value}
+            symbol={symbol}
+          />
+          {deltaPercentageFormatted}
+        </Flex>
       )
-    }, [
-      rate,
-      buyAsset,
-      sellAsset,
-      shouldInvertRate,
-      rateOrInvertedRate,
-      isLoading,
-      handleRateClick,
-      deltaPercentageFormatted,
-    ])
+    }, [rate, buyAsset, sellAsset, shouldInvertRate, handleRateClick, deltaPercentageFormatted])
 
     switch (true) {
       case isLoading:
@@ -213,35 +181,32 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
           <Stack
             fontWeight='medium'
             spacing={0}
-            _hover={rowHover}
             bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
             transitionProperty='common'
             transitionDuration='normal'
             fontSize='sm'
           >
-            <Flex alignItems='center' justifyContent='space-between' px={6} py={4} width='full'>
+            <Flex
+              _hover={noExpand ? undefined : rowHover}
+              onClick={noExpand ? undefined : onToggle}
+              cursor={noExpand ? 'default' : 'pointer'}
+              alignItems='center'
+              justifyContent='space-between'
+              px={4}
+              py={4}
+              width='full'
+            >
               <Row fontSize='sm' flex={1}>
-                <Row.Value
-                  fontSize='sm'
-                  display='flex'
-                  alignItems='center'
-                  gap={2}
-                  _hover={!isDisabled ? rateHover : undefined}
-                  onClick={onClick}
-                >
-                  <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
+                <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
                   <Stack
                     width='full'
                     direction='row'
-                    spacing={1}
-                    color={!isDisabled ? 'text.link' : 'text.base'}
                     className='rate'
-                    borderBottomWidth={1}
                     borderColor='transparent'
                     alignItems='center'
                   >
+                    <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
                     {rateContent}
-                    {!isDisabled && <ArrowUpDownIcon />}
                     <Popover
                       trigger='hover'
                       placement='top'
@@ -261,12 +226,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                   </Stack>
                 </Row.Value>
               </Row>
-              <Flex
-                gap={1}
-                alignItems='center'
-                cursor={noExpand ? 'default' : 'pointer'}
-                onClick={noExpand ? undefined : onToggle}
-              >
+              <Flex gap={1} alignItems='center'>
                 <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                   <Box>
                     <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>

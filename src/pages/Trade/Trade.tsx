@@ -101,6 +101,7 @@ export const Trade = memo(() => {
         TradeRoutePaths.QuoteList,
         TradeRoutePaths.VerifyAddresses,
         LimitOrderRoutePaths.Confirm,
+        LimitOrderRoutePaths.Orders,
       ].includes(location.pathname as TradeRoutePaths),
     [location.pathname],
   )

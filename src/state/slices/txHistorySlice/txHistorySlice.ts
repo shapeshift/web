@@ -248,7 +248,6 @@ const requestQueue = new PQueue({ concurrency: 2 })
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
-  tagTypes: ['TxHistory'],
   endpoints: build => ({
     getAllTxHistory: build.query<TxHistoryResponse, TxHistoryRequest>({
       queryFn: async ({ accountId, page = 1, pageSize = 10 }, { dispatch, getState }) => {
@@ -315,13 +314,6 @@ export const txHistoryApi = createApi({
           return { error: { data: String(err), status: 500 } }
         }
       },
-      providesTags: (result, _error, { accountId, page }) =>
-        result
-          ? [
-              { type: 'TxHistory', id: `${accountId}-page-${page}` },
-              { type: 'TxHistory', id: accountId },
-            ]
-          : [{ type: 'TxHistory', id: accountId }],
     }),
   }),
 })

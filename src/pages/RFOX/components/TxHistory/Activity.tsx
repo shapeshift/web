@@ -97,6 +97,9 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
     // Keep loading pages until we find new RFOX transactions
     while (!foundNewTxs) {
       try {
+        // Local reassignment for closure purposes only, don't try to optimize me, this is on purpose
+        const pageToFetch = nextPage
+
         // Load the next page for all Arbitrum accounts
         await Promise.all(
           arbitrumAccountIds.map(accountId =>
@@ -104,8 +107,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
               txHistoryApi.endpoints.getAllTxHistory.initiate(
                 {
                   accountId,
-                  page: nextPage,
-                  pageSize: 25,
+                  page: pageToFetch,
                 },
                 { forceRefetch: true },
               ),

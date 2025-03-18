@@ -7,7 +7,11 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { Text } from '@/components/Text'
 import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
-import { selectAccountIdsByChainIdFilter, selectTxIdsByFilter } from '@/state/slices/selectors'
+import {
+  selectAccountIdsByChainIdFilter,
+  selectTxHistoryPagination,
+  selectTxIdsByFilter,
+} from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -27,9 +31,8 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
   const arbitrumAccountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
   )
-  
-  // Get pagination state for all accounts
-  const paginationState = useAppSelector(state => state.txHistory.pagination)
+
+  const paginationState = useAppSelector(selectTxHistoryPagination)
 
   // Create a filter for RFOX-related transactions
   const filter = useCallback(
@@ -69,12 +72,12 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
       )
     })
   }, [arbitrumAccountIds, dispatch])
-  
+
   // Check if any arbitrum account has more pages
   const checkIfAnyAccountHasMore = useCallback(() => {
     // If no accounts, there are no more pages
     if (arbitrumAccountIds.length === 0) return false
-    
+
     // Check if any arbitrum account has more pages
     return arbitrumAccountIds.some(accountId => {
       const pagination = paginationState[accountId]
@@ -123,7 +126,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
 
           // Check if any account has more pages based on pagination state
           const anyAccountHasMore = checkIfAnyAccountHasMore()
-          
+
           // If no account has more pages, stop loading
           if (!anyAccountHasMore) {
             setHasMore(false)

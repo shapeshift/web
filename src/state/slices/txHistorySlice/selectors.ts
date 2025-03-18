@@ -32,6 +32,7 @@ import {
   selectTxStatusParamFromFilter,
 } from '@/state/selectors'
 
+const selectTxHistoryPagination = (state: ReduxState) => state.txHistory.pagination
 const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
 export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector(
   selectTxHistoryApiQueries,
@@ -325,11 +326,11 @@ export const selectTxsByQuery = createCachedSelector(
 
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
-  (state: ReduxState) => state.txHistory.pagination,
   selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
-  (hydrationMeta, paginationState, walletAccountIds, accountId, timeframe) => {
+  selectTxHistoryPagination,
+  (hydrationMeta, walletAccountIds, accountId, timeframe, paginationState) => {
     const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
 
     const checkIsTxHistoryAvailable = (accountId: AccountId) => {

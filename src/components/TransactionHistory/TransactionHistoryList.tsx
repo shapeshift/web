@@ -7,7 +7,10 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { Text } from '@/components/Text'
 import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
-import { selectIsAnyTxHistoryApiQueryPending } from '@/state/slices/selectors'
+import {
+  selectIsAnyTxHistoryApiQueryPending,
+  selectTxHistoryPagination,
+} from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -28,38 +31,42 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     // Get all account IDs if we're in the global view (no specific accountId)
     const allAccountIds = useAppSelector(selectEnabledWalletAccountIds)
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
+    const _paginationState = useAppSelector(selectTxHistoryPagination)
 
     // TODO(gomes): selectPagination and then reduce in-place, this is a Cursor monstrocity while prototyping architecture
-    const accountPaginationStates = useAppSelector(state =>
-      allAccountIds.reduce(
-        (acc, accId) => {
-          const pagination = state.txHistory.pagination[accId] || {
-            currentPage: 0,
-            totalPages: 0,
-            hasMore: true,
-            cursors: {},
-          }
-          acc[accId] = pagination
-          return acc
-        },
-        {} as Record<
-          AccountId,
-          {
-            currentPage: number
-            totalPages: number
-            hasMore: boolean
-            cursors: Record<number, string>
-          }
-        >,
-      ),
+    const accountPaginationStates = useMemo(
+      () =>
+        allAccountIds.reduce(
+          (acc, accId) => {
+            const pagination = _paginationState[accId] || {
+              currentPage: 0,
+              totalPages: 0,
+              hasMore: true,
+              cursors: {},
+            }
+            acc[accId] = pagination
+            return acc
+          },
+          {} as Record<
+            AccountId,
+            {
+              currentPage: number
+              totalPages: number
+              hasMore: boolean
+              cursors: Record<number, string>
+            }
+          >,
+        ),
+      [],
     )
 
     // TODO(gomes): also leverage selectPagination
-    const paginationState = useAppSelector(state => {
+    const paginationState = useMemo(() => {
+      // TODO(gomes): dis correct?
       if (!accountId) return { hasMore: true, currentPage: 0, totalPages: 0, cursors: {} }
-      const pagination = state.txHistory.pagination[accountId]
+      const pagination = _paginationState[accountId]
       return pagination || { hasMore: true, currentPage: 0, totalPages: 0, cursors: {} }
-    })
+    }, [])
 
     // TODO(gomes): and this one too
     const { isFetching } = accountId

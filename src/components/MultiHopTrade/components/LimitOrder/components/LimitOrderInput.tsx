@@ -62,7 +62,7 @@ import {
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
-import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
+import { calcLimitPriceTargetAsset } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
 import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -247,12 +247,27 @@ export const LimitOrderInput = ({
   const marketPriceBuyAsset = useMemo(() => {
     if (!(sellAssetMarketDataUsd && buyAssetMarketDataUsd)) return '0'
 
-    return makeLimitInputOutputRatio({
-      sellPriceUsd: sellAssetMarketDataUsd,
-      buyPriceUsd: buyAssetMarketDataUsd,
-      targetAssetPrecision: buyAsset.precision,
+    // Ensure we zero out the price if there is an error, and when we are fetching, as `quoteResponse` will be stale data in both cases
+    if (isLimitOrderQuoteFetching || quoteResponseError) return '0'
+    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
+    if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
+
+    return calcLimitPriceTargetAsset({
+      sellAmountCryptoBaseUnit: quoteResponse.quote.sellAmount,
+      buyAmountCryptoBaseUnit: quoteResponse.quote.buyAmount,
+      sellAsset,
+      buyAsset,
     })
-  }, [sellAssetMarketDataUsd, buyAssetMarketDataUsd, buyAsset])
+  }, [
+    sellAssetMarketDataUsd,
+    buyAssetMarketDataUsd,
+    isLimitOrderQuoteFetching,
+    quoteResponseError,
+    quoteResponse,
+    limitOrderQuoteParams,
+    sellAsset,
+    buyAsset,
+  ])
 
   // Update the limit price when the market price changes.
   useEffect(() => {

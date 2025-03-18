@@ -4,11 +4,11 @@ import { useMemo } from 'react'
 import { RecentTransactionsBody } from '@/pages/Dashboard/RecentTransactions'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
-type ClaimsProps = {
+type ActivityProps = {
   headerComponent: JSX.Element
 }
 
-export const Activity = ({ headerComponent }: ClaimsProps) => {
+export const Activity = ({ headerComponent }: ActivityProps) => {
   const { stakingAssetAccountId } = useRFOXContext()
 
   const filter = useMemo(

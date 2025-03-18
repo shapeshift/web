@@ -37,3 +37,17 @@ export const calcLimitPriceTargetAsset = ({
     .div(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision))
     .toFixed()
 }
+
+export const makeLimitInputOutputRatio = ({
+  sellPriceUsd,
+  buyPriceUsd,
+  targetAssetPrecision,
+}: {
+  sellPriceUsd: string
+  buyPriceUsd: string
+  targetAssetPrecision: number
+}): string => {
+  const ratio = bnOrZero(sellPriceUsd).div(bnOrZero(buyPriceUsd))
+
+  return ratio.toFixed(targetAssetPrecision)
+}

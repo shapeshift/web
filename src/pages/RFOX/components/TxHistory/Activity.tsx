@@ -1,6 +1,6 @@
 import { Box, Button, CardBody, Flex } from '@chakra-ui/react'
 import { arbitrumChainId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
@@ -33,8 +33,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
 
   const paginationState = useAppSelector(selectTxHistoryPagination)
 
-  // Create a filter for RFOX-related transactions
-  const filter = useCallback(
+  const rfoxTxIdsFilter = useMemo(
     () => ({
       accountId: stakingAssetAccountId,
       chainId: arbitrumChainId,
@@ -43,34 +42,13 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
     [stakingAssetAccountId],
   )
 
-  // Get filtered RFOX transaction IDs
-  const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter()))
+  const rfoxTxIds = useAppSelector(state => selectTxIdsByFilter(state, rfoxTxIdsFilter))
 
-  // Use a ref to track the current txIds length for comparison
-  const txIdsLengthRef = useRef(txIds.length)
+  const rfoxTxIdsLengthRef = useRef(rfoxTxIds.length)
 
-  // Update ref when txIds changes
   useEffect(() => {
-    txIdsLengthRef.current = txIds.length
-  }, [txIds.length])
-
-  // Load initial transactions on mount
-  useEffect(() => {
-    if (arbitrumAccountIds.length === 0) return
-
-    arbitrumAccountIds.forEach(accountId => {
-      dispatch(
-        txHistoryApi.endpoints.getAllTxHistory.initiate(
-          {
-            accountId,
-            page: 1,
-            pageSize: 25,
-          },
-          { forceRefetch: true },
-        ),
-      )
-    })
-  }, [arbitrumAccountIds, dispatch])
+    rfoxTxIdsLengthRef.current = rfoxTxIds.length
+  }, [rfoxTxIds.length])
 
   // Check if any arbitrum account has more pages
   const isAnyAccountIdHasMore = useCallback(() => {
@@ -83,21 +61,21 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
   }, [arbitrumAccountIds, paginationState])
 
   // Custom load more handler - keep loading until we find new RFOX txs
+  // This is different from the one in <TransactionHistoryList /> as we specifically keep on loading more pages until we find new RFOX transactions,
+  // vs. loading one page per click normally
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || arbitrumAccountIds.length === 0 || !hasMore) return
 
     setIsLoadingMore(true)
     let nextPage = currentPage + 1
-    let initialTxCount = txIdsLengthRef.current
+    let initialTxCount = rfoxTxIdsLengthRef.current
     let foundNewTxs = false
 
-    // Keep loading pages until we find new RFOX transactions
     while (!foundNewTxs) {
       try {
         // Local reassignment for closure purposes only, don't try to optimize me, this is on purpose
         const pageToFetch = nextPage
 
-        // Load the next page for all Arbitrum accounts
         await Promise.all(
           arbitrumAccountIds.map(accountId =>
             dispatch(
@@ -112,7 +90,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
           ),
         )
 
-        if (txIdsLengthRef.current > initialTxCount) {
+        if (rfoxTxIdsLengthRef.current > initialTxCount) {
           foundNewTxs = true
           break
         }
@@ -120,10 +98,8 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
         // No new RFOX transactions, try next page
         nextPage++
 
-        // Check if any account has more pages based on pagination state
         const anyAccountHasMore = isAnyAccountIdHasMore()
 
-        // If no account has more pages, stop loading
         if (!anyAccountHasMore) {
           setHasMore(false)
           break
@@ -134,7 +110,6 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
       }
     }
 
-    // Update page number and loading state
     setCurrentPage(nextPage)
     setIsLoadingMore(false)
   }, [arbitrumAccountIds, isAnyAccountIdHasMore, currentPage, dispatch, hasMore, isLoadingMore])
@@ -143,8 +118,8 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
     <CardBody>
       {headerComponent}
       <Box py={4} width='full'>
-        {txIds.length > 0 ? (
-          <TransactionsGroupByDate txIds={txIds} useCompactMode={true} />
+        {rfoxTxIds.length > 0 ? (
+          <TransactionsGroupByDate txIds={rfoxTxIds} useCompactMode={true} />
         ) : (
           <Text
             color='text.subtle'

@@ -75,7 +75,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       }
 
       return { hasMore: true }
-    }, [_paginationState, accountId, chainId, chainAccountIds, page])
+    }, [_paginationState, accountId, chainId, chainAccountIds])
 
     // Query for transactions when we have a specific accountId
     const { isFetching: isAccountIdFetching } = accountId
@@ -167,7 +167,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
         accountIdsToFetch.includes(accId),
       )
       return relevantAccountsWithMoreTxs.length > 0
-    }, [accountIdsToFetch, accountId, paginationState.hasMore, accountsIdsWithMore, isLoading])
+    }, [accountIdsToFetch, accountId, paginationState.hasMore, accountsIdsWithMore])
 
     return (
       <>

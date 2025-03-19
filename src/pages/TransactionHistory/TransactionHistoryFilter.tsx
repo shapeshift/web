@@ -101,7 +101,7 @@ export const TransactionHistoryFilter = memo(
     const RangeCustomComponent = useCallback(() => {
       return dayRangeSelectedOption === customRangeOption ? (
         <HStack px={4} my={2} alignItems='center' mx={-4}>
-          <DatePicker name={FilterFormFields.FromDate} control={control} />
+          <DatePicker name={FilterFormFields.FromDate} control={control} withPortal />
           <Text
             fontWeight='300'
             px={1}

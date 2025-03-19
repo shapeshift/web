@@ -8,7 +8,15 @@ import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 import { FaCalendarAlt } from 'react-icons/fa'
 
-export const DatePicker = ({ control, name }: { control: Control; name: string }) => {
+export const DatePicker = ({
+  control,
+  name,
+  withPortal,
+}: {
+  control: Control
+  name: string
+  withPortal?: boolean
+}) => {
   const {
     field: { onChange, value },
   } = useController({ control, name })
@@ -35,8 +43,8 @@ export const DatePicker = ({ control, name }: { control: Control; name: string }
         placeholderText='00/00/0000'
         autoComplete='off'
         formatWeekDay={handleFormatWeekDat}
-        portalId={`date-picker-portal-${name}`}
-        withPortal
+        portalId={withPortal ? `date-picker-portal-${name}` : undefined}
+        withPortal={!!withPortal}
       />
     </InputGroup>
   )

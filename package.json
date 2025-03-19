@@ -214,7 +214,6 @@
     "@types/bignumber.js": "^5.0.0",
     "@types/bip21": "^2.0.0",
     "@types/bs58check": "^2.1.0",
-    "@types/circular-dependency-plugin": "^5.0.5",
     "@types/cli-progress": "^3.11.5",
     "@types/d3-array": "^3.0.1",
     "@types/dompurify": "^2.3.2",
@@ -288,14 +287,12 @@
     "tsx": "^4.16.2",
     "typechain": "^8.1.1",
     "typescript": "^5.2.2",
-    "vite": "^6.1.1",
+    "vite": "6.2.2",
     "vite-bundle-analyzer": "^0.17.1",
     "vite-plugin-checker": "^0.9.0",
-    "vite-plugin-circular-dependency": "^0.5.0",
-    "vite-plugin-dynamic-import": "^1.6.0",
-    "vite-plugin-node-polyfills": "^0.23.0",
+    "vite-plugin-node-polyfills": "0.23.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "1.1.1"
+    "vitest": "3.0.9"
   },
   "peerDependencies": {
     "lit-html": "^2.6.1"

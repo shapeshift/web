@@ -1,5 +1,6 @@
 import './wdyr'
 import './lib/polyfills'
+import 'vite/modulepreload-polyfill'
 
 import {
   breadcrumbsIntegration,

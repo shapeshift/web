@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import react from '@vitejs/plugin-react-swc'
 import * as fs from 'fs'
 import { CID } from 'multiformats/cid'
@@ -50,7 +51,14 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
-      nodePolyfills(),
+      nodePolyfills({
+        globals: {
+          Buffer: true,
+          global: true,
+          process: true,
+        },
+        protocolImports: true,
+      }),
       react(),
       tsconfigPaths(),
       checker({

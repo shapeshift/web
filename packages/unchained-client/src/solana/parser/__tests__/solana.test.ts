@@ -12,7 +12,7 @@ import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 import tokenStandardWithCreate from './mockData/tokenStandardWithCreate'
 
-const getTokenMock = vi.fn<any, Token>()
+const getTokenMock = vi.fn<() => Token>()
 
 vi.mock('../../../generated/solana', async importActual => {
   const actual = await importActual<any>()

@@ -21,6 +21,10 @@ import {
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const rateGasRowSx = {
+  mb: 3,
+}
+
 export const LimitOrderDetail = () => {
   const translate = useTranslate()
 
@@ -54,8 +58,9 @@ export const LimitOrderDetail = () => {
       networkFeeFiatUserCurrency='0' // no network fees for CoW, this is a message signing
       swapperName={SwapperName.CowSwap}
       swapSource={SwapperName.CowSwap}
+      sx={rateGasRowSx}
     >
-      <Stack spacing={4} width='full' px={6} pb={3}>
+      <Stack spacing={4} width='full' px={6} py={3}>
         <Row>
           <Row.Label>
             <Text translation='limitOrder.expiration' />
@@ -64,7 +69,7 @@ export const LimitOrderDetail = () => {
             <TransactionDate blockTime={quoteExpirationTimestamp ?? 0} />
           </Row.Value>
         </Row>
-        <Card bg='background.surface.raised.pressed' borderRadius={6} p={4} mb={2}>
+        <Card borderRadius={6} p={4} mb={2}>
           <HStack>
             <InfoIcon boxSize='1.3em' color='text.info' />
             <RawText>{translate('limitOrder.confirmInfo')}</RawText>

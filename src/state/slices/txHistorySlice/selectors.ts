@@ -389,13 +389,3 @@ export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
       .filter(accountId => walletEnabledAccountIds.includes(accountId))
   },
 )
-
-export const selectHasMoreTxsByAccountId = createSelector(
-  selectTxHistoryPagination,
-  selectAccountIdParamFromFilter,
-  (pagination, accountId) => {
-    const paginationForAccount = pagination[accountId ?? '']
-    if (!paginationForAccount) return false
-    return paginationForAccount.hasMore
-  },
-)

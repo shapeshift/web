@@ -54,7 +54,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
         Object.entries(txHistoryPaginationState)
           .filter(([_accountId]) => accountIds.includes(_accountId))
           .some(([_, pagination]) => pagination.hasMore),
-      [txHistoryPaginationState, accountId, chainId, maybeChainAccountIds],
+      [txHistoryPaginationState, accountIds],
     )
 
     const accountIdsToFetch = useMemo(
@@ -104,8 +104,9 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
         })
         .some(query => {
           if (query?.status === 'pending') return true
+          return false
         })
-    }, [txHistoryApiQueries, accountIds, accountId])
+    }, [txHistoryApiQueries, accountIds])
 
     return (
       <>

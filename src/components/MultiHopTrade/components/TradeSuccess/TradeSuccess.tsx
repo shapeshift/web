@@ -10,6 +10,7 @@ import {
   HStack,
   Icon,
   Stack,
+  Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
 import { foxAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
@@ -32,6 +33,7 @@ import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetai
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -112,7 +114,11 @@ export const TradeSuccess = ({
 
   const txTransfers = useTxDetails(buyTxId ?? '')?.transfers
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
-  const transfers = manualReceiveAddressTransfers || txTransfers
+  const transfers = txTransfers || manualReceiveAddressTransfers
+
+  const buyAssetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
+  )
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined
@@ -124,6 +130,22 @@ export const TradeSuccess = ({
       ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
       : undefined
   }, [transfers, buyAsset])
+
+  const maybeExtraDeltaCryptoPrecision = useMemo(() => {
+    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return undefined
+
+    return bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).gt(0)
+      ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toString()
+      : undefined
+  }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
+
+  const maybeExraDeltaUserCurrency = useMemo(() => {
+    if (!maybeExtraDeltaCryptoPrecision || !buyAsset) return undefined
+
+    return bnOrZero(maybeExtraDeltaCryptoPrecision)
+      .times(buyAssetMarketDataUserCurrency?.price ?? 0)
+      .toString()
+  }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
 
   const relatedAssetIdsFilter = useMemo(
     () => ({
@@ -169,6 +191,48 @@ export const TradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
+  const surplusComponents = useMemo(
+    () => ({
+      extra: (
+        <Box color='green.200' display='inline'>
+          <Amount.Crypto
+            as='span'
+            fontWeight='medium'
+            symbol={buyAsset?.symbol ?? ''}
+            value={maybeExtraDeltaCryptoPrecision}
+          />
+          <CText as='span' color='green.200'>
+            {' '}
+            (
+          </CText>
+          <Amount.Fiat as='span' value={maybeExraDeltaUserCurrency} />
+          <CText as='span' color='green.200'>
+            )
+          </CText>
+        </Box>
+      ),
+    }),
+    [buyAsset?.symbol, maybeExraDeltaUserCurrency, maybeExtraDeltaCryptoPrecision],
+  )
+
+  const SurplusLine = useCallback(() => {
+    if (!buyAsset) return null
+    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
+    if (!maybeExtraDeltaCryptoPrecision) return null
+
+    return (
+      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
+        <Text translation='trade.tradeCompleteSurplus' components={surplusComponents} />
+      </Flex>
+    )
+  }, [
+    buyAsset,
+    quoteBuyAmountCryptoPrecision,
+    actualBuyAmountCryptoPrecision,
+    surplusComponents,
+    maybeExtraDeltaCryptoPrecision,
+  ])
+
   // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
 
   // trade FOX. If a user trades FOX, the discount calculations will have changed from the correct
@@ -197,6 +261,7 @@ export const TradeSuccess = ({
               <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
+            <SurplusLine />
           </Flex>
         </SlideTransition>
         <Stack gap={4} px={8}>

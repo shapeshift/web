@@ -56,23 +56,6 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     pendingClaimsCountRef.current = claimsByStatus.Pending.length
   }, [claimsByStatus.Available.length, claimsByStatus.Pending.length])
 
-  // Load initial transactions on mount
-  // Note, it looks like this may be redundant with the txHistorySlice initial page load but it is not, we load pages of 100 here
-  // vs. 10 in the txHistorySlice default pageSize. Loading more here means less round trips, since we may have to go v. v. far in history
-  useEffect(() => {
-    if (arbitrumAccountIds.length === 0) return
-
-    arbitrumAccountIds.forEach(accountId => {
-      dispatch(
-        txHistoryApi.endpoints.getAllTxHistory.initiate({
-          accountId,
-          page: 1,
-          pageSize: 100,
-        }),
-      )
-    })
-  }, [arbitrumAccountIds, dispatch])
-
   const isAnyAccountIdHasMore = useCallback(() => {
     if (arbitrumAccountIds.length === 0) return false
 
@@ -102,7 +85,6 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
               txHistoryApi.endpoints.getAllTxHistory.initiate({
                 accountId,
                 page: pageToFetch,
-                pageSize: 100,
               }),
             ).unwrap(),
           ),

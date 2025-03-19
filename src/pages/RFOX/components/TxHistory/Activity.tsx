@@ -51,7 +51,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
   }, [rfoxTxIds.length])
 
   // Check if any arbitrum account has more pages
-  const isAnyAccountIdHasMore = useCallback(() => {
+  const isAnyArbitrumAccountIdHasMore = useMemo(() => {
     if (arbitrumAccountIds.length === 0) return false
 
     return arbitrumAccountIds.some(accountId => {
@@ -98,7 +98,7 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
         // No new RFOX transactions, try next page
         nextPage++
 
-        const anyAccountHasMore = isAnyAccountIdHasMore()
+        const anyAccountHasMore = isAnyArbitrumAccountIdHasMore
 
         if (!anyAccountHasMore) {
           setHasMore(false)
@@ -112,7 +112,14 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
 
     setCurrentPage(nextPage)
     setIsLoadingMore(false)
-  }, [arbitrumAccountIds, isAnyAccountIdHasMore, currentPage, dispatch, hasMore, isLoadingMore])
+  }, [
+    arbitrumAccountIds,
+    isAnyArbitrumAccountIdHasMore,
+    currentPage,
+    dispatch,
+    hasMore,
+    isLoadingMore,
+  ])
 
   return (
     <CardBody>
@@ -127,18 +134,18 @@ export const Activity = ({ headerComponent }: ActivityProps) => {
           />
         )}
 
-        {hasMore && (
+        {
           <Flex justifyContent='center' mt={4} width='full'>
             <Button
               onClick={handleLoadMore}
-              isDisabled={isLoadingMore}
+              isDisabled={isLoadingMore || !hasMore}
               rightIcon={isLoadingMore ? <CircularProgress isIndeterminate size={4} /> : undefined}
               width='full'
             >
               {translate('common.loadMore')}
             </Button>
           </Flex>
-        )}
+        }
       </Box>
     </CardBody>
   )

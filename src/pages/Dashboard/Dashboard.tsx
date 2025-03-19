@@ -9,7 +9,6 @@ import type { SlideRenderProps } from 'react-swipeable-views-utils'
 import { virtualize } from 'react-swipeable-views-utils'
 
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
-import { EarnDashboard } from './EarnDashboard'
 import { MobileActivity } from './MobileActivity'
 import { WalletDashboard } from './WalletDashboard'
 
@@ -181,9 +180,6 @@ export const Dashboard = memo(() => {
       <Switch>
         <Route exact path={`${path}`}>
           <WalletDashboard />
-        </Route>
-        <Route exact path={`${path}/earn`}>
-          <EarnDashboard />
         </Route>
         <Route path={`${path}/accounts`}>
           <Accounts />

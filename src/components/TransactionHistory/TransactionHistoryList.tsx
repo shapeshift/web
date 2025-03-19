@@ -13,7 +13,7 @@ import {
   selectPaginationStateByAccountId,
   selectTxHistoryPagination,
 } from '@/state/slices/selectors'
-import type { TxHistory, TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -33,34 +33,13 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
     const enabledAccountIds = useAppSelector(selectEnabledWalletAccountIds)
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
-    const _paginationState = useAppSelector(selectTxHistoryPagination)
+    const txHistoryPaginationState = useAppSelector(selectTxHistoryPagination)
     const accountIdPaginationState = useAppSelector(state =>
       selectPaginationStateByAccountId(state, { accountId: accountId ?? '' }),
     )
 
     const chainAccountIds = useAppSelector(state =>
       chainId ? selectAccountIdsByChainIdFilter(state, { chainId }) : [],
-    )
-
-    const accountIdsToFetch = useMemo(() => {
-      if (accountId) {
-        return [accountId]
-      }
-      if (chainId) {
-        return chainAccountIds
-      }
-
-      return enabledAccountIds
-    }, [accountId, chainId, chainAccountIds, enabledAccountIds])
-
-    const accountPaginationStates = useMemo(
-      () =>
-        accountIdsToFetch.reduce<TxHistory['pagination']>((acc, _accountId) => {
-          const pagination = _paginationState[_accountId]
-          acc[_accountId] = pagination
-          return acc
-        }, {}),
-      [_paginationState, accountIdsToFetch],
     )
 
     const paginationState = useMemo(() => {
@@ -70,15 +49,28 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
       if (chainId && chainAccountIds.length > 0) {
         const isAnyChainAccountIdHasMore = chainAccountIds.some(
-          accId => _paginationState[accId]?.hasMore,
+          accId => txHistoryPaginationState[accId]?.hasMore,
         )
         return {
           hasMore: isAnyChainAccountIdHasMore,
         }
       }
 
-      return { hasMore: true }
-    }, [_paginationState, accountId, chainId, chainAccountIds, accountIdPaginationState])
+      return {
+        hasMore: Object.values(txHistoryPaginationState).some(pagination => pagination.hasMore),
+      }
+    }, [txHistoryPaginationState, accountId, chainId, chainAccountIds, accountIdPaginationState])
+
+    const accountIds = useMemo(() => {
+      if (accountId) {
+        return [accountId]
+      }
+      if (chainId) {
+        return chainAccountIds
+      }
+
+      return enabledAccountIds
+    }, [accountId, chainId, chainAccountIds, enabledAccountIds])
 
     // Query for transactions when we have a specific accountId
     const { isFetching: isAccountIdFetching } = accountId
@@ -97,27 +89,33 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     // Filter to get only account IDs that have more transactions
     // Also ensure that we're not requesting with an empty cursor (which indicates no more txs)
     const accountsIdsWithMore = useMemo(() => {
-      return Object.entries(accountPaginationStates)
-        .filter(([_, pagination]) => {
-          // Only include accounts that have hasMore=true in state
-          if (!pagination?.hasMore) return false
+      return accountIds.filter(_accountId => {
+        const pagination = txHistoryPaginationState[_accountId]
 
-          // Find the highest page number that has a cursor
-          const pageNumbers = Object.keys(pagination.cursors || {}).map(Number)
-          const lastPage = Math.max(...pageNumbers, 0)
+        // Only include accounts that have hasMore=true in state
+        if (!pagination?.hasMore) return false
 
-          // Get the cursor for the last page
-          const lastCursor = pagination.cursors?.[lastPage]
+        // Find the highest page number that has a cursor
+        const pageNumbers = Object.keys(pagination?.cursors || {}).map(Number)
+        const lastPage = Math.max(...pageNumbers, 0)
 
-          // If the most recent cursor is empty or undefined, there are no more txs
-          if (lastPage > 0 && (lastCursor === undefined || lastCursor === '')) {
-            return false
-          }
+        // Get the cursor for the last page
+        const lastCursor = pagination?.cursors?.[lastPage]
 
-          return true
-        })
-        .map(([_accountId]) => _accountId as AccountId)
-    }, [accountPaginationStates])
+        // If the most recent cursor is empty or undefined, there are no more txs
+        if (lastPage > 0 && (lastCursor === undefined || lastCursor === '')) {
+          return false
+        }
+
+        return true
+      })
+    }, [txHistoryPaginationState, accountIds])
+
+    // Ensure we do not fetch *all* AccountIds, but only the ones with more pages
+    const accountIdsToFetch = useMemo(
+      () => accountsIdsWithMore.filter(_accountId => accountIds.includes(_accountId)),
+      [accountsIdsWithMore, accountIds],
+    )
 
     const handleLoadMore = useCallback(() => {
       if (accountId && paginationState.hasMore) {
@@ -127,12 +125,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       setPage(prevPage => {
         const newPage = prevPage + 1
 
-        // Ensure we do not fetch *all* AccountIds, but only the ones with more pages
-        const _accountIdsToFetch = accountsIdsWithMore.filter(_accountId =>
-          accountIdsToFetch.includes(_accountId),
-        )
-
-        _accountIdsToFetch.forEach(_accountId => {
+        accountIdsToFetch.forEach(_accountId => {
           dispatch(
             txHistoryApi.endpoints.getAllTxHistory.initiate({
               accountId: _accountId,
@@ -148,7 +141,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       accountId,
       paginationState.hasMore,
       accountsIdsWithMore,
-      accountIdsToFetch,
+      accountIds,
       dispatch,
       initialTxsCount,
     ])
@@ -159,17 +152,6 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       }
       return isAnyTxHistoryApiQueryPending
     }, [accountId, isAccountIdFetching, isAnyTxHistoryApiQueryPending])
-
-    const showLoadMore = useMemo(() => {
-      if (!accountIdsToFetch.length) return false
-
-      if (accountId) return paginationState.hasMore
-
-      const relevantAccountsWithMoreTxs = accountsIdsWithMore.filter(accId =>
-        accountIdsToFetch.includes(accId),
-      )
-      return relevantAccountsWithMoreTxs.length > 0
-    }, [accountIdsToFetch, accountId, paginationState.hasMore, accountsIdsWithMore])
 
     return (
       <>
@@ -185,15 +167,12 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
             mb='4'
           />
         )}
-        {(txIds.length > 0 || paginationState.hasMore || showLoadMore) && (
+        {(txIds.length > 0 || paginationState.hasMore) && (
           <Button
             mx={2}
             my={2}
             onClick={handleLoadMore}
-            isDisabled={
-              isLoading ||
-              accountsIdsWithMore.filter(accId => accountIdsToFetch.includes(accId)).length === 0
-            }
+            isDisabled={isLoading || !accountIdsToFetch.length}
             isLoading={isLoading}
             rightIcon={isLoading ? <CircularProgress isIndeterminate size={6} /> : undefined}
           >

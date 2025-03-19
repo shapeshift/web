@@ -58,8 +58,11 @@ export const TransactionHistoryFilter = memo(
      */
     useOutsideClick({
       ref: popoverRef,
-      handler: () => {
-        setIsOpen(false)
+      handler: e => {
+        const target = e.target as HTMLElement
+        if (!target?.className?.includes('react-datepicker')) {
+          setIsOpen(false)
+        }
       },
     })
     const translate = useTranslate()

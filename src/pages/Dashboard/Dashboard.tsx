@@ -11,7 +11,6 @@ import { virtualize } from 'react-swipeable-views-utils'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
 import { EarnDashboard } from './EarnDashboard'
 import { MobileActivity } from './MobileActivity'
-import { RewardsDashboard } from './RewardsDashboard'
 import { WalletDashboard } from './WalletDashboard'
 
 import { Main } from '@/components/Layout/Main'
@@ -185,9 +184,6 @@ export const Dashboard = memo(() => {
         </Route>
         <Route exact path={`${path}/earn`}>
           <EarnDashboard />
-        </Route>
-        <Route exact path={`${path}/rewards`}>
-          <RewardsDashboard />
         </Route>
         <Route path={`${path}/accounts`}>
           <Accounts />

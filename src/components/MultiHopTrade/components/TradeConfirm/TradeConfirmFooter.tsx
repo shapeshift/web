@@ -298,6 +298,14 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     tradeExecutionStepSummary,
   ])
 
+  const sharedConfirmFooterPaddingTop = useMemo(() => {
+    if (!currentTradeStep) {
+      return 0
+    }
+
+    return 4
+  }, [currentTradeStep])
+
   const footerButton = useMemo(() => {
     if (!tradeQuoteStep || currentHopIndex === undefined || !activeTradeId) return null
     return (
@@ -318,5 +326,11 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isNetworkFeeCryptoBaseUnitRefetching,
   ])
 
-  return <SharedConfirmFooter detail={tradeDetail} button={footerButton} />
+  return (
+    <SharedConfirmFooter
+      detail={tradeDetail}
+      button={footerButton}
+      pt={sharedConfirmFooterPaddingTop}
+    />
+  )
 }

@@ -516,8 +516,6 @@
     "overview": "Overview",
     "myPositions": "My Positions",
     "myPositionsBody": "A list of your currently active positions in DeFi.",
-    "myRewards": "My Rewards",
-    "myRewardsBody": "Your active DeFi positions with claimable rewards.",
     "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "There is a lockup period of %{time}. During lockup you can't access your liquidity.",
@@ -1062,7 +1060,6 @@
     "learnMoreAboutFox": "Learn more about FOX Benefits",
     "freeTrade": "This trade is free based on your FOX holdings of %{foxBalance} FOX",
     "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based on your FOX holdings of %{foxBalance} FOX."
-
   },
   "limitOrder": {
     "heading": "Limit",

@@ -12,7 +12,7 @@
   --negative-text:var(--chakra-colors-white);
 }
 
-.dark-theme, .chakra-ui-dark .react-datepicker__portal{
+.dark-theme, .chakra-ui-dark .react-datepicker__portal {
   --light-gray: var(--chakra-colors-gray-600);
   --gray: var(--chakra-colors-gray-600);
   --blue500: var(--chakra-colors-blue-500);

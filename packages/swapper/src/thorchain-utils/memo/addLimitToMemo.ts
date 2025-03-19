@@ -1,3 +1,5 @@
+import { bnOrZero } from '@shapeshiftoss/utils'
+
 import { assertAndProcessMemo } from './assertAndProcessMemo'
 import { MEMO_PART_DELIMITER } from './constants'
 
@@ -31,9 +33,9 @@ export const addLimitToMemo = ({ memo, limit }: AddLimitToMemoArgs) => {
     case 's': {
       // SWAP:ASSET:DESTADDR:LIM/INTERVAL/QUANTITY:AFFILIATE:FEE
       const [, asset, destAddr, _limit, affiliate, fee] = memoParts
-      if (!_limit) {
-        updatedMemo = `${action}:${asset}:${destAddr}:${limit}:${affiliate || ''}:${fee || ''}`
-      }
+      updatedMemo = `${action}:${asset}:${destAddr}:${bnOrZero(limit).times(100).toFixed()}:${
+        affiliate || ''
+      }:${fee || ''}`
       break
     }
     case '$+':

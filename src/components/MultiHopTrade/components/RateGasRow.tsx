@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from '@chakra-ui/icons'
-import type { FlexProps } from '@chakra-ui/react'
+import type { FlexProps, StackProps } from '@chakra-ui/react'
 import {
   Box,
   Collapse,
@@ -47,6 +47,7 @@ type RateGasRowProps = {
   invertRate?: boolean
   noExpand?: boolean
   isOpen?: boolean
+  sx?: StackProps['sx']
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -66,6 +67,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     deltaPercentage,
     noExpand,
     invertRate,
+    sx,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
@@ -185,6 +187,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             transitionProperty='common'
             transitionDuration='normal'
             fontSize='sm'
+            sx={sx}
           >
             <Flex
               _hover={noExpand ? undefined : rowHover}

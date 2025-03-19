@@ -33,7 +33,7 @@ import {
 } from '@/state/selectors'
 
 export const selectTxHistoryPagination = (state: ReduxState) => state.txHistory.pagination
-const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
+export const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
 export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector(
   selectTxHistoryApiQueries,
   queries => Object.values(queries).some(query => query?.status === QueryStatus.pending),

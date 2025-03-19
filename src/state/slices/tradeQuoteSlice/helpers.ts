@@ -152,12 +152,9 @@ const sortApiQuotes = (
   unorderedQuotes: ApiQuote[],
   sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
 ): ApiQuote[] => {
-  // First, filter out quotes with errors - those belong in the unavailable section
-  const quotesWithoutErrors = unorderedQuotes.filter(quote => quote.errors.length === 0)
-
   // Custom sorting function rather than an orderBy iteratee to keep my sanity, since this didn't play too well with it
   if (sortOption === QuoteSortOption.FASTEST) {
-    const sorted = [...quotesWithoutErrors].sort((a, b) => {
+    const sorted = [...unorderedQuotes].sort((a, b) => {
       const getExecutionTime = (quote: ApiQuote) => {
         if (!quote.quote?.steps?.length) return undefined
 
@@ -232,7 +229,7 @@ const sortApiQuotes = (
     }
   })()
 
-  const ordered = orderBy(quotesWithoutErrors, iteratees, sortOrders)
+  const ordered = orderBy(unorderedQuotes, iteratees, sortOrders)
 
   return ordered
 }
@@ -246,15 +243,7 @@ export const sortTradeQuotes = (
     .map(swapperQuotes => Object.values(swapperQuotes))
     .flat()
 
-  // Split quotes into those with and without errors
-  const quotesWithoutErrors = allQuotes.filter(quote => quote.errors.length === 0)
-  const quotesWithErrors = allQuotes.filter(quote => quote.errors.length > 0)
-
-  // Only sort quotes without errors
-  const sortedHappyQuotes = sortApiQuotes(quotesWithoutErrors, sortOption)
-
-  // Return sorted quotes without errors first, then quotes with errors
-  return [...sortedHappyQuotes, ...quotesWithErrors]
+  return sortApiQuotes(allQuotes, sortOption)
 }
 
 export const getActiveQuoteMetaOrDefault = (

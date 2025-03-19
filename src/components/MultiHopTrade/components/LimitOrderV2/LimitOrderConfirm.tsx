@@ -428,7 +428,7 @@ export const LimitOrderConfirm = () => {
 
   const footer = useMemo(() => {
     if (!detail && !button) return null
-    return <SharedConfirmFooter detail={detail} button={button} />
+    return <SharedConfirmFooter detail={detail} button={button} pt={0} />
   }, [detail, button])
 
   // We should have some submission state here... unless we're rehydrating or trying to access /limit/confirm directly

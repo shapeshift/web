@@ -71,6 +71,18 @@ export const MultiHopTrade = memo(
     const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
 
+    const isInitialMount = useRef(true)
+
+    // Clear state *only* when mounting the main trade page (i.e not in the context of mini swapper)
+    useEffect(() => {
+      // Only run this logic after the initial mount and only for the main trade page
+      if (isInitialMount.current && !isStandalone) {
+        isInitialMount.current = false
+
+        dispatch(tradeInput.actions.clear())
+      }
+    }, [dispatch, isStandalone])
+
     const buyAssetId = useMemo(() => {
       if (defaultBuyAssetId) return defaultBuyAssetId
       if (chainId && assetSubId) return `${chainId}/${assetSubId}`

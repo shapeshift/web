@@ -70,7 +70,6 @@ const validators = {
   VITE_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   VITE_FEATURE_LIFI_SWAP: bool({ default: false }),
   VITE_FEATURE_COWSWAP: bool({ default: false }),
-  VITE_FEATURE_JAYPEGZ: bool({ default: false }),
   VITE_FEATURE_OPTIMISM: bool({ default: false }),
   VITE_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   VITE_FEATURE_POLYGON: bool({ default: false }),

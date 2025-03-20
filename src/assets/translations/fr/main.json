@@ -268,7 +268,6 @@
     "recentTransactions": {
       "recentTransactions": "Transactions récentes"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "Échanger",
       "bridge": "Bridger",
@@ -2382,27 +2381,6 @@
       "body": "Misez dans les THORChain Savers Vaults. Sans temps de blocage.",
       "cta": "Déposer maintenant"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Personnaliser le FOXatar",
-    "setAsAvatar": "Définir comme avatar",
-    "floorPrice": "Prix plancher",
-    "lastPrice": "Dernier prix",
-    "overview": "Vue d'ensemble",
-    "properties": "Propriétés",
-    "collection": "Collection",
-    "tokenId": "ID du jeton",
-    "address": "Adresse",
-    "chain": "Chaîne",
-    "standard": "Standard",
-    "description": "Description",
-    "details": "Détails",
-    "attributes": "Attributs",
-    "aboutCollection": "Informations sur %{collectionName}",
-    "emptyTitle": "Où sont passés tous les NFT ?",
-    "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence.",
-    "reportSpam": "Signaler comme spam",
-    "refresh": "Rafraîchir"
   },
   "avatar": {
     "modal": {

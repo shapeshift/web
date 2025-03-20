@@ -10,14 +10,12 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SOLANA: string
   readonly VITE_FEATURE_BASE: string
   readonly VITE_FEATURE_OPTIMISM: string
-  readonly VITE_FEATURE_JAYPEGZ: string
   readonly VITE_FEATURE_MIXPANEL: string
   readonly VITE_FEATURE_SAVERS_VAULTS: string
   readonly VITE_FEATURE_SAVERS_VAULTS_DEPOSIT: string
   readonly VITE_FEATURE_SAVERS_VAULTS_WITHDRAW: string
   readonly VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: string
   readonly VITE_FEATURE_WALLET_CONNECT_TO_DAPPS: string
-  readonly VITE_FEATURE_NFT_METADATA: string
   readonly VITE_FEATURE_CHATWOOT: string
   readonly VITE_FEATURE_ADVANCED_SLIPPAGE: string
   readonly VITE_FEATURE_LEDGER_WALLET: string

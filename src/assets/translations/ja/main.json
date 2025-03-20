@@ -268,7 +268,6 @@
     "recentTransactions": {
       "recentTransactions": "最近の取引"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "取引",
       "bridge": "ブリッジ",
@@ -2381,27 +2380,6 @@
       "body": "THORChainセーバーボールトにステークします。ロックアップ時間はありません。",
       "cta": "今すぐ入金"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "FOXatarをカスタマイズする",
-    "setAsAvatar": "Avatarとして設定",
-    "floorPrice": "最低価格",
-    "lastPrice": "最終価格",
-    "overview": "概要",
-    "properties": "プロパティ",
-    "collection": "コレクション",
-    "tokenId": "トークンID",
-    "address": "アドレス",
-    "chain": "チェーン",
-    "standard": "標準",
-    "description": "説明",
-    "details": "詳細",
-    "attributes": "属性",
-    "aboutCollection": "%{collectionName}について",
-    "emptyTitle": "すべてのNFTはどこに行ったのでしょうか?",
-    "emptyBody": "心配しないでください、私たちはより素晴らしいNFTを取り戻すために捜索隊を派遣しました。その間、何もない空間を見つめて、存在の意味をじっくり考えてみてください。",
-    "reportSpam": "スパム報告",
-    "refresh": "リフレッシュ"
   },
   "avatar": {
     "modal": {

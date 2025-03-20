@@ -35,7 +35,6 @@ export type FeatureFlags = {
   LifiSwap: boolean
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
-  Jaypegz: boolean
   ArbitrumBridge: boolean
   PortalsSwap: boolean
   Chatwoot: boolean
@@ -114,7 +113,6 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    Jaypegz: getConfig().VITE_FEATURE_JAYPEGZ,
     Optimism: getConfig().VITE_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().VITE_FEATURE_BNBSMARTCHAIN,
     Polygon: getConfig().VITE_FEATURE_POLYGON,

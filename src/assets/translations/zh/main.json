@@ -268,7 +268,6 @@
     "recentTransactions": {
       "recentTransactions": "最近交易"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "交易",
       "bridge": "跨链桥",
@@ -2381,27 +2380,6 @@
       "body": "质押到 THORChain 储蓄金库。没有锁定时间。",
       "cta": "立即充值"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "自定义 FOXatar",
-    "setAsAvatar": "设置为头像",
-    "floorPrice": "底价",
-    "lastPrice": "最新价格",
-    "overview": "总览",
-    "properties": "特性",
-    "collection": "收藏品",
-    "tokenId": "代币 ID",
-    "address": "地址",
-    "chain": "链",
-    "standard": "标准",
-    "description": "描述",
-    "details": "细节",
-    "attributes": "属性",
-    "aboutCollection": "关于 %{collectionName}",
-    "emptyTitle": "所有的 NFT 都去哪儿了？",
-    "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。",
-    "reportSpam": "举报垃圾信息",
-    "refresh": "刷新"
   },
   "avatar": {
     "modal": {

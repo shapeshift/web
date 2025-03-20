@@ -269,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     },
-    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Trade",
       "bridge": "Bridge",
@@ -2413,27 +2412,6 @@
       "body": "Stake to THORChain savers vault. No lock-up time.",
       "cta": "Deposit Now"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Customize FOXatar",
-    "setAsAvatar": "Set as Avatar",
-    "floorPrice": "Floor Price",
-    "lastPrice": "Last Price",
-    "overview": "Overview",
-    "properties": "Properties",
-    "collection": "Collection",
-    "tokenId": "Token ID",
-    "address": "Address",
-    "chain": "Chain",
-    "standard": "Standard",
-    "description": "Description",
-    "details": "Details",
-    "attributes": "Attributes",
-    "aboutCollection": "About %{collectionName}",
-    "emptyTitle": "Where did all the NFTs go?",
-    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence.",
-    "reportSpam": "Report Spam",
-    "refresh": "Refresh"
   },
   "avatar": {
     "modal": {

@@ -171,7 +171,7 @@ export const SpotTradeSuccess = ({
     return bnOrZero(feesUpsideCryptoPrecision)
       .plus(maybeExtraDeltaCryptoPrecision ?? 0)
       .toFixed()
-  }, [lastHop, maybeExtraDeltaCryptoPrecision])
+  }, [lastHop, maybeExtraDeltaCryptoPrecision, feesUpsideCryptoPrecision])
 
   const totalUpsidePercentage = useMemo(() => {
     if (!lastHop) return '0'
@@ -180,7 +180,7 @@ export const SpotTradeSuccess = ({
       .dividedBy(actualBuyAmountCryptoPrecision ?? 0)
       .times(100)
       .toFixed()
-  }, [lastHop, totalUpsideCryptoPrecision])
+  }, [lastHop, totalUpsideCryptoPrecision, actualBuyAmountCryptoPrecision])
 
   const relatedAssetIdsFilter = useMemo(
     () => ({

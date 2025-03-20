@@ -68,10 +68,6 @@ export const YouSaved = ({
     })
   }, [makeShot])
 
-  const cryptoUpside = useMemo(() => {
-    return `${bnOrZero(totalUpsideCryptoPrecision).toFixed(8)} ${buyAsset.symbol}`
-  }, [totalUpsideCryptoPrecision, buyAsset.symbol])
-
   const formattedPercentage = useMemo(() => {
     return `+${bnOrZero(totalUpsidePercentage).toFixed(2)}%`
   }, [totalUpsidePercentage])
@@ -90,7 +86,7 @@ export const YouSaved = ({
         />
       ),
     }),
-    [cryptoUpside],
+    [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
   )
 
   return (

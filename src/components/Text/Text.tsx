@@ -56,15 +56,26 @@ export const Text = forwardRef<TextPropTypes, 'p'>(({ components, translation, .
             return cloneElement(components[key], { key: index })
           }
 
-          const tagContentMatch = part.match(/<([^>]+)>(.*?)<\/\1>/)
-          if (tagContentMatch) {
-            const [, key, content] = tagContentMatch
+          const tagMatches = part.match(/<([^>]+)>(.*?)<\/\1>/g)
+          if (tagMatches) {
+            const pieces = part.split(/(<[^>]+>.*?<\/[^>]+>)/g)
 
-            if (!components?.[key]) return <span key={index}>{part}</span>
+            return pieces.map((piece, pieceIndex) => {
+              if (!piece) return null
 
-            return cloneElement(components[key], {
-              key: index,
-              children: content,
+              const tagContentMatch = piece.match(/<([^>]+)>(.*?)<\/\1>/)
+
+              if (tagContentMatch) {
+                const [, key, content] = tagContentMatch
+                if (!components?.[key]) return <span key={`${index}-${pieceIndex}`}>{piece}</span>
+
+                return cloneElement(components[key], {
+                  key: `${index}-${pieceIndex}`,
+                  children: content,
+                })
+              }
+
+              return piece ? <Fragment key={`${index}-${pieceIndex}`}>{piece}</Fragment> : null
             })
           }
 

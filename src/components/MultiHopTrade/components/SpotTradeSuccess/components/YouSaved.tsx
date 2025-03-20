@@ -6,8 +6,8 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 
+import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
-import type { TextPropTypes } from '@/components/Text/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const confettiStyle: CSSProperties = {
@@ -80,9 +80,18 @@ export const YouSaved = ({
     return `${sellAsset.symbol}/${buyAsset.symbol}`
   }, [sellAsset, buyAsset])
 
-  const youGotMoreTranslationProps = useMemo(() => {
-    return ['trade.foxSavings.youGotMore', { cryptoUpside }] as TextPropTypes['translation']
-  }, [cryptoUpside])
+  const youGotMoreTranslationComponents = useMemo(
+    () => ({
+      cryptoUpside: (
+        <Amount.Crypto
+          as='span'
+          value={bnOrZero(totalUpsideCryptoPrecision).toFixed(buyAsset.precision)}
+          symbol={buyAsset.symbol}
+        />
+      ),
+    }),
+    [cryptoUpside],
+  )
 
   return (
     <>
@@ -96,7 +105,12 @@ export const YouSaved = ({
         borderWidth={2}
       >
         <Flex justifyContent='space-between' alignItems='center'>
-          <Text translation={youGotMoreTranslationProps} fontSize='md' fontWeight='medium' />
+          <Text
+            translation='trade.foxSavings.youGotMore'
+            components={youGotMoreTranslationComponents}
+            fontSize='md'
+            fontWeight='medium'
+          />
           <Flex direction='column' alignItems='flex-end'>
             <Box color='white' fontSize='2xl' fontWeight='bold'>
               {formattedPercentage}

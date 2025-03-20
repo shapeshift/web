@@ -64,6 +64,8 @@ const NftContent = () => {
         ? data.filter(nftItem => networkFilters.includes(nftItem.chainId))
         : data
 
+      // Don't use matchSorter if there is no need to - it's expensive, and will rug the initial sorting
+      // resulting in perceived borked order when filtering by chain vs. no filter applied
       return search
         ? matchSorter(maybeFilteredByChainId, search, {
             keys,
@@ -135,7 +137,6 @@ export const NftTable = memo(() => {
   const [shouldRender, setShouldRender] = useState(false)
   const deferredShouldRender = useDeferredValue(shouldRender)
 
-  // Defer rendering the NFT table to improve initial load performance
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setShouldRender(true)

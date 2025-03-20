@@ -93,7 +93,6 @@ const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
-
   const chainRows = useMemo(
     () =>
       portfolioChainIdsSortedUserCurrency.map(chainId => (
@@ -129,9 +128,7 @@ export const Accounts = () => {
   const [shouldRender, setShouldRender] = useState(false)
   const deferredShouldRender = useDeferredValue(shouldRender)
 
-  // Defer rendering the accounts list to improve initial load performance
   useEffect(() => {
-    // Use requestAnimationFrame to defer rendering until after the next paint
     const timeoutId = setTimeout(() => {
       setShouldRender(true)
     }, 0)

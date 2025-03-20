@@ -46,16 +46,10 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
         return
       }
 
-      // If we have a regular click handler, use it
-      if (onClick) {
-        onClick(e)
-        return
-      }
+      if (onClick) return onClick(e)
 
-      // Otherwise handle navigation with transitions
       if (props.to) {
         e.preventDefault()
-        // Use startTransition to prevent UI freezing during navigation
         startNavTransition(() => {
           history.push(props.to as string)
         })

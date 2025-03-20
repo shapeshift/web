@@ -10,7 +10,6 @@ import {
   HStack,
   Icon,
   Stack,
-  Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
 import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
@@ -20,7 +19,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { TwirlyToggle } from '../TwirlyToggle'
+import { TwirlyToggle } from '../../TwirlyToggle'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AnimatedCheck } from '@/components/AnimatedCheck'
@@ -28,9 +27,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -39,7 +36,7 @@ import {
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector } from '@/state/store'
 
-export type TradeSuccessProps = {
+export type LimitTradeSuccessProps = {
   handleBack: () => void
   children?: JSX.Element
   titleTranslation: string | [string, InterpolationOptions]
@@ -49,10 +46,9 @@ export type TradeSuccessProps = {
   buyAsset?: Asset
   sellAmountCryptoPrecision?: string
   quoteBuyAmountCryptoPrecision?: string
-  extraContent?: JSX.Element
 }
 
-export const TradeSuccess = ({
+export const LimitTradeSuccess = ({
   handleBack,
   titleTranslation,
   buttonTranslation,
@@ -62,8 +58,7 @@ export const TradeSuccess = ({
   sellAsset,
   buyAsset,
   quoteBuyAmountCryptoPrecision,
-  extraContent,
-}: TradeSuccessProps) => {
+}: LimitTradeSuccessProps) => {
   const translate = useTranslate()
   const tradeQuote = useAppSelector(selectActiveQuote)
   const receiveAddress = tradeQuote?.receiveAddress
@@ -100,10 +95,6 @@ export const TradeSuccess = ({
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
   const transfers = txTransfers || manualReceiveAddressTransfers
 
-  const buyAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
-  )
-
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined
 
@@ -114,22 +105,6 @@ export const TradeSuccess = ({
       ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
       : undefined
   }, [transfers, buyAsset])
-
-  const maybeExtraDeltaCryptoPrecision = useMemo(() => {
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return undefined
-
-    return bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).gt(0)
-      ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toString()
-      : undefined
-  }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
-
-  const maybeExraDeltaUserCurrency = useMemo(() => {
-    if (!maybeExtraDeltaCryptoPrecision || !buyAsset) return undefined
-
-    return bnOrZero(maybeExtraDeltaCryptoPrecision)
-      .times(buyAssetMarketDataUserCurrency?.price ?? 0)
-      .toString()
-  }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -162,48 +137,6 @@ export const TradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
-  const surplusComponents = useMemo(
-    () => ({
-      extra: (
-        <Box color='green.200' display='inline'>
-          <Amount.Crypto
-            as='span'
-            fontWeight='medium'
-            symbol={buyAsset?.symbol ?? ''}
-            value={maybeExtraDeltaCryptoPrecision}
-          />
-          <CText as='span' color='green.200'>
-            {' '}
-            (
-          </CText>
-          <Amount.Fiat as='span' value={maybeExraDeltaUserCurrency} />
-          <CText as='span' color='green.200'>
-            )
-          </CText>
-        </Box>
-      ),
-    }),
-    [buyAsset?.symbol, maybeExraDeltaUserCurrency, maybeExtraDeltaCryptoPrecision],
-  )
-
-  const SurplusLine = useCallback(() => {
-    if (!buyAsset) return null
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
-    if (!maybeExtraDeltaCryptoPrecision) return null
-
-    return (
-      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
-        <Text translation='trade.tradeCompleteSurplus' components={surplusComponents} />
-      </Flex>
-    )
-  }, [
-    buyAsset,
-    quoteBuyAmountCryptoPrecision,
-    actualBuyAmountCryptoPrecision,
-    surplusComponents,
-    maybeExtraDeltaCryptoPrecision,
-  ])
-
   return (
     <>
       <CardBody pb={4} px={0}>
@@ -214,14 +147,12 @@ export const TradeSuccess = ({
               <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
-            <SurplusLine />
           </Flex>
         </SlideTransition>
         <Stack gap={4} px={8}>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate(buttonTranslation)}
           </Button>
-          {extraContent}
         </Stack>
       </CardBody>
       {summaryTranslation && children && (

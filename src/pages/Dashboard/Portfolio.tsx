@@ -2,7 +2,7 @@ import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import { memo } from 'react'
 
 import { AccountTable } from './components/AccountList/AccountTable'
-import { DashboardChart } from './components/DashboardChart'
+import { DashboardBalance } from './components/DashboardBalance'
 
 import { useNfts } from '@/components/Nfts/hooks/useNfts'
 import { Text } from '@/components/Text'
@@ -18,7 +18,7 @@ export const Portfolio = memo(() => {
 
   return (
     <Stack spacing={stackSpacing} width='full'>
-      <DashboardChart />
+      <DashboardBalance />
       <Card variant='dashboard'>
         <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
           <Heading as='h6'>

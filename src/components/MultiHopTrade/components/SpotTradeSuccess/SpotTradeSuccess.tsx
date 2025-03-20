@@ -147,23 +147,30 @@ export const SpotTradeSuccess = ({
       .toString()
   }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
 
-  const feesUpsideCryptoPrecision = useMemo(() => {
-    if (!lastHop) return '0'
-
-    const { buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } = lastHop
+  const { buyAmountAfterFeesCryptoPrecision, buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
+    const { buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } = lastHop ?? {}
 
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesCryptoBaseUnit,
-      lastHop.buyAsset.precision,
+      lastHop?.buyAsset.precision,
     )
 
     const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
       buyAmountAfterFeesCryptoBaseUnit,
-      lastHop.buyAsset.precision,
+      lastHop?.buyAsset.precision,
     )
 
-    return bnOrZero(buyAmountBeforeFeesCryptoPrecision).minus(buyAmountAfterFeesCryptoPrecision)
+    return {
+      buyAmountBeforeFeesCryptoPrecision,
+      buyAmountAfterFeesCryptoPrecision,
+    }
   }, [lastHop])
+
+  const feesUpsideCryptoPrecision = useMemo(() => {
+    if (!lastHop) return '0'
+
+    return bnOrZero(buyAmountBeforeFeesCryptoPrecision).minus(buyAmountAfterFeesCryptoPrecision)
+  }, [lastHop, buyAmountAfterFeesCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
 
   const totalUpsideCryptoPrecision = useMemo(() => {
     if (!lastHop) return '0'
@@ -177,10 +184,10 @@ export const SpotTradeSuccess = ({
     if (!lastHop) return '0'
 
     return bnOrZero(totalUpsideCryptoPrecision)
-      .dividedBy(actualBuyAmountCryptoPrecision ?? 0)
+      .dividedBy(buyAmountBeforeFeesCryptoPrecision ?? 0)
       .times(100)
       .toFixed()
-  }, [lastHop, totalUpsideCryptoPrecision, actualBuyAmountCryptoPrecision])
+  }, [lastHop, totalUpsideCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
 
   const relatedAssetIdsFilter = useMemo(
     () => ({
@@ -306,7 +313,7 @@ export const SpotTradeSuccess = ({
               <Box px={8}>
                 <YouSaved
                   totalUpsidePercentage={totalUpsidePercentage}
-                  totalUpsideCryptoPrecision={maybeExtraDeltaCryptoPrecision ?? '0'}
+                  totalUpsideCryptoPrecision={totalUpsideCryptoPrecision ?? '0'}
                   sellAsset={sellAsset}
                   buyAsset={buyAsset}
                 />

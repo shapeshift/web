@@ -46,7 +46,7 @@ import {
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
-export type TradeSuccessProps = {
+export type SpotTradeSuccessProps = {
   handleBack: () => void
   children?: JSX.Element
   titleTranslation: string | [string, InterpolationOptions]
@@ -58,7 +58,7 @@ export type TradeSuccessProps = {
   quoteBuyAmountCryptoPrecision?: string
 }
 
-export const TradeSuccess = ({
+export const SpotTradeSuccess = ({
   handleBack,
   titleTranslation,
   buttonTranslation,
@@ -68,7 +68,7 @@ export const TradeSuccess = ({
   sellAsset,
   buyAsset,
   quoteBuyAmountCryptoPrecision,
-}: TradeSuccessProps) => {
+}: SpotTradeSuccessProps) => {
   const translate = useTranslate()
   const tradeQuote = useAppSelector(selectActiveQuote)
   const receiveAddress = tradeQuote?.receiveAddress

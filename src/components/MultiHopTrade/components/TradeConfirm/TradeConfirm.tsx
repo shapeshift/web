@@ -1,9 +1,12 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Redirect, useHistory } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
+import { YouCouldHaveSaved } from '../TradeSuccess/components/YouCouldHaveSaved'
+import { YouSaved } from '../TradeSuccess/components/YouSaved'
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
@@ -14,16 +17,20 @@ import { TradeConfirmFooter } from './TradeConfirmFooter'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
   selectFirstHop,
   selectLastHop,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  selectTradeQuoteAffiliateFeeDiscountUserCurrency,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
@@ -96,6 +103,68 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
     return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
   }, [activeQuote])
 
+  const firstHop = useAppSelector(selectFirstHop)
+  const lastHop = useAppSelector(selectLastHop)
+
+  const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
+  const affiliateFeeUserCurrency = useAppSelector(
+    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+  )
+  const hasFeeSaving = !bnOrZero(feeSavingUserCurrency).isZero()
+  const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
+
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: foxAssetId,
+      onlyConnectedChains: false,
+    }),
+    [],
+  )
+
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
+  // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
+
+  // trade FOX. If a user trades FOX, the discount calculations will have changed from the correct
+  // values because the amount of FOX held in the wallet will have changed.
+  // See https://github.com/shapeshift/web/issues/8028 for more details.
+  const enableFoxDiscountSummary = useMemo(() => {
+    const didTradeFox = relatedAssetIds.some(assetId => {
+      return (
+        firstHop?.buyAsset.assetId === assetId ||
+        firstHop?.sellAsset.assetId === assetId ||
+        lastHop?.buyAsset.assetId === assetId ||
+        lastHop?.sellAsset.assetId === assetId
+      )
+    })
+
+    return !didTradeFox
+  }, [firstHop, lastHop, relatedAssetIds])
+
+  const feeSummaryContent = useMemo(() => {
+    if (!enableFoxDiscountSummary) return
+
+    return (
+      <>
+        {hasFeeSaving && feeSavingUserCurrency && (
+          <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
+        )}
+        {couldHaveReducedFee && affiliateFeeUserCurrency && (
+          <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
+        )}
+      </>
+    )
+  }, [
+    enableFoxDiscountSummary,
+    hasFeeSaving,
+    feeSavingUserCurrency,
+    couldHaveReducedFee,
+    affiliateFeeUserCurrency,
+  ])
+
   const body = useMemo(() => {
     if (isTradeComplete && activeQuote && tradeQuoteLastHop)
       return (
@@ -118,6 +187,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
             tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
             tradeQuoteLastHop.buyAsset.precision,
           )}
+          extraContent={feeSummaryContent}
         >
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />
@@ -126,7 +196,14 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
       )
 
     return <TradeConfirmBody />
-  }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
+  }, [
+    activeQuote,
+    handleBack,
+    isArbitrumBridgeWithdraw,
+    isTradeComplete,
+    tradeQuoteLastHop,
+    feeSummaryContent,
+  ])
 
   // We should have some execution state here... unless we're rehydrating or trying to access /trade/confirm directly
   if (!confirmedTradeExecutionState) return <Redirect to={TradeRoutePaths.Input} />

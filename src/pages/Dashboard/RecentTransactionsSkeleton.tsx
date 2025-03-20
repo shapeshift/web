@@ -55,4 +55,3 @@ export const RecentTransactionsSkeleton: React.FC<RecentTransactionsSkeletonProp
     )
   },
 )
-

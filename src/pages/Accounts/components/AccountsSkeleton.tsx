@@ -7,7 +7,7 @@ const pxProps = { base: 4, xl: 0 }
 
 export const AccountsSkeleton = () => {
   const blanks = Array(4).fill(0)
-  
+
   const blankRows = useMemo(() => {
     return blanks.map((_, index) => (
       <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
@@ -26,4 +26,4 @@ export const AccountsSkeleton = () => {
       </List>
     </>
   )
-} 
+}

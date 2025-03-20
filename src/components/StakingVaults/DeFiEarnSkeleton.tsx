@@ -1,18 +1,18 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { 
-  Button, 
-  Flex, 
-  Heading, 
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
   Skeleton,
   SkeletonText,
+  Stack,
   Table,
-  Thead,
   Tbody,
-  Tr,
-  Th,
   Td,
-  Box,
-  Stack
+  Th,
+  Thead,
+  Tr,
 } from '@chakra-ui/react'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -55,8 +55,6 @@ const EarnHeaderSkeleton = () => {
 }
 
 export const DeFiEarnSkeleton = memo(() => {
-  const translate = useTranslate()
-
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <EarnHeaderSkeleton />
@@ -104,4 +102,4 @@ export const DeFiEarnSkeleton = memo(() => {
       </Box>
     </Flex>
   )
-}) 
+})

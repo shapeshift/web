@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Flex, Heading } from '@chakra-ui/react'
-import { memo, useState, useEffect, useDeferredValue, Suspense } from 'react'
+import { memo, Suspense, useDeferredValue, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
 
@@ -12,6 +12,8 @@ import { RawText } from '@/components/Text'
 const alignItems = { base: 'flex-start', md: 'center' }
 const padding = { base: 4, xl: 0 }
 const arrowForwardIcon = <ArrowForwardIcon />
+
+const defiEarnSkeleton = <DeFiEarnSkeleton />
 
 const EarnHeader = () => {
   const translate = useTranslate()
@@ -48,21 +50,20 @@ export const EarnDashboard = memo(() => {
   const [shouldRender, setShouldRender] = useState(false)
   const deferredShouldRender = useDeferredValue(shouldRender)
 
-  // Defer rendering the earn dashboard to improve initial load performance
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setShouldRender(true)
-    }, 100)
-    
+    }, 0)
+
     return () => clearTimeout(timeoutId)
   }, [])
 
   if (!deferredShouldRender) {
-    return <DeFiEarnSkeleton />
+    return defiEarnSkeleton
   }
 
   return (
-    <Suspense fallback={<DeFiEarnSkeleton />}>
+    <Suspense fallback={defiEarnSkeleton}>
       <EarnContent />
     </Suspense>
   )

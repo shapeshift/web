@@ -17,18 +17,9 @@ const NftGridSkeleton = (props: { itemCount?: number }) => {
   const { itemCount = 8 } = props
 
   return (
-    <SimpleGrid 
-      gridGap={4} 
-      gridTemplateColumns={gridTemplateColumns} 
-      px={gridPaddingX}
-    >
+    <SimpleGrid gridGap={4} gridTemplateColumns={gridTemplateColumns} px={gridPaddingX}>
       {Array.from({ length: itemCount }).map((_, index) => (
-        <Box 
-          key={index} 
-          borderRadius='xl' 
-          overflow='hidden'
-          boxShadow='sm'
-        >
+        <Box key={index} borderRadius='xl' overflow='hidden' boxShadow='sm'>
           <Skeleton height='200px' width='100%' />
           <Box p={3}>
             <Skeleton height='20px' width='80%' mb={2} />
@@ -53,4 +44,4 @@ export const NftTableSkeleton = memo(() => {
       <NftGridSkeleton itemCount={8} />
     </>
   )
-}) 
+})

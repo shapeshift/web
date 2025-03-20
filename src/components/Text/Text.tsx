@@ -22,23 +22,17 @@ export const Text = forwardRef<TextPropTypes, 'p'>(({ components, translation, .
   const maybeElements = useMemo(() => {
     if (!translation) return null
 
-    if (Array.isArray(translation) && !components) {
+    const translatedText = Array.isArray(translation)
+      ? translate(...translation)
+      : translate(translation)
+
+    if (!components) {
       return (
         <CText {...props} ref={ref}>
-          {translate(...translation)}
+          {translatedText}
         </CText>
       )
     }
-
-    if (typeof translation === 'string' && !components) {
-      return (
-        <CText {...props} ref={ref}>
-          {translate(translation)}
-        </CText>
-      )
-    }
-
-    const translatedText = translate(translation)
 
     const translationPlaceholders = translatedText.split(/(%\{[^}]+\})/g)
 

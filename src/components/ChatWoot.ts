@@ -5,7 +5,6 @@ import { getConfig } from '@/config'
 
 export const ChatwootWidget: React.FC = () => {
   const chatwootEnabled = import.meta.env.VITE_FEATURE_CHATWOOT === 'true'
-  console.log({chatwootEnabled})
   useEffect(() => {
     if (!chatwootEnabled) return // Add Chatwoot Settings
     ;(window as any).chatwootSettings = {

@@ -88,7 +88,7 @@ export const TradeSuccess = ({
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
 
-  const hasFeeSaving = !bnOrZero(feeSavingUserCurrency).isZero()
+  const hasFeeSaving = useMemo(() => bnOrZero(feeSavingUserCurrency).gt(0), [feeSavingUserCurrency])
   const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
 
   // Get the actual received amount from the buy transaction *if* we can
@@ -135,7 +135,7 @@ export const TradeSuccess = ({
     if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return undefined
 
     return bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).gt(0)
-      ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toString()
+      ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toFixed()
       : undefined
   }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
 
@@ -146,6 +146,18 @@ export const TradeSuccess = ({
       .times(buyAssetMarketDataUserCurrency?.price ?? 0)
       .toString()
   }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
+
+  const totalUpsidePercentage = useMemo(() => {
+    if (!lastHop) return '0'
+
+    const { buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } = lastHop
+
+    return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)
+      .minus(buyAmountAfterFeesCryptoBaseUnit)
+      .div(buyAmountBeforeFeesCryptoBaseUnit)
+      .times(100)
+      .toFixed()
+  }, [lastHop])
 
   const relatedAssetIdsFilter = useMemo(
     () => ({
@@ -219,6 +231,8 @@ export const TradeSuccess = ({
     if (!buyAsset) return null
     if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
     if (!maybeExtraDeltaCryptoPrecision) return null
+    // Superseeded by the "You Saved" explainer
+    if (hasFeeSaving) return null
 
     return (
       <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
@@ -231,6 +245,7 @@ export const TradeSuccess = ({
     actualBuyAmountCryptoPrecision,
     surplusComponents,
     maybeExtraDeltaCryptoPrecision,
+    hasFeeSaving,
   ])
 
   // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
@@ -251,6 +266,8 @@ export const TradeSuccess = ({
     return !didTradeFox
   }, [firstHop, lastHop, relatedAssetIds])
 
+  if (!(buyAsset && sellAsset)) return null
+
   return (
     <>
       <CardBody pb={4} px={0}>
@@ -262,19 +279,28 @@ export const TradeSuccess = ({
             </Stack>
             <AmountsLine />
             <SurplusLine />
+            {enableFoxDiscountSummary && hasFeeSaving && (
+              <Box px={8}>
+                <YouSaved
+                  totalUpsidePercentage={totalUpsidePercentage}
+                  totalUpsideCryptoPrecision={maybeExtraDeltaCryptoPrecision ?? '0'}
+                  sellAsset={sellAsset}
+                  buyAsset={buyAsset}
+                />
+              </Box>
+            )}
+            {couldHaveReducedFee && affiliateFeeUserCurrency && (
+              <Box px={8}>
+                <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
+              </Box>
+            )}
           </Flex>
         </SlideTransition>
-        <Stack gap={4} px={8}>
+        <Box px={8}>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate(buttonTranslation)}
           </Button>
-          {enableFoxDiscountSummary && hasFeeSaving && feeSavingUserCurrency && (
-            <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
-          )}
-          {couldHaveReducedFee && affiliateFeeUserCurrency && (
-            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
-          )}
-        </Stack>
+        </Box>
       </CardBody>
       {summaryTranslation && children && (
         <>

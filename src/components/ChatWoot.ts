@@ -2,12 +2,12 @@ import type React from 'react'
 import { useEffect } from 'react'
 
 import { getConfig } from '@/config'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 export const ChatwootWidget: React.FC = () => {
-  const chatWoodEnabled = useFeatureFlag('Chatwoot')
+  const chatwootEnabled = import.meta.env.VITE_FEATURE_CHATWOOT === 'true'
+  console.log({chatwootEnabled})
   useEffect(() => {
-    if (!chatWoodEnabled) return // Add Chatwoot Settings
+    if (!chatwootEnabled) return // Add Chatwoot Settings
     ;(window as any).chatwootSettings = {
       hideMessageBubble: true,
       position: 'left', // This can be left or right
@@ -30,7 +30,7 @@ export const ChatwootWidget: React.FC = () => {
         })
       }
     })(document)
-  }, [chatWoodEnabled])
+  }, [chatwootEnabled])
 
   return null
 }

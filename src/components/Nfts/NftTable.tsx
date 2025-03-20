@@ -2,13 +2,14 @@ import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState, useEffect, useDeferredValue, Suspense } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useNfts } from './hooks/useNfts'
 import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
+import { NftTableSkeleton } from './NftTableSkeleton'
 
 import { NarwhalIcon } from '@/components/Icons/Narwhal'
 import { SEO } from '@/components/Layout/Seo'
@@ -34,12 +35,10 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 const narwalIcon = <NarwhalIcon color='pink.200' />
 
-export const NftTable = memo(() => {
+const NftContent = () => {
   const translate = useTranslate()
   const [searchQuery, setSearchQuery] = useState('')
-
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
-
   const { isLoading } = useNfts()
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
@@ -63,8 +62,6 @@ export const NftTable = memo(() => {
         ? data.filter(nftItem => networkFilters.includes(nftItem.chainId))
         : data
 
-      // Don't use matchSorter if there is no need to - it's expensive, and will rug the initial sorting
-      // resulting in perceived borked order when filtering by chain vs. no filter applied
       return search
         ? matchSorter(maybeFilteredByChainId, search, {
             keys,
@@ -129,5 +126,29 @@ export const NftTable = memo(() => {
         <NftGrid>{renderNftCards}</NftGrid>
       )}
     </>
+  )
+}
+
+export const NftTable = memo(() => {
+  const [shouldRender, setShouldRender] = useState(false)
+  const deferredShouldRender = useDeferredValue(shouldRender)
+
+  // Defer rendering the NFT table to improve initial load performance
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setShouldRender(true)
+    }, 100)
+    
+    return () => clearTimeout(timeoutId)
+  }, [])
+
+  if (!deferredShouldRender) {
+    return <NftTableSkeleton />
+  }
+
+  return (
+    <Suspense fallback={<NftTableSkeleton />}>
+      <NftContent />
+    </Suspense>
   )
 })

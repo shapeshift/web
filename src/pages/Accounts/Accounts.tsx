@@ -1,13 +1,14 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useDeferredValue, Suspense } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
+import { AccountsSkeleton } from './components/AccountsSkeleton'
 
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
@@ -86,11 +87,11 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   )
 }
 
-export const Accounts = () => {
-  const { path } = useRouteMatch()
+const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
+  
   const chainRows = useMemo(
     () =>
       portfolioChainIdsSortedUserCurrency.map(chainId => (
@@ -98,8 +99,6 @@ export const Accounts = () => {
       )),
     [portfolioChainIdsSortedUserCurrency],
   )
-
-  const walletId = useAppSelector(selectWalletId)
 
   const blankRows = useMemo(() => {
     return blanks.map(index => (
@@ -112,12 +111,42 @@ export const Accounts = () => {
   }, [blankRows, chainRows, loading])
 
   return (
+    <>
+      <AccountHeader isLoading={loading} />
+      <List ml={0} mt={0} spacing={4}>
+        {renderRows}
+      </List>
+    </>
+  )
+}
+
+export const Accounts = () => {
+  const { path } = useRouteMatch()
+  const loading = useSelector(selectIsPortfolioLoading)
+  const walletId = useAppSelector(selectWalletId)
+  const [shouldRender, setShouldRender] = useState(false)
+  const deferredShouldRender = useDeferredValue(shouldRender)
+  
+  // Defer rendering the accounts list to improve initial load performance
+  useEffect(() => {
+    // Use requestAnimationFrame to defer rendering until after the next paint
+    const timeoutId = setTimeout(() => {
+      setShouldRender(true)
+    }, 100)
+    
+    return () => clearTimeout(timeoutId)
+  }, [])
+  
+  return (
     <Switch>
       <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
-        <AccountHeader isLoading={loading} />
-        <List ml={0} mt={0} spacing={4}>
-          {renderRows}
-        </List>
+        {!deferredShouldRender ? (
+          <AccountsSkeleton />
+        ) : (
+          <Suspense fallback={<AccountsSkeleton />}>
+            <AccountsContent />
+          </Suspense>
+        )}
       </Route>
       <Route path={`${path}/:accountId`}>
         <Account />

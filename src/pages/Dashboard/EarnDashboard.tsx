@@ -1,11 +1,12 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Flex, Heading } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useState, useEffect, useDeferredValue, Suspense } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
 
 import { SEO } from '@/components/Layout/Seo'
 import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
+import { DeFiEarnSkeleton } from '@/components/StakingVaults/DeFiEarnSkeleton'
 import { RawText } from '@/components/Text'
 
 const alignItems = { base: 'flex-start', md: 'center' }
@@ -39,6 +40,30 @@ const EarnHeader = () => {
 
 const earnHeader = <EarnHeader />
 
-export const EarnDashboard = memo(() => {
+const EarnContent = () => {
   return <DeFiEarn includeEarnBalances header={earnHeader} />
+}
+
+export const EarnDashboard = memo(() => {
+  const [shouldRender, setShouldRender] = useState(false)
+  const deferredShouldRender = useDeferredValue(shouldRender)
+
+  // Defer rendering the earn dashboard to improve initial load performance
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setShouldRender(true)
+    }, 100)
+    
+    return () => clearTimeout(timeoutId)
+  }, [])
+
+  if (!deferredShouldRender) {
+    return <DeFiEarnSkeleton />
+  }
+
+  return (
+    <Suspense fallback={<DeFiEarnSkeleton />}>
+      <EarnContent />
+    </Suspense>
+  )
 })

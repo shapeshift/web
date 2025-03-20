@@ -197,13 +197,7 @@
     "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
-    "body": {
-      "1": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen",
-      "2": "private.shapeshift.com",
-      "3": "wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere",
-      "4": "Datenschutz Bestimmungen",
-      "5": "für mehr Details."
-    },
+    "body": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen %{privateLink} wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere %{privacyPolicyLink} für mehr Details.",
     "cta": "Verstanden"
   },
   "errorPage": {

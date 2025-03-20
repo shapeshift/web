@@ -197,13 +197,7 @@
     "hardwareWallets": "Billeteras de Hardware"
   },
   "consentBanner": {
-    "body": {
-      "1": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita",
-      "2": "private.shapeshift.com",
-      "3": "si no quieres que te rastreen de forma anónima. Vea nuestra",
-      "4": "Política de Privacidad",
-      "5": "para más detalles."
-    },
+    "body": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita %{privateLink} si no quieres que te rastreen de forma anónima. Vea nuestra %{privacyPolicyLink} para más detalles.",
     "cta": "Entiendo"
   },
   "errorPage": {

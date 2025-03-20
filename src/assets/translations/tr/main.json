@@ -197,13 +197,7 @@
     "hardwareWallets": "Donanım Cüzdanları"
   },
   "consentBanner": {
-    "body": {
-      "1": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz. ",
-      "2": "private.shapeshift.com",
-      "3": "Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için",
-      "4": "Gizlilik Politikamıza",
-      "5": "göz atın."
-    },
+    "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
     "cta": "Anladım"
   },
   "errorPage": {

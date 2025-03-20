@@ -197,13 +197,7 @@
     "hardwareWallets": "硬件钱包"
   },
   "consentBanner": {
-    "body": {
-      "1": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问",
-      "2": "private.shapeshift.com",
-      "3": "如果您不希望被匿名跟踪。请查看我们的",
-      "4": "隐私政策",
-      "5": "更多细节。"
-    },
+    "body": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问 %{privateLink} 如果您不希望被匿名跟踪。请查看我们的 %{privacyPolicyLink} 更多细节。",
     "cta": "知道了"
   },
   "errorPage": {

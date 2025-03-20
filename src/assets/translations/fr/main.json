@@ -197,13 +197,7 @@
     "hardwareWallets": "Porte-monnaie matériels"
   },
   "consentBanner": {
-    "body": {
-      "1": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez",
-      "2": "private.shapeshift.com",
-      "3": "si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre",
-      "4": "Politique de confidentialité",
-      "5": "pour plus de détails."
-    },
+    "body": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez %{privateLink} si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre %{privacyPolicyLink} pour plus de détails.",
     "cta": "J'ai compris"
   },
   "errorPage": {

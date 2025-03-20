@@ -152,12 +152,12 @@ export const SpotTradeSuccess = ({
 
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesCryptoBaseUnit,
-      lastHop?.buyAsset.precision,
+      lastHop?.buyAsset.precision ?? 0,
     )
 
     const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
       buyAmountAfterFeesCryptoBaseUnit,
-      lastHop?.buyAsset.precision,
+      lastHop?.buyAsset.precision ?? 0,
     )
 
     return {

@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <script>
-      const target = new URL(window.location.href);
-      if (target.pathname !== '/') {
+
+<head>
+  <meta charset="utf-8" />
+  <script>
+    const target = new URL(window.location.href);
+    const isIPFS = () => {
+      return (
+        target.includes('fleek.')
+      );
+    };
+
+    if (isIPFS()) {
+      if (target.pathname !== '/' && !target.pathname.includes('.')) {
         target.hash = '#' + target.pathname;
         target.pathname = '/';
         window.location.replace(target.toString());
       }
-    </script>
-  </head>
-  <body>
-    Redirecting...
-  </body>
+    }
+  </script>
+</head>
+
+<body>
+  Redirecting...
+</body>
+
 </html>

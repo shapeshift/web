@@ -9,7 +9,6 @@ import type {
 } from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
 
-// import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
@@ -19,8 +18,6 @@ import { ZerionMarketService } from './zerion/zerion'
 
 import type { AssetService } from '@/lib/asset-service'
 import { getAssetService } from '@/lib/asset-service'
-// import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
-// import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
 export type ProviderUrls = {
   jsonRpcProviderUrl: string
@@ -29,7 +26,6 @@ export type ProviderUrls = {
 }
 
 export type MarketServiceManagerArgs = {
-  yearnChainReference: 1 | 250 | 1337 | 42161 // from @yfi/sdk
   providerUrls: ProviderUrls
   provider: ethers.JsonRpcProvider
 }
@@ -41,21 +37,12 @@ export class MarketServiceManager {
   constructor(args: MarketServiceManagerArgs) {
     const { providerUrls, provider } = args
 
-    // TODO(0xdef1cafe): after chain agnosticism, we need to dependency inject a chainReference here
-    // YearnVaultMarketCapService deps
-    // const network = yearnChainReference ?? 1 // 1 for mainnet
-    // const provider = new JsonRpcProvider(providerUrls.jsonRpcProviderUrl)
-    // const yearnSdk = new Yearn(network, { provider })
-
     this.marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.
       new CoinGeckoMarketService(),
       new CoinCapMarketService(),
       new PortalsMarketService(),
-      // Yearn is currently borked upstream
-      // new YearnVaultMarketCapService({ yearnSdk }),
-      // new YearnTokenMarketCapService({ yearnSdk }),
       new FoxyMarketService({ providerUrls, provider }),
       new ZerionMarketService(),
       // TODO: Debank market provider

@@ -11,11 +11,6 @@ import {
 } from './coingecko/coingeckoMockData'
 import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
 import { MarketServiceManager } from './market-service-manager'
-import {
-  mockYearnFindByAssetIdData,
-  mockYearnPriceHistoryData,
-  mockYearnServiceFindAllData,
-} from './yearn/yearnMockData'
 
 const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
@@ -79,38 +74,6 @@ vi.mock('./zerion/zerion', () => ({
   }),
 }))
 
-const mockYearnVaultFindAll = vi.fn().mockImplementation(() => mockYearnServiceFindAllData)
-const mockYearnVaultFindByAssetId = vi.fn().mockImplementation(() => mockYearnFindByAssetIdData)
-const mockYearnVaultFindPriceHistoryByAssetId = vi
-  .fn()
-  .mockImplementation(() => mockYearnPriceHistoryData)
-
-vi.mock('./yearn/yearn-vaults', () => ({
-  YearnVaultMarketCapService: vi.fn().mockImplementation(() => {
-    return {
-      findAll: mockYearnVaultFindAll,
-      findByAssetId: mockYearnVaultFindByAssetId,
-      findPriceHistoryByAssetId: mockYearnVaultFindPriceHistoryByAssetId,
-    }
-  }),
-}))
-
-const mockYearnTokenFindAll = vi.fn().mockImplementation(() => mockYearnServiceFindAllData)
-const mockYearnTokenFindByAssetId = vi.fn().mockImplementation(() => mockYearnFindByAssetIdData)
-const mockYearnTokenFindPriceHistoryByAssetId = vi
-  .fn()
-  .mockImplementation(() => mockYearnPriceHistoryData)
-
-vi.mock('./yearn/yearn-tokens', () => ({
-  YearnTokenMarketCapService: vi.fn().mockImplementation(() => {
-    return {
-      findAll: mockYearnTokenFindAll,
-      findByAssetId: mockYearnTokenFindByAssetId,
-      findPriceHistoryByAssetId: mockYearnTokenFindPriceHistoryByAssetId,
-    }
-  }),
-}))
-
 const mockFoxyFindAll = vi.fn().mockImplementation(() => mockFoxyMarketData)
 const mockFoxyFindByAssetId = vi.fn().mockImplementation(() => mockFoxyMarketData)
 const mockFoxyFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockFoxyPriceHistoryData)
@@ -125,12 +88,9 @@ vi.mock('./foxy/foxy', () => ({
   }),
 }))
 
-vi.mock('@yfi/sdk')
-
 describe('market service', () => {
   const marketServiceManagerArgs = {
     coinGeckoAPIKey: 'dummyCoingeckoApiKey',
-    yearnChainReference: 1 as const,
     provider: new ethers.JsonRpcProvider(''),
     providerUrls: {
       jsonRpcProviderUrl: '',
@@ -164,8 +124,6 @@ describe('market service', () => {
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
-      mockYearnVaultFindAll.mockRejectedValueOnce({ error: 'error' })
-      mockYearnTokenFindAll.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindAll.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
       await expect(marketServiceManager.findAll({ count: Number() })).rejects.toEqual(
@@ -214,8 +172,6 @@ describe('market service', () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
-      mockYearnVaultFindByAssetId.mockRejectedValueOnce({ error: 'error' })
-      mockYearnTokenFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
@@ -254,8 +210,6 @@ describe('market service', () => {
       mockCoingeckoFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
-      mockYearnVaultFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
-      mockYearnTokenFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)

@@ -50,6 +50,7 @@ export enum MixPanelEvent {
   Error = 'Error',
   PageView = 'Page View',
   QuotesReceived = 'Quotes Received',
+  RatesReceived = 'Rates Received',
   SnapInstalled = 'Snap Installed',
   StartAddSnap = 'Start Add Snap',
   LpDepositPreview = 'LP Deposit Preview',

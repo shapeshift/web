@@ -51,12 +51,23 @@ export const Text = forwardRef<TextPropTypes, 'p'>(({ components, translation, .
 
           if (match) {
             const key = match[1]
-            return components?.[key] ? (
-              cloneElement(components[key], { key: index })
-            ) : (
-              <span key={index}>{part}</span>
-            )
+            if (!components?.[key]) return <span key={index}>{part}</span>
+
+            return cloneElement(components[key], { key: index })
           }
+
+          const tagContentMatch = part.match(/<([^>]+)>(.*?)<\/\1>/)
+          if (tagContentMatch) {
+            const [, key, content] = tagContentMatch
+
+            if (!components?.[key]) return <span key={index}>{part}</span>
+
+            return cloneElement(components[key], {
+              key: index,
+              children: content,
+            })
+          }
+
           return <Fragment key={index}>{part}</Fragment>
         })}
       </Box>

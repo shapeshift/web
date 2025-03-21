@@ -27,7 +27,8 @@ import {
   GlobalSearchResultType,
   selectGlobalItemsFromFilter,
 } from '@/state/slices/search-selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'xl' }
 const sxProp2 = { p: 0 }
@@ -46,6 +47,7 @@ export const GlobalSearchModal = memo(
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
     const history = useHistory()
+    const dispatch = useAppDispatch()
 
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
     const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
@@ -102,6 +104,8 @@ export const GlobalSearchModal = memo(
             break
           }
           case GlobalSearchResultType.Asset: {
+            // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
+            dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
             const url = `/assets/${item.id}`
             history.push(url)
             onToggle()
@@ -119,7 +123,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [history, onToggle, searchQuery, send],
+      [history, onToggle, searchQuery, send, dispatch],
     )
 
     const onKeyDown = useCallback(

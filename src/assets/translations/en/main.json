@@ -1054,7 +1054,8 @@
       "youCouldHaveSaved": "You could have saved %{fee} on your trade with FOX Savings.",
       "buyFox": "Buy FOX",
       "share": "Share",
-      "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!"
+      "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!",
+      "youGotMore": "You got %{cryptoUpside} more on this trade because you hold FOX"
     },
     "networkFee": "Network Fee",
     "learnMoreAboutFox": "Learn more about FOX Benefits",

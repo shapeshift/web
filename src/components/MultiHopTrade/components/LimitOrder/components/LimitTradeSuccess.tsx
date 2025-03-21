@@ -10,19 +10,16 @@ import {
   HStack,
   Icon,
   Stack,
-  Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
-import { foxAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { TwirlyToggle } from '../TwirlyToggle'
-import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
-import { YouSaved } from './components/YouSaved'
+import { TwirlyToggle } from '../../TwirlyToggle'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AnimatedCheck } from '@/components/AnimatedCheck'
@@ -30,23 +27,16 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
-  selectFirstHop,
   selectIsActiveQuoteMultiHop,
-  selectLastHop,
-  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-  selectTradeQuoteAffiliateFeeDiscountUserCurrency,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
-export type TradeSuccessProps = {
+export type LimitTradeSuccessProps = {
   handleBack: () => void
   children?: JSX.Element
   titleTranslation: string | [string, InterpolationOptions]
@@ -58,7 +48,7 @@ export type TradeSuccessProps = {
   quoteBuyAmountCryptoPrecision?: string
 }
 
-export const TradeSuccess = ({
+export const LimitTradeSuccess = ({
   handleBack,
   titleTranslation,
   buttonTranslation,
@@ -68,7 +58,7 @@ export const TradeSuccess = ({
   sellAsset,
   buyAsset,
   quoteBuyAmountCryptoPrecision,
-}: TradeSuccessProps) => {
+}: LimitTradeSuccessProps) => {
   const translate = useTranslate()
   const tradeQuote = useAppSelector(selectActiveQuote)
   const receiveAddress = tradeQuote?.receiveAddress
@@ -77,19 +67,8 @@ export const TradeSuccess = ({
     defaultIsOpen: false,
   })
 
-  const firstHop = useAppSelector(selectFirstHop)
-  const lastHop = useAppSelector(selectLastHop)
   const tradeExecution = useAppSelector(selectConfirmedTradeExecution)
   const isMultiHop = useAppSelector(selectIsActiveQuoteMultiHop)
-
-  const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
-
-  const affiliateFeeUserCurrency = useAppSelector(
-    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-  )
-
-  const hasFeeSaving = !bnOrZero(feeSavingUserCurrency).isZero()
-  const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
 
   // Get the actual received amount from the buy transaction *if* we can
   // i.e if this isn't a swap to a manual receive addy
@@ -116,10 +95,6 @@ export const TradeSuccess = ({
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
   const transfers = txTransfers || manualReceiveAddressTransfers
 
-  const buyAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
-  )
-
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined
 
@@ -130,35 +105,6 @@ export const TradeSuccess = ({
       ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
       : undefined
   }, [transfers, buyAsset])
-
-  const maybeExtraDeltaCryptoPrecision = useMemo(() => {
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return undefined
-
-    return bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).gt(0)
-      ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toString()
-      : undefined
-  }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
-
-  const maybeExraDeltaUserCurrency = useMemo(() => {
-    if (!maybeExtraDeltaCryptoPrecision || !buyAsset) return undefined
-
-    return bnOrZero(maybeExtraDeltaCryptoPrecision)
-      .times(buyAssetMarketDataUserCurrency?.price ?? 0)
-      .toString()
-  }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
-
-  const relatedAssetIdsFilter = useMemo(
-    () => ({
-      assetId: foxAssetId,
-      onlyConnectedChains: false,
-    }),
-    [],
-  )
-
-  const relatedAssetIds = useSelectorWithArgs(
-    selectRelatedAssetIdsInclusiveSorted,
-    relatedAssetIdsFilter,
-  )
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -191,66 +137,6 @@ export const TradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
-  const surplusComponents = useMemo(
-    () => ({
-      extra: (
-        <Box color='green.200' display='inline'>
-          <Amount.Crypto
-            as='span'
-            fontWeight='medium'
-            symbol={buyAsset?.symbol ?? ''}
-            value={maybeExtraDeltaCryptoPrecision}
-          />
-          <CText as='span' color='green.200'>
-            {' '}
-            (
-          </CText>
-          <Amount.Fiat as='span' value={maybeExraDeltaUserCurrency} />
-          <CText as='span' color='green.200'>
-            )
-          </CText>
-        </Box>
-      ),
-    }),
-    [buyAsset?.symbol, maybeExraDeltaUserCurrency, maybeExtraDeltaCryptoPrecision],
-  )
-
-  const SurplusLine = useCallback(() => {
-    if (!buyAsset) return null
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
-    if (!maybeExtraDeltaCryptoPrecision) return null
-
-    return (
-      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
-        <Text translation='trade.tradeCompleteSurplus' components={surplusComponents} />
-      </Flex>
-    )
-  }, [
-    buyAsset,
-    quoteBuyAmountCryptoPrecision,
-    actualBuyAmountCryptoPrecision,
-    surplusComponents,
-    maybeExtraDeltaCryptoPrecision,
-  ])
-
-  // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
-
-  // trade FOX. If a user trades FOX, the discount calculations will have changed from the correct
-  // values because the amount of FOX held in the wallet will have changed.
-  // See https://github.com/shapeshift/web/issues/8028 for more details.
-  const enableFoxDiscountSummary = useMemo(() => {
-    const didTradeFox = relatedAssetIds.some(assetId => {
-      return (
-        firstHop?.buyAsset.assetId === assetId ||
-        firstHop?.sellAsset.assetId === assetId ||
-        lastHop?.buyAsset.assetId === assetId ||
-        lastHop?.sellAsset.assetId === assetId
-      )
-    })
-
-    return !didTradeFox
-  }, [firstHop, lastHop, relatedAssetIds])
-
   return (
     <>
       <CardBody pb={4} px={0}>
@@ -261,19 +147,12 @@ export const TradeSuccess = ({
               <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
-            <SurplusLine />
           </Flex>
         </SlideTransition>
         <Stack gap={4} px={8}>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate(buttonTranslation)}
           </Button>
-          {enableFoxDiscountSummary && hasFeeSaving && feeSavingUserCurrency && (
-            <YouSaved feeSavingUserCurrency={feeSavingUserCurrency} />
-          )}
-          {couldHaveReducedFee && affiliateFeeUserCurrency && (
-            <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
-          )}
         </Stack>
       </CardBody>
       {summaryTranslation && children && (

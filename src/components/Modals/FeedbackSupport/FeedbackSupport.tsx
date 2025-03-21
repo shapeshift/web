@@ -15,7 +15,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { DiscordIcon } from '@/components/Icons/Discord'
 import { MainNavLink } from '@/components/Layout/Header/NavBar/MainNavLink'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 
 const chatIcon = <ChatIcon />
@@ -26,7 +25,7 @@ const feedbackIcon = <VscFeedback />
 export const FeedbackAndSupport = () => {
   const { close, isOpen } = useModal('feedbackSupport')
   const translate = useTranslate()
-  const isChatwootEnabled = useFeatureFlag('Chatwoot')
+  const isChatwootEnabled = import.meta.env.VITE_FEATURE_CHATWOOT === 'true'
 
   const handleChatWoot = useCallback(() => {
     // @ts-ignore

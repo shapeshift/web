@@ -1,12 +1,13 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { useEffect, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { Account } from './Account'
+import { AccountsSkeleton } from './components/AccountsSkeleton'
 import { ChainRow } from './components/ChainRow'
 
 import { SEO } from '@/components/Layout/Seo'
@@ -86,8 +87,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   )
 }
 
-export const Accounts = () => {
-  const { path } = useRouteMatch()
+const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
@@ -98,8 +98,6 @@ export const Accounts = () => {
       )),
     [portfolioChainIdsSortedUserCurrency],
   )
-
-  const walletId = useAppSelector(selectWalletId)
 
   const blankRows = useMemo(() => {
     return blanks.map(index => (
@@ -112,12 +110,34 @@ export const Accounts = () => {
   }, [blankRows, chainRows, loading])
 
   return (
+    <>
+      <AccountHeader isLoading={loading} />
+      <List ml={0} mt={0} spacing={4}>
+        {renderRows}
+      </List>
+    </>
+  )
+}
+
+export const Accounts = () => {
+  const { path } = useRouteMatch()
+  const loading = useSelector(selectIsPortfolioLoading)
+  const walletId = useAppSelector(selectWalletId)
+  const [shouldRender, setShouldRender] = useState(false)
+  const deferredShouldRender = useDeferredValue(shouldRender)
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setShouldRender(true)
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [])
+
+  return (
     <Switch>
       <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
-        <AccountHeader isLoading={loading} />
-        <List ml={0} mt={0} spacing={4}>
-          {renderRows}
-        </List>
+        {!deferredShouldRender ? <AccountsSkeleton /> : <AccountsContent />}
       </Route>
       <Route path={`${path}/:accountId`}>
         <Account />

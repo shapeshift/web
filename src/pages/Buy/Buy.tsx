@@ -1,5 +1,5 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Box, Button, Card, Flex, Heading, Stack } from '@chakra-ui/react'
+import { Box, Button, Card, Flex, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -15,7 +15,7 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -69,9 +69,16 @@ export const Buy = () => {
     }
   }, [assetSubId, chainId])
 
-  const titleSecondTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['buyPage.cta.title.second', { chainCount }],
+  const ctaTitleTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['buyPage.ctaTitle', { chainCount }],
     [chainCount],
+  )
+
+  const ctaTranslationComponents: TextPropTypes['components'] = useMemo(
+    () => ({
+      span: <RawText as='span' color='white' />,
+    }),
+    [],
   )
 
   return (
@@ -98,20 +105,27 @@ export const Buy = () => {
               alignItems={alignItemsXlFlexStart}
               textAlign={textAlignXlLeft}
             >
-              <Heading
+              <Text
+                as='h2'
                 fontSize={headingFontSize}
                 lineHeight='1em'
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
-              >
-                {translate('buyPage.title.first')}{' '}
-                <Text
-                  as='span'
-                  background='linear-gradient(97.53deg, #F687B3 5.6%, #7B61FF 59.16%, #16D1A1 119.34%)'
-                  backgroundClip='text'
-                  translation='buyPage.title.second'
-                />
-              </Heading>
+                translation='buyPage.title'
+                components={useMemo(
+                  () => ({
+                    span: (
+                      <RawText
+                        as='span'
+                        background='linear-gradient(97.53deg, #F687B3 5.6%, #7B61FF 59.16%, #16D1A1 119.34%)'
+                        backgroundClip='text'
+                      />
+                    ),
+                  }),
+                  [],
+                )}
+              />
+
               <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
               <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
@@ -126,10 +140,14 @@ export const Buy = () => {
           <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
             <PageContainer display='flex' py={0} flexDir={flexDirXlRow} textAlign={textAlignXlLeft}>
               <Stack spacing={4} py='6rem' flex={1} alignItems={alignItemsXlFlexStart}>
-                <Heading fontSize='2xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
-                  {translate('buyPage.cta.title.first')}{' '}
-                  <Text as='span' color='white' translation={titleSecondTranslation} />
-                </Heading>
+                <Text
+                  fontSize='2xl'
+                  fontWeight='bold'
+                  as='h4'
+                  color='whiteAlpha.500'
+                  translation={ctaTitleTranslation}
+                  components={ctaTranslationComponents}
+                />
                 <Button
                   size='lg'
                   data-test='buy-page-connect-wallet-button'

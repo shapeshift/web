@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, develop, release, yeet, private, beard, juice, wood, gome, neo, arkeo]
   pull_request:
-    branches: [main, develop, release, yeet, private, release-prod]
+    branches: [main, develop, release, yeet, private]
 
 jobs:
   install-and-cache:

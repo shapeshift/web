@@ -19,7 +19,6 @@ type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
-  header?: JSX.Element
 } & FlexProps
 
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -31,7 +30,6 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   positionTableProps,
   includeEarnBalances,
   includeRewardsBalances,
-  header,
   ...rest
 }) => {
   const { isConnected } = useWallet().state
@@ -44,7 +42,6 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      {header && header}
       <Flex
         justifyContent='space-between'
         alignItems='center'

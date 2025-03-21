@@ -50,7 +50,6 @@ type DepositProps = {
   isLoading: boolean
   onAccountIdChange?: AccountDropdownProps['onChange']
   onContinue(values: DepositValues): void
-  onBack?(): void
   onCancel(): void
   underlyingAssetRatiosBaseUnit: LpEarnOpportunityType['underlyingAssetRatiosBaseUnit']
   icons?: string[]

@@ -6,7 +6,6 @@ import { TbGraph } from 'react-icons/tb'
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
-import { DefiIcon } from '@/components/Icons/DeFi'
 import { ExploreIcon } from '@/components/Icons/Explore'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { HomeIcon } from '@/components/Icons/Home'
@@ -80,14 +79,6 @@ const Explore = makeSuspenseful(
   lazy(() =>
     import('@/pages/Explore/Explore').then(({ Explore }) => ({
       default: Explore,
-    })),
-  ),
-)
-
-const StakingVaults = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
-      default: StakingVaults,
     })),
   ),
 )
@@ -215,15 +206,6 @@ export const routes: Route[] = [
     priority: 5,
   },
   {
-    path: '/earn',
-    label: 'defi.earn',
-    icon: <DefiIcon />,
-    main: StakingVaults,
-    category: RouteCategory.Featured,
-    mobileNav: true,
-    priority: 6,
-  },
-  {
     path: '/explore',
     label: 'navBar.explore',
     icon: <ExploreIcon />,
@@ -248,8 +230,8 @@ export const routes: Route[] = [
     icon: <FoxIcon />,
     main: FoxPage,
     category: RouteCategory.Fox,
-    priority: 2,
-    mobileNav: false,
+    priority: 6,
+    mobileNav: true,
     disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {

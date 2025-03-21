@@ -1713,11 +1713,7 @@
       "warningExperimental": "ShapeShift Multichain Snap, sağlanan yeni, deneysel bir özelliktir",
       "warningBackup": "MetaMask tohum ifadenizi yedeklediğinizden emin olun. Bu Snap'i kullanarak EVM dışı zincirlere göndereceğiniz tüm fonlar, MetaMask ile kurduğunuz varsayılan hesaba yönlendirilecektir.",
       "agreeIntro": "Devam etmeden önce lütfen aşağıdakileri okuyun:",
-      "agreeItem1Parts": {
-        "1": "Donanım cüzdanları",
-        "2": "DESTEKLENMİYOR",
-        "3": "!"
-      },
+      "agreeItem1": "Donanım cüzdanları <strong>DESTEKLENMİYOR</strong> !",
       "agreeItem2": "ShapeShift Multichain Snap'in sağladığı ekstra zincirler için yalnızca MetaMask'taki Account #1 Hesap desteklenir",
       "agreeItem3": "MetaMask tarafından sağlanan mevcut Ethereum zincirlerini kullanmak için Account #1'i MetaMask'taki ShapeShift'e bağlamanız gerekir.",
       "agreeItem4": "ShapeShift Multichain Snap'i etkinleştirerek, riski size ait olmak üzere kullandığınızı kabul etmiş olursunuz.",

@@ -1713,11 +1713,7 @@
       "warningExperimental": "ShapeShift 多链快照是一项全新的实验性功能，“按原样”提供",
       "warningBackup": "请确保您已备份您的 MetaMask 助记词。您通过此快照发送到非 EVM 链的任何资金将被发送到您在 MetaMask 中设置的默认账户。",
       "agreeIntro": "在继续之前，请阅读以下内容：",
-      "agreeItem1Parts": {
-        "1": "硬件钱包",
-        "2": "不",
-        "3": "受支持"
-      },
+      "agreeItem1": "硬件钱包 <strong>不</strong> 受支持",
       "agreeItem2": "只有 MetaMask 中的帐户 #0 支持 ShapeShift 多链快照提供的额外链",
       "agreeItem3": "要使用 MetaMask 提供的现有以太坊链，您必须在 MetaMask 中将帐户 #0 连接到 ShapeShift",
       "agreeItem4": "启用 ShapeShift 多链快照即表示您承认自行承担使用风险。",

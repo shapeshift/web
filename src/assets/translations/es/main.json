@@ -1713,11 +1713,7 @@
       "warningExperimental": "Snap Multicadena ShapeShift es función nueva y experimental que se proporciona \"tal cual\"",
       "warningBackup": "Asegúrese tener copia de su frase semilla de MetaMask. Cualquier fondo que envíe a cadenas que no sean EVM usando este Snap se dirigirá a la cuenta predeterminada configurada con MetaMask.",
       "agreeIntro": "Antes de continuar por favor lea lo siguiente:",
-      "agreeItem1Parts": {
-        "1": "Las Carteras de hardware son",
-        "2": "NO",
-        "3": "soportado"
-      },
+      "agreeItem1": "Las Carteras de hardware son <strong>NO</strong> soportado",
       "agreeItem2": "Solo se admite la cuenta n.° 1 en MetaMask para las cadenas adicionales que proporciona Snap Multicadena ShapeShift",
       "agreeItem3": "Para utilizar cadenas Ethereum existentes por MetaMask, debe conectar Cuenta n.° 1 a ShapeShift en MetaMask",
       "agreeItem4": "Al habilitar Snap Multicadena ShapeShift, usted reconoce que lo utiliza bajo su propio riesgo.",

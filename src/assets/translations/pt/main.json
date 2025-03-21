@@ -1713,11 +1713,7 @@
       "warningExperimental": "O ShapeShift Multichain Snap é um recurso novo e experimental, fornecido \"como está\"",
       "warningBackup": "Certifique-se de ter feito backup das palavras-chave da sua MetaMask. Qualquer fundos que você enviar para redes não EVM usando este Snap serão direcionados para a conta padrão que você configurou com MetaMask.",
       "agreeIntro": "Antes de continuar, leia o seguinte:",
-      "agreeItem1Parts": {
-        "1": "Hardware wallets são",
-        "2": "NÃO",
-        "3": "suportado"
-      },
+      "agreeItem1": "Hardware wallets são <strong>NÃO</strong> suportado",
       "agreeItem2": "Apenas a conta nº 1 no MetaMask é suportada para as redes extras que o ShapeShift Multichain Snap fornece",
       "agreeItem3": "Para usar as redes Ethereum existentes fornecidas pela MetaMask, você deve conectar a conta nº 1 ao ShapeShift na MetaMask",
       "agreeItem4": "Ao ativar o ShapeShift Multichain Snap, você reconhece que o está usando por sua própria conta e risco",

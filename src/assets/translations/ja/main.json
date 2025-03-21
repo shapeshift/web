@@ -1713,11 +1713,7 @@
       "warningExperimental": "ShapeShiftマルチチェーンスナップは新しい実験的な機能であり、現状のまま提供されます。",
       "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
       "agreeIntro": "続行する前に、以下をお読みください。",
-      "agreeItem1Parts": {
-        "1": "ハードウェアウォレットは、",
-        "2": "ない",
-        "3": "サポートされてい"
-      },
+      "agreeItem1": "ハードウェアウォレットは、 <strong>ない</strong> サポートされてい",
       "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#1のみがサポートされています。",
       "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#1をMetaMaskのShapeShiftに接続する必要があります",
       "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",

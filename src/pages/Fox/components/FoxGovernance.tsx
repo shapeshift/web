@@ -16,7 +16,7 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch } from 'react-redux'
 
@@ -99,6 +99,21 @@ export const FoxGovernance = () => {
     )
   }, [closedProposals])
 
+  const govDescTranslationComponents = useMemo(
+    () => ({
+      link: (
+        <Link
+          colorScheme='blue'
+          color='blue.300'
+          href='https://forum.shapeshift.com/'
+          isExternal
+          mx={1}
+        />
+      ),
+    }),
+    [],
+  )
+
   if (!isFoxGovernanceEnabled) return null
   if (!foxEthAsset) return null
 
@@ -118,21 +133,8 @@ export const FoxGovernance = () => {
               <Text
                 fontSize='md'
                 color='text.subtle'
-                translation='foxPage.governance.description.0'
-              />
-              <Link
-                colorScheme='blue'
-                color='blue.300'
-                href='https://forum.shapeshift.com/'
-                isExternal
-                mx={1}
-              >
-                {translate('foxPage.governance.description.1')}
-              </Link>
-              <Text
-                fontSize='md'
-                color='text.subtle'
-                translation='foxPage.governance.description.2'
+                translation='foxPage.governance.description'
+                components={govDescTranslationComponents}
               />
             </Flex>
           </Box>

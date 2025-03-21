@@ -268,7 +268,6 @@
     "recentTransactions": {
       "recentTransactions": "Останні транзакції"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "Обмін",
       "bridge": "Міст",
@@ -2381,27 +2380,6 @@
       "body": "Стейкінг в сховищі заощаджень \"Торчейн\". Без блокування.",
       "cta": "Поповнити рахунок зараз"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Налаштувати FOXatar",
-    "setAsAvatar": "Встановити в якості аватара",
-    "floorPrice": "Нижня ціна",
-    "lastPrice": "Остання ціна",
-    "overview": "Огляд",
-    "properties": "Властивості",
-    "collection": "Колекція",
-    "tokenId": "ID токену",
-    "address": "Адреса",
-    "chain": "Мережа",
-    "standard": "Стандарт",
-    "description": "Опис",
-    "details": "Деталі",
-    "attributes": "Атрибути",
-    "aboutCollection": "Про %{collectionName}",
-    "emptyTitle": "Куди поділися всі NFT?",
-    "emptyBody": "Не хвилюйтеся, ми відправили пошукову групу, щоб знайти ще більше дивовижних NFT. А тим часом, не соромтеся дивитися на цей порожній простір і роздумувати про сенс існування.",
-    "reportSpam": "Повідомити про спам",
-    "refresh": "Оновити"
   },
   "avatar": {
     "modal": {

@@ -4,7 +4,6 @@ import { memo } from 'react'
 import { AccountTable } from './components/AccountList/AccountTable'
 import { DashboardChart } from './components/DashboardChart'
 
-import { useNfts } from '@/components/Nfts/hooks/useNfts'
 import { Text } from '@/components/Text'
 
 const cardBodyPx = { base: 4, md: 2 }
@@ -13,9 +12,6 @@ const accountHeaderPaddingTop = { base: 6, md: 4 }
 const stackSpacing = { base: 0, md: 6 }
 
 export const Portfolio = memo(() => {
-  // Lazily fetch NFTs once user navigates to the dashboard overview
-  useNfts()
-
   return (
     <Stack spacing={stackSpacing} width='full'>
       <DashboardChart />

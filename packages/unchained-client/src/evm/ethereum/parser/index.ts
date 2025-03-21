@@ -5,7 +5,6 @@ import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
 import * as arbitrumBridge from '../../parser/arbitrumBridge'
 import * as erc20 from '../../parser/erc20'
-import * as nft from '../../parser/nft'
 import * as thorchain from '../../parser/thorchain'
 import * as zrx from '../../parser/zrx'
 import * as cowswap from './cowswap'
@@ -23,11 +22,6 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
 
     // due to the current parser logic, order here matters (register most generic first to most specific last)
     this.registerParsers([
-      new nft.Parser({
-        chainId: this.chainId,
-        provider: this.provider,
-        api: this.api,
-      }),
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
       new foxy.Parser(),
       new weth.Parser({ chainId: this.chainId, provider: this.provider }),

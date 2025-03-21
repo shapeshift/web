@@ -11,6 +11,7 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import {
   createThrottle,
@@ -18,7 +19,6 @@ import {
   decodeRelatedAssetIndex,
   encodeAssetData,
   encodeRelatedAssetIndex,
-  isEvmChainId,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'

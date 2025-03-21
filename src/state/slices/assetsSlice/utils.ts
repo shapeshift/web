@@ -47,22 +47,12 @@ export const makeNftAssetsFromTxs = (txs: Transaction[]): UpsertAssetsPayload =>
       tx.transfers.forEach(transfer => {
         if (state.byId[transfer.assetId] || !isNft(transfer.assetId)) return
 
-        const icon = (() => {
-          if (!tx.data || !transfer.id || !('mediaById' in tx.data)) return
-          const url = tx.data.mediaById[transfer.id]?.url
-          if (!url) return
-          if (url.startsWith('ipfs://'))
-            return url.replace('ipfs://', 'https://gateway.shapeshift.com/ipfs/')
-          return url
-        })()
-
         state.byId[transfer.assetId] = makeAsset(state.byId, {
           assetId: transfer.assetId,
           id: transfer.id,
           symbol: transfer.token?.symbol ?? 'N/A',
           name: transfer.token?.name ?? 'Unknown',
           precision: 0,
-          icon,
         })
 
         state.ids.push(transfer.assetId)

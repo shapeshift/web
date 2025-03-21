@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
-import { evm, evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { evm, evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -196,3 +196,13 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
 export const getSupportedEvmChainIds = () => {
   return getSupportedChainIdsByChainNamespace()[CHAIN_NAMESPACE.Evm]
 }
+
+export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
+  Array.from(
+    new Set(
+      accountIds
+        .map(fromAccountId)
+        .filter(({ chainId }) => isEvmChainId(chainId))
+        .map(({ account }) => account),
+    ),
+  )

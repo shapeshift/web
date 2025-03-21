@@ -1,5 +1,4 @@
 import { baseAssetId, baseChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/common-api'
 import { describe, expect, it, vi } from 'vitest'
 
 import { TransferType, TxStatus } from '../../../../types'
@@ -15,19 +14,7 @@ import { usdcToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 
-vi.hoisted(() => {
-  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
-})
-
 const mockedApi = vi.mocked(new V1Api())
-
-const tokenMetadata: evm.TokenMetadata = {
-  name: 'Foxy',
-  description: 'The foxiest Fox',
-  media: { url: 'http://foxy.fox', type: 'image' },
-}
-
-mockedApi.getTokenMetadata = vi.fn().mockResolvedValue(tokenMetadata)
 
 const txParser = new TransactionParser({
   rpcUrl: '',
@@ -308,10 +295,6 @@ describe('parseTx', () => {
             assetId: baseAssetId,
             value: '11417223915522',
           },
-          data: {
-            parser: 'nft',
-            mediaById: { '4': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Send,
@@ -369,10 +352,6 @@ describe('parseTx', () => {
           chainId: baseChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '4': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Receive,
@@ -432,10 +411,6 @@ describe('parseTx', () => {
           chainId: baseChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '1': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Send,
@@ -502,10 +477,6 @@ describe('parseTx', () => {
           chainId: baseChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '1': tokenMetadata.media },
-          },
           fee: {
             assetId: baseAssetId,
             value: '11812251432492',

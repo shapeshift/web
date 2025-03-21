@@ -10,7 +10,6 @@ import {
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
-  deserializeNftAssetReference,
   dogeChainId,
   ethChainId,
   fromAccountId,
@@ -64,8 +63,7 @@ import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, firstFourLastFour } from '@/lib/utils'
-import { isSpammyNftText, isSpammyTokenText } from '@/state/apis/nft/constants'
-import type { NftCollectionType } from '@/state/apis/nft/types'
+import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
 
@@ -140,18 +138,13 @@ type PortfolioAccounts = {
 type AccountToPortfolioArgs = {
   portfolioAccounts: PortfolioAccounts
   assetIds: string[]
-  nftCollectionsById: Partial<Record<AssetId, NftCollectionType>>
 }
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
-export const accountToPortfolio: AccountToPortfolio = ({
-  assetIds,
-  nftCollectionsById,
-  portfolioAccounts,
-}) => {
+export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAccounts }) => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
@@ -177,27 +170,7 @@ export const accountToPortfolio: AccountToPortfolio = ({
           if (!isNft(token.assetId) && !assetIds.includes(token.assetId)) return
 
           if (isNft(token.assetId)) {
-            const { assetReference, chainId, assetNamespace } = fromAssetId(token.assetId)
-            const [contractAddress] = deserializeNftAssetReference(assetReference)
-            const collectionAssetId = toAssetId({
-              chainId,
-              assetReference: contractAddress,
-              assetNamespace,
-            })
-
-            const nftCollection = nftCollectionsById[collectionAssetId]
-
-            if (nftCollection) {
-              if (nftCollection.isSpam) return
-              if (
-                [nftCollection.description, nftCollection.name].some(nftText =>
-                  isSpammyNftText(nftText),
-                )
-              )
-                return
-            } else {
-              if ([token.name, token.symbol].some(nftText => isSpammyNftText(nftText, true))) return
-            }
+            if ([token.name, token.symbol].some(nftText => isSpammyNftText(nftText, true))) return
           }
 
           if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true

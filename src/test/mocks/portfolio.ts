@@ -36,7 +36,7 @@ export const mockUpsertPortfolio = (accounts: Account<MockChainIds>[], assetIds:
     {},
   )
 
-  return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById: {} })
+  return accountToPortfolio({ portfolioAccounts, assetIds })
 }
 
 export const mockChainAdapters = new Map([

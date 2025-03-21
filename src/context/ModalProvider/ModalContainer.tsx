@@ -143,14 +143,6 @@ const NativeOnboarding = makeSuspenseful(
   ),
 )
 
-const NftModal = makeSuspenseful(
-  lazy(() =>
-    import('@/components/Modals/Nfts/NftModal').then(({ NftModal }) => ({
-      default: NftModal,
-    })),
-  ),
-)
-
 const RateChangedModal = makeSuspenseful(
   lazy(() =>
     import('@/components/Modals/RateChanged/RateChanged').then(({ RateChangedModal }) => ({
@@ -214,7 +206,6 @@ export const MODALS: Modals = {
   buyTradeAssetSearch: BuyTradeAssetSearchModal,
   sellTradeAssetSearch: SellTradeAssetSearchModal,
   nativeOnboard: NativeOnboarding,
-  nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
   // Important: Order matters here -This modal must be mounted before the ManageAccountsModal so it can be opened

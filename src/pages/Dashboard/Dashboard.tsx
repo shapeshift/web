@@ -61,6 +61,7 @@ const VirtualizedSwipableViews = virtualize(SwipeableViews)
 enum MobileTab {
   Overview,
   Nfts,
+  Earn,
   Activity,
 }
 
@@ -93,6 +94,9 @@ export const Dashboard = memo(() => {
         case MobileTab.Nfts:
           history.push(`${path}/nfts`)
           break
+        case MobileTab.Earn:
+          history.push(`${path}/earn`)
+          break
         case MobileTab.Activity:
           history.push(`${path}/activity`)
           break
@@ -110,7 +114,8 @@ export const Dashboard = memo(() => {
       <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
         <TabList>
           <CustomTab>{translate('navBar.overview')}</CustomTab>
-          <CustomTab>NFTs</CustomTab>
+          <CustomTab>{translate('dashboard.nfts')}</CustomTab>
+          <CustomTab>{translate('defi.earn')}</CustomTab>
           <CustomTab>{translate('navBar.activity')}</CustomTab>
         </TabList>
         <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
@@ -126,7 +131,7 @@ export const Dashboard = memo(() => {
   const slideRenderer = (props: SlideRenderProps) => {
     const { index, key } = props
     let content
-    switch (mod(index, 3)) {
+    switch (mod(index, 4)) {
       case MobileTab.Overview:
         content = (
           <>
@@ -143,6 +148,13 @@ export const Dashboard = memo(() => {
         content = (
           <Route exact path={`${path}/nfts`}>
             <NftTable />
+          </Route>
+        )
+        break
+      case MobileTab.Earn:
+        content = (
+          <Route exact path={`${path}/earn`}>
+            <EarnDashboard />
           </Route>
         )
         break
@@ -166,7 +178,7 @@ export const Dashboard = memo(() => {
         <VirtualizedSwipableViews
           index={slideIndex}
           slideRenderer={slideRenderer}
-          slideCount={3}
+          slideCount={4}
           overscanSlideBefore={1}
           overscanSlideAfter={1}
           onChangeIndex={handleSlideIndexChange}

@@ -94,13 +94,6 @@ export const Explore = memo(() => {
           onClick={handleRFOXClick}
         />
         <ExploreCard
-          title='explore.staking.title'
-          body='explore.staking.body'
-          icon={stakingIcon}
-          bg='linear-gradient(127deg, #805AD5 9.39%, #754095 71.63%);'
-          onClick={handleStakingClick}
-        />
-        <ExploreCard
           title='explore.pools.title'
           body='explore.pools.body'
           icon={poolsIcon}

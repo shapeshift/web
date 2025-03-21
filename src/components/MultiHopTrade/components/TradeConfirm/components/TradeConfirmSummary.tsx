@@ -94,7 +94,7 @@ export const TradeConfirmSummary = () => {
       swapSource={tradeQuoteFirstHop?.source}
       isOpen
     >
-      <Stack spacing={4} px={6} pb={3} width='full'>
+      <Stack spacing={4} px={6} py={3} width='full'>
         <Row Tooltipbody={networkFeeTooltipBody}>
           <Row.Label>
             <Text translation='trade.networkFee' />

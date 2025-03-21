@@ -655,6 +655,14 @@ export const thorchainApi: SwapperApi = {
       const hasOutboundL1Tx = lastOutTx !== undefined && lastOutTx.chain !== 'THOR'
       const hasOutboundRuneTx = lastOutTx !== undefined && lastOutTx.chain === 'THOR'
 
+      if (txStatusData.planned_out_txs?.some(plannedOutTx => plannedOutTx.refund)) {
+        return {
+          buyTxHash,
+          status: TxStatus.Failed,
+          message: undefined,
+        }
+      }
+
       // We consider the transaction confirmed as soon as we have a buyTxHash
       // For UTXOs, this means that the swap will be confirmed as soon as Txs hit the mempool
       // Which is actually correct, as we update UTXO balances optimistically

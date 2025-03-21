@@ -1103,19 +1103,6 @@
     "awaitingAllowanceApproval": "Esperando aprobación de la asignación",
     "awaitingAllowanceReset": "Esperando restablecimiento de la asignación",
     "orderPlacement": "Realizar pedido en %{swapperName}",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "Cuando",
-        "middle": "precio alcance"
-      },
-      "orderWill": {
-        "prefix": ", su orden limitada se venderá automáticamente"
-      },
-      "ensuring": {
-        "prefix": ", asegurándose recibir al menos",
-        "suffix": "."
-      }
-    },
     "sellBuy": "Vender → Comprar",
     "limitExecution": "Límite/Ejecución",
     "statusHead": "Estado",

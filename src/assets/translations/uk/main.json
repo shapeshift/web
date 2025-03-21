@@ -1103,19 +1103,6 @@
     "awaitingAllowanceApproval": "Очікуємо на затвердження дозволу",
     "awaitingAllowanceReset": "Очікування скидання дозволу",
     "orderPlacement": "Розмістіть ордер на %{swapperName}",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "Коли",
-        "middle": "ціна сягає"
-      },
-      "orderWill": {
-        "prefix": "ваш лімітний ордер буде автоматично проданий"
-      },
-      "ensuring": {
-        "prefix": "гарантуючи, що ви отримаєте щонайменше",
-        "suffix": "."
-      }
-    },
     "sellBuy": "Продати → Купити",
     "limitExecution": "Ліміт/Виконання",
     "statusHead": "Статус",

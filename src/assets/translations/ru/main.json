@@ -1103,19 +1103,6 @@
     "awaitingAllowanceApproval": "Ожидает утверждения разрешения ",
     "awaitingAllowanceReset": "Ожидание сброса разрешения",
     "orderPlacement": "Разместите ордер на %{swapperName}",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "Когда",
-        "middle": "цена достигает"
-      },
-      "orderWill": {
-        "prefix": "ваш лимитный ордер будет автоматически продан"
-      },
-      "ensuring": {
-        "prefix": "обеспечьте, чтобы вы получали не менее",
-        "suffix": "."
-      }
-    },
     "sellBuy": "Продать → Купить",
     "limitExecution": "Лимит/Исполнение",
     "statusHead": "Статус",

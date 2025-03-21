@@ -1103,19 +1103,6 @@
     "awaitingAllowanceApproval": "Warten auf OK von Genehmigungsbetrag",
     "awaitingAllowanceReset": "Warten auf Zurücksetzen des Genehmigungsbetrags",
     "orderPlacement": "Bestellung auf %{swapperName} aufgeben",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "Wenn",
-        "middle": "den Preis erreicht"
-      },
-      "orderWill": {
-        "prefix": ", Ihre Limit-Order wird automatisch verkauft"
-      },
-      "ensuring": {
-        "prefix": ", um sicherzustellen Sie erhalten  mindestens",
-        "suffix": "."
-      }
-    },
     "sellBuy": "Verkaufen → Kaufen",
     "limitExecution": "Limit/Ausführung",
     "statusHead": "Status",

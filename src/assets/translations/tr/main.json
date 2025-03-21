@@ -1103,19 +1103,6 @@
     "awaitingAllowanceApproval": "Ödenek onayı bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
     "orderPlacement": "%{swapperName} üzerinde emir verin",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "When",
-        "middle": "'s price reaches"
-      },
-      "orderWill": {
-        "prefix": ", your limit order will automatically sell"
-      },
-      "ensuring": {
-        "prefix": ", ensuring you receive at least",
-        "suffix": "."
-      }
-    },
     "sellBuy": "Sat → Satın al",
     "limitExecution": "Limit/Uygulama",
     "statusHead": "Durum",

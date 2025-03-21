@@ -94,7 +94,7 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
 export const getTransfers = (
   tx: Tx,
   assets: AssetsByIdPartial,
-  dispatch: AppDispatch,
+  dispatch?: AppDispatch,
 ): Transfer[] => {
   return tx.transfers.reduce<Transfer[]>((prev, transfer) => {
     const asset = assets[transfer.assetId]
@@ -119,7 +119,7 @@ export const getTransfers = (
 
       const asset = makeAsset(assets, minimalAsset)
 
-      dispatch(assetsSlice.actions.upsertAsset(asset))
+      dispatch && dispatch(assetsSlice.actions.upsertAsset(asset))
 
       prev.push({ ...transfer, asset })
     }

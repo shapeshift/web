@@ -90,7 +90,7 @@ export const TransactionHistory = memo(() => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setShouldRender(true)
-    }, 100)
+    }, 0)
 
     return () => clearTimeout(timeoutId)
   }, [])

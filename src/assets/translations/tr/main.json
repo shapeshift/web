@@ -59,6 +59,7 @@
     "pairing": "Eşleştirme",
     "connectWalletToGetStartedWith": "%{feature} ile başlamak için bir cüzdan bağlayın",
     "connectedWallet": "Cüzdan Bağlandı",
+    "walletActions": "Cüzdan Hareketleri",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
     "seeAll": "Hepsini Gör",
@@ -324,6 +325,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Cüzdanı Bağla",
+      "switchWallet": "Cüzdanı Değiştir",
       "disconnect": "Bağlantıyı kes",
       "disconnected": "(Bağlantı kesildi)",
       "connecting": "Bağlanıyor..."
@@ -613,12 +615,13 @@
     "foxToken": "FOX Fırsatları",
     "dApps": "dApps",
     "featureFlags": "Özellik Bayrakları",
-    "demoMode": "Deneme Modu",
     "clickToConnect": "Cüzdan bağlamak için tıklayın",
     "wallet": "Cüzdan",
     "explore": "Keşfet",
     "rewards": "Ödüller",
     "trade": "Takas/Köprü",
+    "limitOrder": "Limit Emirleri",
+    "claims": "Toplanacaklar",
     "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
@@ -844,6 +847,14 @@
       "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
       "lowSlippage": "%0,05'in altındaki kayma işlemin başarısız olmasına neden olabilir."
     },
+    "sort": {
+      "sortBy": "Göre sırala",
+      "auto": "Otomatik",
+      "bestRate": "En İyi Oran",
+      "lowestGas": "En Düşük Gaz",
+      "fastest": "En hızlı",
+      "info": "Mevcut tekliflerin nasıl sıralanacağını seçin"
+    },
     "from": "'dan",
     "to": "'a",
     "on": "üstünde",
@@ -897,6 +908,7 @@
     "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
     "enterCustomRecipientAddress": "Özel alıcı adresini girin",
     "receiveAtLeast": "En azdan al",
+    "viewOnBlockExplorer": "Blok gezgininde görüntüle",
     "tooltip": {
       "continueSwapping": "Son detaylar için takasa devam edin",
       "changeQuote": "Teklifi değiştir",
@@ -1045,7 +1057,11 @@
       "buyFox": "FOX satın al",
       "share": "Paylaş",
       "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!"
-    }
+    },
+    "networkFee": "Ağ Ücreti",
+    "learnMoreAboutFox": "FOX Avantajları hakkında daha fazla bilgi edinin",
+    "freeTrade": "Bu işlem, %{foxBalance} FOX FOX varlıklarınıza bağlı olarak ücretsizdir",
+    "feeExplainer": "Teklif, %{foxBalance} FOX FOX hissenize bağlı olarak %{feePercentage}% ShapeShift ücretini içerir."
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1056,6 +1072,9 @@
     "placeOrder": "Emir Ver",
     "placeAnotherOrder": "Başka Bir Emir Ver",
     "orderSummary": "Emir Özeti",
+    "when": "When",
+    "isWorth": "is worth",
+    "market": "Market:",
     "success": "Limit emri başarıyla verildi",
     "cancel": {
       "cancelOrder": "Limit Emrini İptal Et",
@@ -1071,7 +1090,6 @@
     "executionPrice": "Uygulama Fiyatı",
     "provider": "Sağlayıcı",
     "expiration": "Sona erme",
-    "networkFee": "Ağ Ücreti",
     "confirmInfo": "Limit emri, zincir üstü fiyatlar limit fiyatına ulaştığında tam olarak doldurulamayabilir.",
     "learnMore": "Daha fazla bilgi edin",
     "previewOrder": "Siparişi Önizleme ",
@@ -1085,6 +1103,22 @@
     "awaitingAllowanceApproval": "Ödenek onayı bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
     "orderPlacement": "%{swapperName} üzerinde emir verin",
+    "explanation": {
+      "priceReaches": {
+        "prefix": "When",
+        "middle": "'s price reaches"
+      },
+      "orderWill": {
+        "prefix": ", your limit order will automatically sell"
+      },
+      "ensuring": {
+        "prefix": ", ensuring you receive at least",
+        "suffix": "."
+      }
+    },
+    "sellBuy": "Sat → Satın al",
+    "limitExecution": "Limit/Uygulama",
+    "statusHead": "Durum",
     "expiryOption": {
       "oneHour": "1 saat",
       "oneDay": "1 gün",
@@ -1093,6 +1127,7 @@
       "twentyEightDays": "28 gün",
       "custom": "Özel"
     },
+    "expires": "%{time} tarihinde sona eriyor",
     "errors": {
       "nativeSellAssetNotSupported": "Yerel satış varlığı desteklenmiyor",
       "insufficientValidTo": "Emrin son kullanma tarihi çok erken",
@@ -1506,7 +1541,8 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Cüzdanınızla iletişim kurulamıyor. Sorun devam ederse, lütfen Keepkey desteği ile iletişime geçin."
+      "walletNotFound": "Cüzdanınızla iletişim kurulamıyor. Sorun devam ederse, lütfen Keepkey desteği ile iletişime geçin.",
+      "walletVersionTooOld": "Cüzdanınız eşleştirilemiyor. Lütfen cüzdanınızı en son sürüme güncelleyin."
     },
     "keepKey": {
       "errors": {
@@ -1862,10 +1898,22 @@
         "button": "Sonraki"
       },
       "rename": {
+        "header": "Cüzdanımın adını değiştir",
         "walletName": "Cüzdanınız için yeni takma ad",
+        "body": "%{name} şifresini çözmek için cüzdanınızın yeni takma adını ve şifrenizi girin.",
         "mobileBody": "Cüzdanınızın yeni takma adını girin.",
         "button": "Sonraki",
-        "confirmDelete": "Bu cüzdanın takma adını silmek istediğinizden emin misiniz?"
+        "confirmDelete": "Bu cüzdanın takma adını silmek istediğinizden emin misiniz?",
+        "success": "Cüzdan başarıyla yeniden adlandırıldı",
+        "error": {
+          "empty": "Cüzdan adı boş olamaz"
+        }
+      },
+      "delete": {
+        "header": "Cüzdanımı sil",
+        "body": "%{name} silmek için şifrenizi girin.",
+        "confirmDelete": "Onayla",
+        "success": "Cüzdan başarıyla silindi"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift Oturum Açma Kullanımdan Kaldırılıyor",
@@ -1973,14 +2021,19 @@
       "bulletPoints": {
         "share": "Başka kimseyle paylaşmayın",
         "lose": "Kaybederseniz, onu geri alamayız"
-      }
+      },
+      "button": "Anladım"
     },
     "manualBackup": {
+      "header": "Cüzdanınızı Güvende Tutun",
       "subHeader": "Gizli Kurtarma Cümlenizi yalnızca sizin kontrolünüzde olan güvenli bir yerde saklayın.",
       "copyToClipboard": "Panoya kopyala",
       "copied": "Kopyalandı!",
       "nextStep": "Daha sonra Gizli Kurtarma Cümlenizdeki belirli kelimelerin yerlerini onaylamanız istenecek.",
+      "button": "Onaylamaya devam et",
       "success": {
+        "title": "Yedekleme Onaylandı",
+        "description": "Gizli Kurtarma İfadenizi doğruladınız. Güvenli bir şekilde sakladığınızdan emin olun; bu, cüzdanınızı kurtarmanın tek yoludur.",
         "viewWallet": "Cüzdanı Görüntüle"
       }
     }
@@ -2522,7 +2575,8 @@
     "underThreshold": "Düşük Takas",
     "thorHolder": "THORSwap Sahibi",
     "foxHolder": "FOX Sahibi",
-    "foxWifHatHolder": "FOX Wif Hat Sahibi"
+    "foxWifHatHolder": "FOX Wif Hat Sahibi",
+    "foxBuy": "FOX Satın Al"
   },
   "chart": {
     "interval": {
@@ -2560,7 +2614,6 @@
     "withdrawTypeNotAvailable": "Bu çekim türü bu havuz için geçerli değil.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
-    "unsupportedDemoWalletExplainer": "Demo cüzdan desteklenmiyor, bu özelliği kullanmak için lütfen bir cüzdana bağlanın.",
     "unsupportedNetworkExplainer": "Cüzdanınız %{network} ağına bağlı değil. Lütfen bu zinciri bağlayın veya bu ağı destekleyen bir cüzdana geçin.",
     "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'ye bağlı değil. Lütfen bu zinciri bağlayın veya bu ağları destekleyen bir cüzdana geçin.",
     "instabilityWarning": "Kullanıcılar şu anda THORChain havuzlarına para yatırırken geri ödeme alıyorlar. Lütfen dikkatli ilerleyin.",
@@ -2680,7 +2733,6 @@
     "approvalFee": "Onay Ücreti",
     "lockupPeriod": "Kilitleme Süresi",
     "shareOfPool": "Havuz Payı",
-    "networkFee": "Ağ Ücreti",
     "thorchainRewardAddress": "THORChain Ödül Adresi",
     "rewardAddressHelper": "Ödüllerin gönderileceği yer burasıdır",
     "useWalletAddress": "Cüzdan adresini kullan",
@@ -2842,11 +2894,17 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
+      "description": "FOX Wif Hat'inizi (FWH) talep edin. Hızlı davranın - indirimler zamanla azalır. Ne kadar çok FOX veya FWH'niz varsa o kadar çok tasarruf edersiniz. Sürekli tasarruflar ve gelir paylaşımı, yönetim ve verim çiftçiliği avantajları için daha fazla FOX token'ı biriktirin. Bu programlar hakkında daha fazla bilgiyi bu sayfanın geri kalanında bulabilirsiniz.",
       "discount": "*İndirim zamanla doğrusal olarak azalır ve %{date} tarihinde sona erer. Daha fazla azalmadan önce %{percent}% indiriminizden yararlanın!",
       "claim": "Topla",
       "claimed": "Toplanan",
       "discountText": "*%{percent}% işlem ücretlerinde indirim",
-      "noClaims": "Uygun toplanabilir yok"
+      "noClaims": "Uygun toplanabilir yok",
+      "banner": {
+        "title": "Üzerine bir şapka takın.",
+        "description": "Elinizde ne kadar fazla FOX veya FWH varsa, takas başına o kadar fazla token kazanırsınız.",
+        "cta": "Daha fazla bilgi edin"
+      }
     },
     "governance": {
       "title": "Yönetim",

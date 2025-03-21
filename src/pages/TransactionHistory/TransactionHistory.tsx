@@ -1,14 +1,5 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import {
-  memo,
-  Suspense,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
@@ -28,15 +19,6 @@ import { useAppSelector } from '@/state/store'
 
 const headingPadding = [2, 3, 6]
 const stackMargin = { base: 0, xl: -4, '2xl': -6 }
-
-const transactionHistorySkeleton = (
-  // react-memo/require-usememo you're drunk, this is already a module-level const consuming another
-  // eslint-disable-next-line react-memo/require-usememo
-  <Stack mx={stackMargin}>
-    <SEO title='Transaction History' />
-    <TransactionHistorySkeleton />
-  </Stack>
-)
 
 const TransactionHistoryContent = () => {
   const translate = useTranslate()
@@ -98,13 +80,7 @@ export const TransactionHistory = memo(() => {
   return (
     <Switch>
       <Route exact path={`${path}/`}>
-        {!deferredShouldRender ? (
-          <TransactionHistorySkeleton />
-        ) : (
-          <Suspense fallback={transactionHistorySkeleton}>
-            <TransactionHistoryContent />
-          </Suspense>
-        )}
+        {!deferredShouldRender ? <TransactionHistorySkeleton /> : <TransactionHistoryContent />}
       </Route>
       <Route path={`${path}/transaction/:txId`}>
         <SingleTransaction />

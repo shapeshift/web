@@ -1,7 +1,7 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { Suspense, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
@@ -26,8 +26,6 @@ import { useAppSelector } from '@/state/store'
 const addIcon = <AddIcon />
 const editIcon = <EditIcon />
 const pxProps = { base: 4, xl: 0 }
-
-const accountsSkeleton = <AccountsSkeleton />
 
 const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const translate = useTranslate()
@@ -139,13 +137,7 @@ export const Accounts = () => {
   return (
     <Switch>
       <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
-        {!deferredShouldRender ? (
-          <AccountsSkeleton />
-        ) : (
-          <Suspense fallback={accountsSkeleton}>
-            <AccountsContent />
-          </Suspense>
-        )}
+        {!deferredShouldRender ? <AccountsSkeleton /> : <AccountsContent />}
       </Route>
       <Route path={`${path}/:accountId`}>
         <Account />

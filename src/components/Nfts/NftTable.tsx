@@ -2,7 +2,7 @@ import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { memo, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useNfts } from './hooks/useNfts'
@@ -28,8 +28,6 @@ const gridTemplateColumns = {
 }
 const gridPaddingX = { base: 4, xl: 0 }
 const boxPaddingX = { base: 4, xl: 0 }
-
-const nftTableSkeleton = <NftTableSkeleton />
 
 const NftGrid: React.FC<SimpleGridProps> = props => (
   <SimpleGrid gridGap={4} gridTemplateColumns={gridTemplateColumns} px={gridPaddingX} {...props} />
@@ -140,7 +138,7 @@ export const NftTable = memo(() => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setShouldRender(true)
-    }, 100)
+    }, 0)
 
     return () => clearTimeout(timeoutId)
   }, [])
@@ -149,9 +147,5 @@ export const NftTable = memo(() => {
     return <NftTableSkeleton />
   }
 
-  return (
-    <Suspense fallback={nftTableSkeleton}>
-      <NftContent />
-    </Suspense>
-  )
+  return <NftContent />
 })

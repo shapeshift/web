@@ -206,10 +206,7 @@
     "cta": "Réessayer"
   },
   "buyPage": {
-    "title": {
-      "first": "Acheter des cryptos",
-      "second": "en quelques secondes"
-    },
+    "title": "Acheter des cryptos <span>en quelques secondes</span>",
     "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies majeures. Fournisseurs non-KYC disponibles.",
     "disclaimer": "*Vous pouvez aussi vendre des cryptos directement pour de l'argent sur votre compte bancaire.",
     "cta": {

@@ -206,10 +206,7 @@
     "cta": "Intentar otra vez"
   },
   "buyPage": {
-    "title": {
-      "first": "Comprar Cripto",
-      "second": "en Segundos"
-    },
+    "title": "Comprar Cripto <span>en Segundos</span>",
     "body": "Utilice una tarjeta de crédito, tarjeta de débito o cuenta bancaria. Compre Bitcoin, Ethereum, USDT, USDC o cientos de otras criptomonedas.",
     "disclaimer": "*También puede vender cripto directamente en efectivohacia su cuenta bancaria.",
     "cta": {

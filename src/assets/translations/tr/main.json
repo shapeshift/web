@@ -206,10 +206,7 @@
     "cta": "Tekrar dene"
   },
   "buyPage": {
-    "title": {
-      "first": "Saniyeler içinde",
-      "second": "Kripto Satın Alın"
-    },
+    "title": "Saniyeler içinde <span>Kripto Satın Alın</span>",
     "body": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer en iyi kripto para birimlerini satın alın. KYC gerekmeyen sağlayıcılar mevcuttur.",
     "disclaimer": "*Ayrıca kriptonuzu banka hesabınıza doğrudan nakit olarak satabilirsiniz.",
     "cta": {

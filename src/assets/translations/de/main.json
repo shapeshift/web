@@ -206,10 +206,7 @@
     "cta": "Versuchen Sie es nochmal"
   },
   "buyPage": {
-    "title": {
-      "first": "Krypto kaufen",
-      "second": "in Sekunden"
-    },
+    "title": "Krypto kaufen <span>in Sekunden</span>",
     "body": "Verwenden Sie eine Kreditkarte,  Debitkarte oder ein Bankkonto. Kaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
     "disclaimer": "*Sie können Krypto auch direkt gegen Bargeld auf Ihr Bankkonto verkaufen.",
     "cta": {

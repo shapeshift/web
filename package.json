@@ -298,7 +298,7 @@
     "ssri": "^8.0.1",
     "ts-node": "^10.8.0",
     "ts-prune": "^0.10.3",
-    "tsx": "^4.16.2",
+    "tsx": "^4.19.3",
     "typechain": "^8.1.1",
     "typescript": "^5.2.2",
     "vite-plugin-circular-dependency": "^0.5.0",

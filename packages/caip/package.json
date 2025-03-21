@@ -17,9 +17,9 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "yarn generate:coingecko && yarn generate:coincap",
-    "generate:coingecko": "yarn build && yarn node dist/adapters/coingecko/generate.js",
-    "generate:coincap": "yarn build && yarn node dist/adapters/coincap/generate.js",
-    "generate:yearn": "yarn build && yarn node dist/adapters/yearn/generate.js"
+    "generate:coingecko": "yarn build && yarn run -T tsx src/adapters/coingecko/generate.ts",
+    "generate:coincap": "yarn build && yarn run -T tsx src/adapters/coincap/generate.ts",
+    "generate:yearn": "yarn build && yarn run -T tsx src/adapters/yearn/generate.ts"
   },
   "devDependencies": {
     "@yfi/sdk": "^1.2.0"

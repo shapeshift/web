@@ -199,5 +199,5 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() => {
-  return Object.freeze({ ...cleanEnv(import.meta.env, validators, { reporter }) })
+  return Object.freeze({ ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }) })
 })

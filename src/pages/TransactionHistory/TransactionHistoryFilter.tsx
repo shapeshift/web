@@ -108,7 +108,7 @@ export const TransactionHistoryFilter = memo(
             color={'text.subtle'}
             translation='transactionHistory.filters.to'
           />
-          <DatePicker name={FilterFormFields.ToDate} control={control} />
+          <DatePicker name={FilterFormFields.ToDate} control={control} withPortal />
         </HStack>
       ) : null
     }, [control, dayRangeSelectedOption])

@@ -11,10 +11,7 @@ import { EarnBalance } from './EarnBalance'
 
 import { Amount } from '@/components/Amount/Amount'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import {
-  selectClaimableRewards,
-  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-} from '@/state/slices/selectors'
+import { selectTotalPortfolioBalanceIncludeStakingUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const paddingTop = { base: 'env(safe-area-inset-top)', md: '4.5rem' }
@@ -42,10 +39,6 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
-  )
   const portfolioTotalUserCurrencyBalance = useAppSelector(
     selectTotalPortfolioBalanceIncludeStakingUserCurrency,
   )
@@ -78,12 +71,6 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         rightElement: <EarnBalance />,
       },
       {
-        label: 'navBar.rewards',
-        path: '/wallet/rewards',
-        color: 'green',
-        rightElement: <Amount.Fiat value={claimableRewardsUserCurrencyBalance} />,
-      },
-      {
         label: 'dashboard.nfts',
         path: '/wallet/nfts',
         color: 'pink',
@@ -95,7 +82,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         color: 'blue',
       },
     ]
-  }, [claimableRewardsUserCurrencyBalance, isNftsEnabled, portfolioTotalUserCurrencyBalance])
+  }, [isNftsEnabled, portfolioTotalUserCurrencyBalance])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (

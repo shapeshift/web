@@ -28,12 +28,10 @@ type SharedTradeInputFooterProps = {
   receiveSummaryDetails?: JSX.Element | null
   sellAccountId: string | undefined
   sellAsset: Asset
-  shouldDisableGasRateRowClick?: boolean
   shouldDisablePreviewButton: boolean | undefined
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
-  onGasRateRowClick?: () => void
   marketRate?: string
   invertRate?: boolean
   noExpand?: boolean
@@ -53,12 +51,10 @@ export const SharedTradeInputFooter = ({
   receiveSummaryDetails,
   sellAccountId,
   sellAsset,
-  shouldDisableGasRateRowClick,
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   swapperName,
   swapSource,
   networkFeeFiatUserCurrency,
-  onGasRateRowClick,
   marketRate,
   invertRate,
   noExpand,
@@ -120,14 +116,12 @@ export const SharedTradeInputFooter = ({
             affiliateBps={affiliateBps}
             buyAssetId={buyAsset.assetId}
             sellAssetId={sellAsset.assetId}
-            isDisabled={shouldDisableGasRateRowClick}
             rate={rate}
             deltaPercentage={deltaPercentage?.toString()}
-            isLoading={isLoading}
+            isLoading={isLoading && !rate}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
-            onClick={onGasRateRowClick}
             invertRate={invertRate}
             noExpand={noExpand}
           >
@@ -156,8 +150,8 @@ export const SharedTradeInputFooter = ({
         {children}
 
         <ButtonWalletPredicate
-          isLoading={isAccountsMetadataLoading && !sellAccountId}
-          loadingText={buttonText}
+          isLoading={isLoading || (isAccountsMetadataLoading && !sellAccountId)}
+          loadingText={isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'

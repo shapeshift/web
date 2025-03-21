@@ -337,13 +337,15 @@ export const SharedRecipientAddress = ({
               </Tag>
             </Tooltip>
           ) : (
-            <Stack direction='row' spacing={1} alignItems='center'>
+            <Stack direction='row' spacing={2} alignItems='center'>
               <RawText>{middleEllipsis(receiveAddress ?? '')}</RawText>
               <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
                 <IconButton
                   aria-label='Edit recipient address'
                   icon={editIcon}
                   variant='ghost'
+                  minWidth={0}
+                  top='-1px'
                   onClick={handleEditRecipientAddressClick}
                 />
               </Tooltip>

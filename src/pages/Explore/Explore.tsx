@@ -5,7 +5,6 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 
-import { DefiIcon } from '@/components/Icons/DeFi'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
@@ -40,7 +39,6 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
   )
 }
 
-const stakingIcon = <DefiIcon />
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
 const rfoxIcon = <RFOXIcon />
@@ -50,10 +48,6 @@ const pageProps = { paddingTop: 4 }
 export const Explore = memo(() => {
   const translate = useTranslate()
   const history = useHistory()
-
-  const handleStakingClick = useCallback(() => {
-    history.push('/earn')
-  }, [history])
 
   const handlePoolsClick = useCallback(() => {
     history.push('/pools')

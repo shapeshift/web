@@ -113,7 +113,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "지갑 연결",
-      "switchWallet": "다른 지갑으로 연결하기",
       "disconnect": "연결 끊기",
       "disconnected": "연결 끊김"
     }
@@ -834,9 +833,7 @@
         "button": "다음"
       },
       "rename": {
-        "header": "지갑 이름 바꾸기",
         "walletName": "지갑 닉네임 변경",
-        "body": "지갑의 닉네임을 변경하고 암호를 입력하여 지갑을 복구 하십시오.",
         "button": "다음",
         "confirmDelete": "이 지갑의 닉네임을 삭제하시겠습니까?"
       },

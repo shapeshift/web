@@ -112,7 +112,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Hubungkan Dompet",
-      "switchWallet": "Ganti Penyedia Dompet",
       "disconnect": "Memutuskan",
       "disconnected": "(Terputus)"
     }
@@ -781,9 +780,7 @@
         "button": "Selanjutnya"
       },
       "rename": {
-        "header": "Ganti nama dompet Anda",
         "walletName": "Nama panggilan baru untuk dompet Anda",
-        "body": "Masukkan nama panggilan baru dompet Anda dan kata sandi Anda untuk mendekripsi dompet Anda.",
         "button": "Selanjutnya",
         "confirmDelete": "Apakah Anda yakin ingin menghapus nama panggilan dompet ini??"
       },

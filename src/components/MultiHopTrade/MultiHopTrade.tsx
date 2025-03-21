@@ -62,14 +62,57 @@ export const MultiHopTrade = memo(
       exact: true,
     })
 
-    const { chainId, assetSubId, sellChainId, sellAssetSubId, sellAmountCryptoBaseUnit } =
-      match?.params || {}
+    const {
+      chainId,
+      assetSubId,
+      sellChainId,
+      sellAssetSubId,
+      sellAmountCryptoBaseUnit: paramsSellAmountCryptoBaseUnit,
+    } = match?.params || {}
 
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const history = useHistory()
     const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
+    const [isInitialMount, setIsInitialMount] = useState(true)
+
+    useEffect(() => {
+      if (!isInitialMount || isStandalone) return
+
+      dispatch(tradeInput.actions.clear())
+
+      if (isRewritingUrl) {
+        history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/0`)
+      }
+
+      setIsInitialMount(false)
+    }, [
+      dispatch,
+      isStandalone,
+      isInitialMount,
+      isRewritingUrl,
+      history,
+      buyAsset.assetId,
+      sellAsset.assetId,
+    ])
+
+    useEffect(() => {
+      if (!isRewritingUrl || isStandalone || isInitialMount) return
+
+      const sellAmountBaseUnit =
+        sellInputAmountCryptoBaseUnit ?? paramsSellAmountCryptoBaseUnit ?? ''
+      history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
+    }, [
+      isInitialMount,
+      isRewritingUrl,
+      isStandalone,
+      buyAsset,
+      sellAsset,
+      history,
+      sellInputAmountCryptoBaseUnit,
+      paramsSellAmountCryptoBaseUnit,
+    ])
 
     const buyAssetId = useMemo(() => {
       if (defaultBuyAssetId) return defaultBuyAssetId
@@ -98,32 +141,16 @@ export const MultiHopTrade = memo(
         dispatch(tradeInput.actions.setSellAsset(routeSellAsset))
       }
 
-      if (sellAmountCryptoBaseUnit && routeSellAsset) {
+      if (paramsSellAmountCryptoBaseUnit && routeSellAsset) {
         dispatch(
           tradeInput.actions.setSellAmountCryptoPrecision(
-            fromBaseUnit(sellAmountCryptoBaseUnit, routeSellAsset.precision),
+            fromBaseUnit(paramsSellAmountCryptoBaseUnit, routeSellAsset.precision),
           ),
         )
       }
 
       setIsInitialized(true)
-    }, [dispatch, routeBuyAsset, routeSellAsset, sellAmountCryptoBaseUnit, isInitialized])
-
-    useEffect(() => {
-      if (isRewritingUrl) {
-        const sellAmountBaseUnit = sellInputAmountCryptoBaseUnit ?? sellAmountCryptoBaseUnit ?? ''
-
-        history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
-      }
-    }, [
-      isInitialized,
-      isRewritingUrl,
-      buyAsset,
-      sellAsset,
-      history,
-      sellInputAmountCryptoBaseUnit,
-      sellAmountCryptoBaseUnit,
-    ])
+    }, [dispatch, routeBuyAsset, routeSellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
 
     return (
       <FormProvider {...methods}>

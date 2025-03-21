@@ -443,10 +443,8 @@ export const tradeQuoteSlice = createSlice({
 
       const allQuotes = uniqBy(sortedQuotesWithoutOriginalIndex.concat(staleQuotes), 'id')
 
-      const happyQuotes = allQuotes.filter(({ errors }) => errors.length === 0)
-      const errorQuotes = allQuotes.filter(({ errors }) => errors.length > 0)
-
-      state.tradeQuoteDisplayCache = happyQuotes.concat(errorQuotes)
+      // Keep all quotes in their sorted order, regardless of errors
+      state.tradeQuoteDisplayCache = allQuotes
     },
     setHopProgress: (
       state,

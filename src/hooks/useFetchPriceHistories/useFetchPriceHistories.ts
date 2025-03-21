@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useQueries } from '@tanstack/react-query'
+import { useSuspenseQueries } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
@@ -28,7 +28,7 @@ export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTi
 
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
 
-  useQueries({
+  useSuspenseQueries({
     queries: assetIds.map(assetId => ({
       queryKey: ['marketData', assetId],
       queryFn: async () => {

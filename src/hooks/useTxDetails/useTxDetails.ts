@@ -109,15 +109,13 @@ export const getTransfers = (
         },
       })
     } else {
-      const minimalAsset: MinimalAsset = transfer.token
-        ? {
-            assetId: transfer.assetId,
-            id: transfer.id,
-            symbol: transfer.token.symbol || 'N/A',
-            name: transfer.token.name || 'Unknown',
-            precision: isNft(transfer.assetId) ? 0 : transfer.token.decimals,
-          }
-        : defaultAsset
+      const minimalAsset: MinimalAsset = {
+        assetId: transfer.assetId,
+        id: transfer.id,
+        symbol: transfer.token?.symbol || defaultAsset.symbol,
+        name: transfer.token?.name || defaultAsset.name,
+        precision: isNft(transfer.assetId) ? 0 : transfer.token?.decimals ?? defaultAsset.precision,
+      }
 
       const asset = makeAsset(assets, minimalAsset)
 

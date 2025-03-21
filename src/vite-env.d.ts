@@ -83,11 +83,6 @@ interface ImportMetaEnv {
   readonly VITE_EXCHANGERATEHOST_API_KEY: string
   readonly VITE_ALCHEMY_API_KEY: string
   readonly VITE_ALCHEMY_SOLANA_BASE_URL: string
-  readonly VITE_ALCHEMY_POLYGON_JAYPEGS_BASE_URL: string
-  readonly VITE_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL: string
-  readonly VITE_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL: string
-  readonly VITE_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL: string
-  readonly VITE_ALCHEMY_BASE_JAYPEGS_BASE_URL: string
   readonly VITE_BOARDROOM_API_BASE_URL: string
   readonly VITE_BOARDROOM_APP_BASE_URL: string
   readonly VITE_SNAPSHOT_BASE_URL: string

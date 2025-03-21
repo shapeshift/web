@@ -29,6 +29,15 @@ import { useAppSelector } from '@/state/store'
 const headingPadding = [2, 3, 6]
 const stackMargin = { base: 0, xl: -4, '2xl': -6 }
 
+const transactionHistorySkeleton = (
+  // react-memo/require-usememo you're drunk, this is already a module-level const consuming another
+  // eslint-disable-next-line react-memo/require-usememo
+  <Stack mx={stackMargin}>
+    <SEO title='Transaction History' />
+    <TransactionHistorySkeleton />
+  </Stack>
+)
+
 const TransactionHistoryContent = () => {
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -92,7 +101,7 @@ export const TransactionHistory = memo(() => {
         {!deferredShouldRender ? (
           <TransactionHistorySkeleton />
         ) : (
-          <Suspense fallback={<TransactionHistorySkeleton />}>
+          <Suspense fallback={transactionHistorySkeleton}>
             <TransactionHistoryContent />
           </Suspense>
         )}

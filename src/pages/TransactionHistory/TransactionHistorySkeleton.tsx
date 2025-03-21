@@ -22,13 +22,7 @@ export const TransactionHistorySkeleton = memo(() => {
       {/* Transaction list */}
       <Stack spacing={4} px={4} pb={4}>
         {Array.from({ length: 10 }).map((_, i) => (
-          <Flex
-            key={i}
-            alignItems='center'
-            justifyContent='space-between'
-            p={2}
-            borderRadius='md'
-          >
+          <Flex key={i} alignItems='center' justifyContent='space-between' p={2} borderRadius='md'>
             <Flex alignItems='center'>
               <Skeleton width='40px' height='40px' borderRadius='full' mr={3} />
               <Box>
@@ -45,4 +39,4 @@ export const TransactionHistorySkeleton = memo(() => {
       </Stack>
     </Stack>
   )
-}) 
+})

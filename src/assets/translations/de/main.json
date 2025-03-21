@@ -2841,11 +2841,7 @@
     },
     "governance": {
       "title": "Verwaltung",
-      "description": {
-        "0": "Folgen Sie uns",
-        "1": "im Forum",
-        "2": "und gestalten Sie die Zukunft der DAO."
-      },
+      "description": "Folgen Sie uns <link>im Forum</link> und gestalten Sie die Zukunft der DAO.",
       "totalVotingPower": "Gesamtstimmrecht",
       "noActiveProposals": "Keine aktiven Vorschläge verfügbar",
       "noClosedProposals": "Keine abgeschlossenen Vorschläge verfügbar"

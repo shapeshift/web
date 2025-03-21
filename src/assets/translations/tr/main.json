@@ -2841,11 +2841,7 @@
     },
     "governance": {
       "title": "Yönetim",
-      "description": {
-        "0": "Forumda",
-        "1": "bize katılın",
-        "2": "ve DAO'nun geleceğini şekillendireceğiz."
-      },
+      "description": "Forumda <link>bize katılın</link> ve DAO'nun geleceğini şekillendireceğiz.",
       "totalVotingPower": "Toplam Oy Gücü",
       "noActiveProposals": "Aktif teklif yok",
       "noClosedProposals": "Kapalı teklif yok"

@@ -2841,11 +2841,7 @@
     },
     "governance": {
       "title": "ガバナンス",
-      "description": {
-        "0": "参加しましょう",
-        "1": "フォーラムで",
-        "2": "DAO の未来を形作ります。"
-      },
+      "description": "参加しましょう <link>フォーラムで</link> DAO の未来を形作ります。",
       "totalVotingPower": "総投票権",
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"

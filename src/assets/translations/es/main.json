@@ -2841,11 +2841,7 @@
     },
     "governance": {
       "title": "Gobernancia",
-      "description": {
-        "0": "Únase",
-        "1": "al forum",
-        "2": "y dale forma al futuro DAO."
-      },
+      "description": "Únase <link>al forum</link> y dale forma al futuro DAO.",
       "totalVotingPower": "Poder de Voto Total",
       "noActiveProposals": "No hay propuestas activas disponibles",
       "noClosedProposals": "No hay propuestas cerradas disponibles"

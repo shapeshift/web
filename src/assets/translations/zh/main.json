@@ -2841,11 +2841,7 @@
     },
     "governance": {
       "title": "治理",
-      "description": {
-        "0": "加入我们",
-        "1": "在论坛上",
-        "2": "并塑造 DAO 的未来。"
-      },
+      "description": "加入我们 <link>在论坛上</link> 并塑造 DAO 的未来。",
       "totalVotingPower": "总投票权",
       "noActiveProposals": "没有可用的活跃提案",
       "noClosedProposals": "没有可用的已关闭提案"

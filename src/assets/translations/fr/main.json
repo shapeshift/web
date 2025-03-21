@@ -2842,11 +2842,7 @@
     },
     "governance": {
       "title": "Gouvernance",
-      "description": {
-        "0": "Rejoignez-nous",
-        "1": "sur le forum",
-        "2": "et façonnez l’avenir de la DAO."
-      },
+      "description": "Rejoignez-nous <link>sur le forum</link> et façonnez l’avenir de la DAO.",
       "totalVotingPower": "Pouvoir de vote total",
       "noActiveProposals": "Aucune proposition active disponible",
       "noClosedProposals": "Aucune proposition fermée disponible"

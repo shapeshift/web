@@ -209,12 +209,7 @@
     "title": "Acheter des cryptos <span>en quelques secondes</span>",
     "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies majeures. Fournisseurs non-KYC disponibles.",
     "disclaimer": "*Vous pouvez aussi vendre des cryptos directement pour de l'argent sur votre compte bancaire.",
-    "cta": {
-      "title": {
-        "first": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et",
-        "second": "suivre vos cryptos sur %{chainCount} chaînes"
-      }
-    },
+    "ctaTitle": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et <span>suivre vos cryptos sur %{chainCount} chaînes</span>",
     "availableAssets": "Actifs disponibles"
   },
   "updateToast": {

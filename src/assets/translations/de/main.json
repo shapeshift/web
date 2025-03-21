@@ -209,12 +209,7 @@
     "title": "Krypto kaufen <span>in Sekunden</span>",
     "body": "Verwenden Sie eine Kreditkarte,  Debitkarte oder ein Bankkonto. Kaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
     "disclaimer": "*Sie können Krypto auch direkt gegen Bargeld auf Ihr Bankkonto verkaufen.",
-    "cta": {
-      "title": {
-        "first": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und",
-        "second": "Verfolgen Sie Ihre Krypto über %{chainCount} Ketten"
-      }
-    },
+    "ctaTitle": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und <span>Verfolgen Sie Ihre Krypto über %{chainCount} Ketten</span>",
     "availableAssets": "Verfügbare Vermögenswerte"
   },
   "updateToast": {

@@ -209,12 +209,7 @@
     "title": "Saniyeler içinde <span>Kripto Satın Alın</span>",
     "body": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer en iyi kripto para birimlerini satın alın. KYC gerekmeyen sağlayıcılar mevcuttur.",
     "disclaimer": "*Ayrıca kriptonuzu banka hesabınıza doğrudan nakit olarak satabilirsiniz.",
-    "cta": {
-      "title": {
-        "first": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve",
-        "second": "Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz"
-      }
-    },
+    "ctaTitle": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve <span>Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz</span>",
     "availableAssets": "Kullanılabilir Varlıklar"
   },
   "updateToast": {

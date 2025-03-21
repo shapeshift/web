@@ -209,12 +209,7 @@
     "title": "Compre Cripto <span>Em instantes</span>",
     "body": "Use cartão de crédito, débito ou PIX. Compre Bitcoin, Ethereum, USDT, USDC ou outras centenas de criptomoedas. ",
     "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
-    "cta": {
-      "title": {
-        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
-        "second": "monitorar suas criptos em %{chainCount} redes diferentes."
-      }
-    },
+    "ctaTitle": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e <span>monitorar suas criptos em %{chainCount} redes diferentes.</span>",
     "availableAssets": "Ativos disponíveis"
   },
   "updateToast": {

@@ -209,12 +209,7 @@
     "title": "Comprar Cripto <span>en Segundos</span>",
     "body": "Utilice una tarjeta de crédito, tarjeta de débito o cuenta bancaria. Compre Bitcoin, Ethereum, USDT, USDC o cientos de otras criptomonedas.",
     "disclaimer": "*También puede vender cripto directamente en efectivohacia su cuenta bancaria.",
-    "cta": {
-      "title": {
-        "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
-        "second": "Rastree su cripto en %{chainCount} cadenas"
-      }
-    },
+    "ctaTitle": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y <span>Rastree su cripto en %{chainCount} cadenas</span>",
     "availableAssets": "Activos Disponibles"
   },
   "updateToast": {

@@ -209,12 +209,7 @@
     "title": "购买加密货币 <span>快速</span>",
     "body": "使用信用卡、借记卡或银行账户来购买比特币、以太坊、USDT、USDC 或其他顶级加密货币。适用于非 KYC 用户。",
     "disclaimer": "*你还可以直接出售加密货币以换取现金存入你的银行账户。",
-    "cta": {
-      "title": {
-        "first": "你还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和",
-        "second": "在 %{chainCount} 条链上跟踪你的加密货币"
-      }
-    },
+    "ctaTitle": "你还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和 <span>在 %{chainCount} 条链上跟踪你的加密货币</span>",
     "availableAssets": "可用资产"
   },
   "updateToast": {

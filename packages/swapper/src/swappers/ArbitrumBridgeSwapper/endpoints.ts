@@ -1,6 +1,5 @@
 import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } from '@arbitrum/sdk'
 import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
-import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
@@ -9,6 +8,7 @@ import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
+import type { ethers as ethersv5 } from 'ethers5'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
@@ -40,8 +40,8 @@ export const getParentToChildMessageDataFromParentTxHash = async ({
   isClassic, // optional: if we already know if tx is classic (eg. through subgraph) then no need to re-check in this fn
 }: {
   depositTxId: string
-  parentProvider: Provider
-  childProvider: Provider
+  parentProvider: ethersv5.providers.JsonRpcProvider
+  childProvider: ethersv5.providers.JsonRpcProvider
   isClassic?: boolean
 }): Promise<
   | {

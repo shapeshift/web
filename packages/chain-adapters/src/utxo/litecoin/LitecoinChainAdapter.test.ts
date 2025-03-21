@@ -207,8 +207,8 @@ describe('LitecoinChainAdapter', () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
-        getUtxos: vi.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
-        getTransaction: vi.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
+        getUtxos: vi.fn().mockResolvedValue(getUtxosMockResponse),
+        getTransaction: vi.fn().mockResolvedValue(getTransactionMockResponse),
         getAccount: vi.fn().mockResolvedValue(getAccountMockResponse),
         getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
@@ -270,8 +270,8 @@ describe('LitecoinChainAdapter', () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
-        getUtxos: vi.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
-        getTransaction: vi.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
+        getUtxos: vi.fn().mockResolvedValue(getUtxosMockResponse),
+        getTransaction: vi.fn().mockResolvedValue(getTransactionMockResponse),
         getAccount: vi.fn().mockResolvedValue(getAccountMockResponse),
         getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any

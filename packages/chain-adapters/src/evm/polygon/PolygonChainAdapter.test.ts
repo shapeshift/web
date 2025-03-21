@@ -256,7 +256,7 @@ describe('PolygonChainAdapter', () => {
       const balance = '2500000'
       const httpProvider = {
         getAccount: vi
-          .fn<any, any>()
+          .fn()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.polygon.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -285,7 +285,7 @@ describe('PolygonChainAdapter', () => {
       const balance = '2500000'
       const httpProvider = {
         getAccount: vi
-          .fn<any, any>()
+          .fn()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.polygon.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -439,7 +439,7 @@ describe('PolygonChainAdapter', () => {
     it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {
       const httpProvider = {
         getAccount: vi
-          .fn<any, any>()
+          .fn()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.polygon.V1Api
 
@@ -476,7 +476,7 @@ describe('PolygonChainAdapter', () => {
     it("should build a tx with value: '0' for BEP20 txs without sendMax", async () => {
       const httpProvider = {
         getAccount: vi
-          .fn<any, any>()
+          .fn()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),

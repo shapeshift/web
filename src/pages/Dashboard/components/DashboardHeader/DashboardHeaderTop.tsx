@@ -7,7 +7,7 @@ import { FiLogOut } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 
-import { EditAvatarButton, ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
+import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
 
@@ -87,9 +87,7 @@ export const DashboardHeaderTop = memo(() => {
         gap={4}
         gridColumn={profileGridColumn}
       >
-        <EditAvatarButton>
-          <ProfileAvatar />
-        </EditAvatarButton>
+        <ProfileAvatar />
         <WalletBalance />
       </Flex>
       <Flex

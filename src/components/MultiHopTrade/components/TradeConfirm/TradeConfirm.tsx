@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { Redirect, useHistory } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
-import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
+import { SpotTradeSuccess } from '../SpotTradeSuccess/SpotTradeSuccess'
 import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
@@ -99,7 +99,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
   const body = useMemo(() => {
     if (isTradeComplete && activeQuote && tradeQuoteLastHop)
       return (
-        <TradeSuccess
+        <SpotTradeSuccess
           handleBack={handleBack}
           titleTranslation={
             isArbitrumBridgeWithdraw
@@ -122,7 +122,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />
           </Stepper>
-        </TradeSuccess>
+        </SpotTradeSuccess>
       )
 
     return <TradeConfirmBody />

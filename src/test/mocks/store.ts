@@ -46,7 +46,6 @@ export const mockStore: ReduxState = {
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   portalsApi: mockApiFactory('portalsApi' as const),
   portals: mockApiFactory('portals' as const),
-  nftApi: mockApiFactory('nftApi' as const),
   swapperApi: mockSwapperApi,
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
@@ -80,7 +79,6 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
-      Jaypegz: false,
       Optimism: false,
       Polygon: false,
       Gnosis: false,
@@ -216,21 +214,6 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     userStaking: {
-      byId: {},
-      ids: [],
-    },
-  },
-  nft: {
-    _persist: {
-      version: 0,
-      rehydrated: false,
-    },
-    selectedNftAvatarByWalletId: {},
-    nfts: {
-      byId: {},
-      ids: [],
-    },
-    collections: {
       byId: {},
       ids: [],
     },

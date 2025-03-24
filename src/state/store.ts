@@ -8,7 +8,6 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
-import { nftApi } from './apis/nft/nftApi'
 import { portals, portalsApi } from './apis/portals/portalsApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
@@ -36,7 +35,6 @@ const apiMiddleware = [
   snapshotApi.middleware,
   portals.middleware,
   portalsApi.middleware,
-  nftApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
   limitOrderApi.middleware,
@@ -61,7 +59,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.portalsApi.util.resetApiState())
-  store.dispatch(apiSlices.nftApi.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 
@@ -84,7 +81,6 @@ const actionSanitizer = (action: any) => {
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
     'portalsApi/executeQuery/fulfilled',
-    'nftApi/executeQuery/fulfilled',
     'portals/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)

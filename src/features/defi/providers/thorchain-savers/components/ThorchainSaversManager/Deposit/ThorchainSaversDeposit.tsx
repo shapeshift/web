@@ -44,12 +44,13 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-type YearnDepositProps = {
+
+type ThorchainSaversDepositProps = {
   accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
+export const ThorchainSaversDeposit: React.FC<ThorchainSaversDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {

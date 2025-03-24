@@ -6,7 +6,6 @@ import { AccountTableSkeleton } from './components/AccountTableSkeleton'
 import { DashboardChart } from './components/DashboardChart'
 import { DashboardChartSkeleton } from './components/DashboardChartSkeleton'
 
-import { useNfts } from '@/components/Nfts/hooks/useNfts'
 import { Text } from '@/components/Text'
 
 const cardBodyPx = { base: 4, md: 2 }
@@ -32,9 +31,6 @@ export const Portfolio = memo(() => {
       })
     }
   }, [shouldRenderChart])
-
-  // Lazily fetch NFTs once user navigates to the dashboard overview
-  useNfts()
 
   return (
     <Stack spacing={stackSpacing} width='full'>

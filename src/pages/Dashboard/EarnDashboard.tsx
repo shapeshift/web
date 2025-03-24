@@ -1,12 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Flex, Heading } from '@chakra-ui/react'
-import { memo, useDeferredValue, useEffect, useState } from 'react'
+import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
 
 import { SEO } from '@/components/Layout/Seo'
 import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
-import { DeFiEarnSkeleton } from '@/components/StakingVaults/DeFiEarnSkeleton'
 import { RawText } from '@/components/Text'
 
 const alignItems = { base: 'flex-start', md: 'center' }

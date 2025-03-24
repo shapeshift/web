@@ -1,13 +1,12 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
 import { Account } from './Account'
-import { AccountsSkeleton } from './components/AccountsSkeleton'
 import { ChainRow } from './components/ChainRow'
 
 import { SEO } from '@/components/Layout/Seo'
@@ -123,21 +122,11 @@ export const Accounts = () => {
   const { path } = useRouteMatch()
   const loading = useSelector(selectIsPortfolioLoading)
   const walletId = useAppSelector(selectWalletId)
-  const [shouldRender, setShouldRender] = useState(false)
-  const deferredShouldRender = useDeferredValue(shouldRender)
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setShouldRender(true)
-    }, 0)
-
-    return () => clearTimeout(timeoutId)
-  }, [])
 
   return (
     <Switch>
       <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
-        {!deferredShouldRender ? <AccountsSkeleton /> : <AccountsContent />}
+        <AccountsContent />
       </Route>
       <Route path={`${path}/:accountId`}>
         <Account />

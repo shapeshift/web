@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
-import { memo, Profiler, useEffect, useState, useTransition } from 'react'
+import { memo, useEffect, useState, useTransition } from 'react'
 
 import { AccountTable } from './components/AccountList/AccountTable'
 import { AccountTableSkeleton } from './components/AccountTableSkeleton'

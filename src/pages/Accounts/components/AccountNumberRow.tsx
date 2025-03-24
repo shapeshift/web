@@ -79,7 +79,7 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({
           ))}
         </>
       ) : null,
-    [accountIds, assetId],
+    [accountIds, assetId, isVisible],
   )
 
   if (!isVisible) return null
@@ -95,9 +95,6 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
   accountId,
   isVisible,
 }) => {
-  // Don't even query the data if not visible
-  if (!isVisible) return null
-
   const accountAssetBalancesSortedUserCurrency = useSelector(
     selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   )
@@ -115,6 +112,8 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
     ),
     [accountId, assetIds],
   )
+
+  if (!isVisible) return null
 
   return result
 }

@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
+import { isPermit2Hop } from './helpers'
 import { useStreamingProgress } from './hooks/useStreamingProgress'
 import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
@@ -82,6 +83,10 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     tradeQuoteStep,
     hopIndex: currentHopIndex,
   })
+
+  const isPermit2 = useMemo(() => {
+    return isPermit2Hop(tradeQuoteStep)
+  }, [tradeQuoteStep])
 
   const translation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined
@@ -211,6 +216,33 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
 
+  const isButtonLoading = useMemo(() => {
+    if (!confirmedTradeExecutionState) return true
+
+    return (
+      isSubmitting ||
+      confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+      tradeButtonProps?.isLoading ||
+      isLoading ||
+      (swapperName === SwapperName.Zrx &&
+        isPermit2 &&
+        !tradeQuoteStep?.permit2Eip712 &&
+        ![TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+          confirmedTradeExecutionState,
+        ) &&
+        !activeQuoteError)
+    )
+  }, [
+    isSubmitting,
+    confirmedTradeExecutionState,
+    tradeButtonProps?.isLoading,
+    isLoading,
+    isPermit2,
+    activeQuoteError,
+    tradeQuoteStep?.permit2Eip712,
+    swapperName,
+  ])
+
   if (!confirmedTradeExecutionState || !translation || !tradeButtonProps) return null
 
   return (
@@ -252,12 +284,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
           size='lg'
           width='full'
           onClick={handleClick}
-          isLoading={
-            isSubmitting ||
-            confirmedTradeExecutionState === TradeExecutionState.Initializing ||
-            tradeButtonProps.isLoading ||
-            isLoading
-          }
+          isLoading={isButtonLoading}
           isDisabled={tradeButtonProps.isDisabled || !!activeQuoteError}
         >
           <Text translation={translation} />

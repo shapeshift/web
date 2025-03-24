@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/types": "workspace:^",
-    "crypto-browserify": "^3.12.0"
+    "@shapeshiftoss/types": "workspace:^"
   }
 }

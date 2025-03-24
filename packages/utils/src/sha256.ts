@@ -1,5 +1,4 @@
-// @ts-ignore we don't have typings for this bad boi
-import crypto from 'crypto-browserify'
+import crypto from 'node:crypto'
 
 export const sha256 = (input: string): string =>
   crypto.createHash('sha256').update(input).digest('hex')

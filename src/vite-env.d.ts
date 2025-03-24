@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 interface ImportMetaEnv {
   // Feature flags - present in all envs
   readonly VITE_FEATURE_BNBSMARTCHAIN: string

@@ -15,6 +15,8 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -65,6 +67,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const receive = useModal('receive')
   const fiatRamps = useModal('fiatRamps')
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     state: { isConnected },
     dispatch,
@@ -84,8 +87,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     [dispatch],
   )
   const handleSendClick = useCallback(
-    () => (isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()),
-    [accountId, assetId, handleWalletModalOpen, isConnected, send],
+    () =>
+      isConnected
+        ? (mixpanel && mixpanel.track(MixPanelEvent.SendClick), send.open({ assetId, accountId }))
+        : handleWalletModalOpen(),
+    [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send],
   )
   const handleReceiveClick = useCallback(
     () => (isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()),

@@ -101,9 +101,7 @@ export const GlobalSearchModal = memo(
           case GlobalSearchResultType.Send: {
             // We don't want to pre-select the asset for EVM ChainIds
             const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
-            if (mixpanel) {
-              mixpanel.track(MixPanelEvent.SendClick)
-            }
+            mixpanel?.track(MixPanelEvent.SendClick)
             send.open({ assetId, input: searchQuery })
             onToggle()
             break

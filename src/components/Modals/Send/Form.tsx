@@ -81,9 +81,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     async (data: SendInput) => {
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
-      if (mixpanel) {
-        mixpanel.track(MixPanelEvent.SendBroadcast)
-      }
+      mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
       history.push(SendRoutes.Status)
     },

@@ -54,9 +54,7 @@ export const DashboardHeaderTop = memo(() => {
   }, [qrCode])
 
   const handleSendClick = useCallback(() => {
-    if (mixpanel) {
-      mixpanel.track(MixPanelEvent.SendClick)
-    }
+    mixpanel?.track(MixPanelEvent.SendClick)
     send.open({})
   }, [send, mixpanel])
 

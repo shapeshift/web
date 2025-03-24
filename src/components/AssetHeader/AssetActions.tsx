@@ -86,13 +86,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
-  const handleSendClick = useCallback(
-    () =>
-      isConnected
-        ? (mixpanel && mixpanel.track(MixPanelEvent.SendClick), send.open({ assetId, accountId }))
-        : handleWalletModalOpen(),
-    [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send],
-  )
+  const handleSendClick = useCallback(() => {
+    if (!isConnected) return handleWalletModalOpen()
+    mixpanel?.track(MixPanelEvent.SendClick)
+    send.open({ assetId, accountId })
+  }, [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send])
   const handleReceiveClick = useCallback(
     () => (isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()),
     [accountId, asset, handleWalletModalOpen, isConnected, receive],

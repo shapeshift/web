@@ -180,9 +180,7 @@ export const MobileNavBar = memo(() => {
   }, [onClose, qrCode])
 
   const handleSendClick = useCallback(() => {
-    if (mixpanel) {
-      mixpanel.track(MixPanelEvent.SendClick)
-    }
+    mixpanel?.track(MixPanelEvent.SendClick)
     onClose()
     send.open({})
   }, [mixpanel, onClose, send])

@@ -322,7 +322,7 @@ export const useGetTradeRates = () => {
     if (isAnyTradeQuoteLoading) return
     if (mixpanel && sortedTradeQuotes.length) {
       const quoteData = getMixPanelDataFromApiRates(sortedTradeQuotes)
-      mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
+      mixpanel.track(MixPanelEvent.RatesReceived, quoteData)
     }
   }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
 }

@@ -36,7 +36,6 @@ import { fromBaseUnit } from '@/lib/math'
 import { fetchPortalsAccount } from '@/lib/portals/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
-import { selectNftCollections } from '@/state/apis/nft/selectors'
 import { assets as assetSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
@@ -206,7 +205,6 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     [wallet],
   )
 
-  const nftCollectionsById = useAppSelector(selectNftCollections)
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
 
   // Prefetch Portals account data, ish. At this point, we already have querydata for all *enabled* AccountIds,
@@ -389,7 +387,6 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
           return accountToPortfolio({
             portfolioAccounts,
             assetIds: assetIds.concat(assets?.ids ?? []),
-            nftCollectionsById,
           })
         })()
 
@@ -426,7 +423,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     setToggledAccountIds(new Set())
 
     setIsSubmitting(false)
-  }, [toggledAccountIds, accounts, dispatch, walletDeviceId, nftCollectionsById, queryClient])
+  }, [toggledAccountIds, accounts, dispatch, walletDeviceId, queryClient])
 
   const handleCommit = useCallback(() => {
     // Do not await me, no need to run this on the next tick. This commits the selection in the background and should be turbo fast

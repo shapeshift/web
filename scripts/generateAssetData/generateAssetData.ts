@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import '../loadEnv'
 
 import type { AssetId } from '@shapeshiftoss/caip'
 import {

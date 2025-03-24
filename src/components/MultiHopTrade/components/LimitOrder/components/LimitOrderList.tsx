@@ -137,6 +137,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
         mt={4}
         pe={1}
         pb={8}
+        isLazy
       >
         <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
           <Tab

@@ -1,7 +1,9 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
+import type { MinimalAsset } from '@shapeshiftoss/utils'
+import { makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -9,11 +11,12 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { getTxLink } from '@/lib/getTxLink'
 import type { ReduxState } from '@/state/reducer'
-import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice, defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { deserializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import type { AppDispatch } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type Transfer = TxTransfer & { asset: Asset }
 export type Fee = unchained.Fee & { asset: Asset }
@@ -88,7 +91,11 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
   return 'common'
 }
 
-export const getTransfers = (tx: Tx, assets: AssetsByIdPartial): Transfer[] => {
+export const getTransfers = (
+  tx: Tx,
+  assets: AssetsByIdPartial,
+  dispatch?: AppDispatch,
+): Transfer[] => {
   return tx.transfers.reduce<Transfer[]>((prev, transfer) => {
     const asset = assets[transfer.assetId]
 
@@ -97,12 +104,24 @@ export const getTransfers = (tx: Tx, assets: AssetsByIdPartial): Transfer[] => {
         ...transfer,
         asset: {
           ...asset,
-          symbol: asset.symbol || transfer.token?.symbol || '',
-          name: asset.name || transfer.token?.name || '',
+          symbol: asset.symbol || transfer.token?.symbol || 'N/A',
+          name: asset.name || transfer.token?.name || 'Unknown',
         },
       })
     } else {
-      prev.push({ ...transfer, asset: defaultAsset })
+      const minimalAsset: MinimalAsset = {
+        assetId: transfer.assetId,
+        id: transfer.id,
+        symbol: transfer.token?.symbol || defaultAsset.symbol,
+        name: transfer.token?.name || defaultAsset.name,
+        precision: isNft(transfer.assetId) ? 0 : transfer.token?.decimals ?? defaultAsset.precision,
+      }
+
+      const asset = makeAsset(assets, minimalAsset)
+
+      dispatch && dispatch(assetsSlice.actions.upsertAsset(asset))
+
+      prev.push({ ...transfer, asset })
     }
 
     return prev
@@ -110,6 +129,8 @@ export const getTransfers = (tx: Tx, assets: AssetsByIdPartial): Transfer[] => {
 }
 
 export const useTxDetails = (txId: string | undefined): TxDetails | undefined => {
+  const dispatch = useAppDispatch()
+
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId ?? ''))
   const assets = useAppSelector(selectAssets)
 
@@ -125,8 +146,8 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
 
   const transfers = useMemo(() => {
     if (!tx) return []
-    return getTransfers(tx, assets)
-  }, [tx, assets])
+    return getTransfers(tx, assets, dispatch)
+  }, [tx, assets, dispatch])
 
   const fee = useMemo(() => {
     if (!tx?.fee) return
@@ -163,6 +184,8 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
 // The same as above, but fetches from the network, allowing for *both* serialized Txids present in the store, and those that aren't to yield a similar shape,
 // so long as you pass as a serialized TxId in.
 export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefined => {
+  const dispatch = useAppDispatch()
+
   const assets = useAppSelector(selectAssets)
 
   const accountId = useMemo(() => {
@@ -201,8 +224,8 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
 
   const transfers = useMemo(() => {
     if (!data) return
-    return getTransfers(data, assets)
-  }, [data, assets])
+    return getTransfers(data, assets, dispatch)
+  }, [data, assets, dispatch])
 
   const fee = useMemo(() => {
     if (!data?.fee) return

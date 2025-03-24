@@ -13,12 +13,8 @@ import { getRelatedAssetIds, serializeTxIndex } from './utils'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from '@/lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
-import {
-  BLACKLISTED_COLLECTION_IDS,
-  isSpammyNftText,
-  isSpammyTokenText,
-} from '@/state/apis/nft/constants'
 import type { State } from '@/state/apis/types'
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { Nominal } from '@/types/common'
 
 export type TxId = Nominal<string, 'TxId'>

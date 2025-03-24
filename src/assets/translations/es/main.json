@@ -269,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Transacciones Recientes"
     },
-    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Intercambiar",
       "bridge": "Bridge",
@@ -2413,27 +2412,6 @@
       "body": "Stake en bóvedas Savers de THORChain. Sin plazo fijo.",
       "cta": "Depositar Ahora"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Personalizar FOXatar",
-    "setAsAvatar": "Establecer Avatar",
-    "floorPrice": "Precio Base",
-    "lastPrice": "Ultimo Precio",
-    "overview": "Visión general",
-    "properties": "Propiedades",
-    "collection": "Colección",
-    "tokenId": "ID Token",
-    "address": "Dirección",
-    "chain": "Cadena",
-    "standard": "Standard",
-    "description": "Descripción",
-    "details": "Detalles",
-    "attributes": "Atributos",
-    "aboutCollection": "Acerca de %{collectionName}",
-    "emptyTitle": "¿Dónde fueron mis NFT?",
-    "emptyBody": "No se preocupe, estamos en búsqueda de más NFT sorprendentes. Mientras tanto, sea libre de mirar este espacio blanco y reflexionar sobre el significado de la existencia.",
-    "reportSpam": "Reportar Spam",
-    "refresh": "Actualizar"
   },
   "avatar": {
     "modal": {

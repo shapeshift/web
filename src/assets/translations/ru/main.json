@@ -269,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Последние транзакции"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "Торговля",
       "bridge": "Мост",
@@ -2413,27 +2412,6 @@
       "body": "Стейкать в хранилище сбережений THORChain. Без времени блокировки.",
       "cta": "Пополнить счет сейчас"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Настроить FOXatar",
-    "setAsAvatar": "Установить в качестве Аватара",
-    "floorPrice": "Нижняя цена",
-    "lastPrice": "Последняя цена",
-    "overview": "Обзор",
-    "properties": "Свойства",
-    "collection": "Коллекция",
-    "tokenId": "ID токена",
-    "address": "Адрес",
-    "chain": "Сеть",
-    "standard": "Стандарт",
-    "description": "Описание",
-    "details": "Подробности",
-    "attributes": "Атрибуты",
-    "aboutCollection": "О %{collectionName}",
-    "emptyTitle": "Куда делись все NFT?",
-    "emptyBody": "Не волнуйтесь, мы отправили поисковую группу, чтобы вернуть больше удивительных NFT. А тем временем, не стесняйтесь смотреть на это пустое место и размышлять о смысле существования.",
-    "reportSpam": "Сообщить о спаме",
-    "refresh": "Обновить"
   },
   "avatar": {
     "modal": {

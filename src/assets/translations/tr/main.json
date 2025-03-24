@@ -269,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Son İşlemler"
     },
-    "nfts": "NFT'ler",
     "tradeCard": {
       "trade": "Takas",
       "bridge": "Köprü",
@@ -2413,27 +2412,6 @@
       "body": "THORChain Savers Vault'a bahis yapın. Kilitlenme süresi yok.",
       "cta": "Para Yatırma"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "FOXatar'ını Özelleştir",
-    "setAsAvatar": "Avatar olarak ayarla",
-    "floorPrice": "Taban Fiyat",
-    "lastPrice": "Son fiyat",
-    "overview": "Genel Bakış",
-    "properties": "Özellikler",
-    "collection": "Koleksiyon",
-    "tokenId": "Token ID",
-    "address": "Adres",
-    "chain": "Zincir",
-    "standard": "Standart",
-    "description": "Açıklama",
-    "details": "Detaylar",
-    "attributes": "Özellikler",
-    "aboutCollection": "%{collectionName} Hakkında",
-    "emptyTitle": "Tüm NFT'ler nereye gitti?",
-    "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin.",
-    "reportSpam": "Spam Bildir",
-    "refresh": "Yenile"
   },
   "avatar": {
     "modal": {

@@ -269,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Transações Recentes"
     },
-    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Swap",
       "bridge": "Bridge",
@@ -2413,27 +2412,6 @@
       "body": "Deposite na THORChain savers vault. Sem tempo mínimo de depósito.",
       "cta": "Deposite agora"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Personalize o FOXatar",
-    "setAsAvatar": "Define como Avatar",
-    "floorPrice": "Floor Price",
-    "lastPrice": "Último preço",
-    "overview": "Visão geral",
-    "properties": "Propriedades",
-    "collection": "Coleção",
-    "tokenId": "Token ID",
-    "address": "Endereço",
-    "chain": "Rede",
-    "standard": "Padrão",
-    "description": "Descrição",
-    "details": "Detalhes",
-    "attributes": "Atributos",
-    "aboutCollection": "Sobre %{collectionName}",
-    "emptyTitle": "Para onde foram todos os NFTs?",
-    "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência.",
-    "reportSpam": "Reportar spam",
-    "refresh": "Atualizar"
   },
   "avatar": {
     "modal": {

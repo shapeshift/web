@@ -10,7 +10,6 @@ import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
 
 import { Amount } from '@/components/Amount/Amount'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { selectTotalPortfolioBalanceIncludeStakingUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,7 +34,6 @@ const navCss = {
 }
 
 export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
-  const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -71,18 +69,12 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         rightElement: <EarnBalance />,
       },
       {
-        label: 'dashboard.nfts',
-        path: '/wallet/nfts',
-        color: 'pink',
-        hide: !isNftsEnabled,
-      },
-      {
         label: 'navBar.activity',
         path: '/wallet/activity',
         color: 'blue',
       },
     ]
-  }, [isNftsEnabled, portfolioTotalUserCurrencyBalance])
+  }, [portfolioTotalUserCurrencyBalance])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (

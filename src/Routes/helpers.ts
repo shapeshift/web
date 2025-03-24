@@ -11,38 +11,34 @@ export enum RouteCategory {
   Thorchain = 'thorchain',
 }
 
-export type Route = {
+export type BaseRoute = {
   path: string
-  shortLabel?: string
   main: React.ElementType<{ route?: Route }> | null
   parent?: Route | null
   routes?: Route[]
-  icon?: JSX.Element
   disable?: boolean
+}
+
+export type NavRoute = BaseRoute & {
+  label: string
+  shortLabel?: string
+  icon?: JSX.Element
   hideDesktop?: boolean
   isNew?: boolean
   isViewOnly?: boolean
   category?: RouteCategory
 } & (
-  | {
-      mobileNav: boolean
-      priority: number
-    }
-  | {
-      mobileNav?: never
-      priority?: never
-    }
-) &
-  (
     | {
-        label: string
-        hide?: false | boolean
+        mobileNav: boolean
+        priority: number
       }
     | {
-        label?: never
-        hide: true
+        mobileNav?: never
+        priority?: never
       }
   )
+
+export type Route = BaseRoute | NavRoute
 
 /**
  * Combine paths

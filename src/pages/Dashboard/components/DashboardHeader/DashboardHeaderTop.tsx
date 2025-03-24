@@ -17,6 +17,8 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
@@ -36,6 +38,7 @@ const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
 
 export const DashboardHeaderTop = memo(() => {
   const { isOpen, onClose, onOpen } = useDisclosure()
+  const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
     state: { isConnected },
@@ -51,8 +54,9 @@ export const DashboardHeaderTop = memo(() => {
   }, [qrCode])
 
   const handleSendClick = useCallback(() => {
+    mixpanel?.track(MixPanelEvent.SendClick)
     send.open({})
-  }, [send])
+  }, [send, mixpanel])
 
   const handleReceiveClick = useCallback(() => {
     receive.open({})

@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
-import { memo, useDeferredValue, useEffect, useState } from 'react'
+import { memo, Profiler, useEffect, useState, useTransition } from 'react'
 
 import { AccountTable } from './components/AccountList/AccountTable'
 import { AccountTableSkeleton } from './components/AccountTableSkeleton'
@@ -15,19 +15,23 @@ const accountHeaderPaddingTop = { base: 6, md: 4 }
 const stackSpacing = { base: 0, md: 6 }
 
 export const Portfolio = memo(() => {
-  const [isMounted, setIsMounted] = useState(false)
-
-  const shouldRenderChart = useDeferredValue(isMounted)
-  const shouldRenderAccountsTable = useDeferredValue(shouldRenderChart)
+  const [, startTransition] = useTransition()
+  const [shouldRenderChart, setShouldRenderChart] = useState(false)
+  const [shouldRenderAccountTable, setShouldRenderAccountTable] = useState(false)
 
   useEffect(() => {
-    // Seems useless, but ensures this is set on next tick (which isn't available on browsers)
-    const timerId = setTimeout(() => {
-      setIsMounted(true)
-    }, 0)
-
-    return () => clearTimeout(timerId)
+    startTransition(() => {
+      setShouldRenderChart(true)
+    })
   }, [])
+
+  useEffect(() => {
+    if (shouldRenderChart) {
+      startTransition(() => {
+        setShouldRenderAccountTable(true)
+      })
+    }
+  }, [shouldRenderChart])
 
   // Lazily fetch NFTs once user navigates to the dashboard overview
   useNfts()
@@ -43,7 +47,7 @@ export const Portfolio = memo(() => {
           </Heading>
         </CardHeader>
         <CardBody px={cardBodyPx} pt={0} pb={0}>
-          {shouldRenderAccountsTable ? <AccountTable /> : <AccountTableSkeleton />}
+          {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
         </CardBody>
       </Card>
     </Stack>

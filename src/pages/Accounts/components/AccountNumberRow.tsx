@@ -48,6 +48,7 @@ type AccountNumberRowProps = {
 type UtxoAccountEntriesProps = {
   accountIds: AccountId[]
   chainId: ChainId
+  isVisible: boolean
 }
 
 const mdOutlineMoreVertIcon = <MdOutlineMoreVert />
@@ -57,13 +58,17 @@ const arrowUpIcon = <ArrowUpIcon />
 const copyIcon = <CopyIcon />
 const checkIcon = <CheckIcon />
 
-const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, chainId }) => {
+const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({
+  accountIds,
+  chainId,
+  isVisible,
+}) => {
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const assetId = feeAsset?.assetId
 
   const result = useMemo(
     () =>
-      assetId ? (
+      assetId && isVisible ? (
         <>
           {accountIds.map(accountId => (
             <AccountEntryRow
@@ -77,13 +82,22 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, cha
     [accountIds, assetId],
   )
 
+  if (!isVisible) return null
+
   return result
 }
 
 type AccountBasedChainEntriesProps = {
   accountId: AccountId
+  isVisible: boolean
 }
-const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ accountId }) => {
+const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
+  accountId,
+  isVisible,
+}) => {
+  // Don't even query the data if not visible
+  if (!isVisible) return null
+
   const accountAssetBalancesSortedUserCurrency = useSelector(
     selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   )
@@ -141,11 +155,11 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const accountEntries = useMemo(
     () =>
       isUtxoAccount ? (
-        <UtxoAccountEntries chainId={chainId} accountIds={accountIds} />
+        <UtxoAccountEntries chainId={chainId} accountIds={accountIds} isVisible={isOpen} />
       ) : (
-        <AccountBasedChainEntries accountId={accountIds[0]} />
+        <AccountBasedChainEntries accountId={accountIds[0]} isVisible={isOpen} />
       ),
-    [accountIds, chainId, isUtxoAccount],
+    [accountIds, chainId, isUtxoAccount, isOpen],
   )
 
   const title = useMemo(() => {
@@ -218,7 +232,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
         )}
       </Flex>
       <NestedList as={Collapse} in={isOpen} pr={0}>
-        <ListItem>{accountEntries}</ListItem>
+        <ListItem>{isOpen && accountEntries}</ListItem>
       </NestedList>
     </ListItem>
   )

@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import { AccountNumberRow } from './AccountNumberRow'
@@ -35,10 +35,12 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
     selectPortfolioTotalChainIdBalanceIncludeStaking(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
-    selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
+    isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : {},
   )
 
   const accountRows = useMemo(() => {
+    if (!isOpen) return null
+
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
       <AccountNumberRow
         key={accountNumber}
@@ -53,7 +55,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         }
       />
     ))
-  }, [accountIdsByAccountNumber, chainId, history])
+  }, [accountIdsByAccountNumber, chainId, history, isOpen])
 
   return asset ? (
     <ListItem

@@ -417,7 +417,7 @@ export const useGetTradeQuotes = () => {
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
     if (isAnyTradeQuoteLoading) return
-    if (mixpanel) {
+    if (mixpanel && sortedTradeQuotes.length > 0) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }

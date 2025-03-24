@@ -270,25 +270,67 @@ export const LimitOrderConfig = ({
     }
 
     if (priceDirection === PriceDirection.BuyAssetDenomination) {
-      return bnOrZero(sellAmountCryptoPrecision)
-        .times(limitPrice.buyAssetDenomination)
-        .decimalPlaces(buyAsset.precision)
-        .toString()
+      return bnOrZero(sellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination).toString()
     }
 
-    return bnOrZero(sellAmountCryptoPrecision)
-      .div(limitPrice.sellAssetDenomination)
-      .decimalPlaces(sellAsset.precision)
-      .toString()
-  }, [
-    limitPrice,
-    priceDirection,
-    sellAmountCryptoPrecision,
-    buyAsset.precision,
-    sellAsset.precision,
-  ])
+    return bnOrZero(sellAmountCryptoPrecision).div(limitPrice.sellAssetDenomination).toString()
+  }, [limitPrice, priceDirection, sellAmountCryptoPrecision])
 
-  const limitOrderExplanation = useMemo(() => {
+  const assetSymbol = useMemo(
+    () =>
+      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol,
+    [priceDirection, sellAsset.symbol, buyAsset.symbol],
+  )
+
+  const humanReadableExplanationComponents = useMemo(
+    () => ({
+      assetSymbol: (
+        <CText as='span' color='white' fontWeight='medium'>
+          {assetSymbol}
+        </CText>
+      ),
+      limitPrice: (
+        <Amount.Crypto
+          as='span'
+          color='white'
+          fontWeight='medium'
+          value={limitPriceForSelectedPriceDirection}
+          symbol={priceAsset.symbol}
+          omitDecimalTrailingZeros
+        />
+      ),
+      sellAmount: (
+        <Amount.Crypto
+          as='span'
+          color='white'
+          fontWeight='medium'
+          value={sellAmountCryptoPrecision}
+          symbol={sellAsset.symbol}
+          omitDecimalTrailingZeros
+        />
+      ),
+      receiveAmount: (
+        <Amount.Crypto
+          as='span'
+          color='white'
+          fontWeight='medium'
+          value={receiveAmountFormatted}
+          symbol={buyAsset.symbol}
+          omitDecimalTrailingZeros
+        />
+      ),
+    }),
+    [
+      assetSymbol,
+      limitPriceForSelectedPriceDirection,
+      priceAsset.symbol,
+      sellAmountCryptoPrecision,
+      sellAsset.symbol,
+      receiveAmountFormatted,
+      buyAsset.symbol,
+    ],
+  )
+  const limitOrderExplainer = useMemo(() => {
     if (
       isLoading ||
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
@@ -296,66 +338,20 @@ export const LimitOrderConfig = ({
     )
       return null
 
-    const assetSymbol =
-      priceDirection === PriceDirection.BuyAssetDenomination ? sellAsset.symbol : buyAsset.symbol
-
     return (
-      <CText fontSize='sm' lineHeight='1.6'>
-        <Text
-          as='span'
-          color='text.subtle'
-          translation='limitOrder.explanation.priceReaches.prefix'
-        />
-        <CText as='span' color='white' fontWeight='medium'>
-          {' '}
-          {assetSymbol}
-        </CText>
-        <Text
-          as='span'
-          color='text.subtle'
-          translation='limitOrder.explanation.priceReaches.middle'
-        />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={limitPriceForSelectedPriceDirection}
-          symbol={priceAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.orderWill.prefix' />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={sellAmountCryptoPrecision}
-          symbol={sellAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.prefix' />
-        <Amount.Crypto
-          as='span'
-          color='white'
-          ml={1}
-          fontWeight='medium'
-          value={receiveAmountFormatted}
-          symbol={buyAsset.symbol}
-          omitDecimalTrailingZeros
-        />
-        <Text as='span' color='text.subtle' translation='limitOrder.explanation.ensuring.suffix' />
-      </CText>
+      <Text
+        translation='limitOrder.explanation'
+        components={humanReadableExplanationComponents}
+        fontSize='sm'
+        lineHeight='1.6'
+        color='text.subtle'
+      />
     )
   }, [
     isLoading,
     sellAmountCryptoPrecision,
     limitPriceForSelectedPriceDirection,
-    priceDirection,
-    sellAsset.symbol,
-    buyAsset.symbol,
-    priceAsset.symbol,
-    receiveAmountFormatted,
+    humanReadableExplanationComponents,
   ])
 
   const marketPriceCryptoPrecision = useMemo(() => {
@@ -373,7 +369,7 @@ export const LimitOrderConfig = ({
   }, [marketPriceCryptoPrecision, priceAsset.symbol])
 
   return (
-    <Stack spacing={4} px={6} py={4}>
+    <Stack spacing={6} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <HStack>
           <Text translation='limitOrder.when' />
@@ -382,7 +378,6 @@ export const LimitOrderConfig = ({
             onClick={handleTokenTextClick}
             fontWeight='bold'
             fontSize='sm'
-            position='relative'
             sx={clickableLinkSx}
           >
             1 {displayAsset.symbol}
@@ -398,7 +393,6 @@ export const LimitOrderConfig = ({
               isDisabled={isMarketButtonDisabled}
               fontWeight='medium'
               fontSize='sm'
-              position='relative'
               sx={clickableLinkSx}
               opacity={isMarketButtonDisabled ? 0.5 : 1}
               cursor={isMarketButtonDisabled ? 'not-allowed' : 'pointer'}
@@ -452,7 +446,6 @@ export const LimitOrderConfig = ({
         !bnOrZero(sellAmountCryptoPrecision).isZero() &&
         !bnOrZero(limitPriceForSelectedPriceDirection).isZero() && (
           <Box
-            mt={4}
             p={4}
             borderWidth='1px'
             borderStyle='dashed'
@@ -463,7 +456,7 @@ export const LimitOrderConfig = ({
               <Box as='span' mr={2} mt={1}>
                 <InfoIcon boxSize={5} color='gray.500' />
               </Box>
-              {limitOrderExplanation}
+              {limitOrderExplainer}
             </Flex>
           </Box>
         )}

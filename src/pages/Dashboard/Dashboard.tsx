@@ -11,15 +11,12 @@ import { virtualize } from 'react-swipeable-views-utils'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
 import { EarnDashboard } from './EarnDashboard'
 import { MobileActivity } from './MobileActivity'
-import { RewardsDashboard } from './RewardsDashboard'
 import { WalletDashboard } from './WalletDashboard'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { NftTable } from '@/components/Nfts/NftTable'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { Accounts } from '@/pages/Accounts/Accounts'
@@ -61,7 +58,6 @@ const VirtualizedSwipableViews = virtualize(SwipeableViews)
 // so we can have a declarative way to refer to the tab indexes instead of magic numbers
 enum MobileTab {
   Overview,
-  Nfts,
   Activity,
 }
 
@@ -70,7 +66,6 @@ export const Dashboard = memo(() => {
   const [slideIndex, setSlideIndex] = useState(0)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { path } = useRouteMatch()
-  const isNftsEnabled = useFeatureFlag('Jaypegz')
   const appIsMobile = isMobile || !isLargerThanMd
   const history = useHistory()
 
@@ -91,9 +86,6 @@ export const Dashboard = memo(() => {
         case MobileTab.Overview:
           history.push(`${path}`)
           break
-        case MobileTab.Nfts:
-          history.push(`${path}/nfts`)
-          break
         case MobileTab.Activity:
           history.push(`${path}/activity`)
           break
@@ -111,7 +103,6 @@ export const Dashboard = memo(() => {
       <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
         <TabList>
           <CustomTab>{translate('navBar.overview')}</CustomTab>
-          <CustomTab>NFTs</CustomTab>
           <CustomTab>{translate('navBar.activity')}</CustomTab>
         </TabList>
         <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
@@ -138,13 +129,6 @@ export const Dashboard = memo(() => {
               <Accounts />
             </Route>
           </>
-        )
-        break
-      case MobileTab.Nfts:
-        content = (
-          <Route exact path={`${path}/nfts`}>
-            <NftTable />
-          </Route>
         )
         break
       case MobileTab.Activity:
@@ -186,21 +170,12 @@ export const Dashboard = memo(() => {
         <Route exact path={`${path}/earn`}>
           <EarnDashboard />
         </Route>
-        <Route exact path={`${path}/rewards`}>
-          <RewardsDashboard />
-        </Route>
         <Route path={`${path}/accounts`}>
           <Accounts />
         </Route>
         <Route path={`${path}/activity`}>
           <TransactionHistory />
         </Route>
-        {isNftsEnabled && (
-          <Route exact path={`${path}/nfts`}>
-            <NftTable />
-          </Route>
-        )}
-
         <Route>
           <RawText>Not found</RawText>
         </Route>

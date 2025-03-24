@@ -320,9 +320,9 @@ export const useGetTradeRates = () => {
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
     if (isAnyTradeQuoteLoading) return
-    if (mixpanel) {
+    if (mixpanel && sortedTradeQuotes.length) {
       const quoteData = getMixPanelDataFromApiRates(sortedTradeQuotes)
-      mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
+      mixpanel.track(MixPanelEvent.RatesReceived, quoteData)
     }
   }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
 }

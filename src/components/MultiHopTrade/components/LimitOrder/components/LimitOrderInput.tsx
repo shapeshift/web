@@ -66,11 +66,7 @@ import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helper
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
 import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
-import {
-  selectIsAnyAccountMetadataLoadedForChainId,
-  selectUsdRateByAssetId,
-  selectUserCurrencyToUsdRate,
-} from '@/state/slices/selectors'
+import { selectUsdRateByAssetId, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import {
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
@@ -162,14 +158,6 @@ export const LimitOrderInput = ({
 
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [isCheckingAllowance, setIsCheckingAllowance] = useState(false)
-
-  const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
-    () => ({ chainId: sellAsset.chainId }),
-    [sellAsset.chainId],
-  )
-  const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
-    selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
-  )
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -383,8 +371,6 @@ export const LimitOrderInput = ({
   const isLoading = useMemo(() => {
     return (
       isCheckingAllowance ||
-      // No account meta loaded for that chain
-      !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
@@ -393,7 +379,6 @@ export const LimitOrderInput = ({
     )
   }, [
     isCheckingAllowance,
-    isAnyAccountMetadataLoadedForChainId,
     isTradeQuoteRequestAborted,
     isVotingPowerLoading,
     shouldShowTradeQuoteOrAwaitInput,
@@ -548,7 +533,6 @@ export const LimitOrderInput = ({
         rate={limitPrice.buyAssetDenomination}
         marketRate={marketPriceBuyAsset}
         sellAccountId={sellAccountId}
-        shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
           !hasUserEnteredAmount ||
           isError ||

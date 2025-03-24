@@ -40,9 +40,9 @@ jobs:
           echo "CURRENT_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
       - name: Determine Build Mode
         run: |
-          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "release" ]]; then
+          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "release" || "${{ github.head_ref }}" == "main" || "${{ github.head_ref }}" == "release" ]]; then
             echo "BUILD_MODE=production" >> ${GITHUB_ENV}
-          elif [[ "${{ github.ref_name }}" == "private" ]]; then
+          elif [[ "${{ github.ref_name }}" == "private" || "${{ github.head_ref }}" == "private" ]]; then
             echo "BUILD_MODE=private" >> ${GITHUB_ENV}
           else
             echo "BUILD_MODE=development" >> ${GITHUB_ENV}

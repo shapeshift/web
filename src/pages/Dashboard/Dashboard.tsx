@@ -15,10 +15,8 @@ import { WalletDashboard } from './WalletDashboard'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { NftTable } from '@/components/Nfts/NftTable'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { Accounts } from '@/pages/Accounts/Accounts'
@@ -60,7 +58,6 @@ const VirtualizedSwipableViews = virtualize(SwipeableViews)
 // so we can have a declarative way to refer to the tab indexes instead of magic numbers
 enum MobileTab {
   Overview,
-  Nfts,
   Earn,
   Activity,
 }
@@ -70,7 +67,6 @@ export const Dashboard = memo(() => {
   const [slideIndex, setSlideIndex] = useState(0)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { path } = useRouteMatch()
-  const isNftsEnabled = useFeatureFlag('Jaypegz')
   const appIsMobile = isMobile || !isLargerThanMd
   const history = useHistory()
 
@@ -90,9 +86,6 @@ export const Dashboard = memo(() => {
       switch (index) {
         case MobileTab.Overview:
           history.push(`${path}`)
-          break
-        case MobileTab.Nfts:
-          history.push(`${path}/nfts`)
           break
         case MobileTab.Earn:
           history.push(`${path}/earn`)
@@ -114,7 +107,6 @@ export const Dashboard = memo(() => {
       <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
         <TabList>
           <CustomTab>{translate('navBar.overview')}</CustomTab>
-          <CustomTab>{translate('dashboard.nfts')}</CustomTab>
           <CustomTab>{translate('defi.earn')}</CustomTab>
           <CustomTab>{translate('navBar.activity')}</CustomTab>
         </TabList>
@@ -131,7 +123,7 @@ export const Dashboard = memo(() => {
   const slideRenderer = (props: SlideRenderProps) => {
     const { index, key } = props
     let content
-    switch (mod(index, 4)) {
+    switch (mod(index, 3)) {
       case MobileTab.Overview:
         content = (
           <>
@@ -142,13 +134,6 @@ export const Dashboard = memo(() => {
               <Accounts />
             </Route>
           </>
-        )
-        break
-      case MobileTab.Nfts:
-        content = (
-          <Route exact path={`${path}/nfts`}>
-            <NftTable />
-          </Route>
         )
         break
       case MobileTab.Earn:
@@ -178,7 +163,7 @@ export const Dashboard = memo(() => {
         <VirtualizedSwipableViews
           index={slideIndex}
           slideRenderer={slideRenderer}
-          slideCount={4}
+          slideCount={3}
           overscanSlideBefore={1}
           overscanSlideAfter={1}
           onChangeIndex={handleSlideIndexChange}
@@ -203,12 +188,6 @@ export const Dashboard = memo(() => {
         <Route path={`${path}/activity`}>
           <TransactionHistory />
         </Route>
-        {isNftsEnabled && (
-          <Route exact path={`${path}/nfts`}>
-            <NftTable />
-          </Route>
-        )}
-
         <Route>
           <RawText>Not found</RawText>
         </Route>

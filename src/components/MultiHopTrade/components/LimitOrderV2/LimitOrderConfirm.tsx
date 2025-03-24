@@ -4,12 +4,12 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Redirect, useHistory } from 'react-router-dom'
 
+import { LimitTradeSuccess } from '../LimitOrder/components/LimitTradeSuccess'
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
-import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { useAllowanceApproval } from './hooks/useAllowanceApproval'
 import { useAllowanceReset } from './hooks/useAllowanceReset'
 import { useSetIsApprovalInitiallyNeeded } from './hooks/useSetIsApprovalInitiallyNeeded'
@@ -155,7 +155,7 @@ export const LimitOrderConfirm = () => {
     if (!sellAsset || !buyAsset) return null
     if (orderSubmissionState === LimitOrderSubmissionState.Complete) {
       return (
-        <TradeSuccess
+        <LimitTradeSuccess
           titleTranslation='limitOrder.success'
           buttonTranslation={'limitOrder.placeAnotherOrder'}
           summaryTranslation={'limitOrder.orderSummary'}

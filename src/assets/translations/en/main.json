@@ -269,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     },
-    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Trade",
       "bridge": "Bridge",
@@ -1012,7 +1011,8 @@
     "approvalResetFailed": "A problem occurred during allowance reset",
     "allowanceResetTxName": "Allowance reset tx:",
     "allowanceApprovalTxName": "Allowance approval tx:",
-    "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
+    "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}!",
+    "tradeCompleteSurplus": "You got an extra %{extra}!",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
     "estimatedCompletionTime": "Estimated Completion Time",
@@ -1052,7 +1052,8 @@
       "youCouldHaveSaved": "You could have saved %{fee} on your trade with FOX Savings.",
       "buyFox": "Buy FOX",
       "share": "Share",
-      "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!"
+      "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!",
+      "youGotMore": "You got %{cryptoUpside} more on this trade because you hold FOX"
     },
     "networkFee": "Network Fee",
     "learnMoreAboutFox": "Learn more about FOX Benefits",
@@ -2410,27 +2411,6 @@
       "body": "Stake to THORChain savers vault. No lock-up time.",
       "cta": "Deposit Now"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "Customize FOXatar",
-    "setAsAvatar": "Set as Avatar",
-    "floorPrice": "Floor Price",
-    "lastPrice": "Last Price",
-    "overview": "Overview",
-    "properties": "Properties",
-    "collection": "Collection",
-    "tokenId": "Token ID",
-    "address": "Address",
-    "chain": "Chain",
-    "standard": "Standard",
-    "description": "Description",
-    "details": "Details",
-    "attributes": "Attributes",
-    "aboutCollection": "About %{collectionName}",
-    "emptyTitle": "Where did all the NFTs go?",
-    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence.",
-    "reportSpam": "Report Spam",
-    "refresh": "Refresh"
   },
   "avatar": {
     "modal": {

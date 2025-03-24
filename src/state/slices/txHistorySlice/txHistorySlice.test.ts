@@ -24,6 +24,7 @@ describe('txHistorySlice', () => {
         version: expect.any(Number),
       }),
       hydrationMeta: {},
+      pagination: {},
       txs: {
         byId: {},
         byAccountIdAssetId: {},

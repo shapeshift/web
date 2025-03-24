@@ -14,7 +14,7 @@ import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
 type RecentTransactionFilter = {
-  acccountId?: AccountId
+  accountId?: AccountId
   assetId?: AssetId
   txStatus?: TxStatus
   parser?: TxMetadata['parser']
@@ -46,7 +46,14 @@ export const RecentTransactionsBody: React.FC<RecentTransactionsBodyProps> = ({
   limit,
 }) => {
   const txIds = useAppSelector(state => (_txIds ? _txIds : selectTxIdsByFilter(state, filter)))
-  return <TransactionHistoryList txIds={txIds} useCompactMode={true} initialTxsCount={limit} />
+  return (
+    <TransactionHistoryList
+      txIds={txIds}
+      useCompactMode={true}
+      initialTxsCount={limit}
+      accountId={filter?.accountId}
+    />
+  )
 }
 
 export const RecentTransactions: React.FC<RecentTransactionProps> = memo(

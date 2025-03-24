@@ -32,7 +32,8 @@ import {
   selectTxStatusParamFromFilter,
 } from '@/state/selectors'
 
-const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
+export const selectTxHistoryPagination = (state: ReduxState) => state.txHistory.pagination
+export const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
 export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector(
   selectTxHistoryApiQueries,
   queries => Object.values(queries).some(query => query?.status === QueryStatus.pending),
@@ -323,16 +324,31 @@ export const selectTxsByQuery = createCachedSelector(
     : 'txsByQuery',
 )
 
+export const selectPaginationStateByAccountId = createSelector(
+  selectTxHistoryPagination,
+  selectAccountIdParamFromFilter,
+  (pagination, accountId) => {
+    return pagination[accountId ?? '']
+  },
+)
+
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
   selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
-  (hydrationMeta, walletAccountIds, accountId, timeframe) => {
+  selectTxHistoryPagination,
+  selectPaginationStateByAccountId,
+  (hydrationMeta, walletAccountIds, accountId, timeframe, accountPaginationState) => {
     const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
 
     const checkIsTxHistoryAvailable = (accountId: AccountId) => {
       const hydrationMetaForAccount = hydrationMeta[accountId]
+
+      // If we have pagination data for this account, we have started fetching tx history
+      if (accountPaginationState) {
+        return true
+      }
 
       // Completely missing account here likely means it's yet to be fetched
       if (hydrationMetaForAccount === undefined) {

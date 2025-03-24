@@ -49,7 +49,13 @@ export const useAccountsFetchQuery = () => {
 
     // Note no force refetch here - only fetch Tx history once per account
     enabledWalletAccountIds.map(requestedAccountId =>
-      dispatch(getAllTxHistory.initiate(requestedAccountId)),
+      dispatch(
+        getAllTxHistory.initiate({
+          accountId: requestedAccountId,
+          page: 1,
+          pageSize: 10,
+        }),
+      ),
     )
   }, [dispatch, enabledWalletAccountIds])
 
@@ -193,6 +199,7 @@ export const useAccountsFetchQuery = () => {
       await Promise.allSettled(accountNumberAccountIdsPromises)
       chainIds = chainIdsWithActivity
     }
+    return null
   }, [dispatch, isSnapInstalled, supportedChains, wallet])
 
   const query = useQuery({

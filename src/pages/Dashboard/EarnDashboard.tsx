@@ -45,20 +45,5 @@ const EarnContent = () => {
 }
 
 export const EarnDashboard = memo(() => {
-  const [shouldRender, setShouldRender] = useState(false)
-  const deferredShouldRender = useDeferredValue(shouldRender)
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setShouldRender(true)
-    }, 0)
-
-    return () => clearTimeout(timeoutId)
-  }, [])
-
-  if (!deferredShouldRender) {
-    return <DeFiEarnSkeleton />
-  }
-
   return <EarnContent />
 })

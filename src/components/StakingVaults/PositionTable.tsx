@@ -1,9 +1,9 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, IconButton, Tag } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Spinner, Tag } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 
@@ -28,7 +28,7 @@ import {
   selectAssetById,
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
-  selectOpportunityApiPending,
+  selectIsAnyOpportunitiesApiQueryPending,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -77,7 +77,13 @@ export const PositionTable: React.FC<PositionTableProps> = ({
 }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const isLoading = useAppSelector(selectOpportunityApiPending)
+  const isAnyOpportunitiesApiQueriesPending = useAppSelector(
+    selectIsAnyOpportunitiesApiQueryPending,
+  )
+
+  const [processedRows, setProcessedRows] = useState<AggregatedOpportunitiesByAssetIdReturn[]>([])
+  const [isPending, startTransition] = useTransition()
+
   const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
     () => ({
       chainId,
@@ -209,9 +215,16 @@ export const PositionTable: React.FC<PositionTableProps> = ({
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
-  const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(filteredPositions, searchQuery) : filteredPositions
-  }, [filterRowsBySearchTerm, filteredPositions, searchQuery, isSearching])
+  useEffect(() => {
+    if (!filteredPositions.length) return setProcessedRows([])
+
+    startTransition(() => {
+      const newRows = isSearching
+        ? filterRowsBySearchTerm(filteredPositions, searchQuery)
+        : filteredPositions
+      setProcessedRows(newRows)
+    })
+  }, [filteredPositions, isSearching, searchQuery, filterRowsBySearchTerm])
 
   const handleRowClick = useCallback((row: RowProps) => row.toggleRowExpanded(), [])
 
@@ -230,10 +243,28 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     )
   }, [includeEarnBalances, includeRewardsBalances, searchQuery])
 
+  const isLoading = useMemo(
+    () => Boolean(isAnyOpportunitiesApiQueriesPending || (isPending && positions.length)),
+    [isAnyOpportunitiesApiQueriesPending, isPending, positions],
+  )
+
+  const isInitialProcessing = useMemo(
+    () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,
+    [processedRows, isAnyOpportunitiesApiQueriesPending, positions],
+  )
+
+  if (isInitialProcessing) {
+    return (
+      <Box position='relative' p={4} textAlign='center'>
+        <Spinner size='xl' color='blue.500' thickness='4px' />
+      </Box>
+    )
+  }
+
   return (
     <ReactTable
       onRowClick={handleRowClick}
-      data={rows}
+      data={processedRows}
       columns={columns}
       isLoading={isLoading}
       renderSubComponent={renderSubComponent}

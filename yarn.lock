@@ -12214,7 +12214,7 @@ __metadata:
     "@shapeshiftoss/utils": "workspace:^"
     "@sniptt/monads": ^0.5.10
     "@solana/web3.js": ^1.98.0
-    "@tanstack/react-query": ^5.52.0
+    "@tanstack/react-query": ^5.69.0
     "@tanstack/react-table": ^8.20.6
     "@tanstack/react-virtual": ^3.11.2
     "@testing-library/react": ^13.3.0
@@ -13167,21 +13167,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.52.0":
-  version: 5.52.0
-  resolution: "@tanstack/query-core@npm:5.52.0"
-  checksum: 1e142995fa9b0eec88009dd1083cd226eaec9125dc668b6485699639f45edb1386e4acd634e0eddc33d3a29e0c9636302824c42ac8c4106935d776fdc41d2638
+"@tanstack/query-core@npm:5.69.0":
+  version: 5.69.0
+  resolution: "@tanstack/query-core@npm:5.69.0"
+  checksum: 5326acf451fb67580ef13e1322787f815df901839880f4931b537585afbba76ce7f1d3d46611c4205fa27a36a6fe3900b176e67b12a9f8b0c605ec0b045347f6
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.52.0":
-  version: 5.52.0
-  resolution: "@tanstack/react-query@npm:5.52.0"
+"@tanstack/react-query@npm:^5.69.0":
+  version: 5.69.0
+  resolution: "@tanstack/react-query@npm:5.69.0"
   dependencies:
-    "@tanstack/query-core": 5.52.0
+    "@tanstack/query-core": 5.69.0
   peerDependencies:
-    react: ^18.0.0
-  checksum: 1e0fc3e57ad0ffc97e9f314c128510251e2402ad41093475e91ff0c0504effb7e3a39bd9d30215bfd72f06e96c5954d444871c401a0881c37f913b5481f6c0ef
+    react: ^18 || ^19
+  checksum: 3cbbdeabb832aa64bfeab987d41c88e0a93b37eec8bdc430bb3a46cce3729361c350657356db9eb4b9a589f9bb0e30ca2798e22a3cddb0cfb1ccc762cef4dda3
   languageName: node
   linkType: hard
 

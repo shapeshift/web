@@ -58,8 +58,11 @@ export const TransactionHistoryFilter = memo(
      */
     useOutsideClick({
       ref: popoverRef,
-      handler: () => {
-        setIsOpen(false)
+      handler: e => {
+        const target = e.target as HTMLElement
+        if (!target?.className?.includes('react-datepicker')) {
+          setIsOpen(false)
+        }
       },
     })
     const translate = useTranslate()
@@ -98,14 +101,14 @@ export const TransactionHistoryFilter = memo(
     const RangeCustomComponent = useCallback(() => {
       return dayRangeSelectedOption === customRangeOption ? (
         <HStack px={4} my={2} alignItems='center' mx={-4}>
-          <DatePicker name={FilterFormFields.FromDate} control={control} />
+          <DatePicker name={FilterFormFields.FromDate} control={control} withPortal />
           <Text
             fontWeight='300'
             px={1}
             color={'text.subtle'}
             translation='transactionHistory.filters.to'
           />
-          <DatePicker name={FilterFormFields.ToDate} control={control} />
+          <DatePicker name={FilterFormFields.ToDate} control={control} withPortal />
         </HStack>
       ) : null
     }, [control, dayRangeSelectedOption])

@@ -59,6 +59,7 @@
     "pairing": "Appairage",
     "connectWalletToGetStartedWith": "Connectez un porte-monnaie pour commencer à utiliser %{feature}",
     "connectedWallet": "Porte-monnaie connecté",
+    "walletActions": "Actions porte-monnaie",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
     "seeAll": "Tout voir",
@@ -268,7 +269,6 @@
     "recentTransactions": {
       "recentTransactions": "Transactions récentes"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "Échanger",
       "bridge": "Bridger",
@@ -587,7 +587,7 @@
     "staking": "Mises actuelles",
     "itWillTake": "Cela prendra",
     "toUnlock": "pour déverrouiller vos %{assetSymbol} après les avoir démisés. Les récompenses de la mise devront être retirées séparément.",
-    "assetStakingBalance": "Solde des mises en %{assetName}"
+    "assetStakingBalance": "Solde des mises en %{assetSymbol}"
   },
   "navBar": {
     "thorchain": "THORChain",
@@ -614,12 +614,13 @@
     "foxToken": "Opportunités FOX",
     "dApps": "dApps",
     "featureFlags": "Indicateurs de fonctionnalité",
-    "demoMode": "Mode démo",
     "clickToConnect": "Cliquez pour connecter un porte-monnaie",
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
     "rewards": "Récompenses",
     "trade": "Échanger/Bridger",
+    "limitOrder": "Ordres à cours limité",
+    "claims": "Réclamations",
     "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
@@ -845,6 +846,14 @@
       "warning": "Des tolérances de glissement/slippage élevées peuvent entraîner des transactions défavorables.",
       "lowSlippage": "Un glissement/slippage inférieur à 0,05 % peut faire échouer la transaction."
     },
+    "sort": {
+      "sortBy": "Trier par",
+      "auto": "Auto",
+      "bestRate": "Meilleur tarif",
+      "lowestGas": "Carburant le plus bas",
+      "fastest": "Le plus rapide",
+      "info": "Choisissez comment trier les devis disponibles"
+    },
     "from": "De",
     "to": "À",
     "on": "sur",
@@ -898,6 +907,7 @@
     "thisIsYourCustomRecipientAddress": "Il s'agit de l'adresse personnalisée du destinataire",
     "enterCustomRecipientAddress": "Saisissez l'adresse de destinataire personnalisée",
     "receiveAtLeast": "Recevez au moins",
+    "viewOnBlockExplorer": "Voir dans l'explorateur de blocs",
     "tooltip": {
       "continueSwapping": "Continuer l'échange pour les détails finaux",
       "changeQuote": "Changer de devis",
@@ -1032,7 +1042,7 @@
     "resetTitle": "Réinitialisation d'allocation de jetons",
     "fiatAmountOnChain": "%{amountFiatFormatted} sur %{chainName}",
     "quote": {
-      "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userslippageFormatted}) pour %{swapperName}",
+      "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userSlippageFormatted}) pour %{swapperName}",
       "slippage": "Glissement/Slippage : %{slippageFormatted}"
     },
     "awaitingPermit2Approval": "En attente de transfert de jetons",
@@ -1046,7 +1056,11 @@
       "buyFox": "Acheter des FOX",
       "share": "Partager",
       "postBody": "Je viens d'économiser %{fee} en échangeant sur @ShapeShift simplement en possédant des $FOX !"
-    }
+    },
+    "networkFee": "Frais de réseau",
+    "learnMoreAboutFox": "En savoir plus sur les avantages FOX",
+    "freeTrade": "Cet échange est gratuit en se basant sur vos avoirs FOX de %{foxBalance} FOX",
+    "feeExplainer": "Ce devis comprend des frais ShapeShift de %{feePercentage}% en se basant sur vos avoirs FOX de %{foxBalance} FOX."
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1057,6 +1071,9 @@
     "placeOrder": "Placer l'ordre",
     "placeAnotherOrder": "Placer un autre ordre",
     "orderSummary": "Résumé de l'ordre",
+    "when": "Quand",
+    "isWorth": "vaut",
+    "market": "Marché:",
     "success": "Ordre à cours limité placé avec succès",
     "cancel": {
       "cancelOrder": "Annuler l'ordre à cours limité",
@@ -1072,7 +1089,6 @@
     "executionPrice": "Prix d'exécution",
     "provider": "Fournisseur",
     "expiration": "Expiration",
-    "networkFee": "Frais de réseau",
     "confirmInfo": "L'ordre à cours limité peut ne pas rempli exactement lorsque les prix sur la chaîne atteignent le prix limite.",
     "learnMore": "En savoir plus",
     "previewOrder": "Prévisualiser l'ordre",
@@ -1095,6 +1111,7 @@
       "twentyEightDays": "28 jours",
       "custom": "Personnalisée"
     },
+    "expires": "Expire %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "L'actif natif de vente n'est pas pris en charge",
       "insufficientValidTo": "Échéance de l'ordre trop rapprochée",
@@ -1508,12 +1525,13 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey."
+      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey.",
+      "walletVersionTooOld": "Impossible d'appairer votre porte-monnaie. Veuillez mettre à jour votre porte-monnaie à la dernière version."
     },
     "keepKey": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
-        "updateAlert": "Le firmware 6.1.0 ou ultérieur est requis pour utiliser votre Keepkey avec ce client. Veuillez mettre à jour votre appareil.",
+        "updateAlert": "Le firmware %{version} ou ultérieur est requis pour utiliser votre KeepKey avec ce client. Veuillez mettre à jour votre appareil.",
         "pinCancelled": "La saisie du NIP a été annulée",
         "pinInvalid": "Le NIP que vous avez saisi n'est pas valide",
         "pinMismatch": "Les deux NIP que vous avez saisis ne correspondent pas"
@@ -1864,12 +1882,22 @@
         "button": "Suivant"
       },
       "rename": {
-        "header": "Renommer votre porte-monnaie",
+        "header": "Renommer mon porte-monnaie",
         "walletName": "Nouveau surnom pour votre porte-monnaie",
-        "body": "Saisissez le nouveau surnom de votre porte-monnaie et votre mot de passe pour décrypter votre porte-monnaie.",
+        "body": "Entrez le nouveau surnom de votre porte-monnaie et votre mot de passe pour décrypter %{name}.",
         "mobileBody": "Entrez le nouveau surnom de votre porte-monnaie.",
         "button": "Suivant",
-        "confirmDelete": "Êtes-vous sûr de vouloir supprimer le surnom de ce porte-monnaie ?"
+        "confirmDelete": "Êtes-vous sûr de vouloir supprimer le surnom de ce porte-monnaie ?",
+        "success": "Le porte-monnaie a été renommé avec succès",
+        "error": {
+          "empty": "Le nom du porte-monnaie ne peut pas être laissé vide"
+        }
+      },
+      "delete": {
+        "header": "Supprimer mon porte-monnaie",
+        "body": "Entrez votre mot de passe pour supprimer %{name}.",
+        "confirmDelete": "Confirmer",
+        "success": "Porte-monnaie supprimé avec succès"
       },
       "legacy": {
         "deprecatedWarning": "L'identification ShapeShift est progressivement abandonnée",
@@ -1978,18 +2006,18 @@
         "share": "Ne la partagez avec personne d'autre",
         "lose": "Si vous la perdez, nous ne pouvons pas la récupérer"
       },
-      "button": "Continuer vers la sauvegarde"
+      "button": "Je comprends"
     },
     "manualBackup": {
-      "header": "Sauvegarde manuelle",
+      "header": "Sécurisez votre porte-monnaie",
       "subHeader": "Enregistrez votre Phrase de Récupération Secrète dans un endroit sûr que vous seul contrôlez.",
       "copyToClipboard": "Copier dans le presse-papiers",
       "copied": "Copié !",
       "nextStep": "Par la suite, il va vous être demandé de confirmer la position de certains mots dans votre Phrase de Récupération Secrète.",
-      "button": "Continuer la sauvegarde",
+      "button": "Continuer pour confirmer",
       "success": {
-        "title": "Sauvegarde manuelle terminée",
-        "description": "Votre porte-monnaie a été sauvegardé avec succès.",
+        "title": "Sauvegarde confirmée",
+        "description": "Vous avez vérifié votre Phrase de Récupération Secrète. Conservez-la précieusement : c'est le seul moyen de récupérer votre porte-monnaie.",
         "viewWallet": "Voir le porte-monnaie"
       }
     }
@@ -2383,27 +2411,6 @@
       "cta": "Déposer maintenant"
     }
   },
-  "nft": {
-    "customizeFoxatar": "Personnaliser le FOXatar",
-    "setAsAvatar": "Définir comme avatar",
-    "floorPrice": "Prix plancher",
-    "lastPrice": "Dernier prix",
-    "overview": "Vue d'ensemble",
-    "properties": "Propriétés",
-    "collection": "Collection",
-    "tokenId": "ID du jeton",
-    "address": "Adresse",
-    "chain": "Chaîne",
-    "standard": "Standard",
-    "description": "Description",
-    "details": "Détails",
-    "attributes": "Attributs",
-    "aboutCollection": "Informations sur %{collectionName}",
-    "emptyTitle": "Où sont passés tous les NFT ?",
-    "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence.",
-    "reportSpam": "Signaler comme spam",
-    "refresh": "Rafraîchir"
-  },
   "avatar": {
     "modal": {
       "title": "Définir un nouvel avatar",
@@ -2531,7 +2538,8 @@
     "underThreshold": "Faible valeur",
     "thorHolder": "Détenteur THORSwap",
     "foxHolder": "Détenteur FOX",
-    "foxWifHatHolder": "Détenteur FOX Wif Hat"
+    "foxWifHatHolder": "Détenteur FOX Wif Hat",
+    "foxBuy": "Achat de FOX"
   },
   "chart": {
     "interval": {
@@ -2569,7 +2577,6 @@
     "withdrawTypeNotAvailable": "Ce type de retrait n'est pas disponible pour ce pool.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
-    "unsupportedDemoWalletExplainer": "Le porte-monnaie de démo n'est pas pris en charge, veuillez vous connecter à un porte-monnaie pour utiliser cette fonctionnalité.",
     "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "instabilityWarning": "Les utilisateurs sont actuellement confrontés à des remboursements lors des dépôts dans les pools THORChain. Veuillez procéder avec prudence.",
@@ -2689,7 +2696,6 @@
     "approvalFee": "Frais d'autorisation",
     "lockupPeriod": "Période de verrouillage",
     "shareOfPool": "Part du pool",
-    "networkFee": "Frais de réseau",
     "thorchainRewardAddress": "Adresse de récompenses THORChain",
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
@@ -2851,12 +2857,17 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Réclamez votre FOXwifhat. Agissez vite : ces remises diminuent avec le temps. Plus vous détenez de FOX ou de FOXwifhat, plus vous économisez. Accumulez plus de jetons FOX pour des économies continues et des avantages en matière de partage de revenus, gouvernance et revenus de farming. Apprenez-en plus sur ces programmes sur le reste de cette page.",
+      "description": "Réclamez vos FOX Wif Hat (FWH). Agissez vite : ces remises diminuent avec le temps. Plus vous détenez de FOX ou de FWH, plus vous économisez. Accumulez plus de jetons FOX pour des économies continues et des avantages en matière de partage de revenus, de gouvernance et de revenus de farming. Apprenez-en plus au sujet de ces programmes sur le reste de cette page.",
       "discount": "*Cette remise diminue de manière linéaire au fil du temps et expire le %{date}. Profitez de votre remise de %{percent}% avant qu'elle ne diminue davantage !",
       "claim": "Réclamer",
       "claimed": "Réclamé",
       "discountText": "*%{percent}% de réduction sur les frais d'échange",
-      "noClaims": "Aucune réclamation disponible"
+      "noClaims": "Aucune réclamation disponible",
+      "banner": {
+        "title": "Chapeautez-vous de réductions !",
+        "description": "Plus vous détenez de FOX ou de FWH, plus vous obtenez de jetons lors de vos échanges.",
+        "cta": "En savoir plus"
+      }
     },
     "governance": {
       "title": "Gouvernance",

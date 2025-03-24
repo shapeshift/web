@@ -1,5 +1,4 @@
 import { gnosisAssetId, gnosisChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/common-api'
 import { describe, expect, it, vi } from 'vitest'
 
 import { TransferType, TxStatus } from '../../../../types'
@@ -15,19 +14,7 @@ import tokenStandard from './mockData/tokenStandard'
 import xdaiSelfSend from './mockData/xdaiSelfSend'
 import xdaiStandard from './mockData/xdaiStandard'
 
-vi.hoisted(() => {
-  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
-})
-
 const mockedApi = vi.mocked(new V1Api())
-
-const tokenMetadata: evm.TokenMetadata = {
-  name: 'Foxy',
-  description: 'The foxiest Fox',
-  media: { url: 'http://foxy.fox', type: 'image' },
-}
-
-mockedApi.getTokenMetadata = vi.fn().mockResolvedValue(tokenMetadata)
 
 const txParser = new TransactionParser({
   rpcUrl: '',
@@ -303,10 +290,6 @@ describe('parseTx', () => {
           chainId: gnosisChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '6642412': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Send,
@@ -364,10 +347,6 @@ describe('parseTx', () => {
           chainId: gnosisChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '6642412': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Receive,
@@ -427,10 +406,6 @@ describe('parseTx', () => {
           chainId: gnosisChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '12857915': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Send,
@@ -488,10 +463,6 @@ describe('parseTx', () => {
           chainId: gnosisChainId,
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '12857915': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Receive,

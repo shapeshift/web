@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 import { marketDataBySortKey } from '../constants'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'

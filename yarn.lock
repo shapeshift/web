@@ -11637,8 +11637,6 @@ __metadata:
 "@shapeshiftoss/caip@8.15.0, @shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
-  dependencies:
-    "@yfi/sdk": ^1.2.0
   languageName: unknown
   linkType: soft
 
@@ -16491,7 +16489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yfi/sdk@npm:^1.0.30, @yfi/sdk@npm:^1.2.0":
+"@yfi/sdk@npm:^1.0.30":
   version: 1.2.0
   resolution: "@yfi/sdk@npm:1.2.0"
   dependencies:

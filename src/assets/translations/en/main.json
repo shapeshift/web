@@ -513,6 +513,8 @@
     "noAccountsOpportunities": "You have no accounts for this asset, so staking opportunities are currently unavailable.",
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
+    "myPositions": "My Positions",
+    "myPositionsBody": "A list of your currently active positions in DeFi.",
     "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "There is a lockup period of %{time}. During lockup you can't access your liquidity.",

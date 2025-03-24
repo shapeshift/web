@@ -89,13 +89,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     return partition(
       ordersResponse
         .filter(({ order }) => {
-          // Parse appData json to extract the order class
-          const appDataOrderClass = JSON.parse(order.fullAppData ?? '{}').metadata?.orderClass
-            ?.orderClass as OrderClass
-          // Prefer appData as the source of truth for order class, falling back to `order.class`.
-          // Required because they often differ, and appData has the most correct information.
-          const orderClass = appDataOrderClass ?? order.class
-          return orderClass === OrderClass.LIMIT && order.signingScheme === SigningScheme.EIP712
+          return order.class === OrderClass.LIMIT && order.signingScheme === SigningScheme.EIP712
         })
         .map(({ accountId, order }) => {
           const { chainId } = fromAccountId(accountId)

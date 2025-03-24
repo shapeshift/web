@@ -22,6 +22,8 @@ import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInput } from '@/lib/address/address'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import type { GlobalSearchResult, SendResult } from '@/state/slices/search-selectors'
 import {
   GlobalSearchResultType,
@@ -46,6 +48,7 @@ export const GlobalSearchModal = memo(
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
     const history = useHistory()
+    const mixpanel = getMixPanel()
 
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
     const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
@@ -97,6 +100,10 @@ export const GlobalSearchModal = memo(
           case GlobalSearchResultType.Send: {
             // We don't want to pre-select the asset for EVM ChainIds
             const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
+
+            if (mixpanel) {
+              mixpanel.track(MixPanelEvent.SendClick)
+            }
             send.open({ assetId, input: searchQuery })
             onToggle()
             break
@@ -119,7 +126,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [history, onToggle, searchQuery, send],
+      [history, mixpanel, onToggle, searchQuery, send],
     )
 
     const onKeyDown = useCallback(

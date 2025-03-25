@@ -20,7 +20,6 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
-import { selectNftCollections } from '@/state/apis/nft/selectors'
 import type { ReduxState } from '@/state/reducer'
 
 type WalletMetaPayload = {
@@ -199,8 +198,6 @@ export const portfolioApi = createApi({
             }),
           }
 
-          const nftCollectionsById = selectNftCollections(state)
-
           // Prefetch smart contract checks - do *not* await/.then() me, this is only for the purpose of having this cached later
           fetchIsSmartContractAddressQuery(pubkey, chainId)
 
@@ -213,7 +210,6 @@ export const portfolioApi = createApi({
             return accountToPortfolio({
               portfolioAccounts,
               assetIds: assetIds.concat(assets?.ids ?? []),
-              nftCollectionsById,
             })
           })()
 

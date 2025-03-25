@@ -17,6 +17,8 @@ import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedCurrency,
@@ -54,6 +56,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const location = useLocation()
   const history = useHistory()
   const { handleFormSend } = useFormSend()
+  const mixpanel = getMixPanel()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
@@ -78,10 +81,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     async (data: SendInput) => {
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
+      mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
       history.push(SendRoutes.Status)
     },
-    [handleFormSend, history, methods],
+    [handleFormSend, history, methods, mixpanel],
   )
 
   const handleAssetSelect = useCallback(

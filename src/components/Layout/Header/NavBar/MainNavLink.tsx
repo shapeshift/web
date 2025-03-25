@@ -1,8 +1,9 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import { CircleIcon } from '@/components/Icons/Circle'
 import { breakpoints } from '@/theme/theme'
@@ -33,11 +34,28 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
 
+  const [isNavigationPending, startNavTransition] = useTransition()
+  const history = useHistory()
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
   const translate = useTranslate()
+
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-    e => (isActive ? e.preventDefault() : onClick?.(e)),
-    [isActive, onClick],
+    e => {
+      if (isActive) {
+        e.preventDefault()
+        return
+      }
+
+      if (onClick) return onClick(e)
+
+      if (props.to) {
+        e.preventDefault()
+        startNavTransition(() => {
+          history.push(props.to as string)
+        })
+      }
+    },
+    [isActive, onClick, props.to, history, startNavTransition],
   )
 
   const justifyContentProp = useMemo(
@@ -74,6 +92,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
         iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
         _active={activeProp}
         _hover={hoverProp}
+        opacity={isNavigationPending ? 0.7 : 1}
         {...buttonProps}
       >
         <Box display={displayProp2}>{label}</Box>

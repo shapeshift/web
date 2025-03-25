@@ -9,7 +9,6 @@ import axios from 'axios'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
 
-import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { PortalsAssetBase, SupportedPortalsNetwork, V2AppResponseType } from './validators'
 import {
   chainIdToPortalsNetwork,
@@ -27,6 +26,7 @@ import type {
   TokenInfo,
 } from '@/lib/portals/types'
 import { isSome } from '@/lib/utils'
+import { accountIdsToEvmAddresses } from '@/lib/utils/evm'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'

@@ -69,7 +69,7 @@ export const Text = forwardRef<TextPropTypes, 'p'>(({ components, translation, .
                 })
               }
 
-              return piece ? <Fragment key={`${index}-${pieceIndex}`}>{piece}</Fragment> : null
+              return <Fragment key={`${index}-${pieceIndex}`}>{piece}</Fragment>
             })
           }
 

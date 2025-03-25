@@ -20,9 +20,7 @@ const env = import.meta.env ?? process.env
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
   transport: fallback(
-    [env.VITE_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com']
-      .filter(Boolean)
-      .map(url => http(url)),
+    [env.VITE_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com'].filter(Boolean).map(url => http(url)),
   ),
 }) as PublicClient
 
@@ -80,9 +78,7 @@ export const viemGnosisClient = createPublicClient({
   chain: gnosis,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1978
-    [env.VITE_GNOSIS_NODE_URL, 'https://rpc.gnosischain.com']
-      .filter(Boolean)
-      .map(url => http(url)),
+    [env.VITE_GNOSIS_NODE_URL, 'https://rpc.gnosischain.com'].filter(Boolean).map(url => http(url)),
   ),
 }) as PublicClient
 
@@ -100,9 +96,7 @@ export const viemBaseClient = createPublicClient({
   chain: base,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
-    [env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com']
-      .filter(Boolean)
-      .map(url => http(url)),
+    [env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com'].filter(Boolean).map(url => http(url)),
   ),
 }) as PublicClient
 

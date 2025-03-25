@@ -15,11 +15,12 @@ import {
   polygon,
 } from 'viem/chains'
 
+const env = import.meta.env ?? process.env
+
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
   transport: fallback(
-    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js
-    [import.meta.env.VITE_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com']
+    [env.VITE_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -29,7 +30,7 @@ export const viemBscClient = createPublicClient({
   chain: bsc,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L30
-    [import.meta.env.VITE_BNBSMARTCHAIN_NODE_URL, 'https://binance.llamarpc.com']
+    [env.VITE_BNBSMARTCHAIN_NODE_URL, 'https://binance.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -39,7 +40,7 @@ export const viemAvalancheClient = createPublicClient({
   chain: avalanche,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L937
-    [import.meta.env.VITE_AVALANCHE_NODE_URL, 'https://api.avax.network/ext/bc/C/rpc']
+    [env.VITE_AVALANCHE_NODE_URL, 'https://api.avax.network/ext/bc/C/rpc']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -49,7 +50,7 @@ export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L63
-    [import.meta.env.VITE_ARBITRUM_NODE_URL, 'https://arbitrum.llamarpc.com']
+    [env.VITE_ARBITRUM_NODE_URL, 'https://arbitrum.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -59,7 +60,7 @@ export const viemArbitrumNovaClient = createPublicClient({
   chain: arbitrumNova,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1393
-    [import.meta.env.VITE_ARBITRUM_NOVA_NODE_URL, 'https://nova.arbitrum.io/rpc']
+    [env.VITE_ARBITRUM_NOVA_NODE_URL, 'https://nova.arbitrum.io/rpc']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -69,7 +70,7 @@ export const viemOptimismClient = createPublicClient({
   chain: optimism,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L41
-    [import.meta.env.VITE_OPTIMISM_NODE_URL, 'https://optimism.llamarpc.com']
+    [env.VITE_OPTIMISM_NODE_URL, 'https://optimism.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -79,7 +80,7 @@ export const viemGnosisClient = createPublicClient({
   chain: gnosis,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1978
-    [import.meta.env.VITE_GNOSIS_NODE_URL, 'https://rpc.gnosischain.com']
+    [env.VITE_GNOSIS_NODE_URL, 'https://rpc.gnosischain.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -89,7 +90,7 @@ export const viemPolygonClient = createPublicClient({
   chain: polygon,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L52
-    [import.meta.env.VITE_POLYGON_NODE_URL, 'https://polygon.llamarpc.com']
+    [env.VITE_POLYGON_NODE_URL, 'https://polygon.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -99,7 +100,7 @@ export const viemBaseClient = createPublicClient({
   chain: base,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
-    [import.meta.env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com']
+    [env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),

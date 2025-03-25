@@ -29,6 +29,8 @@ import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import type { Route } from '@/Routes/helpers'
 import { routes } from '@/Routes/RoutesCommon'
 
@@ -142,6 +144,7 @@ export const MobileNavBar = memo(() => {
   const receive = useModal('receive')
   const qrCode = useModal('qrCode')
   const { routes: pluginRoutes } = usePlugins()
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const allRoutes = useMemo(() => {
     return union(routes, pluginRoutes)
@@ -177,9 +180,10 @@ export const MobileNavBar = memo(() => {
   }, [onClose, qrCode])
 
   const handleSendClick = useCallback(() => {
+    mixpanel?.track(MixPanelEvent.SendClick)
     onClose()
     send.open({})
-  }, [onClose, send])
+  }, [mixpanel, onClose, send])
 
   const handleReceiveClick = useCallback(() => {
     onClose()

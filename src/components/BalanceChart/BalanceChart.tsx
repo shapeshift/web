@@ -18,6 +18,11 @@ type BalanceChartArgs = {
   isRainbowChart: boolean
 }
 
+const balanceChartSkeletonData = {
+  total: [],
+  rainbow: [],
+}
+
 export const BalanceChart: React.FC<BalanceChartArgs> = ({
   assetId,
   accountId,
@@ -44,6 +49,24 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
         color={color}
         data={balanceChartData}
         isLoading={balanceChartDataLoading}
+        isRainbowChart={isRainbowChart}
+      />
+    </Box>
+  )
+}
+
+export const BalanceChartSkeleton: React.FC<BalanceChartArgs> = ({
+  percentChange,
+  isRainbowChart,
+}) => {
+  const color = percentChange > 0 ? 'green.500' : 'red.500'
+
+  return (
+    <Box height={chartHeight}>
+      <Graph
+        color={color}
+        data={balanceChartSkeletonData}
+        isLoading
         isRainbowChart={isRainbowChart}
       />
     </Box>

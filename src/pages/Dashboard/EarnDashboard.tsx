@@ -1,19 +1,19 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useDeferredValue, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { SEO } from '@/components/Layout/Seo'
 import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
+import { DeFiEarnSkeleton } from '@/components/StakingVaults/DeFiEarnSkeleton'
 import { RawText } from '@/components/Text'
 
 const alignItems = { base: 'flex-start', md: 'center' }
-const padding = { base: 4, xl: 0 }
 
 const EarnHeader = () => {
   const translate = useTranslate()
 
   return (
-    <Flex alignItems={alignItems} px={padding} flexWrap='wrap'>
+    <Flex alignItems={alignItems} flexWrap='wrap'>
       <SEO title={translate('navBar.defi')} />
       <Heading fontSize='xl' display='block' width='full'>
         {translate('defi.myPositions')}
@@ -25,10 +25,25 @@ const EarnHeader = () => {
 
 const earnHeader = <EarnHeader />
 
+const EarnContent = () => {
+  return <DeFiEarn includeEarnBalances header={earnHeader} />
+}
+
 export const EarnDashboard = memo(() => {
-  return (
-    <>
-      <DeFiEarn includeEarnBalances header={earnHeader} />
-    </>
-  )
+  const [shouldRender, setShouldRender] = useState(false)
+  const deferredShouldRender = useDeferredValue(shouldRender)
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setShouldRender(true)
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [])
+
+  if (!deferredShouldRender) {
+    return <DeFiEarnSkeleton />
+  }
+
+  return <EarnContent />
 })

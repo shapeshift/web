@@ -12249,7 +12249,7 @@ __metadata:
     "@types/pify": ^5.0.4
     "@types/qr-image": ^3.2.5
     "@types/qs": ^6.9.18
-    "@types/react": ^18.0.14
+    "@types/react": ^19.0.0
     "@types/react-datepicker": ^4.4.2
     "@types/react-dom": ^18.0.5
     "@types/react-infinite-scroller": ^1.2.3
@@ -14342,7 +14342,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.0.14":
+"@types/react@npm:*":
   version: 18.0.15
   resolution: "@types/react@npm:18.0.15"
   dependencies:
@@ -14350,6 +14350,15 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: e22cc388d1c145aa184787e44dc28db4789976c704cd5db475c170bb76a560eb81def5f346cfe750949bb3d43ad88822b8cbb9f19b1286e3795892a8263e7715
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^19.0.0":
+  version: 19.0.12
+  resolution: "@types/react@npm:19.0.12"
+  dependencies:
+    csstype: ^3.0.2
+  checksum: 795f27287e44ef5f81ef9e8439ede54c16d692eb7aadcfc314a2e2de6160033e32d3ee9ce7027e05417e9d80f57a4eb22a6a9cbc40a0a12346c71a1fce939956
   languageName: node
   linkType: hard
 

@@ -243,7 +243,7 @@
     "@types/pify": "^5.0.4",
     "@types/qr-image": "^3.2.5",
     "@types/qs": "^6.9.18",
-    "@types/react": "^18.0.14",
+    "@types/react": "^19.0.0",
     "@types/react-datepicker": "^4.4.2",
     "@types/react-dom": "^18.0.5",
     "@types/react-infinite-scroller": "^1.2.3",

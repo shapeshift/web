@@ -59,6 +59,7 @@
     "pairing": "Pareando",
     "connectWalletToGetStartedWith": "Conecte uma carteira para começar a usar %{feature}",
     "connectedWallet": "Carteira Conectada",
+    "walletActions": "Ações da Carteira",
     "connectedWalletSettings": "Configurar Carteira",
     "noWallet": "Carteira não conectada",
     "seeAll": "Ver tudo",
@@ -254,7 +255,6 @@
     "recentTransactions": {
       "recentTransactions": "Transações Recentes"
     },
-    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Swap",
       "bridge": "Bridge",
@@ -310,7 +310,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Conectar Carteira",
-      "switchWallet": "Trocar de Carteira",
+      "switchWallet": "Trocar Carteira",
       "disconnect": "Desconectar",
       "disconnected": "(Sem conexão)",
       "connecting": "Conectando..."
@@ -600,12 +600,13 @@
     "foxToken": "Ganhe FOX",
     "dApps": "Conectar dApps",
     "featureFlags": "Recursos",
-    "demoMode": "Modo de demonstração",
     "clickToConnect": "Clique para conectar uma carteira",
     "wallet": "Carteira",
     "explore": "Menu",
     "rewards": "Recompensas",
     "trade": "Swap/Bridge",
+    "limitOrder": "Ordens Limite",
+    "claims": "Resgates",
     "tradeShort": "Swap",
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
@@ -831,6 +832,14 @@
       "warning": "Alta tolerância a slippage pode resultar em negociações ineficientes. ",
       "lowSlippage": "Slippage abaixo de 0,05% pode resultar em falha na transação."
     },
+    "sort": {
+      "sortBy": "Filtrar por",
+      "auto": "Automático",
+      "bestRate": "Melhor Taxa",
+      "lowestGas": "Menor Gas",
+      "fastest": "Mais Rápido",
+      "info": "Escolha como filtrar "
+    },
     "from": "De",
     "to": "Para",
     "on": "Em",
@@ -884,6 +893,7 @@
     "thisIsYourCustomRecipientAddress": "Este é o seu endereço personalizado para recebimento",
     "enterCustomRecipientAddress": "Insira o endereço do destinatário personalizado",
     "receiveAtLeast": "Receba pelo menos",
+    "viewOnBlockExplorer": "Visualização do explorador de blocos",
     "tooltip": {
       "continueSwapping": "Continue negociando para mais detalhes",
       "changeQuote": "Alterar cotação",
@@ -1032,7 +1042,11 @@
       "buyFox": "Comprar FOX",
       "share": "Compartilhar",
       "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!"
-    }
+    },
+    "networkFee": "Taxa de rede",
+    "learnMoreAboutFox": "Leia mais sobre benefícios do FOX",
+    "freeTrade": "Este trade é gratuito, baseado em quantos FOX você holda, que são %{foxBalance} FOX",
+    "feeExplainer": "Quote inclui uma %{feePercentage}% taxa da ShapeShift baseado em quanto FOX você holda de %{foxBalance} FOX."
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1043,6 +1057,9 @@
     "placeOrder": "Colocar ordem",
     "placeAnotherOrder": "Faça outro ordem",
     "orderSummary": "Resumo das ordens",
+    "when": "Quando",
+    "isWorth": "vale",
+    "market": "Mercado",
     "success": "Ordem limite colocada com sucesso",
     "cancel": {
       "cancelOrder": "Cancelar Ordem Limite",
@@ -1058,7 +1075,6 @@
     "executionPrice": "Preço de execução",
     "provider": "Provedor",
     "expiration": "Expiração",
-    "networkFee": "Taxa de rede",
     "confirmInfo": "A ordem limite pode não ser preenchida exatamente quando os preços on-chain atingem o preço limite.",
     "learnMore": "Saber mais",
     "previewOrder": "Pré-visualizar pedido",
@@ -1072,6 +1088,9 @@
     "awaitingAllowanceApproval": "Aguardando aprovação da permissão",
     "awaitingAllowanceReset": "Aguardando redefinição da permissão",
     "orderPlacement": "Coloque a ordem %{swapperName}",
+    "sellBuy": "Venda → Compra",
+    "limitExecution": "Limite/Execução",
+    "statusHead": "Status",
     "expiryOption": {
       "oneHour": "1 hora",
       "oneDay": "1 dia",
@@ -1080,6 +1099,7 @@
       "twentyEightDays": "28 dias",
       "custom": "Customizar"
     },
+    "expires": "Expira %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "Ativo de venda nativo não suportado",
       "insufficientValidTo": "A ordem expirou muito cedo",
@@ -1493,12 +1513,13 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Não é possível se comunicar com sua carteira"
+      "walletNotFound": "Não é possível se comunicar com sua carteira",
+      "walletVersionTooOld": "Não é possível parear sua carteira. Atualize sua carteira para a versão mais recente."
     },
     "keepKey": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
-        "updateAlert": "O firmware 6.1.0 ou posterior é necessário para usar a Keepkey. Atualize seu dispositivo.",
+        "updateAlert": "O firmware %{version} ou posterior é necessário para usar a KeepKey. Atualize seu dispositivo.",
         "pinCancelled": "Entrada do PIN foi cancelada",
         "pinInvalid": "O PIN que você digitou não é válido",
         "pinMismatch": "Os PINs que você digitou não correspondem"
@@ -1845,12 +1866,22 @@
         "button": "Avançar"
       },
       "rename": {
-        "header": "Renomeie sua carteira",
+        "header": "Renomear minha carteira",
         "walletName": "Novo apelido para sua carteira",
-        "body": "Digite o novo apelido de sua carteira e sua senha para descriptografar sua carteira.",
+        "body": "Digite o novo apelido da sua carteira e sua senha para descriptografar %{name}.",
         "mobileBody": "Digite o novo apelido da sua carteira.",
         "button": "Avançar",
-        "confirmDelete": "Tem certeza de que deseja excluir o apelido desta carteira?"
+        "confirmDelete": "Tem certeza de que deseja excluir o apelido desta carteira?",
+        "success": "Carteira renomeada com sucesso",
+        "error": {
+          "empty": "O nome da carteira não pode estar vazio"
+        }
+      },
+      "delete": {
+        "header": "Apagar minha carteira",
+        "body": "Digite sua senha para excluir %{name}.",
+        "confirmDelete": "Confirmar",
+        "success": "Carteira excluída com sucesso"
       },
       "legacy": {
         "deprecatedWarning": "O login a ShapeShift está sendo impedido",
@@ -1959,18 +1990,18 @@
         "share": "Não compartilhe com mais ninguém",
         "lose": "Se você perder, não poderemos recuperá-lo"
       },
-      "button": "Continuar para backup"
+      "button": "Eu compreendo"
     },
     "manualBackup": {
-      "header": "Backup manual",
+      "header": "Proteja sua carteira",
       "subHeader": "Salve sua Frase Secreta de Recuperação em um lugar seguro que só você controla.",
       "copyToClipboard": "Copiar para área de transferência",
       "copied": "Copiado!",
       "nextStep": "Em seguida, você será solicitado a confirmar as posições de certas palavras na sua Frase Secreta de Recuperação.",
-      "button": "Continuar backup",
+      "button": "Continuar para confirmar",
       "success": {
-        "title": "Backup manual concluído",
-        "description": "O backup da sua carteira foi feito com sucesso.",
+        "title": "Backup confirmado",
+        "description": "Você verificou sua Frase Secreta de Recuperação. Certifique-se de armazená-la com segurança — esta é a única maneira de recuperar sua carteira.",
         "viewWallet": "Ver carteira"
       }
     }
@@ -2364,27 +2395,6 @@
       "cta": "Deposite agora"
     }
   },
-  "nft": {
-    "customizeFoxatar": "Personalize o FOXatar",
-    "setAsAvatar": "Define como Avatar",
-    "floorPrice": "Floor Price",
-    "lastPrice": "Último preço",
-    "overview": "Visão geral",
-    "properties": "Propriedades",
-    "collection": "Coleção",
-    "tokenId": "Token ID",
-    "address": "Endereço",
-    "chain": "Rede",
-    "standard": "Padrão",
-    "description": "Descrição",
-    "details": "Detalhes",
-    "attributes": "Atributos",
-    "aboutCollection": "Sobre %{collectionName}",
-    "emptyTitle": "Para onde foram todos os NFTs?",
-    "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência.",
-    "reportSpam": "Reportar spam",
-    "refresh": "Atualizar"
-  },
   "avatar": {
     "modal": {
       "title": "Definir um Novo Avatar",
@@ -2512,7 +2522,8 @@
     "underThreshold": "Trade Baixo",
     "thorHolder": "Holder THORSwap",
     "foxHolder": "Holder FOX",
-    "foxWifHatHolder": "Holder FOX Wif Hat"
+    "foxWifHatHolder": "Holder FOX Wif Hat",
+    "foxBuy": "Compre FOX"
   },
   "chart": {
     "interval": {
@@ -2550,7 +2561,6 @@
     "withdrawTypeNotAvailable": "Este tipo de retirada não está disponível para este pool.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
-    "unsupportedDemoWalletExplainer": "A carteira de demonstração não é suportada. Conecte-se a uma carteira para usar este recurso.",
     "unsupportedNetworkExplainer": "Sua carteira não está conectada a %{network}. Conecte esta rede ou mude para uma carteira que suporte esta rede.",
     "unsupportedNetworksExplainer": "Sua carteira não está conectada a %{network1} e %{network2}. Conecte esta rede ou mude para uma carteira que suporte essas redes.",
     "instabilityWarning": "Os usuários estão atualmente enfrentando resgates ao depositar em pools THORChain. Por favor, prossiga com cautela.",
@@ -2670,7 +2680,6 @@
     "approvalFee": "Taxa de Aprovação",
     "lockupPeriod": "Período de Bloqueio",
     "shareOfPool": "Participação na pool",
-    "networkFee": "Taxa da Rede",
     "thorchainRewardAddress": "Endereço de Recompensa THORChain",
     "rewardAddressHelper": "É aqui que as recompensas serão enviadas",
     "useWalletAddress": "Usar endereço de carteira",
@@ -2832,12 +2841,17 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Resgate seu FOXwifhat. Aja rápido - os descontos diminuem com o tempo. Quanto mais FOX ou FOXwifhat você tiver, mais você economiza. Acumule mais tokens FOX para economias contínuas, além de compartilhamento de receita, governança e vantagens de yield farming. Saiba mais sobre esses programas no restante desta página.",
+      "description": "Resgate seu FOX Wif Hat (FWH). Aja rápido - os descontos diminuem com o tempo. Quanto mais FOX ou FWH você tiver, mais você economiza. Acumule mais tokens FOX para economias contínuas, além de compartilhamento de receita, governança e vantagens de yield farming. Saiba mais sobre esses programas no restante desta página.",
       "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em %{date}. Aproveite seu desconto de %{percent}% antes que ele diminua ainda mais!",
       "claim": "Resgate",
       "claimed": "Resgatado",
       "discountText": "*%{percent}% de desconto em taxas de trading",
-      "noClaims": "Nenhum resgate disponível"
+      "noClaims": "Nenhum resgate disponível",
+      "banner": {
+        "title": "Coloque um chapéu nele.",
+        "description": "Quanto mais FOX ou FWH você tiver, mais tokens você ganha por swap.",
+        "cta": "Saber mais"
+      }
     },
     "governance": {
       "title": "Governança",

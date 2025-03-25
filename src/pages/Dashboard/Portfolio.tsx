@@ -1,10 +1,11 @@
 import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useEffect, useState, useTransition } from 'react'
 
 import { AccountTable } from './components/AccountList/AccountTable'
+import { AccountTableSkeleton } from './components/AccountTableSkeleton'
 import { DashboardChart } from './components/DashboardChart'
+import { DashboardChartSkeleton } from './components/DashboardChartSkeleton'
 
-import { useNfts } from '@/components/Nfts/hooks/useNfts'
 import { Text } from '@/components/Text'
 
 const cardBodyPx = { base: 4, md: 2 }
@@ -13,12 +14,28 @@ const accountHeaderPaddingTop = { base: 6, md: 4 }
 const stackSpacing = { base: 0, md: 6 }
 
 export const Portfolio = memo(() => {
-  // Lazily fetch NFTs once user navigates to the dashboard overview
-  useNfts()
+  const [, startTransition] = useTransition()
+  const [shouldRenderChart, setShouldRenderChart] = useState(false)
+  const [shouldRenderAccountTable, setShouldRenderAccountTable] = useState(false)
+
+  useEffect(() => {
+    startTransition(() => {
+      setShouldRenderChart(true)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (shouldRenderChart) {
+      startTransition(() => {
+        setShouldRenderAccountTable(true)
+      })
+    }
+  }, [shouldRenderChart])
 
   return (
     <Stack spacing={stackSpacing} width='full'>
-      <DashboardChart />
+      {shouldRenderChart ? <DashboardChart /> : <DashboardChartSkeleton />}
+
       <Card variant='dashboard'>
         <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
           <Heading as='h6'>
@@ -26,7 +43,7 @@ export const Portfolio = memo(() => {
           </Heading>
         </CardHeader>
         <CardBody px={cardBodyPx} pt={0} pb={0}>
-          <AccountTable />
+          {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
         </CardBody>
       </Card>
     </Stack>

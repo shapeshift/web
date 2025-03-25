@@ -1,8 +1,9 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { memo } from 'react'
+import { memo, useDeferredValue, useEffect, useState } from 'react'
 
 import { RecentTransactions } from './RecentTransactions'
+import { RecentTransactionsSkeleton } from './RecentTransactionsSkeleton'
 
 import OnRamperLogo from '@/assets/onramper-logo.svg'
 import SaversVaultTop from '@/assets/savers-vault-top.png'
@@ -10,7 +11,6 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { PromoCard } from '@/components/Promo/PromoCard'
 import type { PromoItem } from '@/components/Promo/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { EligibleCarousel } from '@/pages/Defi/components/EligibleCarousel'
 
 const displayXlFlex = { base: 'none', xl: 'flex' }
 
@@ -59,13 +59,29 @@ export const DashboardSidebar = memo(() => {
   const {
     state: { isConnected },
   } = useWallet()
+
+  const [isMounted, setIsMounted] = useState(false)
+  const shouldRenderRecentTransactions = useDeferredValue(isMounted)
+
+  useEffect(() => {
+    // Seems useless, but ensures this is set on next tick (which isn't available on browsers)
+    const timerId = setTimeout(() => {
+      setIsMounted(true)
+    }, 0)
+
+    return () => clearTimeout(timerId)
+  }, [])
+
   if (!isConnected) return null
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      <EligibleCarousel />
-      <RecentTransactions limit={8} viewMoreLink display={displayXlFlex} />
+      {shouldRenderRecentTransactions ? (
+        <RecentTransactions limit={8} viewMoreLink display={displayXlFlex} />
+      ) : (
+        <RecentTransactionsSkeleton limit={5} viewMoreLink display={displayXlFlex} />
+      )}
     </Flex>
   )
 })

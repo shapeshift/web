@@ -325,5 +325,5 @@ export const selectClaimableRewards = createDeepEqualOutputSelector(
   },
 )
 
-export const selectOpportunityApiPending = (state: ReduxState) =>
+export const selectIsAnyOpportunitiesApiQueryPending = (state: ReduxState) =>
   Object.values(state.opportunitiesApi.queries).some(query => query?.status === QueryStatus.pending)

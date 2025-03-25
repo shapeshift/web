@@ -22,12 +22,15 @@ import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInput } from '@/lib/address/address'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import type { GlobalSearchResult, SendResult } from '@/state/slices/search-selectors'
 import {
   GlobalSearchResultType,
   selectGlobalItemsFromFilter,
 } from '@/state/slices/search-selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'xl' }
 const sxProp2 = { p: 0 }
@@ -46,7 +49,8 @@ export const GlobalSearchModal = memo(
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
     const history = useHistory()
-
+    const dispatch = useAppDispatch()
+    const mixpanel = getMixPanel()
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
     const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
     const [assetResults, txResults] = results
@@ -97,11 +101,14 @@ export const GlobalSearchModal = memo(
           case GlobalSearchResultType.Send: {
             // We don't want to pre-select the asset for EVM ChainIds
             const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
+            mixpanel?.track(MixPanelEvent.SendClick)
             send.open({ assetId, input: searchQuery })
             onToggle()
             break
           }
           case GlobalSearchResultType.Asset: {
+            // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
+            dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
             const url = `/assets/${item.id}`
             history.push(url)
             onToggle()
@@ -119,7 +126,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [history, onToggle, searchQuery, send],
+      [mixpanel, send, searchQuery, onToggle, dispatch, history],
     )
 
     const onKeyDown = useCallback(

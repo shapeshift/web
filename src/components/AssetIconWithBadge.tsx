@@ -101,7 +101,7 @@ const TransferIcon: React.FC<{
         showNetworkIcon={false}
         assetId={transfer.assetId}
         clipPath={getClipPath(index, totalTransfers, isNft, asset)}
-        name={transfer.asset.name}
+        name={transfer.asset.symbol}
         size={size}
         position={shouldShowShadow ? 'absolute' : 'static'}
         borderRadius={isNft ? 0 : 'full'}

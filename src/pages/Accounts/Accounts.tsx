@@ -86,8 +86,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   )
 }
 
-export const Accounts = () => {
-  const { path } = useRouteMatch()
+const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
@@ -98,8 +97,6 @@ export const Accounts = () => {
       )),
     [portfolioChainIdsSortedUserCurrency],
   )
-
-  const walletId = useAppSelector(selectWalletId)
 
   const blankRows = useMemo(() => {
     return blanks.map(index => (
@@ -112,12 +109,24 @@ export const Accounts = () => {
   }, [blankRows, chainRows, loading])
 
   return (
+    <>
+      <AccountHeader isLoading={loading} />
+      <List ml={0} mt={0} spacing={4}>
+        {renderRows}
+      </List>
+    </>
+  )
+}
+
+export const Accounts = () => {
+  const { path } = useRouteMatch()
+  const loading = useSelector(selectIsPortfolioLoading)
+  const walletId = useAppSelector(selectWalletId)
+
+  return (
     <Switch>
       <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
-        <AccountHeader isLoading={loading} />
-        <List ml={0} mt={0} spacing={4}>
-          {renderRows}
-        </List>
+        <AccountsContent />
       </Route>
       <Route path={`${path}/:accountId`}>
         <Account />

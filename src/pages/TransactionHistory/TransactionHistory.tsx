@@ -19,9 +19,8 @@ import { useAppSelector } from '@/state/store'
 const headingPadding = [2, 3, 6]
 const stackMargin = { base: 0, xl: -4, '2xl': -6 }
 
-export const TransactionHistory = memo(() => {
+const TransactionHistoryContent = () => {
   const translate = useTranslate()
-  const { path } = useRouteMatch()
   const inputRef = useRef<HTMLInputElement | null>(null)
   const { searchTerm, matchingAssets, handleInputChange } = useSearch()
   const { filters, setFilters, resetFilters } = useFilters()
@@ -45,23 +44,31 @@ export const TransactionHistory = memo(() => {
   }, [handleInputChange, resetFilters])
 
   return (
+    <Stack mx={stackMargin}>
+      <SEO title={translate('transactionHistory.transactionHistory')} />
+      <Flex width='full' justifyContent='space-between' p={headingPadding}>
+        <Flex>
+          <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
+          <TransactionHistoryFilter
+            resetFilters={handleReset}
+            setFilters={setFilters}
+            hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
+          />
+        </Flex>
+        <DownloadButton txIds={txIds} />
+      </Flex>
+      <TransactionHistoryList txIds={txIds} />
+    </Stack>
+  )
+}
+
+export const TransactionHistory = memo(() => {
+  const { path } = useRouteMatch()
+
+  return (
     <Switch>
       <Route exact path={`${path}/`}>
-        <Stack mx={stackMargin}>
-          <SEO title={translate('transactionHistory.transactionHistory')} />
-          <Flex width='full' justifyContent='space-between' p={headingPadding}>
-            <Flex>
-              <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
-              <TransactionHistoryFilter
-                resetFilters={handleReset}
-                setFilters={setFilters}
-                hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
-              />
-            </Flex>
-            <DownloadButton txIds={txIds} />
-          </Flex>
-          <TransactionHistoryList txIds={txIds} />
-        </Stack>
+        <TransactionHistoryContent />
       </Route>
       <Route path={`${path}/transaction/:txId`}>
         <SingleTransaction />

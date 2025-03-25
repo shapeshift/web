@@ -254,7 +254,6 @@
     "recentTransactions": {
       "recentTransactions": "最近交易"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "交易",
       "bridge": "跨链桥",
@@ -310,7 +309,6 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "连接钱包",
-      "switchWallet": "切换钱包提供商",
       "disconnect": "断开",
       "disconnected": "(已断开)",
       "connecting": "正在连接..."
@@ -1498,7 +1496,7 @@
     "keepKey": {
       "errors": {
         "unknown": "与你的 KeepKey 通信时发生意外错误",
-        "updateAlert": "需要固件 6.1.0 或更高版本才能在此客户端上使用 Keepkey。请更新你的设备。",
+        "updateAlert": "需要固件 %{version} 或更高版本才能在此客户端上使用 KeepKey。请更新你的设备。",
         "pinCancelled": "PIN 输入已取消",
         "pinInvalid": "你输入的 PIN 码无效",
         "pinMismatch": "你输入的两个 PIN 码不匹配"
@@ -1845,9 +1843,7 @@
         "button": "下一步"
       },
       "rename": {
-        "header": "重命名你的钱包",
         "walletName": "你钱包的新昵称",
-        "body": "输入你的钱包的新昵称和密码以解密你的钱包。",
         "mobileBody": "输入您钱包的新昵称",
         "button": "下一步",
         "confirmDelete": "你确定要删除该钱包的昵称吗？"
@@ -1958,19 +1954,14 @@
       "bulletPoints": {
         "share": "不要与任何人分享它",
         "lose": "如果您丢失它，我们将无法恢复它"
-      },
-      "button": "继续备份"
+      }
     },
     "manualBackup": {
-      "header": "手动备份",
       "subHeader": "将您的秘密恢复短语保存在一个安全的地方，确保只有您能够控制。",
       "copyToClipboard": "复制到剪贴板",
       "copied": "已复制！",
       "nextStep": "接下来，您将需要确认您的秘密恢复短语中某些单词的位置。",
-      "button": "继续备份",
       "success": {
-        "title": "手动备份完成",
-        "description": "您的钱包已成功备份。",
         "viewWallet": "查看钱包"
       }
     }
@@ -2363,27 +2354,6 @@
       "body": "质押到 THORChain 储蓄金库。没有锁定时间。",
       "cta": "立即充值"
     }
-  },
-  "nft": {
-    "customizeFoxatar": "自定义 FOXatar",
-    "setAsAvatar": "设置为头像",
-    "floorPrice": "底价",
-    "lastPrice": "最新价格",
-    "overview": "总览",
-    "properties": "特性",
-    "collection": "收藏品",
-    "tokenId": "代币 ID",
-    "address": "地址",
-    "chain": "链",
-    "standard": "标准",
-    "description": "描述",
-    "details": "细节",
-    "attributes": "属性",
-    "aboutCollection": "关于 %{collectionName}",
-    "emptyTitle": "所有的 NFT 都去哪儿了？",
-    "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。",
-    "reportSpam": "举报垃圾信息",
-    "refresh": "刷新"
   },
   "avatar": {
     "modal": {
@@ -2832,7 +2802,6 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "领取您的 FOXwifhat。请快速行动 - 折扣会随时间而衰减。您持有的 FOX 或 FOXwifhat 越多，您节省的费用就越多。持有更多 FOX 代币可以持续享受折扣，还能获得收入分成、参与治理、并获得流动性挖矿奖励。请在本页其余部分了解有关这些计划的更多信息。",
       "discount": "*折扣会随时间线性递减，并于 %{date} 到期。在折扣进一步减少之前使用您的 %{percent}% 折扣！",
       "claim": "领取",
       "claimed": "已领取",

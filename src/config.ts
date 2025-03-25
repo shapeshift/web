@@ -70,7 +70,6 @@ const validators = {
   VITE_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   VITE_FEATURE_LIFI_SWAP: bool({ default: false }),
   VITE_FEATURE_COWSWAP: bool({ default: false }),
-  VITE_FEATURE_JAYPEGZ: bool({ default: false }),
   VITE_FEATURE_OPTIMISM: bool({ default: false }),
   VITE_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   VITE_FEATURE_POLYGON: bool({ default: false }),
@@ -132,11 +131,6 @@ const validators = {
   VITE_ALCHEMY_API_KEY: str(),
   VITE_ALCHEMY_SOLANA_BASE_URL: url(),
   VITE_PORTALS_API_KEY: str(),
-  VITE_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_POLYGON_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_BASE_JAYPEGS_BASE_URL: url(),
   VITE_CHATWOOT_TOKEN: str(),
   VITE_CHATWOOT_URL: str(),
   VITE_FEATURE_CHATWOOT: bool({ default: false }),
@@ -199,5 +193,5 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() => {
-  return Object.freeze({ ...cleanEnv(import.meta.env, validators, { reporter }) })
+  return Object.freeze({ ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }) })
 })

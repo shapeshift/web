@@ -22,7 +22,6 @@ export enum MixPanelEvent {
   ClaimConfirm = 'Claim Confirm',
   ClaimSuccess = 'Claim Success',
   ClickOpportunity = 'Click Opportunity',
-  ClickNft = 'Click NFT',
   InsufficientFunds = 'Insufficient Funds',
   BorrowPreview = 'Borrow Preview',
   RepayPreview = 'Repay Preview',
@@ -51,6 +50,7 @@ export enum MixPanelEvent {
   Error = 'Error',
   PageView = 'Page View',
   QuotesReceived = 'Quotes Received',
+  RatesReceived = 'Rates Received',
   SnapInstalled = 'Snap Installed',
   StartAddSnap = 'Start Add Snap',
   LpDepositPreview = 'LP Deposit Preview',
@@ -70,6 +70,8 @@ export enum MixPanelEvent {
   ToggleWatchAsset = 'Toggle Watch Asset',
   LimitOrderPlaced = 'Limit Order Placed',
   LimitOrderCanceled = 'Limit Order Canceled',
+  SendClick = 'Send Click',
+  SendBroadcast = 'Send Broadcast',
 }
 
 export type TrackOpportunityProps = {

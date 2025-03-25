@@ -24,7 +24,6 @@ type DefiEarnProps = {
 
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexPaddingX = { base: 4, xl: 0 }
-const flexPropsMd1 = { base: '1 0 auto', md: 1 }
 const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
@@ -44,7 +43,6 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      {header && header}
       <Flex
         justifyContent='space-between'
         alignItems='center'
@@ -54,16 +52,18 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
         px={flexPaddingX}
         {...rest}
       >
-        <Flex flex={flexPropsMd1} />
-        <ChainDropdown
-          chainIds={chainIds}
-          chainId={selectedChainId}
-          onClick={setSelectedChainId}
-          showAll
-          includeBalance
-        />
-        <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
-          <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+        {header && header}
+        <Flex alignItems='center' gap={4}>
+          <ChainDropdown
+            chainIds={chainIds}
+            chainId={selectedChainId}
+            onClick={setSelectedChainId}
+            showAll
+            includeBalance
+          />
+          <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
+            <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+          </Flex>
         </Flex>
       </Flex>
       <PositionTable

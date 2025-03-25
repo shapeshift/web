@@ -1,17 +1,14 @@
-import { Button, Card, HStack, Link } from '@chakra-ui/react'
+import { Box, Card, Flex } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Options } from 'canvas-confetti'
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
-import { FaTwitter } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
-import type { TextPropTypes } from '@/components/Text/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-
-const faTwitterIcon = <FaTwitter />
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const confettiStyle: CSSProperties = {
   position: 'fixed',
@@ -22,15 +19,20 @@ const confettiStyle: CSSProperties = {
   left: 0,
 }
 
-type YouSavedProps = { feeSavingUserCurrency: string }
+type YouSavedProps = {
+  totalUpsideCryptoPrecision: string
+  totalUpsidePercentage: string
+  sellAsset: Asset
+  buyAsset: Asset
+}
 
-export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
-  const translate = useTranslate()
+export const YouSaved = ({
+  totalUpsideCryptoPrecision,
+  totalUpsidePercentage,
+  sellAsset,
+  buyAsset,
+}: YouSavedProps) => {
   const cardRef = useRef<HTMLDivElement>(null)
-
-  const {
-    number: { toFiat },
-  } = useLocaleFormatter()
 
   const refAnimationInstance = useRef<TCanvasConfettiInstance | null>(null)
   const getInstance = useCallback(({ confetti }: { confetti: TCanvasConfettiInstance }) => {
@@ -66,16 +68,26 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
     })
   }, [makeShot])
 
-  const feeSavingUserCurrencyFormatted = useMemo(() => {
-    return toFiat(feeSavingUserCurrency)
-  }, [toFiat, feeSavingUserCurrency])
+  const formattedPercentage = useMemo(() => {
+    return `+${bnOrZero(totalUpsidePercentage).toFixed(2)}%`
+  }, [totalUpsidePercentage])
 
-  const youSavedTranslationProps = useMemo(() => {
-    return [
-      'trade.foxSavings.youSaved',
-      { feeSaving: feeSavingUserCurrencyFormatted },
-    ] as TextPropTypes['translation']
-  }, [feeSavingUserCurrencyFormatted])
+  const pair = useMemo(() => {
+    return `${sellAsset.symbol}/${buyAsset.symbol}`
+  }, [sellAsset, buyAsset])
+
+  const youGotMoreTranslationComponents = useMemo(
+    () => ({
+      cryptoUpside: (
+        <Amount.Crypto
+          as='span'
+          value={bnOrZero(totalUpsideCryptoPrecision).toFixed(buyAsset.precision)}
+          symbol={buyAsset.symbol}
+        />
+      ),
+    }),
+    [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
+  )
 
   return (
     <>
@@ -88,28 +100,22 @@ export const YouSaved = ({ feeSavingUserCurrency }: YouSavedProps) => {
         borderColor='border.base'
         borderWidth={2}
       >
-        <HStack width='full' justifyContent='space-between'>
-          <Text translation={youSavedTranslationProps} fontSize='sm' fontWeight='bold' />
-          <Button
-            as={Link}
-            href={`https://x.com/intent/tweet?text=${encodeURIComponent(
-              translate('trade.foxSavings.postBody', { fee: feeSavingUserCurrencyFormatted }),
-            )}`}
-            isExternal
-            leftIcon={faTwitterIcon}
-            colorScheme='gray'
-            size='sm'
-            fontSize='sm'
-            fontWeight='bold'
-            aria-label='Copy value'
-            borderRadius='full'
-            borderColor='border.base'
-            borderWidth={2}
-            px={3}
-          >
-            {translate('trade.foxSavings.share')}
-          </Button>
-        </HStack>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text
+            translation='trade.foxSavings.youGotMore'
+            components={youGotMoreTranslationComponents}
+            fontSize='md'
+            fontWeight='medium'
+          />
+          <Flex direction='column' alignItems='flex-end'>
+            <Box color='white' fontSize='2xl' fontWeight='bold'>
+              {formattedPercentage}
+            </Box>
+            <Box color='blue.400' fontSize='lg' fontWeight='medium'>
+              {pair}
+            </Box>
+          </Flex>
+        </Flex>
       </Card>
       <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
     </>

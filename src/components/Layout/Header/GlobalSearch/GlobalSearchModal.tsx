@@ -65,19 +65,16 @@ export const GlobalSearchModal = memo(
     const resultsCount = flatResults.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
-    // Get supported chain IDs for custom tokens
     const customTokenSupportedChainIds = useMemo(() => {
       // Solana _is_ supported by Alchemy, but not by the SDK
       return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
     }, [])
 
-    // Use the query hook to fetch token metadata when a valid address is detected
     const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
       contractAddress: searchQuery,
       chainIds: customTokenSupportedChainIds,
     })
 
-    // Parse token metadata into assets
     const customAssets = useMemo(() => {
       if (!customTokens?.length) return []
 

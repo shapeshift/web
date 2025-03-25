@@ -177,6 +177,7 @@ export default defineConfig(({ mode }) => {
 
           warn(warning)
         },
+        external: ['fsevents'],
       },
       minify: mode === 'development' && !process.env.DISABLE_SOURCE_MAP ? false : 'esbuild',
       sourcemap:
@@ -219,6 +220,7 @@ export default defineConfig(({ mode }) => {
           global: 'globalThis',
         },
       },
+      exclude: ['fsevents'],
     },
   }
 })

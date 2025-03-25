@@ -5,7 +5,6 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 
-import { DefiIcon } from '@/components/Icons/DeFi'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
@@ -40,7 +39,6 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
   )
 }
 
-const stakingIcon = <DefiIcon />
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
 const rfoxIcon = <RFOXIcon />
@@ -50,10 +48,6 @@ const pageProps = { paddingTop: 4 }
 export const Explore = memo(() => {
   const translate = useTranslate()
   const history = useHistory()
-
-  const handleStakingClick = useCallback(() => {
-    history.push('/earn')
-  }, [history])
 
   const handlePoolsClick = useCallback(() => {
     history.push('/pools')
@@ -92,13 +86,6 @@ export const Explore = memo(() => {
           icon={rfoxIcon}
           bg='linear-gradient(303deg, #3761F9 29.13%, #0CC 105.38%);'
           onClick={handleRFOXClick}
-        />
-        <ExploreCard
-          title='explore.staking.title'
-          body='explore.staking.body'
-          icon={stakingIcon}
-          bg='linear-gradient(127deg, #805AD5 9.39%, #754095 71.63%);'
-          onClick={handleStakingClick}
         />
         <ExploreCard
           title='explore.pools.title'

@@ -23,8 +23,8 @@ import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
+  selectIsAnyOpportunitiesApiQueryPending,
   selectMarketDataByAssetIdUserCurrency,
-  selectOpportunityApiPending,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -50,7 +50,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   const history = useHistory()
   const location = useLocation()
   const assets = useAppSelector(selectAssets)
-  const isLoading = useAppSelector(selectOpportunityApiPending)
+  const isLoading = useAppSelector(selectIsAnyOpportunitiesApiQueryPending)
   const filter = useMemo(() => {
     return {
       assetId,

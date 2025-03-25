@@ -44,7 +44,6 @@ type DepositProps = {
   percentOptions: number[]
   isLoading: boolean
   onContinue(values: DepositValues): void
-  onBack?(): void
   onCancel(): void
   onChange?({ fiatAmount, cryptoAmount }: { fiatAmount: string; cryptoAmount: string }): void
   inputIcons?: string[]

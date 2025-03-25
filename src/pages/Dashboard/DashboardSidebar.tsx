@@ -11,7 +11,6 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { PromoCard } from '@/components/Promo/PromoCard'
 import type { PromoItem } from '@/components/Promo/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { EligibleCarousel } from '@/pages/Defi/components/EligibleCarousel'
 
 const displayXlFlex = { base: 'none', xl: 'flex' }
 
@@ -78,7 +77,6 @@ export const DashboardSidebar = memo(() => {
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      <EligibleCarousel />
       {shouldRenderRecentTransactions ? (
         <RecentTransactions limit={8} viewMoreLink display={displayXlFlex} />
       ) : (

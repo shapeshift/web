@@ -120,19 +120,6 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
             </Heading>
             <Text color='text.subtle' translation='defi.earnBody' fontWeight='normal' />
           </Box>
-          <Box flex={1} textAlign='right'>
-            <Button
-              size='sm'
-              variant='link'
-              colorScheme='blue'
-              ml='auto'
-              as={NavLink}
-              to='/earn'
-              rightIcon={arrowForwardIcon}
-            >
-              <Text translation='common.seeAll' />
-            </Button>
-          </Box>
         </HStack>
       </CardHeader>
       {Boolean(allRows?.length) && (

@@ -6,6 +6,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { mergeWith } from 'lodash'
+import type { JSX } from 'react'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

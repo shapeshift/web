@@ -6,7 +6,7 @@ import {
   swappers,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { FC } from 'react'
+import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'

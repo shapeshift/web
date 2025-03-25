@@ -1,4 +1,5 @@
 import type Polyglot from 'node-polyglot'
+import type { JSX } from 'react'
 
 export type PromoItem = {
   id: string

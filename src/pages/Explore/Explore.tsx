@@ -1,5 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody, Center, Stack } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { memo, useCallback } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'

@@ -71,7 +71,7 @@ export const useThorStreamingProgress = ({
   failedSwaps: StreamingSwapFailedSwap[]
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
-  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()
+  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>(undefined)
   const { poll, cancelPolling } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
   const hopExecutionMetadataFilter = useMemo(() => {

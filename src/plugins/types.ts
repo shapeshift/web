@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { JSX } from 'react'
 
 import type { Route } from '@/Routes/helpers'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'

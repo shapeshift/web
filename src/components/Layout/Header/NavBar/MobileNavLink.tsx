@@ -1,5 +1,6 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'

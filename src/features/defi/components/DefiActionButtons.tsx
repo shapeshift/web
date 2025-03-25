@@ -1,6 +1,7 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
 import qs from 'qs'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

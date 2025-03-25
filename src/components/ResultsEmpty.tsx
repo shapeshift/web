@@ -3,7 +3,7 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Circle, Flex } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { PropsWithChildren } from 'react'
+import type { JSX, PropsWithChildren } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link } from 'react-router-dom'
 

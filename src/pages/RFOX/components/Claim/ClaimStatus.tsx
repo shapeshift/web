@@ -2,6 +2,7 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 

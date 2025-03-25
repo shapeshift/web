@@ -58,6 +58,7 @@ const VirtualizedSwipableViews = virtualize(SwipeableViews)
 // so we can have a declarative way to refer to the tab indexes instead of magic numbers
 enum MobileTab {
   Overview,
+  Earn,
   Activity,
 }
 
@@ -86,6 +87,9 @@ export const Dashboard = memo(() => {
         case MobileTab.Overview:
           history.push(`${path}`)
           break
+        case MobileTab.Earn:
+          history.push(`${path}/earn`)
+          break
         case MobileTab.Activity:
           history.push(`${path}/activity`)
           break
@@ -103,6 +107,7 @@ export const Dashboard = memo(() => {
       <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
         <TabList>
           <CustomTab>{translate('navBar.overview')}</CustomTab>
+          <CustomTab>{translate('defi.earn')}</CustomTab>
           <CustomTab>{translate('navBar.activity')}</CustomTab>
         </TabList>
         <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
@@ -129,6 +134,13 @@ export const Dashboard = memo(() => {
               <Accounts />
             </Route>
           </>
+        )
+        break
+      case MobileTab.Earn:
+        content = (
+          <Route exact path={`${path}/earn`}>
+            <EarnDashboard />
+          </Route>
         )
         break
       case MobileTab.Activity:

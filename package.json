@@ -68,8 +68,8 @@
   },
   "dependencies": {
     "@arbitrum/sdk": "^4.0.1",
-    "@chakra-ui/icons": "^2.1.1",
-    "@chakra-ui/react": "^2.8.2",
+    "@chakra-ui/icons": "^2.2.4",
+    "@chakra-ui/react": "^2.10.7",
     "@chakra-ui/system": "^2.6.2",
     "@chakra-ui/tag": "^3.1.1",
     "@cowprotocol/app-data": "^2.3.0",

@@ -1,5 +1,5 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 
@@ -9,7 +9,6 @@ import { useSearch } from './hooks/useSearch'
 import { SingleTransaction } from './SingleTransaction'
 import { TransactionHistoryFilter } from './TransactionHistoryFilter'
 import { TransactionHistorySearch } from './TransactionHistorySearch'
-import { TransactionHistorySkeleton } from './TransactionHistorySkeleton'
 
 import { SEO } from '@/components/Layout/Seo'
 import { TransactionHistoryList } from '@/components/TransactionHistory/TransactionHistoryList'
@@ -65,22 +64,11 @@ const TransactionHistoryContent = () => {
 
 export const TransactionHistory = memo(() => {
   const { path } = useRouteMatch()
-  const [shouldRender, setShouldRender] = useState(false)
-  const deferredShouldRender = useDeferredValue(shouldRender)
-
-  // Defer rendering the transaction history to improve initial load performance
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setShouldRender(true)
-    }, 0)
-
-    return () => clearTimeout(timeoutId)
-  }, [])
 
   return (
     <Switch>
       <Route exact path={`${path}/`}>
-        {!deferredShouldRender ? <TransactionHistorySkeleton /> : <TransactionHistoryContent />}
+        <TransactionHistoryContent />
       </Route>
       <Route path={`${path}/transaction/:txId`}>
         <SingleTransaction />

@@ -82,7 +82,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const [processedRows, setProcessedRows] = useState<AggregatedOpportunitiesByAssetIdReturn[]>([])
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
 
   const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
     () => ({
@@ -243,11 +243,6 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     )
   }, [includeEarnBalances, includeRewardsBalances, searchQuery])
 
-  const isLoading = useMemo(
-    () => Boolean(isAnyOpportunitiesApiQueriesPending || (isPending && positions.length)),
-    [isAnyOpportunitiesApiQueriesPending, isPending, positions],
-  )
-
   const isInitialProcessing = useMemo(
     () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,
     [processedRows, isAnyOpportunitiesApiQueriesPending, positions],
@@ -266,7 +261,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       onRowClick={handleRowClick}
       data={processedRows}
       columns={columns}
-      isLoading={isLoading}
+      isLoading={isAnyOpportunitiesApiQueriesPending}
       renderSubComponent={renderSubComponent}
       renderEmptyComponent={renderEmptyComponent}
       initialState={initialState}

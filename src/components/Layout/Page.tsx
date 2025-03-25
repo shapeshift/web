@@ -1,6 +1,7 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Center, Flex } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import { useMemo } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Text } from '@/components/Text'
@@ -26,6 +27,23 @@ export const Page: React.FC<PageProps> = ({
   isSubpage,
   ...rest
 }: PageProps) => {
+  const content = useMemo(() => {
+    if (loading)
+      return (
+        <Center width='full' height='100%'>
+          <CircularProgress isIndeterminate />
+        </Center>
+      )
+    if (error)
+      return (
+        <Center width='full' height='100%'>
+          <Text translation='common.noResultsFound' />
+        </Center>
+      )
+
+    return children
+  }, [children, error, loading, renderError, renderLoading])
+
   return (
     <Flex
       flex={1}
@@ -34,20 +52,7 @@ export const Page: React.FC<PageProps> = ({
       pb='var(--mobile-nav-offset)'
       {...rest}
     >
-      {error && !loading ? renderError() : loading ? renderLoading() : children}
+      {content}
     </Flex>
   )
-}
-
-Page.defaultProps = {
-  renderLoading: () => (
-    <Center width='full' height='100%'>
-      <CircularProgress isIndeterminate />
-    </Center>
-  ),
-  renderError: () => (
-    <Center width='full' height='100%'>
-      <Text translation='common.noResultsFound' />
-    </Center>
-  ),
 }

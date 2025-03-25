@@ -10,7 +10,7 @@ import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
 
 import { Amount } from '@/components/Amount/Amount'
-import { selectTotalPortfolioBalanceIncludeStakingUserCurrency } from '@/state/slices/selectors'
+import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const paddingTop = { base: 'env(safe-area-inset-top)', md: '4.5rem' }
@@ -37,9 +37,8 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const portfolioTotalUserCurrencyBalance = useAppSelector(
-    selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-  )
+  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
 
   useEffect(() => {

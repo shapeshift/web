@@ -9,8 +9,10 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { generatePath, useHistory } from 'react-router-dom'
@@ -19,18 +21,23 @@ import scrollIntoView from 'scroll-into-view-if-needed'
 import { SearchResults } from './SearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
+import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInput } from '@/lib/address/address'
+import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isSome } from '@/lib/utils'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import type { GlobalSearchResult, SendResult } from '@/state/slices/search-selectors'
 import {
   GlobalSearchResultType,
   selectGlobalItemsFromFilter,
 } from '@/state/slices/search-selectors'
+import { selectAssets } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'xl' }
 const sxProp2 = { p: 0 }
@@ -57,6 +64,59 @@ export const GlobalSearchModal = memo(
     const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
     const resultsCount = flatResults.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
+
+    // Get supported chain IDs for custom tokens
+    const customTokenSupportedChainIds = useMemo(() => {
+      // Solana _is_ supported by Alchemy, but not by the SDK
+      return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
+    }, [])
+
+    // Use the query hook to fetch token metadata when a valid address is detected
+    const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
+      contractAddress: searchQuery,
+      chainIds: customTokenSupportedChainIds,
+    })
+
+    // Parse token metadata into assets
+    const customAssets = useMemo(() => {
+      if (!customTokens?.length) return []
+
+      // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
+      const assetsById = selectAssets(store.getState())
+
+      const assets = customTokens
+        .map(metaData => {
+          if (!metaData) return null
+          const { name, symbol, decimals, logo, chainId, contractAddress } = metaData
+
+          if (!name || !symbol || !decimals) return null
+
+          const assetId = toAssetId({
+            chainId,
+            assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+            assetReference: contractAddress,
+          })
+
+          const minimalAsset = {
+            assetId,
+            name,
+            symbol,
+            precision: decimals,
+            icon: logo ?? undefined,
+          }
+
+          return makeAsset(assetsById, minimalAsset)
+        })
+        .filter(isSome)
+
+      return assets
+    }, [customTokens])
+
+    useEffect(() => {
+      customAssets.forEach(asset => {
+        dispatch(assetsSlice.actions.upsertAsset(asset))
+      })
+    }, [customAssets, dispatch])
 
     const send = useModal('send')
     useEffect(() => {
@@ -199,7 +259,10 @@ export const GlobalSearchModal = memo(
       setActiveIndex(0)
     }, [searchQuery])
 
-    const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+    const isSearching = useMemo(
+      () => searchQuery.length > 0 || isLoadingCustomTokens,
+      [searchQuery.length, isLoadingCustomTokens],
+    )
 
     return (
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>

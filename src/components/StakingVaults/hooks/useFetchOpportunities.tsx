@@ -5,13 +5,9 @@ import { useSelector } from 'react-redux'
 import { knownChainIds } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
-import {
-  useGetPortalsAppsBalancesOutputQuery,
-  useGetPortalsUniV2PoolAssetIdsQuery,
-} from '@/state/apis/portals/portalsApi'
+import { useGetPortalsUniV2PoolAssetIdsQuery } from '@/state/apis/portals/portalsApi'
 import {
   selectEnabledWalletAccountIds,
-  selectEvmAccountIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -25,17 +21,9 @@ export const useFetchOpportunities = () => {
   const dispatch = useAppDispatch()
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
-  const evmAccountIds = useSelector(selectEvmAccountIds)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
 
-  const { isLoading: isPortalsAppsBalancesOutputLoading } = useGetPortalsAppsBalancesOutputQuery(
-    { evmAccountIds },
-    {
-      skip: !evmAccountIds.length,
-      refetchOnMountOrArgChange: true,
-    },
-  )
   const { isLoading: isPortalsUniV2PoolAssetIdsLoading } =
     useGetPortalsUniV2PoolAssetIdsQuery(undefined)
 
@@ -58,17 +46,9 @@ export const useFetchOpportunities = () => {
   const result = useMemo(
     () => ({
       isLoading:
-        isLoading ||
-        portfolioLoadingStatus === 'loading' ||
-        isPortalsAppsBalancesOutputLoading ||
-        isPortalsUniV2PoolAssetIdsLoading,
+        isLoading || portfolioLoadingStatus === 'loading' || isPortalsUniV2PoolAssetIdsLoading,
     }),
-    [
-      isLoading,
-      isPortalsAppsBalancesOutputLoading,
-      isPortalsUniV2PoolAssetIdsLoading,
-      portfolioLoadingStatus,
-    ],
+    [isLoading, isPortalsUniV2PoolAssetIdsLoading, portfolioLoadingStatus],
   )
 
   return result

@@ -1,10 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { getAddress } from 'viem'
 
 import { UniV2DepositActionType } from '../DepositCommon'
@@ -18,7 +16,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -47,7 +45,6 @@ export const Deposit: React.FC<DepositProps> = ({
   onNext,
 }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
@@ -306,16 +303,6 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset1CryptoAmountAvailable, asset1MarketData.price],
   )
 
-  const handleBack = useCallback(() => {
-    history.push({
-      pathname: `/defi/earn`,
-      search: qs.stringify({
-        ...query,
-        modal: DefiAction.Overview,
-      }),
-    })
-  }, [history, query])
-
   const cryptoInputValidation0 = useMemo(
     () => ({
       required: true,
@@ -371,7 +358,6 @@ export const Deposit: React.FC<DepositProps> = ({
       onCancel={handleCancel}
       onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
-      onBack={handleBack}
       percentOptions={percentOptions}
       enableSlippage={false}
       isLoading={state.loading}

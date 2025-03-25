@@ -1,10 +1,9 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, Card, CardBody, CardHeader, Heading, HStack } from '@chakra-ui/react'
+import { Box, Card, CardBody, CardHeader, Heading, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
-import { NavLink, useHistory, useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { StakingTable } from './StakingTable'
 
@@ -28,8 +27,6 @@ type EarnOpportunitiesProps = {
   accountId?: AccountId
   isLoaded?: boolean
 }
-
-const arrowForwardIcon = <ArrowForwardIcon />
 
 export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const history = useHistory()

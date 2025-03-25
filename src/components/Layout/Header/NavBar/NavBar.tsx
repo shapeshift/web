@@ -95,7 +95,18 @@ export const NavBar = (props: NavBarProps) => {
                   path: item.path,
                   exact: false,
                   strict: false,
-                })
+                }) ||
+                (item.path === '/trade' &&
+                  (!!matchPath(pathname, {
+                    path: '/limit',
+                    exact: false,
+                    strict: false,
+                  }) ||
+                    !!matchPath(pathname, {
+                      path: '/claim',
+                      exact: false,
+                      strict: false,
+                    })))
               }
             />
           ))}

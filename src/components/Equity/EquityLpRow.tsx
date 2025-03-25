@@ -18,8 +18,8 @@ import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
+  selectIsAnyOpportunitiesApiQueryPending,
   selectMarketDataUserCurrency,
-  selectOpportunityApiPending,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -43,7 +43,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   } = useWallet()
   const history = useHistory()
   const location = useLocation()
-  const isLoading = useAppSelector(selectOpportunityApiPending)
+  const isLoading = useAppSelector(selectIsAnyOpportunitiesApiQueryPending)
   const assets = useAppSelector(selectAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const filter = useMemo(() => {

@@ -109,6 +109,7 @@
   background-color: var(--contentBackground);
   margin:0;
   padding:0.4rem;
+  min-height:380px;
 }
 
 .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {

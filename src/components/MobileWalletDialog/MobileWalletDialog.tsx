@@ -17,7 +17,9 @@ type MobileWalletDialogProps = {
   defaultRoute?: MobileWalletDialogRoutes
 }
 
-const defaultRedirect = (defaultRoute: MobileWalletDialogRoutes) => () => <Redirect to={defaultRoute} />
+const defaultRedirect = (defaultRoute: MobileWalletDialogRoutes) => () => (
+  <Redirect to={defaultRoute} />
+)
 
 export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
   isOpen,

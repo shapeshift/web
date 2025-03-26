@@ -49,10 +49,7 @@ export const DeleteWallet = () => {
                   <ConfirmDelete vault={vault} onBack={handleBack} />
                 </Route>
                 {/* TODO: This will change to backup in a follow up PR */}
-                <Route
-                  path='/'
-                  render={confirmDeleteRedirect}
-                />
+                <Route path='/' render={confirmDeleteRedirect} />
               </Switch>
             </AnimatePresence>
           )}

@@ -239,7 +239,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     return searchQuery ? (
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
-      <ResultsEmpty ctaHref='/earn' ctaText='defi.startEarning' />
+      <ResultsEmpty/>
     )
   }, [includeEarnBalances, includeRewardsBalances, searchQuery])
 

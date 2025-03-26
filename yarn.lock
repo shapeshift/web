@@ -31152,7 +31152,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-router@npm:6.30.0, react-router@npm:^6.30.0":
+"react-router@npm:6.30.0":
   version: 6.30.0
   resolution: "react-router@npm:6.30.0"
   dependencies:
@@ -31160,6 +31160,17 @@ pvutils@latest:
   peerDependencies:
     react: ">=16.8"
   checksum: 35fe773f62b1943cf5ae65056e5d1acbfba50a572a908699881889f073639d42e0d839df107af48a7a058254d59505699b5d68831a714fe6d9aafce982403458
+  languageName: node
+  linkType: hard
+
+"react-router@patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 6.30.0
+  resolution: "react-router@patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch::version=6.30.0&hash=679667&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  dependencies:
+    "@remix-run/router": 1.23.0
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 3c3744a7fbdb6deb59a3c5f7dca3b3102ecd9241d9a3b720ac5783dd96306649159511488e4ff395368d91ce53e89be6021b10b896fe99269683cca1aa6da48d
   languageName: node
   linkType: hard
 

@@ -1,23 +1,22 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, DialogBody, Heading, IconButton } from '@chakra-ui/react'
+import { Button, Heading } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
+import type { Location } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
-import { ConfirmDelete } from './ConfirmDelete'
+import { ConfirmDelete } from './Confirm'
 
-import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/config'
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { SlideTransition } from '@/components/SlideTransition'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
-const ConfirmDeleteRedirect = () => <Navigate to={MobileWalletDialogRoutes.ConfirmDelete} replace />
-
 export const DeleteWallet = () => {
+  const location: Location<MobileLocationState> = useLocation()
   const {
     state: { vault },
-  } = useLocation<MobileLocationState>()
+  } = location
   const navigate = useNavigate()
   const translate = useTranslate()
 
@@ -44,11 +43,11 @@ export const DeleteWallet = () => {
       <MemoryRouter>
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route 
-              path={MobileWalletDialogRoutes.ConfirmDelete} 
-              element={<ConfirmDelete vault={vault} onBack={handleBack} />} 
+            <Route
+              path={MobileWalletDialogRoutes.ConfirmDelete}
+              element={<ConfirmDelete vault={vault} onBack={handleBack} />}
             />
-            <Route path='/' element={<ConfirmDeleteRedirect />} />
+            <Route path='/' element={<ConfirmDelete vault={vault} onBack={handleBack} />} />
           </Routes>
         </AnimatePresence>
       </MemoryRouter>

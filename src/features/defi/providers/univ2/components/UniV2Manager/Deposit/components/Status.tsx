@@ -205,7 +205,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 
   const handleViewPosition = () => {
-    browserHistory.push('/earn')
+    browserHistory.push('/wallet/earn')
   }
 
   const handleCancel = browserHistory.goBack

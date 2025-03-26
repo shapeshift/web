@@ -110,12 +110,6 @@ const assetsPersistConfig = {
   migrate: createMigrate(clearAssetsMigrations, { debug: false }),
 }
 
-// const limitOrderApiPersistConfig = {
-// key: 'limitOrderApi',
-// storage: localforage,
-// whitelist: ['queries', 'provided'],
-// }
-
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),

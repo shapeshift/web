@@ -63,7 +63,7 @@ export const limitOrderApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
-  tagTypes: ['LimitOrder', 'limitOrderQuote', 'LimitOrders'] as const,
+  tagTypes: ['limitOrderQuote', 'LimitOrders'] as const,
   baseQuery: fakeBaseQuery<CowSwapError | null>(),
   endpoints: build => ({
     getLimitOrders: build.query<{ order: Order; accountId: AccountId }[], AccountId[]>({
@@ -110,7 +110,6 @@ export const limitOrderApi = createApi({
           }
         }
       },
-      // Provide tags for cache invalidation
       providesTags: ['LimitOrders'],
     }),
     quoteLimitOrder: build.query<OrderQuoteResponse, LimitOrderQuoteParams>({
@@ -227,7 +226,6 @@ export const limitOrderApi = createApi({
           }
         }
       },
-      // Invalidate the LimitOrders cache after placing a new order
       invalidatesTags: ['LimitOrders'],
     }),
     cancelLimitOrder: build.mutation<
@@ -274,7 +272,6 @@ export const limitOrderApi = createApi({
 
         return { data: result.status }
       },
-      // Invalidate the LimitOrders cache after cancelling an order
       invalidatesTags: ['LimitOrders'],
     }),
     getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({

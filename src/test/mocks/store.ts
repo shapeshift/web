@@ -34,7 +34,6 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
 
 const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
   provided: {
-    LimitOrder: {},
     LimitOrders: {},
     limitOrderQuote: {},
   },

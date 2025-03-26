@@ -226,7 +226,7 @@ export const limitOrderApi = createApi({
           }
         }
       },
-      invalidatesTags: ['LimitOrders'],
+      invalidatesTags: ['limitOrders'],
     }),
     cancelLimitOrder: build.mutation<
       number,
@@ -272,7 +272,7 @@ export const limitOrderApi = createApi({
 
         return { data: result.status }
       },
-      invalidatesTags: ['LimitOrders'],
+      invalidatesTags: ['limitOrders'],
     }),
     getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({
       queryFn: async ({ orderId, chainId }) => {

@@ -84,8 +84,8 @@ export function AppProviders({ children }: ProvidersProps) {
                         <I18nProvider>
                           <WalletProvider>
                             <KeepKeyProvider>
-                              <WalletConnectV2Provider>
-                                <ModalProvider>
+                              <ModalProvider>
+                                <WalletConnectV2Provider>
                                   <ErrorBoundary
                                     FallbackComponent={ErrorPage}
                                     onError={handleError}
@@ -102,8 +102,8 @@ export function AppProviders({ children }: ProvidersProps) {
                                       </AppProvider>
                                     </TransactionsProvider>
                                   </ErrorBoundary>
-                                </ModalProvider>
-                              </WalletConnectV2Provider>
+                                </WalletConnectV2Provider>
+                              </ModalProvider>
                             </KeepKeyProvider>
                           </WalletProvider>
                         </I18nProvider>

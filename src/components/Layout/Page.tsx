@@ -11,8 +11,6 @@ type PageProps = {
   children: ReactNode
   loading?: boolean
   error?: boolean
-  renderError?: () => ReactNode
-  renderLoading?: () => ReactNode
   route?: Route
   isSubpage?: boolean
 } & FlexProps
@@ -21,8 +19,6 @@ export const Page: React.FC<PageProps> = ({
   children,
   loading,
   error,
-  renderLoading = () => null,
-  renderError = () => null,
   route,
   isSubpage,
   ...rest
@@ -42,7 +38,7 @@ export const Page: React.FC<PageProps> = ({
       )
 
     return children
-  }, [children, error, loading, renderError, renderLoading])
+  }, [children, error, loading])
 
   return (
     <Flex

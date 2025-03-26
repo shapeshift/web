@@ -196,7 +196,7 @@ export const routes: Route[] = [
     })),
   },
   {
-    path: '/wallet',
+    path: '/wallet/*',
     label: 'navBar.myWallet',
     shortLabel: 'navBar.wallet',
     icon: <WalletIcon />,

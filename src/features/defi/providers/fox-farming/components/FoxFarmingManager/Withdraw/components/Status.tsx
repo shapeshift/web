@@ -96,7 +96,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   )
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
+    browserHistory.push('/wallet/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

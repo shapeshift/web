@@ -10,7 +10,7 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -47,7 +47,7 @@ export const CreateWallet = ({
   handleRedirectToHome,
 }: CreateWalletProps) => {
   const location = useLocation<MobileLocationState | undefined>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     handleSubmit,
@@ -65,7 +65,7 @@ export const CreateWallet = ({
 
       try {
         vault.label = values.label
-        history.push(MobileWalletDialogRoutes.KeepSafe, { vault })
+        navigate(MobileWalletDialogRoutes.KeepSafe, { vault })
       } catch (e) {
         console.log(e)
       }

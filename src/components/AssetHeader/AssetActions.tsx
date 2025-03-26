@@ -6,7 +6,7 @@ import { ethAssetId, isNft } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
@@ -59,7 +59,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   cryptoBalance,
   isMobile,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
@@ -106,7 +106,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   }, [accountId, assetId, assetSupportsBuy, fiatRamps])
 
   const handleTradeClick = useCallback(() => {
-    history.push(`/trade/${assetId}`)
+    navigate(`/trade/${assetId}`)
   }, [assetId, history])
 
   if (isMobile) {

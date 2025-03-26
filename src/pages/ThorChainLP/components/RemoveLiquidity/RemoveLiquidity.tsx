@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { RemoveLiquidityRoutePaths } from './types'
 
@@ -94,7 +94,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   poolAssetId,
 }) => {
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const renderRemoveLiquidityInput = useCallback(
     () => (
@@ -129,7 +129,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
         mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
       }
 
-      history.push(RemoveLiquidityRoutePaths.Confirm)
+      navigate(RemoveLiquidityRoutePaths.Confirm)
     }
 
     return (
@@ -139,38 +139,38 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
         onSweepSeen={handleSweepSeen}
         // eslint-disable-next-line react-memo/require-usememo
         onBack={() => {
-          history.push(RemoveLiquidityRoutePaths.Input)
+          navigate(RemoveLiquidityRoutePaths.Input)
         }}
       />
     )
-  }, [confirmedQuote, history, mixpanel])
+  }, [confirmedQuote, navigate, mixpanel])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
+      <Routes>
         <Suspense fallback={suspenseFallback}>
           <Route
             key={RemoveLiquidityRoutePaths.Input}
             path={RemoveLiquidityRoutePaths.Input}
-            render={renderRemoveLiquidityInput}
+            element={renderRemoveLiquidityInput()}
           />
           <Route
             key={RemoveLiquidityRoutePaths.Confirm}
             path={RemoveLiquidityRoutePaths.Confirm}
-            render={renderRemoveLiquidityConfirm}
+            element={renderRemoveLiquidityConfirm()}
           />
           <Route
             key={RemoveLiquidityRoutePaths.Status}
             path={RemoveLiquidityRoutePaths.Status}
-            render={renderRemoveLiquidityStatus}
+            element={renderRemoveLiquidityStatus()}
           />
           <Route
             key={RemoveLiquidityRoutePaths.Sweep}
             path={RemoveLiquidityRoutePaths.Sweep}
-            render={renderRemoveLiquiditySweep}
+            element={renderRemoveLiquiditySweep()}
           />
         </Suspense>
-      </Switch>
+      </Routes>
     </AnimatePresence>
   )
 }

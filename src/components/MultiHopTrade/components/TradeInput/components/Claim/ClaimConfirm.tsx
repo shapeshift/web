@@ -15,7 +15,7 @@ import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimTx } from './hooks/useArbitrumClaimTx'
@@ -50,11 +50,11 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   setClaimTxHash,
   setClaimTxStatus,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleGoBack = useCallback(() => {
-    history.push(ClaimRoutePaths.Select)
+    navigate(ClaimRoutePaths.Select)
   }, [history])
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
@@ -127,7 +127,7 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
 
   const handleSubmit = useCallback(async () => {
     await claimMutation.mutateAsync()
-    history.push(ClaimRoutePaths.Status)
+    navigate(ClaimRoutePaths.Status)
   }, [claimMutation, history])
 
   const confirmCopy = useMemo(() => {

@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
@@ -191,35 +191,35 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
+      <Routes>
         <Suspense fallback={suspenseFallback}>
           <Route
             key={StakeRoutePaths.Input}
             path={StakeRoutePaths.Input}
-            render={renderStakeInput}
+            element={renderStakeInput()}
           />
           <Route
             key={StakeRoutePaths.Confirm}
             path={StakeRoutePaths.Confirm}
-            render={renderStakeConfirm}
+            element={renderStakeConfirm()}
           />
           <Route
             key={StakeRoutePaths.Status}
             path={StakeRoutePaths.Status}
-            render={renderStakeStatus}
+            element={renderStakeStatus()}
           />
           <Route
             key={BridgeRoutePaths.Confirm}
             path={BridgeRoutePaths.Confirm}
-            render={renderBridgeConfirm}
+            element={renderBridgeConfirm()}
           />
           <Route
             key={BridgeRoutePaths.Status}
             path={BridgeRoutePaths.Status}
-            render={renderBridgeStatus}
+            element={renderBridgeStatus()}
           />
         </Suspense>
-      </Switch>
+      </Routes>
     </AnimatePresence>
   )
 }

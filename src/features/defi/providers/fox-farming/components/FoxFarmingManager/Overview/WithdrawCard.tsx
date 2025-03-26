@@ -42,7 +42,7 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
   const successColor = useColorModeValue('green.500', 'green.200')
 
   const handleClick = () => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
@@ -75,7 +75,7 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
             !expired
               ? () => (isConnected ? handleClick() : handleWalletModalOpen())
               : () =>
-                  history.push({
+                  navigate({
                     pathname: location.pathname,
                     search: qs.stringify({
                       ...query,

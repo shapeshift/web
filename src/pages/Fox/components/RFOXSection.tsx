@@ -24,7 +24,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import type { Filter } from './FoxTokenFilterButton'
@@ -94,7 +94,7 @@ const rfoxIconStyles = {
 
 export const RFOXSection = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
@@ -152,7 +152,7 @@ export const RFOXSection = () => {
 
   const handleManageClick = useCallback(() => {
     setStakingAssetAccountId(stakingAssetAccountId)
-    history.push({
+    navigate({
       pathname: '/rfox',
     })
   }, [history, stakingAssetAccountId, setStakingAssetAccountId])

@@ -65,7 +65,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
       if (e instanceof WalletNotFoundError) {
         console.error(e)
       } else {
-        history.push('/walletconnect/failure')
+        navigate('/walletconnect/failure')
       }
     }
   }, [dispatch, getAdapter, history, localWallet, state.wallet])

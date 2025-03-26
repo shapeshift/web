@@ -20,7 +20,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
@@ -54,18 +54,18 @@ type PoolHeaderProps = {
 const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const translate = useTranslate()
-  const history = useHistory()
-  const { path } = useRouteMatch()
-  const handleBack = useCallback(() => {
-    const isPoolPage = matchPath('/lending/pool/:poolAssetId', path)
-    const isPoolAccountPage = matchPath('/lending/poolAccount/:poolAccountId/:poolAssetId', path)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const isPoolPage = useMatch('/lending/pool/:poolAssetId')
+  const isPoolAccountPage = useMatch('/lending/poolAccount/:poolAccountId/:poolAssetId')
 
+  const handleBack = useCallback(() => {
     if (isPoolAccountPage) {
-      history.push('/lending/loans')
+      navigate('/lending/loans')
     } else if (isPoolPage) {
-      history.push('/lending')
+      navigate('/lending')
     }
-  }, [history, path])
+  }, [navigate, isPoolPage, isPoolAccountPage])
 
   if (!asset) return null
 

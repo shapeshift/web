@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
@@ -61,7 +61,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
 
@@ -72,7 +72,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
-  const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
+  const handleClaimClick = useCallback(() => navigate(ClaimRoutePaths.Confirm), [history])
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />

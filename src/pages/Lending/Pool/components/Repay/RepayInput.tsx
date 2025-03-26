@@ -23,7 +23,7 @@ import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -106,7 +106,7 @@ export const RepayInput = ({
   const [repaymentAssetIsFiat, toggleRepaymentAssetIsFiat] = useToggle(false)
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const repaymentFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
@@ -297,7 +297,7 @@ export const RepayInput = ({
       mixpanel.track(MixPanelEvent.RepayPreview, eventData)
     }
 
-    history.push(RepayRoutePaths.Confirm)
+    navigate(RepayRoutePaths.Confirm)
   }, [
     collateralAsset?.assetId,
     collateralFeeAsset?.networkName,

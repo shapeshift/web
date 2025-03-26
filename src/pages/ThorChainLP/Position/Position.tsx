@@ -25,7 +25,7 @@ import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { AddLiquidity } from '../components/AddLiquidity/AddLiquidity'
 import { Faq } from '../components/Faq'
@@ -61,10 +61,10 @@ const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
 
 const PoolHeader: React.FC<{ name?: string }> = ({ name }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleBack = useCallback(() => history.push('/pools/positions'), [history])
+  const handleBack = useCallback(() => navigate('/pools/positions'), [navigate])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
@@ -149,13 +149,16 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
 export const Position = () => {
-  const params = useParams<MatchParams>()
+  const params = useParams()
 
   const [stepIndex, setStepIndex] = useState<number>(0)
 
-  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
-  const accountId = useMemo(() => params.accountId, [params.accountId])
-  const assetId = useMemo(() => poolAssetIdToAssetId(poolAssetId), [poolAssetId])
+  const poolAssetId = useMemo(() => params.poolAssetId ?? '', [params.poolAssetId])
+  const accountId = useMemo(() => params.accountId ?? '', [params.accountId])
+  const assetId = useMemo(() => {
+    if (!poolAssetId) return ''
+    return poolAssetIdToAssetId(poolAssetId)
+  }, [poolAssetId])
   const opportunityId = useMemo(() => {
     return decodeURIComponent(params.opportunityId ?? '')
   }, [params.opportunityId])

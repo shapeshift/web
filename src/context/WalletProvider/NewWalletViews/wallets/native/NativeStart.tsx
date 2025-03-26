@@ -9,9 +9,9 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 const arrowForwardIcon = <ArrowForwardIcon />
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
-  const handleCreate = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
+  const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [history])
   const handleImportClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportSelect),
+    () => navigate(NativeWalletRoutes.ImportSelect),
     [history],
   )
 

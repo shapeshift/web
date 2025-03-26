@@ -4,7 +4,7 @@ import { Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { RawText } from '@/components/Text'
 
@@ -14,7 +14,7 @@ const paddingTop = { base: 'env(safe-area-inset-top)', md: 6 }
 const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
 
 export const PageBackButton: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
-  const { goBack } = useHistory()
+  const { goBack } = useNavigate()
   return (
     <IconButton
       fontSize='2xl'

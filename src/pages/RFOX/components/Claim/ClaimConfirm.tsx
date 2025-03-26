@@ -17,7 +17,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
@@ -64,12 +64,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   claimTxid,
   setClaimTxid,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
 
   const handleGoBack = useCallback(() => {
-    history.push(ClaimRoutePaths.Select)
+    navigate(ClaimRoutePaths.Select)
   }, [history])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
@@ -210,7 +210,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     const txHash = await handleClaim()
     if (!txHash) return
-    history.push(ClaimRoutePaths.Status)
+    navigate(ClaimRoutePaths.Status)
   }, [handleClaim, history])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))

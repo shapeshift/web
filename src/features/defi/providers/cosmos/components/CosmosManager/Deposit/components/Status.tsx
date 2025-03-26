@@ -3,7 +3,7 @@ import { Button, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { DepositContext } from '../DepositContext'
 
@@ -36,7 +36,7 @@ const externalLinkIcon = <ExternalLinkIcon />
 export const Status = () => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const assets = useAppSelector(selectAssets)
@@ -67,7 +67,7 @@ export const Status = () => {
   )
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
+    browsernavigate('/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

@@ -22,7 +22,7 @@ export const FoxyClaim: React.FC<{
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

@@ -15,7 +15,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -65,7 +65,7 @@ export const ClaimConfirm = ({
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const chainAdapterManager = getChainAdapterManager()
 
@@ -143,7 +143,7 @@ export const ClaimConfirm = ({
         contractAddress,
         bip44Params,
       })
-      history.push('/status', {
+      navigate('/status', {
         txid,
         assetId: stakingAssetId,
         amount,

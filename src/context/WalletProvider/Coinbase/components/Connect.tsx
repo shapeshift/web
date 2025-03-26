@@ -63,7 +63,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
       } catch (e: any) {
         console.error(e, 'Coinbase Connect: There was an error initializing the wallet')
         setErrorLoading(e.message)
-        history.push('/coinbase/failure')
+        navigate('/coinbase/failure')
       }
     }
     setLoading(false)

@@ -80,7 +80,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

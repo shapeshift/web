@@ -144,7 +144,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   const handleStakeClick = useCallback(
     () =>
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,
@@ -156,7 +156,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   const handleLearnMoreClick = useCallback(
     () => () =>
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,

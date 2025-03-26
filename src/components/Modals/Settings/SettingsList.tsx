@@ -18,7 +18,7 @@ import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -53,7 +53,7 @@ const ioDocumentTextIcon = <Icon as={IoDocumentTextOutline} color='text.subtle' 
 const faTrashIcon = <FaTrash />
 
 export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const settings = useModal('settings')
@@ -76,7 +76,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     if (clickCount === 4) {
       setClickCount(0)
       settings.close()
-      appHistory.push('/flags')
+      appnavigate('/flags')
     } else {
       setClickCount(clickCount + 1)
     }
@@ -85,7 +85,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const closeModalAndNavigateTo = useCallback(
     (linkHref: string) => {
       settings.close()
-      appHistory.push(linkHref)
+      appnavigate(linkHref)
     },
     [appHistory, settings],
   )
@@ -106,23 +106,23 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   }, [translate, settings, disconnect, appDispatch])
 
   const handleClearCacheClick = useCallback(
-    () => history.push(SettingsRoutes.ClearCache),
+    () => navigate(SettingsRoutes.ClearCache),
     [history],
   )
 
   const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
   const handleCurrencyClick = useCallback(
-    () => history.push(SettingsRoutes.FiatCurrencies),
+    () => navigate(SettingsRoutes.FiatCurrencies),
     [history],
   )
 
   const handleCurrencyFormatClick = useCallback(
-    () => history.push(SettingsRoutes.CurrencyFormat),
+    () => navigate(SettingsRoutes.CurrencyFormat),
     [history],
   )
 
-  const handleLanguageClick = useCallback(() => history.push(SettingsRoutes.Languages), [history])
+  const handleLanguageClick = useCallback(() => navigate(SettingsRoutes.Languages), [history])
 
   const handleTosClick = useCallback(
     () => closeModalAndNavigateTo('/legal/terms-of-service'),

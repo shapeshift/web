@@ -94,7 +94,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

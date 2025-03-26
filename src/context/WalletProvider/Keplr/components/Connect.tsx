@@ -70,7 +70,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.keplr.errors.unknown')
-        history.push('/keplr/failure')
+        navigate('/keplr/failure')
       }
     }
     setLoading(false)

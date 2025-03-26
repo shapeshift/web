@@ -1,5 +1,15 @@
+import {
+  Box,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { MemoryRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
@@ -9,54 +19,65 @@ import { RenameWallet } from './routes/RenameWallet'
 import { SavedWallets } from './routes/SavedWallets'
 import { MobileWalletDialogRoutes } from './types'
 
-import { Dialog } from '@/components/Modal/components/Dialog'
+import { SlideTransition } from '@/components/SlideTransition'
 
-type MobileWalletDialogProps = {
+interface DialogProps {
+  children: ReactNode
+  isOpen: boolean
+  onClose: () => void
+  height?: string
+  isDisablingPropagation?: boolean
+}
+
+// Basic Dialog component with framer-motion transitions baked in
+const Dialog = ({ children, isOpen, onClose }: DialogProps) => (
+  <Modal isOpen={isOpen} onClose={onClose} isCentered trapFocus={false}>
+    <ModalOverlay />
+    <SlideTransition>
+      <ModalContent>{children}</ModalContent>
+    </SlideTransition>
+  </Modal>
+)
+
+interface MobileWalletDialogProps {
   isOpen: boolean
   onClose: () => void
   defaultRoute?: MobileWalletDialogRoutes
 }
 
-const defaultRedirect = (defaultRoute: MobileWalletDialogRoutes) => () => (
-  <Redirect to={defaultRoute} />
-)
-
-export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
+export const MobileWalletDialog = ({
   isOpen,
   onClose,
   defaultRoute = MobileWalletDialogRoutes.Saved,
-}) => {
+}: MobileWalletDialogProps) => {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
       <MemoryRouter>
-        <Route>
-          {({ location }) => (
-            <AnimatePresence mode='wait' initial={false}>
-              <Switch key={location.key} location={location}>
-                <Route path={MobileWalletDialogRoutes.Backup}>
-                  <ManualBackup showContinueButton={false} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Import}>
-                  <ImportRouter onClose={onClose} defaultRoute={defaultRoute} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Saved}>
-                  <SavedWallets onClose={onClose} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Rename}>
-                  <RenameWallet />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Delete}>
-                  <DeleteWallet />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Create}>
-                  <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />
-                </Route>
-                <Route path='/' exact render={defaultRedirect(defaultRoute)} />
-              </Switch>
-            </AnimatePresence>
-          )}
-        </Route>
+        <AnimatePresence mode='wait' initial={false}>
+          <AnimatedRoutes defaultRoute={defaultRoute} onClose={onClose} />
+        </AnimatePresence>
       </MemoryRouter>
     </Dialog>
+  )
+}
+
+interface AnimatedRoutesProps {
+  defaultRoute: MobileWalletDialogRoutes
+  onClose: () => void
+}
+
+const AnimatedRoutes = ({ defaultRoute, onClose }: AnimatedRoutesProps) => {
+  const location = useLocation()
+  
+  return (
+    <Routes location={location} key={location.key}>
+      <Route path={MobileWalletDialogRoutes.Backup} element={<ManualBackup showContinueButton={false} />} />
+      <Route path={MobileWalletDialogRoutes.Import} element={<ImportRouter onClose={onClose} defaultRoute={defaultRoute} />} />
+      <Route path={MobileWalletDialogRoutes.Saved} element={<SavedWallets onClose={onClose} />} />
+      <Route path={MobileWalletDialogRoutes.Rename} element={<RenameWallet />} />
+      <Route path={MobileWalletDialogRoutes.Delete} element={<DeleteWallet />} />
+      <Route path={MobileWalletDialogRoutes.Create} element={<CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />} />
+      <Route path='/' element={<Navigate to={defaultRoute} replace />} />
+    </Routes>
   )
 }

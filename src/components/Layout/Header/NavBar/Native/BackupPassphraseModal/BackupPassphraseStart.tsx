@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -10,7 +10,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const BackupPassphraseStart: React.FC<LocationState> = props => {
   const { revocableWallet } = props
-  const history = useHistory<LocationState>()
+  const navigate = useNavigate<LocationState>()
   const { state } = useWallet()
   const [error, setError] = useState<string | null>(null)
 
@@ -19,13 +19,13 @@ export const BackupPassphraseStart: React.FC<LocationState> = props => {
       switch (state.modalType) {
         case KeyManager.Native:
           // Native wallets require a password to decrypt
-          history.push(BackupPassphraseRoutes.Password)
+          navigate(BackupPassphraseRoutes.Password)
           break
         case KeyManager.Mobile:
           const wallet = await getWallet(state.walletInfo?.deviceId ?? '')
           if (wallet?.mnemonic) {
             revocableWallet.mnemonic = wallet.mnemonic
-            history.push(BackupPassphraseRoutes.Info)
+            navigate(BackupPassphraseRoutes.Info)
           } else {
             setError('Error')
           }

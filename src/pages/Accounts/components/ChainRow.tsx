@@ -2,7 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AccountNumberRow } from './AccountNumberRow'
 
@@ -28,7 +28,7 @@ const stackPx = { base: 2, md: 4 }
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const { isOpen, onToggle } = useDisclosure()
-  const history = useHistory()
+  const navigate = useNavigate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
@@ -50,12 +50,12 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         onClick={
           // accountIds is strictly length 1 per accountNumber for account-based chains
           !isUtxoAccountId(accountIds[0])
-            ? () => history.push(`/wallet/accounts/${accountIds[0]}`)
+            ? () => navigate(`/wallet/accounts/${accountIds[0]}`)
             : undefined
         }
       />
     ))
-  }, [accountIdsByAccountNumber, chainId, history, isOpen])
+  }, [accountIdsByAccountNumber, chainId, navigate, isOpen])
 
   return asset ? (
     <ListItem

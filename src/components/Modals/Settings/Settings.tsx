@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { MemoryRouter, useHistory } from 'react-router-dom'
+import { MemoryRouter, useNavigate } from 'react-router-dom'
 
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
@@ -13,7 +13,7 @@ export const entries = Object.values(SettingsRoutes)
 const Settings = () => {
   // Settings requires a separate "outer" level history context to be passed down to the SettingsRouter
   // for the secret flags menu to work on mobile
-  const appHistory = useHistory()
+  const appHistory = useNavigate()
 
   const settings = useModal('settings')
   const { close, isOpen } = settings
@@ -28,7 +28,7 @@ const Settings = () => {
   useEffect(() => {
     if (!isOpen) return
     const shakeEventListener = (e: MessageEvent<MobileMessageEvent>) => {
-      if (e.data?.cmd === 'shakeEvent' && isOpen) void appHistory.push('/flags') || close()
+      if (e.data?.cmd === 'shakeEvent' && isOpen) void appnavigate('/flags') || close()
     }
 
     window.addEventListener('message', shakeEventListener)

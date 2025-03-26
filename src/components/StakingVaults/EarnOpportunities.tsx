@@ -3,7 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { StakingTable } from './StakingTable'
 
@@ -29,7 +29,7 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const {
     state: { isConnected },
@@ -82,10 +82,10 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       }
 
       if (provider === DefiProvider.rFOX) {
-        return history.push('/rfox')
+        return navigate('/rfox')
       }
 
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           chainId,

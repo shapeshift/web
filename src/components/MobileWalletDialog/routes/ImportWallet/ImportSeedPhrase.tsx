@@ -13,7 +13,7 @@ import * as bip39 from 'bip39'
 import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -41,10 +41,10 @@ export const ImportSeedPhrase = () => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.Import)
+    navigate(MobileWalletDialogRoutes.Import)
   }, [history])
 
   const onSubmit = useCallback(
@@ -55,7 +55,7 @@ export const ImportSeedPhrase = () => {
           label: values.name.trim(),
         })
 
-        history.push(MobileWalletDialogRoutes.ImportSuccess, { vault })
+        navigate(MobileWalletDialogRoutes.ImportSuccess, { vault })
         queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       } catch (e) {
         console.log(e)

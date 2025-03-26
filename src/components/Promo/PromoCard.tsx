@@ -6,7 +6,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import isBetween from 'dayjs/plugin/isBetween'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { PromoItem } from './types'
 
@@ -36,7 +36,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
     state: { wallet },
   } = useWallet()
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleWalletModalOpen = useCallback(
@@ -59,12 +59,12 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
       mixpanel?.track('Promo Click', { id })
       if (walletRequired) {
         if (wallet && supportsETH(wallet)) {
-          isExternal ? window.open(href) : history.push(href)
+          isExternal ? window.open(href) : navigate(href)
         } else {
           handleWalletModalOpen()
         }
       } else {
-        isExternal ? window.open(href) : history.push(href)
+        isExternal ? window.open(href) : navigate(href)
       }
     },
     [handleWalletModalOpen, history, mixpanel, wallet],

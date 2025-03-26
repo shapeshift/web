@@ -102,7 +102,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

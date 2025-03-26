@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query'
 import { range } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import type { LocationState } from '../types'
 
@@ -39,7 +39,7 @@ const Revocable = crypto.Isolation.Engines.Default.Revocable
 const revocable = crypto.Isolation.Engines.Default.revocable
 
 export const NativeCreate = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation<LocationState>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const mixpanel = getMixPanel()
@@ -79,7 +79,7 @@ export const NativeCreate = () => {
 
   const handleClick = useCallback(() => {
     if (vault) {
-      history.push(NativeWalletRoutes.CreateTest, {
+      navigate(NativeWalletRoutes.CreateTest, {
         vault,
       })
       mixpanel?.track(MixPanelEvent.NativeCreate)

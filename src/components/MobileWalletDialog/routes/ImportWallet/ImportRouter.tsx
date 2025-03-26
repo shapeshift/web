@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
-import { MemoryRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom'
+import { MemoryRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { ImportKeystore } from './ImportKeystore'
 import { ImportSeedPhrase } from './ImportSeedPhrase'
@@ -15,43 +15,45 @@ type ImportRouterProps = {
   defaultRoute: MobileWalletDialogRoutes
 }
 
-const importRedirect = () => <Redirect to={MobileWalletDialogRoutes.Import} />
+const ImportRedirect = () => <Navigate to={MobileWalletDialogRoutes.Import} replace />
 
 export const ImportRouter = ({ onClose, defaultRoute }: ImportRouterProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleRedirectToHome = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.Saved)
-  }, [history])
+    navigate(MobileWalletDialogRoutes.Saved)
+  }, [navigate])
 
   return (
     <SlideTransition>
       <MemoryRouter>
-        <Route>
-          {({ location }) => (
-            <AnimatePresence mode='wait' initial={false}>
-              <Switch key={location.key} location={location}>
-                <Route path={MobileWalletDialogRoutes.ImportSuccess}>
-                  <ImportSuccess onClose={onClose} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.ImportSeedPhrase}>
-                  <ImportSeedPhrase />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.ImportKeystore}>
-                  <ImportKeystore />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Import}>
-                  <ImportWallet
-                    isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Import}
-                    onClose={onClose}
-                    handleRedirectToHome={handleRedirectToHome}
-                  />
-                </Route>
-                <Route path='/' render={importRedirect} />
-              </Switch>
-            </AnimatePresence>
-          )}
-        </Route>
+        <AnimatePresence mode='wait' initial={false}>
+          <Routes>
+            <Route 
+              path={MobileWalletDialogRoutes.ImportSuccess}
+              element={<ImportSuccess onClose={onClose} />}
+            />
+            <Route 
+              path={MobileWalletDialogRoutes.ImportSeedPhrase}
+              element={<ImportSeedPhrase />}
+            />
+            <Route 
+              path={MobileWalletDialogRoutes.ImportKeystore}
+              element={<ImportKeystore />}
+            />
+            <Route 
+              path={MobileWalletDialogRoutes.Import}
+              element={
+                <ImportWallet
+                  isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Import}
+                  onClose={onClose}
+                  handleRedirectToHome={handleRedirectToHome}
+                />
+              }
+            />
+            <Route path='/' element={<ImportRedirect />} />
+          </Routes>
+        </AnimatePresence>
       </MemoryRouter>
     </SlideTransition>
   )

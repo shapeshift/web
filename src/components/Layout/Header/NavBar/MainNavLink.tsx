@@ -3,7 +3,7 @@ import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { CircleIcon } from '@/components/Icons/Circle'
 import { breakpoints } from '@/theme/theme'
@@ -35,7 +35,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
   }, Object.values(props))
 
   const [isNavigationPending, startNavTransition] = useTransition()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
   const translate = useTranslate()
 
@@ -51,7 +51,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
       if (props.to) {
         e.preventDefault()
         startNavTransition(() => {
-          history.push(props.to as string)
+          navigate(props.to as string)
         })
       }
     },

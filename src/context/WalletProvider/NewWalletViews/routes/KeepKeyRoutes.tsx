@@ -3,7 +3,7 @@ import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWallet, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import semverGte from 'semver/functions/gte'
 
 import { PairBody } from '../components/PairBody'
@@ -35,6 +35,12 @@ const translateError = (event: Event) => {
       t = 'unknown'
   }
   return `walletProvider.keepKey.errors.${t}`
+}
+
+// We're using a specialized version of routes with 'component' properties
+interface CustomRouteProps {
+  path: string;
+  component: React.ComponentType<any>;
 }
 
 export const KeepKeyRoutes = () => {
@@ -190,23 +196,21 @@ export const KeepKeyRoutes = () => {
   )
 
   // Note, `/keepkey/connect` is handled with PairBody instead of the regular KK routes, since it's the new, better looking version
-  const keepKeyRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes.map(route => {
-    const Component = route.component
-    return !Component ? null : (
+  // Use type assertion to tell TypeScript that our routes have the shape we expect
+  const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes as unknown as CustomRouteProps[];
+  const keepKeyRoutes = walletRoutes
+    .filter(route => route.component !== undefined)
+    .map(route => (
       <Route
-        exact
-        key={'route'}
+        key={route.path}
         path={route.path}
-        // we need to pass an arg here, so we need an anonymous function wrapper
-        // eslint-disable-next-line react-memo/require-usememo
-        render={routeProps => <Component {...routeProps} />}
+        element={<route.component />}
       />
-    )
-  })
+    ));
 
   return (
-    <Switch>
-      <Route path='/keepkey/connect'>
+    <Routes>
+      <Route path='/keepkey/connect' element={
         <PairBody
           icon={icon}
           headerTranslation='walletProvider.keepKey.connect.header'
@@ -221,8 +225,8 @@ export const KeepKeyRoutes = () => {
           onPairDeviceClick={pairKeepKeyHdWallet}
           secondaryContent={secondaryContent}
         />
-      </Route>
+      } />
       {keepKeyRoutes}
-    </Switch>
+    </Routes>
   )
 }

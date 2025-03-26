@@ -1,9 +1,11 @@
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { SnapConfirm } from './SnapConfirm'
 import { SnapIntro } from './SnapIntro'
 
-const introRedirect = () => <Redirect to='/intro' />
+// Replace redirect with a component
+const IntroRedirect = () => <Navigate to='/intro' replace />
 
 export const SnapContent = ({
   isRemoved,
@@ -18,23 +20,22 @@ export const SnapContent = ({
 }) => {
   return (
     <MemoryRouter>
-      <Route>
-        {({ location }) => (
-          <Switch key={location.key} location={location}>
-            <Route path='/intro'>
+      <AnimatePresence mode='wait' initial={false}>
+        <Routes>
+          <Route 
+            path='/intro' 
+            element={
               <SnapIntro
                 isRemoved={isRemoved}
                 isCorrectVersion={isCorrectVersion}
                 isSnapInstalled={isSnapInstalled}
               />
-            </Route>
-            <Route path='/confirm'>
-              <SnapConfirm onClose={onClose} />
-            </Route>
-            <Route path='/' exact render={introRedirect} />
-          </Switch>
-        )}
-      </Route>
+            } 
+          />
+          <Route path='/confirm' element={<SnapConfirm onClose={onClose} />} />
+          <Route path='/' element={<IntroRedirect />} />
+        </Routes>
+      </AnimatePresence>
     </MemoryRouter>
   )
 }

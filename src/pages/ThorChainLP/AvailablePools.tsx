@@ -4,7 +4,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'
@@ -43,7 +43,7 @@ const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSi
 type RowProps = Row<Pool>
 
 export const AvailablePools = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const { data: pools } = usePools()
   const translate = useTranslate()
 
@@ -166,9 +166,9 @@ export const AvailablePools = () => {
 
   const handlePoolClick = useCallback(
     ({ original: pool }: Row<Pool>) => {
-      history.push(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
+      navigate(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
     },
-    [history],
+    [navigate],
   )
 
   return (

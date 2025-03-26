@@ -14,7 +14,7 @@ import { union } from 'lodash'
 import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileNavLink } from './MobileNavLink'
 
@@ -145,7 +145,7 @@ export const MobileNavBar = memo(() => {
   const qrCode = useModal('qrCode')
   const { routes: pluginRoutes } = usePlugins()
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const allRoutes = useMemo(() => {
     return union(routes, pluginRoutes)
       .filter(
@@ -192,12 +192,12 @@ export const MobileNavBar = memo(() => {
 
   const handleTradeClick = useCallback(() => {
     onClose()
-    history.push('/trade')
+    navigate('/trade')
   }, [history, onClose])
 
   const handleBuyClick = useCallback(() => {
     onClose()
-    history.push('/buy-crypto')
+    navigate('/buy-crypto')
   }, [history, onClose])
 
   return (

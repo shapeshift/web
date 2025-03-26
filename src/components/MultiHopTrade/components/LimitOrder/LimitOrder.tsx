@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
@@ -47,19 +47,14 @@ export const LimitOrder = ({
   onChangeTab,
 }: LimitOrderProps) => {
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
   const [isInitialized, setIsInitialized] = useState(false)
 
-  const match = useMemo(
-    () =>
-      matchPath<TradeRouterMatchParams>(location.pathname, {
-        path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
-        exact: true,
-      }),
-    [location.pathname],
-  )
+  const match = useMatch(LIMIT_ORDER_ROUTE_ASSET_SPECIFIC)
+  
+  const params = match?.params as TradeRouterMatchParams || {}
 
   const {
     chainId,
@@ -70,7 +65,7 @@ export const LimitOrder = ({
     limitPriceMode: routeLimitPriceMode,
     limitPriceDirection: routeLimitPriceDirection,
     limitPrice: routeLimitPrice,
-  } = match?.params || {}
+  } = params
 
   // Get the necessary state for URL rewriting
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -151,7 +146,7 @@ export const LimitOrder = ({
       const currentLimitPriceDirection = limitPriceDirection
       const currentLimitPrice = limitPriceForSelectedDirection
 
-      history.push(
+      navigate(
         `/limit/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit}/${currentLimitPriceMode}/${currentLimitPriceDirection}/${currentLimitPrice}`,
       )
     }
@@ -160,7 +155,7 @@ export const LimitOrder = ({
     isRewritingUrl,
     buyAsset,
     sellAsset,
-    history,
+    navigate,
     sellInputAmountCryptoBaseUnit,
     sellAmountCryptoBaseUnit,
     limitPriceMode,
@@ -197,36 +192,40 @@ export const LimitOrder = ({
 
   return (
     <Flex flex={1} width='full' justifyContent='center'>
-      <Switch location={location}>
+      <Routes>
         <Route
           key={LimitOrderRoutePaths.Confirm}
           path={LimitOrderRoutePaths.Confirm}
-          render={isNewLimitFlowEnabled ? renderLimitOrderShared : renderLimitOrderConfirm}
+          element={isNewLimitFlowEnabled ? renderLimitOrderShared() : renderLimitOrderConfirm()}
         />
         <Route
           key={LimitOrderRoutePaths.AllowanceApproval}
           path={LimitOrderRoutePaths.AllowanceApproval}
-          render={renderAllowanceApproval}
+          element={renderAllowanceApproval()}
         />
         <Route
           key={LimitOrderRoutePaths.PlaceOrder}
           path={LimitOrderRoutePaths.PlaceOrder}
-          render={renderPlaceOrder}
+          element={renderPlaceOrder()}
         />
-        <Route key={LimitOrderRoutePaths.Orders} path={LimitOrderRoutePaths.Orders}>
-          <SlideTransitionRoute
-            height={tradeInputRef.current?.offsetHeight ?? '500px'}
-            width={tradeInputRef.current?.offsetWidth ?? 'full'}
-            component={LimitOrderList}
-            parentRoute={LimitOrderRoutePaths.Input}
-          />
-        </Route>
+        <Route 
+          key={LimitOrderRoutePaths.Orders} 
+          path={LimitOrderRoutePaths.Orders}
+          element={
+            <SlideTransitionRoute
+              height={tradeInputRef.current?.offsetHeight ?? '500px'}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              component={LimitOrderList}
+              parentRoute={LimitOrderRoutePaths.Input}
+            />
+          }
+        />
         <Route
           key={LimitOrderRoutePaths.Input}
           path={LimitOrderRoutePaths.Input}
-          render={renderLimitOrderInput}
+          element={renderLimitOrderInput()}
         />
-      </Switch>
+      </Routes>
     </Flex>
   )
 }

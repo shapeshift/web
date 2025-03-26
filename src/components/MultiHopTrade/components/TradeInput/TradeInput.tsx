@@ -11,7 +11,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -100,7 +100,7 @@ export const TradeInput = ({
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { showErrorToast } = useErrorToast()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
@@ -275,12 +275,12 @@ export const TradeInput = ({
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
-        history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+        navigate(TradeRoutePaths.VerifyAddresses)
         setIsConfirmationLoading(false)
         return
       }
 
-      history.push({ pathname: TradeRoutePaths.Confirm })
+      navigate(TradeRoutePaths.Confirm)
     } catch (e) {
       showErrorToast(e)
     }
@@ -291,7 +291,7 @@ export const TradeInput = ({
     activeQuoteMeta,
     dispatch,
     handleConnect,
-    history,
+    navigate,
     isConnected,
     mixpanel,
     showErrorToast,

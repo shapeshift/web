@@ -3,7 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { useHistory } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'
@@ -23,7 +23,8 @@ export const AssetsGrid: React.FC<{
   showSparkline?: boolean
   showMarketCap?: boolean
 }> = ({ assetIds, selectedChainId, limit, isLoading, showSparkline, showMarketCap }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const filteredAssetIds = useMemo(
@@ -37,9 +38,9 @@ export const AssetsGrid: React.FC<{
 
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
-      return history.push(`/assets/${assetId}`)
+      return navigate(`/assets/${assetId}`)
     },
-    [history],
+    [navigate],
   )
 
   if (isLoading) return <LoadingGrid showSparkline={showSparkline} />
@@ -48,12 +49,12 @@ export const AssetsGrid: React.FC<{
     return (
       <ResultsEmpty
         title={
-          history.location.pathname === '/markets/watchlist'
+          location.pathname === '/markets/watchlist'
             ? 'markets.watchlistEmpty.emptyTitle'
             : 'markets.emptyTitle'
         }
         body={
-          history.location.pathname === '/markets/watchlist'
+          location.pathname === '/markets/watchlist'
             ? 'markets.watchlistEmpty.emptyBody'
             : 'markets.emptyBody'
         }

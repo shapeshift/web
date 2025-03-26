@@ -147,7 +147,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   )
 
   const handleRename = useCallback(
-    (wallet: VaultInfo) => history.push(NativeWalletRoutes.Rename, { vault: wallet }),
+    (wallet: VaultInfo) => navigate(NativeWalletRoutes.Rename, { vault: wallet }),
     [history],
   )
 

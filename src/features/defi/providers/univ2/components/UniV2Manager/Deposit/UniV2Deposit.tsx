@@ -76,7 +76,7 @@ export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
   const loading = useSelector(selectIsPortfolioLoading)
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

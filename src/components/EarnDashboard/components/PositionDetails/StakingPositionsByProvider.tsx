@@ -7,7 +7,7 @@ import type { Asset, MarketData } from '@shapeshiftoss/types'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -77,7 +77,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   assetId,
 }) => {
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     state: { isConnected },
@@ -118,7 +118,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
       if (provider === DefiProvider.rFOX) {
-        return history.push('/rfox')
+        return navigate('/rfox')
       }
 
       if (!isConnected) {
@@ -135,7 +135,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         assets,
       )
 
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           type,

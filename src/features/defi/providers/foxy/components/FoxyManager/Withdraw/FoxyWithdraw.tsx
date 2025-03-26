@@ -130,7 +130,7 @@ export const FoxyWithdraw: React.FC<{
   }, [accountId, handleAccountIdChange, foxyStakingContractAddress, translate, stakingAsset.symbol])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

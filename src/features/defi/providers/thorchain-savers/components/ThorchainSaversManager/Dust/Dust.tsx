@@ -39,7 +39,7 @@ export const Dust: React.FC<DustProps> = () => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
@@ -50,7 +50,7 @@ export const Dust: React.FC<DustProps> = () => {
 
   const handleConfirm = useCallback(() => {
     mixpanel?.track(MixPanelEvent.DustConfirm)
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

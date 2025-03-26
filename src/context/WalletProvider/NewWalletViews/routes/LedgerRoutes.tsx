@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import { useCallback, useMemo, useState } from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
 
@@ -142,29 +142,31 @@ export const LedgerRoutes = () => {
   )
 
   if (!modalType) return null
+  
+  const ledgerPairElement = (
+    <PairBody
+      icon={icon}
+      headerTranslation='walletProvider.ledger.connect.header'
+      bodyTranslation={
+        isPreviousLedgerDeviceDetected
+          ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
+          : 'walletProvider.ledger.connect.pairNewDeviceBody'
+      }
+      buttonTranslation={
+        isPreviousLedgerDeviceDetected
+          ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
+          : 'walletProvider.ledger.connect.pairNewDeviceButton'
+      }
+      isLoading={isLoading}
+      error={error ?? deviceCountError}
+      onPairDeviceClick={handlePair}
+      secondaryContent={secondaryButton}
+    />
+  )
 
   return (
-    <Switch>
-      <Route path='/ledger/connect'>
-        <PairBody
-          icon={icon}
-          headerTranslation='walletProvider.ledger.connect.header'
-          bodyTranslation={
-            isPreviousLedgerDeviceDetected
-              ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
-              : 'walletProvider.ledger.connect.pairNewDeviceBody'
-          }
-          buttonTranslation={
-            isPreviousLedgerDeviceDetected
-              ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
-              : 'walletProvider.ledger.connect.pairNewDeviceButton'
-          }
-          isLoading={isLoading}
-          error={error ?? deviceCountError}
-          onPairDeviceClick={handlePair}
-          secondaryContent={secondaryButton}
-        />
-      </Route>
-    </Switch>
+    <Routes>
+      <Route path='/ledger/connect' element={ledgerPairElement} />
+    </Routes>
   )
 }

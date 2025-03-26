@@ -18,7 +18,7 @@ import type { ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
@@ -62,10 +62,10 @@ const formHelperTextHoverStyle = { color: 'gray.400', transition: '.2s color eas
 
 export const Details = () => {
   const { control, setValue, trigger } = useFormContext<SendInput>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleNextClick = useCallback(() => history.push(SendRoutes.Confirm), [history])
+  const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [history])
 
   const {
     accountId,
@@ -190,8 +190,8 @@ export const Details = () => {
     qrCode.close?.()
   }, [send, qrCode])
 
-  const handleArrowBackClick = useCallback(() => history.push(SendRoutes.Address), [history])
-  const handleAccountCardClick = useCallback(() => history.push('/send/select'), [history])
+  const handleArrowBackClick = useCallback(() => navigate(SendRoutes.Address), [history])
+  const handleAccountCardClick = useCallback(() => navigate('/send/select'), [history])
 
   const renderController: RenderController = useCallback(
     ({ field: { onChange, value } }) => (

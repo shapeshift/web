@@ -5,7 +5,7 @@ import { isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PriceImpact } from '../../PriceImpact'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
@@ -67,7 +67,7 @@ export const ConfirmSummary = ({
   isLoading: isParentLoading,
   receiveAddress,
 }: ConfirmSummaryProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
@@ -259,7 +259,7 @@ export const ConfirmSummary = ({
 
   const handleOpenCompactQuoteList = useCallback(() => {
     if (!isCompact && !isSmallerThanXl) return
-    history.push(TradeRoutePaths.QuoteList)
+    navigate(TradeRoutePaths.QuoteList)
   }, [history, isCompact, isSmallerThanXl])
 
   const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =

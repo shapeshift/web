@@ -17,11 +17,14 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
   const translate = useTranslate()
   const location = useLocation()
   const isActive = useMemo(() => {
-    const match = matchPath(location.pathname, {
-      path,
-      exact: false,
-      strict: false,
-    })
+    const match = matchPath(
+      {
+        path,
+        end: false,
+        caseSensitive: false,
+      },
+      location.pathname
+    )
     return !!match
   }, [path, location.pathname])
 

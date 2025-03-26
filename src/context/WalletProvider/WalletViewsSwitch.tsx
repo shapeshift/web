@@ -11,7 +11,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
+import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -23,16 +23,22 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 
+// Define a custom interface for our routes which includes the component property
+interface CustomRouteProps {
+  path: string;
+  component: React.ComponentType<any>;
+}
+
 const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
 export const WalletViewsSwitch = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const toast = useToast()
   const translate = useTranslate()
-  const match = useRouteMatch('/')
+  const match = useMatch('/')
   const {
     state: {
       wallet,
@@ -65,7 +71,7 @@ export const WalletViewsSwitch = () => {
       disconnect()
       dispatch({ type: WalletActions.OPEN_KEEPKEY_DISCONNECT })
     } else {
-      history.replace(INITIAL_WALLET_MODAL_ROUTE)
+      navigate(INITIAL_WALLET_MODAL_ROUTE)
       if (disconnectOnCloseModal) {
         disconnect()
       } else {
@@ -79,33 +85,33 @@ export const WalletViewsSwitch = () => {
     disconnectOnCloseModal,
     dispatch,
     disposition,
-    history,
+    navigate,
     wallet,
   ])
 
   const handleBack = useCallback(async () => {
-    if (initialRoute === history.location.pathname && isMobile) {
+    if (initialRoute === location.pathname && isMobile) {
       onClose()
 
       return
     }
 
-    history.goBack()
+    navigate(-1)
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
-    const { pathname } = history.location
+    const { pathname } = location
     if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
 
     await cancelWalletRequests()
-  }, [dispatch, history, initialRoute, onClose, cancelWalletRequests])
+  }, [dispatch, location, initialRoute, onClose, cancelWalletRequests, navigate])
 
   useEffect(() => {
     if (initialRoute) {
-      history.push(initialRoute)
+      navigate(initialRoute)
     }
-  }, [history, initialRoute])
+  }, [navigate, initialRoute])
 
   /**
    * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
@@ -113,22 +119,25 @@ export const WalletViewsSwitch = () => {
   const supportedWallet =
     SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
   const walletRoutesList = useMemo(
-    () =>
-      modalType
-        ? supportedWallet.routes.map(route => {
-            const Component = route.component
-            return !Component ? null : (
-              <Route
-                exact
-                key={'route'}
-                path={route.path}
-                // we need to pass an arg here, so we need an anonymous function wrapper
-                // eslint-disable-next-line react-memo/require-usememo
-                render={routeProps => <Component {...routeProps} />}
-              />
-            )
-          })
-        : [],
+    () => {
+      if (!modalType) return []
+      
+      // Use type assertion to inform TypeScript about the expected shape of routes
+      const routes = supportedWallet.routes as unknown as CustomRouteProps[];
+      
+      return routes
+        .filter(route => !!route.component)
+        .map(route => {
+          const Component = route.component;
+          return (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<Component />}
+            />
+          );
+        });
+    },
     [modalType, supportedWallet.routes],
   )
 
@@ -146,7 +155,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && showBackButton && (
+            {match && showBackButton && (
               <IconButton
                 icon={arrowBackIcon}
                 aria-label={translate('common.back')}
@@ -161,10 +170,10 @@ export const WalletViewsSwitch = () => {
           </Flex>
           <AnimatePresence mode='wait' initial={false}>
             <SlideTransition key={location.key}>
-              <Switch key={location.pathname} location={location}>
+              <Routes>
                 {walletRoutesList}
-                <Route path={INITIAL_WALLET_MODAL_ROUTE} children={renderSelectModal} />
-              </Switch>
+                <Route path={INITIAL_WALLET_MODAL_ROUTE} element={renderSelectModal()} />
+              </Routes>
             </SlideTransition>
           </AnimatePresence>
         </ModalContent>

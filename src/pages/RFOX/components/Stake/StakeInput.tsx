@@ -12,7 +12,7 @@ import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
@@ -87,7 +87,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 }) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -317,10 +317,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
-      return history.push({ pathname: BridgeRoutePaths.Confirm, state: bridgeQuote })
+      return navigate({ pathname: BridgeRoutePaths.Confirm, state: bridgeQuote })
     }
 
-    history.push(StakeRoutePaths.Confirm)
+    navigate(StakeRoutePaths.Confirm)
   }, [
     selectedAssetAccountId,
     stakingAssetAccountId,

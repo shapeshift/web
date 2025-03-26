@@ -12,7 +12,7 @@ import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader, PageHeaderButton } from '@/components/Layout/Header/PageHeader'
@@ -27,7 +27,7 @@ const alignItems = { base: 'flex-start', md: 'center' }
 
 export const PoolsHeader = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
   const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
   const plusIcon = useMemo(() => <FaPlus />, [])
@@ -48,12 +48,12 @@ export const PoolsHeader = () => {
   }, [])
 
   const handleAddLiquidityClick = useCallback(() => {
-    history.push('/pools/add')
-  }, [history])
+    navigate('/pools/add')
+  }, [navigate])
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
-  }, [history])
+    navigate('/explore')
+  }, [navigate])
 
   return (
     <>

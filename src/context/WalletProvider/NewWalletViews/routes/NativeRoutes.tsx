@@ -1,4 +1,4 @@
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { EnterPassword } from '../../NativeWallet/components/EnterPassword'
 import { NativeCreate } from '../../NativeWallet/components/NativeCreate'
@@ -16,75 +16,44 @@ import { NativeStart } from '../wallets/native/NativeStart'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 export const NativeRoutes = () => (
-  <Switch>
+  <Routes>
     <Route
-      exact
       path={NativeWalletRoutes.Connect}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeStart {...routeProps} />}
+      element={<NativeStart />}
     />
     <Route
-      exact
       path={NativeWalletRoutes.ImportKeystore}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportKeystore {...routeProps} />}
+      element={<NativeImportKeystore />}
     />
     <Route
-      exact
       path={NativeWalletRoutes.ImportSeed}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportSeed {...routeProps} />}
+      element={<NativeImportSeed />}
     />
     <Route
-      exact
       path={NativeWalletRoutes.ImportSelect}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeImportSelect {...routeProps} />}
+      element={<NativeImportSelect />}
     />
-    <Route exact path={NativeWalletRoutes.Create}>
-      <NativeCreate />
-    </Route>
+    <Route path={NativeWalletRoutes.Create} element={<NativeCreate />} />
     <Route
-      exact
       path={NativeWalletRoutes.Password}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativePassword {...(routeProps as NativeSetupProps)} />}
+      element={<NativePassword />}
     />
     <Route
-      exact
       path={NativeWalletRoutes.Rename}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={() => <NativeRename />}
+      element={<NativeRename />}
     />
     <Route
-      exact
       path={NativeWalletRoutes.Delete}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={() => <NativeDelete />}
+      element={<NativeDelete />}
     />
-    <Route exact path={NativeWalletRoutes.EnterPassword}>
-      <EnterPassword />
-    </Route>
+    <Route path={NativeWalletRoutes.EnterPassword} element={<EnterPassword />} />
     <Route
-      exact
       path={NativeWalletRoutes.Success}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeSuccess {...(routeProps as NativeSetupProps)} />}
+      element={<NativeSuccess />}
     />
     <Route
-      exact
       path={NativeWalletRoutes.CreateTest}
-      // we need to pass an arg here, so we need an anonymous function wrapper
-      // eslint-disable-next-line react-memo/require-usememo
-      render={routeProps => <NativeTestPhrase {...(routeProps as NativeSetupProps)} />}
+      element={<NativeTestPhrase />}
     />
-  </Switch>
+  </Routes>
 )

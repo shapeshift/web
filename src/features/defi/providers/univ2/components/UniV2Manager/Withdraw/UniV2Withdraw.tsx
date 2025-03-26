@@ -72,7 +72,7 @@ export const UniV2Withdraw: React.FC<UniV2WithdrawProps> = ({
   const loading = useSelector(selectIsPortfolioLoading)
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

@@ -12,8 +12,7 @@ import {
 import { useCallback } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
@@ -25,7 +24,9 @@ import { txHistory, txHistoryApi } from '@/state/slices/txHistorySlice/txHistory
 import { persistor, useAppDispatch, useAppSelector } from '@/state/store'
 
 type ClearCacheProps = {
-  appHistory: RouteComponentProps['history']
+  appHistory: {
+    replace: (path: string) => void
+  }
 }
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -59,9 +60,9 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { disconnect } = useWallet()
-  const { goBack } = history
+  const goBack = useCallback(() => navigate(-1), [navigate])
 
   const handleClearCacheClick = useCallback(async () => {
     try {
@@ -74,12 +75,12 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
       // send them back to the connect wallet route in case the bug was something to do with the current page
       // and so they can reconnect their native wallet to avoid the app looking broken in an infinite loading state
       if (isMobileApp) {
-        appHistory.replace('/connect-mobile-wallet')
+        navigate('/connect-mobile-wallet', { replace: true })
       }
       // reload the page
       isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}
-  }, [appHistory, disconnect])
+  }, [navigate, disconnect])
 
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())

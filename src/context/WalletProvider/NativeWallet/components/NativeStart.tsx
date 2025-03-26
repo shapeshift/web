@@ -25,10 +25,10 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
-  const handleLoad = useCallback(() => history.push(NativeWalletRoutes.Load), [history])
-  const handleCreate = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
+  const handleLoad = useCallback(() => navigate(NativeWalletRoutes.Load), [history])
+  const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [history])
   const handleImportClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportSelect),
+    () => navigate(NativeWalletRoutes.ImportSelect),
     [history],
   )
 

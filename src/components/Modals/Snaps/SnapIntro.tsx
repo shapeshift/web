@@ -15,7 +15,7 @@ import {
 import { useCallback, useMemo } from 'react'
 import { FaArrowRightArrowLeft } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
@@ -39,7 +39,7 @@ export const SnapIntro = ({
   isSnapInstalled: boolean
 }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const previousIsCorrectVersion = usePrevious(isCorrectVersion)
 
   const titleSlug = useMemo(() => {
@@ -84,7 +84,7 @@ export const SnapIntro = ({
 
   const handleNext = useCallback(() => {
     getMixPanel()?.track(MixPanelEvent.StartAddSnap)
-    history.push('/confirm')
+    navigate('/confirm')
   }, [history])
 
   const confirmCopy = useMemo(() => {

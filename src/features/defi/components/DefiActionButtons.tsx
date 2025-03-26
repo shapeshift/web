@@ -28,7 +28,7 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
 
   const handleClick = useCallback(
     (action: DefiAction) => {
-      return history.push({
+      return navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,

@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { AccountToken } from './AccountToken/AccountToken'
 
@@ -16,8 +17,7 @@ export type MatchParams = {
 
 export const Account = () => {
   const { accountId } = useParams<MatchParams>()
-  const { path } = useRouteMatch()
-  const parsedAccountId = decodeURIComponent(accountId)
+  const parsedAccountId = decodeURIComponent(accountId ?? '')
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
@@ -25,14 +25,10 @@ export const Account = () => {
 
   return (
     <Flex flexDir='column' width='full'>
-      <Switch>
-        <Route exact path={`${path}`}>
-          <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
-        </Route>
-        <Route exact path={`${path}/:assetId`}>
-          <AccountToken />
-        </Route>
-      </Switch>
+      <Routes>
+        <Route path="" element={<AccountDetails assetId={feeAsset.assetId} accountId={accountId ?? ''} />} />
+        <Route path=":assetId" element={<AccountToken />} />
+      </Routes>
     </Flex>
   )
 }

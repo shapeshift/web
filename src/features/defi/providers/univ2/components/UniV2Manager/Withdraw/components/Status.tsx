@@ -103,7 +103,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
+    browsernavigate('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {

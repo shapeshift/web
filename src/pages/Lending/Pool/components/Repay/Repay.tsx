@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import { RepayRoutePaths } from './types'
 
@@ -177,20 +177,20 @@ const RepayRoutes = memo(
 
     return (
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
+        <Routes>
           <Suspense fallback={suspenseFallback}>
             <Route
               key={RepayRoutePaths.Input}
               path={RepayRoutePaths.Input}
-              render={renderRepayInput}
+              element={renderRepayInput()}
             />
             <Route
               key={RepayRoutePaths.Confirm}
               path={RepayRoutePaths.Confirm}
-              render={renderRepayConfirm}
+              element={renderRepayConfirm()}
             />
           </Suspense>
-        </Switch>
+        </Routes>
       </AnimatePresence>
     )
   },

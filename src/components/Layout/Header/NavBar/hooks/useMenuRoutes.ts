@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -17,7 +17,7 @@ export enum WalletConnectedRoutes {
 }
 
 export const useMenuRoutes = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { keepKeyWallet },
   } = useKeepKey()
@@ -51,7 +51,7 @@ export const useMenuRoutes = () => {
   const navigateToRoute = useCallback(
     async (route: WalletConnectedRoutes) => {
       await resetKeepKeyState()
-      history.push(route)
+      navigate(route)
     },
     [history, resetKeepKeyState],
   )

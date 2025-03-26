@@ -14,7 +14,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -64,7 +64,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   const assets = useAppSelector(selectAssets)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { chainId, contractAddress } = query
 
   assertIsFoxEthStakingContractAddress(contractAddress)
@@ -121,7 +121,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
       onOngoingFarmingTxIdChange(txid, contractAddress)
-      history.push('/status', {
+      navigate('/status', {
         txid,
         assetId,
         amount,

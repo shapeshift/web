@@ -2,7 +2,7 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { locales } from '@/assets/translations/constants'
 import { getLocaleLabel } from '@/assets/translations/utils'
@@ -17,7 +17,7 @@ const disabledProps = { opacity: 1 }
 
 export const Languages = () => {
   const dispatch = useAppDispatch()
-  const history = useHistory()
+  const navigate = useNavigate()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)

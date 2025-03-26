@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -57,21 +57,25 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
   return (
     <SlideTransition>
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location} key={location.key}>
-          <Route exact path='/'>
-            <ClaimConfirm
-              stakingAssetId={stakingAssetId}
-              accountId={accountId}
-              chainId={chainId}
-              contractAddress={contractAddress}
-              onBack={onBack}
-              amount={undelegationAmount}
-            />
-          </Route>
-          <Route exact path='/status'>
-            <ClaimStatus accountId={accountId} />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route 
+            path='/'
+            element={
+              <ClaimConfirm
+                stakingAssetId={stakingAssetId}
+                accountId={accountId}
+                chainId={chainId}
+                contractAddress={contractAddress}
+                onBack={onBack}
+                amount={undelegationAmount}
+              />
+            }
+          />
+          <Route 
+            path='/status'
+            element={<ClaimStatus accountId={accountId} />}
+          />
+        </Routes>
       </AnimatePresence>
     </SlideTransition>
   )

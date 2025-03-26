@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { FoxWifHatClaimRouteProps } from './types'
 import { FoxWifHatClaimRoutePaths } from './types'
@@ -89,20 +89,20 @@ export const FoxWifHatClaimRoutes: React.FC<FoxWifHatClaimRouteProps> = ({ accou
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
+      <Routes>
         <Suspense fallback={suspenseFallback}>
           <Route
             key={FoxWifHatClaimRoutePaths.Confirm}
             path={FoxWifHatClaimRoutePaths.Confirm}
-            render={renderClaimConfirm}
+            element={renderClaimConfirm()}
           />
           <Route
             key={FoxWifHatClaimRoutePaths.Status}
             path={FoxWifHatClaimRoutePaths.Status}
-            render={renderClaimStatus}
+            element={renderClaimStatus()}
           />
         </Suspense>
-      </Switch>
+      </Routes>
     </AnimatePresence>
   )
 }

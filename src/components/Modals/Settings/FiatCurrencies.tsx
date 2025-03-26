@@ -4,7 +4,7 @@ import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
@@ -20,7 +20,7 @@ export const FiatCurrencies = () => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { goBack } = history
   const defaultCurrency: SupportedFiatCurrencies = 'USD'
   const allFiatCurrencies = sortBy(SupportedFiatCurrenciesList, item =>

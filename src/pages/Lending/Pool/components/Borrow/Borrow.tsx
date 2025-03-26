@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import { BorrowRoutePaths } from './types'
 
@@ -226,26 +226,26 @@ const BorrowRoutes = memo(
 
     return (
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
+        <Routes>
           <Suspense fallback={suspenseFallback}>
             <Route
               key={BorrowRoutePaths.Input}
               path={BorrowRoutePaths.Input}
-              render={renderBorrowInput}
+              element={renderBorrowInput()}
             />
             <Route
               key={BorrowRoutePaths.Sweep}
               path={BorrowRoutePaths.Sweep}
-              render={renderBorrowSweep}
+              element={renderBorrowSweep()}
             />
 
             <Route
               key={BorrowRoutePaths.Confirm}
               path={BorrowRoutePaths.Confirm}
-              render={renderBorrowConfirm}
+              element={renderBorrowConfirm()}
             />
           </Suspense>
-        </Switch>
+        </Routes>
       </AnimatePresence>
     )
   },

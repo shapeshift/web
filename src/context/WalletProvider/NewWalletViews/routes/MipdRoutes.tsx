@@ -1,4 +1,4 @@
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
@@ -23,27 +23,31 @@ export const MipdRoutes = ({
   if (!modalType) return null
 
   return (
-    <Switch>
-      <Route exact path='/coinbase/connect'>
+    <Routes>
+      <Route path='/coinbase/connect' element={
         <CoinbaseQrBody
           isLoading={isLoading}
           error={error}
           setIsLoading={setIsLoading}
           setError={setError}
         />
-      </Route>
+      } />
       {Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
-        <Route key={keyManager} exact path={`/${keyManager.toLowerCase()}/connect`}>
-          <FirstClassBody
-            keyManager={keyManager}
-            isLoading={isLoading}
-            error={error}
-            setIsLoading={setIsLoading}
-            setError={setError}
-          />
-        </Route>
+        <Route 
+          key={keyManager} 
+          path={`/${keyManager.toLowerCase()}/connect`}
+          element={
+            <FirstClassBody
+              keyManager={keyManager}
+              isLoading={isLoading}
+              error={error}
+              setIsLoading={setIsLoading}
+              setError={setError}
+            />
+          }
+        />
       ))}
-      <Route exact path='/metamask/connect'>
+      <Route path='/metamask/connect' element={
         <MipdBody
           rdns={modalType}
           isLoading={isLoading}
@@ -51,13 +55,9 @@ export const MipdRoutes = ({
           setIsLoading={setIsLoading}
           setError={setError}
         />
-      </Route>
-      <Route path='/metamask/snap/install'>
-        <SnapInstall />
-      </Route>
-      <Route path='/metamask/snap/update'>
-        <SnapUpdate />
-      </Route>
-    </Switch>
+      } />
+      <Route path='/metamask/snap/install' element={<SnapInstall />} />
+      <Route path='/metamask/snap/update' element={<SnapUpdate />} />
+    </Routes>
   )
 }

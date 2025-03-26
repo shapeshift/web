@@ -115,7 +115,7 @@ export const ThorchainSaversDeposit: React.FC<ThorchainSaversDepositProps> = ({
   )
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

@@ -1,8 +1,6 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
-import type { StaticContext } from 'react-router'
-import type { RouteComponentProps } from 'react-router-dom'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
 
@@ -18,11 +16,10 @@ import { clearWalletConnectLocalStorage } from '@/plugins/walletConnectToDapps/u
 const Icon = WalletConnectV2Config.icon
 const icon = <Icon boxSize='64px' />
 
-export type WalletConnectSetupProps = RouteComponentProps<{}, StaticContext, unknown>
-
-export const NewWalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => {
+export const NewWalletConnectV2Connect = () => {
   const { dispatch, state, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -69,12 +66,12 @@ export const NewWalletConnectV2Connect = ({ history }: WalletConnectSetupProps) 
         setError('walletProvider.errors.walletNotFound')
       } else {
         setError('walletProvider.walletConnect.errors.unknown')
-        history.push('/walletconnect/failure')
+        navigate('/walletconnect/failure')
       }
     } finally {
       setLoading(false)
     }
-  }, [dispatch, getAdapter, history, localWallet, state.wallet])
+  }, [dispatch, getAdapter, navigate, localWallet, state.wallet])
 
   return (
     <PairBody
@@ -94,18 +91,11 @@ export const WalletConnectV2Routes = () => {
     state: { modalType },
   } = useWallet()
 
-  const render = useCallback(
-    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => (
-      <NewWalletConnectV2Connect {...routeProps} />
-    ),
-    [],
-  )
-
   if (!modalType) return null
 
   return (
-    <Switch>
-      <Route path='*' render={render} />
-    </Switch>
+    <Routes>
+      <Route path='*' element={<NewWalletConnectV2Connect />} />
+    </Routes>
   )
 }

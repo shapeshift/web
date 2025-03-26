@@ -1,6 +1,6 @@
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ReusableLpStatus } from '../ReusableLpStatus/ReusableLpStatus'
 import { RemoveLiquidityRoutePaths } from './types'
@@ -12,15 +12,15 @@ type RemoveLiquidityStatusProps = {
 }
 
 export const RemoveLiquidityStatus = ({ confirmedQuote }: RemoveLiquidityStatusProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleGoBack = useCallback(() => {
-    history.push(RemoveLiquidityRoutePaths.Confirm)
-  }, [history])
+    navigate(RemoveLiquidityRoutePaths.Confirm)
+  }, [navigate])
 
   const handleGoInput = useCallback(() => {
-    history.push(RemoveLiquidityRoutePaths.Input)
-  }, [history])
+    navigate(RemoveLiquidityRoutePaths.Input)
+  }, [navigate])
 
   return (
     <ReusableLpStatus

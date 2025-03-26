@@ -3,7 +3,7 @@ import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { currencyFormatsRepresenter } from './SettingsCommon'
 
@@ -20,7 +20,7 @@ export const CurrencyFormat = () => {
   const currentCurrencyFormat = useAppSelector(selectCurrencyFormat)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { goBack } = history
   const formats = sortBy(CurrencyFormats, format =>
     currencyFormatsRepresenter(format, selectedCurrency),

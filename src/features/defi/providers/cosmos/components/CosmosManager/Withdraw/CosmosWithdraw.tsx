@@ -130,7 +130,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   }, [accountId, handleAccountIdChange, translate, underlyingAsset?.symbol])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

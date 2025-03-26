@@ -5,7 +5,7 @@ import { isMobile } from 'react-device-detect'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
@@ -27,12 +27,12 @@ export const AddressInput = ({
   enableQr = false,
   pe = 10,
 }: AddressInputProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const isValid = useFormContext<SendInput>().formState.isValid
 
   const handleQrClick = useCallback(() => {
-    history.push(SendRoutes.Scan)
+    navigate(SendRoutes.Scan)
   }, [history])
 
   const renderController = useCallback(

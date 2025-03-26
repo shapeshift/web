@@ -1,11 +1,11 @@
 import type { StackDirection } from '@chakra-ui/react'
-import { Flex, Stack } from '@chakra-ui/react'
+import { Box, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Redirect, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 
 import { AccountBalance } from './AccountBalance'
 
@@ -46,7 +46,7 @@ export const AccountToken = () => {
   }, [id])
 
   if (!accountIds.length) return null
-  if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
+  if (!isCurrentAccountIdOwner) return <Navigate to='/accounts' replace />
 
   if (!id) return null
   return (

@@ -117,7 +117,7 @@ export const FoxyDeposit: React.FC<{
   ])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

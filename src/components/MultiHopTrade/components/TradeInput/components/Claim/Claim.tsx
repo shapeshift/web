@@ -1,7 +1,7 @@
 import { Card, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -28,7 +28,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
     // We should always have an active claim at confirm step.
     // If we don't, we've either rehydrated, tried to access /claim/confirm directly, or something went wrong.
     // Either way, route back to select
-    if (!activeClaim) return <Redirect to={ClaimRoutePaths.Select} />
+    if (!activeClaim) return <Navigate to={ClaimRoutePaths.Select} />
 
     return (
       <ClaimConfirm
@@ -54,7 +54,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   }, [activeClaim, claimTxHash, claimTxStatus])
 
   return (
-    <Switch location={location}>
+    <Routes>
       <Stack spacing={0} width='full' maxWidth='500px'>
         <FoxWifHatBanner />
         <Card flex={1}>
@@ -62,21 +62,20 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
           <Route
             key={ClaimRoutePaths.Confirm}
             path={ClaimRoutePaths.Confirm}
-            render={renderClaimConfirm}
+            element={renderClaimConfirm()}
           />
           <Route
             key={ClaimRoutePaths.Status}
             path={ClaimRoutePaths.Status}
-            render={renderClaimStatus}
+            element={renderClaimStatus()}
           />
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}
-            render={renderClaimSelect}
-            exact
+            element={renderClaimSelect()}
           />
         </Card>
       </Stack>
-    </Switch>
+    </Routes>
   )
 }

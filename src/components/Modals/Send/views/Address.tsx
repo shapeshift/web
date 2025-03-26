@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -26,7 +26,7 @@ import { useAppSelector } from '@/state/store'
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     setValue,
@@ -48,11 +48,11 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
+  const handleNext = useCallback(() => navigate(SendRoutes.Details), [history])
 
   const handleClick = useCallback(
     () =>
-      history.push(SendRoutes.Select, {
+      navigate(SendRoutes.Select, {
         toRoute: SelectAssetRoutes.Search,
         assetId: asset?.assetId ?? '',
       }),

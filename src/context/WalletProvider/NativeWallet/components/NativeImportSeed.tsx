@@ -37,7 +37,7 @@ export const NativeImportSeed = ({ history }: RouteComponentProps) => {
         const vault = await Vault.create()
         vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
-        history.push(NativeWalletRoutes.Password, { vault })
+        navigate(NativeWalletRoutes.Password, { vault })
         mixpanel?.track(MixPanelEvent.NativeImportSeed)
       } catch (e) {
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })

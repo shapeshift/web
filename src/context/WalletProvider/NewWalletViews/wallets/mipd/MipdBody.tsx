@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PairBody } from '../../components/PairBody'
 
@@ -35,7 +35,7 @@ type MipdBodyProps = {
 export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: MipdBodyProps) => {
   const translate = useTranslate()
   const mipdProviders = useMipdProviders()
-  const history = useHistory()
+  const navigate = useNavigate()
   const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   const maybeMipdProvider = useMemo(
     () => mipdProviders.find(provider => provider.info.rdns === rdns),
@@ -105,10 +105,10 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
         const isCorrectVersion = snapVersion === getConfig().VITE_SNAP_VERSION
 
         if (isSnapInstalled && !isCorrectVersion) {
-          return history.push('/metamask/snap/update')
+          return navigate('/metamask/snap/update')
         }
         if (!isSnapInstalled && showSnapModal) {
-          return history.push('/metamask/snap/install')
+          return navigate('/metamask/snap/install')
         }
 
         return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

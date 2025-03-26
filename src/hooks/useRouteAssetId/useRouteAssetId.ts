@@ -13,27 +13,52 @@ export const assetIdPaths = [
 
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx
-  const assetIdAssetsPathMatch = matchPath<{
-    chainId: string
-    assetSubId: string
-    nftId?: string
-  }>(pathname, {
-    path: assetIdPaths.map(path => [`/assets${path}`, `/lending/pool${path}`]).flat(),
-  })
+  const assetsPathPattern = assetIdPaths.map(path => `/assets${path}`)
+  const lendingPathPattern = assetIdPaths.map(path => `/lending/pool${path}`)
+  
+  // In v6, we need to check each path individually since matchPath only accepts a single path
+  const allAssetPaths = [...assetsPathPattern, ...lendingPathPattern]
+  let assetIdAssetsPathMatch = null
+  
+  // Try each path until we find a match
+  for (const path of allAssetPaths) {
+    const match = matchPath(
+      {
+        path,
+        end: false,
+      },
+      pathname
+    )
+    if (match) {
+      assetIdAssetsPathMatch = match
+      break
+    }
+  }
 
-  const assetIdAccountsPathMatch = matchPath<{
-    accountId?: AccountId
-    assetId?: AssetId
-    chainNamespace?: ChainNamespace
-    chainReference?: ChainReference
-  }>(pathname, {
-    path: [
-      '/accounts/:accountId/:assetId',
-      '/accounts/:chainNamespace\\::chainReference\\:(.+)',
-      `/lending/poolAccount/:accountId/:assetId`,
-      '/lending/poolAccount/:chainNamespace\\::chainReference\\:(.+)',
-    ],
-  })
+  // For account paths
+  const accountPaths = [
+    '/accounts/:accountId/:assetId',
+    '/accounts/:chainNamespace\\::chainReference\\:(.+)',
+    `/lending/poolAccount/:accountId/:assetId`,
+    '/lending/poolAccount/:chainNamespace\\::chainReference\\:(.+)',
+  ]
+  
+  let assetIdAccountsPathMatch = null
+  
+  // Try each path until we find a match
+  for (const path of accountPaths) {
+    const match = matchPath(
+      {
+        path,
+        end: false,
+      },
+      pathname
+    )
+    if (match) {
+      assetIdAccountsPathMatch = match
+      break
+    }
+  }
 
   if (assetIdAssetsPathMatch?.params) {
     const { chainId, assetSubId, nftId } = assetIdAssetsPathMatch.params

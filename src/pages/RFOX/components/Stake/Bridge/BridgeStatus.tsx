@@ -1,7 +1,7 @@
 import { Text } from '@chakra-ui/react'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
@@ -19,7 +19,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   confirmedQuote,
 }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const {
     sellAsset,
@@ -31,11 +31,11 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   } = useRfoxBridge({ confirmedQuote })
 
   const handleContinue = useCallback(() => {
-    history.push(StakeRoutePaths.Confirm)
+    navigate(StakeRoutePaths.Confirm)
   }, [history])
 
   const handleGoBack = useCallback(() => {
-    history.push({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
+    navigate({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
   }, [confirmedQuote, history])
 
   const handleSignAndBroadcast = useCallback(async () => {

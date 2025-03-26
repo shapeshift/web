@@ -40,7 +40,7 @@ export const EasyToUse = () => {
   const handleClick = useCallback(
     (path: string) => {
       closeModal()
-      history.push(path)
+      navigate(path)
       store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
     },
     [closeModal, history],

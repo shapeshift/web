@@ -6,7 +6,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -46,7 +46,7 @@ const expanderButtonWidth = { base: 'full', md: 'auto' }
 export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ ids, assetId }) => {
   const translate = useTranslate()
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { isConnected },
     dispatch,
@@ -97,7 +97,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         assets,
       )
 
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           type,

@@ -1,8 +1,8 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
 import { ClaimRoutePaths } from './types'
@@ -120,25 +120,25 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
+      <Routes>
         <Suspense fallback={suspenseFallback}>
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}
-            render={renderClaimSelect}
+            element={renderClaimSelect()}
           />
           <Route
             key={ClaimRoutePaths.Confirm}
             path={ClaimRoutePaths.Confirm}
-            render={renderClaimConfirm}
+            element={renderClaimConfirm()}
           />
           <Route
             key={ClaimRoutePaths.Status}
             path={ClaimRoutePaths.Status}
-            render={renderClaimStatus}
+            element={renderClaimStatus()}
           />
         </Suspense>
-      </Switch>
+      </Routes>
     </AnimatePresence>
   )
 }

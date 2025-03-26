@@ -110,7 +110,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
         if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
           walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         } else {
-          history.push('/ledger/chains')
+          navigate('/ledger/chains')
         }
       } catch (e: any) {
         console.error(e)

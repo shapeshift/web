@@ -1,7 +1,7 @@
 import type { Location } from 'history'
 import { lazy, memo, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
-import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { Layout } from '@/components/Layout/Layout'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
@@ -13,8 +13,6 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
-
-const tradeRedirect = () => <Redirect to='/trade' />
 
 const Flags = makeSuspenseful(
   lazy(() => import('@/pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
@@ -44,10 +42,10 @@ const MobileConnect = makeSuspenseful(
   ),
 )
 
-export const Routes = memo(() => {
+export const AppRoutes = memo(() => {
   const dispatch = useDispatch()
-  const location = useLocation<{ background: Location }>()
-  const history = useHistory()
+  const location = useLocation() as Location & { state?: { background: Location } }
+  const navigate = useNavigate()
   const { state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
@@ -66,12 +64,12 @@ export const Routes = memo(() => {
     if (lang) {
       const params = new URLSearchParams(location.search)
       params.delete('lang')
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: params.toString(),
       })
     }
-  }, [lang, dispatch, selectedLocale, location, history])
+  }, [lang, dispatch, selectedLocale, location, navigate])
 
   useEffect(() => {
     // Set <html> language attribute
@@ -95,13 +93,21 @@ export const Routes = memo(() => {
 
           // This is already within a useMemo call, lint rule drunk
           // eslint-disable-next-line react-memo/require-usememo
-          return <Redirect to={to} />
+          return (
+            <Route
+              key={'redirect-route'}
+              path={route.path}
+              element={<Navigate to={to} replace />}
+            />
+          )
         }
 
         return (
-          <Route key={'route'} path={route.path}>
-            {MainComponent && <MainComponent />}
-          </Route>
+          <Route 
+            key={'route'} 
+            path={route.path} 
+            element={MainComponent ? <MainComponent /> : null} 
+          />
         )
       }),
     // We *actually* want to be reactive on the location.pathname reference
@@ -112,36 +118,51 @@ export const Routes = memo(() => {
   const locationProps = useMemo(() => location.state?.background || location, [location])
 
   return (
-    <Switch location={locationProps}>
-      <Route path='/connect-mobile-wallet'>
-        <MobileConnect />
-      </Route>
-      <Route path={'/legal/terms-of-service'}>
-        <Layout>
-          <TermsOfService />
-        </Layout>
-      </Route>
-      <Route path={'/legal/privacy-policy'}>
-        <Layout>
-          <PrivacyPolicy />
-        </Layout>
-      </Route>
-      <Route path='/flags'>
-        <Layout>
-          <Flags />
-        </Layout>
-      </Route>
-      <Route>
-        <Layout>
-          <Switch>
-            {appRoutesList}
-            <Route path='/' render={tradeRedirect} />
-            <Route>
-              <NotFound />
-            </Route>
-          </Switch>
-        </Layout>
-      </Route>
-    </Switch>
+    <Routes>
+      <Route path='/connect-mobile-wallet' element={<MobileConnect />} />
+      <Route 
+        path='/legal/terms-of-service' 
+        element={
+          <Layout>
+            <TermsOfService />
+          </Layout>
+        } 
+      />
+      <Route 
+        path='/legal/privacy-policy' 
+        element={
+          <Layout>
+            <PrivacyPolicy />
+          </Layout>
+        } 
+      />
+      <Route 
+        path='/flags' 
+        element={
+          <Layout>
+            <Flags />
+          </Layout>
+        } 
+      />
+      <Route 
+        path='/*' 
+        element={
+          <Layout>
+            <InnerRoutes appRoutesList={appRoutesList} />
+          </Layout>
+        } 
+      />
+    </Routes>
   )
 })
+
+// Separate component for inner routes to avoid nested Routes rendering issues
+const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) => {
+  return (
+    <Routes>
+      {appRoutesList}
+      <Route path='/' element={<Navigate to='/trade' replace />} />
+      <Route path='*' element={<NotFound />} />
+    </Routes>
+  )
+}

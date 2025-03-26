@@ -1,7 +1,7 @@
 import { useUnmountEffect } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseInfo } from './BackupPassphraseInfo'
@@ -13,7 +13,7 @@ import { BackupPassphraseTest } from './BackupPassphraseTest'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-const startRedirect = () => <Redirect to={BackupPassphraseRoutes.Start} />
+const StartRedirect = () => <Navigate to={BackupPassphraseRoutes.Start} replace />
 
 export const BackupPassphraseRouter = () => {
   const location = useLocation()
@@ -37,24 +37,29 @@ export const BackupPassphraseRouter = () => {
 
   return (
     <AnimatePresence mode='wait'>
-      <Switch location={location} key={location.key}>
-        <Route exact path={BackupPassphraseRoutes.Start}>
-          <BackupPassphraseStart revocableWallet={revocableWallet} />
-        </Route>
-        <Route path={BackupPassphraseRoutes.Info}>
-          <BackupPassphraseInfo revocableWallet={revocableWallet} />
-        </Route>
-        <Route path={BackupPassphraseRoutes.Password}>
-          <BackupPassphrasePassword revocableWallet={revocableWallet} />
-        </Route>
-        <Route path={BackupPassphraseRoutes.Test}>
-          <BackupPassphraseTest revocableWallet={revocableWallet} />
-        </Route>
-        <Route path={BackupPassphraseRoutes.Success}>
-          <BackupPassphraseSuccess />
-        </Route>
-        <Route path='*' render={startRedirect} />
-      </Switch>
+      <Routes>
+        <Route 
+          path={BackupPassphraseRoutes.Start}
+          element={<BackupPassphraseStart revocableWallet={revocableWallet} />}
+        />
+        <Route 
+          path={BackupPassphraseRoutes.Info}
+          element={<BackupPassphraseInfo revocableWallet={revocableWallet} />}
+        />
+        <Route 
+          path={BackupPassphraseRoutes.Password}
+          element={<BackupPassphrasePassword revocableWallet={revocableWallet} />}
+        />
+        <Route 
+          path={BackupPassphraseRoutes.Test}
+          element={<BackupPassphraseTest revocableWallet={revocableWallet} />}
+        />
+        <Route 
+          path={BackupPassphraseRoutes.Success}
+          element={<BackupPassphraseSuccess />}
+        />
+        <Route path='*' element={<StartRedirect />} />
+      </Routes>
     </AnimatePresence>
   )
 }

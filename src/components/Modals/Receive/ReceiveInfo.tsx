@@ -23,7 +23,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
 
 import { ReceiveRoutes } from './ReceiveCommon'
@@ -63,7 +63,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const chainAdapterManager = getChainAdapterManager()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { chainId, name, symbol } = asset
   const { wallet } = state
   const chainAdapter = chainAdapterManager.get(chainId)
@@ -152,7 +152,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
-  const onBackClick = useCallback(() => history.push(ReceiveRoutes.Select), [history])
+  const onBackClick = useCallback(() => navigate(ReceiveRoutes.Select), [history])
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],
     [name, symbol],

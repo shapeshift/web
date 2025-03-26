@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { FaStar } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Row } from 'react-table'
 
 import { MarketsTable } from '@/components/MarketsTable'
@@ -17,21 +17,21 @@ const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue' }
 export const WatchlistTable = () => {
   const watchedAssetIds = useAppSelector(selectWatchedAssetIds)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const rows = useMemo(() => {
     return assets.filter(asset => watchedAssetIds.includes(asset.assetId))
   }, [assets, watchedAssetIds])
 
   const handleButtonClick = useCallback(() => {
-    history.push('/assets')
+    navigate('/assets')
   }, [history])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
-      history.push(url)
+      navigate(url)
     },
     [history],
   )

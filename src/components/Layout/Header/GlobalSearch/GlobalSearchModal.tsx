@@ -13,7 +13,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
 import { SearchResults } from './SearchResults'
@@ -48,7 +48,7 @@ export const GlobalSearchModal = memo(
     const menuRef = useRef<HTMLDivElement>(null)
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
-    const history = useHistory()
+    const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const mixpanel = getMixPanel()
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
@@ -110,7 +110,7 @@ export const GlobalSearchModal = memo(
             // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
             dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
             const url = `/assets/${item.id}`
-            history.push(url)
+            navigate(url)
             onToggle()
             break
           }
@@ -118,7 +118,7 @@ export const GlobalSearchModal = memo(
             const path = generatePath('/wallet/activity/transaction/:txId', {
               txId: item.id,
             })
-            history.push(path)
+            navigate(path)
             onToggle()
             break
           }

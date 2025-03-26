@@ -9,7 +9,7 @@ import type { FC, FormEvent } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AssetList } from './components/AssetList'
 
@@ -34,7 +34,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -63,7 +63,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       // AssetId has a `/` separator so the router will have to parse 2 variables
       // e.g., /assets/:chainId/:assetSubId
       const url = `/assets/${asset.assetId}`
-      history.push(url)
+      navigate(url)
     },
     [history],
   )

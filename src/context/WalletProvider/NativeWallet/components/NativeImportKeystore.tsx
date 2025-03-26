@@ -54,7 +54,7 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
         return
       }
 
-      history.push(NativeWalletRoutes.Password, { vault })
+      navigate(NativeWalletRoutes.Password, { vault })
       mixpanel?.track(MixPanelEvent.NativeImportKeystore)
     },
     [history, keystoreFile, mixpanel, setError, translate],

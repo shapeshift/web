@@ -182,7 +182,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const handleFoxFarmingEmptyClick = useCallback(
     () =>
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,

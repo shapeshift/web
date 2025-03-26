@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
@@ -43,7 +43,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   unstakeTxid,
   setUnstakeTxid,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const stakingAsset = useAppSelector(state =>
@@ -88,7 +88,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   })
 
   const handleGoBack = useCallback(() => {
-    history.push(UnstakeRoutePaths.Input)
+    navigate(UnstakeRoutePaths.Input)
   }, [history])
 
   const stakeCards = useMemo(() => {
@@ -118,7 +118,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     if (!stakingAsset) return
 
     await handleUnstake()
-    history.push(UnstakeRoutePaths.Status)
+    navigate(UnstakeRoutePaths.Status)
   }, [handleUnstake, history, stakingAsset])
 
   return (

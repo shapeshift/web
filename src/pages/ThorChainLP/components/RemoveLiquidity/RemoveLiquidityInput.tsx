@@ -30,7 +30,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -111,7 +111,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   poolAssetId,
 }) => {
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const wallet = useWallet().state.wallet
@@ -323,7 +323,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [opportunityId, userLpData])
 
   const handleBackClick = useCallback(() => {
-    browserHistory.push('/pools')
+    browsernavigate('/pools')
   }, [browserHistory])
 
   const handlePercentageSliderChange = useCallback(
@@ -729,7 +729,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (!mixpanel) return
     if (!confirmedQuote) return
-    if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
+    if (isSweepNeeded) return navigate(RemoveLiquidityRoutePaths.Sweep)
 
     if (incompleteSide) {
       mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
@@ -737,8 +737,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
-    history.push(RemoveLiquidityRoutePaths.Confirm)
-  }, [confirmedQuote, history, incompleteSide, isSweepNeeded, mixpanel])
+    navigate(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, navigate, incompleteSide, isSweepNeeded, mixpanel])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && withdrawType)) return null

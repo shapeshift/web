@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiCopy } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -42,8 +42,8 @@ type ManualBackupProps = {
 }
 
 export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) => {
-  const history = useHistory()
-  const location = useLocation<MobileLocationState>()
+  const navigate = useNavigate()
+  const location = useLocation()
   const translate = useTranslate()
   const bgColor = useColorModeValue('blue.500', 'blue.500')
   const [revoker] = useState(new (Revocable(class {}))())
@@ -51,16 +51,20 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
 
   const handleBack = useCallback(() => {
     if (showContinueButton) {
-      history.push(MobileWalletDialogRoutes.KeepSafe, { vault: location.state?.vault })
+      navigate(MobileWalletDialogRoutes.KeepSafe, { 
+        state: { vault: location.state?.vault } 
+      })
       return
     }
 
-    history.push(MobileWalletDialogRoutes.Saved)
-  }, [history, location.state?.vault, showContinueButton])
+    navigate(MobileWalletDialogRoutes.Saved)
+  }, [navigate, location.state?.vault, showContinueButton])
 
   const handleContinue = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.CreateBackupConfirm, { vault: location.state?.vault })
-  }, [history, location.state?.vault])
+    navigate(MobileWalletDialogRoutes.CreateBackupConfirm, { 
+      state: { vault: location.state?.vault } 
+    })
+  }, [navigate, location.state?.vault])
 
   const words = useMemo(() => {
     if (!location.state?.vault) return []
@@ -72,7 +76,7 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
   const wordsButtonList = useMemo(() => {
     if (revokedRef.current) return null
 
-    return words.map((word, index) =>
+    return words.map((word: string, index: number) =>
       revocable(
         <Box key={index} display='flex' alignItems='center' width='full'>
           <CText color='white' opacity={0.6} mr={2} flexShrink={0}>

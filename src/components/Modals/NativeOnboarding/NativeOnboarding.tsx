@@ -11,7 +11,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { MemoryRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { OnboardPager } from './components/OnboardPager'
 import { OnboardingRoutes } from './config'
@@ -20,14 +20,14 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 
-const selfCustodyRedirect = () => <Redirect to='/self-custody' />
+const SelfCustodyRedirect = () => <Navigate to='/self-custody' replace />
 
 export const NativeOnboarding = () => {
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => (
-      <Route key={route.path} path={route.path} component={route.component} />
+      <Route key={route.path} path={route.path} element={route.component} />
     ))
   }, [])
 
@@ -49,23 +49,26 @@ export const NativeOnboarding = () => {
           </Button>
         </ModalHeader>
         <MemoryRouter>
-          <Route>
-            {({ location }) => (
-              <>
-                <ModalBody>
-                  <AnimatePresence mode='wait' initial={false}>
-                    <Switch key={location.key} location={location}>
-                      {renderRoutes}
-                      <Route path='/' exact render={selfCustodyRedirect} />
-                    </Switch>
-                  </AnimatePresence>
-                </ModalBody>
-                <ModalFooter>
-                  <OnboardPager activeRoute={location.pathname} />
-                </ModalFooter>
-              </>
-            )}
-          </Route>
+          <Routes>
+            <Route
+              path='*'
+              element={
+                <>
+                  <ModalBody>
+                    <AnimatePresence mode='wait' initial={false}>
+                      <Routes>
+                        {renderRoutes}
+                        <Route path='/' element={<SelfCustodyRedirect />} />
+                      </Routes>
+                    </AnimatePresence>
+                  </ModalBody>
+                  <ModalFooter>
+                    <OnboardPager activeRoute={useLocation().pathname} />
+                  </ModalFooter>
+                </>
+              }
+            />
+          </Routes>
         </MemoryRouter>
       </ModalContent>
     </Modal>

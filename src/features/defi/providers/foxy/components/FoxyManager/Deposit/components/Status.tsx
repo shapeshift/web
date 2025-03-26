@@ -4,7 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { DepositContext } from '../DepositContext'
 
@@ -34,7 +34,7 @@ type StatusProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
 
@@ -44,7 +44,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   })
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
+    browsernavigate('/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

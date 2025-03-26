@@ -62,7 +62,7 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
       } catch (e: any) {
         console.error(e, 'Phantom Connect: There was an error initializing the wallet')
         setErrorLoading(e.message)
-        history.push('/phantom/failure')
+        navigate('/phantom/failure')
       }
     }
     setLoading(false)

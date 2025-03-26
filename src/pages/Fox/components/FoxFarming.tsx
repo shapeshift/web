@@ -20,7 +20,7 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
@@ -74,7 +74,7 @@ export const FoxFarming = () => {
   const { assetAccountId } = useFoxPageContext()
   const translate = useTranslate()
   const isFoxFarmingEnabled = useFeatureFlag('FoxPageFoxFarmingSection')
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const appDispatch = useAppDispatch()
   const {
@@ -222,7 +222,7 @@ export const FoxFarming = () => {
         return
       }
 
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           type,

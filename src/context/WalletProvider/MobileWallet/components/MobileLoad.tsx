@@ -211,7 +211,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
   )
 
   const handleRename = useCallback(
-    (vault: RevocableWallet) => history.push('/mobile/rename', { vault }),
+    (vault: RevocableWallet) => navigate('/mobile/rename', { vault }),
     [history],
   )
 

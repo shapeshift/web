@@ -11,7 +11,7 @@ import { useCallback, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FileUpload } from '@/components/FileUpload/FileUpload'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
@@ -33,7 +33,7 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 export const ImportKeystore = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const [keystoreFile, setKeystoreFile] = useState<string | null>(null)
   const mixpanel = getMixPanel()
 
@@ -63,7 +63,7 @@ export const ImportKeystore = () => {
           mnemonic,
           label: values.name.trim(),
         })
-        history.push(MobileWalletDialogRoutes.ImportSuccess, { vault: revocableVault })
+        navigate(MobileWalletDialogRoutes.ImportSuccess, { vault: revocableVault })
         mixpanel?.track(MixPanelEvent.NativeImportKeystore)
       } catch (e) {
         setError('keystorePassword', {

@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { EquityRow } from './EquityRow'
 
@@ -47,7 +47,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const assets = useAppSelector(selectAssets)
   const isLoading = useAppSelector(selectIsAnyOpportunitiesApiQueryPending)
@@ -141,10 +141,10 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     )
 
     if (provider === DefiProvider.rFOX) {
-      return history.push('/rfox')
+      return navigate('/rfox')
     }
 
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         type,

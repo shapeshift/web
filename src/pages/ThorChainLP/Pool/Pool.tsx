@@ -22,7 +22,7 @@ import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
@@ -57,10 +57,10 @@ type PoolHeaderProps = {
 }
 
 const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleBack = useCallback(() => history.push('/pools'), [history])
+  const handleBack = useCallback(() => navigate('/pools'), [navigate])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
@@ -98,9 +98,9 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
 export const Pool = () => {
-  const params = useParams<MatchParams>()
+  const params = useParams()
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
   const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
@@ -108,7 +108,7 @@ export const Pool = () => {
     return poolAssetIdToAssetId(params.poolAssetId ?? '')
   }, [params.poolAssetId])
 
-  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+  const poolAssetId = useMemo(() => params.poolAssetId ?? '', [params.poolAssetId])
 
   const { data: pool } = usePool(params.poolAssetId ?? '')
 
@@ -133,13 +133,13 @@ export const Pool = () => {
   }, [assetId])
 
   const handleAddLiquidityClick = useCallback(() => {
-    history.push(generatePath('/pools/add/:poolAssetId', { poolAssetId }))
-  }, [poolAssetId, history])
+    navigate(generatePath('/pools/add/:poolAssetId', { poolAssetId }))
+  }, [poolAssetId, navigate])
 
   const handleTradeClick = useCallback(() => {
     if (!assetId) return
-    history.push(`/trade/${assetId}`)
-  }, [assetId, history])
+    navigate(`/trade/${assetId}`)
+  }, [assetId, navigate])
 
   const headerComponent = useMemo(
     () => <PoolHeader assetIds={poolAssetIds} name={pool?.name ?? ''} />,

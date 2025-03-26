@@ -37,7 +37,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
           mnemonic: values.mnemonic.toLowerCase().trim(),
           label: values.name.trim(),
         })
-        history.push('/mobile/success', { vault })
+        navigate('/mobile/success', { vault })
         queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       } catch (e) {
         console.log(e)

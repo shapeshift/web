@@ -6,7 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'
@@ -72,7 +72,7 @@ const reactTableInitialState = {
 export const YourPositions = () => {
   const { isConnected } = useWallet().state
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
@@ -304,7 +304,7 @@ export const YourPositions = () => {
 
       const { accountId, opportunityId } = position
 
-      history.push(
+      navigate(
         generatePath('/pools/positions/:poolAssetId/:accountId/:opportunityId', {
           poolAssetId,
           accountId,
@@ -312,7 +312,7 @@ export const YourPositions = () => {
         }),
       )
     },
-    [history, pools],
+    [navigate, pools],
   )
 
   const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])

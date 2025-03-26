@@ -60,7 +60,7 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
   const handleClick = useCallback(() => {
     if (!isConnected) return handleWalletModalOpen()
 
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,

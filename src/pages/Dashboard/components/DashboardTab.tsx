@@ -2,7 +2,7 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, forwardRef, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 const tabPaddingY = { base: 4, md: 6 }
 
@@ -16,19 +16,18 @@ type DashboardTabProps = {
 
 export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
   ({ path, color, label, rightElement, exact, ...rest }, ref) => {
-    const history = useHistory()
+    const navigate = useNavigate()
     const location = useLocation()
     const translate = useTranslate()
     const handleClick = useCallback(() => {
-      history.push(path)
-    }, [history, path])
+      navigate(path)
+    }, [navigate, path])
 
     const isActive = useMemo(() => {
-      const match = matchPath(location.pathname, {
-        path,
-        exact,
-        strict: false,
-      })
+      // Use path as is for exact matching, or append /* for non-exact matching
+      const matchPath = exact ? path : `${path}/*`
+      // useMatch returns an object if matched, null if not matched
+      const match = useMatch(matchPath)
       return !!match
     }, [location.pathname, path, exact])
 

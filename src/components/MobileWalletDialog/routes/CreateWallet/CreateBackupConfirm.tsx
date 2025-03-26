@@ -4,7 +4,7 @@ import { uniq } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -29,7 +29,7 @@ const makeOrdinalSuffix = (n: number) => {
 const TEST_COUNT_REQUIRED = 3
 
 export const CreateBackupConfirm = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation<MobileLocationState>()
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.700')
@@ -88,7 +88,7 @@ export const CreateBackupConfirm = () => {
       const currentWordIndex = randomWordIndices[selectedWordIndex ?? 0]
       if (words[currentWordIndex] === word) {
         if ((selectedWordIndex ?? 0) + 1 >= TEST_COUNT_REQUIRED) {
-          history.push(MobileWalletDialogRoutes.CreateBackupSuccess, {
+          navigate(MobileWalletDialogRoutes.CreateBackupSuccess, {
             vault: location.state?.vault,
           })
           return
@@ -116,7 +116,7 @@ export const CreateBackupConfirm = () => {
   )
 
   const handleBack = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.CreateBackup, { vault: location.state?.vault })
+    navigate(MobileWalletDialogRoutes.CreateBackup, { vault: location.state?.vault })
   }, [history, location.state?.vault])
 
   return (

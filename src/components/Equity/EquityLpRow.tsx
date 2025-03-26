@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { EquityRow } from './EquityRow'
 
@@ -41,7 +41,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const isLoading = useAppSelector(selectIsAnyOpportunitiesApiQueryPending)
   const assets = useAppSelector(selectAssets)
@@ -97,7 +97,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
       assets,
     )
 
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         type,

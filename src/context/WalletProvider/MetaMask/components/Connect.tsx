@@ -138,10 +138,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           const isCorrectVersion = snapVersion === getConfig().VITE_SNAP_VERSION
 
           if (isSnapInstalled && !isCorrectVersion && showSnapModal) {
-            return history.push('/metamask/snap/update')
+            return navigate('/metamask/snap/update')
           }
           if (!isSnapInstalled && showSnapModal) {
-            return history.push('/metamask/snap/install')
+            return navigate('/metamask/snap/install')
           }
 
           return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
@@ -156,7 +156,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
               name: maybeMipdProvider?.info.name ?? 'MetaMask',
             }),
           )
-          history.push('/metamask/failure')
+          navigate('/metamask/failure')
         }
       }
     }

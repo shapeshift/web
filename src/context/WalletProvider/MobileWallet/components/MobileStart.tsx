@@ -24,9 +24,9 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
-  const handleLoad = useCallback(() => history.push('/mobile/load'), [history])
-  const handleCreate = useCallback(() => history.push('/mobile/create'), [history])
-  const handleImport = useCallback(() => history.push('/mobile/import'), [history])
+  const handleLoad = useCallback(() => navigate('/mobile/load'), [history])
+  const handleCreate = useCallback(() => navigate('/mobile/create'), [history])
+  const handleImport = useCallback(() => navigate('/mobile/import'), [history])
 
   return (
     <>

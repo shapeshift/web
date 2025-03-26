@@ -11,11 +11,11 @@ const arrowForwardIcon = <ArrowForwardIcon />
 
 export const NativeImportSelect = ({ history }: RouteComponentProps) => {
   const handleImportKeystoreClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportKeystore),
+    () => navigate(NativeWalletRoutes.ImportKeystore),
     [history],
   )
   const handleImportSeedClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportSeed),
+    () => navigate(NativeWalletRoutes.ImportSeed),
     [history],
   )
 

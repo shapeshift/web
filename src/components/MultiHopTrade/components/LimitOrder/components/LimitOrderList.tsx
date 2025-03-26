@@ -1,5 +1,6 @@
 import type { CardProps, TableColumnHeaderProps } from '@chakra-ui/react'
 import {
+  Box,
   Card,
   CardBody,
   CardHeader,
@@ -25,8 +26,9 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { WithBackButton } from '../../WithBackButton'
 import { useLimitOrdersQuery } from '../hooks/useLimitOrders'
@@ -61,6 +63,10 @@ const tableContainerHeight = {
   md: '100%',
 }
 
+const tableContainerStyle = {
+  minHeight: '300px',
+}
+
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
@@ -72,6 +78,7 @@ const OpenLimitOrders: FC<{
   onCancelOrderClick: (order: OrderToCancel) => void
 }> = ({ cardProps, onCancelOrderClick }) => {
   const { data: ordersResponse, isLoading } = useLimitOrdersQuery()
+  const parentRef = useRef<HTMLDivElement>(null)
 
   const headBackground = useColorModeValue('gray.50', '#181c1e')
 
@@ -105,6 +112,13 @@ const OpenLimitOrders: FC<{
       })
   }, [ordersResponse])
 
+  const rowVirtualizer = useVirtualizer({
+    count: openLimitOrders.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 60, // Estimated row height
+    overscan: 5,
+  })
+
   const handleCancelOrderClick = useCallback(
     (uid: string) => {
       const order = openLimitOrders.find(({ order }) => order.uid === uid)
@@ -113,6 +127,19 @@ const OpenLimitOrders: FC<{
     },
     [onCancelOrderClick, openLimitOrders],
   )
+
+  const topSpacerRow = useMemo(() => {
+    if (rowVirtualizer.getVirtualItems().length === 0) return null
+    const topSpacerHeight = rowVirtualizer.getVirtualItems()[0].start
+    return topSpacerHeight > 0 ? <Tr height={`${topSpacerHeight}px`} /> : null
+  }, [rowVirtualizer])
+
+  const bottomSpacerRow = useMemo(() => {
+    if (rowVirtualizer.getVirtualItems().length === 0) return null
+    const lastItem = rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]
+    const bottomSpacerHeight = rowVirtualizer.getTotalSize() - lastItem.end
+    return bottomSpacerHeight > 0 ? <Tr height={`${bottomSpacerHeight}px`} /> : null
+  }, [rowVirtualizer])
 
   return (
     <>
@@ -125,45 +152,62 @@ const OpenLimitOrders: FC<{
         </Center>
       )}
       {openLimitOrders !== undefined && openLimitOrders.length > 0 && (
-        <TableContainer height={tableContainerHeight} overflowY='auto' className='scroll-container'>
-          <Table variant='unstyled' size='sm' sx={tableStyles}>
-            <Thead>
-              <Tr>
-                <Th {...thSx}>
-                  <Text translation='limitOrder.sellBuy' />
-                </Th>
-                <Th {...thSx}>
-                  <Text translation='limitOrder.limitExecution' />
-                </Th>
-                <Th {...thSx}>
-                  <Text translation='limitOrder.statusHead' />
-                </Th>
-                <Th {...thSx} width='48px'></Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {openLimitOrders.map(({ accountId, sellAssetId, buyAssetId, order }) => (
-                <LimitOrderCard
-                  key={order.uid}
-                  uid={order.uid}
-                  accountId={accountId}
-                  sellAmountCryptoBaseUnit={order.sellAmount}
-                  buyAmountCryptoBaseUnit={order.buyAmount}
-                  buyAssetId={buyAssetId}
-                  sellAssetId={sellAssetId}
-                  validTo={order.validTo}
-                  filledDecimalPercentage={bnOrZero(order.executedSellAmount)
-                    .div(order.sellAmount)
-                    .toNumber()}
-                  status={order.status}
-                  onCancelClick={handleCancelOrderClick}
-                  executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
-                  executedSellAmountCryptoBaseUnit={order.executedSellAmount}
-                />
-              ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
+        <Box height={tableContainerHeight} style={tableContainerStyle}>
+          <TableContainer
+            height='100%'
+            overflowY='auto'
+            className='scroll-container'
+            ref={parentRef}
+          >
+            <Table variant='unstyled' size='sm' sx={tableStyles}>
+              <Thead>
+                <Tr>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.sellBuy' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.limitExecution' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.statusHead' />
+                  </Th>
+                  <Th {...thSx} width='48px'></Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {rowVirtualizer.getVirtualItems().length > 0 && (
+                  <>
+                    {topSpacerRow}
+                    {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                      const { accountId, sellAssetId, buyAssetId, order } =
+                        openLimitOrders[virtualRow.index]
+                      return (
+                        <LimitOrderCard
+                          key={order.uid}
+                          uid={order.uid}
+                          accountId={accountId}
+                          sellAmountCryptoBaseUnit={order.sellAmount}
+                          buyAmountCryptoBaseUnit={order.buyAmount}
+                          buyAssetId={buyAssetId}
+                          sellAssetId={sellAssetId}
+                          validTo={order.validTo}
+                          filledDecimalPercentage={bnOrZero(order.executedSellAmount)
+                            .div(order.sellAmount)
+                            .toNumber()}
+                          status={order.status}
+                          onCancelClick={handleCancelOrderClick}
+                          executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
+                          executedSellAmountCryptoBaseUnit={order.executedSellAmount}
+                        />
+                      )
+                    })}
+                    {bottomSpacerRow}
+                  </>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Box>
       )}
       {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (
         <Center h='full'>
@@ -178,6 +222,7 @@ const HistoricalLimitOrders: FC<{
   cardProps?: CardProps
 }> = ({ cardProps }) => {
   const { data: ordersResponse, isLoading } = useLimitOrdersQuery()
+  const parentRef = useRef<HTMLDivElement>(null)
   const headBackground = useColorModeValue('gray.50', '#181c1e')
 
   const thSx: TableColumnHeaderProps = useMemo(
@@ -210,6 +255,26 @@ const HistoricalLimitOrders: FC<{
       })
   }, [ordersResponse])
 
+  const rowVirtualizer = useVirtualizer({
+    count: historicalLimitOrders.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 60, // Estimated row height
+    overscan: 5,
+  })
+
+  const topSpacerRow = useMemo(() => {
+    if (rowVirtualizer.getVirtualItems().length === 0) return null
+    const topSpacerHeight = rowVirtualizer.getVirtualItems()[0].start
+    return topSpacerHeight > 0 ? <Tr height={`${topSpacerHeight}px`} /> : null
+  }, [rowVirtualizer])
+
+  const bottomSpacerRow = useMemo(() => {
+    if (rowVirtualizer.getVirtualItems().length === 0) return null
+    const lastItem = rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]
+    const bottomSpacerHeight = rowVirtualizer.getTotalSize() - lastItem.end
+    return bottomSpacerHeight > 0 ? <Tr height={`${bottomSpacerHeight}px`} /> : null
+  }, [rowVirtualizer])
+
   return (
     <>
       {isLoading && (
@@ -221,43 +286,60 @@ const HistoricalLimitOrders: FC<{
         </Center>
       )}
       {historicalLimitOrders !== undefined && historicalLimitOrders.length > 0 ? (
-        <TableContainer height={tableContainerHeight} overflowY='auto' className='scroll-container'>
-          <Table variant='unstyled' size='sm' sx={tableStyles}>
-            <Thead>
-              <Tr>
-                <Th {...thSx}>
-                  <Text translation='limitOrder.sellBuy' />
-                </Th>
-                <Th {...thSx}>
-                  <Text translation='limitOrder.limitExecution' />
-                </Th>
-                <Th {...thSx}>
-                  <Text translation='limitOrder.statusHead' />
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {historicalLimitOrders.map(({ accountId, sellAssetId, buyAssetId, order }) => (
-                <LimitOrderCard
-                  key={order.uid}
-                  uid={order.uid}
-                  accountId={accountId}
-                  sellAmountCryptoBaseUnit={order.sellAmount}
-                  buyAmountCryptoBaseUnit={order.buyAmount}
-                  buyAssetId={buyAssetId}
-                  sellAssetId={sellAssetId}
-                  validTo={order.validTo}
-                  filledDecimalPercentage={bnOrZero(order.executedSellAmount)
-                    .div(order.sellAmount)
-                    .toNumber()}
-                  status={order.status}
-                  executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
-                  executedSellAmountCryptoBaseUnit={order.executedSellAmount}
-                />
-              ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
+        <Box height={tableContainerHeight} style={tableContainerStyle}>
+          <TableContainer
+            height='100%'
+            overflowY='auto'
+            className='scroll-container'
+            ref={parentRef}
+          >
+            <Table variant='unstyled' size='sm' sx={tableStyles}>
+              <Thead>
+                <Tr>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.sellBuy' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.limitExecution' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.statusHead' />
+                  </Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {rowVirtualizer.getVirtualItems().length > 0 && (
+                  <>
+                    {topSpacerRow}
+                    {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                      const { accountId, sellAssetId, buyAssetId, order } =
+                        historicalLimitOrders[virtualRow.index]
+                      return (
+                        <LimitOrderCard
+                          key={order.uid}
+                          uid={order.uid}
+                          accountId={accountId}
+                          sellAmountCryptoBaseUnit={order.sellAmount}
+                          buyAmountCryptoBaseUnit={order.buyAmount}
+                          buyAssetId={buyAssetId}
+                          sellAssetId={sellAssetId}
+                          validTo={order.validTo}
+                          filledDecimalPercentage={bnOrZero(order.executedSellAmount)
+                            .div(order.sellAmount)
+                            .toNumber()}
+                          status={order.status}
+                          executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
+                          executedSellAmountCryptoBaseUnit={order.executedSellAmount}
+                        />
+                      )
+                    })}
+                    {bottomSpacerRow}
+                  </>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Box>
       ) : (
         <Center h='full'>
           <Text color='text.subtle' translation='limitOrder.noHistoricalOrders' />

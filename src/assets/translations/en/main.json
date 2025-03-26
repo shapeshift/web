@@ -420,10 +420,8 @@
         "introducingSaversVaults": "Introducing Savers Vaults",
         "introducingRunePool": "Introducing RUNEPool",
         "risksBody": {
-          "1": "Refer to",
-          "2": "this article",
-          "3": "for risks involved with savers vaults.",
-          "runePool": "for risks involved with RUNEPool."
+          "vaults": "Refer to <link>this article</link> for risks involved with savers vaults.",
+          "runePool": "Refer to <link>this article</link> for risks involved with RUNEPool."
         },
         "understand": "I understand",
         "days": "%{amount} days",
@@ -435,9 +433,7 @@
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
         "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
-        "agreeRunePool": {
-          "1": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss."
-        }
+        "agreeRunePool": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss."
       }
     },
     "memoNote": {

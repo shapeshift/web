@@ -24,6 +24,7 @@ import { FoxGovernanceProposal } from './FoxGovernanceProposal'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import {
   selectIsSnapshotApiQueriesPending,
@@ -99,7 +100,7 @@ export const FoxGovernance = () => {
     )
   }, [closedProposals])
 
-  const govDescTranslationComponents = useMemo(
+  const govDescTranslationComponents: TextPropTypes['components'] = useMemo(
     () => ({
       link: (
         <Link

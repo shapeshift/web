@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -51,7 +52,7 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   // TODO: ackchually cancel, not use placebo
   const handleCancel = useCallback(() => setIsInstalling(false), [])
 
-  const agreeItem1Components = useMemo(
+  const agreeItem1Components: TextPropTypes['components'] = useMemo(
     () => ({
       strong: <RawText as='strong' />,
     }),

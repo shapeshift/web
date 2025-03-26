@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
 
 import { Text } from './Text'
+import type { TextPropTypes } from './Text/Text'
 
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
@@ -18,6 +19,21 @@ export const ConsentBanner: React.FC = () => {
   const handleDimiss = useCallback(() => {
     store.dispatch(preferences.actions.setShowConsentBanner(false))
   }, [])
+  const consentBannerTranslationComponents: TextPropTypes['components'] = useMemo(
+    () => ({
+      privateLink: (
+        <Link color='blue.200' href='https://private.shapeshift.com' isExternal target='_self'>
+          private.shapeshift.com
+        </Link>
+      ),
+      privacyPolicyLink: (
+        <Link as={NavLink} to='/legal/privacy-policy' color='blue.200'>
+          {translate('common.privacy')}
+        </Link>
+      ),
+    }),
+    [translate],
+  )
   return (
     <Portal>
       <Flex
@@ -44,26 +60,7 @@ export const ConsentBanner: React.FC = () => {
             fontWeight='medium'
             letterSpacing='0.02em'
             translation='consentBanner.body'
-            components={useMemo(
-              () => ({
-                privateLink: (
-                  <Link
-                    color='blue.200'
-                    href='https://private.shapeshift.com'
-                    isExternal
-                    target='_self'
-                  >
-                    private.shapeshift.com
-                  </Link>
-                ),
-                privacyPolicyLink: (
-                  <Link as={NavLink} to='/legal/privacy-policy' color='blue.200'>
-                    {translate('common.privacy')}
-                  </Link>
-                ),
-              }),
-              [translate],
-            )}
+            components={consentBannerTranslationComponents}
           ></Text>
           <Button colorScheme='blue' onClick={handleDimiss}>
             {translate('consentBanner.cta')}

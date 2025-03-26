@@ -11,6 +11,8 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { SlideTransition } from '@/components/SlideTransition'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
+const confirmDeleteRedirect = () => <Redirect to={MobileWalletDialogRoutes.ConfirmDelete} />
+
 export const DeleteWallet = () => {
   const {
     state: { vault },
@@ -47,7 +49,10 @@ export const DeleteWallet = () => {
                   <ConfirmDelete vault={vault} onBack={handleBack} />
                 </Route>
                 {/* TODO: This will change to backup in a follow up PR */}
-                <Redirect from='/' to={MobileWalletDialogRoutes.ConfirmDelete} />
+                <Route
+                  path='/'
+                  render={confirmDeleteRedirect}
+                />
               </Switch>
             </AnimatePresence>
           )}

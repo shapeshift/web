@@ -15,6 +15,8 @@ type ImportRouterProps = {
   defaultRoute: MobileWalletDialogRoutes
 }
 
+const importRedirect = () => <Redirect to={MobileWalletDialogRoutes.Import} />
+
 export const ImportRouter = ({ onClose, defaultRoute }: ImportRouterProps) => {
   const history = useHistory()
 
@@ -45,7 +47,7 @@ export const ImportRouter = ({ onClose, defaultRoute }: ImportRouterProps) => {
                     handleRedirectToHome={handleRedirectToHome}
                   />
                 </Route>
-                <Redirect from='/' to={MobileWalletDialogRoutes.Import} />
+                <Route path='/' render={importRedirect} />
               </Switch>
             </AnimatePresence>
           )}

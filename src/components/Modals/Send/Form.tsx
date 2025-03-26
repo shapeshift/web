@@ -25,6 +25,8 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
+const selectRedirect = () => <Redirect to={SendRoutes.Select} />
+
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
   [SendFormFields.To]: string
@@ -186,7 +188,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             <Route path={SendRoutes.Status}>
               <Status />
             </Route>
-            <Redirect exact from='/' to={SendRoutes.Select} />
+            <Route path='/' exact render={selectRedirect} />
           </Switch>
         </AnimatePresence>
       </form>

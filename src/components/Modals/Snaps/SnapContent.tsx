@@ -3,6 +3,8 @@ import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
 import { SnapConfirm } from './SnapConfirm'
 import { SnapIntro } from './SnapIntro'
 
+const introRedirect = () => <Redirect to='/intro' />
+
 export const SnapContent = ({
   isRemoved,
   isCorrectVersion,
@@ -29,7 +31,7 @@ export const SnapContent = ({
             <Route path='/confirm'>
               <SnapConfirm onClose={onClose} />
             </Route>
-            <Redirect exact from='/' to='/intro' />
+            <Route path='/' exact render={introRedirect} />
           </Switch>
         )}
       </Route>

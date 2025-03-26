@@ -421,10 +421,8 @@
         "introducingSaversVaults": "Introduzindo a Savers Vault",
         "introducingRunePool": "Apresentando RUNEPool",
         "risksBody": {
-          "1": "Indique para",
-          "2": "este artigo",
-          "3": "para riscos envolvidos com a Savers Vault",
-          "runePool": "para riscos envolvidos com o RUNEPool."
+          "vaults": "Indique para <link>este artigo</link> para riscos envolvidos com a Savers Vault",
+          "runePool": "Indique para <link>este artigo</link> para riscos envolvidos com o RUNEPool."
         },
         "understand": "Eu entendo",
         "days": "%{amount} dias",
@@ -436,9 +434,7 @@
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
         "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
         "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema.",
-        "agreeRunePool": {
-          "1": "Entendo que o RUNEPool tem um bloqueio mínimo de 30 dias e um risco maior de perda impermanente."
-        }
+        "agreeRunePool": "Entendo que o RUNEPool tem um bloqueio mínimo de 30 dias e um risco maior de perda impermanente."
       }
     },
     "memoNote": {

@@ -419,10 +419,8 @@
         "introducingSaversVaults": "介绍储户金库",
         "introducingRunePool": "介绍 RUNEPool",
         "risksBody": {
-          "1": "参考",
-          "2": "这篇文章",
-          "3": "与储户金库有关的风险。",
-          "runePool": "与 RUNEPool 相关的风险。"
+          "vaults": "参考 <link>这篇文章</link> 与储户金库有关的风险。",
+          "runePool": "参考 <link>这篇文章</link> 与 RUNEPool 相关的风险。"
         },
         "understand": "我理解",
         "days": "%{amount} 天",
@@ -434,9 +432,7 @@
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
         "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
         "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。",
-        "agreeRunePool": {
-          "1": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。"
-        }
+        "agreeRunePool": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。"
       }
     },
     "memoNote": {

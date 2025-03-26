@@ -421,10 +421,8 @@
         "introducingSaversVaults": "Présentation des Savers Vaults",
         "introducingRunePool": "Présentation de RUNEPool",
         "risksBody": {
-          "1": "Référez-vous à",
-          "2": "cet article",
-          "3": "pour les risques liés aux Savers Vaults.",
-          "runePool": "pour les risques liés à RUNEPool."
+          "vaults": "Référez-vous à <link>cet article</link> pour les risques liés aux Savers Vaults.",
+          "runePool": "Référez-vous à <link>cet article</link> pour les risques liés à RUNEPool."
         },
         "understand": "Je comprends",
         "days": "%{amount} jours",
@@ -436,9 +434,7 @@
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
         "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème.",
-        "agreeRunePool": {
-          "1": "Je comprends que RUNEPool implique à la fois un verrouillage minimum de 30 jours et un risque accru de pertes impermanentes."
-        }
+        "agreeRunePool": "Je comprends que RUNEPool implique à la fois un verrouillage minimum de 30 jours et un risque accru de pertes impermanentes."
       }
     },
     "memoNote": {

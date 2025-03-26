@@ -421,10 +421,8 @@
         "introducingSaversVaults": "Presentamos Bóvedas Savers",
         "introducingRunePool": "Presentamos RUNEPool",
         "risksBody": {
-          "1": "Refiere a",
-          "2": "Este artículo",
-          "3": "por los riesgos de las Bovedas Savers.",
-          "runePool": "por los riesgos involucrados con RUNEPool."
+          "vaults": "Refiere a <link>Este artículo</link> por los riesgos de las Bovedas Savers.",
+          "runePool": "Refiere a <link>Este artículo</link> por los riesgos involucrados con RUNEPool."
         },
         "understand": "Entiendo",
         "days": "%{amount} días",
@@ -436,9 +434,7 @@
         "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
         "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes",
         "dangerousWithdrawWarning": "La tarifa de THORChain podría resultar en la pérdida total de los fondos retirados. Considere retirar una cantidad mayor para evitar este problema.",
-        "agreeRunePool": {
-          "1": "Entiendo que RUNEPool tiene un bloqueo mínimo de 30 días y un mayor riesgo de pérdida impermanente."
-        }
+        "agreeRunePool": "Entiendo que RUNEPool tiene un bloqueo mínimo de 30 días y un mayor riesgo de pérdida impermanente."
       }
     },
     "memoNote": {

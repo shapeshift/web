@@ -421,10 +421,8 @@
         "introducingSaversVaults": "Einführung von Savers Vaults",
         "introducingRunePool": "Einführung in RUNEPool",
         "risksBody": {
-          "1": "In Bezug auf",
-          "2": "diesen Artikel",
-          "3": "für Risiken im Zusammenhang mit Savers Vaults.",
-          "runePool": "für die mit RUNEPool verbundenen Risiken."
+          "vaults": "In Bezug auf <link>diesen Artikel</link> für Risiken im Zusammenhang mit Savers Vaults.",
+          "runePool": "In Bezug auf <link>diesen Artikel</link> für die mit RUNEPool verbundenen Risiken."
         },
         "understand": "Ich verstehe",
         "days": "%{amount} Tage",
@@ -436,9 +434,7 @@
         "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
         "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
         "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben.",
-        "agreeRunePool": {
-          "1": "Mir ist bewusst, dass bei RUNEPool eine Mindestsperrfrist von 30 Tagen besteht und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
-        }
+        "agreeRunePool": "Mir ist bewusst, dass bei RUNEPool eine Mindestsperrfrist von 30 Tagen besteht und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
       }
     },
     "memoNote": {

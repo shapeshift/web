@@ -419,10 +419,8 @@
         "introducingSaversVaults": "Savers Vaultについて",
         "introducingRunePool": "RUNEPoolの説明",
         "risksBody": {
-          "1": "参照する",
-          "2": "この記事",
-          "3": "Savers Vaultに伴うリスクについて。",
-          "runePool": "RUNEPool に伴うリスクについて。"
+          "vaults": "参照する <link>この記事</link> Savers Vaultに伴うリスクについて。",
+          "runePool": "参照する <link>この記事</link> RUNEPool に伴うリスクについて。"
         },
         "understand": "同意する",
         "days": "%{amount} 日",
@@ -434,9 +432,7 @@
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
         "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。",
-        "agreeRunePool": {
-          "1": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
-        }
+        "agreeRunePool": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
       }
     },
     "memoNote": {

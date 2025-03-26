@@ -17,6 +17,10 @@ type MobileWalletDialogProps = {
   defaultRoute?: MobileWalletDialogRoutes
 }
 
+const defaultRedirect = (defaultRoute: MobileWalletDialogRoutes) => () => (
+  <Redirect to={defaultRoute} />
+)
+
 export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
   isOpen,
   onClose,
@@ -47,7 +51,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
                 <Route path={MobileWalletDialogRoutes.Create}>
                   <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />
                 </Route>
-                <Redirect exact from='/' to={defaultRoute} />
+                <Route path='/' exact render={defaultRedirect(defaultRoute)} />
               </Switch>
             </AnimatePresence>
           )}

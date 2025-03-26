@@ -147,6 +147,39 @@ export const Trade = memo(() => {
               }
             />
             <Route
+              path='confirm'
+              element={
+                <MultiHopTrade
+                  isRewritingUrl={false}
+                  defaultBuyAssetId={defaultBuyAssetId}
+                  defaultSellAssetId={defaultSellAssetId}
+                  onChangeTab={handleChangeTab}
+                />
+              }
+            />
+            <Route
+              path='verify-addresses'
+              element={
+                <MultiHopTrade
+                  isRewritingUrl={false}
+                  defaultBuyAssetId={defaultBuyAssetId}
+                  defaultSellAssetId={defaultSellAssetId}
+                  onChangeTab={handleChangeTab}
+                />
+              }
+            />
+            <Route
+              path='quote-list'
+              element={
+                <MultiHopTrade
+                  isRewritingUrl={false}
+                  defaultBuyAssetId={defaultBuyAssetId}
+                  defaultSellAssetId={defaultSellAssetId}
+                  onChangeTab={handleChangeTab}
+                />
+              }
+            />
+            <Route
               path=":chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit"
               element={
                 <MultiHopTrade

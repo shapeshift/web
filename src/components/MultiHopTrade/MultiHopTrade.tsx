@@ -157,8 +157,16 @@ type TradeRoutesProps = {
 
 const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesProps) => {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  console.log('TradeRoutes location.pathname:', location.pathname)
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
+
+  // Add a useEffect to determine which route should be rendered based on the full URL
+  useEffect(() => {
+    console.log('Current path:', location.pathname)
+  }, [location.pathname])
 
   const shouldUseTradeRates = useMemo(() => {
     const pathname = location.pathname
@@ -174,86 +182,81 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     return isTradeBase || isAssetSpecificPath
   }, [location.pathname])
 
+  // Check if we're on a specific route
+  const isOnConfirmRoute = location.pathname.endsWith('/confirm') || location.pathname === '/trade/confirm'
+  const isOnVerifyAddressesRoute = location.pathname.endsWith('/verify-addresses') || location.pathname === '/trade/verify-addresses'
+  const isOnQuoteListRoute = location.pathname.endsWith('/quote-list') || location.pathname === '/trade/quote-list'
+  
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route
-            key={TradeRoutePaths.Confirm}
-            path={TradeRoutePaths.Confirm}
-            element={<TradeConfirm isCompact={isCompact} />}
-          />
-          <Route
-            key={TradeRoutePaths.VerifyAddresses}
-            path={TradeRoutePaths.VerifyAddresses}
-            element={<VerifyAddresses />}
-          />
-          <Route
-            key={TradeRoutePaths.QuoteList}
-            path={TradeRoutePaths.QuoteList}
-            element={
-              <SlideTransitionRoute
-                height={tradeInputRef.current?.offsetHeight ?? '500px'}
-                width={tradeInputRef.current?.offsetWidth ?? 'full'}
-                component={QuoteList}
-                parentRoute={TradeRoutePaths.Input}
+          {isOnConfirmRoute ? (
+            <Route
+              path="*"
+              element={
+                <div data-testid="trade-confirm-screen" style={{ width: '100%' }}>
+                  <TradeConfirm isCompact={isCompact} />
+                </div>
+              }
+            />
+          ) : isOnVerifyAddressesRoute ? (
+            <Route
+              path="*"
+              element={
+                <div style={{ width: '100%' }}>
+                  <VerifyAddresses />
+                </div>
+              }
+            />
+          ) : isOnQuoteListRoute ? (
+            <Route
+              path="*"
+              element={
+                <div style={{ width: '100%' }}>
+                  <SlideTransitionRoute
+                    height={tradeInputRef.current?.offsetHeight ?? '500px'}
+                    width={tradeInputRef.current?.offsetWidth ?? 'full'}
+                    component={QuoteList}
+                    parentRoute={TradeRoutePaths.Input}
+                  />
+                </div>
+              }
+            />
+          ) : (
+            <>
+              {/* Index route for base /trade path */}
+              <Route
+                index
+                element={
+                  <div style={{ width: '100%' }}>
+                    <TradeInput
+                      isCompact={isCompact}
+                      tradeInputRef={tradeInputRef}
+                      onChangeTab={onChangeTab}
+                      isStandalone={isStandalone}
+                    />
+                  </div>
+                }
               />
-            }
-          />
-          {/* Index route for base /trade path */}
-          <Route
-            index
-            element={
-              <TradeInput
-                isCompact={isCompact}
-                tradeInputRef={tradeInputRef}
-                onChangeTab={onChangeTab}
-                isStandalone={isStandalone}
+              {/* Explicit route for the TradeRoutePaths.Input value */}
+              <Route
+                path="*"
+                element={
+                  <div style={{ width: '100%' }}>
+                    <TradeInput
+                      isCompact={isCompact}
+                      tradeInputRef={tradeInputRef}
+                      onChangeTab={onChangeTab}
+                      isStandalone={isStandalone}
+                    />
+                  </div>
+                }
               />
-            }
-          />
-          {/* Explicit route for the TradeRoutePaths.Input value */}
-          <Route
-            key={TradeRoutePaths.Input}
-            path={TradeRoutePaths.Input}
-            element={
-              <TradeInput
-                isCompact={isCompact}
-                tradeInputRef={tradeInputRef}
-                onChangeTab={onChangeTab}
-                isStandalone={isStandalone}
-              />
-            }
-          />
-          {/* Add a route for the asset-specific path */}
-          <Route
-            path=':chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
-            element={
-              <TradeInput
-                isCompact={isCompact}
-                tradeInputRef={tradeInputRef}
-                onChangeTab={onChangeTab}
-                isStandalone={isStandalone}
-              />
-            }
-          />
-          {/* Catch-all route for any other path patterns */}
-          <Route
-            path='*'
-            element={
-              <TradeInput
-                isCompact={isCompact}
-                tradeInputRef={tradeInputRef}
-                onChangeTab={onChangeTab}
-                isStandalone={isStandalone}
-              />
-            }
-          />
+            </>
+          )}
         </Routes>
       </AnimatePresence>
-      {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
-      {/* corrupted from state being mutated during trade execution. */}
-      {/* TODO: move the hook into a react-query or similar and pass a flag  */}
       {shouldUseTradeRates ? <GetTradeRates /> : null}
     </>
   )

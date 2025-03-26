@@ -275,12 +275,12 @@ export const TradeInput = ({
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
-        navigate(TradeRoutePaths.VerifyAddresses)
+        navigate('/trade/verify-addresses')
         setIsConfirmationLoading(false)
         return
       }
 
-      navigate(TradeRoutePaths.Confirm)
+      navigate('/trade/confirm')
     } catch (e) {
       showErrorToast(e)
     }

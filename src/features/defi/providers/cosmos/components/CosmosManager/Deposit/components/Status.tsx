@@ -67,7 +67,7 @@ export const Status = () => {
   )
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
+    browserHistory.push('/wallet/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

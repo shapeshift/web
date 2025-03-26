@@ -51,7 +51,8 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
       if (props.to) {
         e.preventDefault()
         startNavTransition(() => {
-          navigate(props.to as string)
+          // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
+          navigate(((props.to as string | undefined) ?? '').replace('/*', ''))
         })
       }
     },

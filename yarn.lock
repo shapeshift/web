@@ -11438,7 +11438,7 @@ __metadata:
     react-error-boundary: ^3.1.4
     react-helmet-async: ^1.3.0
     react-hook-form: ^7.51.5
-    react-icons: 5.3.0
+    react-icons: ^5.5.0
     react-infinite-scroll-component: ^6.1.0
     react-intersection-observer: ^9.13.1
     react-multi-ref: ^1.0.1
@@ -29952,12 +29952,12 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-icons@npm:5.3.0":
-  version: 5.3.0
-  resolution: "react-icons@npm:5.3.0"
+"react-icons@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "react-icons@npm:5.5.0"
   peerDependencies:
     react: "*"
-  checksum: 3aa5f50e05aafc6d31e0d995fe0d98560069aa88717b24ce8aaa082a7e7b20ca95e1e19d847ed6e52d658a5a30e15826af20d7554bf993a743edd55586db62e3
+  checksum: cbd74f4b7982e6e18d59798a6b578268c8eb0909d78d87bcf9b25f99b3e544fd189a76551cb5e770d17f154a60b668551aee108aaf8471309b23f7af3b2c5b07
   languageName: node
   linkType: hard
 

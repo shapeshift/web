@@ -134,7 +134,7 @@ export const routes: Route[] = [
     priority: 1,
   },
   {
-    path: '/trade',
+    path: '/trade/*',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,

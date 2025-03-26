@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
@@ -62,8 +62,10 @@ export const MultiHopTrade = memo(
         path: TRADE_ROUTE_ASSET_SPECIFIC,
         end: true,
       },
-      location.pathname
+      location.pathname,
     )
+
+    console.log({ match })
 
     const {
       chainId,
@@ -195,19 +197,19 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route 
-            key={TradeRoutePaths.Confirm} 
-            path={TradeRoutePaths.Confirm} 
+          <Route
+            key={TradeRoutePaths.Confirm}
+            path={TradeRoutePaths.Confirm}
             element={<TradeConfirm isCompact={isCompact} />}
           />
-          <Route 
-            key={TradeRoutePaths.VerifyAddresses} 
-            path={TradeRoutePaths.VerifyAddresses} 
+          <Route
+            key={TradeRoutePaths.VerifyAddresses}
+            path={TradeRoutePaths.VerifyAddresses}
             element={<VerifyAddresses />}
           />
-          <Route 
-            key={TradeRoutePaths.QuoteList} 
-            path={TradeRoutePaths.QuoteList} 
+          <Route
+            key={TradeRoutePaths.QuoteList}
+            path={TradeRoutePaths.QuoteList}
             element={
               <SlideTransitionRoute
                 height={tradeInputRef.current?.offsetHeight ?? '500px'}
@@ -217,8 +219,20 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
               />
             }
           />
-          <Route 
-            key={TradeRoutePaths.Input} 
+          <Route
+            key={TradeRoutePaths.Input}
+            index
+            element={
+              <TradeInput
+                isCompact={isCompact}
+                tradeInputRef={tradeInputRef}
+                onChangeTab={onChangeTab}
+                isStandalone={isStandalone}
+              />
+            }
+          />
+          <Route
+            key={TradeRoutePaths.Input}
             path={TradeRoutePaths.Input}
             element={
               <TradeInput

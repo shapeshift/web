@@ -1,6 +1,6 @@
 import { union } from 'lodash'
 import React, { useEffect, useMemo } from 'react'
-import { matchPath, useNavigate, useLocation, useParams } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { BrowserRouterContext } from './BrowserRouterContext'
 
@@ -31,14 +31,18 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [pluginRoutes])
 
   const currentRoute = useMemo(() => {
-    return appRoutes.find(e => matchPath(
-      {
-        path: e.path,
-        end: true,
-      },
-      location.pathname
-    ))
+    return appRoutes.find(e =>
+      matchPath(
+        {
+          path: e.path,
+          end: true,
+        },
+        location.pathname,
+      ),
+    )
   }, [appRoutes, location.pathname])
+
+  console.log({ pathname: location.pathname, appRoutes, currentRoute })
 
   useEffect(() => {
     const maybePathname = mapMixpanelPathname(location.pathname, assets)

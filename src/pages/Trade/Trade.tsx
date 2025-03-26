@@ -2,7 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes, useLocation, useNavigate, useMatch } from 'react-router-dom'
+import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import type { TradeRouterMatchParams } from './types'
 
@@ -30,9 +30,10 @@ export const Trade = memo(() => {
   const limitMatch = useMatch(LIMIT_ORDER_ROUTE_ASSET_SPECIFIC)
 
   // Extract params from the match object
-  const params = (spotMatch?.params as TradeRouterMatchParams) || 
-                (limitMatch?.params as TradeRouterMatchParams) || 
-                {};
+  const params =
+    (spotMatch?.params as TradeRouterMatchParams) ||
+    (limitMatch?.params as TradeRouterMatchParams) ||
+    {}
 
   const defaultBuyAssetId = useMemo(
     () =>
@@ -91,6 +92,8 @@ export const Trade = memo(() => {
     [location.pathname],
   )
 
+  console.log({ locationPathname: location.pathname, inputPath: TradeRoutePaths.Input })
+
   return (
     <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
       <SEO title={title} />
@@ -120,6 +123,17 @@ export const Trade = memo(() => {
             <Route
               path={ClaimRoutePaths.Select}
               element={<Claim onChangeTab={handleChangeTab} />}
+            />
+            <Route
+              index
+              element={
+                <MultiHopTrade
+                  isRewritingUrl={isRewritingUrl}
+                  defaultBuyAssetId={defaultBuyAssetId}
+                  defaultSellAssetId={defaultSellAssetId}
+                  onChangeTab={handleChangeTab}
+                />
+              }
             />
             <Route
               path={TradeRoutePaths.Input}

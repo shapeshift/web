@@ -32,6 +32,8 @@ type QrCodeFormProps = {
   accountId?: AccountId
 }
 
+const scanRedirect = () => <Redirect to={SendRoutes.Scan} />
+
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const location = useLocation()
   const history = useHistory()
@@ -179,7 +181,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             <Route path={SendRoutes.Status}>
               <Status />
             </Route>
-            <Redirect exact from='/' to={SendRoutes.Scan} />
+            <Route path='/' exact render={scanRedirect} />
           </Switch>
         </AnimatePresence>
       </form>

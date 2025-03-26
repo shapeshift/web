@@ -14,6 +14,8 @@ import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
+const tradeRedirect = () => <Redirect to='/trade' />
+
 const Flags = makeSuspenseful(
   lazy(() => import('@/pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
@@ -133,7 +135,7 @@ export const Routes = memo(() => {
         <Layout>
           <Switch>
             {appRoutesList}
-            <Redirect from='/' to='/trade' />
+            <Route path='/' render={tradeRedirect} />
             <Route>
               <NotFound />
             </Route>

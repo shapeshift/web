@@ -236,11 +236,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const renderEmptyComponent = useCallback(() => {
     if (!(includeEarnBalances || includeRewardsBalances))
       return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
-    return searchQuery ? (
-      <SearchEmpty searchQuery={searchQuery} />
-    ) : (
-      <ResultsEmpty/>
-    )
+    return searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
   }, [includeEarnBalances, includeRewardsBalances, searchQuery])
 
   const isInitialProcessing = useMemo(

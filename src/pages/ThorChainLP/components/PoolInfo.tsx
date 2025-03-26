@@ -1,6 +1,5 @@
 import type { FlexProps } from '@chakra-ui/react'
-import { Card, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Card, Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { JSX } from 'react'
 import { useMemo } from 'react'

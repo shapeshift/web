@@ -33,7 +33,6 @@ import {
   foxEthLpAssetId,
   foxEthStakingIds,
 } from '../opportunitiesSlice/constants'
-import { selectGetReadOnlyOpportunities } from '../opportunitiesSlice/selectors/readonly'
 import type { DefiProvider, StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import {
   deserializeUserStakingId,
@@ -935,7 +934,6 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
-  selectGetReadOnlyOpportunities,
   (
     accountIds,
     portfolioUserCurrencyBalances,
@@ -945,7 +943,6 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     assets,
     marketDataUserCurrency,
     assetId,
-    readOnlyOpportunities,
   ): AssetEquityItem[] => {
     if (!assetId) return []
     const asset = assets[assetId]
@@ -1015,11 +1012,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         amountCryptoPrecision,
         underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,
-        color:
-          DEFI_PROVIDER_TO_METADATA[stakingOpportunity.provider as DefiProvider]?.color ??
-          readOnlyOpportunities.data?.metadataByProvider?.[
-            stakingOpportunity.provider as DefiProvider
-          ]?.color,
+        color: DEFI_PROVIDER_TO_METADATA[stakingOpportunity.provider as DefiProvider]?.color,
       }
     })
     const lp = lpOpportunities.map(lpOpportunity => {
@@ -1037,10 +1030,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         amountUserCurrency: underlyingBalances[assetId].fiatAmount,
         amountCryptoPrecision: underlyingBalances[assetId].cryptoBalancePrecision,
         provider: lpOpportunity.provider,
-        color:
-          DEFI_PROVIDER_TO_METADATA[lpOpportunity.provider as DefiProvider]?.color ??
-          readOnlyOpportunities.data?.metadataByProvider?.[lpOpportunity.provider as DefiProvider]
-            ?.color,
+        color: DEFI_PROVIDER_TO_METADATA[lpOpportunity.provider as DefiProvider]?.color,
       }
     })
     return accounts

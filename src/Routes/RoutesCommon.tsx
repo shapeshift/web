@@ -171,7 +171,7 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/markets',
+    path: '/markets/*',
     label: 'navBar.markets',
     icon: <TbGraph />,
     main: MarketsPage,

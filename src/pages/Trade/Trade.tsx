@@ -146,6 +146,17 @@ export const Trade = memo(() => {
                 />
               }
             />
+            <Route
+              path=":chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit"
+              element={
+                <MultiHopTrade
+                  isRewritingUrl={isRewritingUrl}
+                  defaultBuyAssetId={defaultBuyAssetId}
+                  defaultSellAssetId={defaultSellAssetId}
+                  onChangeTab={handleChangeTab}
+                />
+              }
+            />
           </Routes>
         </FormProvider>
       </Flex>

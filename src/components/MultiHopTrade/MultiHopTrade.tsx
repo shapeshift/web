@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
@@ -51,29 +51,13 @@ export const MultiHopTrade = memo(
   }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
-    const location = useLocation()
+    const params = useParams<TradeRouterMatchParams>()
 
-    // Extract params directly from location.pathname using matchPath instead of useParams()
-    // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
-    // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
-    // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
-    const match = matchPath<TradeRouterMatchParams>(
-      {
-        path: TRADE_ROUTE_ASSET_SPECIFIC,
-        end: true,
-      },
-      location.pathname,
-    )
-
-    console.log({ match })
-
-    const {
-      chainId,
-      assetSubId,
-      sellChainId,
-      sellAssetSubId,
-      sellAmountCryptoBaseUnit: paramsSellAmountCryptoBaseUnit,
-    } = match?.params || {}
+    const chainId = params?.chainId
+    const assetSubId = params?.assetSubId
+    const sellChainId = params?.sellChainId
+    const sellAssetSubId = params?.sellAssetSubId
+    const paramsSellAmountCryptoBaseUnit = params?.sellAmountCryptoBaseUnit
 
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -97,7 +81,7 @@ export const MultiHopTrade = memo(
       isStandalone,
       isInitialMount,
       isRewritingUrl,
-      history,
+      navigate,
       buyAsset.assetId,
       sellAsset.assetId,
     ])
@@ -114,7 +98,7 @@ export const MultiHopTrade = memo(
       isStandalone,
       buyAsset,
       sellAsset,
-      history,
+      navigate,
       sellInputAmountCryptoBaseUnit,
       paramsSellAmountCryptoBaseUnit,
     ])
@@ -177,20 +161,17 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
   const shouldUseTradeRates = useMemo(() => {
-    // We want to fetch rates when the user is on the trade input or any asset-specific trade route
-    // but not on confirm, verify-addresses, etc.
     const pathname = location.pathname
 
-    const isTradeInputPath = pathname === TradeRoutePaths.Input
-    // Poor man's matchPath to check if the path is an asset-specific trade route i.e if it starts with /trade
-    // but is none of /trade subroutes
-    const isAssetSpecificPath =
-      pathname.startsWith(TradeRoutePaths.Input) &&
-      !pathname.includes(TradeRoutePaths.Confirm) &&
-      !pathname.includes(TradeRoutePaths.VerifyAddresses) &&
-      !pathname.includes(TradeRoutePaths.QuoteList)
+    const isTradeBase = pathname === '/trade' || pathname === '/trade/'
 
-    return isTradeInputPath || isAssetSpecificPath
+    const isAssetSpecificPath =
+      pathname.startsWith('/trade/') &&
+      !pathname.includes(`/${TradeRoutePaths.Confirm}`) &&
+      !pathname.includes(`/${TradeRoutePaths.VerifyAddresses}`) &&
+      !pathname.includes(`/${TradeRoutePaths.QuoteList}`)
+
+    return isTradeBase || isAssetSpecificPath
   }, [location.pathname])
 
   return (
@@ -219,8 +200,8 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
               />
             }
           />
+          {/* Index route for base /trade path */}
           <Route
-            key={TradeRoutePaths.Input}
             index
             element={
               <TradeInput
@@ -231,9 +212,34 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
               />
             }
           />
+          {/* Explicit route for the TradeRoutePaths.Input value */}
           <Route
             key={TradeRoutePaths.Input}
             path={TradeRoutePaths.Input}
+            element={
+              <TradeInput
+                isCompact={isCompact}
+                tradeInputRef={tradeInputRef}
+                onChangeTab={onChangeTab}
+                isStandalone={isStandalone}
+              />
+            }
+          />
+          {/* Add a route for the asset-specific path */}
+          <Route
+            path=':chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
+            element={
+              <TradeInput
+                isCompact={isCompact}
+                tradeInputRef={tradeInputRef}
+                onChangeTab={onChangeTab}
+                isStandalone={isStandalone}
+              />
+            }
+          />
+          {/* Catch-all route for any other path patterns */}
+          <Route
+            path='*'
             element={
               <TradeInput
                 isCompact={isCompact}

@@ -111,7 +111,12 @@ export const GlobalSearchModal = memo(
 
     useEffect(() => {
       customAssets.forEach(asset => {
-        dispatch(assetsSlice.actions.upsertAsset(asset))
+        // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
+        const assetsById = selectAssets(store.getState())
+
+        if (!assetsById[asset.assetId]) {
+          dispatch(assetsSlice.actions.upsertAsset(asset))
+        }
       })
     }, [customAssets, dispatch])
 

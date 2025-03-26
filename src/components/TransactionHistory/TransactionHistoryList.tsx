@@ -34,7 +34,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     )
 
     const isInitialPending = useMemo(() => {
-      return txIds && !data.length
+      return txIds.length && !data.length
     }, [data.length, txIds])
 
     if (isInitialPending)

@@ -63,7 +63,7 @@ export const limitOrderApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
-  tagTypes: ['limitOrderQuote', 'LimitOrders'] as const,
+  tagTypes: ['limitOrders', 'limitOrderQuote'] as const,
   baseQuery: fakeBaseQuery<CowSwapError | null>(),
   endpoints: build => ({
     getLimitOrders: build.query<{ order: Order; accountId: AccountId }[], AccountId[]>({
@@ -110,7 +110,7 @@ export const limitOrderApi = createApi({
           }
         }
       },
-      providesTags: ['LimitOrders'],
+      providesTags: ['limitOrders'],
     }),
     quoteLimitOrder: build.query<OrderQuoteResponse, LimitOrderQuoteParams>({
       queryFn: async (params: LimitOrderQuoteParams) => {

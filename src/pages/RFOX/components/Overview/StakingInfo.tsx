@@ -108,7 +108,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     (assetId: AssetId) => () => {
       navigate(`/trade/${assetId}`)
     },
-    [history],
+    [navigate],
   )
 
   return (

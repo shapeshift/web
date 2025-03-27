@@ -124,7 +124,7 @@ export const SavedWalletsSection = ({
 
   const handleAddNewWalletClick = useCallback(() => {
     navigate(NativeWalletRoutes.Connect)
-  }, [history])
+  }, [navigate])
 
   return (
     <>

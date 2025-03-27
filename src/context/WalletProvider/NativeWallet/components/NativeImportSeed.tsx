@@ -12,6 +12,7 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { NativeWalletValues } from '../types'
 
@@ -20,7 +21,8 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
-export const NativeImportSeed = ({ history }: RouteComponentProps) => {
+export const NativeImportSeed = () => {
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
 
   const {
@@ -37,13 +39,13 @@ export const NativeImportSeed = ({ history }: RouteComponentProps) => {
         const vault = await Vault.create()
         vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
-        navigate(NativeWalletRoutes.Password, { vault })
+        navigate(NativeWalletRoutes.Password, { state: { vault } })
         mixpanel?.track(MixPanelEvent.NativeImportSeed)
       } catch (e) {
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
       }
     },
-    [history, mixpanel, setError],
+    [navigate, mixpanel, setError],
   )
 
   const translate = useTranslate()

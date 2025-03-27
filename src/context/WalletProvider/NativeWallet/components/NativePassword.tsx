@@ -17,13 +17,16 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router'
 
-import type { NativeSetupProps, NativeWalletValues } from '../types'
+import type { NativeWalletValues } from '../types'
 
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
-export const NativePassword = ({ history, location }: NativeSetupProps) => {
+export const NativePassword = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
   const [showConfirmPw, setShowConfirmPw] = useState<boolean>(false)
@@ -46,7 +49,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         await vault.setPassword(values.password)
         vault.meta.set('name', values.name)
 
-        navigate(NativeWalletRoutes.Success, { vault })
+        navigate(NativeWalletRoutes.Success, { state: { vault } })
       } catch (e) {
         console.error(e)
         setError('password', {
@@ -55,7 +58,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         })
       }
     },
-    [history, location.state.vault, setError, translate],
+    [navigate, location.state.vault, setError, translate],
   )
 
   const watchPassword = watch('password')

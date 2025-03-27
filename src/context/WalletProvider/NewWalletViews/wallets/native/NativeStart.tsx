@@ -1,19 +1,17 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-export const NativeStart = ({ history }: RouteComponentProps) => {
-  const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [history])
-  const handleImportClick = useCallback(
-    () => navigate(NativeWalletRoutes.ImportSelect),
-    [history],
-  )
+export const NativeStart = () => {
+  const navigate = useNavigate()
+  const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
+  const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [navigate])
 
   return (
     <>

@@ -16,14 +16,20 @@ import { useQuery } from '@tanstack/react-query'
 import { range } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
-import { useNavigate, useLocation } from 'react-router-dom'
-
-import type { LocationState } from '../types'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+
+// Define an interface for location state
+interface LocationState {
+  vault?: Vault
+  error?: Error
+}
 
 const faEyeIcon = <FaEye />
 
@@ -40,10 +46,13 @@ const revocable = crypto.Isolation.Engines.Default.revocable
 
 export const NativeCreate = () => {
   const navigate = useNavigate()
-  const location = useLocation<LocationState>()
+  const location = useLocation()
+  const locationState = location.state as LocationState | undefined
   const [revealed, setRevealed] = useState<boolean>(false)
   const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
+  const { dispatch } = useWallet()
+
   const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
@@ -79,12 +88,13 @@ export const NativeCreate = () => {
 
   const handleClick = useCallback(() => {
     if (vault) {
+      // Navigate to test phrase with vault in state property
       navigate(NativeWalletRoutes.CreateTest, {
-        vault,
+        state: { vault },
       })
       mixpanel?.track(MixPanelEvent.NativeCreate)
     }
-  }, [history, mixpanel, vault])
+  }, [navigate, mixpanel, vault, dispatch])
 
   const { data: words } = useQuery({
     queryKey: ['native-create-words', vault],

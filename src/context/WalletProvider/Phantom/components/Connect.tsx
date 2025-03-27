@@ -1,26 +1,16 @@
-import React, { useCallback, useState } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import type { LocationState } from '../../NativeWallet/types'
 import { PhantomConfig } from '../config'
 
-import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-export interface PhantomSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
-
-export const PhantomConnect = ({ history }: PhantomSetupProps) => {
+export const PhantomConnect = () => {
+  const navigate = useNavigate()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
@@ -66,7 +56,7 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet, setErrorLoading])
+  }, [dispatch, getAdapter, navigate, localWallet, setErrorLoading])
 
   return (
     <ConnectModal

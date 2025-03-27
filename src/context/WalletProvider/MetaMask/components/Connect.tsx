@@ -1,18 +1,16 @@
 import uniqBy from 'lodash/uniqBy'
 import type { InterpolationOptions } from 'node-polyglot'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
-import type { LocationState } from '../../NativeWallet/types'
 import { MetaMaskConfig } from '../config'
 
 import { getConfig } from '@/config'
-import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
@@ -26,16 +24,8 @@ import { METAMASK_RDNS, staticMipdProviders, useMipdProviders } from '@/lib/mipd
 import { selectShowSnapsModal } from '@/state/slices/selectors'
 import { getSnapVersion } from '@/utils/snaps'
 
-export interface MetaMaskSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
-
-export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
+export const MetaMaskConnect = () => {
+  const navigate = useNavigate()
   const translate = useTranslate()
   const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   const {
@@ -173,7 +163,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     translate,
     isMetaMaskMobileWebView,
     showSnapModal,
-    history,
+    navigate,
   ])
 
   const handleRedirect = useCallback((): void => {

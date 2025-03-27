@@ -45,15 +45,15 @@ export const useMenuRoutes = () => {
 
   const handleBackClick = useCallback(async () => {
     await resetKeepKeyState()
-    history.goBack()
-  }, [history, resetKeepKeyState])
+    navigate(-1)
+  }, [navigate, resetKeepKeyState])
 
   const navigateToRoute = useCallback(
     async (route: WalletConnectedRoutes) => {
       await resetKeepKeyState()
       navigate(route)
     },
-    [history, resetKeepKeyState],
+    [navigate, resetKeepKeyState],
   )
 
   return {

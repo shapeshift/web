@@ -92,7 +92,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     navigate('/earn')
   }, [browserHistory])
 
-  const handleCancel = history.goBack
+  const handleCancel = () => navigate(-1)
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),

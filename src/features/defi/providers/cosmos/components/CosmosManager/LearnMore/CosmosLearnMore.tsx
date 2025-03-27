@@ -85,11 +85,11 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
 
   const handlePrevClick = useCallback(() => {
     if (isFirstStep) {
-      return history.goBack()
+      return navigate(-1)
     }
 
     prevStep()
-  }, [history, isFirstStep, prevStep])
+  }, [navigate, isFirstStep, prevStep])
 
   const currentElement = STEP_TO_ELEMENTS_MAPPING[activeStep - 1]
 

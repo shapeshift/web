@@ -158,7 +158,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset, assetId, assets, dispatch, onNext, opportunityMetadata, state, toast, translate],
   )
 
-  const handleCancel = history.goBack
+  const handleCancel = () => navigate(-1)
 
   const validateCryptoAmount = useCallback(
     (value: string) => {

@@ -70,7 +70,7 @@ export const Status = () => {
     navigate('/earn')
   }, [browserHistory])
 
-  const handleCancel = history.goBack
+  const handleCancel = () => navigate(-1)
 
   useEffect(() => {
     if (!opportunityMetadata) return

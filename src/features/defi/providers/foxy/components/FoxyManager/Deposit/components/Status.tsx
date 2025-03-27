@@ -47,7 +47,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     navigate('/earn')
   }, [browserHistory])
 
-  const handleCancel = history.goBack
+  const handleCancel = () => navigate(-1)
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
     if (maybeSafeTx?.isQueuedSafeTx)

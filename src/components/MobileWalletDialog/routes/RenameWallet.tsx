@@ -25,7 +25,7 @@ type FormValues = {
 }
 
 export const RenameWallet = () => {
-  const location = useLocation<MobileLocationState>()
+  const location = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()
   const {
@@ -42,15 +42,15 @@ export const RenameWallet = () => {
       if (!location.state.vault?.id) return
       try {
         await updateWallet(location.state.vault.id, { label: values.label })
-        history.goBack()
+        navigate(-1)
       } catch (e) {
         console.log(e)
       }
     },
-    [history, location.state.vault?.id],
+    [navigate, location.state.vault?.id],
   )
 
-  const handleBack = useCallback(() => navigate(MobileWalletDialogRoutes.Saved), [history])
+  const handleBack = useCallback(() => navigate(MobileWalletDialogRoutes.Saved), [navigate])
 
   return (
     <SlideTransition>

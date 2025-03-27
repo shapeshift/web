@@ -99,7 +99,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     navigate('/earn')
   }, [browserHistory])
 
-  const handleCancel = history.goBack
+  const handleCancel = () => navigate(-1)
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountId && accountAddress?.length)) return ''

@@ -69,6 +69,19 @@ export const Buy = () => {
     }
   }, [assetSubId, chainId])
 
+  const titleTransaltionsComponents: TextPropTypes['components'] = useMemo(
+    () => ({
+      span: (
+        <RawText
+          as='span'
+          background='linear-gradient(97.53deg, #F687B3 5.6%, #7B61FF 59.16%, #16D1A1 119.34%)'
+          backgroundClip='text'
+        />
+      ),
+    }),
+    [],
+  )
+
   const ctaTitleTranslation: TextPropTypes['translation'] = useMemo(
     () => ['buyPage.ctaTitle', { chainCount }],
     [chainCount],
@@ -112,18 +125,7 @@ export const Buy = () => {
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
                 translation='buyPage.title'
-                components={useMemo(
-                  () => ({
-                    span: (
-                      <RawText
-                        as='span'
-                        background='linear-gradient(97.53deg, #F687B3 5.6%, #7B61FF 59.16%, #16D1A1 119.34%)'
-                        backgroundClip='text'
-                      />
-                    ),
-                  }),
-                  [],
-                )}
+                components={titleTransaltionsComponents}
               />
 
               <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />

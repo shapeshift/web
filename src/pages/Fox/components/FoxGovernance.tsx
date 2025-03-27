@@ -103,13 +103,7 @@ export const FoxGovernance = () => {
   const govDescTranslationComponents: TextPropTypes['components'] = useMemo(
     () => ({
       link: (
-        <Link
-          colorScheme='blue'
-          color='blue.300'
-          href='https://forum.shapeshift.com/'
-          isExternal
-          mx={1}
-        />
+        <Link colorScheme='blue' color='blue.300' href='https://forum.shapeshift.com/' isExternal />
       ),
     }),
     [],

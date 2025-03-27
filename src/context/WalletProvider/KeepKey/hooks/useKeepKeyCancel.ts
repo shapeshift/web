@@ -28,7 +28,7 @@ export const useKeepKeyCancel = () => {
   }, [toast, translate, wallet])
 
   const handleCancel = async () => {
-    history.replace('/')
+    navigate('/', { replace: true })
     dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     await cancelWalletRequest()
   }

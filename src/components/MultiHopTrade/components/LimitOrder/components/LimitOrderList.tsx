@@ -29,7 +29,7 @@ import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { WithBackButton } from '../../WithBackButton'
-import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersQuery'
+import { useLimitOrders } from '../hooks/useLimitOrders'
 import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'
@@ -71,7 +71,7 @@ const OpenLimitOrders: FC<{
   cardProps?: CardProps
   onCancelOrderClick: (order: OrderToCancel) => void
 }> = ({ cardProps, onCancelOrderClick }) => {
-  const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
+  const { data: ordersResponse, isLoading } = useLimitOrders()
 
   const headBackground = useColorModeValue('gray.50', '#181c1e')
 
@@ -177,7 +177,7 @@ const OpenLimitOrders: FC<{
 const HistoricalLimitOrders: FC<{
   cardProps?: CardProps
 }> = ({ cardProps }) => {
-  const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
+  const { data: ordersResponse, isLoading } = useLimitOrders()
   const headBackground = useColorModeValue('gray.50', '#181c1e')
 
   const thSx: TableColumnHeaderProps = useMemo(

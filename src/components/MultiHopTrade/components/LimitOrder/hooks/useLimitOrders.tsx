@@ -4,11 +4,9 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import type { InterpolationOptions } from 'node-polyglot'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { Text } from '@/components/Text'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectAssetById, selectEvmAccountIds } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -62,15 +60,17 @@ export const useLimitOrders = () => {
       const sellAmountCryptoPrecision = fromBaseUnit(executedSellAmount, sellAsset.precision)
       const buyAmountCryptoPrecision = fromBaseUnit(executedBuyAmount, buyAsset.precision)
 
-      const assetToAssetTranslation: [string, InterpolationOptions] = [
-        'limitOrder.assetToAsset',
-        {
-          sellAmount: sellAmountCryptoPrecision,
-          sellAsset: sellAsset.symbol,
-          buyAmount: buyAmountCryptoPrecision,
-          buyAsset: buyAsset.symbol,
-        },
-      ]
+      const assetToAssetTranslation = translate(
+        ...[
+          'limitOrder.assetToAsset',
+          {
+            sellAmount: sellAmountCryptoPrecision,
+            sellAsset: sellAsset.symbol,
+            buyAmount: buyAmountCryptoPrecision,
+            buyAsset: buyAsset.symbol,
+          },
+        ],
+      )
 
       toast({
         title: translate('limitOrder.limitOrderFilled'),

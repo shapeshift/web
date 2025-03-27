@@ -1148,7 +1148,7 @@
       }
     },
     "limitOrderFilled": "Limit order filled",
-    "assetToAsset": "%{sellAmount} %{sellSymbol} to %{buyAmount} %{buySymbol}"
+    "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {

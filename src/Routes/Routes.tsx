@@ -115,8 +115,6 @@ export const AppRoutes = memo(() => {
     [appRoutes, hasWallet, location],
   )
 
-  const locationProps = useMemo(() => location.state?.background || location, [location])
-
   return (
     <Routes>
       <Route path='/connect-mobile-wallet' element={<MobileConnect />} />

@@ -222,22 +222,26 @@ export const FoxFarming = () => {
         return
       }
 
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action,
-          accountId: assetAccountId,
-        }),
-        state: { background: location },
-      })
+      navigate(
+        {
+          pathname: location.pathname,
+          search: qs.stringify({
+            type,
+            provider,
+            chainId,
+            contractAddress,
+            assetNamespace,
+            assetReference,
+            highestBalanceAccountAddress,
+            rewardId: rewardAddress,
+            modal: action,
+            accountId: assetAccountId,
+          }),
+        },
+        {
+          state: { background: location },
+        },
+      )
     },
     [dispatch, navigate, isConnected, location, assetAccountId],
   )

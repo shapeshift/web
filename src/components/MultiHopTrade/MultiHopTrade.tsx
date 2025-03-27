@@ -51,7 +51,6 @@ export const MultiHopTrade = memo(
     onChangeTab,
     isStandalone,
   }: any) => {
-    const location = useLocation()
     const navigate = useNavigate()
     const params = useParams<TradeRouterMatchParams>()
     const dispatch = useAppDispatch()
@@ -158,17 +157,10 @@ type TradeRoutesProps = {
 }
 
 const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesProps) => {
-  const location = useLocation()
   const navigate = useNavigate()
-
-  console.log('TradeRoutes location.pathname:', location.pathname)
+  const location = useLocation()
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
-
-  // Add a useEffect to determine which route should be rendered based on the full URL
-  useEffect(() => {
-    console.log('Current path:', location.pathname)
-  }, [location.pathname])
 
   const shouldUseTradeRates = useMemo(() => {
     const pathname = location.pathname

@@ -4,6 +4,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -45,8 +46,9 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
 }) => {
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
+  const navigate = useNavigate()
 
   // Asset info
   const assetId = toAssetId({
@@ -137,7 +139,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, query])
 
   if (!(earnOpportunityData && asset && marketData && feeMarketData))
     return (

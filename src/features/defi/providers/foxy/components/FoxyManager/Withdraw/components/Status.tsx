@@ -7,6 +7,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -37,6 +38,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset, underlyingAsset, feeAsset, feeMarketData } = useFoxyQuery()
+  const navigate = useNavigate()
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: state?.txid ?? undefined,
@@ -53,7 +55,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const handleViewPosition = useCallback(() => {
     navigate('/earn')
-  }, [browserHistory])
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
     browserHistory.goBack()

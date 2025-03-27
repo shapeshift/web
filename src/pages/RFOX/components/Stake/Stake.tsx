@@ -81,7 +81,7 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex
 }
 
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
-  const location = useLocation<RfoxBridgeQuote | undefined>()
+  const location: { state: RfoxBridgeQuote | undefined } = useLocation()
   const { state: maybeBridgeQuote } = location
 
   const [runeAddress, setRuneAddress] = useState<string | undefined>()

@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { getAddress } from 'viem'
 
 import { Approve } from './components/Approve'
@@ -46,7 +47,7 @@ export const FoxyWithdraw: React.FC<{
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetReference: foxyStakingContractAddress } = query
   const { feeAssetId, underlyingAsset, underlyingAssetId, stakingAsset } = useFoxyQuery()
 
@@ -65,6 +66,8 @@ export const FoxyWithdraw: React.FC<{
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectIsPortfolioLoading)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     ;(async () => {
@@ -137,7 +140,7 @@ export const FoxyWithdraw: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, query, location.pathname])
 
   if (loading || !underlyingAsset || !marketData || !feeMarketData)
     return (

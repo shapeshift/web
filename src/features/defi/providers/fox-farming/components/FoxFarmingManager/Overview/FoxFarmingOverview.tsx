@@ -6,6 +6,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
@@ -50,13 +51,14 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
 
   const assets = useAppSelector(selectAssets)
   const lpAsset = assets[foxEthLpAssetId]
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
 
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
 
   const opportunityId = useMemo(
@@ -189,7 +191,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
           modal: DefiAction.Deposit,
         }),
       }),
-    [history, location.pathname, query],
+    [navigate, location.pathname, query],
   )
 
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {

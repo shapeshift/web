@@ -5,6 +5,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -71,6 +72,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
   )
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     if (!(contextDispatch && state?.txid?.length && accountId)) return
     ;(async () => {
@@ -112,7 +115,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const handleViewPosition = useCallback(() => {
     navigate('/earn')
-  }, [browserHistory])
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
     browserHistory.goBack()

@@ -21,7 +21,7 @@ export const Languages = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
-  
+
   const handleGoBack = () => {
     navigate(-1)
   }

@@ -6,6 +6,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
 import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -73,7 +74,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
 
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
@@ -104,11 +105,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const handleViewPosition = useCallback(() => {
     navigate('/earn')
-  }, [browserHistory])
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
     if (maybeSafeTx?.isQueuedSafeTx)

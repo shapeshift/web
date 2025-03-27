@@ -15,11 +15,11 @@ const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'rela
 
 export const PageBackButton: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const navigate = useNavigate()
-  
+
   const handleGoBack = () => {
     navigate(-1)
   }
-  
+
   return (
     <IconButton
       fontSize='2xl'

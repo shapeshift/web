@@ -4,6 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
@@ -36,7 +37,8 @@ const maxWidthProps = { base: 'full', md: '500px' }
 export const Dust: React.FC<DustProps> = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
     navigate({
@@ -46,7 +48,7 @@ export const Dust: React.FC<DustProps> = () => {
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const handleConfirm = useCallback(() => {
     mixpanel?.track(MixPanelEvent.DustConfirm)
@@ -57,7 +59,7 @@ export const Dust: React.FC<DustProps> = () => {
         modal: DefiAction.Withdraw,
       }),
     })
-  }, [history, location.pathname, mixpanel, query])
+  }, [navigate, location.pathname, mixpanel, query])
 
   return (
     <Flex width='full' minWidth={minWidthProps} maxWidth={maxWidthProps} flexDir='column'>

@@ -98,9 +98,9 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
 export const Pool = () => {
-  const params = useParams()
-  const translate = useTranslate()
   const navigate = useNavigate()
+  const params = useParams<MatchParams>()
+  const translate = useTranslate()
   const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
   const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
@@ -108,7 +108,7 @@ export const Pool = () => {
     return poolAssetIdToAssetId(params.poolAssetId ?? '')
   }, [params.poolAssetId])
 
-  const poolAssetId = useMemo(() => params.poolAssetId ?? '', [params.poolAssetId])
+  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
 
   const { data: pool } = usePool(params.poolAssetId ?? '')
 
@@ -133,7 +133,7 @@ export const Pool = () => {
   }, [assetId])
 
   const handleAddLiquidityClick = useCallback(() => {
-    navigate(generatePath('/pools/add/:poolAssetId', { poolAssetId }))
+    navigate(generatePath('/pools/add/:poolAssetId', { poolAssetId: poolAssetId ?? '' }))
   }, [poolAssetId, navigate])
 
   const handleTradeClick = useCallback(() => {
@@ -148,6 +148,8 @@ export const Pool = () => {
 
   const addIcon = useMemo(() => <FaPlus />, [])
   const swapIcon = useMemo(() => <SwapIcon />, [])
+
+  if (!poolAssetId) return null
 
   return (
     <Main headerComponent={headerComponent} isSubPage>

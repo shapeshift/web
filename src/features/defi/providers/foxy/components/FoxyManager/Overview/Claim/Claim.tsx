@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, useNavigate } from 'react-router-dom'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
@@ -19,7 +19,8 @@ export const FoxyClaim: React.FC<{
   accountId: AccountId | undefined
 }> = ({ accountId }) => {
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
     navigate({
@@ -29,7 +30,7 @@ export const FoxyClaim: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   return (
     <SlideTransition>

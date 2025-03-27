@@ -8,7 +8,6 @@ import { NativeImportSelect } from '../../NativeWallet/components/NativeImportSe
 import { NativePassword } from '../../NativeWallet/components/NativePassword'
 import { NativeSuccess } from '../../NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from '../../NativeWallet/components/NativeTestPhrase'
-import type { NativeSetupProps } from '../../NativeWallet/types'
 import { NativeDelete } from '../wallets/native/NativeDelete'
 import { NativeRename } from '../wallets/native/NativeRename'
 import { NativeStart } from '../wallets/native/NativeStart'

@@ -11,7 +11,6 @@ import { useCallback, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import type { NativeWalletValues } from '../types'

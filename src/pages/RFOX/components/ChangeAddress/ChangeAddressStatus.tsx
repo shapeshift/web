@@ -49,7 +49,7 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
 
   const handleGoBack = useCallback(() => {
     navigate(ChangeAddressRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,

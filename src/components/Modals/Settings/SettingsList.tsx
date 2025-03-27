@@ -17,7 +17,6 @@ import { FaBroom, FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'rea
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
@@ -40,7 +39,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type SettingsListProps = {
-  appHistory: RouteComponentProps['history']
+  appHistory: History
 }
 
 const faCoinsIcon = <Icon as={FaCoins} color='text.subtle' />
@@ -76,7 +75,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     if (clickCount === 4) {
       setClickCount(0)
       settings.close()
-      appnavigate('/flags')
+      navigate('/flags')
     } else {
       setClickCount(clickCount + 1)
     }
@@ -85,7 +84,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const closeModalAndNavigateTo = useCallback(
     (linkHref: string) => {
       settings.close()
-      appnavigate(linkHref)
+      navigate(linkHref)
     },
     [appHistory, settings],
   )

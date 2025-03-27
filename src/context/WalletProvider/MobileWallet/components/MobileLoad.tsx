@@ -15,7 +15,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { MobileConfig } from '../config'

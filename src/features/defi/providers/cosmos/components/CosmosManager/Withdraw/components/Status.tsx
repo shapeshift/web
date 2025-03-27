@@ -4,6 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -81,9 +82,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [state?.withdraw.cryptoAmount, underlyingAssetMarketData.price],
   )
 
+  const navigate = useNavigate()
+
   const handleViewPosition = useCallback(() => {
     navigate('/earn')
-  }, [browserHistory])
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
     browserHistory.goBack()

@@ -6,6 +6,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { getAddress } from 'viem'
 
 import { Approve } from './components/Approve'
@@ -49,7 +50,7 @@ export const FoxyDeposit: React.FC<{
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     chainId,
     contractAddress: foxyContractAddress,
@@ -77,6 +78,8 @@ export const FoxyDeposit: React.FC<{
   const { state: walletState } = useWallet()
   const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
   const loading = useSelector(selectIsPortfolioLoading)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     ;(async () => {
@@ -114,6 +117,7 @@ export const FoxyDeposit: React.FC<{
     foxyAprData?.foxyApr,
     isFoxyAprLoading,
     foxyStakingContractAddress,
+    navigate,
   ])
 
   const handleBack = useCallback(() => {
@@ -124,7 +128,7 @@ export const FoxyDeposit: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -153,7 +157,14 @@ export const FoxyDeposit: React.FC<{
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, handleAccountIdChange, foxyContractAddress, translate, stakingAsset.symbol])
+  }, [
+    accountId,
+    handleAccountIdChange,
+    foxyContractAddress,
+    translate,
+    stakingAsset.symbol,
+    navigate,
+  ])
 
   if (loading || !stakingAsset || !marketData) {
     return (

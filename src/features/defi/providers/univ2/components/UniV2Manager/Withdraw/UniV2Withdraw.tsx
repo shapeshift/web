@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -43,8 +44,9 @@ export const UniV2Withdraw: React.FC<UniV2WithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const navigate = useNavigate()
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
   // Asset info
@@ -79,7 +81,7 @@ export const UniV2Withdraw: React.FC<UniV2WithdrawProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

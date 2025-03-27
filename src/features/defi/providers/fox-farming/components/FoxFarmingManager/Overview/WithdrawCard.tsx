@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import qs from 'qs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
@@ -32,7 +33,8 @@ const stackMarginLeft = { base: 0, md: 'auto' }
 const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'left', md: 'right' }
 
 export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
-  const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
   const {
     state: { isConnected },
     dispatch,

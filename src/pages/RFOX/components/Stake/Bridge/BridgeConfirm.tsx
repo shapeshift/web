@@ -113,7 +113,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
 
     if (isApprovalRequired) return handleApprove()
 
-    navigate({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
+    navigate(BridgeRoutePaths.Status, { state: confirmedQuote })
   }, [confirmedQuote, history, feeAsset, handleApprove, isApprovalRequired])
 
   const errorCopy = useMemo(() => {

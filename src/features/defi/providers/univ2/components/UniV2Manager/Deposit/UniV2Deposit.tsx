@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -45,7 +46,7 @@ export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
   const lpAssetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -75,6 +76,8 @@ export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
 
   const loading = useSelector(selectIsPortfolioLoading)
 
+  const navigate = useNavigate()
+
   const handleBack = useCallback(() => {
     navigate({
       pathname: location.pathname,
@@ -83,7 +86,7 @@ export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const StepConfig: DefiStepProps | undefined = useMemo(() => {
     if (!underlyingAsset) return

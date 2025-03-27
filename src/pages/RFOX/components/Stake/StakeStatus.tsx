@@ -46,7 +46,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
 
   const handleGoBack = useCallback(() => {
     navigate(StakeRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),

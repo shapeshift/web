@@ -20,8 +20,6 @@ import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router'
 
-import type { NativeSetupProps } from '../types'
-
 import { Text } from '@/components/Text'
 
 const Revocable = crypto.Isolation.Engines.Default.Revocable

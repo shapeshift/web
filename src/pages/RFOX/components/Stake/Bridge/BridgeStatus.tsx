@@ -32,10 +32,10 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
 
   const handleContinue = useCallback(() => {
     navigate(StakeRoutePaths.Confirm)
-  }, [history])
+  }, [navigate])
 
   const handleGoBack = useCallback(() => {
-    navigate({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
+    navigate(BridgeRoutePaths.Confirm, { state: { state: confirmedQuote } })
   }, [confirmedQuote, history])
 
   const handleSignAndBroadcast = useCallback(async () => {

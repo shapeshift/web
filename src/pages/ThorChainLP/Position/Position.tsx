@@ -149,16 +149,13 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
 export const Position = () => {
-  const params = useParams()
+  const params = useParams<MatchParams>()
 
   const [stepIndex, setStepIndex] = useState<number>(0)
 
-  const poolAssetId = useMemo(() => params.poolAssetId ?? '', [params.poolAssetId])
-  const accountId = useMemo(() => params.accountId ?? '', [params.accountId])
-  const assetId = useMemo(() => {
-    if (!poolAssetId) return ''
-    return poolAssetIdToAssetId(poolAssetId)
-  }, [poolAssetId])
+  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+  const accountId = useMemo(() => params.accountId, [params.accountId])
+  const assetId = useMemo(() => poolAssetIdToAssetId(poolAssetId ?? ''), [poolAssetId])
   const opportunityId = useMemo(() => {
     return decodeURIComponent(params.opportunityId ?? '')
   }, [params.opportunityId])
@@ -406,7 +403,7 @@ export const Position = () => {
                 <TabPanel px={0} py={0}>
                   <AddLiquidity headerComponent={TabHeader} opportunityId={opportunityId} />
                 </TabPanel>
-                {accountId && (
+                {accountId && poolAssetId && (
                   <TabPanel px={0} py={0}>
                     <RemoveLiquidity
                       headerComponent={TabHeader}

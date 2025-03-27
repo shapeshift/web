@@ -85,21 +85,25 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         return navigate('/rfox')
       }
 
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          provider,
-          type,
-          modal: 'overview',
-        }),
-        state: { background: location },
-      })
+      navigate(
+        {
+          pathname: location.pathname,
+          search: qs.stringify({
+            chainId,
+            contractAddress,
+            assetNamespace,
+            assetReference,
+            highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
+            rewardId: rewardAddress,
+            provider,
+            type,
+            modal: 'overview',
+          }),
+        },
+        {
+          state: { background: location },
+        },
+      )
     },
     [dispatch, history, isConnected, location],
   )

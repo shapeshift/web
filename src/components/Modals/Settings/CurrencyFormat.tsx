@@ -25,7 +25,7 @@ export const CurrencyFormat = () => {
     currencyFormatsRepresenter(format, selectedCurrency),
   )
   const { setCurrencyFormat } = preferences.actions
-  
+
   const handleGoBack = () => {
     navigate(-1)
   }

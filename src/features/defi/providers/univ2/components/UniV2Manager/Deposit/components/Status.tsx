@@ -6,6 +6,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { UniV2DepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -48,6 +49,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const navigate = useNavigate()
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: state?.txid ?? undefined,

@@ -12,7 +12,7 @@ import * as bip39 from 'bip39'
 import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { addWallet } from '../mobileMessageHandlers'
 
@@ -20,13 +20,14 @@ import { Text } from '@/components/Text'
 
 type FormValues = { mnemonic: string; name: string }
 
-export const MobileImport = ({ history }: RouteComponentProps) => {
+export const MobileImport = () => {
   const {
     setError,
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ shouldUnregister: true })
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const onSubmit = useCallback(
@@ -37,14 +38,14 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
           mnemonic: values.mnemonic.toLowerCase().trim(),
           label: values.name.trim(),
         })
-        navigate('/mobile/success', { vault })
+        navigate('/mobile/success', { state: { vault } })
         queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       } catch (e) {
         console.log(e)
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
       }
     },
-    [history, queryClient, setError],
+    [navigate, queryClient, setError],
   )
 
   const translate = useTranslate()

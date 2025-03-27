@@ -18,7 +18,7 @@ import type { ReactNode } from 'react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { createWallet } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
@@ -118,14 +118,14 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
       try {
         setIsSaving(true)
         vault.label = label
-        navigate('/mobile/create-test', { vault })
+        navigate('/mobile/create-test', { state: { vault } })
       } catch (e) {
         console.log(e)
       } finally {
         setIsSaving(false)
       }
     }
-  }, [history, label, vault])
+  }, [navigate, label, vault])
 
   return (
     <>

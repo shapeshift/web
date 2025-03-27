@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Link, usePrevious, useToast } from '@chakra-ui/react'
+import { Box, Link, Text as CText, usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import { OrderStatus } from '@shapeshiftoss/types'
@@ -76,7 +76,7 @@ export const useLimitOrders = () => {
         title: translate('limitOrder.limitOrderFilled'),
         description: (
           <Box>
-            <Text mb={2} translation={assetToAssetTranslation} />
+            <CText mb={2}>{translate(assetToAssetTranslation)}</CText>
             <Link href={`https://explorer.cow.fi/orders/${order.uid}`} isExternal>
               {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
             </Link>

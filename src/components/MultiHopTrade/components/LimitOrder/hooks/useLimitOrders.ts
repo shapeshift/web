@@ -7,7 +7,7 @@ export const useLimitOrders = () => {
 
   const limitOrdersQuery = useGetLimitOrdersQuery(evmAccountIds, {
     pollingInterval: 15_000,
-    refetchOnMountOrArgChange: true,
+    refetchOnMountOrArgChange: false,
     skip: !evmAccountIds.length,
   })
 

@@ -21,7 +21,6 @@ import type {
   OrderId,
   OrderQuoteRequest,
   OrderQuoteResponse,
-  OrderStatus,
   QuoteId,
   Trade,
 } from '@shapeshiftoss/types'
@@ -29,6 +28,7 @@ import {
   EcdsaSigningScheme,
   OrderClass,
   OrderQuoteSideKindSell,
+  OrderStatus,
   PriceQuality,
   SellTokenSource,
   SigningScheme,
@@ -38,6 +38,7 @@ import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { TypedData } from 'eip-712'
 import orderBy from 'lodash/orderBy'
+import { PURGE } from 'redux-persist'
 import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
 
@@ -101,6 +102,25 @@ export const limitOrderApi = createApi({
             ({ order }) => order.creationDate,
             'desc',
           )
+
+          // Monkey patch to randomly toggle one non-fulfilled order with specific values
+          const nonFulfilledOrders = flattened.filter(item => item.order.status !== OrderStatus.FULFILLED);
+          
+          if (nonFulfilledOrders.length > 0) {
+            // Randomly select one non-fulfilled order
+            const randomIndex = Math.floor(Math.random() * nonFulfilledOrders.length);
+            const selectedOrder = nonFulfilledOrders[randomIndex];
+            
+            // Find this order in the original flattened array
+            const orderIndexInFlattened = flattened.findIndex(item => item.order.uid === selectedOrder.order.uid);
+            
+            // Toggle the status to fulfilled and set specific executed amounts
+            if (orderIndexInFlattened >= 0) {
+              flattened[orderIndexInFlattened].order.status = OrderStatus.FULFILLED;
+              flattened[orderIndexInFlattened].order.executedSellAmount = '13370000000000000000';
+              flattened[orderIndexInFlattened].order.executedBuyAmount = '42424200000000000000000';
+            }
+          }
 
           return { data: flattened }
         } catch (e) {

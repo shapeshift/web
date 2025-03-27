@@ -58,7 +58,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
     <SlideTransition>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route 
+          <Route
             path='/'
             element={
               <ClaimConfirm
@@ -71,10 +71,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
               />
             }
           />
-          <Route 
-            path='/status'
-            element={<ClaimStatus accountId={accountId} />}
-          />
+          <Route path='/status' element={<ClaimStatus accountId={accountId} />} />
         </Routes>
       </AnimatePresence>
     </SlideTransition>

@@ -1,7 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { useParams } from 'react-router-dom'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useParams } from 'react-router-dom'
 
 import { AccountToken } from './AccountToken/AccountToken'
 
@@ -26,8 +25,11 @@ export const Account = () => {
   return (
     <Flex flexDir='column' width='full'>
       <Routes>
-        <Route path="" element={<AccountDetails assetId={feeAsset.assetId} accountId={accountId ?? ''} />} />
-        <Route path=":assetId" element={<AccountToken />} />
+        <Route
+          path=''
+          element={<AccountDetails assetId={feeAsset.assetId} accountId={accountId ?? ''} />}
+        />
+        <Route path=':assetId' element={<AccountToken />} />
       </Routes>
     </Flex>
   )

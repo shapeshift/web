@@ -51,7 +51,7 @@ export const FoxTokenHeader = () => {
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
 
-  const handleSwapClick = useCallback(() => navigate('/trade'), [history])
+  const handleSwapClick = useCallback(() => navigate('/trade'), [navigate])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({
@@ -63,7 +63,7 @@ export const FoxTokenHeader = () => {
 
   const handleStakeClick = useCallback(() => {
     navigate('/rfox')
-  }, [history])
+  }, [navigate])
 
   useEffect(() => {
     appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))

@@ -111,7 +111,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, isRunePool, state?.txid])
 
   const handleViewPosition = useCallback(() => {
-    browsernavigate('/earn')
+    navigate('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {

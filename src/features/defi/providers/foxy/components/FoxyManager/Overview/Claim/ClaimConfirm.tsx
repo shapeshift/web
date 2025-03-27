@@ -145,13 +145,13 @@ export const ClaimConfirm = ({
       })
       navigate('/status', {
         state: {
-        txid,
-        assetId: stakingAssetId,
-        amount,
-        userAddress,
-        estimatedGas,
-        chainId,
-        }
+          txid,
+          assetId: stakingAssetId,
+          amount,
+          userAddress,
+          estimatedGas,
+          chainId,
+        },
       })
     } catch (error) {
       console.error(error)

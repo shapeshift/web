@@ -29,19 +29,16 @@ export const ImportRouter = ({ onClose, defaultRoute }: ImportRouterProps) => {
       <MemoryRouter>
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route 
+            <Route
               path={MobileWalletDialogRoutes.ImportSuccess}
               element={<ImportSuccess onClose={onClose} />}
             />
-            <Route 
+            <Route
               path={MobileWalletDialogRoutes.ImportSeedPhrase}
               element={<ImportSeedPhrase />}
             />
-            <Route 
-              path={MobileWalletDialogRoutes.ImportKeystore}
-              element={<ImportKeystore />}
-            />
-            <Route 
+            <Route path={MobileWalletDialogRoutes.ImportKeystore} element={<ImportKeystore />} />
+            <Route
               path={MobileWalletDialogRoutes.Import}
               element={
                 <ImportWallet

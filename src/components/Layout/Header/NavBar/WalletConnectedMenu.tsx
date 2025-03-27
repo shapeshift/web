@@ -95,8 +95,8 @@ const ConnectedMenu = memo(
 
 // Define a custom interface for the route object with component property
 interface CustomRouteProps {
-  path?: string;
-  component: React.ComponentType<any>;
+  path?: string
+  component: React.ComponentType<any>
 }
 
 export const WalletConnectedMenu = ({
@@ -128,7 +128,7 @@ export const WalletConnectedMenu = ({
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Routes>
-        <Route 
+        <Route
           path={WalletConnectedRoutes.Connected}
           element={
             <SubMenuContainer>
@@ -144,7 +144,9 @@ export const WalletConnectedMenu = ({
             </SubMenuContainer>
           }
         />
-        {connectedWalletMenuRoutes?.map((route, index) => renderRoute(route as CustomRouteProps, index))}
+        {connectedWalletMenuRoutes?.map((route, index) =>
+          renderRoute(route as CustomRouteProps, index),
+        )}
       </Routes>
     </AnimatePresence>
   )

@@ -23,7 +23,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
         end: false,
         caseSensitive: false,
       },
-      location.pathname
+      location.pathname,
     )
     return !!match
   }, [path, location.pathname])

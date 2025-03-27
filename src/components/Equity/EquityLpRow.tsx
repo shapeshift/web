@@ -97,22 +97,26 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
       assets,
     )
 
-    navigate({
-      pathname: location.pathname,
-      search: qs.stringify({
-        type,
-        provider,
-        chainId,
-        contractAddress,
-        assetNamespace,
-        assetReference,
-        highestBalanceAccountAddress,
-        rewardId: rewardAddress,
-        modal: DefiAction.Overview,
-      }),
-      state: { background: location },
-    })
-  }, [assets, dispatch, history, isConnected, location, opportunity])
+    navigate(
+      {
+        pathname: location.pathname,
+        search: qs.stringify({
+          type,
+          provider,
+          chainId,
+          contractAddress,
+          assetNamespace,
+          assetReference,
+          highestBalanceAccountAddress,
+          rewardId: rewardAddress,
+          modal: DefiAction.Overview,
+        }),
+      },
+      {
+        state: { background: location },
+      },
+    )
+  }, [assets, dispatch, navigate, isConnected, location, opportunity])
 
   if (!opportunity || !asset || !underlyingBalances[assetId]) return null
 

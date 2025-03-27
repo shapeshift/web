@@ -103,10 +103,10 @@ export const AppRoutes = memo(() => {
         }
 
         return (
-          <Route 
-            key={'route'} 
-            path={route.path} 
-            element={MainComponent ? <MainComponent /> : null} 
+          <Route
+            key={'route'}
+            path={route.path}
+            element={MainComponent ? <MainComponent /> : null}
           />
         )
       }),
@@ -120,37 +120,37 @@ export const AppRoutes = memo(() => {
   return (
     <Routes>
       <Route path='/connect-mobile-wallet' element={<MobileConnect />} />
-      <Route 
-        path='/legal/terms-of-service' 
+      <Route
+        path='/legal/terms-of-service'
         element={
           <Layout>
             <TermsOfService />
           </Layout>
-        } 
+        }
       />
-      <Route 
-        path='/legal/privacy-policy' 
+      <Route
+        path='/legal/privacy-policy'
         element={
           <Layout>
             <PrivacyPolicy />
           </Layout>
-        } 
+        }
       />
-      <Route 
-        path='/flags' 
+      <Route
+        path='/flags'
         element={
           <Layout>
             <Flags />
           </Layout>
-        } 
+        }
       />
-      <Route 
-        path='/*' 
+      <Route
+        path='/*'
         element={
           <Layout>
             <InnerRoutes appRoutesList={appRoutesList} />
           </Layout>
-        } 
+        }
       />
     </Routes>
   )

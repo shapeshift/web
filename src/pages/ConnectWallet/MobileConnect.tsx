@@ -98,7 +98,7 @@ export const MobileConnect = () => {
         path: '/accounts/:accountId/:chainId/:assetSubId',
         end: false,
       },
-      query.returnUrl
+      query.returnUrl,
     )
     const path = match
       ? generatePath('/accounts/:accountId/:assetId', {

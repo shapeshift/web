@@ -53,7 +53,7 @@ export const EquityAccountRow = ({
 
   const handleClick = useCallback(() => {
     navigate(path)
-  }, [history, path])
+  }, [navigate, path])
 
   const equityRowIcon = useMemo(
     () =>

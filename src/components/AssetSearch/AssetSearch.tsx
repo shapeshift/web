@@ -65,7 +65,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       const url = `/assets/${asset.assetId}`
       navigate(url)
     },
-    [history],
+    [navigate],
   )
   const handleClick = onAssetClick ?? defaultClickHandler
   const [searchTermAssets, setSearchTermAssets] = useState<Asset[]>([])

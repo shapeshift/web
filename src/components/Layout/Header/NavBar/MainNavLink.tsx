@@ -56,7 +56,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
         })
       }
     },
-    [isActive, onClick, props.to, history, startNavTransition],
+    [isActive, onClick, props.to, navigate, startNavTransition],
   )
 
   const justifyContentProp = useMemo(

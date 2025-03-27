@@ -65,7 +65,7 @@ export const Details = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [history])
+  const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [navigate])
 
   const {
     accountId,
@@ -190,8 +190,8 @@ export const Details = () => {
     qrCode.close?.()
   }, [send, qrCode])
 
-  const handleArrowBackClick = useCallback(() => navigate(SendRoutes.Address), [history])
-  const handleAccountCardClick = useCallback(() => navigate('/send/select'), [history])
+  const handleArrowBackClick = useCallback(() => navigate(SendRoutes.Address), [navigate])
+  const handleAccountCardClick = useCallback(() => navigate('/send/select'), [navigate])
 
   const renderController: RenderController = useCallback(
     ({ field: { onChange, value } }) => (

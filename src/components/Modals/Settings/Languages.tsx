@@ -21,7 +21,10 @@ export const Languages = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
-  const { goBack } = history
+  
+  const handleGoBack = () => {
+    navigate(-1)
+  }
 
   return (
     <SlideTransition>
@@ -35,7 +38,7 @@ export const Languages = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={goBack}
+        onClick={handleGoBack}
       />
       <ModalHeader textAlign='center'>{translate('modals.settings.language')}</ModalHeader>
       <>

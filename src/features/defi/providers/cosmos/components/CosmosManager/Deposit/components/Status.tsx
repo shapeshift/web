@@ -67,7 +67,7 @@ export const Status = () => {
   )
 
   const handleViewPosition = useCallback(() => {
-    browsernavigate('/earn')
+    navigate('/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

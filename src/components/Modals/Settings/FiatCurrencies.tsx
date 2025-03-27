@@ -21,13 +21,16 @@ export const FiatCurrencies = () => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
   const navigate = useNavigate()
-  const { goBack } = history
   const defaultCurrency: SupportedFiatCurrencies = 'USD'
   const allFiatCurrencies = sortBy(SupportedFiatCurrenciesList, item =>
     // keep default currency at the top of the list
     item === defaultCurrency ? defaultCurrency : identity,
   )
   const { setSelectedCurrency } = preferences.actions
+
+  const handleGoBack = () => {
+    navigate(-1)
+  }
 
   return (
     <SlideTransition>
@@ -41,7 +44,7 @@ export const FiatCurrencies = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={goBack}
+        onClick={handleGoBack}
       />
       <ModalHeader textAlign='center'>{translate('modals.settings.currency')}</ModalHeader>
       <>

@@ -4,7 +4,7 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Routes, Route } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
@@ -124,8 +124,8 @@ export const Accounts = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<AccountsContent key={`${walletId}-${loading}`} />} />
-      <Route path=":accountId/*" element={<Account />} />
+      <Route path='/' element={<AccountsContent key={`${walletId}-${loading}`} />} />
+      <Route path=':accountId/*' element={<Account />} />
     </Routes>
   )
 }

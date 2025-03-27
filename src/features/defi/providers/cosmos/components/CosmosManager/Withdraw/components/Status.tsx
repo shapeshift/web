@@ -82,7 +82,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   )
 
   const handleViewPosition = useCallback(() => {
-    browsernavigate('/earn')
+    navigate('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {

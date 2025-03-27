@@ -38,19 +38,25 @@ const CreateWalletRoutes = ({ onClose, defaultRoute }: CreateWalletRouterProps) 
 
   return (
     <Routes location={location}>
-      <Route path={MobileWalletDialogRoutes.CreateBackupSuccess} element={<CreateSuccess onClose={onClose} />} />
-      <Route path={MobileWalletDialogRoutes.CreateBackupConfirm} element={<CreateBackupConfirm />} />
+      <Route
+        path={MobileWalletDialogRoutes.CreateBackupSuccess}
+        element={<CreateSuccess onClose={onClose} />}
+      />
+      <Route
+        path={MobileWalletDialogRoutes.CreateBackupConfirm}
+        element={<CreateBackupConfirm />}
+      />
       <Route path={MobileWalletDialogRoutes.CreateBackup} element={<ManualBackup />} />
       <Route path={MobileWalletDialogRoutes.KeepSafe} element={<KeepSafe />} />
-      <Route 
-        path={MobileWalletDialogRoutes.Create} 
+      <Route
+        path={MobileWalletDialogRoutes.Create}
         element={
           <CreateWallet
             isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Create}
             onClose={onClose}
             handleRedirectToHome={handleRedirectToHome}
           />
-        } 
+        }
       />
       <Route path='/' element={<Navigate to={MobileWalletDialogRoutes.Create} replace />} />
     </Routes>

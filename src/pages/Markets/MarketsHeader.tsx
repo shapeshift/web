@@ -1,7 +1,7 @@
 import { Container, Heading, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
@@ -36,8 +36,7 @@ export const MarketsHeader = () => {
   }, [navigate])
 
   const maybeCategory = useMemo(
-    () =>
-      location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
+    () => location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
     [location.pathname],
   )
 

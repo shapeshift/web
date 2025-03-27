@@ -496,7 +496,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const handleBackClick = useCallback(() => {
-    browsernavigate('/pools')
+    navigate('/pools')
   }, [browserHistory])
 
   const toggleFeeModal = useCallback(() => {

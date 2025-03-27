@@ -183,26 +183,30 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
   }, [location.pathname])
 
   // Check if we're on a specific route
-  const isOnConfirmRoute = location.pathname.endsWith('/confirm') || location.pathname === '/trade/confirm'
-  const isOnVerifyAddressesRoute = location.pathname.endsWith('/verify-addresses') || location.pathname === '/trade/verify-addresses'
-  const isOnQuoteListRoute = location.pathname.endsWith('/quote-list') || location.pathname === '/trade/quote-list'
-  
+  const isOnConfirmRoute =
+    location.pathname.endsWith('/confirm') || location.pathname === '/trade/confirm'
+  const isOnVerifyAddressesRoute =
+    location.pathname.endsWith('/verify-addresses') ||
+    location.pathname === '/trade/verify-addresses'
+  const isOnQuoteListRoute =
+    location.pathname.endsWith('/quote-list') || location.pathname === '/trade/quote-list'
+
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
           {isOnConfirmRoute ? (
             <Route
-              path="*"
+              path='*'
               element={
-                <div data-testid="trade-confirm-screen" style={{ width: '100%' }}>
+                <div data-testid='trade-confirm-screen' style={{ width: '100%' }}>
                   <TradeConfirm isCompact={isCompact} />
                 </div>
               }
             />
           ) : isOnVerifyAddressesRoute ? (
             <Route
-              path="*"
+              path='*'
               element={
                 <div style={{ width: '100%' }}>
                   <VerifyAddresses />
@@ -211,7 +215,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
             />
           ) : isOnQuoteListRoute ? (
             <Route
-              path="*"
+              path='*'
               element={
                 <div style={{ width: '100%' }}>
                   <SlideTransitionRoute
@@ -241,7 +245,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
               />
               {/* Explicit route for the TradeRoutePaths.Input value */}
               <Route
-                path="*"
+                path='*'
                 element={
                   <div style={{ width: '100%' }}>
                     <TradeInput

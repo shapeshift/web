@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
@@ -53,8 +53,8 @@ export const LimitOrder = ({
   const [isInitialized, setIsInitialized] = useState(false)
 
   const match = useMatch(LIMIT_ORDER_ROUTE_ASSET_SPECIFIC)
-  
-  const params = match?.params as TradeRouterMatchParams || {}
+
+  const params = (match?.params as TradeRouterMatchParams) || {}
 
   const {
     chainId,
@@ -208,8 +208,8 @@ export const LimitOrder = ({
           path={LimitOrderRoutePaths.PlaceOrder}
           element={renderPlaceOrder()}
         />
-        <Route 
-          key={LimitOrderRoutePaths.Orders} 
+        <Route
+          key={LimitOrderRoutePaths.Orders}
           path={LimitOrderRoutePaths.Orders}
           element={
             <SlideTransitionRoute

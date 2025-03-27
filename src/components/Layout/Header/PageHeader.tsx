@@ -14,14 +14,19 @@ const paddingTop = { base: 'env(safe-area-inset-top)', md: 6 }
 const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
 
 export const PageBackButton: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
-  const { goBack } = useNavigate()
+  const navigate = useNavigate()
+  
+  const handleGoBack = () => {
+    navigate(-1)
+  }
+  
   return (
     <IconButton
       fontSize='2xl'
       variant='ghost'
       aria-label='go back'
       isRound
-      onClick={onBack ?? goBack}
+      onClick={onBack ?? handleGoBack}
       icon={arrowBack}
     />
   )

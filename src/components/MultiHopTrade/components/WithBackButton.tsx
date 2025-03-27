@@ -21,13 +21,13 @@ export const WithBackButton: React.FC<WithBackButtonProps> = ({ onBack, children
         fontSize='xl'
         isRound
         onClick={() => {
-          console.log('WithBackButton: Back button clicked');
+          console.log('WithBackButton: Back button clicked')
           try {
-            onBack();
+            onBack()
           } catch (error) {
-            console.error('Error in back navigation:', error);
+            console.error('Error in back navigation:', error)
             // Use window.location as a fallback
-            window.location.href = '/trade';
+            window.location.href = '/trade'
           }
         }}
       />

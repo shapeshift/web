@@ -28,10 +28,7 @@ export const NativeStart = () => {
 
   const handleLoad = useCallback(() => navigate(NativeWalletRoutes.Load), [navigate])
   const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
-  const handleImportClick = useCallback(
-    () => navigate(NativeWalletRoutes.ImportSelect),
-    [navigate],
-  )
+  const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [navigate])
 
   return (
     <>

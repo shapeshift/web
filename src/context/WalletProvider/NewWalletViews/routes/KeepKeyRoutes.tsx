@@ -39,8 +39,8 @@ const translateError = (event: Event) => {
 
 // We're using a specialized version of routes with 'component' properties
 interface CustomRouteProps {
-  path: string;
-  component: React.ComponentType<any>;
+  path: string
+  component: React.ComponentType<any>
 }
 
 export const KeepKeyRoutes = () => {
@@ -197,35 +197,32 @@ export const KeepKeyRoutes = () => {
 
   // Note, `/keepkey/connect` is handled with PairBody instead of the regular KK routes, since it's the new, better looking version
   // Use type assertion to tell TypeScript that our routes have the shape we expect
-  const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes as unknown as CustomRouteProps[];
+  const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes as unknown as CustomRouteProps[]
   const keepKeyRoutes = walletRoutes
     .filter(route => route.component !== undefined)
-    .map(route => (
-      <Route
-        key={route.path}
-        path={route.path}
-        element={<route.component />}
-      />
-    ));
+    .map(route => <Route key={route.path} path={route.path} element={<route.component />} />)
 
   return (
     <Routes>
-      <Route path='/keepkey/connect' element={
-        <PairBody
-          icon={icon}
-          headerTranslation='walletProvider.keepKey.connect.header'
-          bodyTranslation='walletProvider.keepKey.connect.body'
-          buttonTranslation='walletProvider.keepKey.connect.button'
-          isLoading={
-            initializeKeepKeyMutation.isPending ||
-            deviceFirmwareQuery.isLoading ||
-            versionsQuery.isLoading
-          }
-          error={error}
-          onPairDeviceClick={pairKeepKeyHdWallet}
-          secondaryContent={secondaryContent}
-        />
-      } />
+      <Route
+        path='/keepkey/connect'
+        element={
+          <PairBody
+            icon={icon}
+            headerTranslation='walletProvider.keepKey.connect.header'
+            bodyTranslation='walletProvider.keepKey.connect.body'
+            buttonTranslation='walletProvider.keepKey.connect.button'
+            isLoading={
+              initializeKeepKeyMutation.isPending ||
+              deviceFirmwareQuery.isLoading ||
+              versionsQuery.isLoading
+            }
+            error={error}
+            onPairDeviceClick={pairKeepKeyHdWallet}
+            secondaryContent={secondaryContent}
+          />
+        }
+      />
       {keepKeyRoutes}
     </Routes>
   )

@@ -15,11 +15,11 @@ const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx
   const assetsPathPattern = assetIdPaths.map(path => `/assets${path}`)
   const lendingPathPattern = assetIdPaths.map(path => `/lending/pool${path}`)
-  
+
   // In v6, we need to check each path individually since matchPath only accepts a single path
   const allAssetPaths = [...assetsPathPattern, ...lendingPathPattern]
   let assetIdAssetsPathMatch = null
-  
+
   // Try each path until we find a match
   for (const path of allAssetPaths) {
     const match = matchPath(
@@ -27,7 +27,7 @@ const getRouteAssetId = (pathname: string) => {
         path,
         end: false,
       },
-      pathname
+      pathname,
     )
     if (match) {
       assetIdAssetsPathMatch = match
@@ -42,9 +42,9 @@ const getRouteAssetId = (pathname: string) => {
     `/lending/poolAccount/:accountId/:assetId`,
     '/lending/poolAccount/:chainNamespace\\::chainReference\\:(.+)',
   ]
-  
+
   let assetIdAccountsPathMatch = null
-  
+
   // Try each path until we find a match
   for (const path of accountPaths) {
     const match = matchPath(
@@ -52,7 +52,7 @@ const getRouteAssetId = (pathname: string) => {
         path,
         end: false,
       },
-      pathname
+      pathname,
     )
     if (match) {
       assetIdAccountsPathMatch = match

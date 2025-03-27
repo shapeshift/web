@@ -142,7 +142,7 @@ export const LedgerRoutes = () => {
   )
 
   if (!modalType) return null
-  
+
   const ledgerPairElement = (
     <PairBody
       icon={icon}

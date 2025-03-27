@@ -193,12 +193,12 @@ export const MobileNavBar = memo(() => {
   const handleTradeClick = useCallback(() => {
     onClose()
     navigate('/trade')
-  }, [history, onClose])
+  }, [navigate, onClose])
 
   const handleBuyClick = useCallback(() => {
     onClose()
     navigate('/buy-crypto')
-  }, [history, onClose])
+  }, [navigate, onClose])
 
   return (
     <>

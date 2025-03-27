@@ -169,18 +169,21 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       >
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route path={SendRoutes.Select} element={<SelectAssetRouter onClick={handleAssetSelect} />} />
+            <Route
+              path={SendRoutes.Select}
+              element={<SelectAssetRouter onClick={handleAssetSelect} />}
+            />
             <Route path={SendRoutes.Address} element={<Address />} />
             <Route path={SendRoutes.Details} element={<Details />} />
-            <Route 
-              path={SendRoutes.Scan} 
+            <Route
+              path={SendRoutes.Scan}
               element={
                 <QrCodeScanner
                   onSuccess={handleQrSuccess}
                   onBack={handleBack}
                   addressError={addressError}
                 />
-              } 
+              }
             />
             <Route path={SendRoutes.Confirm} element={<Confirm />} />
             <Route path={SendRoutes.Status} element={<Status />} />

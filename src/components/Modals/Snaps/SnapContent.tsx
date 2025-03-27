@@ -22,15 +22,15 @@ export const SnapContent = ({
     <MemoryRouter>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route 
-            path='/intro' 
+          <Route
+            path='/intro'
             element={
               <SnapIntro
                 isRemoved={isRemoved}
                 isCorrectVersion={isCorrectVersion}
                 isSnapInstalled={isSnapInstalled}
               />
-            } 
+            }
           />
           <Route path='/confirm' element={<SnapConfirm onClose={onClose} />} />
           <Route path='/' element={<IntroRedirect />} />

@@ -323,7 +323,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [opportunityId, userLpData])
 
   const handleBackClick = useCallback(() => {
-    browsernavigate('/pools')
+    navigate('/pools')
   }, [browserHistory])
 
   const handlePercentageSliderChange = useCallback(

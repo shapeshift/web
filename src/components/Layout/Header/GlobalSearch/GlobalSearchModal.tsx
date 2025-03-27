@@ -188,7 +188,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [mixpanel, send, searchQuery, onToggle, dispatch, history],
+      [mixpanel, send, searchQuery, onToggle, dispatch, navigate],
     )
 
     const onKeyDown = useCallback(

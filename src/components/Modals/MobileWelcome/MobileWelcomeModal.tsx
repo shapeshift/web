@@ -33,7 +33,7 @@ export const MobileWelcomeModal = () => {
 // Separate component to use the useLocation hook
 const RoutesWithAnimation = () => {
   const location = useLocation()
-  
+
   return (
     <Routes location={location}>
       <Route path='/success' element={<ImportSuccess />} />

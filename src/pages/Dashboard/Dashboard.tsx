@@ -126,15 +126,13 @@ export const Dashboard = memo(() => {
       case MobileTab.Overview:
         content = (
           <>
-            <Route path="" element={<WalletDashboard />} />
-            <Route path="accounts" element={<Accounts />} />
+            <Route path='' element={<WalletDashboard />} />
+            <Route path='accounts' element={<Accounts />} />
           </>
         )
         break
       case MobileTab.Earn:
-        content = (
-          <Route path="earn" element={<EarnDashboard />} />
-        )
+        content = <Route path='earn' element={<EarnDashboard />} />
         break
       case MobileTab.Activity:
         content = <MobileActivity />
@@ -169,11 +167,11 @@ export const Dashboard = memo(() => {
     <Main headerComponent={dashboardHeader} py={mainPadding}>
       <SEO title={translate('navBar.dashboard')} />
       <Routes>
-        <Route path="" element={<WalletDashboard />} />
-        <Route path="earn" element={<EarnDashboard />} />
-        <Route path="accounts/*" element={<Accounts />} />
-        <Route path="activity" element={<TransactionHistory />} />
-        <Route path="*" element={<RawText>Not found</RawText>} />
+        <Route path='' element={<WalletDashboard />} />
+        <Route path='earn' element={<EarnDashboard />} />
+        <Route path='accounts/*' element={<Accounts />} />
+        <Route path='activity' element={<TransactionHistory />} />
+        <Route path='*' element={<RawText>Not found</RawText>} />
       </Routes>
     </Main>
   )

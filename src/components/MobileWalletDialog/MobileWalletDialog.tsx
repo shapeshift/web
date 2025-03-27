@@ -68,15 +68,24 @@ interface AnimatedRoutesProps {
 
 const AnimatedRoutes = ({ defaultRoute, onClose }: AnimatedRoutesProps) => {
   const location = useLocation()
-  
+
   return (
     <Routes location={location} key={location.key}>
-      <Route path={MobileWalletDialogRoutes.Backup} element={<ManualBackup showContinueButton={false} />} />
-      <Route path={MobileWalletDialogRoutes.Import} element={<ImportRouter onClose={onClose} defaultRoute={defaultRoute} />} />
+      <Route
+        path={MobileWalletDialogRoutes.Backup}
+        element={<ManualBackup showContinueButton={false} />}
+      />
+      <Route
+        path={MobileWalletDialogRoutes.Import}
+        element={<ImportRouter onClose={onClose} defaultRoute={defaultRoute} />}
+      />
       <Route path={MobileWalletDialogRoutes.Saved} element={<SavedWallets onClose={onClose} />} />
       <Route path={MobileWalletDialogRoutes.Rename} element={<RenameWallet />} />
       <Route path={MobileWalletDialogRoutes.Delete} element={<DeleteWallet />} />
-      <Route path={MobileWalletDialogRoutes.Create} element={<CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />} />
+      <Route
+        path={MobileWalletDialogRoutes.Create}
+        element={<CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />}
+      />
       <Route path='/' element={<Navigate to={defaultRoute} replace />} />
     </Routes>
   )

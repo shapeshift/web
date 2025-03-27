@@ -180,7 +180,7 @@ export const Trade = memo(() => {
               }
             />
             <Route
-              path=":chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit"
+              path=':chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
               element={
                 <MultiHopTrade
                   isRewritingUrl={isRewritingUrl}

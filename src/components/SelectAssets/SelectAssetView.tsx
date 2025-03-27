@@ -31,9 +31,9 @@ export const SelectAssetView = ({
 
   return (
     <Routes>
-      <Route 
-        path={SelectAssetRoutes.Search} 
-        element={<SelectAssets onBack={handleBack} onClick={onClick} />} 
+      <Route
+        path={SelectAssetRoutes.Search}
+        element={<SelectAssets onBack={handleBack} onClick={onClick} />}
       />
       <Route path='/' element={<SearchRedirect />} />
     </Routes>

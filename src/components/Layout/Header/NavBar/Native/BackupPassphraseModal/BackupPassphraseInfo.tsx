@@ -37,7 +37,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
   const [revoker] = useState(new (Revocable(class {}))())
-  const { goBack, ...history } = useNavigate()
+  const navigate = useNavigate()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = useCallback(() => {
@@ -103,18 +103,16 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
 
   const handleCreateBackupClick = useCallback(
     () => navigate(BackupPassphraseRoutes.Test),
-    [history],
+    [navigate],
   )
 
   const handleBackClick = useCallback(() => {
     if (isMobile) {
       close()
-
       return
     }
-
-    goBack()
-  }, [goBack, close])
+    navigate(-1) // This is the equivalent of history.goBack() in v6
+  }, [navigate, close])
 
   return (
     <SlideTransition>

@@ -42,13 +42,15 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Routes>
-        <Route 
-          path={ReceiveRoutes.Info} 
-          element={selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null} 
+        <Route
+          path={ReceiveRoutes.Info}
+          element={
+            selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null
+          }
         />
-        <Route 
-          path={ReceiveRoutes.Select} 
-          element={<SelectAssetRouter onClick={handleAssetSelect} />} 
+        <Route
+          path={ReceiveRoutes.Select}
+          element={<SelectAssetRouter onClick={handleAssetSelect} />}
         />
       </Routes>
     </AnimatePresence>

@@ -38,7 +38,6 @@ export const StandaloneTrade: React.FC<StandaloneTradeProps> = props => {
 
 // Inner version to get access to the MemoryRouter's context, another day in react world
 const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
-  const location = useLocation()
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -127,10 +126,10 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
   return (
     <FormProvider {...methods}>
       <Routes>
-        <Route 
-          key={TradeRoutePaths.Input} 
-          path={TradeRoutePaths.Input} 
-          element={<MultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />} 
+        <Route
+          key={TradeRoutePaths.Input}
+          path={TradeRoutePaths.Input}
+          element={<MultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />}
         />
       </Routes>
     </FormProvider>

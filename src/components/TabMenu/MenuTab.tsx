@@ -2,7 +2,7 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, forwardRef, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useNavigate, useLocation } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 type MenuTabProps = {
   label: string
@@ -28,7 +28,7 @@ export const MenuTab = forwardRef<MenuTabProps, 'button'>(
           end: exact,
           caseSensitive: false,
         },
-        location.pathname
+        location.pathname,
       )
       return !!match
     }, [location.pathname, path, exact])

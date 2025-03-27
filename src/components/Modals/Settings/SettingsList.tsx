@@ -105,17 +105,11 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     }
   }, [translate, settings, disconnect, appDispatch])
 
-  const handleClearCacheClick = useCallback(
-    () => navigate(SettingsRoutes.ClearCache),
-    [history],
-  )
+  const handleClearCacheClick = useCallback(() => navigate(SettingsRoutes.ClearCache), [history])
 
   const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
-  const handleCurrencyClick = useCallback(
-    () => navigate(SettingsRoutes.FiatCurrencies),
-    [history],
-  )
+  const handleCurrencyClick = useCallback(() => navigate(SettingsRoutes.FiatCurrencies), [history])
 
   const handleCurrencyFormatClick = useCallback(
     () => navigate(SettingsRoutes.CurrencyFormat),

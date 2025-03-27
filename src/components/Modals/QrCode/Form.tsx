@@ -163,21 +163,21 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route 
-              path={SendRoutes.Select} 
-              element={<SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />} 
+            <Route
+              path={SendRoutes.Select}
+              element={<SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />}
             />
             <Route path={SendRoutes.Address} element={<Address />} />
             <Route path={SendRoutes.Details} element={<Details />} />
-            <Route 
-              path={SendRoutes.Scan} 
+            <Route
+              path={SendRoutes.Scan}
               element={
                 <QrCodeScanner
                   onSuccess={handleQrSuccess}
                   onBack={handleClose}
                   addressError={addressError}
                 />
-              } 
+              }
             />
             <Route path={SendRoutes.Confirm} element={<Confirm />} />
             <Route path={SendRoutes.Status} element={<Status />} />

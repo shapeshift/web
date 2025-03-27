@@ -24,17 +24,20 @@ export const MipdRoutes = ({
 
   return (
     <Routes>
-      <Route path='/coinbase/connect' element={
-        <CoinbaseQrBody
-          isLoading={isLoading}
-          error={error}
-          setIsLoading={setIsLoading}
-          setError={setError}
-        />
-      } />
+      <Route
+        path='/coinbase/connect'
+        element={
+          <CoinbaseQrBody
+            isLoading={isLoading}
+            error={error}
+            setIsLoading={setIsLoading}
+            setError={setError}
+          />
+        }
+      />
       {Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
-        <Route 
-          key={keyManager} 
+        <Route
+          key={keyManager}
           path={`/${keyManager.toLowerCase()}/connect`}
           element={
             <FirstClassBody
@@ -47,15 +50,18 @@ export const MipdRoutes = ({
           }
         />
       ))}
-      <Route path='/metamask/connect' element={
-        <MipdBody
-          rdns={modalType}
-          isLoading={isLoading}
-          error={error}
-          setIsLoading={setIsLoading}
-          setError={setError}
-        />
-      } />
+      <Route
+        path='/metamask/connect'
+        element={
+          <MipdBody
+            rdns={modalType}
+            isLoading={isLoading}
+            error={error}
+            setIsLoading={setIsLoading}
+            setError={setError}
+          />
+        }
+      />
       <Route path='/metamask/snap/install' element={<SnapInstall />} />
       <Route path='/metamask/snap/update' element={<SnapUpdate />} />
     </Routes>

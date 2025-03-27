@@ -135,23 +135,27 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         assets,
       )
 
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action,
-        }),
-        state: { background: location },
-      })
+      navigate(
+        {
+          pathname: location.pathname,
+          search: qs.stringify({
+            type,
+            provider,
+            chainId,
+            contractAddress,
+            assetNamespace,
+            assetReference,
+            highestBalanceAccountAddress,
+            rewardId: rewardAddress,
+            modal: action,
+          }),
+        },
+        {
+          state: { background: location },
+        },
+      )
     },
-    [assets, dispatch, history, isConnected, location],
+    [assets, dispatch, navigate, isConnected, location],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

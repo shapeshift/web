@@ -70,7 +70,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const handleGoBack = useCallback(() => {
     navigate(ClaimRoutePaths.Select)
-  }, [history])
+  }, [navigate])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
 
@@ -211,7 +211,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     const txHash = await handleClaim()
     if (!txHash) return
     navigate(ClaimRoutePaths.Status)
-  }, [handleClaim, history])
+  }, [handleClaim, navigate])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

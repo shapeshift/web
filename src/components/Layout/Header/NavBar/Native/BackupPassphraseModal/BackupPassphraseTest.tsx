@@ -48,7 +48,7 @@ type TestState = {
 export const BackupPassphraseTest: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
-  const { goBack: handleBackClick, ...history } = useNavigate()
+  const navigate = useNavigate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
@@ -105,7 +105,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, revoker])
+  }, [testCount, navigate, revoker])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
@@ -119,7 +119,11 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     setHasAlreadySaved(e.target.checked)
   }, [])
 
-  const handleSkipClick = useCallback(() => navigate(BackupPassphraseRoutes.Success), [history])
+  const handleSkipClick = useCallback(() => navigate(BackupPassphraseRoutes.Success), [navigate])
+
+  const handleBackClick = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   if (!testState) return null
 

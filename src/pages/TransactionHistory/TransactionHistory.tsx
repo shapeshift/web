@@ -65,8 +65,8 @@ const TransactionHistoryContent = () => {
 export const TransactionHistory = memo(() => {
   return (
     <Routes>
-      <Route path="/" element={<TransactionHistoryContent />} />
-      <Route path="/transaction/:txId" element={<SingleTransaction />} />
+      <Route path='/' element={<TransactionHistoryContent />} />
+      <Route path='/transaction/:txId' element={<SingleTransaction />} />
     </Routes>
   )
 })

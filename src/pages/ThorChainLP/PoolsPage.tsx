@@ -34,8 +34,14 @@ export const PoolsPage = () => {
     <Routes>
       <Route path={`${basePath}`} element={<AvailablePools />} />
       <Route path={`${basePath}/positions`} element={<YourPositions />} />
-      <Route path={`${basePath}/positions/:poolAssetId/:accountId/:opportunityId`} element={<Position />} />
-      <Route path={`${basePath}/add/:poolAssetId?/:opportunityId?`} element={<AddLiquidityPage />} />
+      <Route
+        path={`${basePath}/positions/:poolAssetId/:accountId/:opportunityId`}
+        element={<Position />}
+      />
+      <Route
+        path={`${basePath}/add/:poolAssetId?/:opportunityId?`}
+        element={<AddLiquidityPage />}
+      />
       <Route path={`${basePath}/:poolAssetId`} element={<Pool />} />
     </Routes>
   )

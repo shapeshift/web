@@ -107,7 +107,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
   const handleTradeClick = useCallback(() => {
     navigate(`/trade/${assetId}`)
-  }, [assetId, history])
+  }, [assetId, navigate])
 
   if (isMobile) {
     return (

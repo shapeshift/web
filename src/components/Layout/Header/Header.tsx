@@ -82,7 +82,7 @@ export const Header = memo(() => {
         navigate('/flags')
       }
     },
-    [history],
+    [navigate],
   )
 
   useEffect(() => {
@@ -153,7 +153,7 @@ export const Header = memo(() => {
     connectedRdns,
     currentWalletId,
     dispatch,
-    history,
+    navigate,
     isCorrectVersion,
     isSnapInstalled,
     previousConnectedRdns,

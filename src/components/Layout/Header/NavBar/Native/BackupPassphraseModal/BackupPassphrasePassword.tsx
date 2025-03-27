@@ -77,7 +77,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
         )
       }
     },
-    [history, revocableWallet, setError, translate, walletInfo?.deviceId],
+    [navigate, revocableWallet, setError, translate, walletInfo?.deviceId],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

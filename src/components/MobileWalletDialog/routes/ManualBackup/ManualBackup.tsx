@@ -51,8 +51,8 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
 
   const handleBack = useCallback(() => {
     if (showContinueButton) {
-      navigate(MobileWalletDialogRoutes.KeepSafe, { 
-        state: { vault: location.state?.vault } 
+      navigate(MobileWalletDialogRoutes.KeepSafe, {
+        state: { vault: location.state?.vault },
       })
       return
     }
@@ -61,8 +61,8 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
   }, [navigate, location.state?.vault, showContinueButton])
 
   const handleContinue = useCallback(() => {
-    navigate(MobileWalletDialogRoutes.CreateBackupConfirm, { 
-      state: { vault: location.state?.vault } 
+    navigate(MobileWalletDialogRoutes.CreateBackupConfirm, {
+      state: { vault: location.state?.vault },
     })
   }, [navigate, location.state?.vault])
 

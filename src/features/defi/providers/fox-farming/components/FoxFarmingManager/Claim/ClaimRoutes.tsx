@@ -109,7 +109,7 @@ export const ClaimRoutes = ({
       <RouteSteps routes={routes} location={location} pt={4} />
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route 
+          <Route
             path='/'
             element={
               <ClaimConfirm
@@ -120,10 +120,7 @@ export const ClaimRoutes = ({
               />
             }
           />
-          <Route 
-            path='/status'
-            element={<ClaimStatus accountId={accountId} />}
-          />
+          <Route path='/status' element={<ClaimStatus accountId={accountId} />} />
         </Routes>
       </AnimatePresence>
     </SlideTransition>

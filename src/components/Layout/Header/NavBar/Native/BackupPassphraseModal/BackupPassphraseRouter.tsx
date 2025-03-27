@@ -38,26 +38,23 @@ export const BackupPassphraseRouter = () => {
   return (
     <AnimatePresence mode='wait'>
       <Routes>
-        <Route 
+        <Route
           path={BackupPassphraseRoutes.Start}
           element={<BackupPassphraseStart revocableWallet={revocableWallet} />}
         />
-        <Route 
+        <Route
           path={BackupPassphraseRoutes.Info}
           element={<BackupPassphraseInfo revocableWallet={revocableWallet} />}
         />
-        <Route 
+        <Route
           path={BackupPassphraseRoutes.Password}
           element={<BackupPassphrasePassword revocableWallet={revocableWallet} />}
         />
-        <Route 
+        <Route
           path={BackupPassphraseRoutes.Test}
           element={<BackupPassphraseTest revocableWallet={revocableWallet} />}
         />
-        <Route 
-          path={BackupPassphraseRoutes.Success}
-          element={<BackupPassphraseSuccess />}
-        />
+        <Route path={BackupPassphraseRoutes.Success} element={<BackupPassphraseSuccess />} />
         <Route path='*' element={<StartRedirect />} />
       </Routes>
     </AnimatePresence>

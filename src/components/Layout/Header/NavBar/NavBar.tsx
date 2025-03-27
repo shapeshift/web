@@ -97,7 +97,7 @@ export const NavBar = (props: NavBarProps) => {
                     end: false,
                     caseSensitive: false,
                   },
-                  pathname
+                  pathname,
                 ) ||
                 (item.path === '/trade' &&
                   (!!matchPath(
@@ -106,7 +106,7 @@ export const NavBar = (props: NavBarProps) => {
                       end: false,
                       caseSensitive: false,
                     },
-                    pathname
+                    pathname,
                   ) ||
                     !!matchPath(
                       {
@@ -114,7 +114,7 @@ export const NavBar = (props: NavBarProps) => {
                         end: false,
                         caseSensitive: false,
                       },
-                      pathname
+                      pathname,
                     )))
               }
             />

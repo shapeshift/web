@@ -101,7 +101,7 @@ export const Confirm = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
-  const handleClick = useCallback(() => navigate(SendRoutes.Details), [history])
+  const handleClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
   // We don't want this firing -- but need it for typing
   const handleAccountChange = useCallback(() => {}, [])

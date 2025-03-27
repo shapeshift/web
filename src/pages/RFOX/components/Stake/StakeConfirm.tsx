@@ -258,7 +258,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const handleGoBack = useCallback(() => {
     navigate(StakeRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
@@ -266,7 +266,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
     await handleStake()
     navigate(StakeRoutePaths.Status)
-  }, [handleStake, history, isApprovalRequired, handleApprove, stakingAsset])
+  }, [handleStake, navigate, isApprovalRequired, handleApprove, stakingAsset])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

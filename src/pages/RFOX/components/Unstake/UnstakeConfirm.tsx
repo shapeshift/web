@@ -89,7 +89,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
 
   const handleGoBack = useCallback(() => {
     navigate(UnstakeRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null
@@ -119,7 +119,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
 
     await handleUnstake()
     navigate(UnstakeRoutePaths.Status)
-  }, [handleUnstake, history, stakingAsset])
+  }, [handleUnstake, navigate, stakingAsset])
 
   return (
     <SlideTransition>

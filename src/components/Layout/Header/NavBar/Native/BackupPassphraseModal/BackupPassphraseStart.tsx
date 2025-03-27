@@ -10,7 +10,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const BackupPassphraseStart: React.FC<LocationState> = props => {
   const { revocableWallet } = props
-  const navigate = useNavigate<LocationState>()
+  const navigate = useNavigate()
   const { state } = useWallet()
   const [error, setError] = useState<string | null>(null)
 
@@ -36,7 +36,7 @@ export const BackupPassphraseStart: React.FC<LocationState> = props => {
           break
       }
     })()
-  }, [history, revocableWallet, state.walletInfo, state.modalType])
+  }, [navigate, revocableWallet, state.walletInfo, state.modalType])
 
   return error ? <div>{error}</div> : null
 }

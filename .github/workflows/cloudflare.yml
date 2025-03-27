@@ -74,5 +74,5 @@ jobs:
         run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.CURRENT_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.CURRENT_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"
       # deploy main branch to fleek.xyz alpha environment
       - name: Deploy to Fleek
-        if: contains(fromJSON('["main"]'), github.event_name == 'pull_request' && github.head_ref || github.ref_name)
+        if: contains(fromJSON('["main", "dynamic-hash-routing"]'), github.event_name == 'pull_request' && github.head_ref || github.ref_name)
         run: npm i -g @fleekxyz/cli && fleek sites deploy

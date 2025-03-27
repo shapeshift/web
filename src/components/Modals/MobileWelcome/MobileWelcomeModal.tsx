@@ -7,6 +7,8 @@ import { Notice } from './views/Notice'
 
 import { useModal } from '@/hooks/useModal/useModal'
 
+const successRedirect = () => <Redirect to='/success' />
+
 export const MobileWelcomeModal = () => {
   const { close: handleClose, isOpen } = useModal('mobileWelcomeModal')
 
@@ -31,7 +33,7 @@ export const MobileWelcomeModal = () => {
                   <Route path='/notice'>
                     <Notice />
                   </Route>
-                  <Redirect exact from='/' to='/success' />
+                  <Route path='/' exact render={successRedirect} />
                 </Switch>
               </AnimatePresence>
             )}

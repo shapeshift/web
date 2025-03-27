@@ -20,6 +20,8 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 
+const selfCustodyRedirect = () => <Redirect to='/self-custody' />
+
 export const NativeOnboarding = () => {
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
@@ -54,7 +56,7 @@ export const NativeOnboarding = () => {
                   <AnimatePresence mode='wait' initial={false}>
                     <Switch key={location.key} location={location}>
                       {renderRoutes}
-                      <Redirect exact from='/' to='/self-custody' />
+                      <Route path='/' exact render={selfCustodyRedirect} />
                     </Switch>
                   </AnimatePresence>
                 </ModalBody>

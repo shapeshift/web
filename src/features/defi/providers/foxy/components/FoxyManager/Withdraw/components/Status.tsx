@@ -52,7 +52,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
+    browserHistory.push('/wallet/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {

@@ -50,6 +50,7 @@ const styles = {
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
       minHeight: '100%',
+      overflowY: 'scroll',
     },
     '#root': {
       background: 'background.surface.base',

@@ -16,6 +16,8 @@ type CreateWalletRouterProps = {
   defaultRoute: MobileWalletDialogRoutes
 }
 
+const createRedirect = () => <Redirect to={MobileWalletDialogRoutes.Create} />
+
 export const CreateWalletRouter = ({ onClose, defaultRoute }: CreateWalletRouterProps) => {
   const history = useHistory()
 
@@ -49,7 +51,7 @@ export const CreateWalletRouter = ({ onClose, defaultRoute }: CreateWalletRouter
                     handleRedirectToHome={handleRedirectToHome}
                   />
                 </Route>
-                <Redirect from='/' to={MobileWalletDialogRoutes.Create} />
+                <Route path='/' render={createRedirect} />
               </Switch>
             </AnimatePresence>
           )}

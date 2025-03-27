@@ -16,7 +16,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
-import { ConditionalRouter } from './components/ConditionalRouter'
+import { ConditionalRouter } from './context/ConditionalRouter'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'

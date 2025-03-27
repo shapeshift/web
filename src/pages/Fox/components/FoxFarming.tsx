@@ -239,7 +239,7 @@ export const FoxFarming = () => {
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, location, assetAccountId],
+    [dispatch, navigate, isConnected, location, assetAccountId],
   )
 
   const handleManageClick = useCallback(() => {

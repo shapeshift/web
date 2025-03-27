@@ -1,7 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'

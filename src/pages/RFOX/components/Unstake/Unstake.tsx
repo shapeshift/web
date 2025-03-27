@@ -130,8 +130,8 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
-        <Suspense fallback={suspenseFallback}>
+      <Suspense fallback={suspenseFallback}>
+        <Routes>
           <Route
             key={UnstakeRoutePaths.Input}
             path={UnstakeRoutePaths.Input}
@@ -147,8 +147,8 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
             path={UnstakeRoutePaths.Status}
             element={renderUnstakeStatus()}
           />
-        </Suspense>
-      </Routes>
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   )
 }

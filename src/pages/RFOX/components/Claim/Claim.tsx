@@ -119,8 +119,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
-        <Suspense fallback={suspenseFallback}>
+      <Suspense fallback={suspenseFallback}>
+        <Routes>
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}
@@ -136,8 +136,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
             path={ClaimRoutePaths.Status}
             element={renderClaimStatus()}
           />
-        </Suspense>
-      </Routes>
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   )
 }

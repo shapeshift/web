@@ -191,8 +191,8 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
-        <Suspense fallback={suspenseFallback}>
+      <Suspense fallback={suspenseFallback}>
+        <Routes>
           <Route
             key={StakeRoutePaths.Input}
             path={StakeRoutePaths.Input}
@@ -218,8 +218,8 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
             path={BridgeRoutePaths.Status}
             element={renderBridgeStatus()}
           />
-        </Suspense>
-      </Routes>
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   )
 }

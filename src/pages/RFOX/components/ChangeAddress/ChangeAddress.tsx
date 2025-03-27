@@ -113,8 +113,8 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
-        <Suspense fallback={suspenseFallback}>
+      <Suspense fallback={suspenseFallback}>
+        <Routes>
           <Route
             key={ChangeAddressRoutePaths.Input}
             path={ChangeAddressRoutePaths.Input}
@@ -130,8 +130,8 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
             path={ChangeAddressRoutePaths.Status}
             element={renderChangeAddressStatus()}
           />
-        </Suspense>
-      </Routes>
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   )
 }

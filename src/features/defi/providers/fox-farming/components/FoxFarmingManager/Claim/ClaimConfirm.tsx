@@ -122,13 +122,15 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
       if (!txid) throw new Error(`Transaction failed`)
       onOngoingFarmingTxIdChange(txid, contractAddress)
       navigate('/status', {
-        txid,
-        assetId,
-        amount,
-        userAddress: accountAddress,
-        estimatedGas,
-        chainId,
-        contractAddress,
+        state: {
+          txid,
+          assetId,
+          amount,
+          userAddress: accountAddress,
+          estimatedGas,
+          chainId,
+          contractAddress,
+        },
       })
       trackOpportunityEvent(
         MixPanelEvent.ClaimConfirm,

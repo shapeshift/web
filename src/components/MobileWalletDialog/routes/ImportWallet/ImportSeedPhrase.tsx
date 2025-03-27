@@ -45,7 +45,7 @@ export const ImportSeedPhrase = () => {
 
   const handleBack = useCallback(() => {
     navigate(MobileWalletDialogRoutes.Import)
-  }, [history])
+  }, [navigate])
 
   const onSubmit = useCallback(
     async (values: FormValues) => {
@@ -55,14 +55,14 @@ export const ImportSeedPhrase = () => {
           label: values.name.trim(),
         })
 
-        navigate(MobileWalletDialogRoutes.ImportSuccess, { vault })
+        navigate(MobileWalletDialogRoutes.ImportSuccess, { state: { vault } })
         queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       } catch (e) {
         console.log(e)
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
       }
     },
-    [history, queryClient, setError],
+    [navigate, queryClient, setError],
   )
 
   const textareaFormProps = useMemo(() => {

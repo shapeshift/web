@@ -103,16 +103,16 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
 
   const handleRename = useCallback(
     (wallet: RevocableWallet) => {
-      navigate(MobileWalletDialogRoutes.Rename, { vault: wallet })
+      navigate(MobileWalletDialogRoutes.Rename, { state: { vault: wallet } })
     },
-    [history],
+    [navigate],
   )
 
   const handleDelete = useCallback(
     (wallet: RevocableWallet) => {
-      navigate(MobileWalletDialogRoutes.Delete, { vault: wallet })
+      navigate(MobileWalletDialogRoutes.Delete, { state: { vault: wallet } })
     },
-    [history],
+    [navigate],
   )
 
   useEffect(() => {

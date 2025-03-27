@@ -4,7 +4,7 @@ import { uniq } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -20,7 +20,6 @@ import {
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
-import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 const makeOrdinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
@@ -30,7 +29,7 @@ const TEST_COUNT_REQUIRED = 3
 
 export const CreateBackupConfirm = () => {
   const navigate = useNavigate()
-  const location = useLocation<MobileLocationState>()
+  const location = useLocation()
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.700')
   const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null)
@@ -89,7 +88,7 @@ export const CreateBackupConfirm = () => {
       if (words[currentWordIndex] === word) {
         if ((selectedWordIndex ?? 0) + 1 >= TEST_COUNT_REQUIRED) {
           navigate(MobileWalletDialogRoutes.CreateBackupSuccess, {
-            vault: location.state?.vault,
+            state: { vault: location.state?.vault },
           })
           return
         }
@@ -110,14 +109,14 @@ export const CreateBackupConfirm = () => {
       selectedWordIndex,
       words,
       generateTestWords,
-      history,
+      navigate,
       location.state?.vault,
     ],
   )
 
   const handleBack = useCallback(() => {
-    navigate(MobileWalletDialogRoutes.CreateBackup, { vault: location.state?.vault })
-  }, [history, location.state?.vault])
+    navigate(MobileWalletDialogRoutes.CreateBackup, { state: { vault: location.state?.vault } })
+  }, [navigate, location.state?.vault])
 
   return (
     <SlideTransition>

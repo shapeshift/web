@@ -53,8 +53,10 @@ export const Address = () => {
   const handleClick = useCallback(
     () =>
       navigate(SendRoutes.Select, {
-        toRoute: SelectAssetRoutes.Search,
-        assetId: asset?.assetId ?? '',
+        state: {
+          toRoute: SelectAssetRoutes.Search,
+          assetId: asset?.assetId ?? '',
+        },
       }),
     [history, asset],
   )

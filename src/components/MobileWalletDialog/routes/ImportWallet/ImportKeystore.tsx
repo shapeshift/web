@@ -63,7 +63,7 @@ export const ImportKeystore = () => {
           mnemonic,
           label: values.name.trim(),
         })
-        navigate(MobileWalletDialogRoutes.ImportSuccess, { vault: revocableVault })
+        navigate(MobileWalletDialogRoutes.ImportSuccess, { state: { vault: revocableVault } })
         mixpanel?.track(MixPanelEvent.NativeImportKeystore)
       } catch (e) {
         setError('keystorePassword', {
@@ -72,7 +72,7 @@ export const ImportKeystore = () => {
         })
       }
     },
-    [history, keystoreFile, mixpanel, setError, translate],
+    [navigate, keystoreFile, mixpanel, setError, translate],
   )
 
   const handleFileSelect = useCallback((file: File) => {
@@ -86,8 +86,8 @@ export const ImportKeystore = () => {
   }, [])
 
   const handleGoBack = useCallback(() => {
-    history.goBack()
-  }, [history])
+    navigate(-1)
+  }, [navigate])
 
   return (
     <SlideTransition>

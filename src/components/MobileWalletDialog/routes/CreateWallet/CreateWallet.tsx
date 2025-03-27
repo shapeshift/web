@@ -10,7 +10,7 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
 
@@ -29,7 +29,6 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { createWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
-import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 type FormValues = {
   label: string
@@ -46,7 +45,7 @@ export const CreateWallet = ({
   onClose,
   handleRedirectToHome,
 }: CreateWalletProps) => {
-  const location = useLocation<MobileLocationState | undefined>()
+  const location = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()
   const {
@@ -65,7 +64,7 @@ export const CreateWallet = ({
 
       try {
         vault.label = values.label
-        navigate(MobileWalletDialogRoutes.KeepSafe, { vault })
+        navigate(MobileWalletDialogRoutes.KeepSafe, { state: { vault } })
       } catch (e) {
         console.log(e)
       }

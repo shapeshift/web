@@ -144,12 +144,14 @@ export const ClaimConfirm = ({
         bip44Params,
       })
       navigate('/status', {
+        state: {
         txid,
         assetId: stakingAssetId,
         amount,
         userAddress,
         estimatedGas,
         chainId,
+        }
       })
     } catch (error) {
       console.error(error)

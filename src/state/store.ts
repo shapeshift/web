@@ -60,6 +60,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.portalsApi.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
+  store.dispatch(apiSlices.limitOrderApi.util.resetApiState())
 }
 
 /**

@@ -11,5 +11,7 @@ export const useLimitOrders = () => {
     skip: !evmAccountIds.length,
   })
 
+  console.log({ limitOrdersQuery })
+
   return limitOrdersQuery
 }

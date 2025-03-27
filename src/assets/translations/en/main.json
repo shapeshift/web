@@ -1146,7 +1146,9 @@
         "insufficientBalance": "Your wallet currently has insufficient %{symbol} balance on %{chainName} to execute this order. The order is still open and will become executable when you top up your %{symbol} balance on %{chainName}.",
         "insufficientAllowance": "This order requires a additional allowance of %{symbol} on %{chainName} to be approved for CoW Swap to execute this order. The order is still open and will become executable when you complete the allowance approval."
       }
-    }
+    },
+    "limitOrderFilled": "Limit order filled",
+    "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {

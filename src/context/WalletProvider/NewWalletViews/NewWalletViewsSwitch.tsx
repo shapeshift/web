@@ -48,19 +48,9 @@ const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
-type RightPanelProps = {
-  isLoading: boolean
-  setIsLoading: (isLoading: boolean) => void
-  error: string | null
-  setError: (error: string | null) => void
-}
+type RightPanelProps = Omit<RightPanelContentProps, 'location'>
 
-const RightPanelContent = ({
-  isLoading,
-  setIsLoading,
-  error,
-  setError,
-}: RightPanelProps) => {
+const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPanelProps) => {
   const location = useLocation()
   const {
     state: { modalType, isMipdProvider },
@@ -142,9 +132,9 @@ export const NewWalletViewsSwitch = () => {
     const pathname = location.pathname
 
     if (locationState?.vault && pathname === NativeWalletRoutes.CreateTest) {
-      navigate(NativeWalletRoutes.Create, { 
+      navigate(NativeWalletRoutes.Create, {
         state: { vault: locationState.vault },
-        replace: true 
+        replace: true,
       })
 
       // Queue navigation in the next tick to ensure state is updated
@@ -204,8 +194,6 @@ export const NewWalletViewsSwitch = () => {
     [navigate],
   )
 
-  if (initialRoute) navigate(initialRoute)
-
   // Set the native wallet pending unlock as selected on refresh
   useEffect(() => {
     if (!(nativeWalletPendingDeviceId && nativeVaultsQuery.data)) return
@@ -263,8 +251,7 @@ export const NewWalletViewsSwitch = () => {
     const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(location.pathname)
     // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
     const isConnectRoute =
-      /^\/[^/]+\/connect$/.test(location.pathname) ||
-      location.pathname === '/native/enter-password'
+      /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
     return (
       <Box flex={1} bg={bodyBgColor} p={6} position='relative'>

@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { RepayRoutePaths } from './types'
 
@@ -113,8 +113,6 @@ const RepayRoutes = memo(
     confirmedQuote,
     setConfirmedQuote,
   }: RepayRoutesProps) => {
-    const location = useLocation()
-
     const renderRepayInput = useCallback(
       () => (
         <RepayInput

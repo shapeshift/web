@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
@@ -61,7 +61,6 @@ export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
 }
 
 export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
-  const location = useLocation()
   const queryClient = useQueryClient()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()

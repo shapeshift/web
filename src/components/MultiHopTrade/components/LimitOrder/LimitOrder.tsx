@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 
 import { LimitOrderConfirm as LimitOrderShared } from '../LimitOrderV2/LimitOrderConfirm'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
@@ -46,7 +46,6 @@ export const LimitOrder = ({
   tradeInputRef,
   onChangeTab,
 }: LimitOrderProps) => {
-  const location = useLocation()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')

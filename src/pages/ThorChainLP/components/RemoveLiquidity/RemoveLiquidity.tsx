@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { RemoveLiquidityRoutePaths } from './types'
 
@@ -95,7 +95,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
 }) => {
   const mixpanel = getMixPanel()
   const navigate = useNavigate()
-  const location = useLocation()
+
   const renderRemoveLiquidityInput = useCallback(
     () => (
       <RemoveLiquidityInput

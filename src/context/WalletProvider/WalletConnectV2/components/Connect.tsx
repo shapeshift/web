@@ -2,6 +2,7 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
 import type { StaticContext } from 'react-router'
 import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'
@@ -23,6 +24,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
   const { dispatch, state, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const pairDevice = useCallback(async () => {
     setLoading(true)
@@ -68,7 +70,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
         navigate('/walletconnect/failure')
       }
     }
-  }, [dispatch, getAdapter, history, localWallet, state.wallet])
+  }, [dispatch, getAdapter, history, localWallet, state.wallet, navigate])
 
   return (
     <ConnectModal

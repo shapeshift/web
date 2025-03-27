@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { BorrowRoutePaths } from './types'
 
@@ -148,8 +148,6 @@ const BorrowRoutes = memo(
     confirmedQuote,
     setConfirmedQuote,
   }: BorrowRoutesProps) => {
-    const location = useLocation()
-
     const renderBorrowInput = useCallback(
       () => (
         <BorrowInput

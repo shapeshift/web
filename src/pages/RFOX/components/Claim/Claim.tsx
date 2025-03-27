@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
 import { ClaimRoutePaths } from './types'
@@ -55,7 +55,6 @@ export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
-  const location = useLocation()
   const queryClient = useQueryClient()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()

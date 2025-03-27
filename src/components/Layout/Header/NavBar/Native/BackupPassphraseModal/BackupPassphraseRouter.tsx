@@ -1,7 +1,7 @@
 import { useUnmountEffect } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseInfo } from './BackupPassphraseInfo'
@@ -16,7 +16,6 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 const StartRedirect = () => <Navigate to={BackupPassphraseRoutes.Start} replace />
 
 export const BackupPassphraseRouter = () => {
-  const location = useLocation()
   const { state } = useWallet()
   const [revocableWallet, setRevocableWallet] = useState(
     createRevocableWallet({

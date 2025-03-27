@@ -28,7 +28,7 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
-import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'

@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
@@ -19,7 +19,6 @@ export const SelectAssetView = ({
   toRoute,
   assetId,
 }: SelectAssetViewProps) => {
-  const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Center, Flex, Image, SimpleGrid } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import EasyToUseIcon from '../easy-to-use.svg'
 
@@ -18,6 +19,7 @@ export const EasyToUse = () => {
   const { close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const { history } = useBrowserRouter()
+  const navigate = useNavigate()
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.easyToUse.${key}`
   const renderFeatures = useMemo(() => {
     return (
@@ -43,7 +45,7 @@ export const EasyToUse = () => {
       navigate(path)
       store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
     },
-    [closeModal, history],
+    [closeModal, history, navigate],
   )
   const handleBuyCryptoClick = useCallback(() => handleClick('/buy-crypto'), [handleClick])
   const handleDashboardClick = useCallback(() => handleClick('/wallet'), [handleClick])

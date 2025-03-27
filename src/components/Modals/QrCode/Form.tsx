@@ -4,7 +4,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
@@ -35,7 +35,6 @@ type QrCodeFormProps = {
 const ScanRedirect = () => <Navigate to={SendRoutes.Scan} replace />
 
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
-  const location = useLocation()
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -145,10 +144,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     },
     [navigate, methods],
   )
-
-  const handleSendScanned = useCallback(() => {
-    navigate(SendRoutes.Scan)
-  }, [navigate])
 
   useEffect(() => {
     navigate(SendRoutes.Scan)

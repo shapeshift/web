@@ -2,7 +2,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { AddLiquidityRoutePaths } from './types'
 
@@ -92,7 +92,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
 }) => {
   const mixpanel = getMixPanel()
   const navigate = useNavigate()
-  const location = useLocation()
+
   const [currentAccountIdByChainId, setCurrentAccountIdByChainId] = useState<
     Record<ChainId, AccountId>
   >({})

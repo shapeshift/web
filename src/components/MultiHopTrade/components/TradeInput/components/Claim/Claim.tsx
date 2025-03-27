@@ -1,7 +1,7 @@
 import { Card, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -14,8 +14,6 @@ import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
-  const location = useLocation()
-
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()

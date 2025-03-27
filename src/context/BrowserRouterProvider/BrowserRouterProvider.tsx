@@ -1,6 +1,6 @@
 import { union } from 'lodash'
 import React, { useEffect, useMemo } from 'react'
-import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { matchPath, useLocation, useParams } from 'react-router-dom'
 
 import { BrowserRouterContext } from './BrowserRouterContext'
 
@@ -20,7 +20,6 @@ type BrowserRouterProviderProps = {
 
 export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) {
   const location = useLocation()
-  const navigate = useNavigate()
   const params = useParams()
   const query = useQuery()
   const { routes: pluginRoutes } = usePlugins()

@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import type { FC } from 'react'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { ClearCache } from './ClearCache'
 import { CurrencyFormat } from './CurrencyFormat'
@@ -13,7 +13,6 @@ import { SettingsList } from './SettingsList'
 type SettingsRouterProps = {}
 
 export const SettingsRouter: FC<SettingsRouterProps> = () => {
-  const location = useLocation()
   const navigate = useNavigate()
 
   // Create a history-like object that can be passed to components

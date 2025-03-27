@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { matchPath, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
@@ -15,7 +15,6 @@ import { TradeRoutePaths } from './types'
 
 import { fromBaseUnit } from '@/lib/math'
 import type { TradeRouterMatchParams } from '@/pages/Trade/types'
-import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectInputBuyAsset,
@@ -44,14 +43,19 @@ export const MultiHopTrade = memo(
   ({
     defaultBuyAssetId,
     defaultSellAssetId,
+    defaultSellAssetAccountId,
+    defaultInputAmount,
+    isCrosshop,
     isCompact,
     isRewritingUrl,
     onChangeTab,
     isStandalone,
-  }: TradeCardProps) => {
+  }: any) => {
+    const location = useLocation()
+    const navigate = useNavigate()
+    const params = useParams<TradeRouterMatchParams>()
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
-    const params = useParams<TradeRouterMatchParams>()
 
     const chainId = params?.chainId
     const assetSubId = params?.assetSubId
@@ -61,10 +65,10 @@ export const MultiHopTrade = memo(
 
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
-    const navigate = useNavigate()
-    const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
     const [isInitialMount, setIsInitialMount] = useState(true)
+
+    const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
 
     useEffect(() => {
       if (!isInitialMount || isStandalone) return
@@ -81,7 +85,6 @@ export const MultiHopTrade = memo(
       isStandalone,
       isInitialMount,
       isRewritingUrl,
-      navigate,
       buyAsset.assetId,
       sellAsset.assetId,
     ])
@@ -98,7 +101,6 @@ export const MultiHopTrade = memo(
       isStandalone,
       buyAsset,
       sellAsset,
-      navigate,
       sellInputAmountCryptoBaseUnit,
       paramsSellAmountCryptoBaseUnit,
     ])

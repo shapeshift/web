@@ -20,7 +20,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
+import { useMatch, useNavigate, useParams } from 'react-router-dom'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
@@ -55,7 +55,6 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const translate = useTranslate()
   const navigate = useNavigate()
-  const location = useLocation()
   const isPoolPage = useMatch('/lending/pool/:poolAssetId')
   const isPoolAccountPage = useMatch('/lending/poolAccount/:poolAccountId/:poolAssetId')
 

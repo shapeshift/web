@@ -1,10 +1,10 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteProps } from 'react-router-dom'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import {
   useMenuRoutes,
@@ -107,8 +107,6 @@ export const WalletConnectedMenu = ({
   connectedType,
   onClose,
 }: WalletConnectedProps) => {
-  const location = useLocation()
-
   const connectedWalletMenuRoutes = useMemo(
     () => connectedType && SUPPORTED_WALLETS[connectedType].connectedWalletMenuRoutes,
     [connectedType],

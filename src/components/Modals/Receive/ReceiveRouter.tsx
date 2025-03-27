@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 
@@ -18,7 +18,6 @@ type ReceiveRouterProps = {
 export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
-  const location = useLocation()
   const navigate = useNavigate()
 
   const handleAssetSelect = useCallback(

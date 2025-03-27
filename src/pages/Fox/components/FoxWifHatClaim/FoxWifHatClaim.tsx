@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
 import type { FoxWifHatClaimRouteProps } from './types'
 import { FoxWifHatClaimRoutePaths } from './types'
@@ -45,7 +45,6 @@ export const FoxWifHatClaim: React.FC<FoxWifHatClaimRouteProps> = ({ accountId }
 }
 
 export const FoxWifHatClaimRoutes: React.FC<FoxWifHatClaimRouteProps> = ({ accountId }) => {
-  const location = useLocation()
   const queryClient = useQueryClient()
   const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 

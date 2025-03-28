@@ -159,7 +159,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
             <Route
-              path={SendRoutes.Select}
+              path={`${SendRoutes.Select}/*`}
               element={<SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />}
             />
             <Route path={SendRoutes.Address} element={<Address />} />

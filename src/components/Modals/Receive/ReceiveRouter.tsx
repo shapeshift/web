@@ -48,7 +48,7 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
           }
         />
         <Route
-          path={ReceiveRoutes.Select}
+          path={`${ReceiveRoutes.Select}/*`}
           element={<SelectAssetRouter onClick={handleAssetSelect} />}
         />
       </Routes>

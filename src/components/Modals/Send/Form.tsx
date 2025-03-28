@@ -4,7 +4,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -25,7 +25,6 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
-const selectRedirect = <Navigate to={SendRoutes.Select} replace />
 const status = <Status />
 const confirm = <Confirm />
 const details = <Details />
@@ -57,6 +56,16 @@ type SendFormProps = {
   accountId?: AccountId
   input?: string
 }
+
+const RedirectToSelect = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate(SendRoutes.Select, { replace: true });
+  }, [navigate]);
+  return null;
+};
+
+const selectRedirect = <RedirectToSelect />
 
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
   const navigate = useNavigate()
@@ -95,13 +104,17 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
-      methods.setValue(SendFormFields.AssetId, assetId)
-      methods.setValue(SendFormFields.AccountId, '')
-      methods.setValue(SendFormFields.AmountCryptoPrecision, '')
-      methods.setValue(SendFormFields.FiatAmount, '')
-      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
-
-      navigate(SendRoutes.Address)
+      // Set all form values
+      methods.setValue(SendFormFields.AssetId, assetId);
+      methods.setValue(SendFormFields.AccountId, '');
+      methods.setValue(SendFormFields.AmountCryptoPrecision, '');
+      methods.setValue(SendFormFields.FiatAmount, '');
+      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency);
+      
+      // Use requestAnimationFrame to ensure navigation happens after state updates
+      requestAnimationFrame(() => {
+        navigate(SendRoutes.Address, { replace: true });
+      });
     },
     [navigate, methods, selectedCurrency],
   )
@@ -153,11 +166,13 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     [navigate, methods],
   )
 
+  const location = useLocation()
+
   useEffect(() => {
-    if (!initialAssetId) {
+    if (!initialAssetId && location.pathname === SendRoutes.Select) {
       navigate(SendRoutes.Select)
     }
-  }, [navigate, initialAssetId])
+  }, [navigate, initialAssetId, location.pathname])
 
   const qrCodeScanner = useMemo(
     () => (
@@ -181,7 +196,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       >
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route path={SendRoutes.Select} element={selectAssetRouter} />
+            <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouter} />
             <Route path={SendRoutes.Address} element={address} />
             <Route path={SendRoutes.Details} element={details} />
             <Route path={SendRoutes.Scan} element={qrCodeScanner} />

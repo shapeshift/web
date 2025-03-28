@@ -1,12 +1,20 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
-const SearchRedirect = () => <Navigate to={SelectAssetRoutes.Search} replace />
+const SearchRedirect = () => {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    navigate(SelectAssetRoutes.Search, { replace: true })
+  }, [navigate])
+
+  return null
+}
 
 type SelectAssetViewProps = {
   onClick: (assetId: AssetId) => void
@@ -26,7 +34,7 @@ export const SelectAssetView = ({
       navigate(toRoute, { state: { assetId } })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [toRoute, assetId])
 
   return (
     <Routes>

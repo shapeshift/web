@@ -1,14 +1,12 @@
 import { Flex } from '@chakra-ui/react'
-import { memo, useCallback, useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
@@ -16,10 +14,9 @@ import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/
 
 const padding = { base: 0, md: 8 }
 
-export const Trade = memo(() => {
+export const TradeTab = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
-  const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
 
@@ -73,14 +70,7 @@ export const Trade = memo(() => {
   )
 
   const title = useMemo(() => {
-    switch (true) {
-      case location.pathname.startsWith(LimitOrderRoutePaths.Input):
-        return translate('navBar.limitOrder')
-      case location.pathname.startsWith(ClaimRoutePaths.Select):
-        return translate('navBar.claims')
-      default:
-        return translate('navBar.trade')
-    }
+    return translate('navBar.trade')
   }, [location.pathname, translate])
 
   // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm
@@ -92,24 +82,9 @@ export const Trade = memo(() => {
         TradeRoutePaths.VerifyAddresses,
         LimitOrderRoutePaths.Confirm,
         LimitOrderRoutePaths.Orders,
-      ].includes(location.pathname as TradeRoutePaths),
+      ].some(path => location.pathname.includes(path)),
     [location.pathname],
   )
-
-  const limitOrderElement = useMemo(
-    () => (
-      <LimitOrder
-        tradeInputRef={tradeInputRef}
-        onChangeTab={handleChangeTab}
-        isRewritingUrl={isRewritingUrl}
-        defaultBuyAssetId={defaultBuyAssetId}
-        defaultSellAssetId={defaultSellAssetId}
-      />
-    ),
-    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
-  )
-
-  const claimElement = useMemo(() => <Claim onChangeTab={handleChangeTab} />, [handleChangeTab])
 
   const tradeElement = useMemo(
     () => (
@@ -137,21 +112,7 @@ export const Trade = memo(() => {
       >
         <FormProvider {...methods}>
           <Routes>
-            <Route
-              key={LimitOrderRoutePaths.Input}
-              path={LimitOrderRoutePaths.Input}
-              element={limitOrderElement}
-            />
-            <Route
-              key={ClaimRoutePaths.Select}
-              path={ClaimRoutePaths.Select}
-              element={claimElement}
-            />
-            <Route
-              key={TradeRoutePaths.Input}
-              path={''} // TODO(gomes): rework swapper routing, we're getting there
-              element={tradeElement}
-            />
+            <Route key={TradeRoutePaths.Input} path={'*'} element={tradeElement} />
           </Routes>
         </FormProvider>
       </Flex>

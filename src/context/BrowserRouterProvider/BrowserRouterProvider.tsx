@@ -30,11 +30,26 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [pluginRoutes])
 
   const currentRoute = useMemo(() => {
-    return appRoutes.find(e =>
+    // First try to find an exact match
+    const exactMatch = appRoutes.find(e =>
       matchPath(
         {
           path: e.path,
           end: true,
+        },
+        location.pathname,
+      ),
+    )
+
+    if (exactMatch) return exactMatch
+
+    // If no exact match, try to find a wildcard match
+    // This gives preference to more specific routes over wildcards
+    return appRoutes.find(e =>
+      matchPath(
+        {
+          path: e.path,
+          end: false,
         },
         location.pathname,
       ),
@@ -51,7 +66,6 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
 
   const router = useMemo(
     () => ({
-      history,
       location,
       params,
       query,

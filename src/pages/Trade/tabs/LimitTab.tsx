@@ -8,15 +8,13 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
+import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
 const padding = { base: 0, md: 8 }
 
-export const Trade = memo(() => {
+export const LimitTab = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
@@ -27,17 +25,13 @@ export const Trade = memo(() => {
   // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
   // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
-  const spotMatch = useMemo(
-    () => matchPath({ path: TRADE_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname),
-    [location.pathname],
-  )
 
   const limitMatch = useMemo(
     () => matchPath({ path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname),
     [location.pathname],
   )
 
-  const params = spotMatch?.params || limitMatch?.params
+  const params = limitMatch?.params
 
   const defaultBuyAssetId = useMemo(
     () =>
@@ -73,14 +67,7 @@ export const Trade = memo(() => {
   )
 
   const title = useMemo(() => {
-    switch (true) {
-      case location.pathname.startsWith(LimitOrderRoutePaths.Input):
-        return translate('navBar.limitOrder')
-      case location.pathname.startsWith(ClaimRoutePaths.Select):
-        return translate('navBar.claims')
-      default:
-        return translate('navBar.trade')
-    }
+    return translate('navBar.limitOrder')
   }, [location.pathname, translate])
 
   // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm
@@ -92,7 +79,7 @@ export const Trade = memo(() => {
         TradeRoutePaths.VerifyAddresses,
         LimitOrderRoutePaths.Confirm,
         LimitOrderRoutePaths.Orders,
-      ].includes(location.pathname as TradeRoutePaths),
+      ].some(path => location.pathname.includes(path)),
     [location.pathname],
   )
 
@@ -104,20 +91,6 @@ export const Trade = memo(() => {
         isRewritingUrl={isRewritingUrl}
         defaultBuyAssetId={defaultBuyAssetId}
         defaultSellAssetId={defaultSellAssetId}
-      />
-    ),
-    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
-  )
-
-  const claimElement = useMemo(() => <Claim onChangeTab={handleChangeTab} />, [handleChangeTab])
-
-  const tradeElement = useMemo(
-    () => (
-      <MultiHopTrade
-        isRewritingUrl={isRewritingUrl}
-        defaultBuyAssetId={defaultBuyAssetId}
-        defaultSellAssetId={defaultSellAssetId}
-        onChangeTab={handleChangeTab}
       />
     ),
     [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
@@ -137,21 +110,7 @@ export const Trade = memo(() => {
       >
         <FormProvider {...methods}>
           <Routes>
-            <Route
-              key={LimitOrderRoutePaths.Input}
-              path={LimitOrderRoutePaths.Input}
-              element={limitOrderElement}
-            />
-            <Route
-              key={ClaimRoutePaths.Select}
-              path={ClaimRoutePaths.Select}
-              element={claimElement}
-            />
-            <Route
-              key={TradeRoutePaths.Input}
-              path={''} // TODO(gomes): rework swapper routing, we're getting there
-              element={tradeElement}
-            />
+            <Route key={LimitOrderRoutePaths.Input} path={'*'} element={limitOrderElement} />
           </Routes>
         </FormProvider>
       </Flex>

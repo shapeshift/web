@@ -20,6 +20,8 @@ import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
+import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 export const TRADE_ROUTE_ASSET_SPECIFIC =
@@ -140,32 +142,32 @@ export const routes: Route[] = [
     icon: <SwapIcon />,
     mobileNav: false,
     priority: 2,
-    main: Trade,
+    main: TradeTab,
     category: RouteCategory.Featured,
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       {
         path: TradeRoutePaths.Confirm,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       {
         path: TradeRoutePaths.VerifyAddresses,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       {
         path: TradeRoutePaths.QuoteList,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       ...assetIdPaths.map<Route>(assetIdPath => ({
         path: assetIdPath,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       })),
     ],
@@ -278,31 +280,31 @@ export const routes: Route[] = [
     path: '/limit/*',
     label: '',
     hideDesktop: true,
-    main: Trade,
+    main: LimitTab,
     routes: [
       {
         path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.Confirm,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.AllowanceApproval,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.PlaceOrder,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.Orders,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
     ],

@@ -185,36 +185,38 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
 
   // Create memoized elements for each route
   const tradeConfirmElement = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
-  
+
   const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
 
-  const quoteListElement = useMemo(() => (
-    <SlideTransitionRoute
-      height={tradeInputRef.current?.offsetHeight ?? '500px'}
-      width={tradeInputRef.current?.offsetWidth ?? 'full'}
-      component={QuoteList}
-      parentRoute={TradeRoutePaths.Input}
-    />
-  ), [tradeInputRef])
+  const quoteListElement = useMemo(
+    () => (
+      <SlideTransitionRoute
+        height={tradeInputRef.current?.offsetHeight ?? '500px'}
+        width={tradeInputRef.current?.offsetWidth ?? 'full'}
+        component={QuoteList}
+        parentRoute={TradeRoutePaths.Input}
+      />
+    ),
+    [tradeInputRef],
+  )
 
-  const tradeInputElement = useMemo(() => (
-    <TradeInput
-      isCompact={isCompact}
-      tradeInputRef={tradeInputRef}
-      onChangeTab={onChangeTab}
-      isStandalone={isStandalone}
-    />
-  ), [isCompact, onChangeTab, isStandalone])
+  const tradeInputElement = useMemo(
+    () => (
+      <TradeInput
+        isCompact={isCompact}
+        tradeInputRef={tradeInputRef}
+        onChangeTab={onChangeTab}
+        isStandalone={isStandalone}
+      />
+    ),
+    [isCompact, onChangeTab, isStandalone],
+  )
 
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route
-            key={TradeRoutePaths.Confirm}
-            path={TradeRoutePaths.Confirm}
-            element={tradeConfirmElement}
-          />
+          <Route key={TradeRoutePaths.Confirm} path={'confirm'} element={tradeConfirmElement} />
           <Route
             key={TradeRoutePaths.VerifyAddresses}
             path={TradeRoutePaths.VerifyAddresses}
@@ -225,11 +227,8 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
             path={TradeRoutePaths.QuoteList}
             element={quoteListElement}
           />
-          <Route
-            key={TradeRoutePaths.Input}
-            path={TradeRoutePaths.Input}
-            element={tradeInputElement}
-          />
+          <Route key={TradeRoutePaths.Input} path={'*'} element={tradeInputElement} />
+          <Route path='/trade/*' element={tradeInputElement} />
         </Routes>
       </AnimatePresence>
       {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}

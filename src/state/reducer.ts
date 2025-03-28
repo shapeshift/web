@@ -110,6 +110,12 @@ const assetsPersistConfig = {
   migrate: createMigrate(clearAssetsMigrations, { debug: false }),
 }
 
+const limitOrderApiPersistConfig = {
+  key: 'limitOrderApi',
+  storage: localforage,
+  version: 0,
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -160,7 +166,7 @@ export const apiReducers = {
   [portalsApi.reducerPath]: portalsApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
-  [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+  [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

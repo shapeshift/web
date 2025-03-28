@@ -11,11 +11,12 @@ import {
   ModalHeader,
   UnorderedList,
 } from '@chakra-ui/react'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
-import { RawText } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -50,6 +51,13 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
 
   // TODO: ackchually cancel, not use placebo
   const handleCancel = useCallback(() => setIsInstalling(false), [])
+
+  const agreeItem1Components: TextPropTypes['components'] = useMemo(
+    () => ({
+      strong: <RawText as='strong' />,
+    }),
+    [],
+  )
 
   if (isInstalling) {
     return (
@@ -98,9 +106,10 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
         </RawText>
         <UnorderedList spacing={2} my={4}>
           <ListItem>
-            {translate('walletProvider.metaMaskSnapConfirm.agreeItem1Parts.1')}{' '}
-            <strong>{translate('walletProvider.metaMaskSnapConfirm.agreeItem1Parts.2')}</strong>{' '}
-            {translate('walletProvider.metaMaskSnapConfirm.agreeItem1Parts.3')}
+            <Text
+              translation='walletProvider.metaMaskSnapConfirm.agreeItem1'
+              components={agreeItem1Components}
+            />
           </ListItem>
           <ListItem>
             {translate('walletProvider.metaMaskSnapConfirm.agreeItem2')}{' '}

@@ -49,7 +49,9 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
 
-      const previousEpoch = epochs[0]
+      const previousEpoch = epochs.reduce((latest, current) => {
+        return current.number > latest.number ? current : latest
+      })
 
       const closestRunePrice = runePriceHistory.find(
         (price, index) =>

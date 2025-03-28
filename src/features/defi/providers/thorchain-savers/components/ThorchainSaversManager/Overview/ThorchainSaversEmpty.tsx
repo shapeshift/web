@@ -98,6 +98,17 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     [asset?.symbol, isRunePool],
   )
 
+  const risksBodyTranslationComponents: TextPropTypes['components'] = useMemo(() => {
+    // @TODO: update the RUNEPool link when a better article exists
+    const linkHref = isRunePool
+      ? RUNEPOOL_ARTICLE_LINK
+      : 'https://medium.com/thorchain/thorchain-savers-vaults-fc3f086b4057'
+
+    return {
+      link: <Link color={linkColor} isExternal href={linkHref} me={1}></Link>,
+    }
+  }, [isRunePool, linkColor])
+
   const renderFooter = useMemo(() => {
     if (!asset) return
 
@@ -116,7 +127,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
         {isRunePool ? (
           <Box borderRadius='xl' background={backgroundColor}>
             <Checkbox sx={checkboxStyles} isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
-              {translate('defi.modals.saversVaults.agreeRunePool.1')}
+              {translate('defi.modals.saversVaults.agreeRunePool')}
             </Checkbox>
           </Box>
         ) : null}
@@ -148,15 +159,6 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     onClick,
     checkboxStyles,
   ])
-
-  // @TODO: update the RUNEPool link a better article exists
-  const articleLink = useMemo(
-    () =>
-      isRunePool
-        ? RUNEPOOL_ARTICLE_LINK
-        : 'https://medium.com/thorchain/thorchain-savers-vaults-fc3f086b4057',
-    [isRunePool],
-  )
 
   const emptyOverviewAssets = useMemo(() => (asset ? [asset] : []), [asset])
 
@@ -192,17 +194,16 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
             textShadow={`0 2px 2px var(${textShadow})`}
             letterSpacing='0.009em'
           />
-          <RawText color='text.subtle'>
-            {`${translate('defi.modals.saversVaults.risksBody.1')} `}
-            <Link color={linkColor} isExternal href={articleLink} me={1}>
-              {translate('defi.modals.saversVaults.risksBody.2')}
-            </Link>
-            {translate(
+          <Text
+            as={RawText}
+            color='text.subtle'
+            translation={
               isRunePool
                 ? 'defi.modals.saversVaults.risksBody.runePool'
-                : 'defi.modals.saversVaults.risksBody.3',
-            )}
-          </RawText>
+                : 'defi.modals.saversVaults.risksBody.vaults'
+            }
+            components={risksBodyTranslationComponents}
+          />
         </Stack>
       </EmptyOverview>
     </DefiModalContent>

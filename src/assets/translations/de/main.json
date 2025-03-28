@@ -198,13 +198,7 @@
     "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
-    "body": {
-      "1": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen",
-      "2": "private.shapeshift.com",
-      "3": "wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere",
-      "4": "Datenschutz Bestimmungen",
-      "5": "für mehr Details."
-    },
+    "body": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen %{privateLink} wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere %{privacyPolicyLink} für mehr Details.",
     "cta": "Verstanden"
   },
   "errorPage": {
@@ -213,18 +207,10 @@
     "cta": "Versuchen Sie es nochmal"
   },
   "buyPage": {
-    "title": {
-      "first": "Krypto kaufen",
-      "second": "in Sekunden"
-    },
+    "title": "Krypto kaufen <span>in Sekunden</span>",
     "body": "Verwenden Sie eine Kreditkarte,  Debitkarte oder ein Bankkonto. Kaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
     "disclaimer": "*Sie können Krypto auch direkt gegen Bargeld auf Ihr Bankkonto verkaufen.",
-    "cta": {
-      "title": {
-        "first": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und",
-        "second": "Verfolgen Sie Ihre Krypto über %{chainCount} Ketten"
-      }
-    },
+    "ctaTitle": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und <span>Verfolgen Sie Ihre Krypto über %{chainCount} Ketten</span>",
     "availableAssets": "Verfügbare Vermögenswerte"
   },
   "updateToast": {
@@ -435,10 +421,8 @@
         "introducingSaversVaults": "Einführung von Savers Vaults",
         "introducingRunePool": "Einführung in RUNEPool",
         "risksBody": {
-          "1": "In Bezug auf",
-          "2": "diesen Artikel",
-          "3": "für Risiken im Zusammenhang mit Savers Vaults.",
-          "runePool": "für die mit RUNEPool verbundenen Risiken."
+          "vaults": "In Bezug auf <link>diesen Artikel</link> für Risiken im Zusammenhang mit Savers Vaults.",
+          "runePool": "In Bezug auf <link>diesen Artikel</link> für die mit RUNEPool verbundenen Risiken."
         },
         "understand": "Ich verstehe",
         "days": "%{amount} Tage",
@@ -450,9 +434,7 @@
         "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
         "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
         "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben.",
-        "agreeRunePool": {
-          "1": "Mir ist bewusst, dass bei RUNEPool eine Mindestsperrfrist von 30 Tagen besteht und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
-        }
+        "agreeRunePool": "Mir ist bewusst, dass bei RUNEPool eine Mindestsperrfrist von 30 Tagen besteht und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
       }
     },
     "memoNote": {
@@ -1748,11 +1730,7 @@
       "warningExperimental": "Der ShapeShift Multichain Snap ist eine neue, experimentelle Funktion, sofern sie „as is“ bereitgestellt wird.",
       "warningBackup": "Stellen Sie sicher, dass Sie Ihre MetaMask-Seed-Phrase gesichert haben. Alle Guthaben, die Sie mit diesem Snap an Nicht-EVM-Ketten senden, werden an das Standardkonto weitergeleitet, das Sie mit MetaMask eingerichtet haben.",
       "agreeIntro": "Bevor Sie fortfahren, lesen Sie bitte Folgendes:",
-      "agreeItem1Parts": {
-        "1": "Hardware Wallets werden",
-        "2": "NICHT",
-        "3": "unterstützt"
-      },
+      "agreeItem1": "Hardware Wallets werden <strong>NICHT</strong> unterstützt",
       "agreeItem2": "Für die zusätzlichen Ketten, die der ShapeShift Multichain Snap bereitstellt, wird nur Konto Nr. 1 in MetaMask unterstützt",
       "agreeItem3": "Um die vorhandenen Ethereum-Ketten von MetaMask nutzen zu können, müssen Sie Konto Nr. 1 mit ShapeShift in MetaMask verbinden",
       "agreeItem4": "Indem Sie den ShapeShift Multichain Snap aktivieren, erkennen Sie an, dass Sie ihn auf eigenes Risiko verwenden",
@@ -2873,11 +2851,7 @@
     },
     "governance": {
       "title": "Verwaltung",
-      "description": {
-        "0": "Folgen Sie uns",
-        "1": "im Forum",
-        "2": "und gestalten Sie die Zukunft der DAO."
-      },
+      "description": "Folgen Sie uns <link>im Forum</link> und gestalten Sie die Zukunft der DAO.",
       "totalVotingPower": "Gesamtstimmrecht",
       "noActiveProposals": "Keine aktiven Vorschläge verfügbar",
       "noClosedProposals": "Keine abgeschlossenen Vorschläge verfügbar"

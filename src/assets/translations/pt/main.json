@@ -198,13 +198,7 @@
     "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
-    "body": {
-      "1": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite",
-      "2": "private.shapeshift.com",
-      "3": "se você não quiser ser rastreado anonimamente. Veja nossa",
-      "4": "Politica de Privacidade",
-      "5": "para mais detalhes."
-    },
+    "body": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite %{privateLink} se você não quiser ser rastreado anonimamente. Veja nossa %{privacyPolicyLink} para mais detalhes.",
     "cta": "Entendi"
   },
   "errorPage": {
@@ -213,18 +207,10 @@
     "cta": "Tente novamente"
   },
   "buyPage": {
-    "title": {
-      "first": "Compre Cripto",
-      "second": "Em instantes"
-    },
+    "title": "Compre Cripto <span>Em instantes</span>",
     "body": "Use cartão de crédito, débito ou PIX. Compre Bitcoin, Ethereum, USDT, USDC ou outras centenas de criptomoedas. ",
     "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
-    "cta": {
-      "title": {
-        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
-        "second": "monitorar suas criptos em %{chainCount} redes diferentes."
-      }
-    },
+    "ctaTitle": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e <span>monitorar suas criptos em %{chainCount} redes diferentes.</span>",
     "availableAssets": "Ativos disponíveis"
   },
   "updateToast": {
@@ -435,10 +421,8 @@
         "introducingSaversVaults": "Introduzindo a Savers Vault",
         "introducingRunePool": "Apresentando RUNEPool",
         "risksBody": {
-          "1": "Indique para",
-          "2": "este artigo",
-          "3": "para riscos envolvidos com a Savers Vault",
-          "runePool": "para riscos envolvidos com o RUNEPool."
+          "vaults": "Indique para <link>este artigo</link> para riscos envolvidos com a Savers Vault",
+          "runePool": "Indique para <link>este artigo</link> para riscos envolvidos com o RUNEPool."
         },
         "understand": "Eu entendo",
         "days": "%{amount} dias",
@@ -450,9 +434,7 @@
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
         "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
         "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema.",
-        "agreeRunePool": {
-          "1": "Entendo que o RUNEPool tem um bloqueio mínimo de 30 dias e um risco maior de perda impermanente."
-        }
+        "agreeRunePool": "Entendo que o RUNEPool tem um bloqueio mínimo de 30 dias e um risco maior de perda impermanente."
       }
     },
     "memoNote": {
@@ -1748,11 +1730,7 @@
       "warningExperimental": "O ShapeShift Multichain Snap é um recurso novo e experimental, fornecido \"como está\"",
       "warningBackup": "Certifique-se de ter feito backup das palavras-chave da sua MetaMask. Qualquer fundos que você enviar para redes não EVM usando este Snap serão direcionados para a conta padrão que você configurou com MetaMask.",
       "agreeIntro": "Antes de continuar, leia o seguinte:",
-      "agreeItem1Parts": {
-        "1": "Hardware wallets são",
-        "2": "NÃO",
-        "3": "suportado"
-      },
+      "agreeItem1": "Hardware wallets são <strong>NÃO</strong> suportado",
       "agreeItem2": "Apenas a conta nº 1 no MetaMask é suportada para as redes extras que o ShapeShift Multichain Snap fornece",
       "agreeItem3": "Para usar as redes Ethereum existentes fornecidas pela MetaMask, você deve conectar a conta nº 1 ao ShapeShift na MetaMask",
       "agreeItem4": "Ao ativar o ShapeShift Multichain Snap, você reconhece que o está usando por sua própria conta e risco",
@@ -2873,11 +2851,7 @@
     },
     "governance": {
       "title": "Governança",
-      "description": {
-        "0": "Junte-se a nós",
-        "1": "no fórum",
-        "2": "e molde o futuro da DAO."
-      },
+      "description": "Junte-se a nós <link>no fórum</link> e molde o futuro da DAO.",
       "totalVotingPower": "Poder total de voto",
       "noActiveProposals": "Nenhuma proposta ativa disponível",
       "noClosedProposals": "Nenhuma proposta fechada disponível"

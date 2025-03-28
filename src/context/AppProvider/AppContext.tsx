@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetchQuery } from './hooks/useAccountsFetchQuery'
 
+import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
@@ -60,6 +61,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
+
+  // App-wide long-poll of limit orders
+  useLimitOrders()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

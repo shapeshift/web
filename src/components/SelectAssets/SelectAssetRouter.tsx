@@ -20,8 +20,10 @@ export const SelectAssetRouter = ({ onClick, onBack: handleBack }: SelectAssetRo
   const location = useLocation()
   const state = location.state as SelectAssetLocation
   return (
-    <MemoryRouter initialEntries={entries}>
-      <SelectAssetView onClick={onClick} onBack={handleBack} {...state} />
-    </MemoryRouter>
+    <>
+      <MemoryRouter initialEntries={entries}>
+        <SelectAssetView onClick={onClick} onBack={handleBack} {...state} />
+      </MemoryRouter>
+    </>
   )
 }

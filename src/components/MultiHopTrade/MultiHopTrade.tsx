@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
@@ -15,6 +15,7 @@ import { TradeRoutePaths } from './types'
 
 import { fromBaseUnit } from '@/lib/math'
 import type { TradeRouterMatchParams } from '@/pages/Trade/types'
+import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
   selectInputBuyAsset,
@@ -43,31 +44,38 @@ export const MultiHopTrade = memo(
   ({
     defaultBuyAssetId,
     defaultSellAssetId,
-    defaultSellAssetAccountId,
-    defaultInputAmount,
-    isCrosshop,
     isCompact,
     isRewritingUrl,
     onChangeTab,
     isStandalone,
-  }: any) => {
-    const navigate = useNavigate()
-    const params = useParams<TradeRouterMatchParams>()
+  }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
+    const location = useLocation()
 
-    const chainId = params?.chainId
-    const assetSubId = params?.assetSubId
-    const sellChainId = params?.sellChainId
-    const sellAssetSubId = params?.sellAssetSubId
-    const paramsSellAmountCryptoBaseUnit = params?.sellAmountCryptoBaseUnit
+    // Extract params directly from location.pathname using matchPath instead of useParams()
+    // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
+    // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
+    // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
+    const match = matchPath(
+      { path: TRADE_ROUTE_ASSET_SPECIFIC, end: true },
+      location.pathname
+    )
+
+    // Safely extract params with proper type checking
+    const params = match?.params as Record<string, string> || {}
+    const chainId = params.chainId
+    const assetSubId = params.assetSubId
+    const sellChainId = params.sellChainId
+    const sellAssetSubId = params.sellAssetSubId
+    const paramsSellAmountCryptoBaseUnit = params.sellAmountCryptoBaseUnit
 
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
+    const navigate = useNavigate()
+    const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
     const [isInitialMount, setIsInitialMount] = useState(true)
-
-    const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
 
     useEffect(() => {
       if (!isInitialMount || isStandalone) return
@@ -84,6 +92,7 @@ export const MultiHopTrade = memo(
       isStandalone,
       isInitialMount,
       isRewritingUrl,
+      navigate,
       buyAsset.assetId,
       sellAsset.assetId,
     ])
@@ -100,6 +109,7 @@ export const MultiHopTrade = memo(
       isStandalone,
       buyAsset,
       sellAsset,
+      navigate,
       sellInputAmountCryptoBaseUnit,
       paramsSellAmountCryptoBaseUnit,
     ])
@@ -157,104 +167,62 @@ type TradeRoutesProps = {
 }
 
 const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesProps) => {
-  const navigate = useNavigate()
   const location = useLocation()
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
   const shouldUseTradeRates = useMemo(() => {
+    // We want to fetch rates when the user is on the trade input or any asset-specific trade route
+    // but not on confirm, verify-addresses, etc.
     const pathname = location.pathname
 
-    const isTradeBase = pathname === '/trade' || pathname === '/trade/'
-
+    const isTradeInputPath = pathname === TradeRoutePaths.Input
+    // Poor man's matchPath to check if the path is an asset-specific trade route i.e if it starts with /trade
+    // but is none of /trade subroutes
     const isAssetSpecificPath =
-      pathname.startsWith('/trade/') &&
-      !pathname.includes(`/${TradeRoutePaths.Confirm}`) &&
-      !pathname.includes(`/${TradeRoutePaths.VerifyAddresses}`) &&
-      !pathname.includes(`/${TradeRoutePaths.QuoteList}`)
+      pathname.startsWith(TradeRoutePaths.Input) &&
+      !pathname.includes(TradeRoutePaths.Confirm) &&
+      !pathname.includes(TradeRoutePaths.VerifyAddresses) &&
+      !pathname.includes(TradeRoutePaths.QuoteList)
 
-    return isTradeBase || isAssetSpecificPath
+    return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
-
-  // Check if we're on a specific route
-  const isOnConfirmRoute =
-    location.pathname.endsWith('/confirm') || location.pathname === '/trade/confirm'
-  const isOnVerifyAddressesRoute =
-    location.pathname.endsWith('/verify-addresses') ||
-    location.pathname === '/trade/verify-addresses'
-  const isOnQuoteListRoute =
-    location.pathname.endsWith('/quote-list') || location.pathname === '/trade/quote-list'
 
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          {isOnConfirmRoute ? (
-            <Route
-              path='*'
-              element={
-                <div data-testid='trade-confirm-screen' style={{ width: '100%' }}>
-                  <TradeConfirm isCompact={isCompact} />
-                </div>
-              }
-            />
-          ) : isOnVerifyAddressesRoute ? (
-            <Route
-              path='*'
-              element={
-                <div style={{ width: '100%' }}>
-                  <VerifyAddresses />
-                </div>
-              }
-            />
-          ) : isOnQuoteListRoute ? (
-            <Route
-              path='*'
-              element={
-                <div style={{ width: '100%' }}>
-                  <SlideTransitionRoute
-                    height={tradeInputRef.current?.offsetHeight ?? '500px'}
-                    width={tradeInputRef.current?.offsetWidth ?? 'full'}
-                    component={QuoteList}
-                    parentRoute={TradeRoutePaths.Input}
-                  />
-                </div>
-              }
-            />
-          ) : (
-            <>
-              {/* Index route for base /trade path */}
-              <Route
-                index
-                element={
-                  <div style={{ width: '100%' }}>
-                    <TradeInput
-                      isCompact={isCompact}
-                      tradeInputRef={tradeInputRef}
-                      onChangeTab={onChangeTab}
-                      isStandalone={isStandalone}
-                    />
-                  </div>
-                }
+          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm} element={<TradeConfirm isCompact={isCompact} />} />
+          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses} element={<VerifyAddresses />} />
+          <Route 
+            key={TradeRoutePaths.QuoteList} 
+            path={TradeRoutePaths.QuoteList} 
+            element={
+              <SlideTransitionRoute
+                height={tradeInputRef.current?.offsetHeight ?? '500px'}
+                width={tradeInputRef.current?.offsetWidth ?? 'full'}
+                component={QuoteList}
+                parentRoute={TradeRoutePaths.Input}
               />
-              {/* Explicit route for the TradeRoutePaths.Input value */}
-              <Route
-                path='*'
-                element={
-                  <div style={{ width: '100%' }}>
-                    <TradeInput
-                      isCompact={isCompact}
-                      tradeInputRef={tradeInputRef}
-                      onChangeTab={onChangeTab}
-                      isStandalone={isStandalone}
-                    />
-                  </div>
-                }
+            }
+          />
+          <Route 
+            key={TradeRoutePaths.Input} 
+            path={TradeRoutePaths.Input} 
+            element={
+              <TradeInput
+                isCompact={isCompact}
+                tradeInputRef={tradeInputRef}
+                onChangeTab={onChangeTab}
+                isStandalone={isStandalone}
               />
-            </>
-          )}
+            }
+          />
         </Routes>
       </AnimatePresence>
+      {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
+      {/* corrupted from state being mutated during trade execution. */}
+      {/* TODO: move the hook into a react-query or similar and pass a flag  */}
       {shouldUseTradeRates ? <GetTradeRates /> : null}
     </>
   )

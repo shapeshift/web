@@ -2,9 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
-
-import type { TradeRouterMatchParams } from './types'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -25,28 +23,48 @@ export const Trade = memo(() => {
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
 
-  // In React Router v6, we can use useMatch for matching routes
-  const spotMatch = useMatch(TRADE_ROUTE_ASSET_SPECIFIC)
-  const limitMatch = useMatch(LIMIT_ORDER_ROUTE_ASSET_SPECIFIC)
+  // Extract params directly from location.pathname using matchPath instead of useParams()
+  // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
+  // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
+  // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
+  const spotMatch = useMemo(
+    () =>
+      matchPath(
+        {
+          path: TRADE_ROUTE_ASSET_SPECIFIC,
+          end: true,
+        },
+        location.pathname,
+      ),
+    [location.pathname],
+  )
 
-  // Extract params from the match object
-  const params =
-    (spotMatch?.params as TradeRouterMatchParams) ||
-    (limitMatch?.params as TradeRouterMatchParams) ||
-    {}
+  const limitMatch = useMemo(
+    () =>
+      matchPath(
+        {
+          path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
+          end: true,
+        },
+        location.pathname,
+      ),
+    [location.pathname],
+  )
+
+  const params = spotMatch?.params || limitMatch?.params
 
   const defaultBuyAssetId = useMemo(
     () =>
-      params.chainId && params.assetSubId ? `${params.chainId}/${params.assetSubId}` : undefined,
-    [params.chainId, params.assetSubId],
+      params?.chainId && params.assetSubId ? `${params.chainId}/${params.assetSubId}` : undefined,
+    [params?.chainId, params?.assetSubId],
   )
 
   const defaultSellAssetId = useMemo(
     () =>
-      params.sellChainId && params.sellAssetSubId
+      params?.sellChainId && params.sellAssetSubId
         ? `${params.sellChainId}/${params.sellAssetSubId}`
         : undefined,
-    [params.sellChainId, params.sellAssetSubId],
+    [params?.sellChainId, params?.sellAssetSubId],
   )
 
   const handleChangeTab = useCallback(
@@ -92,8 +110,6 @@ export const Trade = memo(() => {
     [location.pathname],
   )
 
-  console.log({ locationPathname: location.pathname, inputPath: TradeRoutePaths.Input })
-
   return (
     <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
       <SEO title={title} />
@@ -107,89 +123,27 @@ export const Trade = memo(() => {
         gap={4}
       >
         <FormProvider {...methods}>
-          <Routes>
-            <Route
-              path={LimitOrderRoutePaths.Input}
-              element={
-                <LimitOrder
-                  tradeInputRef={tradeInputRef}
-                  onChangeTab={handleChangeTab}
-                  isRewritingUrl={isRewritingUrl}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                />
-              }
-            />
-            <Route
-              path={ClaimRoutePaths.Select}
-              element={<Claim onChangeTab={handleChangeTab} />}
-            />
-            <Route
-              index
-              element={
-                <MultiHopTrade
-                  isRewritingUrl={isRewritingUrl}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                  onChangeTab={handleChangeTab}
-                />
-              }
-            />
-            <Route
-              path={TradeRoutePaths.Input}
-              element={
-                <MultiHopTrade
-                  isRewritingUrl={isRewritingUrl}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                  onChangeTab={handleChangeTab}
-                />
-              }
-            />
-            <Route
-              path='confirm'
-              element={
-                <MultiHopTrade
-                  isRewritingUrl={false}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                  onChangeTab={handleChangeTab}
-                />
-              }
-            />
-            <Route
-              path='verify-addresses'
-              element={
-                <MultiHopTrade
-                  isRewritingUrl={false}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                  onChangeTab={handleChangeTab}
-                />
-              }
-            />
-            <Route
-              path='quote-list'
-              element={
-                <MultiHopTrade
-                  isRewritingUrl={false}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                  onChangeTab={handleChangeTab}
-                />
-              }
-            />
-            <Route
-              path=':chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
-              element={
-                <MultiHopTrade
-                  isRewritingUrl={isRewritingUrl}
-                  defaultBuyAssetId={defaultBuyAssetId}
-                  defaultSellAssetId={defaultSellAssetId}
-                  onChangeTab={handleChangeTab}
-                />
-              }
-            />
+          <Routes location={location}>
+            <Route key={LimitOrderRoutePaths.Input} path={LimitOrderRoutePaths.Input}>
+              <LimitOrder
+                tradeInputRef={tradeInputRef}
+                onChangeTab={handleChangeTab}
+                isRewritingUrl={isRewritingUrl}
+                defaultBuyAssetId={defaultBuyAssetId}
+                defaultSellAssetId={defaultSellAssetId}
+              />
+            </Route>
+            <Route key={ClaimRoutePaths.Select} path={ClaimRoutePaths.Select}>
+              <Claim onChangeTab={handleChangeTab} />
+            </Route>
+            <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
+              <MultiHopTrade
+                isRewritingUrl={isRewritingUrl}
+                defaultBuyAssetId={defaultBuyAssetId}
+                defaultSellAssetId={defaultSellAssetId}
+                onChangeTab={handleChangeTab}
+              />
+            </Route>
           </Routes>
         </FormProvider>
       </Flex>

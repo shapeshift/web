@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
@@ -123,13 +123,18 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
     [navigate],
   )
 
+  const multiHopTradeElement = useMemo(
+    () => <MultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />,
+    [props, handleChangeTab],
+  )
+
   return (
     <FormProvider {...methods}>
       <Routes>
         <Route
           key={TradeRoutePaths.Input}
           path={TradeRoutePaths.Input}
-          element={<MultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />}
+          element={multiHopTradeElement}
         />
       </Routes>
     </FormProvider>

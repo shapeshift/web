@@ -183,6 +183,29 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
 
+  // Create memoized elements for each route
+  const tradeConfirmElement = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
+  
+  const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
+
+  const quoteListElement = useMemo(() => (
+    <SlideTransitionRoute
+      height={tradeInputRef.current?.offsetHeight ?? '500px'}
+      width={tradeInputRef.current?.offsetWidth ?? 'full'}
+      component={QuoteList}
+      parentRoute={TradeRoutePaths.Input}
+    />
+  ), [tradeInputRef])
+
+  const tradeInputElement = useMemo(() => (
+    <TradeInput
+      isCompact={isCompact}
+      tradeInputRef={tradeInputRef}
+      onChangeTab={onChangeTab}
+      isStandalone={isStandalone}
+    />
+  ), [isCompact, onChangeTab, isStandalone])
+
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
@@ -190,36 +213,22 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
           <Route
             key={TradeRoutePaths.Confirm}
             path={TradeRoutePaths.Confirm}
-            element={<TradeConfirm isCompact={isCompact} />}
+            element={tradeConfirmElement}
           />
           <Route
             key={TradeRoutePaths.VerifyAddresses}
             path={TradeRoutePaths.VerifyAddresses}
-            element={<VerifyAddresses />}
+            element={verifyAddressesElement}
           />
           <Route
             key={TradeRoutePaths.QuoteList}
             path={TradeRoutePaths.QuoteList}
-            element={
-              <SlideTransitionRoute
-                height={tradeInputRef.current?.offsetHeight ?? '500px'}
-                width={tradeInputRef.current?.offsetWidth ?? 'full'}
-                component={QuoteList}
-                parentRoute={TradeRoutePaths.Input}
-              />
-            }
+            element={quoteListElement}
           />
           <Route
             key={TradeRoutePaths.Input}
             path={TradeRoutePaths.Input}
-            element={
-              <TradeInput
-                isCompact={isCompact}
-                tradeInputRef={tradeInputRef}
-                onChangeTab={onChangeTab}
-                isStandalone={isStandalone}
-              />
-            }
+            element={tradeInputElement}
           />
         </Routes>
       </AnimatePresence>

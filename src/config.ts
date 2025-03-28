@@ -180,6 +180,7 @@ const validators = {
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: bool({ default: false }),
+  VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

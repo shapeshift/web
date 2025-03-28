@@ -275,7 +275,7 @@ export const routes: Route[] = [
     main: Flags,
   },
   {
-    path: '/limit',
+    path: '/limit/*',
     label: '',
     hideDesktop: true,
     main: Trade,

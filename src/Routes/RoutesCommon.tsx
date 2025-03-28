@@ -23,6 +23,7 @@ import { RFOX } from '@/pages/RFOX/RFOX'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
+import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 
 export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
@@ -310,16 +311,16 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/claim',
+    path: '/claim/*',
     label: '',
     hideDesktop: true,
     mobileNav: false,
     priority: 4,
-    main: Trade,
+    main: ClaimTab,
     routes: [
       {
         path: ClaimRoutePaths.Confirm,
-        main: Trade,
+        main: ClaimTab,
         hide: true,
       },
       {

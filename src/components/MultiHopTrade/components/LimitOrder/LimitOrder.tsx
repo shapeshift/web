@@ -219,11 +219,8 @@ export const LimitOrder = ({
             />
           }
         />
-        <Route
-          key={LimitOrderRoutePaths.Input}
-          path={LimitOrderRoutePaths.Input}
-          element={renderLimitOrderInput()}
-        />
+        <Route key={LimitOrderRoutePaths.Input} path={'*'} element={renderLimitOrderInput()} />
+        <Route path='/limit/*' element={renderLimitOrderInput()} />
       </Routes>
     </Flex>
   )

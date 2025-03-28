@@ -37,7 +37,7 @@ export const EquityAccountRow = ({
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
 
-  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+  const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),

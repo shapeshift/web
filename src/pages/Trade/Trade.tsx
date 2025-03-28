@@ -28,26 +28,12 @@ export const Trade = memo(() => {
   // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
   const spotMatch = useMemo(
-    () =>
-      matchPath(
-        {
-          path: TRADE_ROUTE_ASSET_SPECIFIC,
-          end: true,
-        },
-        location.pathname,
-      ),
+    () => matchPath({ path: TRADE_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname),
     [location.pathname],
   )
 
   const limitMatch = useMemo(
-    () =>
-      matchPath(
-        {
-          path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
-          end: true,
-        },
-        location.pathname,
-      ),
+    () => matchPath({ path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname),
     [location.pathname],
   )
 
@@ -110,6 +96,33 @@ export const Trade = memo(() => {
     [location.pathname],
   )
 
+  const limitOrderElement = useMemo(
+    () => (
+      <LimitOrder
+        tradeInputRef={tradeInputRef}
+        onChangeTab={handleChangeTab}
+        isRewritingUrl={isRewritingUrl}
+        defaultBuyAssetId={defaultBuyAssetId}
+        defaultSellAssetId={defaultSellAssetId}
+      />
+    ),
+    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
+  )
+
+  const claimElement = useMemo(() => <Claim onChangeTab={handleChangeTab} />, [handleChangeTab])
+
+  const tradeElement = useMemo(
+    () => (
+      <MultiHopTrade
+        isRewritingUrl={isRewritingUrl}
+        defaultBuyAssetId={defaultBuyAssetId}
+        defaultSellAssetId={defaultSellAssetId}
+        onChangeTab={handleChangeTab}
+      />
+    ),
+    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
+  )
+
   return (
     <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
       <SEO title={title} />
@@ -123,27 +136,22 @@ export const Trade = memo(() => {
         gap={4}
       >
         <FormProvider {...methods}>
-          <Routes location={location}>
-            <Route key={LimitOrderRoutePaths.Input} path={LimitOrderRoutePaths.Input}>
-              <LimitOrder
-                tradeInputRef={tradeInputRef}
-                onChangeTab={handleChangeTab}
-                isRewritingUrl={isRewritingUrl}
-                defaultBuyAssetId={defaultBuyAssetId}
-                defaultSellAssetId={defaultSellAssetId}
-              />
-            </Route>
-            <Route key={ClaimRoutePaths.Select} path={ClaimRoutePaths.Select}>
-              <Claim onChangeTab={handleChangeTab} />
-            </Route>
-            <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-              <MultiHopTrade
-                isRewritingUrl={isRewritingUrl}
-                defaultBuyAssetId={defaultBuyAssetId}
-                defaultSellAssetId={defaultSellAssetId}
-                onChangeTab={handleChangeTab}
-              />
-            </Route>
+          <Routes>
+            <Route
+              key={LimitOrderRoutePaths.Input}
+              path={LimitOrderRoutePaths.Input}
+              element={limitOrderElement}
+            />
+            <Route
+              key={ClaimRoutePaths.Select}
+              path={ClaimRoutePaths.Select}
+              element={claimElement}
+            />
+            <Route
+              key={TradeRoutePaths.Input}
+              path={TradeRoutePaths.Input}
+              element={tradeElement}
+            />
           </Routes>
         </FormProvider>
       </Flex>

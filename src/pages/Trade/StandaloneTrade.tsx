@@ -17,10 +17,10 @@ type StandaloneTradeProps = Omit<TradeCardProps, 'onChangeTab'>
 
 // i.e all the routes that Trade.tsx handles
 const initialEntries = [
-  TradeRoutePaths.Input,
-  TradeRoutePaths.Confirm,
-  TradeRoutePaths.VerifyAddresses,
-  TradeRoutePaths.QuoteList,
+  { pathname: TradeRoutePaths.Input },
+  { pathname: TradeRoutePaths.Confirm },
+  { pathname: TradeRoutePaths.VerifyAddresses },
+  { pathname: TradeRoutePaths.QuoteList },
 ]
 
 // A standalone version of the trade page routing as an HOC, without it being a page, and without leveraging top-level routes but rather

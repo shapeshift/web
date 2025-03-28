@@ -14,7 +14,6 @@ import { LimitOrderRoutePaths } from './types'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { fromBaseUnit } from '@/lib/math'
-import type { TradeRouterMatchParams } from '@/pages/Trade/types'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import type { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -53,7 +52,8 @@ export const LimitOrder = ({
 
   const match = useMatch(LIMIT_ORDER_ROUTE_ASSET_SPECIFIC)
 
-  const params = (match?.params as TradeRouterMatchParams) || {}
+  const _params = match?.params
+  const params = _params ?? ({} as unknown as NonNullable<typeof _params>)
 
   const {
     chainId,

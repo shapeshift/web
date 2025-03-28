@@ -23,12 +23,6 @@ import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistory, txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { persistor, useAppDispatch, useAppSelector } from '@/state/store'
 
-type ClearCacheProps = {
-  appHistory: {
-    replace: (path: string) => void
-  }
-}
-
 const arrowBackIcon = <ArrowBackIcon />
 
 const ClearCacheButton = ({
@@ -56,7 +50,7 @@ const ClearCacheButton = ({
   )
 }
 
-export const ClearCache = ({ appHistory }: ClearCacheProps) => {
+export const ClearCache = () => {
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()

@@ -38,10 +38,6 @@ import {
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type SettingsListProps = {
-  appHistory: History
-}
-
 const faCoinsIcon = <Icon as={FaCoins} color='text.subtle' />
 const faDollarSignIcon = <Icon as={FaDollarSign} color='text.subtle' />
 const mdLanguageIcon = <Icon as={MdLanguage} color='text.subtle' />
@@ -51,7 +47,7 @@ const ioLockClosedIcon = <Icon as={IoLockClosed} color='text.subtle' />
 const ioDocumentTextIcon = <Icon as={IoDocumentTextOutline} color='text.subtle' />
 const faTrashIcon = <FaTrash />
 
-export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
+export const SettingsList: FC = () => {
   const navigate = useNavigate()
   const { disconnect } = useWallet()
   const translate = useTranslate()
@@ -79,14 +75,14 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     } else {
       setClickCount(clickCount + 1)
     }
-  }, [appHistory, clickCount, setClickCount, settings])
+  }, [clickCount, setClickCount, settings])
 
   const closeModalAndNavigateTo = useCallback(
     (linkHref: string) => {
       settings.close()
       navigate(linkHref)
     },
-    [appHistory, settings],
+    [settings],
   )
 
   const handleDeleteAccountsClick = useCallback(async () => {
@@ -104,18 +100,18 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     }
   }, [translate, settings, disconnect, appDispatch])
 
-  const handleClearCacheClick = useCallback(() => navigate(SettingsRoutes.ClearCache), [history])
+  const handleClearCacheClick = useCallback(() => navigate(SettingsRoutes.ClearCache), [navigate])
 
   const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
-  const handleCurrencyClick = useCallback(() => navigate(SettingsRoutes.FiatCurrencies), [history])
+  const handleCurrencyClick = useCallback(() => navigate(SettingsRoutes.FiatCurrencies), [navigate])
 
   const handleCurrencyFormatClick = useCallback(
     () => navigate(SettingsRoutes.CurrencyFormat),
-    [history],
+    [navigate],
   )
 
-  const handleLanguageClick = useCallback(() => navigate(SettingsRoutes.Languages), [history])
+  const handleLanguageClick = useCallback(() => navigate(SettingsRoutes.Languages), [navigate])
 
   const handleTosClick = useCallback(
     () => closeModalAndNavigateTo('/legal/terms-of-service'),

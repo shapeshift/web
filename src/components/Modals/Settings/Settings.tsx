@@ -28,7 +28,10 @@ const Settings = () => {
   useEffect(() => {
     if (!isOpen) return
     const shakeEventListener = (e: MessageEvent<MobileMessageEvent>) => {
-      if (e.data?.cmd === 'shakeEvent' && isOpen) void appnavigate('/flags') || close()
+      if (e.data?.cmd === 'shakeEvent' && isOpen) {
+        appHistory('/flags')
+        close()
+      }
     }
 
     window.addEventListener('message', shakeEventListener)
@@ -39,8 +42,8 @@ const Settings = () => {
     <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
       <ModalOverlay />
       <ModalContent>
-        <MemoryRouter initialEntries={entries}>
-          <SettingsRouter appHistory={appHistory} />
+        <MemoryRouter initialEntries={entries} initialIndex={0}>
+          <SettingsRouter />
         </MemoryRouter>
       </ModalContent>
     </Modal>

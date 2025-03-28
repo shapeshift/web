@@ -4,7 +4,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
@@ -36,6 +36,7 @@ const ScanRedirect = () => <Navigate to={SendRoutes.Scan} replace />
 
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
@@ -147,7 +148,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
   useEffect(() => {
     navigate(SendRoutes.Scan)
-  }, [navigate])
+    // Do not add navigate as a dep here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (walletConnectDappUrl)
     return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />

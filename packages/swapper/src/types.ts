@@ -55,6 +55,7 @@ export type SwapperConfig = {
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
   VITE_JUPITER_API_URL: string
+  VITE_RELAY_API_URL: string
 }
 
 export enum SwapperName {
@@ -67,6 +68,7 @@ export enum SwapperName {
   Portals = 'Portals',
   Chainflip = 'Chainflip',
   Jupiter = 'Jupiter',
+  Relay = 'Relay',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

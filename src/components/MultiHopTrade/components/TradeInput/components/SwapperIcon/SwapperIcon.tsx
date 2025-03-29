@@ -9,6 +9,7 @@ import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
 import LiFiIcon from './lifi-icon.png'
 import PortalsIcon from './portals-icon.png'
+import RelayIcon from './relay-icon.svg'
 import THORChainIcon from './thorchain-icon.png'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -39,8 +40,8 @@ export const SwapperIcon = ({
         return ChainflipIcon
       case SwapperName.Jupiter:
         return JupiterIcon
-      case SwapperName.Test:
-        return ''
+      case SwapperName.Relay:
+        return RelayIcon
       default:
         assertUnreachable(swapperName)
     }

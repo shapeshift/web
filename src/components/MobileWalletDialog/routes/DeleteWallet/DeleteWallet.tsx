@@ -2,7 +2,8 @@ import { Button, Heading } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import type { Location } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { ConfirmDelete } from './Confirm'
 
@@ -11,17 +12,16 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { SlideTransition } from '@/components/SlideTransition'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
-const confirmDeleteRedirect = () => <Redirect to={MobileWalletDialogRoutes.ConfirmDelete} />
-
 export const DeleteWallet = () => {
+  const location: Location<MobileLocationState> = useLocation()
   const {
     state: { vault },
-  } = useLocation<MobileLocationState>()
-  const history = useHistory()
+  } = location
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.Saved)
+    navigate(MobileWalletDialogRoutes.Saved)
   }, [history])
 
   if (!vault)
@@ -41,19 +41,15 @@ export const DeleteWallet = () => {
   return (
     <SlideTransition>
       <MemoryRouter>
-        <Route>
-          {({ location }) => (
-            <AnimatePresence mode='wait' initial={false}>
-              <Switch key={location.key} location={location}>
-                <Route path={MobileWalletDialogRoutes.ConfirmDelete}>
-                  <ConfirmDelete vault={vault} onBack={handleBack} />
-                </Route>
-                {/* TODO: This will change to backup in a follow up PR */}
-                <Route path='/' render={confirmDeleteRedirect} />
-              </Switch>
-            </AnimatePresence>
-          )}
-        </Route>
+        <AnimatePresence mode='wait' initial={false}>
+          <Routes>
+            <Route
+              path={MobileWalletDialogRoutes.ConfirmDelete}
+              element={<ConfirmDelete vault={vault} onBack={handleBack} />}
+            />
+            <Route path='/' element={<ConfirmDelete vault={vault} onBack={handleBack} />} />
+          </Routes>
+        </AnimatePresence>
       </MemoryRouter>
     </SlideTransition>
   )

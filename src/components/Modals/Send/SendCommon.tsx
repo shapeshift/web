@@ -3,8 +3,8 @@ export enum SendRoutes {
   Details = '/send/details',
   Confirm = '/send/confirm',
   Status = '/send/status',
-  Select = '/send/select',
   Scan = '/send/scan',
+  Select = '/send/select',
 }
 
 export enum SendFormFields {

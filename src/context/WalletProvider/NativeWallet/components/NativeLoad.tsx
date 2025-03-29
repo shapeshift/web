@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { NativeConfig } from '../config'
 
@@ -41,7 +41,8 @@ const walletButtonLeftIcon = (
   </IconCircle>
 )
 
-export const NativeLoad = ({ history }: RouteComponentProps) => {
+export const NativeLoad = () => {
+  const navigate = useNavigate()
   const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
@@ -147,8 +148,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   )
 
   const handleRename = useCallback(
-    (wallet: VaultInfo) => history.push(NativeWalletRoutes.Rename, { vault: wallet }),
-    [history],
+    (wallet: VaultInfo) => navigate(NativeWalletRoutes.Rename, { state: { vault: wallet } }),
+    [navigate],
   )
 
   return (

@@ -19,7 +19,7 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -48,7 +48,7 @@ type TestState = {
 export const BackupPassphraseTest: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
-  const { goBack: handleBackClick, ...history } = useHistory()
+  const navigate = useNavigate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
@@ -99,13 +99,13 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed
     if (testCount >= TEST_COUNT_REQUIRED) {
-      history.push(BackupPassphraseRoutes.Success)
+      navigate(BackupPassphraseRoutes.Success)
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, revoker])
+  }, [testCount, navigate, revoker])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
@@ -119,7 +119,11 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     setHasAlreadySaved(e.target.checked)
   }, [])
 
-  const handleSkipClick = useCallback(() => history.push(BackupPassphraseRoutes.Success), [history])
+  const handleSkipClick = useCallback(() => navigate(BackupPassphraseRoutes.Success), [navigate])
+
+  const handleBackClick = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   if (!testState) return null
 

@@ -11,7 +11,7 @@ import { useCallback, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { NativeWalletValues } from '../types'
 
@@ -21,8 +21,9 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
-export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
+export const NativeImportKeystore = () => {
   const [keystoreFile, setKeystoreFile] = useState<string | null>(null)
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
 
   const translate = useTranslate()
@@ -54,10 +55,10 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
         return
       }
 
-      history.push(NativeWalletRoutes.Password, { vault })
+      navigate(NativeWalletRoutes.Password, { state: { vault } })
       mixpanel?.track(MixPanelEvent.NativeImportKeystore)
     },
-    [history, keystoreFile, mixpanel, setError, translate],
+    [navigate, keystoreFile, mixpanel, setError, translate],
   )
 
   const handleFileSelect = useCallback((file: File) => {

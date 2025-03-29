@@ -24,7 +24,7 @@ import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toHex } from 'viem'
 
 import { LoanSummary } from '../LoanSummary'
@@ -93,7 +93,7 @@ export const BorrowConfirm = ({
   } = useWallet()
 
   const borrowAssetId = borrowAsset?.assetId ?? ''
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
@@ -196,7 +196,7 @@ export const BorrowConfirm = ({
   }, [confirmedQuote, eventData, mixpanel, mutateAsync, txId])
 
   const handleBack = useCallback(() => {
-    history.push(BorrowRoutePaths.Input)
+    navigate(BorrowRoutePaths.Input)
   }, [history])
   const divider = useMemo(() => <Divider />, [])
 
@@ -258,7 +258,7 @@ export const BorrowConfirm = ({
       setTxid(null)
       setConfirmedQuote(null)
       setDepositAmount(null)
-      return history.push(BorrowRoutePaths.Input)
+      return navigate(BorrowRoutePaths.Input)
     }
 
     if (

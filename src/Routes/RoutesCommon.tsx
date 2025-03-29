@@ -20,7 +20,10 @@ import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
+import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
+import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 
 export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
@@ -134,44 +137,44 @@ export const routes: Route[] = [
     priority: 1,
   },
   {
-    path: '/trade',
+    path: '/trade/*',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
     mobileNav: false,
     priority: 2,
-    main: Trade,
+    main: TradeTab,
     category: RouteCategory.Featured,
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       {
         path: TradeRoutePaths.Confirm,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       {
         path: TradeRoutePaths.VerifyAddresses,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       {
         path: TradeRoutePaths.QuoteList,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       },
       ...assetIdPaths.map<Route>(assetIdPath => ({
         path: assetIdPath,
-        main: Trade,
+        main: TradeTab,
         hide: true,
       })),
     ],
   },
   {
-    path: '/markets',
+    path: '/markets/*',
     label: 'navBar.markets',
     icon: <TbGraph />,
     main: MarketsPage,
@@ -196,7 +199,7 @@ export const routes: Route[] = [
     })),
   },
   {
-    path: '/wallet',
+    path: '/wallet/*',
     label: 'navBar.myWallet',
     shortLabel: 'navBar.wallet',
     icon: <WalletIcon />,
@@ -275,49 +278,49 @@ export const routes: Route[] = [
     main: Flags,
   },
   {
-    path: '/limit',
+    path: '/limit/*',
     label: '',
     hideDesktop: true,
-    main: Trade,
+    main: LimitTab,
     routes: [
       {
         path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.Confirm,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.AllowanceApproval,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.PlaceOrder,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
       {
         path: LimitOrderRoutePaths.Orders,
-        main: Trade,
+        main: LimitTab,
         hide: true,
       },
     ],
   },
   {
-    path: '/claim',
+    path: '/claim/*',
     label: '',
     hideDesktop: true,
     mobileNav: false,
     priority: 4,
-    main: Trade,
+    main: ClaimTab,
     routes: [
       {
         path: ClaimRoutePaths.Confirm,
-        main: Trade,
+        main: ClaimTab,
         hide: true,
       },
       {

@@ -1,6 +1,6 @@
 import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ClaimRow } from './ClaimRow'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
@@ -16,12 +16,12 @@ type ClaimSelectProps = {
 }
 
 export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleClaimClick = useCallback(
     (claim: ClaimDetails) => {
       setActiveClaim(claim)
-      history.push(ClaimRoutePaths.Confirm)
+      navigate(ClaimRoutePaths.Confirm)
     },
     [history, setActiveClaim],
   )

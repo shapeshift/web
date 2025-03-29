@@ -17,7 +17,7 @@ import {
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { WithBackButton } from '../WithBackButton'
 
@@ -56,7 +56,7 @@ enum AddressVerificationStatus {
 
 export const VerifyAddresses = () => {
   const wallet = useWallet().state.wallet
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const [sellAddress, setSellAddress] = useState<string | undefined>()
@@ -135,7 +135,7 @@ export const VerifyAddresses = () => {
   }, [shouldVerifyBuyAddress])
 
   const handleContinue = useCallback(() => {
-    history.push({ pathname: TradeRoutePaths.Confirm })
+    navigate({ pathname: TradeRoutePaths.Confirm })
   }, [history])
 
   const fetchAddresses = useCallback(async () => {
@@ -377,7 +377,7 @@ export const VerifyAddresses = () => {
   ])
 
   const handleBack = useCallback(() => {
-    history.push(TradeRoutePaths.Input)
+    navigate(TradeRoutePaths.Input)
   }, [history])
 
   return (

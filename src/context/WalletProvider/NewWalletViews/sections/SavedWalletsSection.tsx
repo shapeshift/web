@@ -2,7 +2,7 @@ import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Text } from '@/components/Text'
@@ -63,7 +63,7 @@ export const SavedWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
 
@@ -123,8 +123,8 @@ export const SavedWalletsSection = ({
   )
 
   const handleAddNewWalletClick = useCallback(() => {
-    history.push(NativeWalletRoutes.Connect)
-  }, [history])
+    navigate(NativeWalletRoutes.Connect)
+  }, [navigate])
 
   return (
     <>

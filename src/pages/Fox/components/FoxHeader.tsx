@@ -2,7 +2,7 @@ import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { FoxWifHat } from './FoxWifHat'
@@ -27,10 +27,10 @@ export const FoxHeader = () => {
     selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
   )
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
+    navigate('/explore')
   }, [history])
 
   const activeAccountDropdown = useMemo(() => {

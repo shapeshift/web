@@ -2,9 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-
-import type { TradeRouterMatchParams } from './types'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -23,63 +21,55 @@ export const Trade = memo(() => {
   const location = useLocation()
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const methods = useForm({ mode: 'onChange' })
-  const history = useHistory()
+  const navigate = useNavigate()
 
   // Extract params directly from location.pathname using matchPath instead of useParams()
   // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
   // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
   // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
   const spotMatch = useMemo(
-    () =>
-      matchPath<TradeRouterMatchParams>(location.pathname, {
-        path: TRADE_ROUTE_ASSET_SPECIFIC,
-        exact: true,
-      }),
+    () => matchPath({ path: TRADE_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname),
     [location.pathname],
   )
 
   const limitMatch = useMemo(
-    () =>
-      matchPath<TradeRouterMatchParams>(location.pathname, {
-        path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC,
-        exact: true,
-      }),
+    () => matchPath({ path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname),
     [location.pathname],
   )
 
-  const params = spotMatch?.params || limitMatch?.params || {}
+  const params = spotMatch?.params || limitMatch?.params
 
   const defaultBuyAssetId = useMemo(
     () =>
-      params.chainId && params.assetSubId ? `${params.chainId}/${params.assetSubId}` : undefined,
-    [params.chainId, params.assetSubId],
+      params?.chainId && params.assetSubId ? `${params.chainId}/${params.assetSubId}` : undefined,
+    [params?.chainId, params?.assetSubId],
   )
 
   const defaultSellAssetId = useMemo(
     () =>
-      params.sellChainId && params.sellAssetSubId
+      params?.sellChainId && params.sellAssetSubId
         ? `${params.sellChainId}/${params.sellAssetSubId}`
         : undefined,
-    [params.sellChainId, params.sellAssetSubId],
+    [params?.sellChainId, params?.sellAssetSubId],
   )
 
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
       switch (newTab) {
         case TradeInputTab.Trade:
-          history.push(TradeRoutePaths.Input)
+          navigate(TradeRoutePaths.Input)
           break
         case TradeInputTab.LimitOrder:
-          history.push(LimitOrderRoutePaths.Input)
+          navigate(LimitOrderRoutePaths.Input)
           break
         case TradeInputTab.Claim:
-          history.push(ClaimRoutePaths.Select)
+          navigate(ClaimRoutePaths.Select)
           break
         default:
           break
       }
     },
-    [history],
+    [navigate],
   )
 
   const title = useMemo(() => {
@@ -106,6 +96,33 @@ export const Trade = memo(() => {
     [location.pathname],
   )
 
+  const limitOrderElement = useMemo(
+    () => (
+      <LimitOrder
+        tradeInputRef={tradeInputRef}
+        onChangeTab={handleChangeTab}
+        isRewritingUrl={isRewritingUrl}
+        defaultBuyAssetId={defaultBuyAssetId}
+        defaultSellAssetId={defaultSellAssetId}
+      />
+    ),
+    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
+  )
+
+  const claimElement = useMemo(() => <Claim onChangeTab={handleChangeTab} />, [handleChangeTab])
+
+  const tradeElement = useMemo(
+    () => (
+      <MultiHopTrade
+        isRewritingUrl={isRewritingUrl}
+        defaultBuyAssetId={defaultBuyAssetId}
+        defaultSellAssetId={defaultSellAssetId}
+        onChangeTab={handleChangeTab}
+      />
+    ),
+    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
+  )
+
   return (
     <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
       <SEO title={title} />
@@ -119,28 +136,23 @@ export const Trade = memo(() => {
         gap={4}
       >
         <FormProvider {...methods}>
-          <Switch location={location}>
-            <Route key={LimitOrderRoutePaths.Input} path={LimitOrderRoutePaths.Input}>
-              <LimitOrder
-                tradeInputRef={tradeInputRef}
-                onChangeTab={handleChangeTab}
-                isRewritingUrl={isRewritingUrl}
-                defaultBuyAssetId={defaultBuyAssetId}
-                defaultSellAssetId={defaultSellAssetId}
-              />
-            </Route>
-            <Route key={ClaimRoutePaths.Select} path={ClaimRoutePaths.Select}>
-              <Claim onChangeTab={handleChangeTab} />
-            </Route>
-            <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-              <MultiHopTrade
-                isRewritingUrl={isRewritingUrl}
-                defaultBuyAssetId={defaultBuyAssetId}
-                defaultSellAssetId={defaultSellAssetId}
-                onChangeTab={handleChangeTab}
-              />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route
+              key={LimitOrderRoutePaths.Input}
+              path={LimitOrderRoutePaths.Input}
+              element={limitOrderElement}
+            />
+            <Route
+              key={ClaimRoutePaths.Select}
+              path={ClaimRoutePaths.Select}
+              element={claimElement}
+            />
+            <Route
+              key={TradeRoutePaths.Input}
+              path={''} // TODO(gomes): rework swapper routing, we're getting there
+              element={tradeElement}
+            />
+          </Routes>
         </FormProvider>
       </Flex>
     </Main>

@@ -1,7 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import type { FC } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { ClearCache } from './ClearCache'
 import { CurrencyFormat } from './CurrencyFormat'
@@ -10,32 +9,19 @@ import { Languages } from './Languages'
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsList } from './SettingsList'
 
-type SettingsRouterProps = {
-  appHistory: RouteComponentProps['history']
-}
+// No props needed since we'll use useNavigate in child components
+type SettingsRouterProps = {}
 
-export const SettingsRouter: FC<SettingsRouterProps> = ({ appHistory }) => {
-  const location = useLocation()
-
+export const SettingsRouter: FC<SettingsRouterProps> = () => {
   return (
     <AnimatePresence mode='wait'>
-      <Switch location={location} key={location.key}>
-        <Route path={SettingsRoutes.Index}>
-          <SettingsList appHistory={appHistory} />
-        </Route>
-        <Route path={SettingsRoutes.Languages}>
-          <Languages />
-        </Route>
-        <Route path={SettingsRoutes.FiatCurrencies}>
-          <FiatCurrencies />
-        </Route>
-        <Route path={SettingsRoutes.CurrencyFormat}>
-          <CurrencyFormat />
-        </Route>
-        <Route path={SettingsRoutes.ClearCache}>
-          <ClearCache appHistory={appHistory} />
-        </Route>
-      </Switch>
+      <Routes>
+        <Route path={SettingsRoutes.Index} element={<SettingsList />} />
+        <Route path={SettingsRoutes.Languages} element={<Languages />} />
+        <Route path={SettingsRoutes.FiatCurrencies} element={<FiatCurrencies />} />
+        <Route path={SettingsRoutes.CurrencyFormat} element={<CurrencyFormat />} />
+        <Route path={SettingsRoutes.ClearCache} element={<ClearCache />} />
+      </Routes>
     </AnimatePresence>
   )
 }

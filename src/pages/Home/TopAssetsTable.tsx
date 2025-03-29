@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Row } from 'react-table'
 
 import { MarketsTable } from '@/components/MarketsTable'
@@ -11,7 +11,7 @@ import { useAppSelector } from '@/state/store'
 
 export const TopAssetsTable = () => {
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const rows = useMemo(() => {
     return assets.slice(0, 30).reduce<Asset[]>((acc, asset) => {
@@ -29,14 +29,14 @@ export const TopAssetsTable = () => {
   }, [assets])
 
   const handleButtonClick = useCallback(() => {
-    history.push('/assets')
+    navigate('/assets')
   }, [history])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
-      history.push(url)
+      navigate(url)
     },
     [history],
   )

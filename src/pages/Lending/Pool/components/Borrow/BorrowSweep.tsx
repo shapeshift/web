@@ -2,7 +2,7 @@ import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { BorrowRoutePaths } from './types'
 
@@ -26,11 +26,11 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
     state: { wallet },
   } = useWallet()
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
-    history.push(BorrowRoutePaths.Input)
-  }, [history])
+    navigate(BorrowRoutePaths.Input)
+  }, [navigate])
 
   const collateralAccountFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -56,8 +56,8 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   })
 
   const handleSwepSeen = useCallback(() => {
-    history.push(BorrowRoutePaths.Confirm)
-  }, [history])
+    navigate(BorrowRoutePaths.Confirm)
+  }, [navigate])
 
   return (
     <SlideTransition>

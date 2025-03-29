@@ -1,12 +1,21 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
-const searchRedirect = () => <Redirect to={SelectAssetRoutes.Search} />
+const SearchRedirect = () => {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    navigate(SelectAssetRoutes.Search, { replace: true })
+  }, [navigate])
+
+  return null
+}
+
 type SelectAssetViewProps = {
   onClick: (assetId: AssetId) => void
   onBack?: () => void
@@ -18,22 +27,22 @@ export const SelectAssetView = ({
   toRoute,
   assetId,
 }: SelectAssetViewProps) => {
-  const location = useLocation<SelectAssetLocation>()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (toRoute && assetId) {
-      history.push(toRoute, { assetId })
+      navigate(toRoute, { state: { assetId } })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [toRoute, assetId])
 
   return (
-    <Switch location={location} key={location.key}>
-      <Route path={SelectAssetRoutes.Search}>
-        <SelectAssets onBack={handleBack} onClick={onClick} />
-      </Route>
-      <Route path='/' render={searchRedirect} />
-    </Switch>
+    <Routes>
+      <Route
+        path={SelectAssetRoutes.Search}
+        element={<SelectAssets onBack={handleBack} onClick={onClick} />}
+      />
+      <Route path='/' element={<SearchRedirect />} />
+    </Routes>
   )
 }

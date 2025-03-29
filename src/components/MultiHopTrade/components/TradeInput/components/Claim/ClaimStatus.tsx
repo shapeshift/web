@@ -3,7 +3,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
@@ -28,11 +28,11 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
   claimTxHash,
   claimTxStatus,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleGoBack = useCallback(() => {
-    history.push(ClaimRoutePaths.Select)
+    navigate(ClaimRoutePaths.Select)
   }, [history])
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))

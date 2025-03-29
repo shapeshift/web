@@ -4,10 +4,10 @@ import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -19,7 +19,6 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
@@ -28,7 +27,7 @@ import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-interface ClaimStatusState {
+type ClaimStatusState = {
   txid: string
   assetId: AssetId
   amount: string
@@ -73,27 +72,25 @@ type ClaimStatusProps = {
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { poll } = usePoll<TransactionReceipt | null>()
-  const { history: browserHistory } = useBrowserRouter()
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
-  const {
-    state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
-  } = useLocation<ClaimStatusState>()
+  const location = useLocation()
+  const locationState = location.state as ClaimStatusState
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.Pending,
   })
 
   const { data: maybeSafeTx } = useSafeTxQuery({
-    maybeSafeTxHash: txid,
+    maybeSafeTxHash: locationState.txid,
     accountId,
   })
 
   // Asset Info
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  const asset = useAppSelector(state => selectAssetById(state, locationState.assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${locationState.assetId}`)
 
   const feeAssetId = toAssetId({
-    chainId,
+    chainId: locationState.chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
@@ -125,10 +122,10 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     ;(async () => {
-      if (!foxyApi || !txid) return
+      if (!foxyApi || !locationState.txid) return
       try {
         const transactionReceipt = await poll({
-          fn: () => foxyApi.getTxReceipt({ txid }),
+          fn: () => foxyApi.getTxReceipt({ txid: locationState.txid }),
           validate: (result: TransactionReceipt | null) => !isNil(result),
           interval: 15000,
           maxAttempts: 30,
@@ -167,16 +164,15 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         setState({
           ...state,
           txStatus: TxStatus.Failed,
-          usedGasFeeCryptoBaseUnit: estimatedGas,
+          usedGasFeeCryptoBaseUnit: locationState.estimatedGas,
         })
       }
     })()
   }, [
     refetchFoxyBalances,
-    estimatedGas,
+    locationState.estimatedGas,
     foxyApi,
     state,
-    txid,
     poll,
     maybeSafeTx?.transaction?.transactionHash,
     maybeSafeTx?.transaction?.gasUsed,
@@ -184,7 +180,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     maybeSafeTx?.isExecutedSafeTx,
   ])
 
-  const handleClose = useMemo(() => () => browserHistory.goBack(), [browserHistory])
+  const navigate = useNavigate()
+  const handleClose = useCallback(() => navigate(-1), [navigate])
 
   return (
     <SlideTransition>
@@ -220,8 +217,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
             <Row.Value>
-              <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
-                <MiddleEllipsis value={txid} />
+              <Link
+                isExternal
+                color='blue.500'
+                href={`${asset?.explorerTxLink}${locationState.txid}`}
+              >
+                <MiddleEllipsis value={locationState.txid} />
               </Link>
             </Row.Value>
           </Row>
@@ -229,7 +230,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
               <Amount.Crypto
-                value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+                value={bnOrZero(locationState.amount).div(`1e+${asset.precision}`).toString()}
                 symbol={asset?.symbol}
               />
             </Row.Value>
@@ -237,13 +238,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimToAddress')}</Row.Label>
             <Row.Value>
-              <InlineCopyButton value={userAddress}>
+              <InlineCopyButton value={locationState.userAddress}>
                 <Link
                   isExternal
                   color='blue.500'
-                  href={`${asset?.explorerAddressLink}${userAddress}`}
+                  href={`${asset?.explorerAddressLink}${locationState.userAddress}`}
                 >
-                  <MiddleEllipsis value={userAddress} />
+                  <MiddleEllipsis value={locationState.userAddress} />
                 </Link>
               </InlineCopyButton>
             </Row.Value>
@@ -262,7 +263,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                   fontWeight='bold'
                   value={bnOrZero(
                     state.txStatus === TxStatus.Pending
-                      ? estimatedGas
+                      ? locationState.estimatedGas
                       : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
@@ -273,7 +274,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                   color='text.subtle'
                   value={bnOrZero(
                     state.txStatus === TxStatus.Pending
-                      ? estimatedGas
+                      ? locationState.estimatedGas
                       : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)

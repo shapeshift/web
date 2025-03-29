@@ -12,7 +12,7 @@ import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
@@ -42,7 +42,7 @@ export const AccountTable = memo(() => {
   })
   const textColor = useColorModeValue('black', 'white')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const history = useHistory()
+  const navigate = useNavigate()
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
       {
@@ -140,9 +140,9 @@ export const AccountTable = memo(() => {
     (row: Row<AccountRowData>) => {
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
-      history.push(url)
+      navigate(url)
     },
-    [history],
+    [navigate],
   )
 
   return loading ? (

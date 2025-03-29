@@ -4,7 +4,7 @@ import type { Row } from '@tanstack/react-table'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
@@ -19,7 +19,7 @@ import { useAppSelector } from '@/state/store'
 export const Assets = () => {
   const translate = useTranslate()
   const [searchQuery, setSearchQuery] = useState('')
-  const history = useHistory()
+  const navigate = useNavigate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
@@ -43,9 +43,9 @@ export const Assets = () => {
     (row: Row<Asset>) => {
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
-      history.push(url)
+      navigate(url)
     },
-    [history],
+    [navigate],
   )
   return (
     <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>

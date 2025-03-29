@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { getWalletCount } from '../mobileMessageHandlers'
 
@@ -9,7 +9,8 @@ import { Text } from '@/components/Text'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-export const MobileStart = ({ history }: RouteComponentProps) => {
+export const MobileStart = () => {
+  const navigate = useNavigate()
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
 
   useEffect(() => {
@@ -24,9 +25,9 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
-  const handleLoad = useCallback(() => history.push('/mobile/load'), [history])
-  const handleCreate = useCallback(() => history.push('/mobile/create'), [history])
-  const handleImport = useCallback(() => history.push('/mobile/import'), [history])
+  const handleLoad = useCallback(() => navigate('/mobile/load'), [navigate])
+  const handleCreate = useCallback(() => navigate('/mobile/create'), [navigate])
+  const handleImport = useCallback(() => navigate('/mobile/import'), [navigate])
 
   return (
     <>

@@ -5,6 +5,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -48,6 +49,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
@@ -108,8 +110,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/wallet/earn')
-  }, [browserHistory])
+    navigate('/earn')
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
     browserHistory.goBack()

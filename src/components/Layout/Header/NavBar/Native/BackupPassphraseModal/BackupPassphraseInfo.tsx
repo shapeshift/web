@@ -19,7 +19,7 @@ import range from 'lodash/range'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -37,7 +37,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
   const [revoker] = useState(new (Revocable(class {}))())
-  const { goBack, ...history } = useHistory()
+  const navigate = useNavigate()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = useCallback(() => {
@@ -102,19 +102,17 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   }, [])
 
   const handleCreateBackupClick = useCallback(
-    () => history.push(BackupPassphraseRoutes.Test),
-    [history],
+    () => navigate(BackupPassphraseRoutes.Test),
+    [navigate],
   )
 
   const handleBackClick = useCallback(() => {
     if (isMobile) {
       close()
-
       return
     }
-
-    goBack()
-  }, [goBack, close])
+    navigate(-1) // This is the equivalent of history.goBack() in v6
+  }, [navigate, close])
 
   return (
     <SlideTransition>

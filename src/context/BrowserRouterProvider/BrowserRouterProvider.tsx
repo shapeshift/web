@@ -1,6 +1,6 @@
 import { union } from 'lodash'
 import React, { useEffect, useMemo } from 'react'
-import { matchPath, useHistory, useLocation, useParams } from 'react-router-dom'
+import { matchPath, useLocation, useParams } from 'react-router-dom'
 
 import { BrowserRouterContext } from './BrowserRouterContext'
 
@@ -20,7 +20,6 @@ type BrowserRouterProviderProps = {
 
 export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) {
   const location = useLocation()
-  const history = useHistory()
   const params = useParams()
   const query = useQuery()
   const { routes: pluginRoutes } = usePlugins()
@@ -31,8 +30,33 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [pluginRoutes])
 
   const currentRoute = useMemo(() => {
-    return appRoutes.find(e => matchPath(location.pathname, { path: e.path, exact: true }))
+    // First try to find an exact match
+    const exactMatch = appRoutes.find(e =>
+      matchPath(
+        {
+          path: e.path,
+          end: true,
+        },
+        location.pathname,
+      ),
+    )
+
+    if (exactMatch) return exactMatch
+
+    // If no exact match, try to find a wildcard match
+    // This gives preference to more specific routes over wildcards
+    return appRoutes.find(e =>
+      matchPath(
+        {
+          path: e.path,
+          end: false,
+        },
+        location.pathname,
+      ),
+    )
   }, [appRoutes, location.pathname])
+
+  console.log({ pathname: location.pathname, appRoutes, currentRoute })
 
   useEffect(() => {
     const maybePathname = mapMixpanelPathname(location.pathname, assets)
@@ -42,7 +66,6 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
 
   const router = useMemo(
     () => ({
-      history,
       location,
       params,
       query,

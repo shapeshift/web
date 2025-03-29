@@ -13,7 +13,7 @@ import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
 
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -94,7 +94,7 @@ export const LimitOrderInput = ({
     state: { isConnected },
   } = useWallet()
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorToast()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -298,7 +298,7 @@ export const LimitOrderInput = ({
       }
 
       setLimitOrderInitialized(quoteResponse.id)
-      history.push(LimitOrderRoutePaths.Confirm)
+      navigate(LimitOrderRoutePaths.Confirm)
 
       // If the new limit flow is enabled, we don't need to check the allowance here, so we
       // update the slice state immediately and return
@@ -318,12 +318,12 @@ export const LimitOrderInput = ({
 
         // If approval is required, route there
         if (bn(allowanceOnChainCryptoBaseUnit).lt(limitOrderQuoteParams.sellAmountCryptoBaseUnit)) {
-          history.push(LimitOrderRoutePaths.AllowanceApproval)
+          navigate(LimitOrderRoutePaths.AllowanceApproval)
           return
         }
 
         // Otherwise, proceed with confirmation
-        history.push(LimitOrderRoutePaths.Confirm)
+        navigate(LimitOrderRoutePaths.Confirm)
         return
       } catch (e) {
         showErrorToast(e)
@@ -361,7 +361,7 @@ export const LimitOrderInput = ({
   )
 
   const handleShowLimitOrdersList = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Orders)
+    navigate(LimitOrderRoutePaths.Orders)
   }, [history])
 
   const handleSwitchAssets = useCallback(() => {

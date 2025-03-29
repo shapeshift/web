@@ -16,7 +16,7 @@ import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
@@ -58,7 +58,7 @@ export const ChangeAddressConfirm: React.FC<
   ChangeAddressRouteProps & ChangeAddressConfirmProps
 > = ({ changeAddressTxid, setChangeAddressTxid, confirmedQuote }) => {
   const wallet = useWallet().state.wallet
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
@@ -178,7 +178,7 @@ export const ChangeAddressConfirm: React.FC<
     if (!stakingAsset) return
 
     await handleChangeAddress()
-    history.push(ChangeAddressRoutePaths.Status)
+    navigate(ChangeAddressRoutePaths.Status)
   }, [history, handleChangeAddress, stakingAsset])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
@@ -188,7 +188,7 @@ export const ChangeAddressConfirm: React.FC<
   )
 
   const handleGoBack = useCallback(() => {
-    history.push(ChangeAddressRoutePaths.Input)
+    navigate(ChangeAddressRoutePaths.Input)
   }, [history])
 
   const changeAddressCard = useMemo(() => {

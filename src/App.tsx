@@ -11,7 +11,7 @@ import { IconCircle } from '@/components/IconCircle'
 import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
-import { Routes } from '@/Routes/Routes'
+import { AppRoutes } from '@/Routes/Routes'
 import { selectShowConsentBanner, selectShowWelcomeModal } from '@/state/slices/selectors'
 
 const flexGap = { base: 2, md: 3 }
@@ -73,7 +73,7 @@ export const App = () => {
   return (
     <>
       {showConsentBanner && <ConsentBanner />}
-      <Routes />
+      <AppRoutes />
     </>
   )
 }

@@ -5,7 +5,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Redirect, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 
 import { AccountBalance } from './AccountBalance'
 
@@ -46,9 +46,11 @@ export const AccountToken = () => {
   }, [id])
 
   if (!accountIds.length) return null
-  if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
+  if (!isCurrentAccountIdOwner) return <Navigate to='/accounts' replace />
 
   if (!id) return null
+  if (!accountId) return null
+
   return (
     <Stack alignItems='flex-start' spacing={4} width='full' direction={stackDirection}>
       <Stack spacing={4} flex='1 1 0%' width='full'>

@@ -5,7 +5,7 @@ import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contract
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useContext, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
@@ -55,7 +55,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
-  const history = useHistory()
+  const navigate = useNavigate()
   const { showErrorToast } = useErrorToast()
   const {
     state: { wallet },
@@ -259,7 +259,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  const handleCancel = useCallback(() => history.push('/'), [history])
+  const handleCancel = useCallback(() => navigate('/'), [history])
 
   if (!isTokenDeposit || !inboundAddress || !state || !dispatch) return null
 

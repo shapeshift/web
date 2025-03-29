@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, useNavigate } from 'react-router-dom'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
@@ -24,16 +24,17 @@ export const Claim: React.FC<ClaimProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [history, location.pathname, query, navigate])
 
   return (
     <SlideTransition>

@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -45,7 +46,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, assetReference } = query
 
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -68,6 +69,8 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   )
   const loading = useSelector(selectIsPortfolioLoading)
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     ;(() => {
       try {
@@ -80,14 +83,14 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

@@ -1,10 +1,10 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteProps } from 'react-router-dom'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import {
   useMenuRoutes,
@@ -93,6 +93,12 @@ const ConnectedMenu = memo(
   },
 )
 
+// Define a custom interface for the route object with component property
+interface CustomRouteProps {
+  path?: string
+  component: React.ComponentType<any>
+}
+
 export const WalletConnectedMenu = ({
   onDisconnect,
   onSwitchProvider,
@@ -101,45 +107,45 @@ export const WalletConnectedMenu = ({
   connectedType,
   onClose,
 }: WalletConnectedProps) => {
-  const location = useLocation()
-
   const connectedWalletMenuRoutes = useMemo(
     () => connectedType && SUPPORTED_WALLETS[connectedType].connectedWalletMenuRoutes,
     [connectedType],
   )
 
-  const renderRoute = useCallback((route: RouteProps, i: number) => {
+  const renderRoute = useCallback((route: CustomRouteProps, i: number) => {
     const Component = route.component
-    return !Component ? null : (
+    return (
       <Route
         key={`walletConnectedMenuRoute_${i}`}
-        exact
-        path={route.path}
-        // we need to pass an arg here, so we need an anonymous function wrapper
-        // eslint-disable-next-line react-memo/require-usememo
-        render={routeProps => <Component {...routeProps} />}
+        path={route.path || ''}
+        element={<Component />}
       />
     )
   }, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location} key={location.key}>
-        <Route exact path={WalletConnectedRoutes.Connected}>
-          <SubMenuContainer>
-            <ConnectedMenu
-              connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
-              isConnected={isConnected}
-              connectedType={connectedType}
-              walletInfo={walletInfo}
-              onDisconnect={onDisconnect}
-              onSwitchProvider={onSwitchProvider}
-              onClose={onClose}
-            />
-          </SubMenuContainer>
-        </Route>
-        {connectedWalletMenuRoutes?.map(renderRoute)}
-      </Switch>
+      <Routes>
+        <Route
+          path={WalletConnectedRoutes.Connected}
+          element={
+            <SubMenuContainer>
+              <ConnectedMenu
+                connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
+                isConnected={isConnected}
+                connectedType={connectedType}
+                walletInfo={walletInfo}
+                onDisconnect={onDisconnect}
+                onSwitchProvider={onSwitchProvider}
+                onClose={onClose}
+              />
+            </SubMenuContainer>
+          }
+        />
+        {connectedWalletMenuRoutes?.map((route, index) =>
+          renderRoute(route as CustomRouteProps, index),
+        )}
+      </Routes>
     </AnimatePresence>
   )
 }

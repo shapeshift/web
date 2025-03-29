@@ -1,6 +1,5 @@
 import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Flex } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Button, Flex, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'

@@ -2,6 +2,7 @@ import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
+import type { JSX } from 'react'
 import { useState } from 'react'
 
 import { GlobalFilter } from './GlobalFilter'

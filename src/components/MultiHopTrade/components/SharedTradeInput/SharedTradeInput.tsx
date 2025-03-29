@@ -1,6 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
-import type { FormEvent } from 'react'
+import type { FormEvent, JSX } from 'react'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
@@ -25,7 +25,7 @@ type SharedTradeInputProps = {
   isLoading: boolean
   SideComponent: React.ComponentType<SideComponentProps>
   shouldOpenSideComponent: boolean
-  tradeInputRef: React.RefObject<HTMLDivElement>
+  tradeInputRef: React.RefObject<HTMLDivElement | null>
   tradeInputTab: TradeInputTab
   onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void

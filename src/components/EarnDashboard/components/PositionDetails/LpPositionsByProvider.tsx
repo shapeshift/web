@@ -1,6 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Flex, Stack } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'

@@ -9,7 +9,7 @@ export const getStyledMenuButtonProps = ({
 }: {
   isDisabled?: boolean
   buttonProps?: ButtonProps
-  rightIcon?: React.ReactElement
+  rightIcon?: React.ReactElement<any>
 }) => {
   return Object.assign(
     {

@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import type { FC } from 'react'
+import type { FC, JSX } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

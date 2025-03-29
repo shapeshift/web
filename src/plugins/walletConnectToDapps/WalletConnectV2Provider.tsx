@@ -28,7 +28,7 @@ const initialState: WalletConnectState = Object.freeze({
 })
 
 export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => {
-  const previousWalletId = useRef<string>()
+  const previousWalletId = useRef<string>(undefined)
 
   const {
     state: { walletInfo },

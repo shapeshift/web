@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import type { JSX } from 'react'
 import React, {
   createContext,
   useCallback,
@@ -137,7 +138,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     [wallet],
   )
   const [state, dispatch] = useReducer(reducer, initialState)
-  const toastRef = useRef<ToastId | undefined>()
+  const toastRef = useRef<ToastId | undefined>(undefined)
 
   const onClose = useCallback(() => {
     if (toastRef.current) {

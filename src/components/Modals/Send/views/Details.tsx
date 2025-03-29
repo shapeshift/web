@@ -49,7 +49,7 @@ type RenderController = ({
   field,
 }: {
   field: ControllerRenderProps<FieldValues, SendFormFields.Memo>
-}) => React.ReactElement
+}) => React.ReactElement<any>
 
 const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 

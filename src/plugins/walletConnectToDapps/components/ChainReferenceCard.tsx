@@ -8,10 +8,10 @@ import {
   Flex,
   Heading,
   Stack,
+  Tag,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

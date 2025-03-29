@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { CircularProgressLabel, Divider, Flex, IconButton } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

@@ -244,7 +244,7 @@ export const StyledAssetChainDropdown = ({
   rightIcon,
   buttonProps,
   ...rest
-}: AssetChainDropdownProps & { rightIcon?: React.ReactElement }) => {
+}: AssetChainDropdownProps & { rightIcon?: React.ReactElement<any> }) => {
   const combinedButtonProps = useMemo(
     () => getStyledMenuButtonProps({ isDisabled, rightIcon, buttonProps }),
     [isDisabled, rightIcon, buttonProps],

@@ -115,9 +115,16 @@ const OpenLimitOrders: FC<{
   const rowVirtualizer = useVirtualizer({
     count: openLimitOrders.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 60, // Estimated row height
+    estimateSize: () => 65, // Estimated row height
     overscan: 5,
   })
+
+  const virtualRows = rowVirtualizer.getVirtualItems()
+  const topRowSpacerHeight = virtualRows.length > 0 ? virtualRows[0].start : 0
+  const bottomRowSpacerHeight =
+    virtualRows.length > 0
+      ? rowVirtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
+      : 0
 
   const handleCancelOrderClick = useCallback(
     (uid: string) => {
@@ -127,19 +134,6 @@ const OpenLimitOrders: FC<{
     },
     [onCancelOrderClick, openLimitOrders],
   )
-
-  const topSpacerRow = useMemo(() => {
-    if (rowVirtualizer.getVirtualItems().length === 0) return null
-    const topSpacerHeight = rowVirtualizer.getVirtualItems()[0].start
-    return topSpacerHeight > 0 ? <Tr height={`${topSpacerHeight}px`} /> : null
-  }, [rowVirtualizer])
-
-  const bottomSpacerRow = useMemo(() => {
-    if (rowVirtualizer.getVirtualItems().length === 0) return null
-    const lastItem = rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]
-    const bottomSpacerHeight = rowVirtualizer.getTotalSize() - lastItem.end
-    return bottomSpacerHeight > 0 ? <Tr height={`${bottomSpacerHeight}px`} /> : null
-  }, [rowVirtualizer])
 
   return (
     <>
@@ -175,15 +169,15 @@ const OpenLimitOrders: FC<{
                 </Tr>
               </Thead>
               <Tbody>
-                {rowVirtualizer.getVirtualItems().length > 0 && (
+                {virtualRows.length > 0 && (
                   <>
-                    {topSpacerRow}
-                    {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                    {topRowSpacerHeight > 0 && <Tr height={topRowSpacerHeight} />}
+                    {virtualRows.map(virtualRow => {
                       const { accountId, sellAssetId, buyAssetId, order } =
                         openLimitOrders[virtualRow.index]
                       return (
                         <LimitOrderCard
-                          key={order.uid}
+                          key={`${order.uid}-${virtualRow.index}`}
                           uid={order.uid}
                           accountId={accountId}
                           sellAmountCryptoBaseUnit={order.sellAmount}
@@ -201,7 +195,7 @@ const OpenLimitOrders: FC<{
                         />
                       )
                     })}
-                    {bottomSpacerRow}
+                    {bottomRowSpacerHeight > 0 && <Tr height={bottomRowSpacerHeight} />}
                   </>
                 )}
               </Tbody>
@@ -258,22 +252,16 @@ const HistoricalLimitOrders: FC<{
   const rowVirtualizer = useVirtualizer({
     count: historicalLimitOrders.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 60, // Estimated row height
+    estimateSize: () => 65, // Estimated row height
     overscan: 5,
   })
 
-  const topSpacerRow = useMemo(() => {
-    if (rowVirtualizer.getVirtualItems().length === 0) return null
-    const topSpacerHeight = rowVirtualizer.getVirtualItems()[0].start
-    return topSpacerHeight > 0 ? <Tr height={`${topSpacerHeight}px`} /> : null
-  }, [rowVirtualizer])
-
-  const bottomSpacerRow = useMemo(() => {
-    if (rowVirtualizer.getVirtualItems().length === 0) return null
-    const lastItem = rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]
-    const bottomSpacerHeight = rowVirtualizer.getTotalSize() - lastItem.end
-    return bottomSpacerHeight > 0 ? <Tr height={`${bottomSpacerHeight}px`} /> : null
-  }, [rowVirtualizer])
+  const virtualRows = rowVirtualizer.getVirtualItems()
+  const topRowSpacerHeight = virtualRows.length > 0 ? virtualRows[0].start : 0
+  const bottomRowSpacerHeight =
+    virtualRows.length > 0
+      ? rowVirtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
+      : 0
 
   return (
     <>
@@ -308,10 +296,10 @@ const HistoricalLimitOrders: FC<{
                 </Tr>
               </Thead>
               <Tbody>
-                {rowVirtualizer.getVirtualItems().length > 0 && (
+                {virtualRows.length > 0 && (
                   <>
-                    {topSpacerRow}
-                    {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                    {topRowSpacerHeight > 0 && <Tr height={topRowSpacerHeight} />}
+                    {virtualRows.map(virtualRow => {
                       const { accountId, sellAssetId, buyAssetId, order } =
                         historicalLimitOrders[virtualRow.index]
                       return (
@@ -333,7 +321,7 @@ const HistoricalLimitOrders: FC<{
                         />
                       )
                     })}
-                    {bottomSpacerRow}
+                    {bottomRowSpacerHeight > 0 && <Tr height={bottomRowSpacerHeight} />}
                   </>
                 )}
               </Tbody>

@@ -147,11 +147,7 @@ export const Trade = memo(() => {
               path={ClaimRoutePaths.Select}
               element={claimElement}
             />
-            <Route
-              key={TradeRoutePaths.Input}
-              path={''} // TODO(gomes): rework swapper routing, we're getting there
-              element={tradeElement}
-            />
+            <Route key={TradeRoutePaths.Input} path={''} element={tradeElement} />
           </Routes>
         </FormProvider>
       </Flex>

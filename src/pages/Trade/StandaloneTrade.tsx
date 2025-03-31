@@ -1,19 +1,20 @@
 import { usePrevious } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
-import type { TradeCardProps } from '@/components/MultiHopTrade/MultiHopTrade'
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
+import type { StandaloneTradeCardProps } from '@/components/MultiHopTrade/StandaloneMultiHopTrade'
+import { StandaloneMultiHopTrade } from '@/components/MultiHopTrade/StandaloneMultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type StandaloneTradeProps = Omit<TradeCardProps, 'onChangeTab'>
+type StandaloneTradeProps = Omit<StandaloneTradeCardProps, 'onChangeTab'>
 
 // i.e all the routes that Trade.tsx handles
 const initialEntries = [
@@ -40,7 +41,13 @@ export const StandaloneTrade: React.FC<StandaloneTradeProps> = props => {
 const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
+  const location = useLocation()
   const dispatch = useAppDispatch()
+
+  // Log navigation for debugging
+  useEffect(() => {
+    console.log('StandaloneTrade - current location:', location.pathname)
+  }, [location.pathname])
 
   const inputSellAsset = useAppSelector(selectInputSellAsset)
   const inputBuyAsset = useAppSelector(selectInputBuyAsset)
@@ -123,22 +130,16 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
     [navigate],
   )
 
-  const multiHopTradeElement = useMemo(
-    () => <MultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />,
+  const standaloneMultiHopTradeElement = useMemo(
+    () => <StandaloneMultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />,
     [props, handleChangeTab],
   )
 
-  const location = useLocation()
-
   return (
     <FormProvider {...methods}>
-      <Routes location={location}>
-        <Route
-          key={TradeRoutePaths.Input}
-          path={TradeRoutePaths.Input}
-          element={multiHopTradeElement}
-        />
-      </Routes>
+      <Switch location={location.pathname}>
+        <Route path='*'>{standaloneMultiHopTradeElement}</Route>
+      </Switch>
     </FormProvider>
   )
 }

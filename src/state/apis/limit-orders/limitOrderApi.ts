@@ -92,6 +92,7 @@ export const limitOrderApi = createApi({
                 // there are no parameters to filter from their API, they are filtering after fetching
                 // on their interface as it's some custom metadata they add
                 const limitOrders = result.data.filter(order => {
+                  // This shouldn't happen but...
                   if (!order.fullAppData) return true
 
                   const appData = JSON.parse(order.fullAppData) as ParsedAppData
@@ -99,9 +100,7 @@ export const limitOrderApi = createApi({
                   // Legacy appdata was used for market orders only
                   if (isLegacyAppData(appData)) return false
 
-                  return !(appData.metadata.orderClass?.orderClass ?? '').includes(
-                    OrderClass.MARKET,
-                  )
+                  return appData.metadata.orderClass?.orderClass !== OrderClass.MARKET
                 })
 
                 return limitOrders.map(order => {

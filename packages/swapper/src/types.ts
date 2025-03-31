@@ -25,6 +25,7 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
+import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
@@ -253,6 +254,7 @@ export type SolanaSwapperDeps = {
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
+  mixPanel: Mixpanel | undefined
   assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
@@ -600,3 +602,7 @@ export type SupportedChainIds = {
 }
 
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
+
+export enum MixPanelEvent {
+  RelayMultiSteps = 'Relay Multi Steps Quote',
+}

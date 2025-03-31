@@ -21,10 +21,12 @@ import type {
   TradeRate,
 } from '../../types'
 import { TradeQuoteError } from '../../types'
-import { isExecutableTradeQuote, makeSwapErrorRight } from '../../utils'
+import { checkSafeTransactionStatus, isExecutableTradeQuote, makeSwapErrorRight } from '../../utils'
 import { relayChainMap } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
+import { relayService } from './utils/relayService'
+import type { RelayStatus } from './utils/types'
 
 // cached metadata - would need persistent cache with expiry if moved server-side
 const tradeQuoteMetadata: Map<string, Execute> = new Map()
@@ -90,14 +92,14 @@ export const relayApi: SwapperApi = {
 
     if (!relayQuote) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
-    const currentStep = relayQuote.steps[stepIndex]
+    const swapSteps = relayQuote.steps.filter(step => step.id !== 'approve')
 
-    const { to, value, data, gasLimit } = currentStep.items?.[0].data ?? {}
+    const { to, value, data, gas } = swapSteps[stepIndex].items?.[0].data ?? {}
 
     const feeData = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
-      data: currentStep?.toString(),
-      to: '',
+      data,
+      to,
       // This looks odd but we need this, else unchained estimate calls will fail with:
       // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
       value: bnOrZero(value.toString()).toString(),
@@ -109,9 +111,9 @@ export const relayApi: SwapperApi = {
       to,
       from,
       value: value.toString(),
-      data: data.toString(),
+      data,
       chainId: Number(fromChainId(chainId).chainReference),
-      ...{ ...feeData, gasLimit: gasLimit.toString() },
+      ...{ ...feeData, gasLimit: gas },
     }
   },
   getEvmTransactionFees: async ({
@@ -128,11 +130,8 @@ export const relayApi: SwapperApi = {
 
     if (!relayQuote) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
-    const currentStep = relayQuote.steps[stepIndex]
-
-    console.log({ currentStep })
-
-    const { to, value, data } = currentStep.items?.[0].data ?? {}
+    const swapSteps = relayQuote.steps.filter(step => step.id !== 'approve')
+    const { to, value, data } = swapSteps[stepIndex].items?.[0].data ?? {}
 
     const { networkFeeCryptoBaseUnit } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
@@ -154,6 +153,7 @@ export const relayApi: SwapperApi = {
     stepIndex,
     chainId,
     accountId,
+    config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }): Promise<{
@@ -161,21 +161,62 @@ export const relayApi: SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }> => {
-    await (async () => {
-      await console.log({
-        quoteId,
-        txHash,
-        stepIndex,
-        chainId,
-        accountId,
-        fetchIsSmartContractAddressQuery,
-        assertGetEvmChainAdapter,
-      })
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+      accountId,
+      fetchIsSmartContractAddressQuery,
+    })
+
+    if (maybeSafeTransactionStatus) {
+      // return any safe transaction status that has not yet executed on chain (no buyTxHash)
+      if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+
+      // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
+      // Mutate txHash and continue with regular status check flow.
+      txHash = maybeSafeTransactionStatus.buyTxHash
+    }
+
+    const relayQuote = tradeQuoteMetadata.get(quoteId)
+
+    if (!relayQuote) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
+
+    const swapSteps = relayQuote.steps.filter(step => step.id !== 'approve')
+
+    const requestId = swapSteps[stepIndex].requestId
+
+    const maybeStatusResponse = await relayService.get<RelayStatus>(
+      `${config.VITE_RELAY_API_URL}intents/status/v2?requestId=${requestId}`,
+    )
+
+    if (maybeStatusResponse.isErr()) {
+      return {
+        buyTxHash: undefined,
+        status: TxStatus.Unknown,
+        message: undefined,
+      }
+    }
+
+    const { data: statusResponse } = maybeStatusResponse.unwrap()
+
+    const status = (() => {
+      switch (statusResponse.status) {
+        case 'success':
+          return TxStatus.Confirmed
+        case 'pending':
+          return TxStatus.Pending
+        case 'failed':
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
     })()
+
     return {
       // We have an out Tx hash (either same or cross-chain) for this step, so we consider the Tx (effectively, the step) confirmed
-      status: TxStatus.Pending,
-      buyTxHash: undefined,
+      status,
+      buyTxHash: statusResponse.txHashes?.[0],
       message: undefined,
     }
   },

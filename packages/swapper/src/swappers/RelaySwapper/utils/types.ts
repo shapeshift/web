@@ -8,3 +8,12 @@ export interface RelayTradeQuote extends TradeQuote {
 export interface RelayTradeRate extends TradeRate {
   selectedRelayRoute?: Execute
 }
+
+export type RelayStatus = {
+  status: 'success' | 'failed' | 'pending' | 'refund' | 'delayed' | 'waiting'
+  inTxHashes: string[]
+  txHashes: string[]
+  time: number
+  originChainId: number
+  destinationChainId: number
+}

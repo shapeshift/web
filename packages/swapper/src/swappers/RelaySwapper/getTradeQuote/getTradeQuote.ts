@@ -15,7 +15,7 @@ import type {
   SwapperDeps,
   TradeQuoteStep,
 } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
+import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayService } from '../utils/relayService'
@@ -128,8 +128,12 @@ export async function getTrade({
   const swapSteps = quote.data.steps.filter(step => step.id !== 'approve')
   const approvalStep = quote.data.steps.find(step => step.id === 'approve')
 
-  // @TODO: send mixpanel event to track multi steps swaps
   if (swapSteps.length > 2) {
+    deps.mixPanel?.track(MixPanelEvent.RelayMultiSteps, {
+      swapper: SwapperName.Relay,
+      method: 'get',
+    })
+
     return Err(
       makeSwapErrorRight({
         message: `Relay quote with ${swapSteps.length} swap steps not supported (maximum 2)`,
@@ -163,13 +167,10 @@ export async function getTrade({
           },
         },
       },
-      // @TODO: Verify that it contains amm name like jupiter or remove me
-      source: `Relay • ${quote.data.details?.operation ?? 'Unknown'}`,
+      source: SwapperName.Relay,
       estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
     }),
   )
-
-  console.log({ quote })
 
   const tradeQuote: RelayTradeQuote = {
     id: quote.data.steps[0].requestId ?? '',

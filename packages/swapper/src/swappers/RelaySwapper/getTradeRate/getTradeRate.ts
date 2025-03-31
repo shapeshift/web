@@ -21,8 +21,6 @@ export const getTradeRate = async (
     relayChainMap,
   })
 
-  console.log({ ratesResult })
-
   return ratesResult.map(rates =>
     rates.map(rate => ({
       ...rate,

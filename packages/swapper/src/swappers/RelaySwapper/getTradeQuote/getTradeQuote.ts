@@ -5,6 +5,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
@@ -16,10 +17,9 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayService } from '../utils/relayService'
 import type { RelayTradeQuote, RelayTradeRate } from '../utils/types'
-import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 
 type AppFee = {
   recipient: string
@@ -79,8 +79,8 @@ export async function getTrade({
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
     receiveAddress,
-		affiliateBps,
-		potentialAffiliateBps,
+    affiliateBps,
+    potentialAffiliateBps,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -116,70 +116,75 @@ export async function getTrade({
       tradeType: 'EXACT_INPUT',
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       recipient: receiveAddress,
-			user: sendAddress ?? '0x0000000000000000000000000000000000000000'
+      user: sendAddress ?? '0x0000000000000000000000000000000000000000',
     },
     deps.config,
   )
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
-	const quote = maybeQuote.unwrap()
+  const quote = maybeQuote.unwrap()
 
-	const swapSteps = quote.data.steps.filter(step => step.id !== 'approve')
-	const approvalStep = quote.data.steps.find(step => step.id === 'approve')
+  const swapSteps = quote.data.steps.filter(step => step.id !== 'approve')
+  const approvalStep = quote.data.steps.find(step => step.id === 'approve')
 
-	// @TODO: send mixpanel event to track multi steps swaps
-	if (swapSteps.length > 2) {
-		return Err(
-			makeSwapErrorRight({
-				message: `Relay quote with ${swapSteps.length} swap steps not supported (maximum 2)`,
-				code: TradeQuoteError.UnsupportedTradePair,
-			}),
-		)
-	}
+  // @TODO: send mixpanel event to track multi steps swaps
+  if (swapSteps.length > 2) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Relay quote with ${swapSteps.length} swap steps not supported (maximum 2)`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
 
-	const steps = swapSteps.map((quoteStep): TradeQuoteStep => ({
-		allowanceContract: approvalStep?.items?.[0]?.data?.to ?? quoteStep.items?.[0]?.data?.to,
-		rate: quote.data.details?.rate ?? '0',
-		buyAmountBeforeFeesCryptoBaseUnit: quote.data.details?.currencyOut?.amount ?? '0',
-		buyAmountAfterFeesCryptoBaseUnit: quote.data.details?.currencyOut?.minimumAmount ?? '0',
-		sellAmountIncludingProtocolFeesCryptoBaseUnit,
-		buyAsset,
-		sellAsset,
-		accountNumber: 0,
-		feeData: {
-			networkFeeCryptoBaseUnit: (
-				BigInt(approvalStep?.items?.[0]?.data?.gas ?? '0') * 
-				BigInt(approvalStep?.items?.[0]?.data?.maxFeePerGas ?? '0') +
-				BigInt(quoteStep.items?.[0]?.data?.gas ?? '0') * 
-				BigInt(quoteStep.items?.[0]?.data?.maxFeePerGas ?? '0')
-			).toString(),
-			protocolFees: {
-				[sellAsset.assetId]: {
-					amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',
-					asset: sellAsset,
-					requiresBalance: true,
-				},
-			},
-		},
-		// @TODO: Verify that it contains amm name like jupiter or remove me
-		source: `Relay • ${quote.data.details?.operation ?? 'Unknown'}`,
-		estimatedExecutionTimeMs: quote.data.details?.timeEstimate,
-	}))
+  const steps = swapSteps.map(
+    (quoteStep): TradeQuoteStep => ({
+      allowanceContract: approvalStep?.items?.[0]?.data?.to ?? quoteStep.items?.[0]?.data?.to,
+      rate: quote.data.details?.rate ?? '0',
+      buyAmountBeforeFeesCryptoBaseUnit: quote.data.details?.currencyOut?.amount ?? '0',
+      buyAmountAfterFeesCryptoBaseUnit: quote.data.details?.currencyOut?.minimumAmount ?? '0',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAsset,
+      sellAsset,
+      accountNumber: 0,
+      feeData: {
+        networkFeeCryptoBaseUnit: (
+          BigInt(approvalStep?.items?.[0]?.data?.gas ?? '0') *
+            BigInt(approvalStep?.items?.[0]?.data?.maxFeePerGas ?? '0') +
+          BigInt(quoteStep.items?.[0]?.data?.gas ?? '0') *
+            BigInt(quoteStep.items?.[0]?.data?.maxFeePerGas ?? '0')
+        ).toString(),
+        protocolFees: {
+          [sellAsset.assetId]: {
+            amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',
+            asset: sellAsset,
+            requiresBalance: true,
+          },
+        },
+      },
+      // @TODO: Verify that it contains amm name like jupiter or remove me
+      source: `Relay • ${quote.data.details?.operation ?? 'Unknown'}`,
+      estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
+    }),
+  )
 
-	const tradeQuote: RelayTradeQuote = {
-		id: quote.data.steps[0].requestId ?? '',
-		steps: steps as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
-		receiveAddress: receiveAddress ?? '',
-		rate: quote.data.details?.rate ?? '0',
-		quoteOrRate: 'quote' as const,
-		swapperName: SwapperName.Relay,
-		affiliateBps,
-		potentialAffiliateBps,
-		slippageTolerancePercentageDecimal,
-	}
+  console.log({ quote })
 
-	return Ok([tradeQuote])
+  const tradeQuote: RelayTradeQuote = {
+    id: quote.data.steps[0].requestId ?? '',
+    steps: steps as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
+    receiveAddress: receiveAddress ?? '',
+    rate: quote.data.details?.rate ?? '0',
+    quoteOrRate: 'quote' as const,
+    swapperName: SwapperName.Relay,
+    affiliateBps,
+    potentialAffiliateBps,
+    selectedRelayRoute: quote.data,
+    slippageTolerancePercentageDecimal,
+  }
+
+  return Ok([tradeQuote])
 }
 
 export const getTradeQuote = async (

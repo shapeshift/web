@@ -198,13 +198,7 @@
     "hardwareWallets": "Billeteras de Hardware"
   },
   "consentBanner": {
-    "body": {
-      "1": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita",
-      "2": "private.shapeshift.com",
-      "3": "si no quieres que te rastreen de forma anónima. Vea nuestra",
-      "4": "Política de Privacidad",
-      "5": "para más detalles."
-    },
+    "body": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita %{privateLink} si no quieres que te rastreen de forma anónima. Vea nuestra %{privacyPolicyLink} para más detalles.",
     "cta": "Entiendo"
   },
   "errorPage": {
@@ -213,18 +207,10 @@
     "cta": "Intentar otra vez"
   },
   "buyPage": {
-    "title": {
-      "first": "Comprar Cripto",
-      "second": "en Segundos"
-    },
+    "title": "Comprar Cripto <span>en Segundos</span>",
     "body": "Utilice una tarjeta de crédito, tarjeta de débito o cuenta bancaria. Compre Bitcoin, Ethereum, USDT, USDC o cientos de otras criptomonedas.",
     "disclaimer": "*También puede vender cripto directamente en efectivohacia su cuenta bancaria.",
-    "cta": {
-      "title": {
-        "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
-        "second": "Rastree su cripto en %{chainCount} cadenas"
-      }
-    },
+    "ctaTitle": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y <span>Rastree su cripto en %{chainCount} cadenas</span>",
     "availableAssets": "Activos Disponibles"
   },
   "updateToast": {
@@ -435,10 +421,8 @@
         "introducingSaversVaults": "Presentamos Bóvedas Savers",
         "introducingRunePool": "Presentamos RUNEPool",
         "risksBody": {
-          "1": "Refiere a",
-          "2": "Este artículo",
-          "3": "por los riesgos de las Bovedas Savers.",
-          "runePool": "por los riesgos involucrados con RUNEPool."
+          "vaults": "Refiere a <link>Este artículo</link> por los riesgos de las Bovedas Savers.",
+          "runePool": "Refiere a <link>Este artículo</link> por los riesgos involucrados con RUNEPool."
         },
         "understand": "Entiendo",
         "days": "%{amount} días",
@@ -450,9 +434,7 @@
         "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
         "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes",
         "dangerousWithdrawWarning": "La tarifa de THORChain podría resultar en la pérdida total de los fondos retirados. Considere retirar una cantidad mayor para evitar este problema.",
-        "agreeRunePool": {
-          "1": "Entiendo que RUNEPool tiene un bloqueo mínimo de 30 días y un mayor riesgo de pérdida impermanente."
-        }
+        "agreeRunePool": "Entiendo que RUNEPool tiene un bloqueo mínimo de 30 días y un mayor riesgo de pérdida impermanente."
       }
     },
     "memoNote": {
@@ -1748,11 +1730,7 @@
       "warningExperimental": "Snap Multicadena ShapeShift es función nueva y experimental que se proporciona \"tal cual\"",
       "warningBackup": "Asegúrese tener copia de su frase semilla de MetaMask. Cualquier fondo que envíe a cadenas que no sean EVM usando este Snap se dirigirá a la cuenta predeterminada configurada con MetaMask.",
       "agreeIntro": "Antes de continuar por favor lea lo siguiente:",
-      "agreeItem1Parts": {
-        "1": "Las Carteras de hardware son",
-        "2": "NO",
-        "3": "soportado"
-      },
+      "agreeItem1": "Las Carteras de hardware son <strong>NO</strong> soportado",
       "agreeItem2": "Solo se admite la cuenta n.° 1 en MetaMask para las cadenas adicionales que proporciona Snap Multicadena ShapeShift",
       "agreeItem3": "Para utilizar cadenas Ethereum existentes por MetaMask, debe conectar Cuenta n.° 1 a ShapeShift en MetaMask",
       "agreeItem4": "Al habilitar Snap Multicadena ShapeShift, usted reconoce que lo utiliza bajo su propio riesgo.",
@@ -2873,11 +2851,7 @@
     },
     "governance": {
       "title": "Gobernancia",
-      "description": {
-        "0": "Únase",
-        "1": "al forum",
-        "2": "y dale forma al futuro DAO."
-      },
+      "description": "Únase <link>al forum</link> y dale forma al futuro DAO.",
       "totalVotingPower": "Poder de Voto Total",
       "noActiveProposals": "No hay propuestas activas disponibles",
       "noClosedProposals": "No hay propuestas cerradas disponibles"

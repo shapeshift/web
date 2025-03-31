@@ -37,6 +37,10 @@ const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const)
     limitOrders: {},
     limitOrderQuote: {},
   },
+  _persist: {
+    version: 0,
+    rehydrated: false,
+  },
 })
 
 export const mockStore: ReduxState = {

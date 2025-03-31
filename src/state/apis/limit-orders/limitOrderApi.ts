@@ -86,7 +86,15 @@ export const limitOrderApi = createApi({
                   `${baseUrl}/${network}/api/v1/account/${account}/orders?limit=1000`,
                 )
 
-                return result.data.map(order => {
+                // CowSwap limit and spot orders API is the same, so we need to filter out spot orders
+                // there are no parameters to filter from their API, they are filtering after fetching
+                // on their interface as it's some custom metadata they add
+                const limitOrders = result.data.filter(order => {
+                  const appData = order.fullAppData ? JSON.parse(order.fullAppData) : null
+                  return !appData?.metadata.orderClass.orderClass.includes(OrderClass.MARKET)
+                })
+
+                return limitOrders.map(order => {
                   return { order, accountId }
                 })
               } catch (e) {

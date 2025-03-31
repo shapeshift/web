@@ -65,9 +65,9 @@ export const Address = () => {
       validate: {
         validateAddress: async (rawInput: string) => {
           if (!asset) return
-          // Don't go invalid on initial empty strin
+          // Don't go invalid on initial empty string
           if (!rawInput.trim()) return true
-          
+
           const urlOrAddress = rawInput.trim() // trim leading/trailing spaces
           setIsValidating(true)
           setValue(SendFormFields.To, '')

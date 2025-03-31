@@ -37,7 +37,7 @@ export const Status = () => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
   const navigate = useNavigate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const assets = useAppSelector(selectAssets)
   const assetNamespace = 'slip44'
@@ -68,7 +68,7 @@ export const Status = () => {
 
   const handleViewPosition = useCallback(() => {
     navigate('/earn')
-  }, [browserHistory])
+  }, [navigate])
 
   const handleCancel = () => navigate(-1)
 

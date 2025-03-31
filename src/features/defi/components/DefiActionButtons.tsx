@@ -3,7 +3,7 @@ import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 
 import type {
   DefiAction,
@@ -25,7 +25,8 @@ export type DefiActionButtonProps = {
 
 export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => {
   const translate = useTranslate()
-  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const location = useLocation()
 
   const navigate = useNavigate()
 

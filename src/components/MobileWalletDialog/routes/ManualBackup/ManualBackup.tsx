@@ -30,7 +30,6 @@ import {
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
-import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 const copyIcon = <Icon as={FiCopy} />
 

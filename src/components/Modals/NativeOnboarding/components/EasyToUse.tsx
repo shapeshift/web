@@ -8,7 +8,6 @@ import EasyToUseIcon from '../easy-to-use.svg'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
@@ -18,7 +17,6 @@ const NativeFeatureList = ['trackBalance', 'sendReceive', 'buyCrypto', 'tradeAss
 export const EasyToUse = () => {
   const { close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
-  const { history } = useBrowserRouter()
   const navigate = useNavigate()
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.easyToUse.${key}`
   const renderFeatures = useMemo(() => {
@@ -45,7 +43,7 @@ export const EasyToUse = () => {
       navigate(path)
       store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
     },
-    [closeModal, history, navigate],
+    [closeModal, navigate],
   )
   const handleBuyCryptoClick = useCallback(() => handleClick('/buy-crypto'), [handleClick])
   const handleDashboardClick = useCallback(() => handleClick('/wallet'), [handleClick])

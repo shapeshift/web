@@ -23,8 +23,8 @@ export const Claim: React.FC<ClaimProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const navigate = useNavigate()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = useCallback(() => {
     navigate({
@@ -34,7 +34,7 @@ export const Claim: React.FC<ClaimProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query, navigate])
+  }, [query, location.pathname, navigate])
 
   return (
     <SlideTransition>

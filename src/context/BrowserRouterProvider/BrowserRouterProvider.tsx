@@ -56,8 +56,6 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
     )
   }, [appRoutes, location.pathname])
 
-  console.log({ pathname: location.pathname, appRoutes, currentRoute })
-
   useEffect(() => {
     const maybePathname = mapMixpanelPathname(location.pathname, assets)
     if (maybePathname !== null)
@@ -72,7 +70,7 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
       appRoutes,
       currentRoute,
     }),
-    [history, location, params, query, appRoutes, currentRoute],
+    [location, params, query, appRoutes, currentRoute],
   )
 
   return <BrowserRouterContext.Provider value={router}>{children}</BrowserRouterContext.Provider>

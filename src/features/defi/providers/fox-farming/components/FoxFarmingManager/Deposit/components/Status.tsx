@@ -74,7 +74,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   )
 
   const navigate = useNavigate()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state =>
@@ -90,7 +89,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const handleViewPosition = useCallback(() => {
     navigate('/earn')
-  }, [browserHistory])
+  }, [navigate])
 
   const handleCancel = () => navigate(-1)
 

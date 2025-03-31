@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -50,7 +51,8 @@ export const Deposit: React.FC<DepositProps> = ({
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, assetReference, chainId, contractAddress, rewardId } = query
 
   const foxFarmingOpportunityFilter = useMemo(
@@ -272,7 +274,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
-  const handleCancel = browserHistory.goBack
+  const handleCancel = () => navigate(-1)
 
   return (
     <ReusableDeposit

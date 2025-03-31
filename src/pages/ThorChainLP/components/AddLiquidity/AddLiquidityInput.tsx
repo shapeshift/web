@@ -59,7 +59,6 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -168,7 +167,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { wallet, isConnected } = useWallet().state
   const queryClient = useQueryClient()
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter()
   const navigate = useNavigate()
   const [isFiat, toggleIsFiat] = useToggle(false)
 
@@ -497,7 +495,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const handleBackClick = useCallback(() => {
     navigate('/pools')
-  }, [browserHistory])
+  }, [navigate])
 
   const toggleFeeModal = useCallback(() => {
     toggleShowFeeModal(!showFeeModal)

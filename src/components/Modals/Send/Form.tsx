@@ -4,7 +4,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -58,12 +58,12 @@ type SendFormProps = {
 }
 
 const RedirectToSelect = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   useEffect(() => {
-    navigate(SendRoutes.Select, { replace: true });
-  }, [navigate]);
-  return null;
-};
+    navigate(SendRoutes.Select, { replace: true })
+  }, [navigate])
+  return null
+}
 
 const selectRedirect = <RedirectToSelect />
 
@@ -105,16 +105,16 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       // Set all form values
-      methods.setValue(SendFormFields.AssetId, assetId);
-      methods.setValue(SendFormFields.AccountId, '');
-      methods.setValue(SendFormFields.AmountCryptoPrecision, '');
-      methods.setValue(SendFormFields.FiatAmount, '');
-      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency);
-      
+      methods.setValue(SendFormFields.AssetId, assetId)
+      methods.setValue(SendFormFields.AccountId, '')
+      methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+      methods.setValue(SendFormFields.FiatAmount, '')
+      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
+
       // Use requestAnimationFrame to ensure navigation happens after state updates
       requestAnimationFrame(() => {
-        navigate(SendRoutes.Address, { replace: true });
-      });
+        navigate(SendRoutes.Address, { replace: true })
+      })
     },
     [navigate, methods, selectedCurrency],
   )

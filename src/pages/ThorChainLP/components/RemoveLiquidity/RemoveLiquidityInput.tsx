@@ -41,7 +41,6 @@ import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippageP
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -113,7 +112,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const mixpanel = getMixPanel()
   const navigate = useNavigate()
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
 
@@ -324,7 +322,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const handleBackClick = useCallback(() => {
     navigate('/pools')
-  }, [browserHistory])
+  }, [navigate])
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {

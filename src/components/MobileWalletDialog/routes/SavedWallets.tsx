@@ -71,7 +71,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     if (wallet?.mnemonic) {
       revocableWallet.mnemonic = wallet.mnemonic
 
-      navigate(MobileWalletDialogRoutes.Backup, { vault: wallet })
+      navigate(MobileWalletDialogRoutes.Backup, { state: { vault: wallet } })
     }
   }, [history, state])
 

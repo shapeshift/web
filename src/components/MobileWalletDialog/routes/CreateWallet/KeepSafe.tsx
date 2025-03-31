@@ -4,6 +4,7 @@ import { FaLock } from 'react-icons/fa'
 import { FiAlertTriangle, FiEye } from 'react-icons/fi'
 import { IoShieldCheckmark } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import type { Location } from 'react-router-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
@@ -23,7 +24,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 export const KeepSafe = () => {
-  const location = useLocation<MobileLocationState>()
+  const location: Location<MobileLocationState> = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()
   const bgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')

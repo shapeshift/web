@@ -18,7 +18,6 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { updateWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 type FormValues = {
   label: string

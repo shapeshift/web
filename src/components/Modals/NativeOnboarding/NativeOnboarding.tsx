@@ -26,9 +26,10 @@ export const NativeOnboarding = () => {
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const renderRoutes = useMemo(() => {
-    return OnboardingRoutes.map(route => (
-      <Route key={route.path} path={route.path} element={route.component} />
-    ))
+    return OnboardingRoutes.map(route => {
+      const element = <route.component />
+      return <Route key={route.path} path={route.path} element={element} />
+    })
   }, [])
 
   const handleClose = useCallback(() => {

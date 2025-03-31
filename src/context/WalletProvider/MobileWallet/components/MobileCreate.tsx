@@ -18,6 +18,7 @@ import type { ReactNode } from 'react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import type { Location } from 'react-router-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { createWallet } from '../mobileMessageHandlers'
@@ -37,7 +38,7 @@ const faEyeIcon = <FaEye />
 export const MobileCreate: React.FC<MobileCreateProps> = props => {
   const { HeaderComponent } = props
   const navigate = useNavigate()
-  const location = useLocation<MobileLocationState | undefined>()
+  const location: Location<MobileLocationState | undefined> = useLocation()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = useCallback(() => {

@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 import { getAddress } from 'viem'
 
 import { UniV2DepositActionType } from '../DepositCommon'
@@ -46,7 +47,8 @@ export const Deposit: React.FC<DepositProps> = ({
 }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
   const lpAssetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -255,9 +257,7 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+  const handleCancel = () => navigate(-1)
 
   const validateCryptoAmount = useCallback(
     (value: string, isForAsset0: boolean) => {

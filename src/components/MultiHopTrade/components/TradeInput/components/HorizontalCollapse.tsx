@@ -28,21 +28,7 @@ export const HorizontalCollapse = ({
     [height],
   )
 
-  // Add a small buffer to the width to prevent content cutoff issues
-  const animateWidth = useMemo(() => {
-    // Only add buffer to numeric widths
-    if (typeof width === 'number') {
-      return isOpen ? width + 8 : 1
-    }
-    return isOpen ? width : 1
-  }, [isOpen, width])
-
-  const animateProp = useMemo(
-    () => ({
-      width: animateWidth,
-    }),
-    [animateWidth],
-  )
+  const animateProp = useMemo(() => ({ width: isOpen ? width : 1 }), [isOpen, width])
 
   const handleAnimationStart = useCallback(() => setHidden(false), [])
   const handleAnimationComplete = useCallback(() => setHidden(!isOpen), [isOpen])

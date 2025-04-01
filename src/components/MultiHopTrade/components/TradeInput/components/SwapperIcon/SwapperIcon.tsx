@@ -42,6 +42,9 @@ export const SwapperIcon = ({
         return JupiterIcon
       case SwapperName.Relay:
         return RelayIcon
+      // Just to make TS happy
+      case SwapperName.Test:
+        return CowIcon
       default:
         assertUnreachable(swapperName)
     }

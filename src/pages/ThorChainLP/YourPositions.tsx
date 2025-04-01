@@ -308,7 +308,7 @@ export const YourPositions = () => {
         generatePath('/pools/positions/:poolAssetId/:accountId/:opportunityId', {
           poolAssetId,
           accountId,
-          opportunityId,
+          opportunityId: encodeURIComponent(opportunityId),
         }),
       )
     },

@@ -62,6 +62,7 @@ export const AvailablePools = () => {
             swapperName: SwapperName.Thorchain,
           })
 
+          const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
@@ -69,6 +70,11 @@ export const AvailablePools = () => {
 
           const statusContent = useMemo(() => {
             switch (true) {
+              case isThorchainPoolsInstable:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='pools.depositsDisabled' />,
+                }
               case isTradingActive === false:
                 return {
                   color: 'red.500',

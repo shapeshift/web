@@ -8,16 +8,14 @@ import { FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS } from '@/lib/fees/constant'
 
 const display = { base: 'none', md: 'flex' }
 
-type FoxWifHatBannerProps = { maxWidth?: number }
-export const FoxWifHatBanner: React.FC<FoxWifHatBannerProps> = props => {
-  const { maxWidth } = props
+export const FoxWifHatBanner = () => {
   const translate = useTranslate()
 
   // Hide the banner after the campaign ends
   if (Date.now() > FOX_WIF_HAT_CAMPAIGN_ENDING_TIME_MS) return null
 
   return (
-    <Card overflow='hidden' maxWidth={maxWidth} position='relative' mb={4} display={display}>
+    <Card overflow='hidden' position='relative' mb={4} display={display}>
       <CardBody
         display='flex'
         alignItems='center'

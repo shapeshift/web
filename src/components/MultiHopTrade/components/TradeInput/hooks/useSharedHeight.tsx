@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 
-export const useSharedWidth = (observedRef: React.MutableRefObject<HTMLDivElement | null>) => {
-  const [width, setWidth] = useState<number>()
+export const useSharedHeight = (observedRef: React.MutableRefObject<HTMLDivElement | null>) => {
+  const [height, setHeight] = useState(0)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
-        setWidth(entry.contentRect.width)
+        setHeight(entry.contentRect.height)
       }
     })
 
@@ -23,5 +23,5 @@ export const useSharedWidth = (observedRef: React.MutableRefObject<HTMLDivElemen
     }
   }, [observedRef])
 
-  return width
+  return height
 }

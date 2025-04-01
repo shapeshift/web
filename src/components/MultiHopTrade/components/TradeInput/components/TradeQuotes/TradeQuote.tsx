@@ -327,6 +327,27 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         })
       })()
 
+      const slippageElement = (() => {
+        const autoSlippagePercentage =
+          quote.isStreaming && isUserSlippageNotApplied
+            ? translate('trade.slippage.auto')
+            : undefined
+        const userSlippagePercentage =
+          quote.slippageTolerancePercentageDecimal !== undefined
+            ? toPercent(quote.slippageTolerancePercentageDecimal)
+            : undefined
+
+        const slippagePercentageOrAuto = autoSlippagePercentage ?? userSlippagePercentage
+
+        if (!slippagePercentageOrAuto) return null
+
+        return (
+          <RawText color={isUserSlippageNotApplied ? 'text.error' : undefined}>
+            {slippagePercentageOrAuto}
+          </RawText>
+        )
+      })()
+
       return (
         <Skeleton isLoaded={!isLoading}>
           <Tooltip label={tooltip}>
@@ -334,11 +355,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
               <RawText color={isUserSlippageNotApplied ? 'text.error' : 'text.subtle'}>
                 <SlippageIcon />
               </RawText>
-              {quote.slippageTolerancePercentageDecimal !== undefined && (
-                <RawText color={isUserSlippageNotApplied ? 'text.error' : undefined}>
-                  {toPercent(quote.slippageTolerancePercentageDecimal)}
-                </RawText>
-              )}
+              {slippageElement}
               {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
             </Flex>
           </Tooltip>

@@ -3,10 +3,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight } from '../../../types'
-import { isToken } from '../../../utils'
+import { TradeQuoteError } from '../../../types'
+import { isToken, makeSwapErrorRight } from '../../../utils'
 import type { ChainflipSupportedChainId } from '../constants'
 import {
   ChainflipSupportedAssetIdsByChainId,
@@ -129,25 +131,34 @@ export const getChainFlipSwap = ({
 
 const fetchChainFlipAssets = async ({
   brokerUrl,
-}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'>): Promise<ChainflipAsset[]> => {
+}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'>): Promise<Result<ChainflipAsset[], SwapErrorRight>> => {
   const result = await chainflipService.get<{ assets: ChainflipAsset[] }>(`${brokerUrl}/assets`)
 
-  if (result.isErr()) throw result.unwrapErr()
-
-  const { data } = result.unwrap()
-
-  return data.assets
+  return result.map(({ data }) => data.assets)
 }
 
 export const getChainFlipIdFromAssetId = async ({
   assetId,
   brokerUrl,
-}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'> & { assetId: AssetId }) => {
-  const chainflipAssets = await fetchChainFlipAssets({
+}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'> & { assetId: AssetId }): Promise<
+  Result<string, SwapErrorRight>
+> => {
+  const maybeChainflipAssets = await fetchChainFlipAssets({
     brokerUrl,
   })
   const { assetReference, chainId } = fromAssetId(assetId)
   const _isToken = isToken(assetId)
+
+  if (maybeChainflipAssets.isErr()) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Error fetching Chainflip assets`,
+        code: TradeQuoteError.QueryFailed,
+      }),
+    )
+  }
+
+  const chainflipAssets = maybeChainflipAssets.unwrap()
 
   const chainflipAsset = chainflipAssets.find(asset => {
     const isCorrectNetwork = asset.network === chainIdToChainflipNetwork[chainId]
@@ -160,7 +171,13 @@ export const getChainFlipIdFromAssetId = async ({
     return !asset.contractAddress
   })
 
-  if (!chainflipAsset) throw new Error('Asset not found')
+  if (!chainflipAsset)
+    return Err(
+      makeSwapErrorRight({
+        message: `Asset not supported by Chainflip`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
 
-  return chainflipAsset.id
+  return Ok(chainflipAsset.id)
 }

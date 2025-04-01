@@ -70,7 +70,7 @@ export const App = () => {
     if (showWelcomeModal && !isNativeOnboardOpen) {
       openNativeOnboard({ browserNavigate: navigate })
     }
-  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
+  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal, navigate])
 
   return (
     <>

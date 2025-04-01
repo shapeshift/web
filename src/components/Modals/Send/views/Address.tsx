@@ -60,7 +60,7 @@ export const Address = () => {
           assetId: asset?.assetId ?? '',
         },
       }),
-    [history, asset],
+    [navigate, asset],
   )
 
   const addressInputRules = useMemo(

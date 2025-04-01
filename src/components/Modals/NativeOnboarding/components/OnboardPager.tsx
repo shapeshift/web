@@ -36,7 +36,7 @@ export const OnboardPager: React.FC = () => {
 
   const handleNext = useCallback(() => {
     navigate(OnboardingRoutes[activeIndex + 1].path)
-  }, [activeIndex, history])
+  }, [activeIndex, navigate])
 
   const canGoNext = useMemo(() => {
     return activeIndex + 1 < OnboardingRoutes.length

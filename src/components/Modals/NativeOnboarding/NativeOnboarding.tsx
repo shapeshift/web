@@ -34,7 +34,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
       const element = <route.component browserNavigate={browserNavigate} />
       return <Route key={route.path} path={route.path} element={element} />
     })
-  }, [])
+  }, [browserNavigate])
 
   const handleClose = useCallback(() => {
     closeModal()

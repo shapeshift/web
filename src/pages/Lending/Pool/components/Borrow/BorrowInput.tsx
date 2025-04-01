@@ -414,7 +414,7 @@ export const BorrowInput = ({
     collateralAsset,
     collateralFeeAsset?.networkName,
     depositAmountCryptoPrecision,
-    history,
+    navigate,
     isSweepNeeded,
     lendingQuoteData,
     mixpanel,

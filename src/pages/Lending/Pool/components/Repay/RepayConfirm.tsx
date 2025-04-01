@@ -200,8 +200,12 @@ export const RepayConfirm = ({
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    navigate(RepayRoutePaths.Input)
-  }, [history])
+    navigate(-1)
+  }, [navigate])
+
+  const handleSubmit = useCallback(() => {
+    navigate(RepayRoutePaths.Confirm)
+  }, [navigate])
 
   const divider = useMemo(() => <Divider />, [])
 
@@ -323,7 +327,7 @@ export const RepayConfirm = ({
     confirmedQuote?.repaymentAmountCryptoPrecision,
     confirmedQuote?.repaymentPercent,
     eventData,
-    history,
+    navigate,
     inboundAddressData,
     isQuoteExpired,
     loanTxStatus,

@@ -302,7 +302,7 @@ export const RepayInput = ({
     collateralAsset?.assetId,
     collateralFeeAsset?.networkName,
     handleApprove,
-    history,
+    navigate,
     isApprovalRequired,
     lendingQuoteCloseData,
     mixpanel,
@@ -547,6 +547,10 @@ export const RepayInput = ({
       })
     return translate('lending.repay')
   }, [isApprovalRequired, repaymentAsset, translate])
+
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   if (!seenNotice) {
     return (

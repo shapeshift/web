@@ -174,22 +174,19 @@ export const ChangeAddressConfirm: React.FC<
     },
   })
 
-  const handleSubmit = useCallback(async () => {
-    if (!stakingAsset) return
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
-    await handleChangeAddress()
-    navigate(ChangeAddressRoutePaths.Status)
-  }, [history, handleChangeAddress, stakingAsset])
+  const handleSubmit = useCallback(() => {
+    navigate(ChangeAddressRoutePaths.Confirm)
+  }, [navigate])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(
     () => isChangeAddressMutationPending || (isChangeAddressMutationSuccess && !changeAddressTx),
     [changeAddressTx, isChangeAddressMutationPending, isChangeAddressMutationSuccess],
   )
-
-  const handleGoBack = useCallback(() => {
-    navigate(ChangeAddressRoutePaths.Input)
-  }, [history])
 
   const changeAddressCard = useMemo(() => {
     if (!stakingAsset) return null
@@ -229,7 +226,7 @@ export const ChangeAddressConfirm: React.FC<
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
         <Flex flex={1}>
-          <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
+          <IconButton onClick={handleBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
         <Flex flex={1} />

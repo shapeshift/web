@@ -209,7 +209,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     setConfirmedQuote,
     stakingAssetId,
     currentRuneAddress,
-    history,
+    navigate,
   ])
 
   const handleRuneAddressChange = useCallback(
@@ -251,6 +251,10 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
       assets: stakingAssets,
     })
   }, [stakingAssets, buyAssetSearch, setStakingAssetId])
+
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   if (!isConnected)
     return (

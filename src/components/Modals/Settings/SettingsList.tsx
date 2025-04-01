@@ -82,7 +82,7 @@ export const SettingsList: FC = () => {
       settings.close()
       navigate(linkHref)
     },
-    [settings],
+    [settings, navigate],
   )
 
   const handleDeleteAccountsClick = useCallback(async () => {

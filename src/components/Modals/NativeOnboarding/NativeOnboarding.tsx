@@ -39,7 +39,11 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const handleClose = useCallback(() => {
     closeModal()
     store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
-  }, [closeModal, store, preferences])
+  }, [closeModal])
+
+  const handleCheckboxChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    store.dispatch(preferences.actions.setShowSnapsModal(!event.target.checked))
+  }, [])
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>

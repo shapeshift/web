@@ -102,6 +102,7 @@ export const AvailablePools = () => {
                 }
             }
           }, [
+            isThorchainPoolsInstable,
             isThorchainLpInteractionDisabled,
             isTradingActive,
             pool.annualPercentageRate,

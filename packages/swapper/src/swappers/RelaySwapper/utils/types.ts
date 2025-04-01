@@ -17,3 +17,38 @@ export type RelayStatus = {
   originChainId: number
   destinationChainId: number
 }
+
+export type AppFee = {
+  recipient: string
+  fee: string
+}
+
+export type Transaction = {
+  to: string
+  value: string
+  data: string
+}
+
+export type QuoteParams = {
+  user: string
+  originChainId: number
+  destinationChainId: number
+  originCurrency: string
+  destinationCurrency: string
+  tradeType: 'EXACT_INPUT' | 'EXACT_OUTPUT' | 'EXPECTED_OUTPUT'
+  recipient?: string
+  amount?: string
+  txs?: Transaction[]
+  referrer?: string
+  refundTo?: string
+  refundOnOrigin?: boolean
+  useReceiver?: boolean
+  useExternalLiquidity?: boolean
+  usePermit?: boolean
+  useDepositAddress?: boolean
+  slippageTolerance?: string
+  appFees?: AppFee[]
+  gasLimitForDepositSpecifiedTxs?: number
+  userOperationGasOverhead?: number
+  forceSolverExecution?: boolean
+}

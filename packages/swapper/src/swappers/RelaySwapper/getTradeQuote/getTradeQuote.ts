@@ -19,42 +19,7 @@ import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayService } from '../utils/relayService'
-import type { RelayTradeQuote, RelayTradeRate } from '../utils/types'
-
-type AppFee = {
-  recipient: string
-  fee: string
-}
-
-type Transaction = {
-  to: string
-  value: string
-  data: string
-}
-
-export type QuoteParams = {
-  user: string
-  originChainId: number
-  destinationChainId: number
-  originCurrency: string
-  destinationCurrency: string
-  tradeType: 'EXACT_INPUT' | 'EXACT_OUTPUT' | 'EXPECTED_OUTPUT'
-  recipient?: string
-  amount?: string
-  txs?: Transaction[]
-  referrer?: string
-  refundTo?: string
-  refundOnOrigin?: boolean
-  useReceiver?: boolean
-  useExternalLiquidity?: boolean
-  usePermit?: boolean
-  useDepositAddress?: boolean
-  slippageTolerance?: string
-  appFees?: AppFee[]
-  gasLimitForDepositSpecifiedTxs?: number
-  userOperationGasOverhead?: number
-  forceSolverExecution?: boolean
-}
+import type { QuoteParams, RelayTradeQuote, RelayTradeRate } from '../utils/types'
 
 // @TODO: implement affiliate fees
 export const getQuote = async (

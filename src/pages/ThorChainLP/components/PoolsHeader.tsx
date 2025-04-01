@@ -99,7 +99,7 @@ export const PoolsHeader = () => {
         </Display.Desktop>
         <Container maxWidth='container.4xl'>
           {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
-            <Alert status='warning' variant='subtle'>
+            <Alert status='error' variant='subtle'>
               <AlertIcon />
               <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
             </Alert>

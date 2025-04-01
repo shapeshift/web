@@ -152,7 +152,7 @@ export const Pool = () => {
   return (
     <Main headerComponent={headerComponent} isSubPage>
       {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
-        <Alert status='warning' variant='subtle' mb={4}>
+        <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
           <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
         </Alert>

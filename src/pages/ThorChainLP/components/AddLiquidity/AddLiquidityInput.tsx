@@ -1602,7 +1602,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         {maybeOpportunityNotSupportedExplainer}
         {maybeAlert}
         {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
-          <Alert status='warning' variant='subtle' mx={-2} width='auto'>
+          <Alert status='error' variant='subtle' mx={-2} width='auto'>
             <AlertIcon />
             <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
           </Alert>

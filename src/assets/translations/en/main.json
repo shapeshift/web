@@ -2561,7 +2561,7 @@
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedNetworkExplainer": "Your wallet isn't connected to %{network}. Please connect this chain or switch to a wallet that supports this network.",
     "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
-    "instabilityWarning": "Users are currently experiencing refunds while depositing to THORChain pools. Please proceed with caution.",
+    "instabilityWarning": "Deposits for thorchain LP are disabled on a protocol level. If you try to deposit, assets will bounce back with a refund. This will revert on version 3.5.",
     "shareOfPool": "Share of Pool",
     "assetDepositAmount": "%{asset} Deposit Amount",
     "totalLiquidity": "Total Liquidity",

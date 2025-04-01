@@ -25,6 +25,9 @@ export const relayChainMap: Record<ChainId, number> = {
   [solanaChainId]: 792703809,
   [gnosisChainId]: Number(fromChainId(gnosisChainId).chainReference),
   [avalancheChainId]: Number(fromChainId(avalancheChainId).chainReference),
+  [KnownChainIds.BnbSmartChainMainnet]: Number(
+    fromChainId(KnownChainIds.BnbSmartChainMainnet).chainReference,
+  ),
 }
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -40,6 +43,7 @@ export const relaySupportedChainIds: ChainId[] = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.SolanaMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
 ]
 
 export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

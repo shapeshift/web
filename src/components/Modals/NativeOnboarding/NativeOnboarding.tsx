@@ -9,8 +9,10 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
+import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { NavigateFunction } from 'react-router-dom'
 import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { OnboardPager } from './components/OnboardPager'
@@ -22,12 +24,14 @@ import { store } from '@/state/store'
 
 const SelfCustodyRedirect = () => <Navigate to='/self-custody' replace />
 
-export const NativeOnboarding = () => {
+export type NativeOnboardingModalProps = { browserNavigate: NavigateFunction }
+
+export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNavigate }) => {
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => {
-      const element = <route.component />
+      const element = <route.component browserNavigate={browserNavigate} />
       return <Route key={route.path} path={route.path} element={element} />
     })
   }, [])

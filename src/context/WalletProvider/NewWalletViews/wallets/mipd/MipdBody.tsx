@@ -129,7 +129,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
   }, [
     dispatch,
     getAdapter,
-    history,
+    navigate,
     isMetaMaskMobileWebView,
     localWallet,
     maybeMipdProvider?.info.icon,

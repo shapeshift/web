@@ -91,11 +91,11 @@ export const LimitOrderConfirm = () => {
     if (!data || error) return
 
     navigate(LimitOrderRoutePaths.PlaceOrder)
-  }, [data, error, history])
+  }, [data, error, navigate])
 
   const handleBack = useCallback(() => {
     navigate(LimitOrderRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   useEffect(() => {
     if (prevIsConnected && !isConnected) {

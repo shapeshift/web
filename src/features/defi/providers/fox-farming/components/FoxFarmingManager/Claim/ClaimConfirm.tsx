@@ -163,7 +163,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     claimRewards,
     contractAddress,
     estimatedGas,
-    history,
+    navigate,
     onOngoingFarmingTxIdChange,
     opportunity,
     toast,

@@ -65,7 +65,7 @@ export const Flags = () => {
       console.error(e)
       setError(String((e as Error)?.message))
     }
-  }, [history])
+  }, [navigate])
 
   const handleResetPreferences = useCallback(() => {
     try {

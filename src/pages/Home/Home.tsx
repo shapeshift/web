@@ -19,7 +19,7 @@ export const Home = () => {
   const navigate = useNavigate()
   const handleWalletClick = useCallback(() => {
     navigate('/wallet')
-  }, [history])
+  }, [navigate])
   return (
     <Main
       mt={0}

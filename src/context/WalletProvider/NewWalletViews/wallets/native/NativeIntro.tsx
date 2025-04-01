@@ -25,11 +25,11 @@ export const NativeIntro = () => {
   const bodyColor = useColorModeValue('gray.600', 'whiteAlpha.600')
   const mainTextColor = useColorModeValue('gray.700', 'whiteAlpha.800')
 
-  const handleCreateClick = useCallback(() => navigate(NativeWalletRoutes.Create), [history])
-  const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [history])
+  const handleCreateClick = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
+  const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [navigate])
   const handleImportKeystoreClick = useCallback(
     () => navigate(NativeWalletRoutes.ImportKeystore),
-    [history],
+    [navigate],
   )
 
   return (

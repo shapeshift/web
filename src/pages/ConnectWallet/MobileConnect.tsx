@@ -107,7 +107,7 @@ export const MobileConnect = () => {
         })
       : query?.returnUrl
     hasWallet && navigate(path ?? '/trade')
-  }, [history, hasWallet, query, state, dispatch])
+  }, [navigate, hasWallet, query, state, dispatch])
 
   useEffect(() => {
     if (!wallets.length) {

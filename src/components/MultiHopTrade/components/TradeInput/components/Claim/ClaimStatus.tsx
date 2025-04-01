@@ -33,7 +33,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
 
   const handleGoBack = useCallback(() => {
     navigate(ClaimRoutePaths.Select)
-  }, [history])
+  }, [navigate])
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
 

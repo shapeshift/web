@@ -199,7 +199,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  const handleCancel = useCallback(() => navigate('/'), [history])
+  const handleCancel = useCallback(() => {
+    navigate('/')
+  }, [navigate])
   const handleToggle = useCallback(
     () =>
       dispatch?.({

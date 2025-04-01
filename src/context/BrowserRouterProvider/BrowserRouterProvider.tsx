@@ -1,6 +1,6 @@
 import { union } from 'lodash'
 import React, { useEffect, useMemo } from 'react'
-import { matchPath, useLocation, useParams } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { BrowserRouterContext } from './BrowserRouterContext'
 
@@ -19,6 +19,7 @@ type BrowserRouterProviderProps = {
 }
 
 export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) {
+  const navigate = useNavigate()
   const location = useLocation()
   const params = useParams()
   const query = useQuery()
@@ -64,13 +65,14 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
 
   const router = useMemo(
     () => ({
+      navigate,
       location,
       params,
       query,
       appRoutes,
       currentRoute,
     }),
-    [location, params, query, appRoutes, currentRoute],
+    [navigate, location, params, query, appRoutes, currentRoute],
   )
 
   return <BrowserRouterContext.Provider value={router}>{children}</BrowserRouterContext.Provider>

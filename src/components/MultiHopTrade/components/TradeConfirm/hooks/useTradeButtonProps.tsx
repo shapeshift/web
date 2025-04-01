@@ -99,7 +99,7 @@ export const useTradeButtonProps = ({
     }
 
     navigate(TradeRoutePaths.Input)
-  }, [dispatch, history, confirmedTradeExecutionState])
+  }, [dispatch, navigate, confirmedTradeExecutionState])
 
   const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
 

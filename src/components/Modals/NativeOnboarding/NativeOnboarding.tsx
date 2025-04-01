@@ -39,7 +39,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const handleClose = useCallback(() => {
     closeModal()
     store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
-  }, [closeModal])
+  }, [closeModal, store, preferences])
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>

@@ -178,9 +178,10 @@ export const ChangeAddressConfirm: React.FC<
     navigate(-1)
   }, [navigate])
 
-  const handleSubmit = useCallback(() => {
-    navigate(ChangeAddressRoutePaths.Confirm)
-  }, [navigate])
+  const handleSubmit = useCallback(async () => {
+    await handleChangeAddress()
+    navigate(ChangeAddressRoutePaths.Status)
+  }, [handleChangeAddress, navigate])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

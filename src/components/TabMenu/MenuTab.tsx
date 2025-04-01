@@ -19,7 +19,7 @@ export const MenuTab = forwardRef<MenuTabProps, 'button'>(
     const translate = useTranslate()
     const handleClick = useCallback(() => {
       navigate(path)
-    }, [history, path])
+    }, [navigate, path])
 
     const isActive = useMemo(() => {
       const match = matchPath(

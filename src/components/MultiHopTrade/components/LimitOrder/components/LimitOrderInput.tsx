@@ -342,7 +342,7 @@ export const LimitOrderInput = ({
     isNewLimitFlowEnabled,
     handleConnect,
     setLimitOrderInitialized,
-    history,
+    navigate,
     showErrorToast,
   ])
 
@@ -362,7 +362,7 @@ export const LimitOrderInput = ({
 
   const handleShowLimitOrdersList = useCallback(() => {
     navigate(LimitOrderRoutePaths.Orders)
-  }, [history])
+  }, [navigate])
 
   const handleSwitchAssets = useCallback(() => {
     switchAssets({ sellAssetUsdRate, buyAssetUsdRate })

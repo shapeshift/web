@@ -252,10 +252,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     })
   }, [stakingAssets, buyAssetSearch, setStakingAssetId])
 
-  const handleBack = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
-
   if (!isConnected)
     return (
       <SlideTransition>

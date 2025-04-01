@@ -55,7 +55,7 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
 
   const handleGoBack = useCallback(() => {
     navigate(ClaimRoutePaths.Select)
-  }, [history])
+  }, [navigate])
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
 
@@ -128,7 +128,7 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   const handleSubmit = useCallback(async () => {
     await claimMutation.mutateAsync()
     navigate(ClaimRoutePaths.Status)
-  }, [claimMutation, history])
+  }, [claimMutation, navigate])
 
   const confirmCopy = useMemo(() => {
     if (claimMutation.isError) {

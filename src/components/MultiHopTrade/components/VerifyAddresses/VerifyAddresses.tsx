@@ -136,7 +136,7 @@ export const VerifyAddresses = () => {
 
   const handleContinue = useCallback(() => {
     navigate({ pathname: TradeRoutePaths.Confirm })
-  }, [history])
+  }, [navigate])
 
   const fetchAddresses = useCallback(async () => {
     if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
@@ -378,7 +378,7 @@ export const VerifyAddresses = () => {
 
   const handleBack = useCallback(() => {
     navigate(TradeRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   return (
     <SlideTransition>

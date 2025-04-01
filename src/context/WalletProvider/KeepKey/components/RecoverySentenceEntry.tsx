@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { KeyboardEvent, MouseEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate  } from 'react-router-dom'
 
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from '@/components/Text'
@@ -135,7 +135,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     }
   }, [
     recoveryWordIndex,
-    history,
+    navigate,
     keepKeyWallet,
     resetInputs,
     wordEntropy,
@@ -144,6 +144,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
   ])
 
   const onCharacterInput = useCallback(
+    
     async (e: KeyboardEvent) => {
       // The KeepKey is not yet ready to receive inputs
       if (awaitingKeepKeyResponse) return

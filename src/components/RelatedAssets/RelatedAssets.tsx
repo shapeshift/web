@@ -46,7 +46,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
       const assetId = row.original
       navigate(`/assets/${assetId}`)
     },
-    [history],
+    [navigate],
   )
 
   if (!relatedAssetIds.length) return null

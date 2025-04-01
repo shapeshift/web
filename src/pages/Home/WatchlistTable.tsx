@@ -25,7 +25,7 @@ export const WatchlistTable = () => {
 
   const handleButtonClick = useCallback(() => {
     navigate('/assets')
-  }, [history])
+  }, [navigate])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
@@ -33,7 +33,7 @@ export const WatchlistTable = () => {
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [history],
+    [navigate],
   )
 
   if (watchedAssetIds.length === 0) {

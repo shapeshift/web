@@ -38,7 +38,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import type { AmountsByPosition } from '../LpType'
 import { LpType } from '../LpType'
@@ -59,6 +58,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -167,7 +167,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { wallet, isConnected } = useWallet().state
   const queryClient = useQueryClient()
   const translate = useTranslate()
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
   const [isFiat, toggleIsFiat] = useToggle(false)
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
@@ -879,7 +879,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeTxFeeCryptoBaseUnit,
   ])
 
-  const handleApprove = useCallback(() => mutate(undefined), [mutate])
+  const handleApprove = useCallback(() => {
+    if (!confirmedQuote) return
+
+    mutate(undefined)
+    if (mixpanel) {
+      mixpanel.track(MixPanelEvent.LpDepositApprove, confirmedQuote)
+    }
+  }, [mutate, mixpanel, confirmedQuote])
 
   const handleSubmit = useCallback(() => {
     if (!mixpanel) return

@@ -259,7 +259,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  const handleCancel = useCallback(() => navigate('/'), [history])
+  const handleCancel = useCallback(() => {
+    navigate('/')
+  }, [navigate])
 
   if (!isTokenDeposit || !inboundAddress || !state || !dispatch) return null
 

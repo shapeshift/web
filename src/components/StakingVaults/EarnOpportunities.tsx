@@ -85,9 +85,8 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         return navigate('/rfox')
       }
 
-      navigate(
-        {
-          pathname: location.pathname,
+      navigate(location.pathname, {
+        state: {
           search: qs.stringify({
             chainId,
             contractAddress,
@@ -99,13 +98,11 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
             type,
             modal: 'overview',
           }),
-        },
-        {
           state: { background: location },
         },
-      )
+      })
     },
-    [dispatch, history, isConnected, location],
+    [dispatch, isConnected, location, navigate],
   )
 
   if (!asset) return null

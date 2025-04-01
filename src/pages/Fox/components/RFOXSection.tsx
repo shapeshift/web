@@ -155,7 +155,7 @@ export const RFOXSection = () => {
     navigate({
       pathname: '/rfox',
     })
-  }, [history, stakingAssetAccountId, setStakingAssetAccountId])
+  }, [navigate, stakingAssetAccountId, setStakingAssetAccountId])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {

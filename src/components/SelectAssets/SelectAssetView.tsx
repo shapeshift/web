@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
@@ -34,15 +34,24 @@ export const SelectAssetView = ({
       navigate(toRoute, { state: { assetId } })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toRoute, assetId])
+  }, [])
 
-  return (
-    <Routes>
+  const searchRoute = useMemo(
+    () => (
       <Route
         path={SelectAssetRoutes.Search}
         element={<SelectAssets onBack={handleBack} onClick={onClick} />}
       />
-      <Route path='/' element={<SearchRedirect />} />
+    ),
+    [handleBack, onClick],
+  )
+
+  const redirectRoute = useMemo(() => <Route path='/' element={<SearchRedirect />} />, [])
+
+  return (
+    <Routes>
+      {searchRoute}
+      {redirectRoute}
     </Routes>
   )
 }

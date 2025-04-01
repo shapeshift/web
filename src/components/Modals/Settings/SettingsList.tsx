@@ -104,14 +104,18 @@ export const SettingsList: FC = () => {
 
   const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
-  const handleCurrencyClick = useCallback(() => navigate(SettingsRoutes.FiatCurrencies), [navigate])
+  const handleCurrencyClick = useCallback(() => {
+    navigate(SettingsRoutes.CurrencyFormat)
+  }, [navigate])
 
   const handleCurrencyFormatClick = useCallback(
     () => navigate(SettingsRoutes.CurrencyFormat),
     [navigate],
   )
 
-  const handleLanguageClick = useCallback(() => navigate(SettingsRoutes.Languages), [navigate])
+  const handleLanguageClick = useCallback(() => {
+    navigate(SettingsRoutes.Languages)
+  }, [navigate])
 
   const handleTosClick = useCallback(
     () => closeModalAndNavigateTo('/legal/terms-of-service'),

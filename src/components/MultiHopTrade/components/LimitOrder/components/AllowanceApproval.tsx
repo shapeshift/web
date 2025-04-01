@@ -63,7 +63,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
   const onSuccess = useCallback(() => {
     setTxStatus(TxStatus.Confirmed)
     navigate(LimitOrderRoutePaths.Confirm)
-  }, [history])
+  }, [navigate])
 
   const {
     approveMutation,
@@ -99,7 +99,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
 
   const handleGoBack = useCallback(() => {
     navigate(LimitOrderRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,

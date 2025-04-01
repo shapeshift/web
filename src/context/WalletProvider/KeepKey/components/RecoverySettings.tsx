@@ -68,7 +68,7 @@ export const KeepKeyRecoverySettings = () => {
       recoveryEntropy: sentenceLengthSelection,
     })
     navigate(KeepKeyRoutes.NewLabel)
-  }, [history, sentenceLengthSelection, setDeviceState, useRecoveryPassphrase])
+  }, [navigate, sentenceLengthSelection, setDeviceState, useRecoveryPassphrase])
 
   const handlePassphraseToggle = useCallback(
     () => setUseRecoveryPassphrase(current => !current),

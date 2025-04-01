@@ -20,13 +20,13 @@ export const KeepKeyFactoryState = () => {
     setLoading(true)
     setDeviceState({ disposition: 'initializing' })
     navigate(KeepKeyRoutes.NewLabel)
-  }, [history, setDeviceState])
+  }, [navigate, setDeviceState])
 
   const handleRecoverWalletPress = useCallback(() => {
     setLoading(true)
     setDeviceState({ disposition: 'recovering' })
     navigate(KeepKeyRoutes.RecoverySettings)
-  }, [history, setDeviceState])
+  }, [navigate, setDeviceState])
 
   return (
     <>

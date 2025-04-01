@@ -203,10 +203,6 @@ export const RepayConfirm = ({
     navigate(-1)
   }, [navigate])
 
-  const handleSubmit = useCallback(() => {
-    navigate(RepayRoutePaths.Confirm)
-  }, [navigate])
-
   const divider = useMemo(() => <Divider />, [])
 
   const chainAdapter = getChainAdapterManager().get(

@@ -34,11 +34,11 @@ export const PlaceLimitOrder = ({ isCompact }: { isCompact?: boolean }) => {
     } else {
       navigate(LimitOrderRoutePaths.Input)
     }
-  }, [history, isCompact, isSmallerThanXl])
+  }, [navigate, isCompact, isSmallerThanXl])
 
   const handleGoBack = useCallback(() => {
     navigate(LimitOrderRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const statusBody = useMemo(() => {
     if (!asset) return null

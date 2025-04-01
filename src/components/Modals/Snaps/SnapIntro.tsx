@@ -85,7 +85,7 @@ export const SnapIntro = ({
   const handleNext = useCallback(() => {
     getMixPanel()?.track(MixPanelEvent.StartAddSnap)
     navigate('/confirm')
-  }, [history])
+  }, [navigate])
 
   const confirmCopy = useMemo(() => {
     if ((!isCorrectVersion && isSnapInstalled) || previousIsCorrectVersion === false)

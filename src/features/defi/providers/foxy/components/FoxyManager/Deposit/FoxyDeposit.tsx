@@ -157,14 +157,7 @@ export const FoxyDeposit: React.FC<{
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [
-    accountId,
-    handleAccountIdChange,
-    foxyContractAddress,
-    translate,
-    stakingAsset.symbol,
-    navigate,
-  ])
+  }, [accountId, handleAccountIdChange, foxyContractAddress, translate, stakingAsset.symbol])
 
   if (loading || !stakingAsset || !marketData) {
     return (

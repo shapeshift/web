@@ -67,7 +67,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
         isExternal ? window.open(href) : navigate(href)
       }
     },
-    [handleWalletModalOpen, history, mixpanel, wallet],
+    [handleWalletModalOpen, navigate, mixpanel, wallet],
   )
 
   const renderPromos = useMemo(() => {

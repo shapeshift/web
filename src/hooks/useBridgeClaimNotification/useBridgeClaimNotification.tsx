@@ -101,5 +101,5 @@ export const useBridgeClaimNotification = () => {
 
     // don't spam user
     setIsDisabled(true)
-  }, [claimsByStatus.Available.length, history, isDisabled, isLoading, toast, translate])
+  }, [claimsByStatus.Available.length, navigate, isDisabled, isLoading, toast, translate])
 }

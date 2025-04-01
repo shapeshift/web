@@ -124,7 +124,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
         component: Status,
       },
     }
-  }, [accountId, handleAccountIdChange, asset.symbol, translate, navigate])
+  }, [accountId, handleAccountIdChange, asset.symbol, translate])
 
   if (loading || !asset || !marketData) {
     return (

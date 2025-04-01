@@ -172,7 +172,7 @@ export const ClaimConfirm = ({
     contractAddress,
     estimatedGas,
     foxyApi,
-    history,
+    navigate,
     toast,
     translate,
     userAddress,

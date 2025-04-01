@@ -23,7 +23,7 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
       setActiveClaim(claim)
       navigate(ClaimRoutePaths.Confirm)
     },
-    [history, setActiveClaim],
+    [navigate, setActiveClaim],
   )
 
   const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus()

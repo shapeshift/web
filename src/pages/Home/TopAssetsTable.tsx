@@ -30,7 +30,7 @@ export const TopAssetsTable = () => {
 
   const handleButtonClick = useCallback(() => {
     navigate('/assets')
-  }, [history])
+  }, [navigate])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
@@ -38,7 +38,7 @@ export const TopAssetsTable = () => {
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [history],
+    [navigate],
   )
   return (
     <>

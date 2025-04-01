@@ -31,7 +31,7 @@ export const FoxHeader = () => {
 
   const handleBack = useCallback(() => {
     navigate('/explore')
-  }, [history])
+  }, [navigate])
 
   const activeAccountDropdown = useMemo(() => {
     if (accountIds.length <= 1) return null

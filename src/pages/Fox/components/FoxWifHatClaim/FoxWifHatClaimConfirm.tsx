@@ -190,8 +190,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
-      const txHash = await handleClaim()
-      if (!txHash) return
+      await handleClaim()
       navigate(FoxWifHatClaimRoutePaths.Status)
     } catch (err) {
       console.error(err)
@@ -202,7 +201,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
         status: 'error',
       })
     }
-  }, [handleClaim, history, translate, toast])
+  }, [handleClaim, navigate, translate, toast])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

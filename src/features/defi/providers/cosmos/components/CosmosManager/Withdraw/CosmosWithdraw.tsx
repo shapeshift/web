@@ -139,7 +139,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }, [navigate, query])
+  }, [navigate, query, location.pathname])
 
   if (!(earnOpportunityData && asset && marketData && feeMarketData))
     return (

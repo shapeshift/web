@@ -79,6 +79,7 @@ export async function getTrade({
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
     receiveAddress,
+    accountNumber,
     affiliateBps,
     potentialAffiliateBps,
   } = input
@@ -151,7 +152,7 @@ export async function getTrade({
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,
-      accountNumber: 0,
+      accountNumber,
       feeData: {
         networkFeeCryptoBaseUnit: bnOrZero(quoteStep.items?.[0]?.data?.gas)
           .times(quoteStep.items?.[0]?.data?.maxFeePerGas)

@@ -17,7 +17,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
+import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayService } from '../utils/relayService'
 import type { QuoteParams, RelayTradeQuote, RelayTradeRate } from '../utils/types'
 
@@ -76,9 +76,9 @@ export async function getTrade({
   const maybeQuote = await getQuote(
     {
       originChainId: sellRelayChainId,
-      originCurrency: getRelayEvmAssetAddress(sellAsset),
+      originCurrency: getRelayAssetAddress(sellAsset),
       destinationChainId: buyRelayChainId,
-      destinationCurrency: getRelayEvmAssetAddress(buyAsset),
+      destinationCurrency: getRelayAssetAddress(buyAsset),
       tradeType: 'EXACT_INPUT',
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       recipient: receiveAddress,

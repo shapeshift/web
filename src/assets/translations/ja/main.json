@@ -197,13 +197,7 @@
     "hardwareWallets": "ハードウェアウォレット"
   },
   "consentBanner": {
-    "body": {
-      "1": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。",
-      "2": "private.shapeshift.com",
-      "3": "を確認する。匿名で追跡されたくない場合は、こちらを参照してください。",
-      "4": "プライバシーポリシー",
-      "5": "で詳細を確認する。"
-    },
+    "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
     "cta": "了解"
   },
   "errorPage": {
@@ -212,18 +206,10 @@
     "cta": "もう一度やり直してください"
   },
   "buyPage": {
-    "title": {
-      "first": "暗号通貨を購入",
-      "second": "即時に"
-    },
+    "title": "暗号通貨を購入 <span>即時に</span>",
     "body": "クレジットカード、デビットカード、または銀行口座を使用します。ビットコイン、イーサリアム、USDT、USDC、またはその他のトップ暗号通貨を購入します。非KYCプロバイダーも利用可能。",
     "disclaimer": "＊暗号通貨を直接売却して銀行口座に現金化することもできます。",
-    "cta": {
-      "title": {
-        "first": "また、ShapeShiftをすべてのトップウォレットで使用して、取引し、利回りを獲得し、",
-        "second": "%{chainCount} チェーン全体で暗号通貨を追跡します"
-      }
-    },
+    "ctaTitle": "また、ShapeShiftをすべてのトップウォレットで使用して、取引し、利回りを獲得し、 <span>%{chainCount} チェーン全体で暗号通貨を追跡します</span>",
     "availableAssets": "利用可能なアセット"
   },
   "updateToast": {
@@ -433,10 +419,8 @@
         "introducingSaversVaults": "Savers Vaultについて",
         "introducingRunePool": "RUNEPoolの説明",
         "risksBody": {
-          "1": "参照する",
-          "2": "この記事",
-          "3": "Savers Vaultに伴うリスクについて。",
-          "runePool": "RUNEPool に伴うリスクについて。"
+          "vaults": "参照する <link>この記事</link> Savers Vaultに伴うリスクについて。",
+          "runePool": "参照する <link>この記事</link> RUNEPool に伴うリスクについて。"
         },
         "understand": "同意する",
         "days": "%{amount} 日",
@@ -448,9 +432,7 @@
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
         "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。",
-        "agreeRunePool": {
-          "1": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
-        }
+        "agreeRunePool": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
       }
     },
     "memoNote": {
@@ -1725,11 +1707,7 @@
       "warningExperimental": "ShapeShiftマルチチェーンスナップは新しい実験的な機能であり、現状のまま提供されます。",
       "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
       "agreeIntro": "続行する前に、以下をお読みください。",
-      "agreeItem1Parts": {
-        "1": "ハードウェアウォレットは、",
-        "2": "ない",
-        "3": "サポートされてい"
-      },
+      "agreeItem1": "ハードウェアウォレットは、 <strong>ない</strong> サポートされてい",
       "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#1のみがサポートされています。",
       "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#1をMetaMaskのShapeShiftに接続する必要があります",
       "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",
@@ -2828,11 +2806,7 @@
     },
     "governance": {
       "title": "ガバナンス",
-      "description": {
-        "0": "参加しましょう",
-        "1": "フォーラムで",
-        "2": "DAO の未来を形作ります。"
-      },
+      "description": "参加しましょう <link>フォーラムで</link> DAO の未来を形作ります。",
       "totalVotingPower": "総投票権",
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"

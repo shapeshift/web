@@ -13,6 +13,8 @@ import { BackupPassphraseTest } from './BackupPassphraseTest'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
+const startRedirect = () => <Redirect to={BackupPassphraseRoutes.Start} />
+
 export const BackupPassphraseRouter = () => {
   const location = useLocation()
   const { state } = useWallet()
@@ -51,7 +53,7 @@ export const BackupPassphraseRouter = () => {
         <Route path={BackupPassphraseRoutes.Success}>
           <BackupPassphraseSuccess />
         </Route>
-        <Redirect to={BackupPassphraseRoutes.Start} />
+        <Route path='*' render={startRedirect} />
       </Switch>
     </AnimatePresence>
   )

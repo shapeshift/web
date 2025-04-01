@@ -6,6 +6,7 @@ import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
+const searchRedirect = () => <Redirect to={SelectAssetRoutes.Search} />
 type SelectAssetViewProps = {
   onClick: (assetId: AssetId) => void
   onBack?: () => void
@@ -32,7 +33,7 @@ export const SelectAssetView = ({
       <Route path={SelectAssetRoutes.Search}>
         <SelectAssets onBack={handleBack} onClick={onClick} />
       </Route>
-      <Redirect from='/' to={SelectAssetRoutes.Search} />
+      <Route path='/' render={searchRedirect} />
     </Switch>
   )
 }

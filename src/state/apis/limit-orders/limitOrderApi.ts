@@ -22,11 +22,13 @@ import type {
   OrderQuoteRequest,
   OrderQuoteResponse,
   OrderStatus,
+  ParsedAppData,
   QuoteId,
   Trade,
 } from '@shapeshiftoss/types'
 import {
   EcdsaSigningScheme,
+  isLegacyAppData,
   OrderClass,
   OrderQuoteSideKindSell,
   PriceQuality,
@@ -86,7 +88,22 @@ export const limitOrderApi = createApi({
                   `${baseUrl}/${network}/api/v1/account/${account}/orders?limit=1000`,
                 )
 
-                return result.data.map(order => {
+                // CowSwap limit and spot orders API is the same, so we need to filter out spot orders
+                // there are no parameters to filter from their API, they are filtering after fetching
+                // on their interface as it's some custom metadata they add
+                const limitOrders = result.data.filter(order => {
+                  // This shouldn't happen but...
+                  if (!order.fullAppData) return true
+
+                  const appData = JSON.parse(order.fullAppData) as ParsedAppData
+
+                  // Legacy appdata was used for market orders only
+                  if (isLegacyAppData(appData)) return false
+
+                  return appData.metadata.orderClass?.orderClass !== OrderClass.MARKET
+                })
+
+                return limitOrders.map(order => {
                   return { order, accountId }
                 })
               } catch (e) {

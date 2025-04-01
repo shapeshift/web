@@ -238,7 +238,7 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {
-    path: '/pools',
+    path: '/pools/*',
     label: 'navBar.pools',
     icon: <PoolsIcon />,
     main: PoolsPage,

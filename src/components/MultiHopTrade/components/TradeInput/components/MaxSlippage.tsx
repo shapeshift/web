@@ -42,14 +42,15 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   intermediaryTransactionOutputs,
   symbol,
 }) => {
+  console.log({ swapSource })
   const translate = useTranslate()
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
-  const shouldShowSlippageMinAmount = useMemo(
+  const isUnknownAutoSlippage = useMemo(
     () =>
-      swapSource !== THORCHAIN_STREAM_SWAP_SOURCE &&
-      swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+      swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
+      swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
     [swapSource],
   )
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
@@ -108,8 +109,6 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   const divider = useMemo(() => <Divider borderColor='border.base' />, [])
 
   const tooltipBody = useCallback(() => {
-    if (!shouldShowSlippageMinAmount)
-      return <Text color='text.subtle' translation='trade.tooltip.slippage' />
     return (
       <Stack divider={divider}>
         <Row gap={4}>
@@ -160,18 +159,20 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
     isAmountPositive,
     isLoading,
     minAmountAfterSlippageTranslation,
-    shouldShowSlippageMinAmount,
+    isUnknownAutoSlippage,
     symbol,
     translate,
   ])
 
   return (
-    <Row Tooltipbody={tooltipBody}>
+    <Row Tooltipbody={!isUnknownAutoSlippage ? tooltipBody : undefined}>
       <Row.Label>{translate('trade.slippage.maxSlippage')}</Row.Label>
       <Row.Value>
         <Flex alignItems='center' gap={2}>
           {renderSlippageTag}
-          <Amount.Percent value={bnOrZero(slippageAsPercentageString).div(100).toString()} />
+          {!isUnknownAutoSlippage && (
+            <Amount.Percent value={bnOrZero(slippageAsPercentageString).div(100).toString()} />
+          )}
         </Flex>
       </Row.Value>
     </Row>

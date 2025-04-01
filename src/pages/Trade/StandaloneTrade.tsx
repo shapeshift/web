@@ -1,8 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
+import { MemoryRouter, useNavigate } from 'react-router-dom'
 
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
@@ -41,13 +40,7 @@ export const StandaloneTrade: React.FC<StandaloneTradeProps> = props => {
 const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
-  const location = useLocation()
   const dispatch = useAppDispatch()
-
-  // Log navigation for debugging
-  useEffect(() => {
-    console.log('StandaloneTrade - current location:', location.pathname)
-  }, [location.pathname])
 
   const inputSellAsset = useAppSelector(selectInputSellAsset)
   const inputBuyAsset = useAppSelector(selectInputBuyAsset)
@@ -135,11 +128,5 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
     [props, handleChangeTab],
   )
 
-  return (
-    <FormProvider {...methods}>
-      <Switch location={location.pathname}>
-        <Route path='*'>{standaloneMultiHopTradeElement}</Route>
-      </Switch>
-    </FormProvider>
-  )
+  return <FormProvider {...methods}>{standaloneMultiHopTradeElement}</FormProvider>
 }

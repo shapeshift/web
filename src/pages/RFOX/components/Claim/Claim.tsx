@@ -2,7 +2,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
 import { ClaimRoutePaths } from './types'
@@ -55,6 +56,7 @@ export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
+  const location = useLocation()
   const queryClient = useQueryClient()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
@@ -120,23 +122,20 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        <Routes>
-          <Route
-            key={ClaimRoutePaths.Select}
-            path={ClaimRoutePaths.Select}
-            element={renderClaimSelect()}
-          />
-          <Route
-            key={ClaimRoutePaths.Confirm}
-            path={ClaimRoutePaths.Confirm}
-            element={renderClaimConfirm()}
-          />
-          <Route
-            key={ClaimRoutePaths.Status}
-            path={ClaimRoutePaths.Status}
-            element={renderClaimStatus()}
-          />
-        </Routes>
+        <Switch location={location.pathname}>
+          <Route path={ClaimRoutePaths.Select}>
+            {renderClaimSelect()}
+          </Route>
+          <Route path={ClaimRoutePaths.Confirm}>
+            {renderClaimConfirm()}
+          </Route>
+          <Route path={ClaimRoutePaths.Status}>
+            {renderClaimStatus()}
+          </Route>
+          <Route path='*'>
+            {renderClaimSelect()}
+          </Route>
+        </Switch>
       </Suspense>
     </AnimatePresence>
   )

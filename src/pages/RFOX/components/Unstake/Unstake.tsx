@@ -2,7 +2,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
@@ -61,6 +62,7 @@ export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
 }
 
 export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
+  const location = useLocation()
   const queryClient = useQueryClient()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
@@ -131,23 +133,20 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        <Routes>
-          <Route
-            key={UnstakeRoutePaths.Input}
-            path={UnstakeRoutePaths.Input}
-            element={renderUnstakeInput()}
-          />
-          <Route
-            key={UnstakeRoutePaths.Confirm}
-            path={UnstakeRoutePaths.Confirm}
-            element={renderUnstakeConfirm()}
-          />
-          <Route
-            key={UnstakeRoutePaths.Status}
-            path={UnstakeRoutePaths.Status}
-            element={renderUnstakeStatus()}
-          />
-        </Routes>
+        <Switch location={location.pathname}>
+          <Route path={UnstakeRoutePaths.Input}>
+            {renderUnstakeInput()}
+          </Route>
+          <Route path={UnstakeRoutePaths.Confirm}>
+            {renderUnstakeConfirm()}
+          </Route>
+          <Route path={UnstakeRoutePaths.Status}>
+            {renderUnstakeStatus()}
+          </Route>
+          <Route path='*'>
+            {renderUnstakeInput()}
+          </Route>
+        </Switch>
       </Suspense>
     </AnimatePresence>
   )

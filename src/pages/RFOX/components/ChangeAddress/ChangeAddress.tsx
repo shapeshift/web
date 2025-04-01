@@ -2,7 +2,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
@@ -58,6 +59,7 @@ export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerCompone
 }
 
 export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
+  const location = useLocation()
   const queryClient = useQueryClient()
 
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
@@ -113,23 +115,20 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        <Routes>
-          <Route
-            key={ChangeAddressRoutePaths.Input}
-            path={ChangeAddressRoutePaths.Input}
-            element={renderChangeAddressInput()}
-          />
-          <Route
-            key={ChangeAddressRoutePaths.Confirm}
-            path={ChangeAddressRoutePaths.Confirm}
-            element={renderChangeAddressConfirm()}
-          />
-          <Route
-            key={ChangeAddressRoutePaths.Status}
-            path={ChangeAddressRoutePaths.Status}
-            element={renderChangeAddressStatus()}
-          />
-        </Routes>
+        <Switch location={location.pathname}>
+          <Route path={ChangeAddressRoutePaths.Input}>
+            {renderChangeAddressInput()}
+          </Route>
+          <Route path={ChangeAddressRoutePaths.Confirm}>
+            {renderChangeAddressConfirm()}
+          </Route>
+          <Route path={ChangeAddressRoutePaths.Status}>
+            {renderChangeAddressStatus()}
+          </Route>
+          <Route path='*'>
+            {renderChangeAddressInput()}
+          </Route>
+        </Switch>
       </Suspense>
     </AnimatePresence>
   )

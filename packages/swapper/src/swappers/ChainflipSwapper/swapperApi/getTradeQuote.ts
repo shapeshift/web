@@ -115,7 +115,13 @@ export const getTradeQuote = async (
       if (maybeSwapResponse.isErr()) {
         const error = maybeSwapResponse.unwrapErr()
         const cause = error.cause as AxiosError<any, any>
-        throw Error(cause.response?.data.detail)
+        console.error(cause)
+        return Err(
+          makeSwapErrorRight({
+            message: `Error fetching Chainflip swap`,
+            code: TradeQuoteError.UnknownError,
+          }),
+        )
       }
 
       const { data: swapResponse } = maybeSwapResponse.unwrap()

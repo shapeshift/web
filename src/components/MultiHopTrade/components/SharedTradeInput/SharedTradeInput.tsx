@@ -3,7 +3,7 @@ import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent } from 'react'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
-import { useSharedWidth } from '../TradeInput/hooks/useSharedWidth'
+import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 
 import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
@@ -47,7 +47,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   isStandalone,
 }) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-  const inputWidth = useSharedWidth(tradeInputRef)
+  const totalHeight = useSharedHeight(tradeInputRef)
 
   return (
     <Flex
@@ -56,36 +56,34 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
       justifyContent='center'
       maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
     >
-      <Center width='inherit'>
-        <Box>
-          <FoxWifHatBanner maxWidth={inputWidth ?? 500} />
-          <Box width='full' maxWidth='1000px' display='flex'>
-            <Card
-              flex={1}
-              width={isSmallerThanXl ? 'full' : '500px'}
-              maxWidth='500px'
-              ref={tradeInputRef}
-              as='form'
-              onSubmit={onSubmit}
-            >
-              <SharedTradeInputHeader
-                initialTab={tradeInputTab}
-                rightContent={headerRightContent}
-                onChangeTab={onChangeTab}
-                isStandalone={isStandalone}
-              />
-              {bodyContent}
-              {footerContent}
-            </Card>
-            <SideComponent
-              isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
-              isLoading={isLoading}
-              width={inputWidth ?? 'full'}
-              height={'full'}
-              ml={4}
+      <Center width='inherit' alignItems='flex-end'>
+        <Box width='full' maxWidth='500px'>
+          <FoxWifHatBanner />
+          <Card
+            flex={1}
+            width='full'
+            maxWidth='500px'
+            ref={tradeInputRef}
+            as='form'
+            onSubmit={onSubmit}
+          >
+            <SharedTradeInputHeader
+              initialTab={tradeInputTab}
+              rightContent={headerRightContent}
+              onChangeTab={onChangeTab}
+              isStandalone={isStandalone}
             />
-          </Box>
+            {bodyContent}
+            {footerContent}
+          </Card>
         </Box>
+        <SideComponent
+          isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
+          isLoading={isLoading}
+          width={tradeInputRef.current?.offsetWidth ?? 'full'}
+          height={totalHeight ?? 'full'}
+          ml={4}
+        />
       </Center>
     </Flex>
   )

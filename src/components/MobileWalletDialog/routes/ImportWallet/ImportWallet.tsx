@@ -33,11 +33,11 @@ export const ImportWallet: React.FC<ImportWalletProps> = ({
   const navigate = useNavigate()
   const handleImportKeystoreClick = useCallback(
     () => navigate(MobileWalletDialogRoutes.ImportKeystore),
-    [history],
+    [navigate],
   )
   const handleImportSeedClick = useCallback(
     () => navigate(MobileWalletDialogRoutes.ImportSeedPhrase),
-    [history],
+    [navigate],
   )
 
   const handleGoBack = useCallback(() => {

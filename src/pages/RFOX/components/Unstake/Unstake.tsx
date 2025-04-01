@@ -134,18 +134,10 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
         <Switch location={location.pathname}>
-          <Route path={UnstakeRoutePaths.Input}>
-            {renderUnstakeInput()}
-          </Route>
-          <Route path={UnstakeRoutePaths.Confirm}>
-            {renderUnstakeConfirm()}
-          </Route>
-          <Route path={UnstakeRoutePaths.Status}>
-            {renderUnstakeStatus()}
-          </Route>
-          <Route path='*'>
-            {renderUnstakeInput()}
-          </Route>
+          <Route path={UnstakeRoutePaths.Input}>{renderUnstakeInput()}</Route>
+          <Route path={UnstakeRoutePaths.Confirm}>{renderUnstakeConfirm()}</Route>
+          <Route path={UnstakeRoutePaths.Status}>{renderUnstakeStatus()}</Route>
+          <Route path='*'>{renderUnstakeInput()}</Route>
         </Switch>
       </Suspense>
     </AnimatePresence>

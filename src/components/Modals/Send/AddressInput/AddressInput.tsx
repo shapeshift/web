@@ -33,7 +33,7 @@ export const AddressInput = ({
 
   const handleQrClick = useCallback(() => {
     navigate(SendRoutes.Scan)
-  }, [history])
+  }, [navigate])
 
   const renderController = useCallback(
     ({

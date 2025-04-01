@@ -47,7 +47,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
 
   const handleGoBack = useCallback(() => {
     navigate(UnstakeRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),

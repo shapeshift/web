@@ -128,7 +128,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         if (!assetId) return
         navigate(`/trade/${assetId}`)
       },
-      [history],
+      [navigate],
     )
     const columns = useMemo<ColumnDef<Asset>[]>(
       () => [

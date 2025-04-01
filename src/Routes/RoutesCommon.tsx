@@ -20,10 +20,10 @@ import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
+import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
-import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 
 export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'

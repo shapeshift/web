@@ -106,7 +106,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
 
   const handleGoBack = useCallback(() => {
     navigate(StakeRoutePaths.Input)
-  }, [history])
+  }, [navigate])
 
   const handleSubmit = useCallback(() => {
     if (!feeAsset) return
@@ -114,7 +114,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     if (isApprovalRequired) return handleApprove()
 
     navigate(BridgeRoutePaths.Status, { state: confirmedQuote })
-  }, [confirmedQuote, history, feeAsset, handleApprove, isApprovalRequired])
+  }, [confirmedQuote, navigate, feeAsset, handleApprove, isApprovalRequired])
 
   const errorCopy = useMemo(() => {
     if (!hasEnoughFeeBalance)

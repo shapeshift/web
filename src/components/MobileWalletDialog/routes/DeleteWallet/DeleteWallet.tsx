@@ -21,8 +21,8 @@ export const DeleteWallet = () => {
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    navigate(MobileWalletDialogRoutes.Saved)
-  }, [history])
+    navigate(-1)
+  }, [navigate])
 
   if (!vault)
     return (

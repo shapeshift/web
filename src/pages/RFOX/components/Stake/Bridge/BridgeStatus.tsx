@@ -36,7 +36,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
 
   const handleGoBack = useCallback(() => {
     navigate(BridgeRoutePaths.Confirm, { state: { state: confirmedQuote } })
-  }, [confirmedQuote, history])
+  }, [confirmedQuote, navigate])
 
   const handleSignAndBroadcast = useCallback(async () => {
     if (!sellAsset) return

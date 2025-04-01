@@ -102,6 +102,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     bip44Params,
     accountMetadata,
     selectedAccountId,
+    navigate,
   ])
 
   useEffect(() => {
@@ -152,7 +153,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
-  const onBackClick = useCallback(() => navigate(ReceiveRoutes.Select), [history])
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],
     [name, symbol],
@@ -163,7 +167,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     <>
       <DialogHeader>
         <DialogHeader.Left>
-          <DialogBackButton onClick={onBackClick} />
+          <DialogBackButton onClick={handleBack} />
         </DialogHeader.Left>
         <DialogHeader.Middle>
           <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>

@@ -197,7 +197,8 @@ export const BorrowConfirm = ({
 
   const handleBack = useCallback(() => {
     navigate(BorrowRoutePaths.Input)
-  }, [history])
+  }, [navigate])
+
   const divider = useMemo(() => <Divider />, [])
 
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
@@ -344,7 +345,7 @@ export const BorrowConfirm = ({
     refetchLendingQuote,
     setConfirmedQuote,
     setDepositAmount,
-    history,
+    navigate,
     selectedCurrency,
   ])
 

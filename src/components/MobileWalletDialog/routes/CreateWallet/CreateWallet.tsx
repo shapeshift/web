@@ -69,7 +69,7 @@ export const CreateWallet = ({
         console.log(e)
       }
     },
-    [history, vault],
+    [navigate, vault],
   )
 
   const handleBack = useCallback(() => {
@@ -79,6 +79,14 @@ export const CreateWallet = ({
       handleRedirectToHome()
     }
   }, [handleRedirectToHome, isDefaultRoute, onClose])
+
+  useEffect(() => {
+    try {
+      if (!vault) setVault(location.state?.vault ?? createWallet())
+    } catch (e) {
+      console.log(e)
+    }
+  }, [location.state?.vault, setVault, vault])
 
   useEffect(() => {
     try {

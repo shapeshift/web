@@ -287,7 +287,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     amountCryptoPrecision,
     cooldownPeriod,
     hasEnteredValue,
-    history,
+    navigate,
     setConfirmedQuote,
     stakingAsset,
     stakingAssetAccountId,

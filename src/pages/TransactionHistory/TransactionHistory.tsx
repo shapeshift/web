@@ -19,6 +19,8 @@ import { useAppSelector } from '@/state/store'
 const headingPadding = [2, 3, 6]
 const stackMargin = { base: 0, xl: -4, '2xl': -6 }
 
+const singleTransaction = <SingleTransaction />
+
 const TransactionHistoryContent = () => {
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -62,11 +64,13 @@ const TransactionHistoryContent = () => {
   )
 }
 
+const transactionHistory = <TransactionHistoryContent />
+
 export const TransactionHistory = memo(() => {
   return (
     <Routes>
-      <Route path='/' element={<TransactionHistoryContent />} />
-      <Route path='/transaction/:txId' element={<SingleTransaction />} />
+      <Route path='/' element={transactionHistory} />
+      <Route path='/transaction/:txId' element={singleTransaction} />
     </Routes>
   )
 })

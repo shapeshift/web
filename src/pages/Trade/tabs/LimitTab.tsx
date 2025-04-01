@@ -68,7 +68,7 @@ export const LimitTab = memo(() => {
 
   const title = useMemo(() => {
     return translate('navBar.limitOrder')
-  }, [location.pathname, translate])
+  }, [translate])
 
   // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm
   const isRewritingUrl = useMemo(

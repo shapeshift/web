@@ -48,7 +48,9 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => navigate(SendRoutes.Details), [history])
+  const handleNext = useCallback(() => {
+    navigate(SendRoutes.Details)
+  }, [navigate])
 
   const handleClick = useCallback(
     () =>

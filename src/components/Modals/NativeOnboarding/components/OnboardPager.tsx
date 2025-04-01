@@ -18,7 +18,7 @@ export const OnboardPager: React.FC = () => {
     (path: string) => {
       return navigate(path)
     },
-    [history],
+    [navigate],
   )
 
   const renderPages = useMemo(() => {

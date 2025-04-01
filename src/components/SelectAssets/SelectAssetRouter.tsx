@@ -17,8 +17,8 @@ export type SelectAssetLocation = {
 }
 
 export const SelectAssetRouter = ({ onClick, onBack: handleBack }: SelectAssetRouterProps) => {
-  const location = useLocation();
-  const state = location.state as SelectAssetLocation;
+  const location = useLocation()
+  const state = location.state as SelectAssetLocation
   return (
     <>
       <MemoryRouter initialEntries={entries}>

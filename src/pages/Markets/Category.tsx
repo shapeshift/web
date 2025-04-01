@@ -29,7 +29,7 @@ export const Category: React.FC = () => {
     if (!sortOptionsByCategory[category]) return false
 
     return true
-  }, [params.category])
+  }, [category])
 
   const body = useMemo(
     () => (

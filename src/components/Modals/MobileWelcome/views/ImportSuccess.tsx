@@ -13,7 +13,7 @@ export const ImportSuccess = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleContinueClick = useCallback(() => navigate('/notice'), [history])
+  const handleContinueClick = useCallback(() => navigate('/notice'), [navigate])
 
   return (
     <SlideTransition>

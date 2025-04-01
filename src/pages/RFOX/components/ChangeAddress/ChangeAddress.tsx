@@ -116,18 +116,10 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
         <Switch location={location.pathname}>
-          <Route path={ChangeAddressRoutePaths.Input}>
-            {renderChangeAddressInput()}
-          </Route>
-          <Route path={ChangeAddressRoutePaths.Confirm}>
-            {renderChangeAddressConfirm()}
-          </Route>
-          <Route path={ChangeAddressRoutePaths.Status}>
-            {renderChangeAddressStatus()}
-          </Route>
-          <Route path='*'>
-            {renderChangeAddressInput()}
-          </Route>
+          <Route path={ChangeAddressRoutePaths.Input}>{renderChangeAddressInput()}</Route>
+          <Route path={ChangeAddressRoutePaths.Confirm}>{renderChangeAddressConfirm()}</Route>
+          <Route path={ChangeAddressRoutePaths.Status}>{renderChangeAddressStatus()}</Route>
+          <Route path='*'>{renderChangeAddressInput()}</Route>
         </Switch>
       </Suspense>
     </AnimatePresence>

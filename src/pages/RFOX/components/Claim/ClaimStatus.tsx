@@ -45,7 +45,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
 
   const handleGoBack = useCallback(() => {
     navigate(ClaimRoutePaths.Select)
-  }, [history])
+  }, [navigate])
 
   const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))
   const claimAmountCryptoPrecision = useMemo(

@@ -2,7 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -15,7 +15,6 @@ const padding = { base: 0, md: 8 }
 
 export const ClaimTab = memo(() => {
   const translate = useTranslate()
-  const location = useLocation()
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
 
@@ -40,7 +39,7 @@ export const ClaimTab = memo(() => {
 
   const title = useMemo(() => {
     return translate('navBar.claims')
-  }, [location.pathname, translate])
+  }, [translate])
 
   const claimElement = useMemo(() => <Claim onChangeTab={handleChangeTab} />, [handleChangeTab])
 

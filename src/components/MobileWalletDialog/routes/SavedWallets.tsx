@@ -73,7 +73,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
 
       navigate(MobileWalletDialogRoutes.Backup, { state: { vault: wallet } })
     }
-  }, [history, state])
+  }, [navigate, state])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
     accountManagementPopover.open({})
@@ -86,11 +86,11 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
 
   const handleCreateClick = useCallback(() => {
     navigate(MobileWalletDialogRoutes.Create)
-  }, [history])
+  }, [navigate])
 
   const handleImportClick = useCallback(() => {
     navigate(MobileWalletDialogRoutes.Import)
-  }, [history])
+  }, [navigate])
 
   const mobileWalletFooter = useMemo(() => {
     return (

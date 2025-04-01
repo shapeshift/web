@@ -1,4 +1,4 @@
-import { lazy } from 'react'
+import { lazy, useMemo } from 'react'
 import { Route, Routes, useMatch } from 'react-router-dom'
 
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -30,19 +30,22 @@ export const PoolsPage = () => {
   const match = useMatch('/*')
   const basePath = match?.pathnameBase || ''
 
+  const availablePoolsElement = useMemo(() => <AvailablePools />, [])
+  const yourPositionsElement = useMemo(() => <YourPositions />, [])
+  const positionElement = useMemo(() => <Position />, [])
+  const addLiquidityElement = useMemo(() => <AddLiquidityPage />, [])
+  const poolElement = useMemo(() => <Pool />, [])
+
   return (
     <Routes>
-      <Route path={`${basePath}`} element={<AvailablePools />} />
-      <Route path={`${basePath}/positions`} element={<YourPositions />} />
+      <Route path={`${basePath}`} element={availablePoolsElement} />
+      <Route path={`${basePath}/positions`} element={yourPositionsElement} />
       <Route
         path={`${basePath}/positions/:poolAssetId/:accountId/:opportunityId`}
-        element={<Position />}
+        element={positionElement}
       />
-      <Route
-        path={`${basePath}/add/:poolAssetId?/:opportunityId?`}
-        element={<AddLiquidityPage />}
-      />
-      <Route path={`${basePath}/:poolAssetId`} element={<Pool />} />
+      <Route path={`${basePath}/add/:poolAssetId?/:opportunityId?`} element={addLiquidityElement} />
+      <Route path={`${basePath}/:poolAssetId`} element={poolElement} />
     </Routes>
   )
 }

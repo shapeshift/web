@@ -403,13 +403,15 @@ export const Overview: React.FC<OverviewProps> = ({
               <Text color='text.subtle' translation={fiatRampsTitleTranslation} />
             </Box>
           )}
-          {isRampsLoading ? (
-            <Center minHeight='150px'>
-              <CircularProgress />
-            </Center>
-          ) : (
-            <Stack>{renderProviders}</Stack>
-          )}
+          <Box minHeight='170px'>
+            {isRampsLoading ? (
+              <Center minHeight='150px'>
+                <CircularProgress />
+              </Center>
+            ) : (
+              <Stack>{renderProviders}</Stack>
+            )}
+          </Box>
         </Stack>
       </Flex>
     </>

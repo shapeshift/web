@@ -38,6 +38,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import type { AmountsByPosition } from '../LpType'
 import { LpType } from '../LpType'
@@ -146,10 +147,10 @@ export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
   poolAssetId?: string
-  setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
   confirmedQuote: LpConfirmedDepositQuote | null
+  setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
   currentAccountIdByChainId: Record<ChainId, AccountId>
-  onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
+  onAccountIdChange: (accountId: AccountId) => void
 }
 
 export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
@@ -159,15 +160,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   confirmedQuote,
   setConfirmedQuote,
   currentAccountIdByChainId,
-  onAccountIdChange: handleAccountIdChange,
+  onAccountIdChange,
 }) => {
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const { wallet, isConnected } = useWallet().state
   const queryClient = useQueryClient()
   const translate = useTranslate()
-  const { navigate } = useBrowserRouter()
+  const { navigate: browserRouterNavigate } = useBrowserRouter()
   const [isFiat, toggleIsFiat] = useToggle(false)
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
@@ -494,8 +496,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const handleBackClick = useCallback(() => {
-    navigate('/pools')
-  }, [navigate])
+    window.history.back()
+  }, [])
 
   const toggleFeeModal = useCallback(() => {
     toggleShowFeeModal(!showFeeModal)
@@ -889,27 +891,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [mutate, mixpanel, confirmedQuote])
 
   const handleSubmit = useCallback(() => {
-    if (!mixpanel) return
     if (!confirmedQuote) return
-    if (isApprovalRequired) return handleApprove()
-    if (isSweepNeeded) return navigate(AddLiquidityRoutePaths.Sweep)
+    setConfirmedQuote(confirmedQuote)
 
-    if (Boolean(incompleteSide)) {
-      navigate(AddLiquidityRoutePaths.Status)
-      mixpanel.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
+    if (confirmedQuote.positionStatus?.incomplete) {
+      mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
+      navigate(AddLiquidityRoutePaths.Sweep)
     } else {
+      mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
       navigate(AddLiquidityRoutePaths.Confirm)
-      mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
     }
-  }, [
-    confirmedQuote,
-    handleApprove,
-    navigate,
-    isApprovalRequired,
-    incompleteSide,
-    isSweepNeeded,
-    mixpanel,
-  ])
+  }, [confirmedQuote, mixpanel, navigate, setConfirmedQuote])
 
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
@@ -1163,7 +1155,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetSymbol={asset?.symbol ?? ''}
               // eslint-disable-next-line react-memo/require-usememo
               onAccountIdChange={(accountId: AccountId) => {
-                handleAccountIdChange(accountId, asset?.assetId)
+                onAccountIdChange(accountId)
               }}
               percentOptions={percentOptions}
               rightComponent={ReadOnlyAsset}
@@ -1182,7 +1174,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     assetId,
     createHandleAddLiquidityInputChange,
     currentAccountIdByChainId,
-    handleAccountIdChange,
+    onAccountIdChange,
     handleToggleIsFiat,
     incompleteSide,
     opportunityType,

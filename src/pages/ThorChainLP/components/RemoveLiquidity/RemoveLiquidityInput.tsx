@@ -30,7 +30,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useLocation } from 'wouter'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -110,7 +110,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   poolAssetId,
 }) => {
   const mixpanel = getMixPanel()
-  const navigate = useNavigate()
+  const [, setLocation] = useLocation()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -321,8 +321,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [opportunityId, userLpData])
 
   const handleBackClick = useCallback(() => {
-    navigate('/pools')
-  }, [navigate])
+    setLocation('/pools')
+  }, [setLocation])
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {
@@ -727,16 +727,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (!mixpanel) return
     if (!confirmedQuote) return
-    if (isSweepNeeded) return navigate(RemoveLiquidityRoutePaths.Sweep)
+    if (isSweepNeeded) return setLocation(RemoveLiquidityRoutePaths.Sweep)
 
-    if (incompleteSide) {
+    if (confirmedQuote.positionStatus?.incomplete) {
       mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
     } else {
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
-    navigate(RemoveLiquidityRoutePaths.Confirm)
-  }, [confirmedQuote, navigate, incompleteSide, isSweepNeeded, mixpanel])
+    setLocation(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, setLocation, mixpanel, isSweepNeeded])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && withdrawType)) return null

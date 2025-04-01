@@ -2,7 +2,8 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { AddLiquidityRoutePaths } from './types'
 
@@ -13,12 +14,17 @@ import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const AddLiquidityConfirm = makeSuspenseful(
   lazy(() =>
     import('./AddLiquidityConfirm').then(({ AddLiquidityConfirm }) => ({
       default: AddLiquidityConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const AddLiquidityInput = makeSuspenseful(
@@ -27,6 +33,7 @@ const AddLiquidityInput = makeSuspenseful(
       default: AddLiquidityInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const AddLiquidityStatus = makeSuspenseful(
@@ -35,6 +42,7 @@ const AddLiquidityStatus = makeSuspenseful(
       default: AddLiquidityStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const AddLiquiditySweep = makeSuspenseful(
@@ -43,6 +51,7 @@ const AddLiquiditySweep = makeSuspenseful(
       default: AddLiquiditySweep,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const AddLiquidityEntries = [
@@ -90,8 +99,8 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   confirmedQuote,
   setConfirmedQuote,
 }) => {
+  const location = useLocation()
   const mixpanel = getMixPanel()
-  const navigate = useNavigate()
 
   const [currentAccountIdByChainId, setCurrentAccountIdByChainId] = useState<
     Record<ChainId, AccountId>
@@ -129,6 +138,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
       setConfirmedQuote,
     ],
   )
+
   const renderAddLiquidityConfirm = useCallback(
     () => (confirmedQuote ? <AddLiquidityConfirm confirmedQuote={confirmedQuote} /> : null),
     [confirmedQuote],
@@ -143,55 +153,33 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     if (!confirmedQuote) return null
     if (!mixpanel) return null
 
-    const handleSweepSeen = () => {
-      if (confirmedQuote.positionStatus?.incomplete) {
-        navigate(AddLiquidityRoutePaths.Status)
-        mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
-      }
-
-      navigate(AddLiquidityRoutePaths.Confirm)
-      mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
-    }
-
     return (
       <AddLiquiditySweep
         confirmedQuote={confirmedQuote}
-        // eslint-disable-next-line react-memo/require-usememo
-        onSweepSeen={handleSweepSeen}
-        // eslint-disable-next-line react-memo/require-usememo
+        onSweepSeen={() => {
+          if (confirmedQuote.positionStatus?.incomplete) {
+            mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
+          } else {
+            mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
+          }
+        }}
         onBack={() => {
-          navigate(AddLiquidityRoutePaths.Input)
+          window.history.back()
         }}
       />
     )
-  }, [confirmedQuote, navigate, mixpanel])
+  }, [confirmedQuote, mixpanel])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
-        <Suspense fallback={suspenseFallback}>
-          <Route
-            key={AddLiquidityRoutePaths.Input}
-            path={AddLiquidityRoutePaths.Input}
-            element={renderAddLiquidityInput()}
-          />
-          <Route
-            key={AddLiquidityRoutePaths.Confirm}
-            path={AddLiquidityRoutePaths.Confirm}
-            element={renderAddLiquidityConfirm()}
-          />
-          <Route
-            key={AddLiquidityRoutePaths.Status}
-            path={AddLiquidityRoutePaths.Status}
-            element={renderAddLiquidityStatus()}
-          />
-          <Route
-            key={AddLiquidityRoutePaths.Sweep}
-            path={AddLiquidityRoutePaths.Sweep}
-            element={renderAddLiquiditySweep()}
-          />
-        </Suspense>
-      </Routes>
+      <Suspense fallback={suspenseFallback}>
+        <Switch location={location.pathname}>
+          <Route path={AddLiquidityRoutePaths.Input}>{renderAddLiquidityInput()}</Route>
+          <Route path={AddLiquidityRoutePaths.Confirm}>{renderAddLiquidityConfirm()}</Route>
+          <Route path={AddLiquidityRoutePaths.Status}>{renderAddLiquidityStatus()}</Route>
+          <Route path={AddLiquidityRoutePaths.Sweep}>{renderAddLiquiditySweep()}</Route>
+        </Switch>
+      </Suspense>
     </AnimatePresence>
   )
 }

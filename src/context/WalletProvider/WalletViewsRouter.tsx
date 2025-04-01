@@ -1,5 +1,4 @@
 import { MemoryRouter } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
 
 import { NewWalletViewsSwitch } from './NewWalletViews/NewWalletViewsSwitch'
 import { WalletViewsSwitch } from './WalletViewsSwitch'
@@ -20,11 +19,7 @@ export const WalletViewsRouter = () => {
 
   return (
     <MemoryRouter initialIndex={0}>
-      <Switch>
-        <Route path="*">
-          {isNewWalletFlowEnabled && !isMobileApp ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
-        </Route>
-      </Switch>
+      {isNewWalletFlowEnabled && !isMobileApp ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
     </MemoryRouter>
   )
 }

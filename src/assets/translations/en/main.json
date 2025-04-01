@@ -2876,5 +2876,9 @@
       "getUtxos": "Failed to get utxos.",
       "getValidator": "Failed to get validator."
     }
+  },
+  "lookingForEarnBanner": {
+    "body": "Looking for Earn? We’ve moved those opportunities to My Wallet → DeFi.",
+    "cta": "View"
   }
 }

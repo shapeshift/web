@@ -105,6 +105,7 @@ export type Preferences = {
   chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
+  showLookingForEarnBanner: boolean
   showSnapsModal: boolean
   snapInstalled: boolean
   watchedAssets: AssetId[]
@@ -184,6 +185,7 @@ const initialState: Preferences = {
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,
+  showLookingForEarnBanner: true,
   showSnapsModal: true,
   snapInstalled: false,
   watchedAssets: [],
@@ -220,6 +222,9 @@ export const preferences = createSlice({
     },
     setShowConsentBanner(state, { payload }: { payload: boolean }) {
       state.showConsentBanner = payload
+    },
+    setShowLookingForEarnBanner(state, { payload }: { payload: boolean }) {
+      state.showLookingForEarnBanner = payload
     },
     setShowSnapsModal(state, { payload }: { payload: boolean }) {
       state.showSnapsModal = payload

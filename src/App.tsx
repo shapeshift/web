@@ -8,11 +8,16 @@ import { useSelector } from 'react-redux'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
+import { LookingForEarnBanner } from '@/components/LookingForEarnBanner'
 import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
 import { Routes } from '@/Routes/Routes'
-import { selectShowConsentBanner, selectShowWelcomeModal } from '@/state/slices/selectors'
+import {
+  selectShowConsentBanner,
+  selectShowLookingForEarnBanner,
+  selectShowWelcomeModal,
+} from '@/state/slices/selectors'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -25,6 +30,7 @@ export const App = () => {
   const updateId = 'update-app'
   const translate = useTranslate()
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
+  const showLookingForEarnBanner = useSelector(selectShowLookingForEarnBanner)
   const showConsentBanner = useSelector(selectShowConsentBanner)
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
@@ -73,6 +79,7 @@ export const App = () => {
   return (
     <>
       {showConsentBanner && <ConsentBanner />}
+      {showLookingForEarnBanner && <LookingForEarnBanner />}
       <Routes />
     </>
   )

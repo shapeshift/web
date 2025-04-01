@@ -28,6 +28,8 @@ export const selectBalanceThreshold = (state: ReduxState) => state.preferences.b
 export const selectCurrencyFormat = (state: ReduxState) => state.preferences.currencyFormat
 export const selectChartTimeframe = (state: ReduxState) => state.preferences.chartTimeframe
 export const selectShowWelcomeModal = (state: ReduxState) => state.preferences.showWelcomeModal
+export const selectShowLookingForEarnBanner = (state: ReduxState) =>
+  state.preferences.showLookingForEarnBanner
 export const selectShowSnapsModal = (state: ReduxState) => state.preferences.showSnapsModal
 export const selectSelectedHomeView = (state: ReduxState) => state.preferences.selectedHomeView
 

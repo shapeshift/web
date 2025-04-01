@@ -11,7 +11,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { OnboardPager } from './components/OnboardPager'
 import { OnboardingRoutes } from './config'
@@ -64,7 +64,7 @@ export const NativeOnboarding = () => {
                     </AnimatePresence>
                   </ModalBody>
                   <ModalFooter>
-                    <OnboardPager activeRoute={useLocation().pathname} />
+                    <OnboardPager />
                   </ModalFooter>
                 </>
               }

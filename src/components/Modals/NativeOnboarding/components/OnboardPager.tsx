@@ -1,15 +1,14 @@
 import { Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation } from 'react-router'
 import { useNavigate } from 'react-router-dom'
 
 import { OnboardingRoutes } from '../config'
 
-type OnboardPagerProps = {
-  activeRoute: string
-}
-
-export const OnboardPager: React.FC<OnboardPagerProps> = ({ activeRoute }) => {
+export const OnboardPager: React.FC = () => {
+  const location = useLocation()
+  const activeRoute = location.pathname
   const navigate = useNavigate()
   const translate = useTranslate()
   const pageColor = useColorModeValue('gray.100', 'gray.700')

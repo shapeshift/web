@@ -1,6 +1,6 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isSome } from '@shapeshiftoss/utils'
+import { bnOrZero, isSome } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -126,7 +126,7 @@ export async function getTrade({
   const quote = maybeQuote.unwrap()
 
   const swapSteps = quote.data.steps.filter(step => step.id !== 'approve')
-  const approvalStep = quote.data.steps.find(step => step.id === 'approve')
+  const hasApprovalStep = quote.data.steps.find(step => step.id === 'approve')
 
   if (swapSteps.length > 2) {
     deps.mixPanel?.track(MixPanelEvent.RelayMultiSteps, {
@@ -144,7 +144,7 @@ export async function getTrade({
 
   const steps = swapSteps.map(
     (quoteStep): TradeQuoteStep => ({
-      allowanceContract: approvalStep?.items?.[0]?.data?.to ?? quoteStep.items?.[0]?.data?.to,
+      allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
       rate: quote.data.details?.rate ?? '0',
       buyAmountBeforeFeesCryptoBaseUnit: quote.data.details?.currencyOut?.amount ?? '0',
       buyAmountAfterFeesCryptoBaseUnit: quote.data.details?.currencyOut?.minimumAmount ?? '0',
@@ -153,12 +153,9 @@ export async function getTrade({
       sellAsset,
       accountNumber: 0,
       feeData: {
-        networkFeeCryptoBaseUnit: (
-          BigInt(approvalStep?.items?.[0]?.data?.gas ?? '0') *
-            BigInt(approvalStep?.items?.[0]?.data?.maxFeePerGas ?? '0') +
-          BigInt(quoteStep.items?.[0]?.data?.gas ?? '0') *
-            BigInt(quoteStep.items?.[0]?.data?.maxFeePerGas ?? '0')
-        ).toString(),
+        networkFeeCryptoBaseUnit: bnOrZero(quoteStep.items?.[0]?.data?.gas)
+          .times(quoteStep.items?.[0]?.data?.maxFeePerGas)
+          .toString(),
         protocolFees: {
           [sellAsset.assetId]: {
             amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',

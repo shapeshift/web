@@ -58,7 +58,10 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
   const renderSlippageTag = useMemo(() => {
-    if (bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))) {
+    if (
+      !isUnknownAutoSlippage &&
+      bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))
+    ) {
       return (
         <Tag colorScheme='purple' size='sm'>
           {translate('trade.slippage.custom')}
@@ -71,7 +74,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
         </Tag>
       )
     }
-  }, [slippageAsPercentageString, translate, userSlippagePercentage])
+  }, [isUnknownAutoSlippage, slippageAsPercentageString, translate, userSlippagePercentage])
 
   const amountAfterSlippage = useMemo(() => {
     const slippageBps = convertDecimalPercentageToBasisPoints(slippagePercentageDecimal)

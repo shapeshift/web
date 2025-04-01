@@ -162,7 +162,6 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
     isAmountPositive,
     isLoading,
     minAmountAfterSlippageTranslation,
-    isUnknownAutoSlippage,
     symbol,
     translate,
   ])

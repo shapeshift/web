@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
-import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
+import type { ElementType, FocusEvent, JSX, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { ControllerRenderProps, FieldError, RegisterOptions } from 'react-hook-form'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
@@ -49,7 +49,7 @@ type RenderController = ({
   field,
 }: {
   field: ControllerRenderProps<TradeAmountInputFormValues, 'amountFieldInput'>
-}) => React.ReactElement
+}) => React.ReactElement<any>
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
 const buttonProps = {

@@ -1,4 +1,5 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

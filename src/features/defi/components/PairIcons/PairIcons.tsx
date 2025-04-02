@@ -1,5 +1,6 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
 import { Avatar, Center, Flex } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'

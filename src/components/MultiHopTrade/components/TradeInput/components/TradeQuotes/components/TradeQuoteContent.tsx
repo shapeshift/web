@@ -2,6 +2,7 @@ import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/r
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { BsLayers } from 'react-icons/bs'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'

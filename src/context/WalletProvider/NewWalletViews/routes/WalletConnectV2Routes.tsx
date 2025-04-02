@@ -1,6 +1,6 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
-import { useCallback, useMemo, useState } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
 
@@ -86,18 +86,13 @@ export const NewWalletConnectV2Connect = () => {
   )
 }
 
+// Yeah, this isn't a router component but just keeping the "Routes" name for consistency
 export const WalletConnectV2Routes = () => {
   const {
     state: { modalType },
   } = useWallet()
 
-  const newWalletConnectV2ConnectElement = useMemo(() => <NewWalletConnectV2Connect />, [])
-
   if (!modalType) return null
 
-  return (
-    <Routes>
-      <Route path='*' element={newWalletConnectV2ConnectElement} />
-    </Routes>
-  )
+  return <NewWalletConnectV2Connect />
 }

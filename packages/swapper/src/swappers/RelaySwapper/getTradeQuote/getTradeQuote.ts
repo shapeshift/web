@@ -73,6 +73,16 @@ export async function getTrade({
     )
   }
 
+  // @TODO: implement sweep or wait for relay to add xpubs support to their quote validation
+  if (sellAsset.chainId === btcChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `BTC not supported as sell asset`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   if (buyRelayChainId === undefined) {
     return Err(
       makeSwapErrorRight({

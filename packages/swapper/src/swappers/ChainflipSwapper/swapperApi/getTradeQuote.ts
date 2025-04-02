@@ -77,14 +77,20 @@ export const getTradeQuote = async (
   // in order to properly fetch the streaming status later
   for (const tradeQuote of tradeQuotes) {
     for (const step of tradeQuote.steps) {
-      const sourceAsset = await getChainFlipIdFromAssetId({
+      const maybeSourceAsset = await getChainFlipIdFromAssetId({
         assetId: sellAsset.assetId,
         brokerUrl,
       })
-      const destinationAsset = await getChainFlipIdFromAssetId({
+      const maybeDestinationAsset = await getChainFlipIdFromAssetId({
         assetId: buyAsset.assetId,
         brokerUrl,
       })
+
+      if (maybeDestinationAsset.isErr()) return Err(maybeDestinationAsset.unwrapErr())
+      if (maybeSourceAsset.isErr()) return Err(maybeSourceAsset.unwrapErr())
+
+      const destinationAsset = maybeDestinationAsset.unwrap()
+      const sourceAsset = maybeSourceAsset.unwrap()
 
       const minimumPrice = calculateChainflipMinPrice({
         slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,

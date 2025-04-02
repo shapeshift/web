@@ -42,7 +42,6 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   intermediaryTransactionOutputs,
   symbol,
 }) => {
-  console.log({ swapSource })
   const translate = useTranslate()
   const {
     number: { toCrypto },

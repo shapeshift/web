@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { MemoryRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { ManualBackup } from '../ManualBackup/ManualBackup'
@@ -10,6 +10,11 @@ import { KeepSafe } from './KeepSafe'
 
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { SlideTransition } from '@/components/SlideTransition'
+
+const createBackupConfirm = <CreateBackupConfirm />
+const manualBackup = <ManualBackup />
+const keepSafe = <KeepSafe />
+const createRedirect = <Navigate to={MobileWalletDialogRoutes.Create} replace />
 
 type CreateWalletRouterProps = {
   onClose: () => void
@@ -36,29 +41,26 @@ const CreateWalletRoutes = ({ onClose, defaultRoute }: CreateWalletRouterProps) 
     navigate(MobileWalletDialogRoutes.Saved)
   }, [navigate])
 
+  const createSuccess = useMemo(() => <CreateSuccess onClose={onClose} />, [onClose])
+  const createWallet = useMemo(
+    () => (
+      <CreateWallet
+        isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Create}
+        onClose={onClose}
+        handleRedirectToHome={handleRedirectToHome}
+      />
+    ),
+    [defaultRoute, handleRedirectToHome, onClose],
+  )
+
   return (
     <Routes location={location}>
-      <Route
-        path={MobileWalletDialogRoutes.CreateBackupSuccess}
-        element={<CreateSuccess onClose={onClose} />}
-      />
-      <Route
-        path={MobileWalletDialogRoutes.CreateBackupConfirm}
-        element={<CreateBackupConfirm />}
-      />
-      <Route path={MobileWalletDialogRoutes.CreateBackup} element={<ManualBackup />} />
-      <Route path={MobileWalletDialogRoutes.KeepSafe} element={<KeepSafe />} />
-      <Route
-        path={MobileWalletDialogRoutes.Create}
-        element={
-          <CreateWallet
-            isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Create}
-            onClose={onClose}
-            handleRedirectToHome={handleRedirectToHome}
-          />
-        }
-      />
-      <Route path='/' element={<Navigate to={MobileWalletDialogRoutes.Create} replace />} />
+      <Route path={MobileWalletDialogRoutes.CreateBackupSuccess} element={createSuccess} />
+      <Route path={MobileWalletDialogRoutes.CreateBackupConfirm} element={createBackupConfirm} />
+      <Route path={MobileWalletDialogRoutes.CreateBackup} element={manualBackup} />
+      <Route path={MobileWalletDialogRoutes.KeepSafe} element={keepSafe} />
+      <Route path={MobileWalletDialogRoutes.Create} element={createWallet} />
+      <Route path='/' element={createRedirect} />
     </Routes>
   )
 }

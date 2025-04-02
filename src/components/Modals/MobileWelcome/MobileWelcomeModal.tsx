@@ -7,6 +7,10 @@ import { Notice } from './views/Notice'
 
 import { useModal } from '@/hooks/useModal/useModal'
 
+const importSuccess = <ImportSuccess />
+const notice = <Notice />
+const successRedirect = <Navigate to='/success' replace />
+
 export const MobileWelcomeModal = () => {
   const { close: handleClose, isOpen } = useModal('mobileWelcomeModal')
 
@@ -36,9 +40,9 @@ const RoutesWithAnimation = () => {
 
   return (
     <Routes location={location}>
-      <Route path='/success' element={<ImportSuccess />} />
-      <Route path='/notice' element={<Notice />} />
-      <Route path='/' element={<Navigate to='/success' replace />} />
+      <Route path='/success' element={importSuccess} />
+      <Route path='/notice' element={notice} />
+      <Route path='/' element={successRedirect} />
     </Routes>
   )
 }

@@ -1,4 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
+import { useMemo } from 'react'
 import { Navigate, Routes } from 'react-router'
 import { MemoryRouter, Route, useLocation } from 'react-router-dom'
 
@@ -33,9 +34,15 @@ const MobileDialogRoutes = ({
 }) => {
   const location = useLocation()
 
-  const importRouter = <ImportRouter onClose={onClose} defaultRoute={defaultRoute} />
-  const savedWallets = <SavedWallets onClose={onClose} />
-  const createWalletRouter = <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />
+  const importRouter = useMemo(
+    () => <ImportRouter onClose={onClose} defaultRoute={defaultRoute} />,
+    [defaultRoute, onClose],
+  )
+  const savedWallets = useMemo(() => <SavedWallets onClose={onClose} />, [onClose])
+  const createWalletRouter = useMemo(
+    () => <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />,
+    [defaultRoute, onClose],
+  )
 
   return (
     <AnimatePresence mode='wait' initial={false}>

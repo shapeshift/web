@@ -1,6 +1,6 @@
 import { Button, Heading } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -24,6 +24,11 @@ export const DeleteWallet = () => {
     navigate(-1)
   }, [navigate])
 
+  const confirmDelete = useMemo(
+    () => (vault ? <ConfirmDelete vault={vault} onBack={handleBack} /> : null),
+    [handleBack, vault],
+  )
+
   if (!vault)
     return (
       <SlideTransition>
@@ -43,11 +48,8 @@ export const DeleteWallet = () => {
       <MemoryRouter>
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route
-              path={MobileWalletDialogRoutes.ConfirmDelete}
-              element={<ConfirmDelete vault={vault} onBack={handleBack} />}
-            />
-            <Route path='/' element={<ConfirmDelete vault={vault} onBack={handleBack} />} />
+            <Route path={MobileWalletDialogRoutes.ConfirmDelete} element={confirmDelete} />
+            <Route path='/' element={confirmDelete} />
           </Routes>
         </AnimatePresence>
       </MemoryRouter>

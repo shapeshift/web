@@ -112,6 +112,7 @@ export const WalletConnectedMenu = ({
       <Route
         key={`walletConnectedMenuRoute_${i}`}
         path={route.path || ''}
+        // eslint-disable-next-line react-memo/require-usememo
         element={<Component />}
       />
     )
@@ -122,6 +123,8 @@ export const WalletConnectedMenu = ({
       <Routes>
         <Route
           path={WalletConnectedRoutes.Connected}
+          // This is already a memo()'d component
+          // eslint-disable-next-line react-memo/require-usememo
           element={
             <SubMenuContainer>
               <ConnectedMenu

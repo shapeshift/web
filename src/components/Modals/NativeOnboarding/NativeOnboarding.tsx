@@ -22,7 +22,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 
-const SelfCustodyRedirect = () => <Navigate to='/self-custody' replace />
+const selfCustodyRedirect = <Navigate to='/self-custody' replace />
 
 export type NativeOnboardingModalProps = { browserNavigate: NavigateFunction }
 
@@ -32,6 +32,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => {
       const element = <route.component browserNavigate={browserNavigate} />
+      // eslint-disable-next-line react-memo/require-usememo
       return <Route key={route.path} path={route.path} element={element} />
     })
   }, [browserNavigate])
@@ -58,7 +59,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
             <AnimatePresence mode='wait' initial={false}>
               <Routes>
                 {renderRoutes}
-                <Route path='/' element={<SelfCustodyRedirect />} />
+                <Route path='/' element={selfCustodyRedirect} />
               </Routes>
             </AnimatePresence>
           </ModalBody>

@@ -189,34 +189,48 @@ export const KeepKeyRoutes = () => {
     [error, handleDownloadButtonClick, latestFirmware],
   )
 
+  const pairBodyElement = useMemo(
+    () => (
+      <PairBody
+        icon={icon}
+        headerTranslation='walletProvider.keepKey.connect.header'
+        bodyTranslation='walletProvider.keepKey.connect.body'
+        buttonTranslation='walletProvider.keepKey.connect.button'
+        isLoading={
+          initializeKeepKeyMutation.isPending ||
+          deviceFirmwareQuery.isLoading ||
+          versionsQuery.isLoading
+        }
+        error={error}
+        onPairDeviceClick={pairKeepKeyHdWallet}
+        secondaryContent={secondaryContent}
+      />
+    ),
+    [
+      initializeKeepKeyMutation.isPending,
+      deviceFirmwareQuery.isLoading,
+      versionsQuery.isLoading,
+      error,
+      pairKeepKeyHdWallet,
+      secondaryContent,
+    ],
+  )
+
   // Note, `/keepkey/connect` is handled with PairBody instead of the regular KK routes, since it's the new, better looking version
   // Use type assertion to tell TypeScript that our routes have the shape we expect
   const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes
-  const keepKeyRoutes = walletRoutes
-    .filter(route => route.component !== undefined)
-    .map(route => <Route key={route.path} path={route.path} element={<route.component />} />)
+  const keepKeyRoutes = useMemo(
+    () =>
+      walletRoutes
+        .filter(route => route.component !== undefined)
+        // eslint-disable-next-line react-memo/require-usememo
+        .map(route => <Route key={route.path} path={route.path} element={<route.component />} />),
+    [walletRoutes],
+  )
 
   return (
     <Routes>
-      <Route
-        path='/keepkey/connect'
-        element={
-          <PairBody
-            icon={icon}
-            headerTranslation='walletProvider.keepKey.connect.header'
-            bodyTranslation='walletProvider.keepKey.connect.body'
-            buttonTranslation='walletProvider.keepKey.connect.button'
-            isLoading={
-              initializeKeepKeyMutation.isPending ||
-              deviceFirmwareQuery.isLoading ||
-              versionsQuery.isLoading
-            }
-            error={error}
-            onPairDeviceClick={pairKeepKeyHdWallet}
-            secondaryContent={secondaryContent}
-          />
-        }
-      />
+      <Route path='/keepkey/connect' element={pairBodyElement} />
       {keepKeyRoutes}
     </Routes>
   )

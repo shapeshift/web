@@ -13,6 +13,7 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import type { WalletConnectedProps } from '@/components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
+import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 
 const warningTwoIcon = <WarningTwoIcon />
@@ -92,11 +93,6 @@ const ConnectedMenu = memo(
   },
 )
 
-type CustomRouteProps = {
-  path?: string
-  component: React.ComponentType<any>
-}
-
 export const WalletConnectedMenu = ({
   onDisconnect,
   onSwitchProvider,
@@ -110,7 +106,7 @@ export const WalletConnectedMenu = ({
     [connectedType],
   )
 
-  const renderRoute = useCallback((route: CustomRouteProps, i: number) => {
+  const renderRoute = useCallback((route: WalletProviderRouteProps, i: number) => {
     const Component = route.component
     return (
       <Route
@@ -140,9 +136,7 @@ export const WalletConnectedMenu = ({
             </SubMenuContainer>
           }
         />
-        {connectedWalletMenuRoutes?.map((route, index) =>
-          renderRoute(route as CustomRouteProps, index),
-        )}
+        {connectedWalletMenuRoutes?.map((route, index) => renderRoute(route, index))}
       </Routes>
     </AnimatePresence>
   )

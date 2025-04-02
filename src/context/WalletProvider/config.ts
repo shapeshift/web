@@ -30,7 +30,7 @@ import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/u
 import { getConfig } from '@/config'
 import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
 
-type RouteProps = _RouteProps & {
+export type WalletProviderRouteProps = _RouteProps & {
   component: React.LazyExoticComponent<any>
 }
 

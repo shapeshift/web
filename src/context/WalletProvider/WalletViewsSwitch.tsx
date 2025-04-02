@@ -23,12 +23,6 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 
-// Define a custom interface for our routes which includes the component property
-interface CustomRouteProps {
-  path: string
-  component: React.ComponentType<any>
-}
-
 const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
@@ -120,7 +114,7 @@ export const WalletViewsSwitch = () => {
     if (!modalType) return []
     const supportedWallet =
       SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
-    const routes = supportedWallet.routes as unknown as CustomRouteProps[]
+    const routes = supportedWallet.routes
 
     return routes
       .filter(route => !!route.component)

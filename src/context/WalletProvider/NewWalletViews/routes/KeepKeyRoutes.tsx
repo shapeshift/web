@@ -37,12 +37,6 @@ const translateError = (event: Event) => {
   return `walletProvider.keepKey.errors.${t}`
 }
 
-// We're using a specialized version of routes with 'component' properties
-interface CustomRouteProps {
-  path: string
-  component: React.ComponentType<any>
-}
-
 export const KeepKeyRoutes = () => {
   // We leverage the hdwallet we just paired here, because we're dealing with react re-renders/closures as well as
   // WebUSB pairing needing to be initiated from a user action
@@ -197,7 +191,7 @@ export const KeepKeyRoutes = () => {
 
   // Note, `/keepkey/connect` is handled with PairBody instead of the regular KK routes, since it's the new, better looking version
   // Use type assertion to tell TypeScript that our routes have the shape we expect
-  const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes as unknown as CustomRouteProps[]
+  const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes
   const keepKeyRoutes = walletRoutes
     .filter(route => route.component !== undefined)
     .map(route => <Route key={route.path} path={route.path} element={<route.component />} />)

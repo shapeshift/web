@@ -4,7 +4,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -166,13 +166,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     [navigate, methods],
   )
 
-  const location = useLocation()
-
   useEffect(() => {
-    if (!initialAssetId && location.pathname === SendRoutes.Select) {
+    if (!initialAssetId) {
       navigate(SendRoutes.Select)
     }
-  }, [navigate, initialAssetId, location.pathname])
+  }, [navigate, initialAssetId])
 
   const qrCodeScanner = useMemo(
     () => (

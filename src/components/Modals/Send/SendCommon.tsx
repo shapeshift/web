@@ -1,10 +1,10 @@
 export enum SendRoutes {
-  Address = '/send/address',
   Details = '/send/details',
   Confirm = '/send/confirm',
   Status = '/send/status',
   Scan = '/send/scan',
   Select = '/send/select',
+  Address = '/send/address',
 }
 
 export enum SendFormFields {

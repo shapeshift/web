@@ -41,7 +41,7 @@ export const getTradeQuotes = async (
   } catch (e) {
     // This should never happen but it may - we should be using monadic error handling all the way through swapper call stack
     // in case this logs an error from a rejected promise, it means we throw somewhere and forgot to handle errors the monadic way
-    console.error(e)
+    console.error('Unhandled error. Use monadic error handling: ', e)
   }
 }
 
@@ -71,7 +71,7 @@ export const getTradeRates = async (
   } catch (e) {
     // This should never happen but it may - we should be using monadic error handling all the way through swapper call stack
     // in case this logs an error from a rejected promise, it means we throw somewhere and forgot to handle errors the monadic way
-    console.error(e)
+    console.error('Unhandled error. Use monadic error handling: ', e)
   }
 }
 

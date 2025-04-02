@@ -120,18 +120,10 @@ export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
             />
           </Route>
           <Route path={RemoveLiquidityRoutePaths.Confirm}>
-            {confirmedQuote && (
-              <RemoveLiquidityConfirm
-                confirmedQuote={confirmedQuote}
-              />
-            )}
+            {confirmedQuote && <RemoveLiquidityConfirm confirmedQuote={confirmedQuote} />}
           </Route>
           <Route path={RemoveLiquidityRoutePaths.Status}>
-            {confirmedQuote && (
-              <RemoveLiquidityStatus
-                confirmedQuote={confirmedQuote}
-              />
-            )}
+            {confirmedQuote && <RemoveLiquidityStatus confirmedQuote={confirmedQuote} />}
           </Route>
           <Route path={RemoveLiquidityRoutePaths.Sweep}>
             {confirmedQuote && (

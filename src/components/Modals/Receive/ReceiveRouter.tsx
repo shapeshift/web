@@ -1,7 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { ReceiveRoutes } from './ReceiveCommon'
@@ -38,19 +38,21 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const receiveInfoElement = useMemo(
+    () => (selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null),
+    [selectedAsset, accountId],
+  )
+
+  const selectAssetRouterElement = useMemo(
+    () => <SelectAssetRouter onClick={handleAssetSelect} />,
+    [handleAssetSelect],
+  )
+
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Routes>
-        <Route
-          path={ReceiveRoutes.Info}
-          element={
-            selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null
-          }
-        />
-        <Route
-          path={`${ReceiveRoutes.Select}/*`}
-          element={<SelectAssetRouter onClick={handleAssetSelect} />}
-        />
+        <Route path={ReceiveRoutes.Info} element={receiveInfoElement} />
+        <Route path={`${ReceiveRoutes.Select}/*`} element={selectAssetRouterElement} />
       </Routes>
     </AnimatePresence>
   )

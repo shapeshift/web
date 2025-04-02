@@ -548,10 +548,6 @@ export const RepayInput = ({
     return translate('lending.repay')
   }, [isApprovalRequired, repaymentAsset, translate])
 
-  const handleBack = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
-
   if (!seenNotice) {
     return (
       <Stack spacing={6} px={4} py={6} textAlign='center' alignItems='center'>

@@ -70,7 +70,7 @@ export const Status = () => {
     navigate('/earn')
   }, [navigate])
 
-  const handleCancel = () => navigate(-1)
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   useEffect(() => {
     if (!opportunityMetadata) return

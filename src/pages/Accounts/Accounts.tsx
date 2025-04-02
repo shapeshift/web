@@ -122,10 +122,17 @@ export const Accounts = () => {
   const loading = useSelector(selectIsPortfolioLoading)
   const walletId = useAppSelector(selectWalletId)
 
+  const accountsContentElement = useMemo(
+    () => <AccountsContent key={`${walletId}-${loading}`} />,
+    [walletId, loading],
+  )
+
+  const accountElement = useMemo(() => <Account />, [])
+
   return (
     <Routes>
-      <Route path='/' element={<AccountsContent key={`${walletId}-${loading}`} />} />
-      <Route path=':accountId/*' element={<Account />} />
+      <Route path='/' element={accountsContentElement} />
+      <Route path=':accountId/*' element={accountElement} />
     </Routes>
   )
 }

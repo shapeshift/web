@@ -52,24 +52,28 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
     [foxyEarnOpportunityData],
   )
 
+  const claimConfirmElement = useMemo(
+    () => (
+      <ClaimConfirm
+        stakingAssetId={stakingAssetId}
+        accountId={accountId}
+        chainId={chainId}
+        contractAddress={contractAddress}
+        onBack={onBack}
+        amount={undelegationAmount}
+      />
+    ),
+    [stakingAssetId, accountId, chainId, contractAddress, onBack, undelegationAmount],
+  )
+
+  const claimStatusElement = useMemo(() => <ClaimStatus accountId={accountId} />, [accountId])
+
   return (
     <SlideTransition>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route
-            path='/'
-            element={
-              <ClaimConfirm
-                stakingAssetId={stakingAssetId}
-                accountId={accountId}
-                chainId={chainId}
-                contractAddress={contractAddress}
-                onBack={onBack}
-                amount={undelegationAmount}
-              />
-            }
-          />
-          <Route path='/status' element={<ClaimStatus accountId={accountId} />} />
+          <Route path='/' element={claimConfirmElement} />
+          <Route path='/status' element={claimStatusElement} />
         </Routes>
       </AnimatePresence>
     </SlideTransition>

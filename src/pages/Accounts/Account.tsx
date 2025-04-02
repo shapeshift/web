@@ -1,5 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { Route, Routes, useParams } from 'react-router-dom'
 
 import { AccountToken } from './AccountToken/AccountToken'
@@ -20,16 +21,20 @@ export const Account = () => {
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
+  const accountTokenElement = useMemo(() => <AccountToken />, [])
+
+  const accountDetailsElement = useMemo(
+    () => <AccountDetails assetId={feeAsset.assetId} accountId={accountId ?? ''} />,
+    [feeAsset.assetId, accountId],
+  )
+
   if (!feeAsset) return null
 
   return (
     <Flex flexDir='column' width='full'>
       <Routes>
-        <Route
-          path=''
-          element={<AccountDetails assetId={feeAsset.assetId} accountId={accountId ?? ''} />}
-        />
-        <Route path=':assetId' element={<AccountToken />} />
+        <Route path='' element={accountDetailsElement} />
+        <Route path=':assetId' element={accountTokenElement} />
       </Routes>
     </Flex>
   )

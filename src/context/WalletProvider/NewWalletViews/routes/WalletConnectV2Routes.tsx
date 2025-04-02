@@ -1,5 +1,5 @@
 import type EthereumProvider from '@walletconnect/ethereum-provider'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
@@ -91,11 +91,13 @@ export const WalletConnectV2Routes = () => {
     state: { modalType },
   } = useWallet()
 
+  const newWalletConnectV2ConnectElement = useMemo(() => <NewWalletConnectV2Connect />, [])
+
   if (!modalType) return null
 
   return (
     <Routes>
-      <Route path='*' element={<NewWalletConnectV2Connect />} />
+      <Route path='*' element={newWalletConnectV2ConnectElement} />
     </Routes>
   )
 }

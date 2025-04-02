@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
@@ -32,7 +32,7 @@ type QrCodeFormProps = {
   accountId?: AccountId
 }
 
-const ScanRedirect = () => <Navigate to={SendRoutes.Scan} replace />
+const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
@@ -66,13 +66,13 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
       navigate(SendRoutes.Address)
     },
-    [navigate, methods],
+    [history, methods],
   )
 
   const handleBack = useCallback(() => {
     setAddressError(null)
     navigate(-1)
-  }, [navigate])
+  }, [history])
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
@@ -81,7 +81,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       methods.setValue(SendFormFields.TxHash, txHash)
       navigate(SendRoutes.Status)
     },
-    [handleFormSend, navigate, methods],
+    [handleFormSend, history, methods],
   )
 
   const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -142,43 +142,44 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         }
       })()
     },
-    [navigate, methods],
+    [history, methods],
   )
 
   useEffect(() => {
     navigate(SendRoutes.Scan)
-    // Do not add navigate as a dep here or problems
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [history])
 
   if (walletConnectDappUrl)
     return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
 
+  const selectAssetRouterElement = useMemo(
+    () => <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />,
+    [handleBack, handleAssetSelect],
+  )
+
+  const addressElement = useMemo(() => <Address />, [])
+  const detailsElement = useMemo(() => <Details />, [])
+  const qrCodeScannerElement = useMemo(
+    () => (
+      <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleClose} addressError={addressError} />
+    ),
+    [handleClose, handleQrSuccess, addressError],
+  )
+  const confirmElement = useMemo(() => <Confirm />, [])
+  const statusElement = useMemo(() => <Status />, [])
+
   return (
     <FormProvider {...methods}>
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route
-              path={`${SendRoutes.Select}/*`}
-              element={<SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />}
-            />
-            <Route path={SendRoutes.Address} element={<Address />} />
-            <Route path={SendRoutes.Details} element={<Details />} />
-            <Route
-              path={SendRoutes.Scan}
-              element={
-                <QrCodeScanner
-                  onSuccess={handleQrSuccess}
-                  onBack={handleClose}
-                  addressError={addressError}
-                />
-              }
-            />
-            <Route path={SendRoutes.Confirm} element={<Confirm />} />
-            <Route path={SendRoutes.Status} element={<Status />} />
-            <Route path='/' element={<ScanRedirect />} />
+            <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />
+            <Route path={SendRoutes.Address} element={addressElement} />
+            <Route path={SendRoutes.Details} element={detailsElement} />
+            <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />
+            <Route path={SendRoutes.Confirm} element={confirmElement} />
+            <Route path={SendRoutes.Status} element={statusElement} />
+            <Route path='/' element={scanRedirect} />
           </Routes>
         </AnimatePresence>
       </form>

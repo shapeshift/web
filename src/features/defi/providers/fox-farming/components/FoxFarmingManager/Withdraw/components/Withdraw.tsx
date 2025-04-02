@@ -153,7 +153,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     ],
   )
 
-  const handleCancel = () => navigate(-1)
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const handlePercentClick = useCallback(
     (percent: number) => {

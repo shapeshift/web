@@ -272,9 +272,9 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmount],
   )
 
-  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
-  const handleCancel = () => navigate(-1)
+  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
   return (
     <ReusableDeposit

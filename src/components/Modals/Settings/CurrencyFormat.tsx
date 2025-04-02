@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
 import sortBy from 'lodash/sortBy'
+import { useCallback } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -26,9 +27,9 @@ export const CurrencyFormat = () => {
   )
   const { setCurrencyFormat } = preferences.actions
 
-  const handleGoBack = () => {
-    navigate(-1)
-  }
+  const handleGoBack = useCallback(() => {
+    navigate('/settings')
+  }, [navigate])
 
   return (
     <SlideTransition>

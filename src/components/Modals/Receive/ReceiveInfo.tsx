@@ -26,8 +26,6 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
 
-import { ReceiveRoutes } from './ReceiveCommon'
-
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'

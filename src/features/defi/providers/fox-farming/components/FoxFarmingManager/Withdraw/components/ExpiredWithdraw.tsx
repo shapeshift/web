@@ -214,7 +214,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   // no-op for expired withdraw
   const handlePercentClick = useCallback(() => {}, [])
 
-  const handleCancel = () => navigate(-1)
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   if (!state || !dispatch || !opportunity || !totalFiatBalance || !asset) return null
 

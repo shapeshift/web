@@ -102,6 +102,24 @@ export const ClaimRoutes = ({
     handleAccountIdChange(maybeAccountId)
   }, [handleAccountIdChange, maybeAccountId])
 
+  const claimConfirmElement = useMemo(
+    () =>
+      opportunity ? (
+        <ClaimConfirm
+          accountId={accountId}
+          assetId={rewardAssetId}
+          onBack={onBack}
+          amount={rewardAmountCryptoPrecision}
+        />
+      ) : null,
+    [accountId, rewardAssetId, onBack, rewardAmountCryptoPrecision, opportunity],
+  )
+
+  const claimStatusElement = useMemo(
+    () => (opportunity ? <ClaimStatus accountId={accountId} /> : null),
+    [accountId, opportunity],
+  )
+
   if (!opportunity) return null
 
   return (
@@ -109,18 +127,8 @@ export const ClaimRoutes = ({
       <RouteSteps routes={routes} location={location} pt={4} />
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route
-            path='/'
-            element={
-              <ClaimConfirm
-                accountId={accountId}
-                assetId={rewardAssetId}
-                onBack={onBack}
-                amount={rewardAmountCryptoPrecision}
-              />
-            }
-          />
-          <Route path='/status' element={<ClaimStatus accountId={accountId} />} />
+          <Route path='/' element={claimConfirmElement} />
+          <Route path='/status' element={claimStatusElement} />
         </Routes>
       </AnimatePresence>
     </SlideTransition>

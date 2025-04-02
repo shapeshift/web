@@ -1,4 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
+import { useMemo } from 'react'
 import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { SnapConfirm } from './SnapConfirm'
@@ -18,22 +19,27 @@ export const SnapContent = ({
   isSnapInstalled: boolean
   onClose: () => void
 }) => {
+  const snapIntroElement = useMemo(
+    () => (
+      <SnapIntro
+        isRemoved={isRemoved}
+        isCorrectVersion={isCorrectVersion}
+        isSnapInstalled={isSnapInstalled}
+      />
+    ),
+    [isRemoved, isCorrectVersion, isSnapInstalled],
+  )
+
+  const snapConfirmElement = useMemo(() => <SnapConfirm onClose={onClose} />, [onClose])
+  const introRedirectElement = useMemo(() => <IntroRedirect />, [])
+
   return (
     <MemoryRouter>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route
-            path='/intro'
-            element={
-              <SnapIntro
-                isRemoved={isRemoved}
-                isCorrectVersion={isCorrectVersion}
-                isSnapInstalled={isSnapInstalled}
-              />
-            }
-          />
-          <Route path='/confirm' element={<SnapConfirm onClose={onClose} />} />
-          <Route path='/' element={<IntroRedirect />} />
+          <Route path='/intro' element={snapIntroElement} />
+          <Route path='/confirm' element={snapConfirmElement} />
+          <Route path='/' element={introRedirectElement} />
         </Routes>
       </AnimatePresence>
     </MemoryRouter>

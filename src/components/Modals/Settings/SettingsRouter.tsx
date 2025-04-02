@@ -1,5 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import type { FC } from 'react'
+import { useMemo } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { ClearCache } from './ClearCache'
@@ -13,14 +14,20 @@ import { SettingsList } from './SettingsList'
 type SettingsRouterProps = {}
 
 export const SettingsRouter: FC<SettingsRouterProps> = () => {
+  const settingsListElement = useMemo(() => <SettingsList />, [])
+  const languagesElement = useMemo(() => <Languages />, [])
+  const fiatCurrenciesElement = useMemo(() => <FiatCurrencies />, [])
+  const currencyFormatElement = useMemo(() => <CurrencyFormat />, [])
+  const clearCacheElement = useMemo(() => <ClearCache />, [])
+
   return (
     <AnimatePresence mode='wait'>
       <Routes>
-        <Route path={SettingsRoutes.Index} element={<SettingsList />} />
-        <Route path={SettingsRoutes.Languages} element={<Languages />} />
-        <Route path={SettingsRoutes.FiatCurrencies} element={<FiatCurrencies />} />
-        <Route path={SettingsRoutes.CurrencyFormat} element={<CurrencyFormat />} />
-        <Route path={SettingsRoutes.ClearCache} element={<ClearCache />} />
+        <Route path={SettingsRoutes.Index} element={settingsListElement} />
+        <Route path={SettingsRoutes.Languages} element={languagesElement} />
+        <Route path={SettingsRoutes.FiatCurrencies} element={fiatCurrenciesElement} />
+        <Route path={SettingsRoutes.CurrencyFormat} element={currencyFormatElement} />
+        <Route path={SettingsRoutes.ClearCache} element={clearCacheElement} />
       </Routes>
     </AnimatePresence>
   )

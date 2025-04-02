@@ -1,5 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -22,9 +23,9 @@ export const Languages = () => {
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
 
-  const handleGoBack = () => {
-    navigate(-1)
-  }
+  const handleGoBack = useCallback(() => {
+    navigate('/settings')
+  }, [navigate])
 
   return (
     <SlideTransition>

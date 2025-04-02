@@ -116,23 +116,22 @@ export const WalletViewsSwitch = () => {
   /**
    * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
    */
-  const supportedWallet =
-    SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
-  const walletRoutesList = useMemo(() => {
+  const routes = useMemo(() => {
     if (!modalType) return []
-
-    // Use type assertion to inform TypeScript about the expected shape of routes
+    const supportedWallet =
+      SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
     const routes = supportedWallet.routes as unknown as CustomRouteProps[]
 
     return routes
       .filter(route => !!route.component)
       .map(route => {
         const Component = route.component
-        return <Route key={route.path} path={route.path} element={<Component />} />
+        const routeElement = useMemo(() => <Component />, [])
+        return <Route key={route.path} path={route.path} element={routeElement} />
       })
-  }, [modalType, supportedWallet.routes])
+  }, [modalType])
 
-  const renderSelectModal = useCallback(() => <SelectModal />, [])
+  const selectModalElement = useMemo(() => <SelectModal />, [])
 
   return (
     <>
@@ -162,8 +161,8 @@ export const WalletViewsSwitch = () => {
           <AnimatePresence mode='wait' initial={false}>
             <SlideTransition key={location.key}>
               <Routes>
-                {walletRoutesList}
-                <Route path={INITIAL_WALLET_MODAL_ROUTE} element={renderSelectModal()} />
+                {routes}
+                <Route path='*' element={selectModalElement} />
               </Routes>
             </SlideTransition>
           </AnimatePresence>

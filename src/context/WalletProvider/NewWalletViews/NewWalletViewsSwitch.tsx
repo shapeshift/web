@@ -194,6 +194,10 @@ export const NewWalletViewsSwitch = () => {
     [navigate],
   )
 
+  useEffect(() => {
+    if (initialRoute) navigate(initialRoute)
+  }, [navigate, initialRoute])
+
   // Set the native wallet pending unlock as selected on refresh
   useEffect(() => {
     if (!(nativeWalletPendingDeviceId && nativeVaultsQuery.data)) return

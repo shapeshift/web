@@ -248,7 +248,7 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_THORCHAIN_LP,
   },
   {
-    path: '/lending',
+    path: '/lending/*',
     label: 'navBar.lending',
     icon: <RiExchangeFundsLine />,
     main: LendingPage,

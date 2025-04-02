@@ -1,8 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { BorrowRoutePaths } from './types'
 
@@ -148,7 +149,9 @@ const BorrowRoutes = memo(
     confirmedQuote,
     setConfirmedQuote,
   }: BorrowRoutesProps) => {
-    const renderBorrowInput = useCallback(
+    const location = useLocation()
+
+    const borrowInput = useMemo(
       () => (
         <BorrowInput
           isAccountSelectionDisabled={isAccountSelectionDisabled}
@@ -183,7 +186,7 @@ const BorrowRoutes = memo(
       ],
     )
 
-    const renderBorrowSweep = useCallback(
+    const borrowSweep = useMemo(
       () => (
         <BorrowSweep
           collateralAssetId={collateralAssetId}
@@ -193,7 +196,7 @@ const BorrowRoutes = memo(
       [collateralAssetId, collateralAccountId],
     )
 
-    const renderBorrowConfirm = useCallback(
+    const borrowConfirm = useMemo(
       () => (
         <BorrowConfirm
           collateralAssetId={collateralAssetId}
@@ -224,26 +227,19 @@ const BorrowRoutes = memo(
 
     return (
       <AnimatePresence mode='wait' initial={false}>
-        <Routes>
-          <Suspense fallback={suspenseFallback}>
-            <Route
-              key={BorrowRoutePaths.Input}
-              path={BorrowRoutePaths.Input}
-              element={renderBorrowInput()}
-            />
-            <Route
-              key={BorrowRoutePaths.Sweep}
-              path={BorrowRoutePaths.Sweep}
-              element={renderBorrowSweep()}
-            />
-
-            <Route
-              key={BorrowRoutePaths.Confirm}
-              path={BorrowRoutePaths.Confirm}
-              element={renderBorrowConfirm()}
-            />
-          </Suspense>
-        </Routes>
+        <Suspense fallback={suspenseFallback}>
+          <Switch location={location.pathname}>
+            <Route key={BorrowRoutePaths.Input} path={BorrowRoutePaths.Input}>
+              {borrowInput}
+            </Route>
+            <Route key={BorrowRoutePaths.Sweep} path={BorrowRoutePaths.Sweep}>
+              {borrowSweep}
+            </Route>
+            <Route key={BorrowRoutePaths.Confirm} path={BorrowRoutePaths.Confirm}>
+              {borrowConfirm}
+            </Route>
+          </Switch>
+        </Suspense>
       </AnimatePresence>
     )
   },

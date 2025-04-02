@@ -1,8 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { lazy, memo, Suspense, useCallback, useMemo } from 'react'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { RepayRoutePaths } from './types'
 
@@ -113,7 +114,9 @@ const RepayRoutes = memo(
     confirmedQuote,
     setConfirmedQuote,
   }: RepayRoutesProps) => {
-    const renderRepayInput = useCallback(
+    const location = useLocation()
+
+    const repayInput = useMemo(
       () => (
         <RepayInput
           isAccountSelectionDisabled={isAccountSelectionDisabled}
@@ -146,7 +149,7 @@ const RepayRoutes = memo(
       ],
     )
 
-    const renderRepayConfirm = useCallback(
+    const repayConfirm = useMemo(
       () => (
         <RepayConfirm
           collateralAssetId={collateralAssetId}
@@ -175,20 +178,16 @@ const RepayRoutes = memo(
 
     return (
       <AnimatePresence mode='wait' initial={false}>
-        <Routes>
-          <Suspense fallback={suspenseFallback}>
-            <Route
-              key={RepayRoutePaths.Input}
-              path={RepayRoutePaths.Input}
-              element={renderRepayInput()}
-            />
-            <Route
-              key={RepayRoutePaths.Confirm}
-              path={RepayRoutePaths.Confirm}
-              element={renderRepayConfirm()}
-            />
-          </Suspense>
-        </Routes>
+        <Suspense fallback={suspenseFallback}>
+          <Switch location={location.pathname}>
+            <Route key={RepayRoutePaths.Input} path={RepayRoutePaths.Input}>
+              {repayInput}
+            </Route>
+            <Route key={RepayRoutePaths.Confirm} path={RepayRoutePaths.Confirm}>
+              {repayConfirm}
+            </Route>
+          </Switch>
+        </Suspense>
       </AnimatePresence>
     )
   },

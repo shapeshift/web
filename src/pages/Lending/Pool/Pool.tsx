@@ -20,7 +20,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useMatch, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
@@ -37,7 +37,6 @@ import { DynamicComponent } from '@/components/DynamicComponent'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { RawText, Text } from '@/components/Text'
-import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { LendingQuoteClose, LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { isLendingQuoteClose, isLendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
@@ -113,6 +112,7 @@ const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & Skel
 
 export const Pool = () => {
   const { poolAccountId } = useParams<MatchParams>()
+  const location = useLocation()
   const [stepIndex, setStepIndex] = useState<number>(0)
   const [borrowTxid, setBorrowTxid] = useState<string | null>(null)
   const [confirmedQuote, setConfirmedQuote] = useState<LendingQuoteOpen | LendingQuoteClose | null>(
@@ -131,7 +131,23 @@ export const Pool = () => {
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId | null>(null)
 
-  const poolAssetId = useRouteAssetId()
+  // Extract poolAssetId from the wildcard match, instead of relying on and maintaining the monstrocity that is useRouteAssetId
+  // for lending (that's one less route we have to get right there)
+  const poolAssetId = useMemo(() => {
+    const pathname = location.pathname
+    if (pathname.includes('/poolAccount/')) {
+      const parts = pathname.split('/')
+      const accountIdIndex = parts.findIndex(part => part === 'poolAccount') + 2
+      return parts.slice(accountIdIndex).join('/') || ''
+    }
+
+    if (pathname.includes('/pool/')) {
+      const [, ...rest] = pathname.split('/pool/')
+      return rest.join('/') || ''
+    }
+    return ''
+  }, [location.pathname]) as AssetId
+
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
   const translate = useTranslate()

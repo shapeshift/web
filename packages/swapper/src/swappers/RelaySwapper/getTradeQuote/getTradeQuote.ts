@@ -19,12 +19,8 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-<<<<<<< HEAD
-import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
-=======
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
-import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
->>>>>>> relay-quotes
+import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayService } from '../utils/relayService'
 import type { QuoteParams, RelayTradeQuote, RelayTradeRate } from '../utils/types'
 

@@ -1,9 +1,9 @@
 import type { SpaceProps } from '@chakra-ui/react'
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 
@@ -30,6 +30,17 @@ export const AddressInput = ({
   const history = useHistory()
   const translate = useTranslate()
   const isValid = useFormContext<SendInput>().formState.isValid
+  const isValidating = useFormContext<SendInput>().formState.isValidating
+  const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+
+  const isInvalid = useMemo(() => {
+    // Don't go invalid when async invalidation is running
+    if (isValidating) return false
+    // Don't go invalid until there's an actual input
+    if (!value) return false
+
+    return isValid === false
+  }, [isValid, isValidating, value])
 
   const handleQrClick = useCallback(() => {
     history.push(SendRoutes.Scan)
@@ -53,7 +64,7 @@ export const AddressInput = ({
         data-1p-ignore
         // Because the InputRightElement is hover the input, we need to let this space free
         pe={pe}
-        isInvalid={!isValid}
+        isInvalid={isInvalid}
         // This is already a `useCallback()`
         // eslint-disable-next-line react-memo/require-usememo
         sx={
@@ -69,7 +80,7 @@ export const AddressInput = ({
         }
       />
     ),
-    [isValid, pe, placeholder],
+    [isInvalid, pe, placeholder],
   )
 
   return (

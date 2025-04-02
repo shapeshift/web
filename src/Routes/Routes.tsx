@@ -91,12 +91,12 @@ export const AppRoutes = memo(() => {
             search: `returnUrl=${location?.pathname ?? '/trade'}`,
           }
 
-          // This is already within a useMemo call, lint rule drunk
-          // eslint-disable-next-line react-memo/require-usememo
           return (
             <Route
               key={'redirect-route'}
               path={route.path}
+              // This is already within a useMemo call, lint rule drunk
+              // eslint-disable-next-line react-memo/require-usememo
               element={<Navigate to={to} replace />}
             />
           )
@@ -106,6 +106,8 @@ export const AppRoutes = memo(() => {
           <Route
             key={'route'}
             path={route.path}
+            // This is already within a useMemo call, lint rule drunk
+            // eslint-disable-next-line react-memo/require-usememo
             element={MainComponent ? <MainComponent /> : null}
           />
         )

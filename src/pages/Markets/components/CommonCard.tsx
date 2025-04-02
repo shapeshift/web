@@ -15,6 +15,7 @@ type CommonStatProps = {
 }
 
 export const CommonStat: React.FC<CommonStatProps> = ({ label, value, align = 'flex-start' }) => {
+  console.log({ value })
   return (
     <Flex direction='column' gap={1} justifyContent={align} alignItems={align}>
       <Box fontSize='lg'>

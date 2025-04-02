@@ -149,6 +149,23 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     [confirmedQuote],
   )
 
+  const handleSweepSeen = useCallback(() => {
+    if (!confirmedQuote || !mixpanel) return
+
+    if (confirmedQuote.positionStatus?.incomplete) {
+      mixpanel.track(
+        MixPanelEvent.LpIncompleteDepositConfirm,
+        confirmedQuote as Record<string, unknown>,
+      )
+    } else {
+      mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote as Record<string, unknown>)
+    }
+  }, [confirmedQuote, mixpanel])
+
+  const handleBack = useCallback(() => {
+    window.history.back()
+  }, [])
+
   const renderAddLiquiditySweep = useCallback(() => {
     if (!confirmedQuote) return null
     if (!mixpanel) return null
@@ -156,19 +173,11 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     return (
       <AddLiquiditySweep
         confirmedQuote={confirmedQuote}
-        onSweepSeen={() => {
-          if (confirmedQuote.positionStatus?.incomplete) {
-            mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
-          } else {
-            mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
-          }
-        }}
-        onBack={() => {
-          window.history.back()
-        }}
+        onSweepSeen={handleSweepSeen}
+        onBack={handleBack}
       />
     )
-  }, [confirmedQuote, mixpanel])
+  }, [confirmedQuote, mixpanel, handleSweepSeen, handleBack])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

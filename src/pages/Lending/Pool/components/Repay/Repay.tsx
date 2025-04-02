@@ -1,7 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useMemo } from 'react'
+import { lazy, memo, Suspense, useMemo } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 

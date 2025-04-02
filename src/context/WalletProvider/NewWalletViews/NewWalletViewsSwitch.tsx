@@ -300,10 +300,7 @@ export const NewWalletViewsSwitch = () => {
     translate,
   ])
 
-  const BodyDesktopOnly = useCallback(() => {
-    if (isMobile) return null
-    return <Body />
-  }, [Body])
+  const body = useMemo(() => <Body />, [Body])
 
   return (
     <>
@@ -336,9 +333,9 @@ export const NewWalletViewsSwitch = () => {
               </Routes>
               <Routes>
                 {/* Only display side panel after a wallet has been selected on mobile */}
-                <Route path='/' element={<BodyDesktopOnly />} />
+                <Route path='/' element={isMobile ? null : <Body />} />
                 {/* And for all non-root routes, no matter the viewport */}
-                <Route path='*' element={<Body />} />
+                <Route path='*' element={body} />
               </Routes>
             </Flex>
           </Box>

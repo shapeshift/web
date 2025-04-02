@@ -1,6 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
 import type { FC } from 'react'
-import { useMemo } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { ClearCache } from './ClearCache'

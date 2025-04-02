@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'wouter'
 
@@ -105,6 +105,25 @@ export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   const mixpanel = getMixPanel()
   const [, setLocation] = useLocation()
 
+  const handleSweepSeen = useCallback(() => {
+    if (!confirmedQuote || !mixpanel) return
+
+    if (confirmedQuote.positionStatus?.incomplete) {
+      setLocation(RemoveLiquidityRoutePaths.Status)
+      mixpanel.track(
+        MixPanelEvent.LpIncompleteWithdrawPreview,
+        confirmedQuote as Record<string, unknown>,
+      )
+    } else {
+      setLocation(RemoveLiquidityRoutePaths.Confirm)
+      mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote as Record<string, unknown>)
+    }
+  }, [confirmedQuote, mixpanel, setLocation])
+
+  const handleBack = useCallback(() => {
+    setLocation(RemoveLiquidityRoutePaths.Input)
+  }, [setLocation])
+
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
@@ -129,16 +148,8 @@ export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
             {confirmedQuote && (
               <RemoveLiquiditySweep
                 confirmedQuote={confirmedQuote}
-                onSweepSeen={() => {
-                  if (confirmedQuote.positionStatus?.incomplete) {
-                    setLocation(RemoveLiquidityRoutePaths.Status)
-                    mixpanel?.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
-                  } else {
-                    setLocation(RemoveLiquidityRoutePaths.Confirm)
-                    mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
-                  }
-                }}
-                onBack={() => setLocation(RemoveLiquidityRoutePaths.Input)}
+                onSweepSeen={handleSweepSeen}
+                onBack={handleBack}
               />
             )}
           </Route>

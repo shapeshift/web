@@ -141,28 +141,38 @@ export const LedgerRoutes = () => {
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
 
-  if (!modalType) return null
-
-  const ledgerPairElement = (
-    <PairBody
-      icon={icon}
-      headerTranslation='walletProvider.ledger.connect.header'
-      bodyTranslation={
-        isPreviousLedgerDeviceDetected
-          ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
-          : 'walletProvider.ledger.connect.pairNewDeviceBody'
-      }
-      buttonTranslation={
-        isPreviousLedgerDeviceDetected
-          ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
-          : 'walletProvider.ledger.connect.pairNewDeviceButton'
-      }
-      isLoading={isLoading}
-      error={error ?? deviceCountError}
-      onPairDeviceClick={handlePair}
-      secondaryContent={secondaryButton}
-    />
+  const ledgerPairElement = useMemo(
+    () => (
+      <PairBody
+        icon={icon}
+        headerTranslation='walletProvider.ledger.connect.header'
+        bodyTranslation={
+          isPreviousLedgerDeviceDetected
+            ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
+            : 'walletProvider.ledger.connect.pairNewDeviceBody'
+        }
+        buttonTranslation={
+          isPreviousLedgerDeviceDetected
+            ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
+            : 'walletProvider.ledger.connect.pairNewDeviceButton'
+        }
+        isLoading={isLoading}
+        error={error ?? deviceCountError}
+        onPairDeviceClick={handlePair}
+        secondaryContent={secondaryButton}
+      />
+    ),
+    [
+      deviceCountError,
+      error,
+      handlePair,
+      isLoading,
+      isPreviousLedgerDeviceDetected,
+      secondaryButton,
+    ],
   )
+
+  if (!modalType) return null
 
   return (
     <Routes>

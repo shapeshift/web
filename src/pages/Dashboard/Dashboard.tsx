@@ -27,6 +27,14 @@ const mainPadding = { base: 0, md: 4 }
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
 const pageProps = { paddingTop: 0, pb: 0 }
+
+const walletDashboard = <WalletDashboard />
+const earnDashboard = <EarnDashboard />
+const accounts = <Accounts />
+const mobileActivity = <MobileActivity />
+const transactionHistory = <TransactionHistory />
+const notFound = <RawText>Not found</RawText>
+
 const CustomTab = (props: TabProps) => (
   <Tab
     fontWeight='semibold'
@@ -119,23 +127,23 @@ export const Dashboard = memo(() => {
     [appIsMobile, mobileTabs],
   )
 
-  const slideRenderer = (props: SlideRenderProps) => {
+  const slideRenderer = useCallback((props: SlideRenderProps) => {
     const { index, key } = props
     let content
     switch (mod(index, 3)) {
       case MobileTab.Overview:
         content = (
           <>
-            <Route path='' element={<WalletDashboard />} />
-            <Route path='accounts' element={<Accounts />} />
+            <Route path='' element={walletDashboard} />
+            <Route path='accounts' element={accounts} />
           </>
         )
         break
       case MobileTab.Earn:
-        content = <Route path='earn' element={<EarnDashboard />} />
+        content = <Route path='earn' element={earnDashboard} />
         break
       case MobileTab.Activity:
-        content = <MobileActivity />
+        content = mobileActivity
         break
       default:
         content = null
@@ -146,7 +154,7 @@ export const Dashboard = memo(() => {
         <Routes>{content}</Routes>
       </ScrollView>
     )
-  }
+  }, [])
 
   if (appIsMobile) {
     return (
@@ -167,11 +175,11 @@ export const Dashboard = memo(() => {
     <Main headerComponent={dashboardHeader} py={mainPadding}>
       <SEO title={translate('navBar.dashboard')} />
       <Routes>
-        <Route path='' element={<WalletDashboard />} />
-        <Route path='earn' element={<EarnDashboard />} />
-        <Route path='accounts/*' element={<Accounts />} />
-        <Route path='activity' element={<TransactionHistory />} />
-        <Route path='*' element={<RawText>Not found</RawText>} />
+        <Route path='' element={walletDashboard} />
+        <Route path='earn' element={earnDashboard} />
+        <Route path='accounts/*' element={accounts} />
+        <Route path='activity' element={transactionHistory} />
+        <Route path='*' element={notFound} />
       </Routes>
     </Main>
   )

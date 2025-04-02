@@ -57,6 +57,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     },
   })
 
+  useEffect(() => {
+    navigate(SendRoutes.Scan)
+  }, [navigate])
+
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       const asset = selectAssetById(store.getState(), assetId ?? '')
@@ -66,13 +70,13 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
       navigate(SendRoutes.Address)
     },
-    [history, methods],
+    [methods, navigate],
   )
 
   const handleBack = useCallback(() => {
     setAddressError(null)
     navigate(-1)
-  }, [history])
+  }, [navigate])
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
@@ -81,7 +85,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       methods.setValue(SendFormFields.TxHash, txHash)
       navigate(SendRoutes.Status)
     },
-    [handleFormSend, history, methods],
+    [handleFormSend, methods, navigate],
   )
 
   const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -142,15 +146,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         }
       })()
     },
-    [history, methods],
+    [methods, navigate],
   )
-
-  useEffect(() => {
-    navigate(SendRoutes.Scan)
-  }, [history])
-
-  if (walletConnectDappUrl)
-    return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
 
   const selectAssetRouterElement = useMemo(
     () => <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />,
@@ -168,8 +165,12 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const confirmElement = useMemo(() => <Confirm />, [])
   const statusElement = useMemo(() => <Status />, [])
 
+  if (walletConnectDappUrl)
+    return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
+
   return (
     <FormProvider {...methods}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
         <AnimatePresence mode='wait' initial={false}>
           <Routes>

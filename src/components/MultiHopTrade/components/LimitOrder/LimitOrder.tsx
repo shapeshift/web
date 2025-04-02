@@ -189,6 +189,18 @@ export const LimitOrder = ({
     return <PlaceLimitOrder isCompact={isCompact} />
   }, [isCompact])
 
+  const inputSlideTransition = useMemo(
+    () => (
+      <SlideTransitionRoute
+        height={tradeInputRef.current?.offsetHeight ?? '500px'}
+        width={tradeInputRef.current?.offsetWidth ?? 'full'}
+        component={LimitOrderList}
+        parentRoute={LimitOrderRoutePaths.Input}
+      />
+    ),
+    [tradeInputRef],
+  )
+
   return (
     <Flex flex={1} width='full' justifyContent='center'>
       <Routes>
@@ -210,14 +222,7 @@ export const LimitOrder = ({
         <Route
           key={LimitOrderRoutePaths.Orders}
           path={LimitOrderRoutePaths.Orders}
-          element={
-            <SlideTransitionRoute
-              height={tradeInputRef.current?.offsetHeight ?? '500px'}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              component={LimitOrderList}
-              parentRoute={LimitOrderRoutePaths.Input}
-            />
-          }
+          element={inputSlideTransition}
         />
         <Route key={LimitOrderRoutePaths.Input} path={'*'} element={renderLimitOrderInput()} />
         <Route path='/limit/*' element={renderLimitOrderInput()} />

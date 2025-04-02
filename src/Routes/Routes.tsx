@@ -42,6 +42,20 @@ const MobileConnect = makeSuspenseful(
   ),
 )
 
+const tradeRedirect = <Navigate to='/trade' replace />
+
+const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) => {
+  return (
+    <Routes>
+      {appRoutesList}
+      <Route path='/' element={tradeRedirect} />
+      {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
+      {/* eslint-disable-next-line react-memo/require-usememo */}
+      <Route path='*' element={<NotFound />} />
+    </Routes>
+  )
+}
+
 export const AppRoutes = memo(() => {
   const dispatch = useDispatch()
   const location = useLocation() as Location & { state?: { background: Location } }
@@ -119,9 +133,13 @@ export const AppRoutes = memo(() => {
 
   return (
     <Routes>
+      {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
+      {/* eslint-disable-next-line react-memo/require-usememo */}
       <Route path='/connect-mobile-wallet' element={<MobileConnect />} />
       <Route
         path='/legal/terms-of-service'
+        // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
+        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <TermsOfService />
@@ -130,6 +148,8 @@ export const AppRoutes = memo(() => {
       />
       <Route
         path='/legal/privacy-policy'
+        // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
+        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <PrivacyPolicy />
@@ -138,6 +158,8 @@ export const AppRoutes = memo(() => {
       />
       <Route
         path='/flags'
+        // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
+        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <Flags />
@@ -146,6 +168,8 @@ export const AppRoutes = memo(() => {
       />
       <Route
         path='/*'
+        // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
+        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <InnerRoutes appRoutesList={appRoutesList} />
@@ -155,14 +179,3 @@ export const AppRoutes = memo(() => {
     </Routes>
   )
 })
-
-// Separate component for inner routes to avoid nested Routes rendering issues
-const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) => {
-  return (
-    <Routes>
-      {appRoutesList}
-      <Route path='/' element={<Navigate to='/trade' replace />} />
-      <Route path='*' element={<NotFound />} />
-    </Routes>
-  )
-}

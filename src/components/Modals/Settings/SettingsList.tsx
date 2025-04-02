@@ -75,7 +75,7 @@ export const SettingsList: FC = () => {
     } else {
       setClickCount(clickCount + 1)
     }
-  }, [clickCount, setClickCount, settings])
+  }, [clickCount, setClickCount, settings, navigate])
 
   const closeModalAndNavigateTo = useCallback(
     (linkHref: string) => {

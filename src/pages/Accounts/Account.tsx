@@ -36,8 +36,8 @@ export const Account = () => {
   return (
     <Flex flexDir='column' width='full'>
       <Routes>
-        <Route path='' element={accountDetailsElement} />
-        <Route path=':assetId' element={accountTokenElement} />
+        <Route index element={accountDetailsElement} />
+        <Route path=':chainId/:assetSubId' element={accountTokenElement} />
       </Routes>
     </Flex>
   )

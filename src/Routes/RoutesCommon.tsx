@@ -272,9 +272,7 @@ export const routes: Route[] = [
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide:
-      window.location.hostname !== 'localhost' &&
-      window.location.hostname !== getConfig().VITE_LOCAL_IP,
+    hide: window.location.hostname !== 'localhost',
     main: Flags,
   },
   {

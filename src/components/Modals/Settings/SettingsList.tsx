@@ -27,6 +27,7 @@ import { getLocaleLabel } from '@/assets/translations/utils'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { deleteWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
@@ -49,6 +50,7 @@ const faTrashIcon = <FaTrash />
 
 export const SettingsList: FC = () => {
   const navigate = useNavigate()
+  const { navigate: browserNavigate } = useBrowserRouter()
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const settings = useModal('settings')
@@ -71,18 +73,18 @@ export const SettingsList: FC = () => {
     if (clickCount === 4) {
       setClickCount(0)
       settings.close()
-      navigate('/flags')
+      browserNavigate('/flags')
     } else {
       setClickCount(clickCount + 1)
     }
-  }, [clickCount, setClickCount, settings, navigate])
+  }, [clickCount, setClickCount, settings, browserNavigate])
 
   const closeModalAndNavigateTo = useCallback(
     (linkHref: string) => {
       settings.close()
-      navigate(linkHref)
+      browserNavigate(linkHref)
     },
-    [settings, navigate],
+    [settings, browserNavigate],
   )
 
   const handleDeleteAccountsClick = useCallback(async () => {

@@ -57,12 +57,12 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
       maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
     >
       <Center width='inherit'>
-        <Box maxWidth='100%'>
+        <Box>
           <FoxWifHatBanner maxWidth={inputWidth ?? 500} />
           <Box width='full' maxWidth='1000px' display='flex'>
             <Card
               flex={1}
-              width='full'
+              width={isSmallerThanXl ? 'full' : '500px'}
               maxWidth='500px'
               ref={tradeInputRef}
               as='form'

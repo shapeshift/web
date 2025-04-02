@@ -1,15 +1,17 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { bnOrZero, isSome } from '@shapeshiftoss/utils'
+import {
+  bnOrZero,
+  convertBasisPointsToPercentage,
+  convertDecimalPercentageToBasisPoints,
+  isSome,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
+  CommonTradeQuoteInput,
+  GetTradeRateInput,
   SwapErrorRight,
   SwapperConfig,
   SwapperDeps,
@@ -17,6 +19,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import type { relayChainMap as relayChainMapImplementation } from '../constant'
 import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayService } from '../utils/relayService'
 import type { QuoteParams, RelayTradeQuote, RelayTradeRate } from '../utils/types'
@@ -26,7 +29,7 @@ export const getQuote = async (
   params: QuoteParams,
   config: SwapperConfig,
 ): Promise<Result<AxiosResponse<Execute, any>, SwapErrorRight>> => {
-  return await relayService.post<Execute>(`${config.VITE_RELAY_API_URL}quote`, params)
+  return await relayService.post<Execute>(`${config.VITE_RELAY_API_URL}/quote`, params)
 }
 
 export async function getTrade({
@@ -34,9 +37,9 @@ export async function getTrade({
   deps,
   relayChainMap,
 }: {
-  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
+  input: CommonTradeQuoteInput | GetTradeRateInput
   deps: SwapperDeps
-  relayChainMap: Record<ChainId, number>
+  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<RelayTradeQuote[] | RelayTradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
@@ -47,11 +50,12 @@ export async function getTrade({
     accountNumber,
     affiliateBps,
     potentialAffiliateBps,
+    slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
 
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Relay)
+  const slippageToleranceBps = _slippageTolerancePercentageDecimal
+    ? convertDecimalPercentageToBasisPoints(_slippageTolerancePercentageDecimal).toFixed()
+    : undefined
 
   const sellRelayChainId = relayChainMap[sellAsset.chainId]
   const buyRelayChainId = relayChainMap[buyAsset.chainId]
@@ -73,6 +77,14 @@ export async function getTrade({
     )
   }
 
+  if (!sendAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'sendAddress is required',
+      }),
+    )
+  }
+
   const maybeQuote = await getQuote(
     {
       originChainId: sellRelayChainId,
@@ -82,7 +94,8 @@ export async function getTrade({
       tradeType: 'EXACT_INPUT',
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       recipient: receiveAddress,
-      user: sendAddress ?? '0x0000000000000000000000000000000000000000',
+      user: sendAddress,
+      slippageTolerance: slippageToleranceBps,
     },
     deps.config,
   )
@@ -108,6 +121,25 @@ export async function getTrade({
     )
   }
 
+  const slippageTolerancePercentageDecimal = (() => {
+    if (_slippageTolerancePercentageDecimal) return _slippageTolerancePercentageDecimal
+    const destinationSlippageTolerancePercentageDecimal = bnOrZero(
+      quote.data.details?.slippageTolerance?.destination?.percent,
+    )
+
+    if (destinationSlippageTolerancePercentageDecimal.gt(0)) {
+      return convertBasisPointsToPercentage(destinationSlippageTolerancePercentageDecimal).toFixed()
+    }
+
+    const originSlippageTolerancePercentageDecimal = bnOrZero(
+      quote.data.details?.slippageTolerance?.origin?.percent,
+    )
+
+    if (originSlippageTolerancePercentageDecimal.gt(0)) {
+      return convertBasisPointsToPercentage(originSlippageTolerancePercentageDecimal).toFixed()
+    }
+  })()
+
   const steps = swapSteps.map(
     (quoteStep): TradeQuoteStep => ({
       allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
@@ -132,6 +164,14 @@ export async function getTrade({
       },
       source: SwapperName.Relay,
       estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
+      relayTransactionMetadata: {
+        to: quoteStep.items?.[0]?.data?.to,
+        value: quoteStep.items?.[0]?.data?.value,
+        data: quoteStep.items?.[0]?.data?.data,
+        gas: quoteStep.items?.[0]?.data?.gas,
+        maxFeePerGas: quoteStep.items?.[0]?.data?.maxFeePerGas,
+        maxPriorityFeePerGas: quoteStep.items?.[0]?.data?.maxPriorityFeePerGas,
+      },
     }),
   )
 
@@ -144,7 +184,6 @@ export async function getTrade({
     swapperName: SwapperName.Relay,
     affiliateBps,
     potentialAffiliateBps,
-    selectedRelayRoute: quote.data,
     slippageTolerancePercentageDecimal,
   }
 
@@ -152,9 +191,9 @@ export async function getTrade({
 }
 
 export const getTradeQuote = async (
-  input: GetEvmTradeQuoteInputBase,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
-  relayChainMap: Record<ChainId, number>,
+  relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<RelayTradeQuote[], SwapErrorRight>> => {
   const quotesResult = await getTrade({ input, deps, relayChainMap })
 

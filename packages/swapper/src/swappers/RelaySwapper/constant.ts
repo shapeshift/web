@@ -4,27 +4,28 @@ import {
   avalancheChainId,
   baseChainId,
   btcChainId,
+  CHAIN_REFERENCE,
   ethChainId,
-  fromChainId,
   gnosisChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { arbitrum, avalanche, base, gnosis, optimism, polygon } from 'viem/chains'
 
 import type { SupportedChainIds } from '../../types'
 
 export const relayChainMap: Record<ChainId, number> = {
   [btcChainId]: 8253038,
-  [ethChainId]: Number(fromChainId(ethChainId).chainReference),
-  [arbitrumChainId]: Number(fromChainId(arbitrumChainId).chainReference),
-  [baseChainId]: Number(fromChainId(baseChainId).chainReference),
-  [optimismChainId]: Number(fromChainId(optimismChainId).chainReference),
-  [polygonChainId]: Number(fromChainId(polygonChainId).chainReference),
+  [ethChainId]: Number(CHAIN_REFERENCE.EthereumMainnet),
+  [arbitrumChainId]: arbitrum.id,
+  [baseChainId]: base.id,
+  [optimismChainId]: optimism.id,
+  [polygonChainId]: polygon.id,
   [solanaChainId]: 792703809,
-  [gnosisChainId]: Number(fromChainId(gnosisChainId).chainReference),
-  [avalancheChainId]: Number(fromChainId(avalancheChainId).chainReference),
+  [gnosisChainId]: gnosis.id,
+  [avalancheChainId]: avalanche.id,
 }
 
 export const DEFAULT_RELAY_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'

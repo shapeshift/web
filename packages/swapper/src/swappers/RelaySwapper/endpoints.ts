@@ -1,8 +1,5 @@
-import type { Execute } from '@reservoir0x/relay-sdk'
 import { fromChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -10,8 +7,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type {
   CommonTradeQuoteInput,
   EvmTransactionRequest,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
@@ -28,9 +23,6 @@ import { getTradeRate } from './getTradeRate/getTradeRate'
 import { relayService } from './utils/relayService'
 import type { RelayStatus } from './utils/types'
 
-// cached metadata - would need persistent cache with expiry if moved server-side
-const tradeQuoteMetadata: Map<string, Execute> = new Map()
-
 export const relayApi: SwapperApi = {
   getTradeQuote: async (
     input: CommonTradeQuoteInput,
@@ -45,21 +37,9 @@ export const relayApi: SwapperApi = {
       )
     }
 
-    const tradeQuoteResult = await getTradeQuote(
-      input as GetEvmTradeQuoteInputBase,
-      deps,
-      relayChainMap,
-    )
+    const tradeQuoteResult = await getTradeQuote(input, deps, relayChainMap)
 
-    return tradeQuoteResult.map(quote =>
-      quote.map(tradeQuote => {
-        if (!tradeQuote.selectedRelayRoute) throw Error('missing selectedRelayRoute')
-
-        tradeQuoteMetadata.set(tradeQuote.id, tradeQuote.selectedRelayRoute)
-
-        return tradeQuote
-      }),
-    )
+    return tradeQuoteResult
   },
   getTradeRate: async (
     input: GetTradeRateInput,
@@ -74,7 +54,7 @@ export const relayApi: SwapperApi = {
       )
     }
 
-    const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps, relayChainMap)
+    const tradeRateResult = await getTradeRate(input, deps, relayChainMap)
 
     return tradeRateResult
   },
@@ -83,74 +63,50 @@ export const relayApi: SwapperApi = {
     from,
     stepIndex,
     tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
-    const relayQuote = tradeQuoteMetadata.get(tradeQuote.id)
+    const { to, value, data, gas, maxFeePerGas, maxPriorityFeePerGas } =
+      tradeQuote.steps[stepIndex]?.relayTransactionMetadata ?? {}
 
-    if (!relayQuote) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
+    if (
+      to === undefined ||
+      value === undefined ||
+      data === undefined ||
+      gas === undefined ||
+      maxFeePerGas === undefined ||
+      maxPriorityFeePerGas === undefined
+    ) {
+      const undefinedRequiredValues = [
+        to,
+        value,
+        data,
+        gas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      ].filter(value => value === undefined)
 
-    const swapSteps = relayQuote.steps.filter(step => step.id !== 'approve')
+      throw Error('undefined required values in swap step', {
+        cause: {
+          undefinedRequiredValues,
+        },
+      })
+    }
 
-    const { to, value, data, gas } = swapSteps[stepIndex].items?.[0].data ?? {}
-
-    const feeData = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data,
+    return await Promise.resolve({
       to,
-      // This looks odd but we need this, else unchained estimate calls will fail with:
-      // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
-      value: bnOrZero(value.toString()).toString(),
       from,
-      supportsEIP1559,
-    })
-
-    return {
-      to,
-      from,
-      value: value.toString(),
+      value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
-      ...{ ...feeData, gasLimit: gas },
-    }
-  },
-  getEvmTransactionFees: async ({
-    chainId,
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
-
-    const relayQuote = tradeQuoteMetadata.get(tradeQuote.id)
-
-    if (!relayQuote) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
-
-    const swapSteps = relayQuote.steps.filter(step => step.id !== 'approve')
-    const { to, value, data } = swapSteps[stepIndex].items?.[0].data ?? {}
-
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data: data.toString(),
-      to,
-      // This looks odd but we need this, else unchained estimate calls will fail with:
-      // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
-      value: bnOrZero(value.toString()).toString(),
-      from,
-      supportsEIP1559,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      gasLimit: gas,
     })
-
-    return networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: async ({
     quoteId,
     txHash,
-    stepIndex,
     chainId,
     accountId,
     config,
@@ -178,16 +134,8 @@ export const relayApi: SwapperApi = {
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
-    const relayQuote = tradeQuoteMetadata.get(quoteId)
-
-    if (!relayQuote) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
-
-    const swapSteps = relayQuote.steps.filter(step => step.id !== 'approve')
-
-    const requestId = swapSteps[stepIndex].requestId
-
     const maybeStatusResponse = await relayService.get<RelayStatus>(
-      `${config.VITE_RELAY_API_URL}intents/status/v2?requestId=${requestId}`,
+      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${quoteId}`,
     )
 
     if (maybeStatusResponse.isErr()) {
@@ -214,9 +162,8 @@ export const relayApi: SwapperApi = {
     })()
 
     return {
-      // We have an out Tx hash (either same or cross-chain) for this step, so we consider the Tx (effectively, the step) confirmed
       status,
-      buyTxHash: statusResponse.txHashes?.[0],
+      buyTxHash: statusResponse.txHashes?.[statusResponse.txHashes.length - 1],
       message: undefined,
     }
   },

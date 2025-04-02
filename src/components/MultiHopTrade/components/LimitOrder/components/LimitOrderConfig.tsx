@@ -331,12 +331,7 @@ export const LimitOrderConfig = ({
     ],
   )
   const limitOrderExplainer = useMemo(() => {
-    if (
-      isLoading ||
-      bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      bnOrZero(limitPriceForSelectedPriceDirection).isZero()
-    )
-      return null
+    if (isLoading) return null
 
     return (
       <Text
@@ -347,12 +342,7 @@ export const LimitOrderConfig = ({
         color='text.subtle'
       />
     )
-  }, [
-    isLoading,
-    sellAmountCryptoPrecision,
-    limitPriceForSelectedPriceDirection,
-    humanReadableExplanationComponents,
-  ])
+  }, [isLoading, humanReadableExplanationComponents])
 
   const marketPriceCryptoPrecision = useMemo(() => {
     if (bnOrZero(marketPriceBuyAsset).isZero()) return '0'
@@ -367,6 +357,13 @@ export const LimitOrderConfig = ({
 
     return `${marketPriceCryptoPrecision} ${priceAsset.symbol}`
   }, [marketPriceCryptoPrecision, priceAsset.symbol])
+
+  const showExplainer = useMemo(() => {
+    return (
+      !bnOrZero(sellAmountCryptoPrecision).isZero() &&
+      !bnOrZero(limitPriceForSelectedPriceDirection).isZero()
+    )
+  }, [limitPriceForSelectedPriceDirection, sellAmountCryptoPrecision])
 
   return (
     <Stack spacing={6} px={6} py={4}>
@@ -442,24 +439,23 @@ export const LimitOrderConfig = ({
         />
       </HStack>
 
-      {!isLoading &&
-        !bnOrZero(sellAmountCryptoPrecision).isZero() &&
-        !bnOrZero(limitPriceForSelectedPriceDirection).isZero() && (
-          <Box
-            p={4}
-            borderWidth='1px'
-            borderStyle='dashed'
-            borderRadius='md'
-            borderColor='whiteAlpha.300'
-          >
-            <Flex alignItems='flex-start'>
-              <Box as='span' mr={2} mt={1}>
-                <InfoIcon boxSize={5} color='gray.500' />
-              </Box>
-              {limitOrderExplainer}
-            </Flex>
-          </Box>
-        )}
+      {!isLoading && (
+        <Box
+          borderWidth={showExplainer ? 1 : 0}
+          borderStyle='dashed'
+          borderRadius='md'
+          borderColor='whiteAlpha.300'
+          height={showExplainer ? '100%' : 0}
+          overflow='hidden'
+        >
+          <Flex alignItems='flex-start' p={4}>
+            <Box as='span' mr={2} mt={1}>
+              <InfoIcon boxSize={5} color='gray.500' />
+            </Box>
+            {limitOrderExplainer}
+          </Flex>
+        </Box>
+      )}
 
       {maybePriceWarning}
     </Stack>

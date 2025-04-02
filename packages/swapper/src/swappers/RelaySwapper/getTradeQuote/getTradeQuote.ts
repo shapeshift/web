@@ -1,5 +1,4 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { btcChainId } from '@shapeshiftoss/caip'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,

@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
-import { MemoryRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { MemoryRouter, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { ManualBackup } from '../ManualBackup/ManualBackup'
 import { CreateBackupConfirm } from './CreateBackupConfirm'
@@ -54,13 +55,13 @@ const CreateWalletRoutes = ({ onClose, defaultRoute }: CreateWalletRouterProps) 
   )
 
   return (
-    <Routes location={location}>
-      <Route path={MobileWalletDialogRoutes.CreateBackupSuccess} element={createSuccess} />
-      <Route path={MobileWalletDialogRoutes.CreateBackupConfirm} element={createBackupConfirm} />
-      <Route path={MobileWalletDialogRoutes.CreateBackup} element={manualBackup} />
-      <Route path={MobileWalletDialogRoutes.KeepSafe} element={keepSafe} />
-      <Route path={MobileWalletDialogRoutes.Create} element={createWallet} />
-      <Route path='/' element={createRedirect} />
-    </Routes>
+    <Switch location={location.pathname}>
+      <Route path={MobileWalletDialogRoutes.CreateBackupSuccess}>{createSuccess}</Route>
+      <Route path={MobileWalletDialogRoutes.CreateBackupConfirm}>{createBackupConfirm}</Route>
+      <Route path={MobileWalletDialogRoutes.CreateBackup}>{manualBackup}</Route>
+      <Route path={MobileWalletDialogRoutes.KeepSafe}>{keepSafe}</Route>
+      <Route path={MobileWalletDialogRoutes.Create}>{createWallet}</Route>
+      <Route path='/'>{createRedirect}</Route>
+    </Switch>
   )
 }

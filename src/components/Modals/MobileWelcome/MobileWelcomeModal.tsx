@@ -1,6 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Navigate, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { ImportSuccess } from './views/ImportSuccess'
 import { Notice } from './views/Notice'
@@ -34,15 +35,14 @@ export const MobileWelcomeModal = () => {
   )
 }
 
-// Separate component to use the useLocation hook
 const RoutesWithAnimation = () => {
   const location = useLocation()
 
   return (
-    <Routes location={location}>
-      <Route path='/success' element={importSuccess} />
-      <Route path='/notice' element={notice} />
-      <Route path='/' element={successRedirect} />
-    </Routes>
+    <Switch location={location.pathname}>
+      <Route path='/success'>{importSuccess}</Route>
+      <Route path='/notice'>{notice}</Route>
+      <Route path='/'>{successRedirect}</Route>
+    </Switch>
   )
 }

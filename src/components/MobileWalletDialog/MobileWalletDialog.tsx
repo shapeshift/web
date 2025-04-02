@@ -1,7 +1,8 @@
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
-import { Navigate, Routes } from 'react-router'
-import { MemoryRouter, Route, useLocation } from 'react-router-dom'
+import { Navigate } from 'react-router'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
@@ -46,15 +47,15 @@ const MobileDialogRoutes = ({
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes key={location.key} location={location}>
-        <Route path={MobileWalletDialogRoutes.Backup} element={manualBackup} />
-        <Route path={MobileWalletDialogRoutes.Import} element={importRouter} />
-        <Route path={MobileWalletDialogRoutes.Saved} element={savedWallets} />
-        <Route path={MobileWalletDialogRoutes.Rename} element={renameWallet} />
-        <Route path={MobileWalletDialogRoutes.Delete} element={deleteWallet} />
-        <Route path={MobileWalletDialogRoutes.Create} element={createWalletRouter} />
-        <Route path='/' element={defaultRedirect(defaultRoute)} />
-      </Routes>
+      <Switch location={location.pathname}>
+        <Route path={MobileWalletDialogRoutes.Backup}>{manualBackup}</Route>
+        <Route path={MobileWalletDialogRoutes.Import}>{importRouter}</Route>
+        <Route path={MobileWalletDialogRoutes.Saved}>{savedWallets}</Route>
+        <Route path={MobileWalletDialogRoutes.Rename}>{renameWallet}</Route>
+        <Route path={MobileWalletDialogRoutes.Delete}>{deleteWallet}</Route>
+        <Route path={MobileWalletDialogRoutes.Create}>{createWalletRouter}</Route>
+        <Route path='/'>{defaultRedirect(defaultRoute)}</Route>
+      </Switch>
     </AnimatePresence>
   )
 }
@@ -67,9 +68,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
       <MemoryRouter>
-        <Route>
-          <MobileDialogRoutes defaultRoute={defaultRoute} onClose={onClose} />
-        </Route>
+        <MobileDialogRoutes defaultRoute={defaultRoute} onClose={onClose} />
       </MemoryRouter>
     </Dialog>
   )

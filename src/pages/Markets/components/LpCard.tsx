@@ -32,7 +32,14 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
   }, [volume24H])
 
   const apyValue = useMemo(() => {
-    return <Amount.Percent autoColor value={bnOrZero(apy).times(0.01).toString()} />
+    const isBiggerThan1000 = bnOrZero(apy).gt(1000)
+    return (
+      <Amount.Percent
+        autoColor
+        value={isBiggerThan1000 ? '10' : bnOrZero(apy).times(0.01).toString()}
+        suffix={isBiggerThan1000 ? '+' : undefined}
+      />
+    )
   }, [apy])
 
   if (!asset) return null

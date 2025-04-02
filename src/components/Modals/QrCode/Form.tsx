@@ -59,7 +59,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
   useEffect(() => {
     navigate(SendRoutes.Scan)
-  }, [navigate])
+    // Do not add navigate as a dep here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {

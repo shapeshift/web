@@ -1,8 +1,8 @@
 import type { SpaceProps } from '@chakra-ui/react'
 import { IconButton, InputGroup, InputRightElement, Textarea } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import ResizeTextarea from 'react-textarea-autosize'
@@ -31,6 +31,17 @@ export const AddressInput = ({
   const translate = useTranslate()
   const isValid = useFormContext<SendInput>().formState.isValid
   const isDirty = useFormContext<SendInput>().formState.isDirty
+  const isValidating = useFormContext<SendInput>().formState.isValidating
+  const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+
+  const isInvalid = useMemo(() => {
+    // Don't go invalid when async invalidation is running
+    if (isValidating) return false
+    // Don't go invalid until there's an actual input
+    if (!value) return false
+
+    return isValid === false
+  }, [isValid, isValidating, value])
 
   const handleQrClick = useCallback(() => {
     history.push(SendRoutes.Scan)

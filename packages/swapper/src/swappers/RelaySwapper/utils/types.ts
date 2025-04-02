@@ -1,4 +1,5 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Address } from 'viem'
 
 import type { TradeQuote, TradeRate } from '../../../types'
@@ -61,4 +62,29 @@ export type QuoteParams = {
   gasLimitForDepositSpecifiedTxs?: number
   userOperationGasOverhead?: number
   forceSolverExecution?: boolean
+}
+
+export type RelayToken = {
+  chainId: ChainId
+  address: string
+  symbol: string
+  name: string
+  decimals: number
+  metadata: {
+    logoURI: string
+    verified: boolean
+    isNative: boolean
+  }
+}
+
+export const isRelayToken = (token: Record<string, unknown>): token is RelayToken => {
+  return Boolean(
+    token &&
+      token.chainId &&
+      token.address &&
+      token.symbol &&
+      token.name &&
+      token.decimals &&
+      token.metadata,
+  )
 }

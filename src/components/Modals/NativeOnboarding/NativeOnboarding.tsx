@@ -54,26 +54,17 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
           </Button>
         </ModalHeader>
         <MemoryRouter>
-          <Routes>
-            <Route
-              path='*'
-              element={
-                <>
-                  <ModalBody>
-                    <AnimatePresence mode='wait' initial={false}>
-                      <Routes>
-                        {renderRoutes}
-                        <Route path='/' element={<SelfCustodyRedirect />} />
-                      </Routes>
-                    </AnimatePresence>
-                  </ModalBody>
-                  <ModalFooter>
-                    <OnboardPager />
-                  </ModalFooter>
-                </>
-              }
-            />
-          </Routes>
+          <ModalBody>
+            <AnimatePresence mode='wait' initial={false}>
+              <Routes>
+                {renderRoutes}
+                <Route path='/' element={<SelfCustodyRedirect />} />
+              </Routes>
+            </AnimatePresence>
+          </ModalBody>
+          <ModalFooter>
+            <OnboardPager />
+          </ModalFooter>
         </MemoryRouter>
       </ModalContent>
     </Modal>

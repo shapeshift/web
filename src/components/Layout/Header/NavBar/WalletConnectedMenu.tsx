@@ -92,8 +92,7 @@ const ConnectedMenu = memo(
   },
 )
 
-// Define a custom interface for the route object with component property
-interface CustomRouteProps {
+type CustomRouteProps = {
   path?: string
   component: React.ComponentType<any>
 }

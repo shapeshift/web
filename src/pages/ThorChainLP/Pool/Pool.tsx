@@ -102,7 +102,6 @@ export const Pool = () => {
   const params = useParams<MatchParams>()
   const translate = useTranslate()
   const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
-  const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
   const assetId = useMemo(() => {
     return poolAssetIdToAssetId(params.poolAssetId ?? '')
@@ -153,8 +152,8 @@ export const Pool = () => {
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
-      {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
-        <Alert status='warning' variant='subtle' mb={4}>
+      {isThorchainPoolsInstable ? (
+        <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
           <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
         </Alert>

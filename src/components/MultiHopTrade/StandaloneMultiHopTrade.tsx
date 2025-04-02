@@ -43,6 +43,7 @@ export const StandaloneMultiHopTrade = memo(
   }: StandaloneTradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
+    const location = useLocation()
 
     // Extract params directly from location.pathname using matchPath instead of useParams()
     // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()

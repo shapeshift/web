@@ -120,7 +120,7 @@ export const WalletViewsSwitch = () => {
       .filter(route => !!route.component)
       .map(route => {
         const Component = route.component
-        const routeElement = useMemo(() => <Component />, [])
+        const routeElement = <Component />
         return <Route key={route.path} path={route.path} element={routeElement} />
       })
   }, [modalType])

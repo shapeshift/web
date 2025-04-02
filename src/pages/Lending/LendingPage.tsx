@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Route, Routes, useLocation, useMatch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { AvailablePools } from './AvailablePools'
 import { Pool } from './Pool/Pool'
@@ -14,16 +14,11 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   md: '200px repeat(5, 1fr)',
 }
 
-export const LendingPage = () => {
-  const basePath = '/lending'
-  const location = useLocation()
-
-  return (
-    <Routes>
-      <Route path={'/'} index element={availablePools} />
-      <Route path={'/poolAccount/:poolAccountId/*'} element={pool} />
-      <Route path={'/pool/*'} element={pool} />
-      <Route path={'/loans'} element={yourLoans} />
-    </Routes>
-  )
-}
+export const LendingPage = () => (
+  <Routes>
+    <Route path={'/'} index element={availablePools} />
+    <Route path={'/poolAccount/:poolAccountId/*'} element={pool} />
+    <Route path={'/pool/*'} element={pool} />
+    <Route path={'/loans'} element={yourLoans} />
+  </Routes>
+)

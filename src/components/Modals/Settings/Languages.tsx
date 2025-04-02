@@ -24,7 +24,7 @@ export const Languages = () => {
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
 
   const handleGoBack = useCallback(() => {
-    navigate('/settings')
+    navigate(-1)
   }, [navigate])
 
   return (

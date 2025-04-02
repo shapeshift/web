@@ -28,7 +28,7 @@ export const CurrencyFormat = () => {
   const { setCurrencyFormat } = preferences.actions
 
   const handleGoBack = useCallback(() => {
-    navigate('/settings')
+    navigate(-1)
   }, [navigate])
 
   return (

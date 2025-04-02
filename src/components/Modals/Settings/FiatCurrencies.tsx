@@ -30,7 +30,7 @@ export const FiatCurrencies = () => {
   const { setSelectedCurrency } = preferences.actions
 
   const handleGoBack = useCallback(() => {
-    navigate('/settings')
+    navigate(-1)
   }, [navigate])
 
   return (

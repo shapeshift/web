@@ -105,7 +105,7 @@ export const SettingsList: FC = () => {
   const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
   const handleCurrencyClick = useCallback(() => {
-    navigate(SettingsRoutes.CurrencyFormat)
+    navigate(SettingsRoutes.FiatCurrencies)
   }, [navigate])
 
   const handleCurrencyFormatClick = useCallback(

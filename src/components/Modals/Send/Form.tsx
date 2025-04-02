@@ -170,7 +170,9 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     if (!initialAssetId) {
       navigate(SendRoutes.Select)
     }
-  }, [navigate, initialAssetId])
+  // Don't add navigate there or problems
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialAssetId])
 
   const qrCodeScanner = useMemo(
     () => (

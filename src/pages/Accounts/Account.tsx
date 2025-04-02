@@ -24,8 +24,11 @@ export const Account = () => {
   const accountTokenElement = useMemo(() => <AccountToken />, [])
 
   const accountDetailsElement = useMemo(
-    () => <AccountDetails assetId={feeAsset.assetId} accountId={accountId ?? ''} />,
-    [feeAsset.assetId, accountId],
+    () =>
+      feeAsset && accountId ? (
+        <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
+      ) : null,
+    [feeAsset, accountId],
   )
 
   if (!feeAsset) return null

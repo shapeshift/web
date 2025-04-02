@@ -303,8 +303,8 @@ export type SupportedWalletInfo<T> = {
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   description?: string
-  routes: RouteProps[]
-  connectedWalletMenuRoutes?: RouteProps[]
+  routes: WalletProviderRouteProps[]
+  connectedWalletMenuRoutes?: WalletProviderRouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
   connectedMenuComponent?: React.ComponentType<any>
 }

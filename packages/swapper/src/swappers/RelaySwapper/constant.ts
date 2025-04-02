@@ -3,6 +3,7 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  bscChainId,
   btcChainId,
   CHAIN_REFERENCE,
   ethChainId,
@@ -12,7 +13,7 @@ import {
   solanaChainId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { arbitrum, avalanche, base, gnosis, optimism, polygon } from 'viem/chains'
+import { arbitrum, avalanche, base, bsc, gnosis, optimism, polygon } from 'viem/chains'
 
 import type { SupportedChainIds } from '../../types'
 
@@ -26,9 +27,11 @@ export const relayChainMap: Record<ChainId, number> = {
   [solanaChainId]: 792703809,
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
+  [bscChainId]: bsc.id,
 }
 
-export const DEFAULT_RELAY_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const DEFAULT_RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'
 
 export const relaySupportedChainIds: ChainId[] = [
   KnownChainIds.EthereumMainnet,
@@ -40,6 +43,7 @@ export const relaySupportedChainIds: ChainId[] = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.SolanaMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
 ]
 
 export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

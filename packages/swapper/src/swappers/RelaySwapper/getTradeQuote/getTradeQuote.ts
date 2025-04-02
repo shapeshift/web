@@ -1,4 +1,5 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
+import { btcChainId } from '@shapeshiftoss/caip'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -20,9 +21,12 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
-import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
+import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayService } from '../utils/relayService'
+import { relayTokenToAsset } from '../utils/relayTokenToAsset'
+import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { QuoteParams, RelayTradeQuote, RelayTradeRate } from '../utils/types'
+import { isRelayToken } from '../utils/types'
 
 // @TODO: implement affiliate fees
 export const getQuote = async (
@@ -68,6 +72,17 @@ export async function getTrade({
       }),
     )
   }
+
+  // @TODO: implement sweep or wait for relay to add xpubs support to their quote validation
+  if (sellAsset.chainId === btcChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `BTC not supported as sell asset`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   if (buyRelayChainId === undefined) {
     return Err(
       makeSwapErrorRight({
@@ -88,9 +103,9 @@ export async function getTrade({
   const maybeQuote = await getQuote(
     {
       originChainId: sellRelayChainId,
-      originCurrency: getRelayEvmAssetAddress(sellAsset),
+      originCurrency: getRelayAssetAddress(sellAsset),
       destinationChainId: buyRelayChainId,
-      destinationCurrency: getRelayEvmAssetAddress(buyAsset),
+      destinationCurrency: getRelayAssetAddress(buyAsset),
       tradeType: 'EXACT_INPUT',
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       recipient: receiveAddress,
@@ -140,6 +155,28 @@ export async function getTrade({
     }
   })()
 
+  const relayToken = quote.data.fees?.relayerService?.currency
+
+  if (!relayToken) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay protocol token not found',
+      }),
+    )
+  }
+
+  if (!isRelayToken(relayToken)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay protocol token is not properly typed',
+      }),
+    )
+  }
+
+  const protocolAssetId = relayTokenToAssetId(relayToken)
+
+  const protocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
+
   const steps = swapSteps.map(
     (quoteStep): TradeQuoteStep => ({
       allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
@@ -155,9 +192,9 @@ export async function getTrade({
           .times(quoteStep.items?.[0]?.data?.maxFeePerGas)
           .toString(),
         protocolFees: {
-          [sellAsset.assetId]: {
+          [protocolAssetId]: {
             amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',
-            asset: sellAsset,
+            asset: protocolAsset,
             requiresBalance: true,
           },
         },

@@ -28,7 +28,7 @@ export const relayChainMap: Record<ChainId, number> = {
   [avalancheChainId]: avalanche.id,
 }
 
-export const DEFAULT_RELAY_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const relaySupportedChainIds: ChainId[] = [
   KnownChainIds.EthereumMainnet,

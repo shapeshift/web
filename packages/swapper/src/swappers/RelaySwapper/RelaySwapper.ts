@@ -6,7 +6,6 @@ import type { BuyAssetBySellIdInput, Swapper, UtxoTransactionExecutionProps } fr
 import { executeEvmTransaction } from '../../utils'
 import { filterRelayAssetIds } from './utils/filterRelayAssetIds'
 
-export const RELAY_TRADE_POLL_INTERVAL_MILLISECONDS = 30_000
 export const RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL = 30_000
 
 export const relaySwapper: Swapper = {

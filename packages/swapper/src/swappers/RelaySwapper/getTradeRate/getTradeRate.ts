@@ -2,7 +2,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 
 import type {
-  GetEvmTradeRateInput,
+  CommonTradeQuoteInput,
+  GetTradeRateInput,
   SwapErrorRight,
   SwapperDeps,
   TradeRateStep,
@@ -11,7 +12,7 @@ import { getTrade } from '../getTradeQuote/getTradeQuote'
 import type { RelayTradeRate } from '../utils/types'
 
 export const getTradeRate = async (
-  input: GetEvmTradeRateInput,
+  input: CommonTradeQuoteInput | GetTradeRateInput,
   deps: SwapperDeps,
   relayChainMap: Record<ChainId, number>,
 ): Promise<Result<RelayTradeRate[], SwapErrorRight>> => {

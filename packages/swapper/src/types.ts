@@ -30,6 +30,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -305,6 +306,7 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  relayTransactionMetadata?: RelayTransactionMetadata
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

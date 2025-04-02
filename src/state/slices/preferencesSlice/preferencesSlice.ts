@@ -77,7 +77,7 @@ export type FeatureFlags = {
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
   ThorchainPoolsInstabilityWarning: boolean
-  Relay: boolean
+  RelaySwapper: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -177,7 +177,7 @@ const initialState: Preferences = {
     NewLimitFlow: getConfig().VITE_FEATURE_NEW_LIMIT_FLOW,
     ThorchainSwapperVolatilityAck: getConfig().VITE_FEATURE_THORCHAIN_SWAPPER_ACK,
     ThorchainPoolsInstabilityWarning: getConfig().VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS,
-    Relay: getConfig().VITE_FEATURE_SWAPPER_RELAY,
+    RelaySwapper: getConfig().VITE_FEATURE_SWAPPER_RELAY,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

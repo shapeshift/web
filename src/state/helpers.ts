@@ -34,7 +34,7 @@ export const getEnabledSwappers = (
     ArbitrumBridge,
     Cowswap,
     JupiterSwap,
-    Relay,
+    RelaySwapper,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -61,7 +61,7 @@ export const getEnabledSwappers = (
       (!isCrossAccountTrade ||
         (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolBuyAssetId)),
     [SwapperName.Relay]:
-      Relay && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
+      RelaySwapper && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
     [SwapperName.Test]: false,
   }
 }

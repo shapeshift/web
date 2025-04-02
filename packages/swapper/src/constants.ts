@@ -21,7 +21,7 @@ import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants
 import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
-import { relaySwapper } from './swappers/RelaySwapper'
+import { RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL, relaySwapper } from './swappers/RelaySwapper'
 import { RELAY_SUPPORTED_CHAIN_IDS } from './swappers/RelaySwapper/constant'
 import { relayApi } from './swappers/RelaySwapper/endpoints'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
@@ -101,7 +101,7 @@ export const swappers: Record<
     ...relaySwapper,
     ...relayApi,
     supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+    pollingInterval: RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,
 }
@@ -114,7 +114,6 @@ const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
-const DEFAULT_RELAY_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -139,7 +138,7 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.Jupiter:
       throw new Error('Default slippage not supported by Jupiter')
     case SwapperName.Relay:
-      return DEFAULT_RELAY_SLIPPAGE_DECIMAL_PERCENTAGE
+      throw new Error('Default slippage not supported by Relay')
     default:
       return assertUnreachable(swapperName)
   }
@@ -148,6 +147,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
 export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): boolean => {
   switch (swapperName) {
     case SwapperName.Jupiter:
+      return true
+    case SwapperName.Relay:
       return true
     default:
       return false

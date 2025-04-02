@@ -1,4 +1,5 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
+import type { Address } from 'viem'
 
 import type { TradeQuote, TradeRate } from '../../../types'
 
@@ -7,6 +8,15 @@ export interface RelayTradeQuote extends TradeQuote {
 }
 export interface RelayTradeRate extends TradeRate {
   selectedRelayRoute?: Execute
+}
+
+export type RelayTransactionMetadata = {
+  to: Address | undefined
+  value: string | undefined
+  data: string | undefined
+  gas: string | undefined
+  maxFeePerGas: string | undefined
+  maxPriorityFeePerGas: string | undefined
 }
 
 export type RelayStatus = {

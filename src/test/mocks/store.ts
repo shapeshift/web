@@ -154,6 +154,7 @@ export const mockStore: ReduxState = {
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,
+    showLookingForEarnBanner: true,
     showSnapsModal: true,
     snapInstalled: false,
     watchedAssets: [],

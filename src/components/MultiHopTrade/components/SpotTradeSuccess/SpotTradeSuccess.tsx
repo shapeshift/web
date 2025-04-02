@@ -327,22 +327,7 @@ export const SpotTradeSuccess = ({
           </Flex>
         </SlideTransition>
         <Box px={8}>
-          <Button
-            mt={4}
-            size='lg'
-            width='full'
-            onClick={() => {
-              console.log('SpotTradeSuccess: Do another trade button clicked')
-              try {
-                handleBack()
-              } catch (error) {
-                console.error('Error navigating back:', error)
-                // Use window.location as a fallback
-                window.location.href = '/trade'
-              }
-            }}
-            colorScheme='blue'
-          >
+          <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
             {translate(buttonTranslation)}
           </Button>
         </Box>

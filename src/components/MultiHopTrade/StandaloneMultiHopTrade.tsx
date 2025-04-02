@@ -25,10 +25,8 @@ import {
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-// Use the same props type as MultiHopTrade for maximum compatibility
 export type StandaloneTradeCardProps = TradeCardProps
 
-// dummy component to allow us to mount or unmount the `useGetTradeRates` hook conditionally
 const GetTradeRates = () => {
   useGetTradeRates()
   return <></>

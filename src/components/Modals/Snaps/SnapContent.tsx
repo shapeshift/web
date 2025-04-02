@@ -5,8 +5,7 @@ import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { SnapConfirm } from './SnapConfirm'
 import { SnapIntro } from './SnapIntro'
 
-// Replace redirect with a component
-const IntroRedirect = () => <Navigate to='/intro' replace />
+const introRedirect = <Navigate to='/intro' replace />
 
 export const SnapContent = ({
   isRemoved,
@@ -19,7 +18,7 @@ export const SnapContent = ({
   isSnapInstalled: boolean
   onClose: () => void
 }) => {
-  const snapIntroElement = useMemo(
+  const snapIntro = useMemo(
     () => (
       <SnapIntro
         isRemoved={isRemoved}
@@ -30,16 +29,16 @@ export const SnapContent = ({
     [isRemoved, isCorrectVersion, isSnapInstalled],
   )
 
-  const snapConfirmElement = useMemo(() => <SnapConfirm onClose={onClose} />, [onClose])
-  const introRedirectElement = useMemo(() => <IntroRedirect />, [])
+  const snapConfirm = useMemo(() => <SnapConfirm onClose={onClose} />, [onClose])
+  const introRedirect = useMemo(() => <introRedirect />, [])
 
   return (
     <MemoryRouter>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route path='/intro' element={snapIntroElement} />
-          <Route path='/confirm' element={snapConfirmElement} />
-          <Route path='/' element={introRedirectElement} />
+          <Route path='/intro' element={snapIntro} />
+          <Route path='/confirm' element={snapConfirm} />
+          <Route path='/' element={introRedirect} />
         </Routes>
       </AnimatePresence>
     </MemoryRouter>

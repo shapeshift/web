@@ -54,7 +54,6 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
       dispatch(tradeQuoteSlice.actions.clear())
     }
 
-    console.log('TradeConfirm: handleBack called, navigating to /trade')
     navigate('/trade')
   }, [dispatch, navigate, isTradeComplete])
 

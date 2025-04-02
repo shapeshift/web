@@ -20,16 +20,7 @@ export const WithBackButton: React.FC<WithBackButtonProps> = ({ onBack, children
         variant='ghost'
         fontSize='xl'
         isRound
-        onClick={() => {
-          console.log('WithBackButton: Back button clicked')
-          try {
-            onBack()
-          } catch (error) {
-            console.error('Error in back navigation:', error)
-            // Use window.location as a fallback
-            window.location.href = '/trade'
-          }
-        }}
+        onClick={onBack}
       />
       {children}
     </SimpleGrid>

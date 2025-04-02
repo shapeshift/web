@@ -1,20 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
-const SearchRedirect = () => {
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    navigate(SelectAssetRoutes.Search, { replace: true })
-  }, [navigate])
-
-  return null
-}
+const searchRedirect = <Navigate to={SelectAssetRoutes.Search} replace />
 
 type SelectAssetViewProps = {
   onClick: (assetId: AssetId) => void
@@ -46,7 +38,7 @@ export const SelectAssetView = ({
     [handleBack, onClick],
   )
 
-  const redirectRoute = useMemo(() => <Route path='/' element={<SearchRedirect />} />, [])
+  const redirectRoute = useMemo(() => <Route path='/' element={searchRedirect} />, [])
 
   return (
     <Routes>

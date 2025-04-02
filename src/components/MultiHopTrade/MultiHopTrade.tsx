@@ -39,6 +39,8 @@ const GetTradeRates = () => {
   return <></>
 }
 
+const verifyAddresses = <VerifyAddresses />
+
 export const MultiHopTrade = memo(
   ({
     defaultBuyAssetId,
@@ -183,11 +185,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
 
-  // Create memoized elements for each route
-  const tradeConfirmElement = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
-
-  const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
-
+  const tradeConfirm = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
   const quoteListElement = useMemo(
     () => (
       <SlideTransitionRoute
@@ -216,11 +214,11 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Routes>
-          <Route key={TradeRoutePaths.Confirm} path={'confirm'} element={tradeConfirmElement} />
+          <Route key={TradeRoutePaths.Confirm} path={'confirm'} element={tradeConfirm} />
           <Route
             key={TradeRoutePaths.VerifyAddresses}
             path={TradeRoutePaths.VerifyAddresses}
-            element={verifyAddressesElement}
+            element={verifyAddresses}
           />
           <Route
             key={TradeRoutePaths.QuoteList}

@@ -10,16 +10,13 @@ import { Languages } from './Languages'
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsList } from './SettingsList'
 
-// No props needed since we'll use useNavigate in child components
-type SettingsRouterProps = {}
+const settingsListElement = <SettingsList />
+const languagesElement = <Languages />
+const fiatCurrenciesElement = <FiatCurrencies />
+const currencyFormatElement = <CurrencyFormat />
+const clearCacheElement = <ClearCache />
 
-export const SettingsRouter: FC<SettingsRouterProps> = () => {
-  const settingsListElement = useMemo(() => <SettingsList />, [])
-  const languagesElement = useMemo(() => <Languages />, [])
-  const fiatCurrenciesElement = useMemo(() => <FiatCurrencies />, [])
-  const currencyFormatElement = useMemo(() => <CurrencyFormat />, [])
-  const clearCacheElement = useMemo(() => <ClearCache />, [])
-
+export const SettingsRouter: FC = () => {
   return (
     <AnimatePresence mode='wait'>
       <Routes>

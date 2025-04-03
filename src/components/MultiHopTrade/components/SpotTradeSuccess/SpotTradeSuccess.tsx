@@ -233,9 +233,19 @@ export const SpotTradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
+  const surplusPercentage = useMemo(() => {
+    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return '0'
+
+    return bnOrZero(actualBuyAmountCryptoPrecision)
+      .minus(quoteBuyAmountCryptoPrecision)
+      .div(quoteBuyAmountCryptoPrecision)
+      .times(100)
+      .toString()
+  }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
+
   const surplusComponents = useMemo(
     () => ({
-      extra: (
+      extraPercent: (
         <Box color='green.200' display='inline'>
           <Amount.Crypto
             as='span'
@@ -247,14 +257,14 @@ export const SpotTradeSuccess = ({
             {' '}
             (
           </CText>
-          <Amount.Fiat as='span' value={maybeExraDeltaUserCurrency} />
+          <Amount.Percent as='span' value={bnOrZero(surplusPercentage).div(100).toString()} />
           <CText as='span' color='green.200'>
             )
           </CText>
         </Box>
       ),
     }),
-    [buyAsset?.symbol, maybeExraDeltaUserCurrency, maybeExtraDeltaCryptoPrecision],
+    [buyAsset?.symbol, maybeExtraDeltaCryptoPrecision, surplusPercentage],
   )
 
   const SurplusLine = useCallback(() => {
@@ -263,6 +273,9 @@ export const SpotTradeSuccess = ({
     if (!maybeExtraDeltaCryptoPrecision) return null
     // Superseeded by the "You Saved" explainer
     if (hasFeeSaving) return null
+
+    // 0.3% min heuristic before showing surplus
+    if (bnOrZero(surplusPercentage).lt(0.3)) return null
 
     return (
       <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
@@ -276,6 +289,7 @@ export const SpotTradeSuccess = ({
     surplusComponents,
     maybeExtraDeltaCryptoPrecision,
     hasFeeSaving,
+    surplusPercentage,
   ])
 
   // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT

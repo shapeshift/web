@@ -62,7 +62,6 @@
     "walletActions": "Дії з гаманцем",
     "connectedWalletSettings": "Налаштування гаманця",
     "noWallet": "Немає підключеного гаманця",
-    "seeAll": "Переглянути все",
     "darkMode": "Темний режим",
     "darkTheme": "Темна тема",
     "rename": "Перейменувати",
@@ -497,8 +496,6 @@
     "overview": "Огляд",
     "myPositions": "Мої позиції",
     "myPositionsBody": "Список ваших поточних активних позицій в DeFi.",
-    "myRewards": "Мої винагороди",
-    "myRewardsBody": "Ваші активні DeFi-позиції з можливістю отримати винагороду.",
     "viewAllPositions": "Переглянути всі позиції",
     "liquidityPools": "Пули ліквідності",
     "liquidityLockupWarning": "Існує період блокування %{time}. Під час блокування ви не можете отримати доступ до своєї ліквідності.",
@@ -998,6 +995,7 @@
     "allowanceResetTxName": "Скидання дозволу tx:",
     "allowanceApprovalTxName": "Затвердження дозволу tx:",
     "tradeComplete": "Тепер у вас є %{cryptoAmountFormatted} у вашому гаманці на %{chainName}.",
+    "tradeCompleteSurplus": "У вас є додатковий %{extra}!",
     "doAnotherTrade": "Зробіть іншу угоду",
     "summary": "Короткий огляд торгівлі",
     "estimatedCompletionTime": "Орієнтовний час завершення",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "Ви могли б заощадити %{fee} на вашій торгівлі з FOX Savings.",
       "buyFox": "Купити FOX",
       "share": "Поширити",
-      "postBody": "Я щойно заощадив %{fee}, торгуючи на @ShapeShift, просто володіючи $FOX!"
+      "postBody": "Я щойно заощадив %{fee}, торгуючи на @ShapeShift, просто володіючи $FOX!",
+      "youGotMore": "Ви отримуєте %{cryptoUpside} більше на цій угоді, тому що у вас є FOX"
     },
     "networkFee": "Мережева плата",
     "learnMoreAboutFox": "Дізнайтеся більше про переваги FOX",
@@ -1084,6 +1083,7 @@
     "awaitingAllowanceApproval": "Очікуємо на затвердження дозволу",
     "awaitingAllowanceReset": "Очікування скидання дозволу",
     "orderPlacement": "Розмістіть ордер на %{swapperName}",
+    "explanation": "Коли ціна %{assetSymbol} досягне %{limitPrice}, ваш лімітний ордер автоматично продасть %{sellAmount}, гарантуючи, що ви отримаєте не менше %{receiveAmount}.",
     "sellBuy": "Продати → Купити",
     "limitExecution": "Ліміт/Виконання",
     "statusHead": "Статус",
@@ -1128,7 +1128,9 @@
         "insufficientBalance": " Наразі у вашому гаманці недостатньо %{symbol} балансу на %{chainName} для виконання цього ордера. Ордер все ще відкритий і буде виконаний, коли ви поповните баланс %{symbol} на %{chainName}.",
         "insufficientAllowance": "Для виконання цього ордера потрібно затвердити додатковий запас у розмірі %{symbol} на %{chainName}, щоб CoW Swap зміг його виконати. Ордер все ще відкритий і стане виконуваним, коли ви завершите затвердження ліміту."
       }
-    }
+    },
+    "limitOrderFilled": "Лімітне замовлення виконано",
+    "assetToAsset": "%{sellAmount} %{sellAsset} на %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2636,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Заробляйте більше зі стейкінгом",
-      "body": "Заробляйте пасивний дохід, зберігаючи свої активи в THORChain Savers Vault."
-    },
     "pools": {
       "title": "Пули",
       "body": "Заробляйте комісійні на торгівлі в пулах."

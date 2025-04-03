@@ -1,5 +1,7 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { btcChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -8,6 +10,8 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { TransactionInstruction } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import type { AxiosResponse } from 'axios'
 
 import type {
@@ -20,12 +24,18 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../../JupiterSwapper/utils/constants'
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayService } from '../utils/relayService'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
-import type { QuoteParams, RelayTradeQuote, RelayTradeRate } from '../utils/types'
+import type {
+  QuoteParams,
+  RelaySolanaInstruction,
+  RelayTradeQuote,
+  RelayTradeRate,
+} from '../utils/types'
 import { isRelayToken } from '../utils/types'
 
 // @TODO: implement affiliate fees
@@ -177,38 +187,89 @@ export async function getTrade({
 
   const protocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
 
-  const steps = swapSteps.map(
-    (quoteStep): TradeQuoteStep => ({
-      allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
-      rate: quote.data.details?.rate ?? '0',
-      buyAmountBeforeFeesCryptoBaseUnit: quote.data.details?.currencyOut?.amount ?? '0',
-      buyAmountAfterFeesCryptoBaseUnit: quote.data.details?.currencyOut?.minimumAmount ?? '0',
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAsset,
-      sellAsset,
-      accountNumber,
-      feeData: {
-        networkFeeCryptoBaseUnit: bnOrZero(quoteStep.items?.[0]?.data?.gas)
+  const convertSolanaInstruction = (
+    instruction: RelaySolanaInstruction,
+  ): TransactionInstruction => ({
+    ...instruction,
+    keys: instruction.keys.map(account => ({
+      ...account,
+      pubkey: new PublicKey(account.pubkey),
+    })),
+    data: Buffer.from(instruction.data, 'hex'),
+    programId: new PublicKey(instruction.programId),
+  })
+
+  const getFeeData = async (quoteStep: Execute['steps'][number]) => {
+    if (sellAsset.chainId !== solanaChainId) return
+    const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
+      value: '0',
+      chainSpecific: {
+        from: sendAddress,
+        addressLookupTableAccounts: quoteStep.items?.[0]?.data?.addressLookupTableAddresses,
+        instructions: quoteStep.items?.[0]?.data?.instructions.map(convertSolanaInstruction),
+      },
+    }
+    const feeData = await sellAdapter.getFeeData(getFeeDataInput)
+    return {
+      txFee: feeData.fast.txFee,
+      chainSpecific: {
+        computeUnits: bnOrZero(feeData.fast.chainSpecific.computeUnits)
+          // Relay uses Jupiter under the hood, same margin than our Jupiter implementation applies
+          .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
+          .toFixed(0),
+        priorityFee: feeData.fast.chainSpecific.priorityFee,
+      },
+    }
+  }
+
+  const steps = await Promise.all(
+    swapSteps.map(async (quoteStep): Promise<TradeQuoteStep> => {
+      const feeData = await getFeeData(quoteStep)
+
+      const networkFeeCryptoBaseUnit = (() => {
+        if (feeData) return feeData.txFee
+        return bnOrZero(quoteStep.items?.[0]?.data?.gas)
           .times(quoteStep.items?.[0]?.data?.maxFeePerGas)
-          .toString(),
-        protocolFees: {
-          [protocolAssetId]: {
-            amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',
-            asset: protocolAsset,
-            requiresBalance: true,
+          .toString()
+      })()
+
+      return {
+        allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
+        rate: quote.data.details?.rate ?? '0',
+        buyAmountBeforeFeesCryptoBaseUnit: quote.data.details?.currencyOut?.amount ?? '0',
+        buyAmountAfterFeesCryptoBaseUnit: quote.data.details?.currencyOut?.minimumAmount ?? '0',
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        feeData: {
+          networkFeeCryptoBaseUnit,
+          protocolFees: {
+            [protocolAssetId]: {
+              amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',
+              asset: protocolAsset,
+              requiresBalance: true,
+            },
           },
+          chainSpecific: feeData?.chainSpecific,
         },
-      },
-      source: SwapperName.Relay,
-      estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
-      relayTransactionMetadata: {
-        to: quoteStep.items?.[0]?.data?.to,
-        value: quoteStep.items?.[0]?.data?.value,
-        data: quoteStep.items?.[0]?.data?.data,
-        gas: quoteStep.items?.[0]?.data?.gas,
-        maxFeePerGas: quoteStep.items?.[0]?.data?.maxFeePerGas,
-        maxPriorityFeePerGas: quoteStep.items?.[0]?.data?.maxPriorityFeePerGas,
-      },
+        source: SwapperName.Relay,
+        estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
+        solanaTransactionMetadata: {
+          addressLookupTableAddresses: quoteStep.items?.[0]?.data?.addressLookupTableAddresses,
+          instructions: quoteStep.items?.[0]?.data?.instructions.map(convertSolanaInstruction),
+        },
+        relayTransactionMetadata: {
+          to: quoteStep.items?.[0]?.data?.to,
+          value: quoteStep.items?.[0]?.data?.value,
+          data: quoteStep.items?.[0]?.data?.data,
+          gas: quoteStep.items?.[0]?.data?.gas,
+          maxFeePerGas: quoteStep.items?.[0]?.data?.maxFeePerGas,
+          maxPriorityFeePerGas: quoteStep.items?.[0]?.data?.maxPriorityFeePerGas,
+        },
+      }
     }),
   )
 

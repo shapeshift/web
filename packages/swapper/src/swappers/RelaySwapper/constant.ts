@@ -30,8 +30,16 @@ export const relayChainMap: Record<ChainId, number> = {
   [bscChainId]: bsc.id,
 }
 
+export const chainIdToRelayChainIdMap: Record<string, ChainId> = Object.fromEntries(
+  Object.entries(relayChainMap).map(([chainId, relayChainId]) => [
+    relayChainId.toString(),
+    chainId,
+  ]),
+)
+
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const DEFAULT_RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'
+export const DEFAULT_RELAY_SOLANA_TOKEN_ADDRESS = '11111111111111111111111111111111'
 
 export const relaySupportedChainIds: ChainId[] = [
   KnownChainIds.EthereumMainnet,

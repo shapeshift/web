@@ -294,7 +294,7 @@ export type TradeQuoteStep = {
     gasLimit: string
   }
   jupiterQuoteResponse?: QuoteResponse
-  jupiterTransactionMetadata?: {
+  solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
   }

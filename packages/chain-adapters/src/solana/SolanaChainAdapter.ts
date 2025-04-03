@@ -393,9 +393,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const { instructions } = chainSpecific
 
       const serializedTx = await this.buildEstimationSerializedTx(input)
+      console.log({ serializedTx })
       const baseComputeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
       })
+      console.log({ baseComputeUnits })
 
       const computeUnits = sendMax
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()

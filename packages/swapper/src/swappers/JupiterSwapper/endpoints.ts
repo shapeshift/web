@@ -25,7 +25,7 @@ export const jupiterApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    const solanaInstructions = step.jupiterTransactionMetadata?.instructions?.map(instruction =>
+    const solanaInstructions = step.solanaTransactionMetadata?.instructions?.map(instruction =>
       adapter.convertInstruction(instruction),
     )
 
@@ -37,7 +37,7 @@ export const jupiterApi: SwapperApi = {
       value: '0',
       accountNumber: step.accountNumber,
       chainSpecific: {
-        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
+        addressLookupTableAccounts: step.solanaTransactionMetadata?.addressLookupTableAddresses,
         instructions: solanaInstructions,
         computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
         computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
@@ -59,7 +59,7 @@ export const jupiterApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    const solanaInstructions = step.jupiterTransactionMetadata?.instructions?.map(instruction =>
+    const solanaInstructions = step.solanaTransactionMetadata?.instructions?.map(instruction =>
       adapter.convertInstruction(instruction),
     )
 
@@ -71,7 +71,7 @@ export const jupiterApi: SwapperApi = {
       value: '0',
       accountNumber: step.accountNumber,
       chainSpecific: {
-        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
+        addressLookupTableAccounts: step.solanaTransactionMetadata?.addressLookupTableAddresses,
         instructions: solanaInstructions,
         computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
         computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
@@ -85,7 +85,7 @@ export const jupiterApi: SwapperApi = {
       value: txToSign.value,
       chainSpecific: {
         from,
-        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
+        addressLookupTableAccounts: step.solanaTransactionMetadata?.addressLookupTableAddresses,
         instructions: txToSign.instructions as TransactionInstruction[] | undefined,
       },
     }

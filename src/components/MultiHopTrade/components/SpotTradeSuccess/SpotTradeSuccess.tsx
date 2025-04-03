@@ -33,7 +33,6 @@ import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetai
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -116,10 +115,6 @@ export const SpotTradeSuccess = ({
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
   const transfers = txTransfers || manualReceiveAddressTransfers
 
-  const buyAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
-  )
-
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined
 
@@ -138,14 +133,6 @@ export const SpotTradeSuccess = ({
       ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toFixed()
       : undefined
   }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
-
-  const maybeExraDeltaUserCurrency = useMemo(() => {
-    if (!maybeExtraDeltaCryptoPrecision || !buyAsset) return undefined
-
-    return bnOrZero(maybeExtraDeltaCryptoPrecision)
-      .times(buyAssetMarketDataUserCurrency?.price ?? 0)
-      .toString()
-  }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
 
   const { buyAmountAfterFeesCryptoPrecision, buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
     const { buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } = lastHop ?? {}

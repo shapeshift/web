@@ -12,10 +12,15 @@ import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const headerComponent = <FoxHeader />
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const RFOXSection = makeSuspenseful(
   lazy(() =>
     import('./components/RFOXSection').then(({ RFOXSection }) => ({ default: RFOXSection })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 export const FoxPage = () => {

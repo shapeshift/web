@@ -18,7 +18,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
 import { ScrollToTop } from './Routes/ScrollToTop'
-import { suspenseFallback } from './utils/makeSuspenseful'
+import { defaultSuspenseFallback } from './utils/makeSuspenseful'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { AppProvider } from '@/context/AppProvider/AppContext'
@@ -87,7 +87,7 @@ export function AppProviders({ children }: ProvidersProps) {
                             <KeepKeyProvider>
                               <WalletConnectV2Provider>
                                 <ModalProvider>
-                                  <Suspense fallback={suspenseFallback}>
+                                  <Suspense fallback={defaultSuspenseFallback}>
                                     <ErrorBoundary
                                       FallbackComponent={ErrorPage}
                                       onError={handleError}

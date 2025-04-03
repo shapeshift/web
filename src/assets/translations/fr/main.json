@@ -62,7 +62,6 @@
     "walletActions": "Actions porte-monnaie",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
-    "seeAll": "Tout voir",
     "darkMode": "Mode Sombre",
     "darkTheme": "Thème sombre",
     "rename": "Renommer",
@@ -497,8 +496,6 @@
     "overview": "Vue d'ensemble",
     "myPositions": "Mes positions",
     "myPositionsBody": "Une liste de vos positions actuellement actives dans la DeFi.",
-    "myRewards": "Mes récompenses",
-    "myRewardsBody": "Vos positions DeFi actives avec les récompenses pouvant être réclamées.",
     "viewAllPositions": "Voir toutes les positions",
     "liquidityPools": "Pools de liquidité",
     "liquidityLockupWarning": "Il y a une période de verrouillage de %{time}. Pendant la période de verrouillage, vous ne pouvez pas accéder à vos liquidités.",
@@ -998,6 +995,7 @@
     "allowanceResetTxName": "Tx. de réinitialisation d'allocation :",
     "allowanceApprovalTxName": "Tx. d'autorisation d'allocation :",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
+    "tradeCompleteSurplus": "Vous avez reçu %{extra} supplémentaires !",
     "doAnotherTrade": "Faire un autre échange",
     "summary": "Afficher le sommaire",
     "estimatedCompletionTime": "Temps d'exécution estimé",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "Vous auriez pu économiser %{fee} sur votre échange avec FOX Savings.",
       "buyFox": "Acheter des FOX",
       "share": "Partager",
-      "postBody": "Je viens d'économiser %{fee} en échangeant sur @ShapeShift simplement en possédant des $FOX !"
+      "postBody": "Je viens d'économiser %{fee} en échangeant sur @ShapeShift simplement en possédant des $FOX !",
+      "youGotMore": "Vous avez reçu %{cryptoUpside} en plus sur cette transaction car vous détenez des FOX"
     },
     "networkFee": "Frais de réseau",
     "learnMoreAboutFox": "En savoir plus sur les avantages FOX",
@@ -1085,6 +1084,9 @@
     "awaitingAllowanceReset": "En attente de réinitialisation de l'allocation",
     "orderPlacement": "Placer l'ordre sur %{swapperName}",
     "explanation": "Lorsque le prix en %{assetSymbol} atteint %{limitPrice}, votre ordre limite vendra %{sellAmount}, vous assurant ainsi de recevoir au moins %{receiveAmount}.",
+    "sellBuy": "Vendre → Acheter",
+    "limitExecution": "Limite/Exécution",
+    "statusHead": "Statut",
     "expiryOption": {
       "oneHour": "1 heure",
       "oneDay": "1 jour",
@@ -1126,7 +1128,9 @@
         "insufficientBalance": "Votre porte-monnaie ne dispose actuellement pas d'un solde en %{symbol} suffisant sur %{chainName} pour exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable lorsque vous approvisionnerez votre solde en %{symbol} sur %{chainName}.",
         "insufficientAllowance": "Cet ordre nécessite qu'une allocation supplémentaire en %{symbol} sur %{chainName} soit approuvée pour que CoW Swap puisse exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable une fois l'approbation d'allocation terminée."
       }
-    }
+    },
+    "limitOrderFilled": "Ordre à cours limité exécuté",
+    "assetToAsset": "%{sellAmount} %{sellAsset} pour %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2634,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Gagnez davantage avec les mises",
-      "body": "Gagnez un revenu passif en misant vos actifs avec THORChain Savers Vault."
-    },
     "pools": {
       "title": "Pools",
       "body": "Gagnez des frais sur les transactions dans les pools."

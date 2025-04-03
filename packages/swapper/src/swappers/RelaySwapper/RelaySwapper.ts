@@ -9,8 +9,6 @@ import {
   filterSameChainEvmBuyAssetsBySellAssetId,
 } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
-export const RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL = 30_000
-
 export const relaySwapper: Swapper = {
   executeEvmTransaction,
 

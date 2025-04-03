@@ -1,14 +1,42 @@
-import type { Execute } from '@reservoir0x/relay-sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Address } from 'viem'
 
-import type { TradeQuote, TradeRate } from '../../../types'
-
-export interface RelayTradeQuote extends TradeQuote {
-  selectedRelayRoute?: Execute
+export type RelayTradeInputParams<T extends 'rate' | 'quote'> = {
+  buyAsset: Asset
+  receiveAddress: T extends 'rate' ? string | undefined : string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: T extends 'rate' ? undefined : string
+  quoteOrRate: T
+  accountNumber: T extends 'rate' ? undefined : number
+  affiliateBps: string
+  potentialAffiliateBps: string
+  slippageTolerancePercentageDecimal?: string
 }
-export interface RelayTradeRate extends TradeRate {
-  selectedRelayRoute?: Execute
+
+export type RelayTradeRateParams = {
+  buyAsset: Asset
+  receiveAddress: string | undefined
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: undefined
+  quoteOrRate: 'rate'
+  accountNumber: undefined
+  affiliateBps: string
+  potentialAffiliateBps: string
+}
+
+export type RelayTradeQuoteParams = {
+  buyAsset: Asset
+  receiveAddress: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: string
+  quoteOrRate: 'quote'
+  accountNumber: number
+  affiliateBps: string
+  potentialAffiliateBps: string
 }
 
 export type RelayTransactionMetadata = {
@@ -40,8 +68,8 @@ export type Transaction = {
   data: string
 }
 
-export type QuoteParams = {
-  user: string
+export type QuoteParams<T extends 'quote' | 'rate'> = {
+  user: T extends 'quote' ? string : undefined
   originChainId: number
   destinationChainId: number
   originCurrency: string

@@ -16,6 +16,18 @@ import { arbitrum, avalanche, base, gnosis, optimism, polygon } from 'viem/chain
 
 import type { SupportedChainIds } from '../../types'
 
+export const relaySupportedChainIds = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BaseMainnet,
+  KnownChainIds.OptimismMainnet,
+  KnownChainIds.PolygonMainnet,
+  KnownChainIds.GnosisMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.BitcoinMainnet,
+  KnownChainIds.SolanaMainnet,
+]
+
 export const relayChainMap: Record<ChainId, number> = {
   [btcChainId]: 8253038,
   [ethChainId]: Number(CHAIN_REFERENCE.EthereumMainnet),
@@ -29,18 +41,6 @@ export const relayChainMap: Record<ChainId, number> = {
 }
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
-
-export const relaySupportedChainIds: ChainId[] = [
-  KnownChainIds.EthereumMainnet,
-  KnownChainIds.ArbitrumMainnet,
-  KnownChainIds.BaseMainnet,
-  KnownChainIds.OptimismMainnet,
-  KnownChainIds.PolygonMainnet,
-  KnownChainIds.GnosisMainnet,
-  KnownChainIds.AvalancheMainnet,
-  KnownChainIds.BitcoinMainnet,
-  KnownChainIds.SolanaMainnet,
-]
 
 export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: relaySupportedChainIds,

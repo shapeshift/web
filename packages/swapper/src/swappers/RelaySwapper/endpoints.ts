@@ -163,7 +163,7 @@ export const relayApi: SwapperApi = {
 
     return {
       status,
-      buyTxHash: statusResponse.txHashes?.[statusResponse.txHashes.length - 1],
+      buyTxHash: statusResponse.txHashes?.[0],
       message: undefined,
     }
   },

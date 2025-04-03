@@ -34,7 +34,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
   const green = useColorModeValue('green.500', 'green.200')
   const apyValue = useMemo(() => {
     const valuePercent = bnOrZero(apy)
-    if (valuePercent.gt(1000)) return <Text color={green}>1000%+</Text>
+    if (valuePercent.gt(10000)) return <Text color={green}>10,000%+</Text>
 
     return <Amount.Percent autoColor value={bnOrZero(apy).times(0.01).toString()} />
   }, [green, apy])

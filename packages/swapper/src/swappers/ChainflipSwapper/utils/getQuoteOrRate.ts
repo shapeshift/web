@@ -100,14 +100,20 @@ export const getQuoteOrRate = async (
   const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
   const apiKey = deps.config.VITE_CHAINFLIP_API_KEY
 
-  const sourceAsset = await getChainFlipIdFromAssetId({
+  const maybeSourceAsset = await getChainFlipIdFromAssetId({
     assetId: sellAsset.assetId,
     brokerUrl,
   })
-  const destinationAsset = await getChainFlipIdFromAssetId({
+  const maybeDestinationAsset = await getChainFlipIdFromAssetId({
     assetId: buyAsset.assetId,
     brokerUrl,
   })
+
+  if (maybeSourceAsset.isErr()) return Err(maybeSourceAsset.unwrapErr())
+  if (maybeDestinationAsset.isErr()) return Err(maybeDestinationAsset.unwrapErr())
+
+  const sourceAsset = maybeSourceAsset.unwrap()
+  const destinationAsset = maybeDestinationAsset.unwrap()
 
   // Subtract the BaaS fee to end up at the final displayed commissionBps
   let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION

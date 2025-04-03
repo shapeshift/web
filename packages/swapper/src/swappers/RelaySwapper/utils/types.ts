@@ -88,3 +88,13 @@ export const isRelayToken = (token: Record<string, unknown>): token is RelayToke
       token.metadata,
   )
 }
+
+export type RelaySolanaInstruction = {
+  keys: {
+    pubkey: string
+    isSigner: boolean
+    isWritable: boolean
+  }[]
+  data: string
+  programId: string
+}

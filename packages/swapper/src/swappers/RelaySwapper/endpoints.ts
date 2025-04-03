@@ -1,4 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
+import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
@@ -9,14 +12,20 @@ import type {
   EvmTransactionRequest,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
+  GetUnsignedSolanaTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { TradeQuoteError } from '../../types'
-import { checkSafeTransactionStatus, isExecutableTradeQuote, makeSwapErrorRight } from '../../utils'
+import { isSolanaFeeData, TradeQuoteError } from '../../types'
+import {
+  checkSafeTransactionStatus,
+  isExecutableTradeQuote,
+  isExecutableTradeStep,
+  makeSwapErrorRight,
+} from '../../utils'
 import { relayChainMap } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -104,6 +113,40 @@ export const relayApi: SwapperApi = {
       gasLimit: gas,
     })
   },
+  getUnsignedSolanaTransaction: async ({
+    tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const step = tradeQuote.steps[0]
+
+    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+
+    const solanaInstructions = step.solanaTransactionMetadata?.instructions?.map(instruction =>
+      adapter.convertInstruction(instruction),
+    )
+
+    if (!isSolanaFeeData(step.feeData.chainSpecific)) throw Error('Unable to execute step')
+
+    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
+      from,
+      value: '0',
+      accountNumber: step.accountNumber,
+      chainSpecific: {
+        addressLookupTableAccounts: step.solanaTransactionMetadata?.addressLookupTableAddresses,
+        instructions: solanaInstructions,
+        computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
+        computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
+      },
+    }
+
+    return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
+  },
   checkTradeStatus: async ({
     quoteId,
     txHash,
@@ -155,6 +198,7 @@ export const relayApi: SwapperApi = {
         case 'pending':
           return TxStatus.Pending
         case 'failed':
+        case 'refund':
           return TxStatus.Failed
         default:
           return TxStatus.Unknown

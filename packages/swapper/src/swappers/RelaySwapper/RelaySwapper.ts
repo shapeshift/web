@@ -3,13 +3,14 @@ import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput, Swapper, UtxoTransactionExecutionProps } from '../../types'
-import { executeEvmTransaction } from '../../utils'
+import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
 import { filterRelayAssetIds } from './utils/filterRelayAssetIds'
 
 export const RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL = 30_000
 
 export const relaySwapper: Swapper = {
   executeEvmTransaction,
+  executeSolanaTransaction,
   executeUtxoTransaction: async (
     txToSign: BTCSignTx,
     { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,

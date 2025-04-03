@@ -208,7 +208,7 @@ export async function getTrade({
       chainSpecific: {
         from: sendAddress,
         addressLookupTableAccounts: quoteStep.items?.[0]?.data?.addressLookupTableAddresses,
-        instructions: quoteStep.items?.[0]?.data?.instructions.map(convertSolanaInstruction),
+        instructions: quoteStep.items?.[0]?.data?.instructions?.map(convertSolanaInstruction),
       },
     }
     const feeData = await sellAdapter.getFeeData(getFeeDataInput)

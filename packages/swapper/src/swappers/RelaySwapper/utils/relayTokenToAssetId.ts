@@ -31,7 +31,13 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
     if (!isDefaultAddress) {
       const assetNamespace = (() => {
         switch (chainReference) {
+          case CHAIN_REFERENCE.ArbitrumMainnet:
           case CHAIN_REFERENCE.EthereumMainnet:
+          case CHAIN_REFERENCE.AvalancheCChain:
+          case CHAIN_REFERENCE.OptimismMainnet:
+          case CHAIN_REFERENCE.PolygonMainnet:
+          case CHAIN_REFERENCE.GnosisMainnet:
+          case CHAIN_REFERENCE.BaseMainnet:
             return ASSET_NAMESPACE.erc20
           case CHAIN_REFERENCE.BnbSmartChainMainnet:
             return ASSET_NAMESPACE.bep20
@@ -94,7 +100,7 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.SolanaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Solana,
-          assetNamespace: ASSET_NAMESPACE.splToken,
+          assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)

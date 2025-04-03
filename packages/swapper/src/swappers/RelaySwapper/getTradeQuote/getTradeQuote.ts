@@ -1,5 +1,5 @@
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
@@ -259,7 +259,7 @@ export async function getTrade({
         estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
         solanaTransactionMetadata: {
           addressLookupTableAddresses: quoteStep.items?.[0]?.data?.addressLookupTableAddresses,
-          instructions: quoteStep.items?.[0]?.data?.instructions.map(convertSolanaInstruction),
+          instructions: quoteStep.items?.[0]?.data?.instructions?.map(convertSolanaInstruction),
         },
         relayTransactionMetadata: {
           to: quoteStep.items?.[0]?.data?.to,

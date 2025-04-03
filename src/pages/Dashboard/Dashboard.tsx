@@ -77,7 +77,6 @@ export const Dashboard = memo(() => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const appIsMobile = isMobile || !isLargerThanMd
   const navigate = useNavigate()
-  const location = useLocation()
 
   const {
     dispatch: walletDispatch,

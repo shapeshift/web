@@ -35,7 +35,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
       // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
       navigate(path.replace('/*', ''))
     },
-    [isActive],
+    [isActive, navigate, path],
   )
 
   return (

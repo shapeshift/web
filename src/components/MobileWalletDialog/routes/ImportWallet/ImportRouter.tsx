@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
-import { MemoryRouter, Navigate, useNavigate } from 'react-router-dom'
+import { MemoryRouter, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
 import { ImportKeystore } from './ImportKeystore'
@@ -26,6 +26,7 @@ const ImportRoutes = ({
   defaultRoute,
   handleRedirectToHome,
 }: ImportRouterProps & { handleRedirectToHome: () => void }) => {
+  const location = useLocation()
   const importSuccess = useMemo(() => <ImportSuccess onClose={onClose} />, [onClose])
   const importWallet = useMemo(
     () => (
@@ -39,7 +40,7 @@ const ImportRoutes = ({
   )
 
   return (
-    <Switch>
+    <Switch location={location.pathname}>
       <Route path={MobileWalletDialogRoutes.ImportSuccess}>{importSuccess}</Route>
       <Route path={MobileWalletDialogRoutes.ImportSeedPhrase}>{importSeedPhrase}</Route>
       <Route path={MobileWalletDialogRoutes.ImportKeystore}>{importKeystore}</Route>

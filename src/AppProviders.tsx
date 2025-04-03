@@ -9,7 +9,7 @@ import {
   QueryClient,
   QueryClientProvider as TanstackQueryClientProvider,
 } from '@tanstack/react-query'
-import React, { useCallback } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -18,6 +18,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
 import { ScrollToTop } from './Routes/ScrollToTop'
+import { suspenseFallback } from './utils/makeSuspenseful'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { AppProvider } from '@/context/AppProvider/AppContext'
@@ -86,22 +87,24 @@ export function AppProviders({ children }: ProvidersProps) {
                             <KeepKeyProvider>
                               <WalletConnectV2Provider>
                                 <ModalProvider>
-                                  <ErrorBoundary
-                                    FallbackComponent={ErrorPage}
-                                    onError={handleError}
-                                  >
-                                    <TransactionsProvider>
-                                      <AppProvider>
-                                        <FoxEthProvider>
-                                          <DefiManagerProvider>
-                                            <RFOXProvider>
-                                              <FoxPageProvider>{children}</FoxPageProvider>
-                                            </RFOXProvider>
-                                          </DefiManagerProvider>
-                                        </FoxEthProvider>
-                                      </AppProvider>
-                                    </TransactionsProvider>
-                                  </ErrorBoundary>
+                                  <Suspense fallback={suspenseFallback}>
+                                    <ErrorBoundary
+                                      FallbackComponent={ErrorPage}
+                                      onError={handleError}
+                                    >
+                                      <TransactionsProvider>
+                                        <AppProvider>
+                                          <FoxEthProvider>
+                                            <DefiManagerProvider>
+                                              <RFOXProvider>
+                                                <FoxPageProvider>{children}</FoxPageProvider>
+                                              </RFOXProvider>
+                                            </DefiManagerProvider>
+                                          </FoxEthProvider>
+                                        </AppProvider>
+                                      </TransactionsProvider>
+                                    </ErrorBoundary>
+                                  </Suspense>
                                 </ModalProvider>
                               </WalletConnectV2Provider>
                             </KeepKeyProvider>

@@ -1,7 +1,6 @@
-import type { BoxProps } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
 import type { ComponentProps, FC } from 'react'
-import { Suspense, useMemo } from 'react'
+import { Suspense } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 
@@ -14,21 +13,18 @@ const suspenseSpinnerStyle = {
   height: '100vh',
 }
 
-export function makeSuspenseful<T extends FC<any>>(Component: T, spinnerStyle: BoxProps = {}) {
+export const suspenseFallback = (
+  // eslint you're drunk, this is a module-scope node consuming a module-scope constant
+  // eslint-disable-next-line react-memo/require-usememo
+  <Box sx={suspenseSpinnerStyle}>
+    <CircularProgress />
+  </Box>
+)
+
+export function makeSuspenseful<T extends FC<any>>(Component: T) {
   return (props: ComponentProps<T>) => {
-    const boxSpinnerStyle = useMemo(() => ({ ...suspenseSpinnerStyle, ...spinnerStyle }), [])
-
-    const suspenseSpinner = useMemo(
-      () => (
-        <Box sx={boxSpinnerStyle}>
-          <CircularProgress />
-        </Box>
-      ),
-      [boxSpinnerStyle],
-    )
-
     return (
-      <Suspense fallback={suspenseSpinner}>
+      <Suspense fallback={suspenseFallback}>
         <Component {...props} />
       </Suspense>
     )

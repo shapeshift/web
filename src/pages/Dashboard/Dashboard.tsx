@@ -2,6 +2,7 @@ import type { FlexProps, TabProps } from '@chakra-ui/react'
 import { Flex, Tab, TabIndicator, TabList, Tabs, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation } from 'react-router'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
@@ -76,6 +77,7 @@ export const Dashboard = memo(() => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const appIsMobile = isMobile || !isLargerThanMd
   const navigate = useNavigate()
+  const location = useLocation()
 
   const {
     dispatch: walletDispatch,
@@ -130,7 +132,8 @@ export const Dashboard = memo(() => {
   const slideRenderer = useCallback((props: SlideRenderProps) => {
     const { index, key } = props
     let content
-    switch (mod(index, 3)) {
+    const tab = mod(index, 3)
+    switch (tab) {
       case MobileTab.Overview:
         content = (
           <>
@@ -140,10 +143,10 @@ export const Dashboard = memo(() => {
         )
         break
       case MobileTab.Earn:
-        content = <Route path='earn' element={earnDashboard} />
+        content = <Route path='*' element={earnDashboard} />
         break
       case MobileTab.Activity:
-        content = mobileActivity
+        content = <Route path='*' element={mobileActivity} />
         break
       default:
         content = null

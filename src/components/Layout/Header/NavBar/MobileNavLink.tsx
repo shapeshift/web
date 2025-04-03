@@ -2,7 +2,7 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 type MobileNavLinkProps = {
   label: string
@@ -16,6 +16,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
   const { label, shortLabel, path, icon, order, ...rest } = props
   const translate = useTranslate()
   const location = useLocation()
+  const navigate = useNavigate()
   const isActive = useMemo(() => {
     const match = matchPath(
       {
@@ -29,15 +30,17 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
   }, [path, location.pathname])
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => isActive && e.preventDefault(),
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      if (isActive) e.preventDefault()
+      // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
+      navigate(path.replace('/*', ''))
+    },
     [isActive],
   )
 
   return (
     <Button
       key={path}
-      as={ReactRouterLink}
-      to={path}
       flexDir='column'
       fontSize='24px'
       gap={2}

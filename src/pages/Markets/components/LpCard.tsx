@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { CommonCard, CommonStat } from './CommonCard'
 
 import { Amount } from '@/components/Amount/Amount'
+import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectAssetById,
@@ -32,18 +33,26 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
   }, [volume24H])
 
   const green = useColorModeValue('green.500', 'green.200')
-  const apyValue = useMemo(() => {
-    const valuePercent = bnOrZero(apy)
-    if (valuePercent.gt(10000)) return <Text color={green}>10,000%+</Text>
 
-    return <Amount.Percent autoColor value={bnOrZero(apy).times(0.01).toString()} />
-  }, [green, apy])
+  const apyPercent = useMemo(() => bnOrZero(apy), [apy])
+  const apyPercentValue = useMemo(
+    () => <Amount.Percent autoColor value={bnOrZero(apy).times(0.01).toString()} />,
+    [apy],
+  )
+
+  const apyPercentValueOrDefault = useMemo(() => {
+    if (apyPercent.gt(10000)) return <Text color={green}>10,000%+</Text>
+
+    return apyPercentValue
+  }, [green, apyPercentValue, apyPercent])
 
   if (!asset) return null
 
   return (
     <CommonCard title={asset.name} subtitle={asset.symbol} assetId={assetId} onClick={handleClick}>
-      <CommonStat value={apyValue} label={translate('common.apy')} />
+      <HoverTooltip placement='top' label={apyPercentValue} isDisabled={apyPercent.lt(10000)}>
+        <CommonStat value={apyPercentValueOrDefault} label={translate('common.apy')} />
+      </HoverTooltip>
       <CommonStat
         value={volume24HValue}
         label={translate('assets.assetDetails.assetHeader.24HrVolume')}

@@ -49,7 +49,7 @@ export const useIsManualReceiveAddressRequired = ({
     if (isAccountsMetadataLoading && !sellAccountId) return false
     if (manualReceiveAddress) return false
     if (!walletReceiveAddress) return true
-    if (!walletSupportsBuyAssetChain) return true
+    if (walletSupportsBuyAssetChain === false) return true
     // If the wallet supports the chian at runtime, display the manual address entry if there are no
     // accounts connected for the buy asset
     if (walletSupportsBuyAssetChainAtRuntime) return !buyAssetAccountIds.length

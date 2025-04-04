@@ -7,7 +7,7 @@ import { relayService } from './relayService'
 import type { QuoteParams } from './types'
 
 // @TODO: implement affiliate fees
-export const getQuote = async <T extends 'quote' | 'rate'>(
+export const fetchRelayTrade = async <T extends 'quote' | 'rate'>(
   params: QuoteParams<T>,
   config: SwapperConfig,
 ): Promise<Result<AxiosResponse<Execute, any>, SwapErrorRight>> => {

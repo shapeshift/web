@@ -12,6 +12,7 @@ import {
   solanaChainId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { zeroAddress } from 'viem'
 import { arbitrum, avalanche, base, gnosis, optimism, polygon } from 'viem/chains'
 
 import type { SupportedChainIds } from '../../types'
@@ -40,7 +41,7 @@ export const relayChainMap: Record<ChainId, number> = {
   [avalancheChainId]: avalanche.id,
 }
 
-export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
 
 export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: relaySupportedChainIds,

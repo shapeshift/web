@@ -18,8 +18,8 @@ import type {
   RelayTradeQuoteParams,
   RelayTradeRateParams,
 } from '../utils/types'
-import { isRelayToken } from '../utils/types'
-import { getQuote } from './getQuote'
+import { isValidRelayToken } from '../utils/types'
+import { fetchRelayTrade } from './fetchRelayTrade'
 
 export async function getTrade<T extends 'quote' | 'rate'>({
   input,
@@ -67,12 +67,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
-    if (input.quoteOrRate === 'rate') return input.sendAddress
+    if (input.quoteOrRate === 'rate') return input.sendAddress ?? ''
 
-    return input.sendAddress ?? ''
+    return input.sendAddress
   })()
 
-  const maybeQuote = await getQuote(
+  const maybeQuote = await fetchRelayTrade(
     {
       originChainId: sellRelayChainId,
       originCurrency: getRelayEvmAssetAddress(sellAsset),
@@ -90,15 +90,60 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
-  const quote = maybeQuote.unwrap()
+  const { data: quote } = maybeQuote.unwrap()
 
-  const swapSteps = quote.data.steps.filter(step => step.id !== 'approve')
-  const hasApprovalStep = quote.data.steps.find(step => step.id === 'approve')
+  if (!quote.details) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote details not found',
+      }),
+    )
+  }
 
-  if (swapSteps.length > 2) {
-    deps.mixPanel?.track(MixPanelEvent.RelayMultiSteps, {
+  const { slippageTolerance, rate, currencyOut, timeEstimate } = quote.details
+
+  if (!slippageTolerance) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote slippage tolerance not found',
+      }),
+    )
+  }
+
+  if (!rate) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote rate not found',
+      }),
+    )
+  }
+
+  if (!currencyOut) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote relayToken not found',
+      }),
+    )
+  }
+
+  if (!quote.fees?.gas) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote gas fees not found',
+      }),
+    )
+  }
+
+  const { currency: relayToken } = currencyOut
+
+  const swapSteps = quote.steps.filter(step => step.id !== 'approve')
+  const hasApprovalStep = quote.steps.find(step => step.id === 'approve')
+
+  if (swapSteps.length >= 2) {
+    deps.mixPanel?.track(MixPanelEvent.RelayMultiHop, {
       swapper: SwapperName.Relay,
       method: 'get',
+      error: 'Unable to execute Relay multi-hop quote',
     })
 
     return Err(
@@ -112,23 +157,19 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const slippageTolerancePercentageDecimal = (() => {
     if (_slippageTolerancePercentageDecimal) return _slippageTolerancePercentageDecimal
     const destinationSlippageTolerancePercentageDecimal = bnOrZero(
-      quote.data.details?.slippageTolerance?.destination?.percent,
+      slippageTolerance?.destination?.percent,
     )
 
     if (destinationSlippageTolerancePercentageDecimal.gt(0)) {
       return convertBasisPointsToPercentage(destinationSlippageTolerancePercentageDecimal).toFixed()
     }
 
-    const originSlippageTolerancePercentageDecimal = bnOrZero(
-      quote.data.details?.slippageTolerance?.origin?.percent,
-    )
+    const originSlippageTolerancePercentageDecimal = bnOrZero(slippageTolerance?.origin?.percent)
 
     if (originSlippageTolerancePercentageDecimal.gt(0)) {
       return convertBasisPointsToPercentage(originSlippageTolerancePercentageDecimal).toFixed()
     }
   })()
-
-  const relayToken = quote.data.fees?.relayerService?.currency
 
   if (!relayToken) {
     return Err(
@@ -138,7 +179,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
-  if (!isRelayToken(relayToken)) {
+  if (!isValidRelayToken(relayToken)) {
     return Err(
       makeSwapErrorRight({
         message: 'Relay protocol token is not properly typed',
@@ -153,27 +194,25 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const steps = swapSteps.map(
     (quoteStep): TradeQuoteStep => ({
       allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
-      rate: quote.data.details?.rate ?? '0',
-      buyAmountBeforeFeesCryptoBaseUnit: quote.data.details?.currencyOut?.amount ?? '0',
-      buyAmountAfterFeesCryptoBaseUnit: quote.data.details?.currencyOut?.minimumAmount ?? '0',
+      rate,
+      buyAmountBeforeFeesCryptoBaseUnit: currencyOut.amount ?? '0',
+      buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount ?? '0',
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,
       accountNumber,
       feeData: {
-        networkFeeCryptoBaseUnit: bnOrZero(quoteStep.items?.[0]?.data?.gas)
-          .times(quoteStep.items?.[0]?.data?.maxFeePerGas)
-          .toString(),
+        networkFeeCryptoBaseUnit: quote.fees?.gas?.amount ?? '0',
         protocolFees: {
           [protocolAssetId]: {
-            amountCryptoBaseUnit: quote.data.fees?.relayerService?.amount ?? '0',
+            amountCryptoBaseUnit: quote.fees?.relayerService?.amount ?? '0',
             asset: protocolAsset,
             requiresBalance: true,
           },
         },
       },
       source: SwapperName.Relay,
-      estimatedExecutionTimeMs: (quote.data.details?.timeEstimate ?? 0) * 1000,
+      estimatedExecutionTimeMs: (timeEstimate ?? 0) * 1000,
       relayTransactionMetadata: {
         to: quoteStep.items?.[0]?.data?.to,
         value: quoteStep.items?.[0]?.data?.value,
@@ -186,10 +225,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   )
 
   const tradeQuote: TradeQuote = {
-    id: quote.data.steps[0].requestId ?? '',
+    id: quote.steps[0].requestId ?? '',
     steps: steps as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
     receiveAddress: receiveAddress ?? '',
-    rate: quote.data.details?.rate ?? '0',
+    rate,
     quoteOrRate: 'quote',
     swapperName: SwapperName.Relay,
     affiliateBps,

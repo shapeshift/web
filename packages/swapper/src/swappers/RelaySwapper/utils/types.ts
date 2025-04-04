@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Address } from 'viem'
 
@@ -93,7 +92,7 @@ export type QuoteParams<T extends 'quote' | 'rate'> = {
 }
 
 export type RelayToken = {
-  chainId: ChainId
+  chainId: number
   address: string
   symbol: string
   name: string
@@ -105,14 +104,6 @@ export type RelayToken = {
   }
 }
 
-export const isRelayToken = (token: Record<string, unknown>): token is RelayToken => {
-  return Boolean(
-    token &&
-      token.chainId &&
-      token.address &&
-      token.symbol &&
-      token.name &&
-      token.decimals &&
-      token.metadata,
-  )
+export const isValidRelayToken = (token: Record<string, unknown>): token is RelayToken => {
+  return Boolean(token.chainId && token.address && token.symbol && token.name && token.decimals)
 }

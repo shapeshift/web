@@ -526,7 +526,7 @@ export type SwapperApi = {
 
   getUnsignedEvmTransaction?: (
     input: GetUnsignedEvmTransactionArgs,
-  ) => Promise<EvmTransactionRequest>
+  ) => Promise<EvmTransactionRequest> | EvmTransactionRequest
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>
   getUnsignedUtxoTransaction?: (input: GetUnsignedUtxoTransactionArgs) => Promise<BTCSignTx>
   getUnsignedCosmosSdkTransaction?: (
@@ -606,5 +606,5 @@ export type SupportedChainIds = {
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
 
 export enum MixPanelEvent {
-  RelayMultiSteps = 'Relay Multi Steps Quote',
+  RelayMultiHop = 'Relay Multi Hop Quote',
 }

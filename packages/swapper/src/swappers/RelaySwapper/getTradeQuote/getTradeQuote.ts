@@ -1,7 +1,6 @@
 import { isSome } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import { makeSwapErrorRight } from 'packages/swapper/src/utils'
 
 import type {
   CommonTradeQuoteInput,
@@ -10,6 +9,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
 import { getRelayTradeQuote } from '../utils/getTrade'
 

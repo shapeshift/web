@@ -1,5 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
 
 import { relayTokenToAssetId } from './relayTokenToAssetId'
 import type { RelayToken } from './types'
@@ -12,20 +14,18 @@ export const relayTokenToAsset = (
   const maybeAsset = assets[assetId]
   if (maybeAsset) return maybeAsset
 
+  const chainId = fromAssetId(assetId).chainId
+
   // It shouldn't happen but...
   // asset not known by shapeshift
   // create a placeholder asset using the data we have
-  return {
+  const unknownAsset = makeAsset(assets, {
     assetId,
-    chainId: relayToken.chainId,
+    chainId,
     name: relayToken.name,
     precision: relayToken.decimals,
     symbol: relayToken.symbol,
-    color: '#000000',
-    icon: relayToken.metadata.logoURI ?? '',
-    explorer: '',
-    explorerTxLink: '',
-    explorerAddressLink: '',
-    relatedAssetKey: null,
-  }
+  })
+
+  return unknownAsset
 }

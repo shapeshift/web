@@ -1,5 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -58,33 +59,25 @@ export const relayApi: SwapperApi = {
 
     return tradeRateResult
   },
-  getUnsignedEvmTransaction: async ({
+  getUnsignedEvmTransaction: ({
     chainId,
     from,
     stepIndex,
     tradeQuote,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+  }: GetUnsignedEvmTransactionArgs): EvmTransactionRequest => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
-    const { to, value, data, gas, maxFeePerGas, maxPriorityFeePerGas } =
-      tradeQuote.steps[stepIndex]?.relayTransactionMetadata ?? {}
+    const {
+      to,
+      value,
+      data,
+      gas,
+      maxFeePerGas: _maxFeePerGas,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+    } = tradeQuote.steps[stepIndex]?.relayTransactionMetadata ?? {}
 
-    if (
-      to === undefined ||
-      value === undefined ||
-      data === undefined ||
-      gas === undefined ||
-      maxFeePerGas === undefined ||
-      maxPriorityFeePerGas === undefined
-    ) {
-      const undefinedRequiredValues = [
-        to,
-        value,
-        data,
-        gas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-      ].filter(value => value === undefined)
+    if (to === undefined || value === undefined || data === undefined || gas === undefined) {
+      const undefinedRequiredValues = [to, value, data, gas].filter(value => value === undefined)
 
       throw Error('undefined required values in swap step', {
         cause: {
@@ -93,16 +86,29 @@ export const relayApi: SwapperApi = {
       })
     }
 
-    return await Promise.resolve({
+    const feeData = (() => {
+      if (bnOrZero(_maxFeePerGas).isZero() || bnOrZero(_maxPriorityFeePerGas).isZero()) {
+        return {
+          maxFeePerGas: undefined,
+          maxPriorityFeePerGas: undefined,
+        }
+      }
+
+      return {
+        maxFeePerGas: _maxFeePerGas,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      }
+    })()
+
+    return {
       to,
       from,
       value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
-      maxFeePerGas,
-      maxPriorityFeePerGas,
+      ...feeData,
       gasLimit: gas,
-    })
+    }
   },
   checkTradeStatus: async ({
     quoteId,

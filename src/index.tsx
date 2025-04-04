@@ -1,6 +1,4 @@
-import { scan } from "react-scan"; // must be imported before React and React DOM
 import './lib/global-polyfills'
-import './wdyr'
 import '@/lib/polyfills'
 
 import {
@@ -14,6 +12,7 @@ import {
 import { isAxiosError } from 'axios'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { scan } from 'react-scan' // must be imported before React and React DOM
 import { v4 as uuid } from 'uuid'
 
 import { App } from './App'
@@ -25,7 +24,7 @@ import { httpClientIntegration } from './utils/sentry/httpclient'
 
 scan({
   enabled: true,
-});
+})
 
 // Remove this condition to test sentry locally
 if (window.location.hostname !== 'localhost') {

@@ -196,7 +196,9 @@ export const NewWalletViewsSwitch = () => {
 
   useEffect(() => {
     if (initialRoute) navigate(initialRoute)
-  }, [navigate, initialRoute])
+    // Don't add navigate as a dep, or problems.
+    // eslint-disable-next-line react-memo/require-usememo
+  }, [initialRoute])
 
   // Set the native wallet pending unlock as selected on refresh
   useEffect(() => {

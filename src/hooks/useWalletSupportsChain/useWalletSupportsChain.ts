@@ -164,6 +164,8 @@ export const useWalletSupportsChain = (
     })
   }, [chainAccountIds, chainId, isSnapInstalled, wallet])
 
+  if (!isSnapInstalled) return null
+
   return result
 }
 

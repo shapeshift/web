@@ -331,7 +331,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
   }
 }
 
-export const genericBalanceIncludingStakingByFilter = (
+export const genericBalanceByFilter = (
   accountBalances: PortfolioAccountBalancesById,
   assetId: AssetId | undefined,
   accountId: AccountId | undefined,

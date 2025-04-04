@@ -4,10 +4,9 @@ import { useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
-import { chainIdToFeeAssetId } from '@/lib/utils'
 import {
-  selectAssetById,
-  selectPortfolioTotalChainIdBalanceIncludeStaking,
+  selectFeeAssetByChainId,
+  selectPortfolioTotalChainIdBalanceUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -16,11 +15,10 @@ type ChainRowProps = {
   includeBalance?: boolean
 }
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId, includeBalance }) => {
-  const feeAssetId = chainIdToFeeAssetId(chainId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const filter = useMemo(() => ({ chainId }), [chainId])
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const chainFiatBalanceFilter = useMemo(() => ({ chainId }), [chainId])
   const chainFiatBalance = useAppSelector(s =>
-    selectPortfolioTotalChainIdBalanceIncludeStaking(s, filter),
+    selectPortfolioTotalChainIdBalanceUserCurrency(s, chainFiatBalanceFilter),
   )
   if (!feeAsset) return null
 

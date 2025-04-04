@@ -12,7 +12,6 @@ import {
   selectPortfolioUserCurrencyBalances,
 } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
-import { foxEthLpAssetId } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
@@ -431,12 +430,10 @@ export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSel
   selectMarketDataUserCurrency,
   selectAssets,
   selectPortfolioUserCurrencyBalances,
-  (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
+  (aggregatedUserStakingOpportunities, marketData, assets): BN =>
     aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
-      .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0))
-      // TODO(gomes): add all UNI/V2 asset balances here
-      .plus(bnOrZero(portfolioFiatBalances[foxEthLpAssetId])),
+      .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0)),
 )
 
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =

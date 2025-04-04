@@ -18,7 +18,7 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectChartTimeframe,
-  selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -75,7 +75,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+    selectCryptoHumanBalanceFilter(s, opportunitiesFilter),
   )
 
   return (

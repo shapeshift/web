@@ -103,12 +103,6 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     color: '#00CD98',
     url: 'https://app.shapeshift.com/#/rfox',
   },
-  [DefiProvider.UniV2]: {
-    provider: DefiProvider.UniV2,
-    icon: 'https://assets.coingecko.com/coins/images/12504/thumb/uniswap-uni.png?1600306604',
-    color: '#FD0078',
-    url: 'https://app.uniswap.org',
-  },
   [DefiProvider.CosmosSdk]: {
     provider: DefiProvider.CosmosSdk,
     icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/cosmos/info/logo.png',

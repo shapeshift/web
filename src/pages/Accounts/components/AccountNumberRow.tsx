@@ -35,7 +35,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  selectPortfolioAccountsUserCurrencyBalances,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -96,7 +96,7 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
   isVisible,
 }) => {
   const accountAssetBalancesSortedUserCurrency = useSelector(
-    selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+    selectPortfolioAccountsUserCurrencyBalances,
   )
   const assetIds = useMemo(
     () => Object.keys(accountAssetBalancesSortedUserCurrency[accountId] ?? {}),

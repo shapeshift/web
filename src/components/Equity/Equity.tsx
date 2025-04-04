@@ -15,15 +15,12 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 
 import { EquityAccountRow } from './EquityAccountRow'
-import { EquityLpRow } from './EquityLpRow'
 import { EquityRowLoading } from './EquityRow'
-import { EquityStakingRow } from './EquityStakingRow'
 import { UnderlyingAsset } from './UnderlyingAsset'
 
 import { Amount } from '@/components/Amount/Amount'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import type { LpId, OpportunityId } from '@/state/slices/opportunitiesSlice/types'
-import { AssetEquityType } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import type { LpId } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAssetEquityItemsByFilter,
   selectAssets,
@@ -89,44 +86,17 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         <EquityRowLoading key={`eq-row-loading-${index}`} />
       ))
     return equityRows.map(item => {
-      switch (item.type) {
-        case AssetEquityType.Staking:
-          return (
-            <EquityStakingRow
-              key={item.id}
-              assetId={assetId}
-              opportunityId={item.id as OpportunityId}
-              totalFiatBalance={totalFiatBalance}
-              color={item.color}
-              accountId={accountId}
-            />
-          )
-        case AssetEquityType.LP:
-          return (
-            <EquityLpRow
-              key={item.id}
-              assetId={assetId}
-              opportunityId={item.id as OpportunityId}
-              totalFiatBalance={totalFiatBalance}
-              color={item.color}
-              accountId={accountId}
-            />
-          )
-        case AssetEquityType.Account:
-          return (
-            <EquityAccountRow
-              key={item.id}
-              assetId={assetId}
-              accountId={item.id as AccountId}
-              totalFiatBalance={totalFiatBalance}
-              color={item.color}
-            />
-          )
-        default:
-          return null
-      }
+      return (
+        <EquityAccountRow
+          key={item.id}
+          assetId={assetId}
+          accountId={item.id as AccountId}
+          totalFiatBalance={totalFiatBalance}
+          color={item.color}
+        />
+      )
     })
-  }, [accountId, assetId, equityRows, isLoading, totalFiatBalance])
+  }, [assetId, equityRows, isLoading, totalFiatBalance])
 
   const renderUnderlyingAssets = useMemo(() => {
     if (!underlyingAssetsWithBalancesAndIcons?.length) return

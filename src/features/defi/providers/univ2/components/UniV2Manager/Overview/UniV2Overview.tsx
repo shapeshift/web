@@ -22,7 +22,7 @@ import {
   selectHighestBalanceAccountIdByLpId,
   selectSelectedLocale,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
-  selectUserCurrencyBalanceIncludingStakingByFilter,
+  selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -97,7 +97,7 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
   )
 
   const underlyingAssetsFiatBalance = useAppSelector(state =>
-    selectUserCurrencyBalanceIncludingStakingByFilter(state, underlyingAssetsFiatBalanceFilter),
+    selectUserCurrencyBalanceByFilter(state, underlyingAssetsFiatBalanceFilter),
   )
 
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))

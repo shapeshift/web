@@ -35,8 +35,6 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { wagmiConfig } from '@/lib/wagmi-config'
 import { ErrorPage } from '@/pages/ErrorPage/ErrorPage'
-import { FoxPageProvider } from '@/pages/Fox/hooks/useFoxPageContext'
-import { RFOXProvider } from '@/pages/RFOX/hooks/useRfoxContext'
 import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
 import { WalletConnectV2Provider } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { persistor, store } from '@/state/store'
@@ -90,17 +88,17 @@ export function AppProviders({ children }: ProvidersProps) {
                                     FallbackComponent={ErrorPage}
                                     onError={handleError}
                                   >
-                                    <TransactionsProvider>
+                                    <>
+                                      {/* This isn't a provider, the name is misleading. This does not drill context through children, 
+                                          but really is just a subscriber. We probably should move this guy to a hook, but for the time being, 
+                                          this being a sibling fixes most of our rendering issues */}
+                                      <TransactionsProvider />
                                       <AppProvider>
                                         <FoxEthProvider>
-                                          <DefiManagerProvider>
-                                            <RFOXProvider>
-                                              <FoxPageProvider>{children}</FoxPageProvider>
-                                            </RFOXProvider>
-                                          </DefiManagerProvider>
+                                          <DefiManagerProvider>{children}</DefiManagerProvider>
                                         </FoxEthProvider>
                                       </AppProvider>
-                                    </TransactionsProvider>
+                                    </>
                                   </ErrorBoundary>
                                 </ModalProvider>
                               </WalletConnectV2Provider>

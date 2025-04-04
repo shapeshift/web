@@ -4,7 +4,8 @@ import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useEffect, useState } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { usePlugins } from '../PluginProvider/PluginProvider'
@@ -28,11 +29,7 @@ import {
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
 
-type TransactionsProviderProps = {
-  children: React.ReactNode
-}
-
-export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ children }) => {
+export const TransactionsProvider: React.FC = () => {
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const {
@@ -216,5 +213,5 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     maybeRefetchVotingPower,
   ])
 
-  return <>{children}</>
+  return null
 }

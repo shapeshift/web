@@ -268,12 +268,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         const buyAssetUsd = quote.details?.currencyOut?.amountUsd ?? '0'
         const buyAssetAmountBaseUnit = quote.details?.currencyOut?.amount ?? '1'
 
-        console.log({
-          feeAmountUsd,
-          buyAssetUsd,
-          buyAssetAmountBaseUnit,
-        })
-
         if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
           // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
           // Then multiply by feeAmountUsd to get the equivalent buy asset amount
@@ -290,8 +284,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
       return '0'
     })()
-
-    console.log('relayerFeesBaseUnit', relayerFeesBuyAssetBaseUnit)
 
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees

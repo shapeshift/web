@@ -4,8 +4,9 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { UniV2DepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -46,8 +47,9 @@ const externalLinkIcon = <ExternalLinkIcon />
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const navigate = useNavigate()
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: state?.txid ?? undefined,
@@ -205,10 +207,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 
   const handleViewPosition = () => {
-    browserHistory.push('/wallet/earn')
+    navigate('/earn')
   }
 
-  const handleCancel = browserHistory.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   useEffect(() => {
     if (!earnUserLpOpportunity) return

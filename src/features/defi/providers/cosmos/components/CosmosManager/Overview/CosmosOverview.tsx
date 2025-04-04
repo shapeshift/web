@@ -6,6 +6,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
@@ -55,7 +56,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     accountId: routeAccountId,
     assetNamespace,
@@ -142,28 +143,30 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
+  const navigate = useNavigate()
+
   const handleStakeClick = useCallback(
     () =>
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,
           modal: DefiAction.Deposit,
         }),
       }),
-    [history, location.pathname, query],
+    [navigate, location.pathname, query],
   )
 
   const handleLearnMoreClick = useCallback(
     () => () =>
-      history.push({
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,
           modal: DefiAction.GetStarted,
         }),
       }),
-    [history, location.pathname, query],
+    [navigate, location.pathname, query],
   )
 
   const underlyingAssetsCryptoPrecision = useMemo(

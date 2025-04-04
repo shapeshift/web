@@ -8,9 +8,9 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router'
 
 import { updateWallet } from '../mobileMessageHandlers'
-import type { MobileSetupProps } from '../types'
 
 import { Text } from '@/components/Text'
 
@@ -18,7 +18,9 @@ const isValidLabel = (label: unknown): label is string => {
   return typeof label === 'string' && label.length > 0 && label.length < 65
 }
 
-export const MobileRename = ({ history, location }: MobileSetupProps) => {
+export const MobileRename = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [label, setLabel] = useState<string | null>(null)
@@ -33,7 +35,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
         // Ask the mobile app to update the label on the wallet
         (await updateWallet(location.state.vault.id, { label }))
       ) {
-        history.goBack()
+        navigate(-1)
       } else {
         setError(translate('modals.shapeShift.password.error.maxLength'))
       }
@@ -42,7 +44,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
     } finally {
       setIsSubmitting(false)
     }
-  }, [history, label, location.state.vault?.id, translate])
+  }, [navigate, label, location.state.vault?.id, translate])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value),

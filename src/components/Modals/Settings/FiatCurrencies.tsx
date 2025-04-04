@@ -2,9 +2,10 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
 import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
+import { useCallback } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
@@ -20,14 +21,17 @@ export const FiatCurrencies = () => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
-  const history = useHistory()
-  const { goBack } = history
+  const navigate = useNavigate()
   const defaultCurrency: SupportedFiatCurrencies = 'USD'
   const allFiatCurrencies = sortBy(SupportedFiatCurrenciesList, item =>
     // keep default currency at the top of the list
     item === defaultCurrency ? defaultCurrency : identity,
   )
   const { setSelectedCurrency } = preferences.actions
+
+  const handleGoBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   return (
     <SlideTransition>
@@ -41,7 +45,7 @@ export const FiatCurrencies = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={goBack}
+        onClick={handleGoBack}
       />
       <ModalHeader textAlign='center'>{translate('modals.settings.currency')}</ModalHeader>
       <>

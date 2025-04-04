@@ -1,26 +1,16 @@
-import React, { useCallback, useState } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import type { LocationState } from '../../NativeWallet/types'
 import { CoinbaseConfig } from '../config'
 
-import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-export interface CoinbaseSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
-
-export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
+export const CoinbaseConnect = () => {
+  const navigate = useNavigate()
   const { dispatch, getAdapter } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -63,11 +53,11 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
       } catch (e: any) {
         console.error(e, 'Coinbase Connect: There was an error initializing the wallet')
         setErrorLoading(e.message)
-        history.push('/coinbase/failure')
+        navigate('/coinbase/failure')
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet])
+  }, [dispatch, getAdapter, navigate, localWallet])
 
   return (
     <ConnectModal

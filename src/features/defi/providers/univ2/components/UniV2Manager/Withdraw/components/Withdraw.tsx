@@ -2,6 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router'
 import { getAddress } from 'viem'
 
 import { UniV2WithdrawActionType } from '../WithdrawCommon'
@@ -49,8 +50,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onNext,
 }) => {
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
+  const navigate = useNavigate()
   const { state, dispatch } = useContext(WithdrawContext)
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
@@ -244,8 +245,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const handlePercentClick = useCallback(
     (percent: number) => {

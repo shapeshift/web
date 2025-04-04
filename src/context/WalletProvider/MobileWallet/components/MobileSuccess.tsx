@@ -1,9 +1,10 @@
 import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 
 import { MobileConfig } from '../config'
-import type { MobileSetupProps } from '../types'
+import type { MobileLocationState } from '../types'
 
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -14,13 +15,14 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from '@/state/store'
 
-export const MobileSuccess = ({ location }: MobileSetupProps) => {
+export const MobileSuccess = () => {
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const { state, getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
-  const { vault } = location.state
+  const location = useLocation()
+  const { vault } = location.state as MobileLocationState
 
   useEffect(() => {
     ;(async () => {

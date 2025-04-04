@@ -3,6 +3,7 @@ import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { useCallback } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
+import type { Location } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -26,7 +27,7 @@ type ImportSuccessProps = {
 
 export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
   const appDispatch = useAppDispatch()
-  const location = useLocation<MobileLocationState | undefined>()
+  const location: Location<MobileLocationState | undefined> = useLocation()
   const { setWelcomeModal } = preferences.actions
   const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()

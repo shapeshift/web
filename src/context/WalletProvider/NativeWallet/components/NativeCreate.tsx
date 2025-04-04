@@ -16,9 +16,7 @@ import { useQuery } from '@tanstack/react-query'
 import { range } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
-import { useHistory, useLocation } from 'react-router-dom'
-
-import type { LocationState } from '../types'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
@@ -39,8 +37,8 @@ const Revocable = crypto.Isolation.Engines.Default.Revocable
 const revocable = crypto.Isolation.Engines.Default.revocable
 
 export const NativeCreate = () => {
-  const history = useHistory()
-  const location = useLocation<LocationState>()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [revealed, setRevealed] = useState<boolean>(false)
   const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
@@ -79,12 +77,12 @@ export const NativeCreate = () => {
 
   const handleClick = useCallback(() => {
     if (vault) {
-      history.push(NativeWalletRoutes.CreateTest, {
-        vault,
+      navigate(NativeWalletRoutes.CreateTest, {
+        state: { vault },
       })
       mixpanel?.track(MixPanelEvent.NativeCreate)
     }
-  }, [history, mixpanel, vault])
+  }, [navigate, mixpanel, vault])
 
   const { data: words } = useQuery({
     queryKey: ['native-create-words', vault],

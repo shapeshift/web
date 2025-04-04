@@ -1,7 +1,7 @@
 import { Card, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useState } from 'react'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -14,21 +14,19 @@ import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
-  const location = useLocation()
-
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
 
-  const renderClaimSelect = useCallback(() => {
+  const claimSelect = useMemo(() => {
     return <ClaimSelect setActiveClaim={setActiveClaim} />
   }, [])
 
-  const renderClaimConfirm = useCallback(() => {
+  const claimConfirm = useMemo(() => {
     // We should always have an active claim at confirm step.
     // If we don't, we've either rehydrated, tried to access /claim/confirm directly, or something went wrong.
     // Either way, route back to select
-    if (!activeClaim) return <Redirect to={ClaimRoutePaths.Select} />
+    if (!activeClaim) return <Navigate to={ClaimRoutePaths.Select} />
 
     return (
       <ClaimConfirm
@@ -39,7 +37,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
     )
   }, [activeClaim, setClaimTxHash, setClaimTxStatus])
 
-  const renderClaimStatus = useCallback(() => {
+  const claimStatus = useMemo(() => {
     if (!activeClaim) return null
     if (!claimTxHash) return null
     if (!claimTxStatus) return null
@@ -54,29 +52,20 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   }, [activeClaim, claimTxHash, claimTxStatus])
 
   return (
-    <Switch location={location}>
-      <Stack spacing={0} width='full' maxWidth='500px'>
-        <FoxWifHatBanner />
-        <Card flex={1}>
-          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
+    <Stack spacing={0} width='full' maxWidth='500px'>
+      <FoxWifHatBanner />
+      <Card flex={1}>
+        <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
+        <Routes>
           <Route
             key={ClaimRoutePaths.Confirm}
             path={ClaimRoutePaths.Confirm}
-            render={renderClaimConfirm}
+            element={claimConfirm}
           />
-          <Route
-            key={ClaimRoutePaths.Status}
-            path={ClaimRoutePaths.Status}
-            render={renderClaimStatus}
-          />
-          <Route
-            key={ClaimRoutePaths.Select}
-            path={ClaimRoutePaths.Select}
-            render={renderClaimSelect}
-            exact
-          />
-        </Card>
-      </Stack>
-    </Switch>
+          <Route key={ClaimRoutePaths.Status} path={ClaimRoutePaths.Status} element={claimStatus} />
+          <Route key={ClaimRoutePaths.Select} path={'*'} element={claimSelect} />
+        </Routes>
+      </Card>
+    </Stack>
   )
 }

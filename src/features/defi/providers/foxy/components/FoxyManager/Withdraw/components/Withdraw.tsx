@@ -5,6 +5,7 @@ import { WithdrawType } from '@shapeshiftoss/types'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -14,13 +15,8 @@ import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountD
 import type { StepComponentProps } from '@/components/DeFi/components/Steps'
 import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from '@/features/defi/components/Withdraw/Withdraw'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
@@ -45,7 +41,7 @@ export const Withdraw: React.FC<
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const {
     contractAddress,
@@ -234,7 +230,7 @@ export const Withdraw: React.FC<
     ],
   )
 
-  const handleCancel = useMemo(() => browserHistory.goBack, [browserHistory.goBack])
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const validateCryptoAmount = useCallback(
     (value: string) => {

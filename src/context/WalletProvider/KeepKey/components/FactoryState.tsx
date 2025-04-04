@@ -1,7 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Flex, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Text } from '@/components/Text'
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
@@ -9,7 +9,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const KeepKeyFactoryState = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { setDeviceState } = useWallet()
 
   useEffect(() => {
@@ -19,14 +19,14 @@ export const KeepKeyFactoryState = () => {
   const handleCreateWalletPress = useCallback(() => {
     setLoading(true)
     setDeviceState({ disposition: 'initializing' })
-    history.push(KeepKeyRoutes.NewLabel)
-  }, [history, setDeviceState])
+    navigate(KeepKeyRoutes.NewLabel)
+  }, [navigate, setDeviceState])
 
   const handleRecoverWalletPress = useCallback(() => {
     setLoading(true)
     setDeviceState({ disposition: 'recovering' })
-    history.push(KeepKeyRoutes.RecoverySettings)
-  }, [history, setDeviceState])
+    navigate(KeepKeyRoutes.RecoverySettings)
+  }, [navigate, setDeviceState])
 
   return (
     <>

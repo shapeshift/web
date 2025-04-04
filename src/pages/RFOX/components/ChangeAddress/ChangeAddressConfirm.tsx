@@ -16,7 +16,7 @@ import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
@@ -58,7 +58,7 @@ export const ChangeAddressConfirm: React.FC<
   ChangeAddressRouteProps & ChangeAddressConfirmProps
 > = ({ changeAddressTxid, setChangeAddressTxid, confirmedQuote }) => {
   const wallet = useWallet().state.wallet
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
@@ -174,22 +174,20 @@ export const ChangeAddressConfirm: React.FC<
     },
   })
 
-  const handleSubmit = useCallback(async () => {
-    if (!stakingAsset) return
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
+  const handleSubmit = useCallback(async () => {
     await handleChangeAddress()
-    history.push(ChangeAddressRoutePaths.Status)
-  }, [history, handleChangeAddress, stakingAsset])
+    navigate(ChangeAddressRoutePaths.Status)
+  }, [handleChangeAddress, navigate])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(
     () => isChangeAddressMutationPending || (isChangeAddressMutationSuccess && !changeAddressTx),
     [changeAddressTx, isChangeAddressMutationPending, isChangeAddressMutationSuccess],
   )
-
-  const handleGoBack = useCallback(() => {
-    history.push(ChangeAddressRoutePaths.Input)
-  }, [history])
 
   const changeAddressCard = useMemo(() => {
     if (!stakingAsset) return null
@@ -229,7 +227,7 @@ export const ChangeAddressConfirm: React.FC<
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
         <Flex flex={1}>
-          <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
+          <IconButton onClick={handleBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
         <Flex flex={1} />

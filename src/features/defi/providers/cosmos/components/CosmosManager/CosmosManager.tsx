@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { CosmosClaim } from './Claim/CosmosClaim'
 import { CosmosDeposit } from './Deposit/CosmosDeposit'
@@ -17,13 +18,14 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export const CosmosManager = () => {
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
   const [accountId, setAccountId] = useState<AccountId | undefined>()
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

@@ -6,6 +6,7 @@ import { memo, useCallback } from 'react'
 import { FiLogOut } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
@@ -13,7 +14,6 @@ import { WalletBalance } from './WalletBalance'
 
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
@@ -44,7 +44,7 @@ export const DashboardHeaderTop = memo(() => {
     state: { isConnected },
   } = useWallet()
 
-  const { history } = useBrowserRouter()
+  const navigate = useNavigate()
   const send = useModal('send')
   const receive = useModal('receive')
   const qrCode = useModal('qrCode')
@@ -63,8 +63,8 @@ export const DashboardHeaderTop = memo(() => {
   }, [receive])
 
   const handleTradeClick = useCallback(() => {
-    history.push('/trade')
-  }, [history])
+    navigate('/trade')
+  }, [navigate])
 
   return (
     <Container

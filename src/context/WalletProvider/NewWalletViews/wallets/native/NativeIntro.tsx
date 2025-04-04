@@ -11,7 +11,7 @@ import {
 import { useCallback } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Text } from '@/components/Text'
@@ -19,20 +19,17 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 export const NativeIntro = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const headingColor = useColorModeValue('gray.800', 'whiteAlpha.800')
   const bodyColor = useColorModeValue('gray.600', 'whiteAlpha.600')
   const mainTextColor = useColorModeValue('gray.700', 'whiteAlpha.800')
 
-  const handleCreateClick = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
-  const handleImportClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportSelect),
-    [history],
-  )
+  const handleCreateClick = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
+  const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [navigate])
   const handleImportKeystoreClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportKeystore),
-    [history],
+    () => navigate(NativeWalletRoutes.ImportKeystore),
+    [navigate],
   )
 
   return (

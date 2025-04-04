@@ -2,7 +2,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
@@ -81,8 +82,7 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex
 }
 
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
-  const location = useLocation<RfoxBridgeQuote | undefined>()
-  const { state: maybeBridgeQuote } = location
+  const location = useLocation()
 
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
@@ -91,6 +91,9 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const queryClient = useQueryClient()
   const { stakingAssetId } = useRFOXContext()
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
+
+  // Get bridge quote from location.state
+  const maybeBridgeQuote = location.state as RfoxBridgeQuote | undefined
 
   const stakingAssetAccountAddress = useMemo(() => {
     return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
@@ -191,35 +194,15 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
-        <Suspense fallback={suspenseFallback}>
-          <Route
-            key={StakeRoutePaths.Input}
-            path={StakeRoutePaths.Input}
-            render={renderStakeInput}
-          />
-          <Route
-            key={StakeRoutePaths.Confirm}
-            path={StakeRoutePaths.Confirm}
-            render={renderStakeConfirm}
-          />
-          <Route
-            key={StakeRoutePaths.Status}
-            path={StakeRoutePaths.Status}
-            render={renderStakeStatus}
-          />
-          <Route
-            key={BridgeRoutePaths.Confirm}
-            path={BridgeRoutePaths.Confirm}
-            render={renderBridgeConfirm}
-          />
-          <Route
-            key={BridgeRoutePaths.Status}
-            path={BridgeRoutePaths.Status}
-            render={renderBridgeStatus}
-          />
-        </Suspense>
-      </Switch>
+      <Suspense fallback={suspenseFallback}>
+        <Switch location={location.pathname}>
+          <Route path={StakeRoutePaths.Input}>{renderStakeInput()}</Route>
+          <Route path={StakeRoutePaths.Confirm}>{renderStakeConfirm()}</Route>
+          <Route path={StakeRoutePaths.Status}>{renderStakeStatus()}</Route>
+          <Route path={BridgeRoutePaths.Confirm}>{renderBridgeConfirm()}</Route>
+          <Route path={BridgeRoutePaths.Status}>{renderBridgeStatus()}</Route>
+        </Switch>
+      </Suspense>
     </AnimatePresence>
   )
 }

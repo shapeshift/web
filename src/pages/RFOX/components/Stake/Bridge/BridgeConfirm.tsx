@@ -14,7 +14,7 @@ import { getChainShortName } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
@@ -42,7 +42,7 @@ const backIcon = <ArrowBackIcon />
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
 export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confirmedQuote }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const {
@@ -105,16 +105,16 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
   ])
 
   const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
+    navigate(StakeRoutePaths.Input)
+  }, [navigate])
 
   const handleSubmit = useCallback(() => {
     if (!feeAsset) return
 
     if (isApprovalRequired) return handleApprove()
 
-    history.push({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
-  }, [confirmedQuote, history, feeAsset, handleApprove, isApprovalRequired])
+    navigate(BridgeRoutePaths.Status, { state: confirmedQuote })
+  }, [confirmedQuote, navigate, feeAsset, handleApprove, isApprovalRequired])
 
   const errorCopy = useMemo(() => {
     if (!hasEnoughFeeBalance)

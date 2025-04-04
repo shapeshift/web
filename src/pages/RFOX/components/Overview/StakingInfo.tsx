@@ -16,7 +16,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { StakingInfoItem } from './StakingInfoItem'
 
@@ -51,7 +51,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
   stakingAssetId,
   stakingAssetAccountAddress,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -106,9 +106,9 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   const handleGetAssetClick = useCallback(
     (assetId: AssetId) => () => {
-      history.push(`/trade/${assetId}`)
+      navigate(`/trade/${assetId}`)
     },
-    [history],
+    [navigate],
   )
 
   return (

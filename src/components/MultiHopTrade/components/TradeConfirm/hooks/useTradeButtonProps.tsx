@@ -1,6 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { getHopExecutionStateButtonTranslation } from '../helpers'
 import { useActiveTradeAllowance } from './useActiveTradeAllowance'
@@ -43,7 +43,7 @@ export const useTradeButtonProps = ({
   isExactAllowance,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
   const dispatch = useAppDispatch()
-  const history = useHistory()
+  const navigate = useNavigate()
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
@@ -98,8 +98,8 @@ export const useTradeButtonProps = ({
       dispatch(tradeQuoteSlice.actions.clear())
     }
 
-    history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, confirmedTradeExecutionState])
+    navigate(TradeRoutePaths.Input)
+  }, [dispatch, navigate, confirmedTradeExecutionState])
 
   const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
 

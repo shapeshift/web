@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { ReactTable } from '@/components/ReactTable/ReactTable'
@@ -21,7 +21,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     selectRelatedAssetIds(state, relatedAssetIdsFilter),
   )
   const assets = useAppSelector(selectAssets)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const columns: Column<AssetId>[] = useMemo(
     () => [
@@ -44,9 +44,9 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   const handleRowClick = useCallback(
     (row: Row<AssetId>) => {
       const assetId = row.original
-      history.push(`/assets/${assetId}`)
+      navigate(`/assets/${assetId}`)
     },
-    [history],
+    [navigate],
   )
 
   if (!relatedAssetIds.length) return null

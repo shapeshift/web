@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { SnapContent } from '@/components/Modals/Snaps/SnapContent'
+import { SnapContentRouter } from '@/components/Modals/Snaps/SnapContent'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -12,7 +12,7 @@ export const SnapInstall = () => {
   }, [dispatch])
 
   return (
-    <SnapContent
+    <SnapContentRouter
       onClose={handleClose}
       // If we land here, we don't care about versioning, the user does *not* have the snap installed yet
       isCorrectVersion

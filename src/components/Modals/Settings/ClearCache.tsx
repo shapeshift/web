@@ -12,21 +12,17 @@ import {
 import { useCallback } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { reloadWebview } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistory, txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { persistor, useAppDispatch, useAppSelector } from '@/state/store'
-
-type ClearCacheProps = {
-  appHistory: RouteComponentProps['history']
-}
 
 const arrowBackIcon = <ArrowBackIcon />
 
@@ -55,13 +51,14 @@ const ClearCacheButton = ({
   )
 }
 
-export const ClearCache = ({ appHistory }: ClearCacheProps) => {
+export const ClearCache = () => {
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()
-  const history = useHistory()
+  const { navigate: browserNavigate } = useBrowserRouter()
+  const navigate = useNavigate()
   const { disconnect } = useWallet()
-  const { goBack } = history
+  const goBack = useCallback(() => navigate(-1), [navigate])
 
   const handleClearCacheClick = useCallback(async () => {
     try {
@@ -74,12 +71,12 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
       // send them back to the connect wallet route in case the bug was something to do with the current page
       // and so they can reconnect their native wallet to avoid the app looking broken in an infinite loading state
       if (isMobileApp) {
-        appHistory.replace('/connect-mobile-wallet')
+        browserNavigate('/connect-mobile-wallet', { replace: true })
       }
       // reload the page
       isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}
-  }, [appHistory, disconnect])
+  }, [browserNavigate, disconnect])
 
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())

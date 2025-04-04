@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { marketDataBySortKey } from '../constants'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
@@ -32,12 +32,12 @@ export const LpGrid: React.FC<{
   sortBy?: SortOptionsKeys
 }> = ({ assetIds, selectedChainId, isLoading, limit, orderBy, sortBy }) => {
   const { ref, inView } = useInView()
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
-      return history.push(`/assets/${assetId}`)
+      navigate(`/assets/${assetId}`)
     },
-    [history],
+    [navigate],
   )
   const { data: portalsAssets } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,

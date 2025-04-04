@@ -5,13 +5,14 @@ import { useCallback, useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
 import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
-import { Routes } from '@/Routes/Routes'
+import { AppRoutes } from '@/Routes/Routes'
 import { selectShowConsentBanner, selectShowWelcomeModal } from '@/state/slices/selectors'
 
 const flexGap = { base: 2, md: 3 }
@@ -19,6 +20,7 @@ const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: '
 const flexAlignItems = { base: 'flex-start', md: 'center' }
 
 export const App = () => {
+  const navigate = useNavigate()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
@@ -66,14 +68,14 @@ export const App = () => {
 
   useEffect(() => {
     if (showWelcomeModal && !isNativeOnboardOpen) {
-      openNativeOnboard({})
+      openNativeOnboard({ browserNavigate: navigate })
     }
-  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
+  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal, navigate])
 
   return (
     <>
       {showConsentBanner && <ConsentBanner />}
-      <Routes />
+      <AppRoutes />
     </>
   )
 }

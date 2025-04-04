@@ -14,9 +14,9 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Link, useHistory, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import type { MarketsCategories } from '../constants'
 import { sortOptionsByCategory } from '../constants'
@@ -71,8 +71,8 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
 }) => {
   const params: { category?: MarketsCategories } = useParams()
   const translate = useTranslate()
-  const history = useHistory()
-  const handleBack = history.goBack
+  const navigate = useNavigate()
+  const handleBack = useCallback(() => navigate(-1), [navigate])
   const isCategoryRoute = params.category
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)

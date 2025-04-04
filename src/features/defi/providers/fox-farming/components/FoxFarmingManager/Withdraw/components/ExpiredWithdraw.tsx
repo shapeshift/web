@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -50,8 +51,9 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   onNext,
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { assetNamespace, chainId, contractAddress, rewardId } = query
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetNamespace, contractAddress, rewardId } = query
 
   const assets = useAppSelector(selectAssets)
 
@@ -212,7 +214,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   // no-op for expired withdraw
   const handlePercentClick = useCallback(() => {}, [])
 
-  const handleCancel = browserHistory.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   if (!state || !dispatch || !opportunity || !totalFiatBalance || !asset) return null
 

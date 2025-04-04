@@ -1,5 +1,8 @@
 import { AnimatePresence } from 'framer-motion'
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Navigate } from 'react-router'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
@@ -17,9 +20,45 @@ type MobileWalletDialogProps = {
   defaultRoute?: MobileWalletDialogRoutes
 }
 
-const defaultRedirect = (defaultRoute: MobileWalletDialogRoutes) => () => (
-  <Redirect to={defaultRoute} />
-)
+const defaultRedirect = (defaultRoute: MobileWalletDialogRoutes) => <Navigate to={defaultRoute} />
+
+const manualBackup = <ManualBackup showContinueButton={false} />
+const renameWallet = <RenameWallet />
+const deleteWallet = <DeleteWallet />
+
+const MobileDialogRoutes = ({
+  defaultRoute,
+  onClose,
+}: {
+  defaultRoute: MobileWalletDialogRoutes
+  onClose: () => void
+}) => {
+  const location = useLocation()
+
+  const importRouter = useMemo(
+    () => <ImportRouter onClose={onClose} defaultRoute={defaultRoute} />,
+    [defaultRoute, onClose],
+  )
+  const savedWallets = useMemo(() => <SavedWallets onClose={onClose} />, [onClose])
+  const createWalletRouter = useMemo(
+    () => <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />,
+    [defaultRoute, onClose],
+  )
+
+  return (
+    <AnimatePresence mode='wait' initial={false}>
+      <Switch location={location.pathname}>
+        <Route path={MobileWalletDialogRoutes.Backup}>{manualBackup}</Route>
+        <Route path={MobileWalletDialogRoutes.Import}>{importRouter}</Route>
+        <Route path={MobileWalletDialogRoutes.Saved}>{savedWallets}</Route>
+        <Route path={MobileWalletDialogRoutes.Rename}>{renameWallet}</Route>
+        <Route path={MobileWalletDialogRoutes.Delete}>{deleteWallet}</Route>
+        <Route path={MobileWalletDialogRoutes.Create}>{createWalletRouter}</Route>
+        <Route path='/'>{defaultRedirect(defaultRoute)}</Route>
+      </Switch>
+    </AnimatePresence>
+  )
+}
 
 export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
   isOpen,
@@ -29,33 +68,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
       <MemoryRouter>
-        <Route>
-          {({ location }) => (
-            <AnimatePresence mode='wait' initial={false}>
-              <Switch key={location.key} location={location}>
-                <Route path={MobileWalletDialogRoutes.Backup}>
-                  <ManualBackup showContinueButton={false} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Import}>
-                  <ImportRouter onClose={onClose} defaultRoute={defaultRoute} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Saved}>
-                  <SavedWallets onClose={onClose} />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Rename}>
-                  <RenameWallet />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Delete}>
-                  <DeleteWallet />
-                </Route>
-                <Route path={MobileWalletDialogRoutes.Create}>
-                  <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />
-                </Route>
-                <Route path='/' exact render={defaultRedirect(defaultRoute)} />
-              </Switch>
-            </AnimatePresence>
-          )}
-        </Route>
+        <MobileDialogRoutes defaultRoute={defaultRoute} onClose={onClose} />
       </MemoryRouter>
     </Dialog>
   )

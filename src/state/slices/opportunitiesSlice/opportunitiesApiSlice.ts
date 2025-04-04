@@ -20,7 +20,6 @@ import type {
   OpportunityId,
   UserStakingId,
 } from './types'
-import { DefiProvider } from './types'
 import { deserializeUserStakingId, opportunityIdToChainId } from './utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'

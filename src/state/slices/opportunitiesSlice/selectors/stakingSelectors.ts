@@ -430,7 +430,7 @@ export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSel
   selectMarketDataUserCurrency,
   selectAssets,
   selectPortfolioUserCurrencyBalances,
-  (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
+  (aggregatedUserStakingOpportunities, marketData, assets): BN =>
     aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
       .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0)),

@@ -28,7 +28,7 @@ import {
   selectWalletId,
   selectWalletName,
 } from '../common-selectors'
-import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
+import type { UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
 import type {
   AssetBalancesById,
@@ -60,7 +60,6 @@ import {
 } from '@/state/selectors'
 import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import {
-  selectAggregatedEarnUserStakingOpportunities,
   selectStakingOpportunitiesById,
   selectUserStakingOpportunitiesById,
 } from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'

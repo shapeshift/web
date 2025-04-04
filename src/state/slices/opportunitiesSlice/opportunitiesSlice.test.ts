@@ -11,7 +11,7 @@ import {
   mockStakingContractOne,
 } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
-import { DefiProvider, DefiType } from './types'
+import { DefiType } from './types'
 import { serializeUserStakingId } from './utils'
 
 import { clearState, store } from '@/state/store'

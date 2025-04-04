@@ -21,7 +21,6 @@ import { UnderlyingAsset } from './UnderlyingAsset'
 import { Amount } from '@/components/Amount/Amount'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { LpId } from '@/state/slices/opportunitiesSlice/types'
-import { AssetEquityType } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetEquityItemsByFilter,
   selectAssets,
@@ -87,22 +86,17 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         <EquityRowLoading key={`eq-row-loading-${index}`} />
       ))
     return equityRows.map(item => {
-      switch (item.type) {
-        case AssetEquityType.Account:
-          return (
-            <EquityAccountRow
-              key={item.id}
-              assetId={assetId}
-              accountId={item.id as AccountId}
-              totalFiatBalance={totalFiatBalance}
-              color={item.color}
-            />
-          )
-        default:
-          return null
-      }
+      return (
+        <EquityAccountRow
+          key={item.id}
+          assetId={assetId}
+          accountId={item.id as AccountId}
+          totalFiatBalance={totalFiatBalance}
+          color={item.color}
+        />
+      )
     })
-  }, [accountId, assetId, equityRows, isLoading, totalFiatBalance])
+  }, [assetId, equityRows, isLoading, totalFiatBalance])
 
   const renderUnderlyingAssets = useMemo(() => {
     if (!underlyingAssetsWithBalancesAndIcons?.length) return

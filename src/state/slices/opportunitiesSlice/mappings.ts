@@ -137,10 +137,6 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   ],
   [KnownChainIds.EthereumMainnet]: [
     {
-      defiProvider: 'Uniswap V2',
-      defiType: DefiType.LiquidityPool,
-    },
-    {
       defiProvider: DefiProvider.EthFoxStaking,
       defiType: DefiType.Staking,
     },

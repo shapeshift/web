@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Allowance reset tx:",
     "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}!",
-    "tradeCompleteSurplus": "You got an extra %{extra}!",
+    "tradeCompleteSurplus": "You got an extra %{extraPercent}!",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
     "estimatedCompletionTime": "Estimated Completion Time",

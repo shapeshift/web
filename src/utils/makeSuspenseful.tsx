@@ -5,7 +5,7 @@ import { Suspense, useMemo } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 
-const suspenseSpinnerStyle = {
+const defaultSpinnerStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -14,18 +14,26 @@ const suspenseSpinnerStyle = {
   height: '100vh',
 }
 
+const SuspenseSpinner = ({ spinnerStyle }: { spinnerStyle: BoxProps }) => {
+  const boxSpinnerStyle = useMemo(
+    () => ({ ...defaultSpinnerStyle, ...spinnerStyle }),
+    [spinnerStyle],
+  )
+
+  return (
+    <Box sx={boxSpinnerStyle}>
+      <CircularProgress />
+    </Box>
+  )
+}
+
+// eslint you're drunk, this is a module-scope element with a module-scope const dependancy
+// eslint-disable-next-line react-memo/require-usememo
+export const defaultSuspenseFallback = <SuspenseSpinner spinnerStyle={defaultSpinnerStyle} />
+
 export function makeSuspenseful<T extends FC<any>>(Component: T, spinnerStyle: BoxProps = {}) {
   return (props: ComponentProps<T>) => {
-    const boxSpinnerStyle = useMemo(() => ({ ...suspenseSpinnerStyle, ...spinnerStyle }), [])
-
-    const suspenseSpinner = useMemo(
-      () => (
-        <Box sx={boxSpinnerStyle}>
-          <CircularProgress />
-        </Box>
-      ),
-      [boxSpinnerStyle],
-    )
+    const suspenseSpinner = useMemo(() => <SuspenseSpinner spinnerStyle={spinnerStyle} />, [])
 
     return (
       <Suspense fallback={suspenseSpinner}>

@@ -28,7 +28,6 @@ import {
   selectWalletId,
   selectWalletName,
 } from '../common-selectors'
-import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
 import type {
@@ -292,7 +291,6 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectMarketDataUserCurrency,
     selectBalanceThreshold,
     selectPortfolioAccounts,
-    selectAggregatedEarnUserStakingOpportunities,
     selectAccountIdParamFromFilter,
     (
       assetsById,
@@ -301,7 +299,6 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       marketData,
       balanceThreshold,
       portfolioAccounts,
-      aggregatedEarnUserStakingOpportunities,
       accountId,
     ): AssetBalancesById => {
       const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
@@ -311,20 +308,6 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       ).reduce((acc, _account) => {
         return acc
       }, cloneDeep(rawBalances))
-      // TODO: add LP portfolio amount to this
-      const foxEthLpTotalBalancesIncludingDelegations = aggregatedEarnUserStakingOpportunities
-        ?.filter(opportunity => foxEthStakingIds.includes(opportunity.assetId as StakingId))
-        .reduce<BN>((acc: BN, opportunity) => {
-          const asset = assetsById[opportunity.underlyingAssetId]
-          return asset
-            ? acc.plus(
-                bnOrZero(opportunity.stakedAmountCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-              )
-            : acc
-        }, bn(0))
-        .toFixed()
-      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] =
-        foxEthLpTotalBalancesIncludingDelegations
 
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,

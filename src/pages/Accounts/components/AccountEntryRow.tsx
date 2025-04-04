@@ -12,11 +12,16 @@ import { RawText } from '@/components/Text'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
-  selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/portfolioSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId, selectAssetById } from '@/state/slices/selectors'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type AccountEntryRowProps = {
@@ -40,10 +45,14 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
-  const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesIncludingStaking)
-  const fiatBalances = useSelector(selectPortfolioAccountsUserCurrencyBalancesIncludingStaking)
-  const cryptoBalance = cryptoBalances?.[accountId]?.[assetId] ?? '0'
-  const fiatBalance = fiatBalances?.[accountId]?.[assetId] ?? '0'
+  const cryptoBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, cryptoBalanceFilter),
+  )
+  const userCurrencyBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
+  const userCurrencyBalance = useAppSelector(state =>
+    selectPortfolioUserCurrencyBalanceByFilter(state, userCurrencyBalanceFilter),
+  )
   const { icon, name, symbol } = asset ?? {}
 
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
@@ -102,7 +111,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
         <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
-          <Amount.Fiat value={fiatBalance} />
+          <Amount.Fiat value={userCurrencyBalance} />
           <Amount.Crypto
             value={cryptoBalance}
             symbol={symbol ?? ''}

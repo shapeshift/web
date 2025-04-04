@@ -13,7 +13,7 @@ import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
-  selectPortfolioTotalChainIdBalanceIncludeStaking,
+  selectPortfolioTotalChainIdBalanceUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -31,8 +31,8 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const history = useHistory()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
-  const chainUserCurrencyBalance = useAppSelector(s =>
-    selectPortfolioTotalChainIdBalanceIncludeStaking(s, filter),
+  const chainFiatBalance = useAppSelector(s =>
+    selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
     isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : {},
@@ -85,7 +85,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
           <RawText>{asset.networkName ?? asset.name}</RawText>
         </Stack>
         <Stack direction='row' alignItems='center' spacing={6}>
-          <Amount.Fiat value={chainUserCurrencyBalance} />
+          <Amount.Fiat value={chainFiatBalance} />
           <Center boxSize='32px'>{isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}</Center>
         </Stack>
       </Stack>

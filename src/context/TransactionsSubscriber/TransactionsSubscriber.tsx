@@ -29,7 +29,7 @@ import {
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
 
-export const TransactionsProvider: React.FC = () => {
+export const TransactionsSubscriber: React.FC = () => {
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const {

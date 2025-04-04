@@ -7,7 +7,7 @@ import { FoxFarmingOverview } from './Overview/FoxFarmingOverview'
 import { FoxFarmingWithdraw } from './Withdraw/FoxFarmingWithdraw'
 
 import { SlideTransition } from '@/components/SlideTransition'
-import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { FoxEthProvider, useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -35,36 +35,38 @@ export const FoxFarmingManager = () => {
   }, [handleFarmingAccountIdChange])
 
   return (
-    <AnimatePresence mode='wait' initial={false}>
-      {modal === DefiAction.Overview && (
-        <SlideTransition key={DefiAction.Overview}>
-          <FoxFarmingOverview
-            accountId={farmingAccountId}
-            onAccountIdChange={handleFarmingAccountIdChange}
-          />
-        </SlideTransition>
-      )}
-      {modal === DefiAction.Deposit && (
-        <SlideTransition key={DefiAction.Deposit}>
-          <FoxFarmingDeposit
-            accountId={farmingAccountId}
-            onAccountIdChange={handleFarmingAccountIdChange}
-          />
-        </SlideTransition>
-      )}
-      {modal === DefiAction.Withdraw && (
-        <SlideTransition key={DefiAction.Withdraw}>
-          <FoxFarmingWithdraw
-            accountId={farmingAccountId}
-            onAccountIdChange={handleFarmingAccountIdChange}
-          />
-        </SlideTransition>
-      )}
-      {modal === DefiAction.Claim && (
-        <SlideTransition key={DefiAction.Claim}>
-          <Claim accountId={farmingAccountId} onAccountIdChange={handleFarmingAccountIdChange} />
-        </SlideTransition>
-      )}
-    </AnimatePresence>
+    <FoxEthProvider>
+      <AnimatePresence mode='wait' initial={false}>
+        {modal === DefiAction.Overview && (
+          <SlideTransition key={DefiAction.Overview}>
+            <FoxFarmingOverview
+              accountId={farmingAccountId}
+              onAccountIdChange={handleFarmingAccountIdChange}
+            />
+          </SlideTransition>
+        )}
+        {modal === DefiAction.Deposit && (
+          <SlideTransition key={DefiAction.Deposit}>
+            <FoxFarmingDeposit
+              accountId={farmingAccountId}
+              onAccountIdChange={handleFarmingAccountIdChange}
+            />
+          </SlideTransition>
+        )}
+        {modal === DefiAction.Withdraw && (
+          <SlideTransition key={DefiAction.Withdraw}>
+            <FoxFarmingWithdraw
+              accountId={farmingAccountId}
+              onAccountIdChange={handleFarmingAccountIdChange}
+            />
+          </SlideTransition>
+        )}
+        {modal === DefiAction.Claim && (
+          <SlideTransition key={DefiAction.Claim}>
+            <Claim accountId={farmingAccountId} onAccountIdChange={handleFarmingAccountIdChange} />
+          </SlideTransition>
+        )}
+      </AnimatePresence>
+    </FoxEthProvider>
   )
 }

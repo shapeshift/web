@@ -241,7 +241,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return '0'
     })()
 
-    const relayerFeesBaseUnit = (() => {
+    const relayerFeesBuyAssetBaseUnit = (() => {
       const relayerFeeRelayToken = quote.fees?.relayer?.currency
       if (relayerFeeRelayToken && isValidRelayToken(relayerFeeRelayToken)) {
         const relayerFeesAsset = relayTokenToAsset(relayerFeeRelayToken, deps.assetsById)
@@ -266,23 +266,23 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         // If fee is in a different asset, convert to buy asset
         const feeAmountUsd = quote.fees?.relayer?.amountUsd ?? '0'
         const buyAssetUsd = quote.details?.currencyOut?.amountUsd ?? '0'
-        const buyAssetAmount = quote.details?.currencyOut?.amount ?? '1'
+        const buyAssetAmountBaseUnit = quote.details?.currencyOut?.amount ?? '1'
 
-        if (feeAmountUsd && buyAssetUsd && buyAssetAmount) {
+        console.log({
+          feeAmountUsd,
+          buyAssetUsd,
+          buyAssetAmountBaseUnit,
+        })
+
+        if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
           // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
           // Then multiply by feeAmountUsd to get the equivalent buy asset amount
-          const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmount).div(buyAssetUsd)
+          const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmountBaseUnit).div(buyAssetUsd)
           const buyAssetFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(
             buyAssetCryptoBaseUnitPerUsd,
           )
 
-          // Handle precision differences
-          const precisionDiff = convertPrecision({
-            value: buyAssetFeesCryptoBaseUnit,
-            inputExponent: relayerFeesAsset.precision,
-            outputExponent: buyAsset.precision,
-          })
-          return precisionDiff.toFixed(0)
+          return buyAssetFeesCryptoBaseUnit.toFixed(0)
         }
 
         return '0'
@@ -291,11 +291,13 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return '0'
     })()
 
+    console.log('relayerFeesBaseUnit', relayerFeesBuyAssetBaseUnit)
+
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
     const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
       // @blocking: relayer can be ETH or destination token
-      .plus(relayerFeesBaseUnit)
+      .plus(relayerFeesBuyAssetBaseUnit)
       .plus(appFeesBaseUnit)
       .toString()
 

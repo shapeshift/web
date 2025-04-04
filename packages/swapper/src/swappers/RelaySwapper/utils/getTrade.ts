@@ -2,6 +2,7 @@ import {
   bnOrZero,
   convertBasisPointsToPercentage,
   convertDecimalPercentageToBasisPoints,
+  convertPrecision,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -9,7 +10,9 @@ import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight, SwapperDeps, TradeQuote, TradeQuoteStep } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
+import { DEFAULT_RELAY_EVM_USER_ADDRESS } from '../constant'
 import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
@@ -67,9 +70,27 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
-    if (input.quoteOrRate === 'rate') return input.sendAddress ?? ''
+    if (input.quoteOrRate === 'rate') {
+      if (input.sendAddress) return input.sendAddress
+
+      // @TODO: Support solana and BTC addresses according to relay implementation when
+      // wallet is not connected
+      return DEFAULT_RELAY_EVM_USER_ADDRESS
+    }
 
     return input.sendAddress
+  })()
+
+  const recipient = (() => {
+    if (input.quoteOrRate === 'rate') {
+      if (input.receiveAddress) return input.receiveAddress
+
+      // @TODO: Support solana and BTC addresses according to relay implementation when
+      // wallet is not connected
+      return DEFAULT_RELAY_EVM_USER_ADDRESS
+    }
+
+    return input.receiveAddress
   })()
 
   const maybeQuote = await fetchRelayTrade(
@@ -80,7 +101,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       destinationCurrency: getRelayEvmAssetAddress(buyAsset),
       tradeType: 'EXACT_INPUT',
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      recipient: receiveAddress,
+      recipient,
       user: sendAddress,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
@@ -191,11 +212,97 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const protocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
 
-  const steps = swapSteps.map(
-    (quoteStep): TradeQuoteStep => ({
+  const steps = swapSteps.map((quoteStep): TradeQuoteStep => {
+    const isCrossChain = sellAsset.chainId !== buyAsset.chainId
+
+    const appFeesBaseUnit = (() => {
+      // Handle app fees based on cross-chain status
+      if (
+        quote.fees?.app?.amount &&
+        quote.fees?.app?.currency &&
+        isValidRelayToken(quote.fees?.app?.currency)
+      ) {
+        const appFeesAsset = quote.fees?.app?.currency
+          ? relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
+          : undefined
+
+        // @TODO: we might need to change this logic when solana and BTC are supported
+        const isNativeCurrencyInput =
+          isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset?.chainId
+
+        // For cross-chain: always add back app fees
+        // For same-chain: only add back if input is native currency
+        if (isCrossChain || isNativeCurrencyInput) {
+          return quote.fees.app.amount
+        }
+      }
+
+      // cross-chain or same-chain with native currency as input are not applicable
+      return '0'
+    })()
+
+    const relayerFeesBaseUnit = (() => {
+      const relayerFeeRelayToken = quote.fees?.relayer?.currency
+      if (relayerFeeRelayToken && isValidRelayToken(relayerFeeRelayToken)) {
+        const relayerFeesAsset = relayTokenToAsset(relayerFeeRelayToken, deps.assetsById)
+        const relayerFeeAmount = quote.fees?.relayer?.amount ?? '0'
+
+        // If fee is already in buy asset, return as is
+        if (relayerFeesAsset?.assetId === buyAsset.assetId) {
+          return relayerFeeAmount
+        }
+
+        // if fee is in sell asset, convert to buy asset
+        if (relayerFeesAsset?.assetId === sellAsset.assetId) {
+          return convertPrecision({
+            value: relayerFeeAmount,
+            inputExponent: relayerFeesAsset.precision,
+            outputExponent: buyAsset.precision,
+          })
+            .times(rate)
+            .toFixed(0)
+        }
+
+        // If fee is in a different asset, convert to buy asset
+        const feeAmountUsd = quote.fees?.relayer?.amountUsd ?? '0'
+        const buyAssetUsd = quote.details?.currencyOut?.amountUsd ?? '0'
+        const buyAssetAmount = quote.details?.currencyOut?.amount ?? '1'
+
+        if (feeAmountUsd && buyAssetUsd && buyAssetAmount) {
+          // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
+          // Then multiply by feeAmountUsd to get the equivalent buy asset amount
+          const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmount).div(buyAssetUsd)
+          const buyAssetFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(
+            buyAssetCryptoBaseUnitPerUsd,
+          )
+
+          // Handle precision differences
+          const precisionDiff = convertPrecision({
+            value: buyAssetFeesCryptoBaseUnit,
+            inputExponent: relayerFeesAsset.precision,
+            outputExponent: buyAsset.precision,
+          })
+          return precisionDiff.toFixed(0)
+        }
+
+        return '0'
+      }
+
+      return '0'
+    })()
+
+    // Add back relayer service and gas fees (relayer is including both) since they are downsides
+    // And add appFees
+    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
+      // @blocking: relayer can be ETH or destination token
+      .plus(relayerFeesBaseUnit)
+      .plus(appFeesBaseUnit)
+      .toString()
+
+    return {
       allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
       rate,
-      buyAmountBeforeFeesCryptoBaseUnit: currencyOut.amount ?? '0',
+      buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount ?? '0',
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
@@ -205,9 +312,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         networkFeeCryptoBaseUnit: quote.fees?.gas?.amount ?? '0',
         protocolFees: {
           [protocolAssetId]: {
-            amountCryptoBaseUnit: quote.fees?.relayerService?.amount ?? '0',
+            amountCryptoBaseUnit: quote.fees?.relayer?.amount ?? '0',
             asset: protocolAsset,
-            requiresBalance: true,
+            requiresBalance: false,
           },
         },
       },
@@ -221,8 +328,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         maxFeePerGas: quoteStep.items?.[0]?.data?.maxFeePerGas,
         maxPriorityFeePerGas: quoteStep.items?.[0]?.data?.maxPriorityFeePerGas,
       },
-    }),
-  )
+    }
+  })
 
   const tradeQuote: TradeQuote = {
     id: quote.steps[0].requestId ?? '',

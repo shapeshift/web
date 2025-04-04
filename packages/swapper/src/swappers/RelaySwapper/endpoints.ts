@@ -59,22 +59,19 @@ export const relayApi: SwapperApi = {
 
     return tradeRateResult
   },
-  getUnsignedEvmTransaction: ({
+  getUnsignedEvmTransaction: async ({
     chainId,
     from,
     stepIndex,
     tradeQuote,
-  }: GetUnsignedEvmTransactionArgs): EvmTransactionRequest => {
+    assertGetEvmChainAdapter,
+  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+    const currentStep = tradeQuote.steps[stepIndex]
+    if (!currentStep?.relayTransactionMetadata) throw Error('Invalid step index')
 
-    const {
-      to,
-      value,
-      data,
-      gas,
-      maxFeePerGas: _maxFeePerGas,
-      maxPriorityFeePerGas: _maxPriorityFeePerGas,
-    } = tradeQuote.steps[stepIndex]?.relayTransactionMetadata ?? {}
+    const { to, value, data, gas, maxFeePerGas, maxPriorityFeePerGas } =
+      currentStep.relayTransactionMetadata
 
     if (to === undefined || value === undefined || data === undefined || gas === undefined) {
       const undefinedRequiredValues = [to, value, data, gas].filter(value => value === undefined)
@@ -86,17 +83,22 @@ export const relayApi: SwapperApi = {
       })
     }
 
-    const feeData = (() => {
-      if (bnOrZero(_maxFeePerGas).isZero() || bnOrZero(_maxPriorityFeePerGas).isZero()) {
+    const feeData = await (async () => {
+      if (bnOrZero(maxFeePerGas).isZero() || bnOrZero(maxPriorityFeePerGas).isZero()) {
+        const { average } = await assertGetEvmChainAdapter(
+          currentStep.sellAsset.chainId,
+        ).getGasFeeData()
+
         return {
           maxFeePerGas: undefined,
           maxPriorityFeePerGas: undefined,
+          gasPrice: average.gasPrice,
         }
       }
 
       return {
-        maxFeePerGas: _maxFeePerGas,
-        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
       }
     })()
 

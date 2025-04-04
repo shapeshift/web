@@ -42,6 +42,7 @@ export const relayChainMap: Record<ChainId, number> = {
 }
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
+export const DEFAULT_RELAY_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 
 export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: relaySupportedChainIds,

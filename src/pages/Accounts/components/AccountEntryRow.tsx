@@ -3,7 +3,6 @@ import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { generatePath, useHistory } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -11,15 +10,11 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
-import {
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-  selectPortfolioUserCurrencyBalanceByFilter,
-} from '@/state/slices/portfolioSlice/selectors'
+import { selectPortfolioUserCurrencyBalanceByFilter } from '@/state/slices/portfolioSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

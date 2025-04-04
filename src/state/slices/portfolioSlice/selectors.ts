@@ -450,44 +450,12 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
 )
 
 /**
- * selects all accounts in PortfolioAccountBalancesById form, including all
- * delegation, undelegation, and redelegation balances, with base unit crypto balances
- */
-export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioStakingCryptoBalances,
-  (accountBalances, stakingBalances): PortfolioAccountBalancesById => {
-    return Object.entries(accountBalances).reduce<PortfolioAccountBalancesById>(
-      (acc, [accountId, account]) => {
-        if (!acc[accountId]) acc[accountId] = {}
-        Object.entries(account).forEach(([assetId, balance]) => {
-          const accountAssetStakingBalance = stakingBalances[accountId]?.[assetId]
-          // TODO(gomes): This is a temporary fix until we figure out the DeFi heuristics for isDefiOpportunity or similarly named property
-          // i.e a property that will allow us to know whether or not a wallet asset is exclusively used as a DeFi opportunity
-          // This is obviously a suboptimal fix as if you stake the exact same amount (to the smallest base unit) of an asset as you have in your wallet,
-          // it would not be counted in crypto (and hence fiat) total
-          if (accountAssetStakingBalance === balance) {
-            acc[accountId][assetId] = bnOrZero(balance).toString()
-          } else {
-            acc[accountId][assetId] = bnOrZero(balance)
-              .plus(bnOrZero(accountAssetStakingBalance))
-              .toString()
-          }
-        })
-        return acc
-      },
-      {},
-    )
-  },
-)
-
-/**
  * same PortfolioAccountBalancesById shape, but human crypto balances
  */
 export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
   createDeepEqualOutputSelector(
     selectAssets,
-    selectPortfolioAccountsCryptoBalancesIncludingStaking,
+    selectPortfolioAccountBalancesBaseUnit,
     (assets, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
       return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
         acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
@@ -508,7 +476,7 @@ export const selectPortfolioAccountsUserCurrencyBalancesIncludingStaking =
   createDeepEqualOutputSelector(
     selectAssets,
     selectMarketDataUserCurrency,
-    selectPortfolioAccountsCryptoBalancesIncludingStaking,
+    selectPortfolioAccountBalancesBaseUnit,
     (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
       const userCurrencyAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
         [k: AccountId]: { [k: AssetId]: string }
@@ -571,23 +539,6 @@ export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSele
   selectAccountIdParamFromFilter,
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
-
-export const selectPortfolioTotalChainIdBalanceIncludeStaking = createCachedSelector(
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-  selectChainIdParamFromFilter,
-  (userCurrencyAccountBalances, chainId): string => {
-    return Object.entries(userCurrencyAccountBalances)
-      .reduce((acc, [accountId, accountBalanceByAssetId]) => {
-        if (fromAccountId(accountId).chainId !== chainId) return acc
-        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
-          // use the outer accumulator
-          acc = acc.plus(bnOrZero(assetBalance))
-        })
-        return acc
-      }, bn(0))
-      .toFixed(2)
-  },
-)((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
 
 export const selectPortfolioTotalChainIdBalanceUserCurrency = createDeepEqualOutputSelector(
   selectAssets,

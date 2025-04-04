@@ -1,3 +1,4 @@
+import { scan } from "react-scan"; // must be imported before React and React DOM
 import './lib/global-polyfills'
 import './wdyr'
 import '@/lib/polyfills'
@@ -21,6 +22,10 @@ import { getConfig } from './config'
 import { renderConsoleArt } from './lib/consoleArt'
 import { reportWebVitals } from './lib/reportWebVitals'
 import { httpClientIntegration } from './utils/sentry/httpclient'
+
+scan({
+  enabled: true,
+});
 
 // Remove this condition to test sentry locally
 if (window.location.hostname !== 'localhost') {

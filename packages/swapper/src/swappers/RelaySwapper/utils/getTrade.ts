@@ -287,7 +287,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
-    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
+    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
       // @blocking: relayer can be ETH or destination token
       .plus(relayerFeesBuyAssetBaseUnit)
       .plus(appFeesBaseUnit)
@@ -297,7 +297,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount ?? '0',
+      buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount ?? '0',
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,

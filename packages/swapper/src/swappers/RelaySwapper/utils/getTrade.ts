@@ -345,7 +345,7 @@ export const getRelayTradeRate = (
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ) => {
-  return getTrade<'rate'>({
+  return getTrade({
     input: args,
     deps,
     relayChainMap,
@@ -357,7 +357,7 @@ export const getRelayTradeQuote = (
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ) => {
-  return getTrade<'quote'>({
+  return getTrade({
     input: args,
     deps,
     relayChainMap,

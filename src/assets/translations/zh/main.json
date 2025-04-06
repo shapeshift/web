@@ -62,7 +62,6 @@
     "walletActions": "钱包操作",
     "connectedWalletSettings": "钱包设置",
     "noWallet": "没有连接钱包",
-    "seeAll": "查看全部",
     "darkMode": "深色模式",
     "darkTheme": "深色主题",
     "rename": "重命名",
@@ -207,7 +206,7 @@
     "cta": "再试一次"
   },
   "buyPage": {
-    "title": "购买加密货币 <span>快速</span>",
+    "title": "<span>快速</span>购买加密货币 ",
     "body": "使用信用卡、借记卡或银行账户来购买比特币、以太坊、USDT、USDC 或其他顶级加密货币。适用于非 KYC 用户。",
     "disclaimer": "*你还可以直接出售加密货币以换取现金存入你的银行账户。",
     "ctaTitle": "你还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和 <span>在 %{chainCount} 条链上跟踪你的加密货币</span>",
@@ -421,8 +420,8 @@
         "introducingSaversVaults": "介绍储户金库",
         "introducingRunePool": "介绍 RUNEPool",
         "risksBody": {
-          "vaults": "参考 <link>这篇文章</link> 与储户金库有关的风险。",
-          "runePool": "参考 <link>这篇文章</link> 与 RUNEPool 相关的风险。"
+          "vaults": "参考 <link>这篇文章</link> 以了解与储户金库相关的风险。",
+          "runePool": "参考 <link>这篇文章</link> 以了解与 RUNEPool 相关的风险。"
         },
         "understand": "我理解",
         "days": "%{amount} 天",
@@ -497,8 +496,6 @@
     "overview": "总览",
     "myPositions": "我的仓位",
     "myPositionsBody": "您当前在 DeFi 中的活跃仓位列表。",
-    "myRewards": "我的奖励",
-    "myRewardsBody": "您在 DeFi 中的活跃仓位及可领取奖励。",
     "viewAllPositions": "查看所有仓位",
     "liquidityPools": "流动资金池",
     "liquidityLockupWarning": "锁定期为 %{time}。在锁定期间，你无法动用你的流动性。",
@@ -997,7 +994,8 @@
     "approvalResetFailed": "额度重置时出现问题",
     "allowanceResetTxName": "额度重置交易：",
     "allowanceApprovalTxName": "额度授权交易：",
-    "tradeComplete": "现在，您的钱包在 %{chainName} 上有 %{cryptoAmountFormatted} 。",
+    "tradeComplete": "现在，您的钱包在 %{chainName} 上持有 %{cryptoAmountFormatted} 。",
+    "tradeCompleteSurplus": "您获得了额外的 %{extra}!",
     "doAnotherTrade": "进行另一笔交易",
     "summary": "交易概览",
     "estimatedCompletionTime": "预计完成时间",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "您可以使用 FOX Savings 在此交易中节省 %{fee}。",
       "buyFox": "购买 FOX",
       "share": "分享",
-      "postBody": "通过持有 $FOX，我在 @ShapeShift 上交易时节省了 %{fee}！"
+      "postBody": "通过持有 $FOX，我在 @ShapeShift 上交易时节省了 %{fee}！",
+      "youGotMore": "由于您持有 FOX，本次交易您额外获得了 %{cryptoUpside}"
     },
     "networkFee": "网络费用",
     "learnMoreAboutFox": "了解更多关于 FOX 权益的信息",
@@ -1084,19 +1083,7 @@
     "awaitingAllowanceApproval": "额度授权中",
     "awaitingAllowanceReset": "额度重置中",
     "orderPlacement": "在 %{swapperName} 上下订单",
-    "explanation": {
-      "priceReaches": {
-        "prefix": "当",
-        "middle": "的价格达到"
-      },
-      "orderWill": {
-        "prefix": "，您的限价订单将会自动出售"
-      },
-      "ensuring": {
-        "prefix": "，以确保您至少收到",
-        "suffix": "。"
-      }
-    },
+    "explanation": "当 %{assetSymbol} 的价格达到 %{limitPrice}，您的限价订单将自动出售 %{sellAmount}，确保您至少收到 %{receiveAmount}。",
     "sellBuy": "出售 → 购买",
     "limitExecution": "限价/执行",
     "statusHead": "状态",
@@ -1141,7 +1128,9 @@
         "insufficientBalance": "您的钱包在 %{chainName} 上的 %{symbol} 余额不足以执行此订单。此订单仍然有效，当您在 %{chainName} 上充值 %{symbol} 余额后，将能够执行此订单。",
         "insufficientAllowance": "此订单需要授权 %{chainName} 上 %{symbol} 的额外额度，以便 CoW Swap 执行此订单。此订单仍然有效，在您完成额度授权后，将能够执行此订单。"
       }
-    }
+    },
+    "limitOrderFilled": "限价订单已完成",
+    "assetToAsset": "%{sellAmount} %{sellAsset} 交换到 %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2649,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "通过质押获得更多收益",
-      "body": "通过 THORChain Savers Vault 质押你的资产来赚取被动收入。"
-    },
     "pools": {
       "title": "池",
       "body": "通过资金池交易赚取费用。"
@@ -2864,7 +2849,7 @@
     },
     "governance": {
       "title": "治理",
-      "description": "加入我们 <link>在论坛上</link> 并塑造 DAO 的未来。",
+      "description": "加入我们的 <link>论坛</link> 并塑造 DAO 的未来。",
       "totalVotingPower": "总投票权",
       "noActiveProposals": "没有可用的活跃提案",
       "noClosedProposals": "没有可用的已关闭提案"

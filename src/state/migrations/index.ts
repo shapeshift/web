@@ -92,6 +92,7 @@ export const clearAssetsMigrations = {
   59: clearAssets,
   60: clearAssets,
   61: clearAssets,
+  62: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {

@@ -4,7 +4,6 @@ import {
   avalancheChainId,
   baseChainId,
   btcChainId,
-  CHAIN_REFERENCE,
   ethChainId,
   gnosisChainId,
   optimismChainId,
@@ -13,7 +12,15 @@ import {
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { zeroAddress } from 'viem'
-import { arbitrum, avalanche, base, gnosis, optimism, polygon } from 'viem/chains'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  gnosis,
+  mainnet as ethereum,
+  optimism,
+  polygon,
+} from 'viem/chains'
 
 import type { SupportedChainIds } from '../../types'
 
@@ -31,7 +38,7 @@ export const relaySupportedChainIds = [
 
 export const relayChainMap: Record<ChainId, number> = {
   [btcChainId]: 8253038,
-  [ethChainId]: Number(CHAIN_REFERENCE.EthereumMainnet),
+  [ethChainId]: ethereum.id,
   [arbitrumChainId]: arbitrum.id,
   [baseChainId]: base.id,
   [optimismChainId]: optimism.id,

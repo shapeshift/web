@@ -291,7 +291,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       // @blocking: relayer can be ETH or destination token
       .plus(relayerFeesBuyAssetBaseUnit)
       .plus(appFeesBaseUnit)
-      .toString()
+      .toFixed()
 
     return {
       allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,

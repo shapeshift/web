@@ -196,16 +196,12 @@ export const NewWalletViewsSwitch = () => {
 
   useEffect(() => {
     if (initialRoute) navigate(initialRoute)
-  }, [navigate, initialRoute])
+    // Don't add navigate as a dep, or problems.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialRoute])
 
-  // Set the native wallet pending unlock as selected on refresh
-  useEffect(() => {
-    if (!(nativeWalletPendingDeviceId && nativeVaultsQuery.data)) return
-
-    setSelectedWalletId(nativeWalletPendingDeviceId)
-  }, [nativeVaultsQuery.data, nativeWalletPendingDeviceId])
-
-  // Reset history on modal open/unmount
+  // Reset history on modal open/unmount - yes technically could be in the same effect as above
+  // but such effects are such risky I ain't risking it
   useEffect(() => {
     if (!initialRoute) navigate('/', { replace: true })
 
@@ -215,6 +211,13 @@ export const NewWalletViewsSwitch = () => {
     // Only run this on initial render, and unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Set the native wallet pending unlock as selected on refresh
+  useEffect(() => {
+    if (!(nativeWalletPendingDeviceId && nativeVaultsQuery.data)) return
+
+    setSelectedWalletId(nativeWalletPendingDeviceId)
+  }, [nativeVaultsQuery.data, nativeWalletPendingDeviceId])
 
   const sections = useMemo(
     () => (

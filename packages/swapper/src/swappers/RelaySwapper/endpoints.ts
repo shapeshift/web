@@ -70,9 +70,7 @@ export const relayApi: SwapperApi = {
     const { to, value, data, gasLimit: gasLimitFromApi } = currentStep.relayTransactionMetadata
 
     if (to === undefined || value === undefined || data === undefined) {
-      const undefinedRequiredValues = [to, value, data, gasLimitFromApi].filter(
-        value => value === undefined,
-      )
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
 
       throw Error('undefined required values in swap step', {
         cause: {
@@ -97,7 +95,7 @@ export const relayApi: SwapperApi = {
       data,
       chainId: Number(fromChainId(chainId).chainReference),
       ...feeData,
-      gasLimit: BigNumber.max(gasLimitFromApi, gasLimit ?? '0').toFixed(),
+      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
     }
   },
   checkTradeStatus: async ({

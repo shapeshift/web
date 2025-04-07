@@ -255,7 +255,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       .toFixed()
 
     return {
-      allowanceContract: selectedItem.data.to,
+      allowanceContract: selectedItem.data.to ?? '',
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,

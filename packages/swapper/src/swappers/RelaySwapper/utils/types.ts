@@ -42,8 +42,8 @@ export type RelayTransactionMetadata = {
   to: string | undefined
   value: string | undefined
   data: string | undefined
-  gasAmountBaseUnit: string
-  gasLimit: string
+  gasAmountBaseUnit: string | undefined
+  gasLimit: string | undefined
 }
 
 export type RelayStatus = {
@@ -201,15 +201,15 @@ export type Execute = {
       // @TODO: Add instructions and addressLookupTableAddresses for Solana
       // and psbt for UTXO
       data: {
-        from: string
-        to: string
-        data: string
-        value: string
-        chainId: number
-        gas: string
-        maxFeePerGas: string
-        maxPriorityFeePerGas: string
-        depositAddress: string
+        from?: string
+        to?: string
+        data?: string
+        value?: string
+        chainId?: number
+        gas?: string
+        maxFeePerGas?: string
+        maxPriorityFeePerGas?: string
+        depositAddress?: string
       }
       orderIndexes: number[]
       orderIds: string[]

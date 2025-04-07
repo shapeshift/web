@@ -57,7 +57,7 @@ export const Address = () => {
         assetId: '',
       },
     })
-  }, [navigate, asset, setValue])
+  }, [navigate, setValue])
 
   const addressInputRules = useMemo(
     () => ({

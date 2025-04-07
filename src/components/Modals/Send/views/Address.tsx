@@ -49,16 +49,15 @@ export const Address = () => {
 
   const handleNext = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
-  const handleClick = useCallback(
-    () =>
-      navigate(SendRoutes.Select, {
-        state: {
-          toRoute: SelectAssetRoutes.Search,
-          assetId: asset?.assetId ?? '',
-        },
-      }),
-    [navigate, asset],
-  )
+  const handleBackClick = useCallback(() => {
+    setValue(SendFormFields.AssetId, '')
+    navigate(SendRoutes.Select, {
+      state: {
+        toRoute: SelectAssetRoutes.Search,
+        assetId: '',
+      },
+    })
+  }, [navigate, asset, setValue])
 
   const addressInputRules = useMemo(
     () => ({
@@ -102,7 +101,7 @@ export const Address = () => {
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <DialogBackButton aria-label={translate('common.back')} onClick={handleClick} />
+        <DialogBackButton aria-label={translate('common.back')} onClick={handleBackClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>

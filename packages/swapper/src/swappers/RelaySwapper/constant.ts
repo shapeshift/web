@@ -37,12 +37,14 @@ export const relaySupportedChainIds = [
 ]
 
 export const relayChainMap: Record<ChainId, number> = {
+  // https://docs.relay.link/resources/supported-chains
   [btcChainId]: 8253038,
   [ethChainId]: ethereum.id,
   [arbitrumChainId]: arbitrum.id,
   [baseChainId]: base.id,
   [optimismChainId]: optimism.id,
   [polygonChainId]: polygon.id,
+  // https://docs.relay.link/resources/supported-chains
   [solanaChainId]: 792703809,
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,

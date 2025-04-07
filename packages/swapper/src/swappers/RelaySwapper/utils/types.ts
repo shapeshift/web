@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/types'
-import type { Address } from 'viem'
+import type { AxiosRequestConfig } from 'axios'
 
 export type RelayTradeInputParams<T extends 'rate' | 'quote'> = {
   buyAsset: Asset
@@ -39,12 +39,11 @@ export type RelayTradeQuoteParams = {
 }
 
 export type RelayTransactionMetadata = {
-  to: Address | undefined
+  to: string | undefined
   value: string | undefined
   data: string | undefined
-  gas: string | undefined
-  maxFeePerGas: string | undefined
-  maxPriorityFeePerGas: string | undefined
+  gasAmountBaseUnit: string
+  gasLimit: string
 }
 
 export type RelayStatus = {
@@ -104,6 +103,135 @@ export type RelayToken = {
   }
 }
 
-export const isValidRelayToken = (token: Record<string, unknown>): token is RelayToken => {
-  return Boolean(token.chainId && token.address && token.symbol && token.name && token.decimals)
+export type CallFees = {
+  gas: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+  relayer: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+  relayerGas: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+  relayerService: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+  app: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+}
+
+export type QuoteDetails = {
+  currencyIn: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+  currencyOut: {
+    currency: RelayToken
+    amount: string
+    amountFormatted: string
+    amountUsd: string
+    minimumAmount: string
+  }
+  totalImpact: {
+    usd: string
+    percent: string
+  }
+  rate: string
+  slippageTolerance: {
+    origin: {
+      usd: string
+      value: string
+      percent: string
+    }
+    destination: {
+      usd: string
+      value: string
+      percent: string
+    }
+  }
+  timeEstimate: number
+  userBalance: string
+}
+
+// https://github.com/reservoirprotocol/relay-kit/blob/main/packages/sdk/src/types/Execute.ts
+export type Execute = {
+  errors?: {
+    message?: string
+    orderId?: string
+  }[]
+  fees: CallFees
+  details: QuoteDetails
+  error?: any
+  refunded?: boolean
+  steps: {
+    error?: string
+    errorData?: any
+    action: string
+    description: string
+    kind: 'transaction' | 'signature'
+    id: string
+    requestId?: string
+    depositAddress?: string
+    items?: {
+      status: 'complete' | 'incomplete'
+      // @TODO: Add instructions and addressLookupTableAddresses for Solana
+      // and psbt for UTXO
+      data: {
+        from: string
+        to: string
+        data: string
+        value: string
+        chainId: number
+        gas: string
+        maxFeePerGas: string
+        maxPriorityFeePerGas: string
+        depositAddress: string
+      }
+      orderIndexes: number[]
+      orderIds: string[]
+      error?: string
+      txHashes?: {
+        txHash: string
+        chainId: number
+        isBatchTx?: boolean
+      }[]
+      internalTxHashes?: {
+        txHash: string
+        chainId: number
+        isBatchTx?: boolean
+      }[]
+      errorData?: any
+      orderData?: {
+        crossPostingOrderId?: string
+        orderId: string
+        orderIndex: string
+      }[]
+      isValidatingSignature?: boolean
+    }[]
+  }[]
+  request?: AxiosRequestConfig
 }

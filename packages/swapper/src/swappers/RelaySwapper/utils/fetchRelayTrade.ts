@@ -1,10 +1,9 @@
-import type { Execute } from '@reservoir0x/relay-sdk'
 import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import type { SwapErrorRight, SwapperConfig } from 'packages/swapper/src/types'
 
 import { relayService } from './relayService'
-import type { QuoteParams } from './types'
+import type { Execute, QuoteParams } from './types'
 
 // @TODO: implement affiliate fees
 export const fetchRelayTrade = async <T extends 'quote' | 'rate'>(

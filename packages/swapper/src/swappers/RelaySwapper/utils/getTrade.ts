@@ -21,7 +21,6 @@ import type {
   RelayTradeQuoteParams,
   RelayTradeRateParams,
 } from '../utils/types'
-import { isValidRelayToken } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 
 export async function getTrade<T extends 'quote' | 'rate'>({
@@ -113,59 +112,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const { data: quote } = maybeQuote.unwrap()
 
-  if (!quote.details) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay quote details not found',
-      }),
-    )
-  }
-
   const { slippageTolerance, rate, currencyOut, timeEstimate } = quote.details
-
-  if (!slippageTolerance) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay quote slippage tolerance not found',
-      }),
-    )
-  }
-
-  if (!rate) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay quote rate not found',
-      }),
-    )
-  }
-
-  if (!currencyOut) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay quote relayToken not found',
-      }),
-    )
-  }
-
-  if (!quote.fees?.gas) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay quote gas fees not found',
-      }),
-    )
-  }
 
   const { currency: relayToken } = currencyOut
 
   const swapSteps = quote.steps.filter(step => step.id !== 'approve')
-  const hasApprovalStep = quote.steps.find(step => step.id === 'approve')
 
   if (swapSteps.length >= 2) {
-    deps.mixPanel?.track(MixPanelEvent.RelayMultiHop, {
-      swapper: SwapperName.Relay,
-      method: 'get',
-      error: 'Unable to execute Relay multi-hop quote',
-    })
+    deps.mixPanel?.track(MixPanelEvent.RelayMultiHop)
 
     return Err(
       makeSwapErrorRight({
@@ -175,152 +129,158 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
+  const swapStepsContainsMultipleItems = swapSteps.some(
+    step => step.items?.length && step.items.length > 1,
+  )
+
+  // It's uncommon but can happen, log it to mixpanel to ensure we will investigate if it happens too much in the future
+  if (swapStepsContainsMultipleItems) {
+    deps.mixPanel?.track(MixPanelEvent.RelayStepMultipleItems)
+
+    return Err(
+      makeSwapErrorRight({
+        message: `Relay quote with step containing multiple items not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   const slippageTolerancePercentageDecimal = (() => {
     if (_slippageTolerancePercentageDecimal) return _slippageTolerancePercentageDecimal
     const destinationSlippageTolerancePercentageDecimal = bnOrZero(
-      slippageTolerance?.destination?.percent,
+      slippageTolerance.destination.percent,
     )
 
     if (destinationSlippageTolerancePercentageDecimal.gt(0)) {
       return convertBasisPointsToPercentage(destinationSlippageTolerancePercentageDecimal).toFixed()
     }
 
-    const originSlippageTolerancePercentageDecimal = bnOrZero(slippageTolerance?.origin?.percent)
+    const originSlippageTolerancePercentageDecimal = bnOrZero(slippageTolerance.origin.percent)
 
     if (originSlippageTolerancePercentageDecimal.gt(0)) {
       return convertBasisPointsToPercentage(originSlippageTolerancePercentageDecimal).toFixed()
     }
   })()
 
-  if (!relayToken) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay protocol token not found',
-      }),
-    )
-  }
-
-  if (!isValidRelayToken(relayToken)) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Relay protocol token is not properly typed',
-      }),
-    )
-  }
-
   const protocolAssetId = relayTokenToAssetId(relayToken)
 
-  const protocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
+  const maybeProtocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
+
+  if (maybeProtocolAsset.isErr()) {
+    return Err(maybeProtocolAsset.unwrapErr())
+  }
+
+  const protocolAsset = maybeProtocolAsset.unwrap()
+
+  const isCrossChain = sellAsset.chainId !== buyAsset.chainId
+
+  const maybeAppFeesAsset = relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
+
+  if (maybeAppFeesAsset.isErr()) {
+    return Err(maybeAppFeesAsset.unwrapErr())
+  }
+
+  const appFeesAsset = maybeAppFeesAsset.unwrap()
+
+  const appFeesBaseUnit = (() => {
+    // @TODO: we might need to change this logic when solana and BTC are supported
+    const isNativeCurrencyInput =
+      isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+
+    // For cross-chain: always add back app fees
+    // For same-chain: only add back if input is native currency
+    if (isCrossChain || isNativeCurrencyInput) {
+      return quote.fees.app.amount
+    }
+
+    // cross-chain or same-chain with native currency as input are not applicable
+    return '0'
+  })()
+
+  const relayerFeeRelayToken = quote.fees.relayer.currency
+  const maybeRelayerFeesAsset = relayTokenToAsset(relayerFeeRelayToken, deps.assetsById)
+
+  if (maybeRelayerFeesAsset.isErr()) {
+    return Err(maybeRelayerFeesAsset.unwrapErr())
+  }
+
+  const relayerFeesAsset = maybeRelayerFeesAsset.unwrap()
+
+  const relayerFeesBuyAssetBaseUnit = (() => {
+    const relayerFeeAmount = quote.fees.relayer.amount
+
+    // If fee is already in buy asset, return as is
+    if (relayerFeesAsset.assetId === buyAsset.assetId) {
+      return relayerFeeAmount
+    }
+
+    // if fee is in sell asset, convert to buy asset
+    if (relayerFeesAsset.assetId === sellAsset.assetId) {
+      return convertPrecision({
+        value: relayerFeeAmount,
+        inputExponent: relayerFeesAsset.precision,
+        outputExponent: buyAsset.precision,
+      })
+        .times(rate)
+        .toFixed(0)
+    }
+
+    // If fee is in a different asset, convert to buy asset
+    const feeAmountUsd = quote.fees.relayer.amountUsd
+    const buyAssetUsd = currencyOut.amountUsd
+    const buyAssetAmountBaseUnit = currencyOut.minimumAmount
+
+    if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
+      // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
+      // Then multiply by feeAmountUsd to get the equivalent buy asset amount
+      const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmountBaseUnit).div(buyAssetUsd)
+      const buyAssetFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(buyAssetCryptoBaseUnitPerUsd)
+
+      return buyAssetFeesCryptoBaseUnit.toFixed(0)
+    }
+
+    return '0'
+  })()
 
   const steps = swapSteps.map((quoteStep): TradeQuoteStep => {
-    const isCrossChain = sellAsset.chainId !== buyAsset.chainId
+    const selectedItem = quoteStep.items?.[0]
 
-    const appFeesBaseUnit = (() => {
-      // Handle app fees based on cross-chain status
-      if (
-        quote.fees?.app?.amount &&
-        quote.fees?.app?.currency &&
-        isValidRelayToken(quote.fees?.app?.currency)
-      ) {
-        const appFeesAsset = quote.fees?.app?.currency
-          ? relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
-          : undefined
-
-        // @TODO: we might need to change this logic when solana and BTC are supported
-        const isNativeCurrencyInput =
-          isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset?.chainId
-
-        // For cross-chain: always add back app fees
-        // For same-chain: only add back if input is native currency
-        if (isCrossChain || isNativeCurrencyInput) {
-          return quote.fees.app.amount
-        }
-      }
-
-      // cross-chain or same-chain with native currency as input are not applicable
-      return '0'
-    })()
-
-    const relayerFeesBuyAssetBaseUnit = (() => {
-      const relayerFeeRelayToken = quote.fees?.relayer?.currency
-      if (relayerFeeRelayToken && isValidRelayToken(relayerFeeRelayToken)) {
-        const relayerFeesAsset = relayTokenToAsset(relayerFeeRelayToken, deps.assetsById)
-        const relayerFeeAmount = quote.fees?.relayer?.amount ?? '0'
-
-        // If fee is already in buy asset, return as is
-        if (relayerFeesAsset?.assetId === buyAsset.assetId) {
-          return relayerFeeAmount
-        }
-
-        // if fee is in sell asset, convert to buy asset
-        if (relayerFeesAsset?.assetId === sellAsset.assetId) {
-          return convertPrecision({
-            value: relayerFeeAmount,
-            inputExponent: relayerFeesAsset.precision,
-            outputExponent: buyAsset.precision,
-          })
-            .times(rate)
-            .toFixed(0)
-        }
-
-        // If fee is in a different asset, convert to buy asset
-        const feeAmountUsd = quote.fees?.relayer?.amountUsd ?? '0'
-        const buyAssetUsd = quote.details?.currencyOut?.amountUsd ?? '0'
-        const buyAssetAmountBaseUnit = quote.details?.currencyOut?.amount ?? '1'
-
-        if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
-          // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
-          // Then multiply by feeAmountUsd to get the equivalent buy asset amount
-          const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmountBaseUnit).div(buyAssetUsd)
-          const buyAssetFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(
-            buyAssetCryptoBaseUnitPerUsd,
-          )
-
-          return buyAssetFeesCryptoBaseUnit.toFixed(0)
-        }
-
-        return '0'
-      }
-
-      return '0'
-    })()
+    if (!selectedItem) throw new Error('Relay quote step contains no items')
 
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
     const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
-      // @blocking: relayer can be ETH or destination token
       .plus(relayerFeesBuyAssetBaseUnit)
       .plus(appFeesBaseUnit)
       .toFixed()
 
     return {
-      allowanceContract: hasApprovalStep ? swapSteps[0]?.items?.[0]?.data?.to : undefined,
+      allowanceContract: selectedItem.data.to,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount ?? '0',
+      buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,
       accountNumber,
       feeData: {
-        networkFeeCryptoBaseUnit: quote.fees?.gas?.amount ?? '0',
+        networkFeeCryptoBaseUnit: quote.fees.gas.amount,
         protocolFees: {
           [protocolAssetId]: {
-            amountCryptoBaseUnit: quote.fees?.relayer?.amount ?? '0',
+            amountCryptoBaseUnit: quote.fees.relayer.amount,
             asset: protocolAsset,
             requiresBalance: false,
           },
         },
       },
       source: SwapperName.Relay,
-      estimatedExecutionTimeMs: (timeEstimate ?? 0) * 1000,
+      estimatedExecutionTimeMs: timeEstimate * 1000,
       relayTransactionMetadata: {
-        to: quoteStep.items?.[0]?.data?.to,
-        value: quoteStep.items?.[0]?.data?.value,
-        data: quoteStep.items?.[0]?.data?.data,
-        gas: quoteStep.items?.[0]?.data?.gas,
-        maxFeePerGas: quoteStep.items?.[0]?.data?.maxFeePerGas,
-        maxPriorityFeePerGas: quoteStep.items?.[0]?.data?.maxPriorityFeePerGas,
+        to: selectedItem.data.to,
+        value: selectedItem.data.value,
+        data: selectedItem.data.data,
+        gasLimit: selectedItem.data.gas,
+        gasAmountBaseUnit: quote.fees.gas.amount,
       },
     }
   })

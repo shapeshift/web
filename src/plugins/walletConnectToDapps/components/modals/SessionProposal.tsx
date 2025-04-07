@@ -266,7 +266,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const modalBody: JSX.Element = useMemo(() => {
       return allNamespacesSupported ? (
         <>
-          <Button width='full' colorScheme='blue' onClick={handleConnectAll}>
+          <Button width='full' colorScheme='blue' onClick={handleConnectAll} isLoading={isLoading}>
             {translate('plugins.walletConnectToDapps.modal.connectAll')}
           </Button>
           <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
@@ -312,6 +312,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       allNamespacesHaveAccounts,
       translate,
       handleConnectAll,
+      isLoading,
     ])
 
     return (

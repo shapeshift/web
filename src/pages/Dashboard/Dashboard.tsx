@@ -176,7 +176,7 @@ export const Dashboard = memo(() => {
     <Main headerComponent={dashboardHeader} py={mainPadding}>
       <SEO title={translate('navBar.dashboard')} />
       <Routes>
-        <Route path='' element={walletDashboard} />
+        <Route path='*' element={walletDashboard} />
         <Route path='earn' element={earnDashboard} />
         <Route path='accounts/*' element={accounts} />
         <Route path='activity' element={transactionHistory} />

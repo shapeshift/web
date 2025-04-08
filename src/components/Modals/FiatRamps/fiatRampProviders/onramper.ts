@@ -147,14 +147,15 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
   )
 }
 
-// Function to generate HMAC SHA256 signature
 const generateSignature = async (data: string): Promise<string> => {
   const secretKey = getConfig().VITE_ONRAMPER_SIGNING_KEY
   const encoder = new TextEncoder()
   const keyData = encoder.encode(secretKey)
   const message = encoder.encode(data)
 
-  // Using the Web Crypto API for HMAC-SHA256
+  // https://gist.github.com/fire015/73de05647cb3c3d5d0400d5286e5be50
+  // Browser equivalent of crypto.createHmac since the browser crypto API is slightly diff from Node's
+  // See https://developer.mozilla.org/en-US/docs/Web/API/Crypto vs. https://nodejs.org/api/crypto.html
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
     keyData,
@@ -165,7 +166,6 @@ const generateSignature = async (data: string): Promise<string> => {
 
   const signature = await crypto.subtle.sign('HMAC', cryptoKey, message)
 
-  // Convert to hex string
   return Array.from(new Uint8Array(signature))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')

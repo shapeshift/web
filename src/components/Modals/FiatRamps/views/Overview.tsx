@@ -198,7 +198,13 @@ export const Overview: React.FC<OverviewProps> = ({
     if (isRampsLoading) return null
     if (!ramps) return null
     const rampIdsForAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
-    if (!rampIdsForAssetIdAndAction.length)
+
+    const filteredRamps = [...rampIdsForAssetIdAndAction].filter(rampId => {
+      const list = supportedFiatRamps[rampId].getSupportedFiatList()
+      return list.includes(fiatCurrency)
+    })
+
+    if (!filteredRamps.length)
       return (
         <Center display='flex' flexDir='column' minHeight='150px'>
           <IconCircle mb={4}>
@@ -208,12 +214,8 @@ export const Overview: React.FC<OverviewProps> = ({
           <Text translation='fiatRamps.noProvidersBody' color='text.subtle' />
         </Center>
       )
-    const listOfRamps = [...rampIdsForAssetIdAndAction]
-    return listOfRamps
-      .filter(rampId => {
-        const list = supportedFiatRamps[rampId].getSupportedFiatList()
-        return list.includes(fiatCurrency)
-      })
+
+    return filteredRamps
       .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
       .map(rampId => {
         const ramp = supportedFiatRamps[rampId]

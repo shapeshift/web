@@ -3,6 +3,7 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  bscChainId,
   btcChainId,
   ethChainId,
   gnosisChainId,
@@ -16,6 +17,7 @@ import {
   arbitrum,
   avalanche,
   base,
+  bsc,
   gnosis,
   mainnet as ethereum,
   optimism,
@@ -34,6 +36,7 @@ export const relaySupportedChainIds = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.SolanaMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
 ]
 
 export const relayChainMap: Record<ChainId, number> = {
@@ -48,6 +51,7 @@ export const relayChainMap: Record<ChainId, number> = {
   [solanaChainId]: 792703809,
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
+  [bscChainId]: bsc.id,
 }
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress

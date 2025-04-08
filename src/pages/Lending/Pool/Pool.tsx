@@ -20,7 +20,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
@@ -54,8 +54,16 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const translate = useTranslate()
   const navigate = useNavigate()
-  const isPoolPage = useMatch('/lending/pool/:poolAssetId')
-  const isPoolAccountPage = useMatch('/lending/poolAccount/:poolAccountId/:poolAssetId')
+  const isPoolPage = useMatch({
+    path: '/lending/pool/*',
+    end: true,
+    caseSensitive: false,
+  })
+  const isPoolAccountPage = useMatch({
+    path: '/lending/poolAccount/*',
+    end: true,
+    caseSensitive: false,
+  })
 
   const handleBack = useCallback(() => {
     if (isPoolAccountPage) {
@@ -88,10 +96,6 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
-type MatchParams = {
-  poolAccountId?: AccountId
-}
-
 // Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
 // component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
 const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => {
@@ -111,8 +115,23 @@ const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & Skel
 }
 
 export const Pool = () => {
-  const { poolAccountId } = useParams<MatchParams>()
   const location = useLocation()
+
+  const { poolAssetId, poolAccountId } = useMemo(() => {
+    if (location.pathname.includes('/poolAccount/')) {
+      const parts = location.pathname.split('/')
+      const accountIdIndex = parts.findIndex(part => part === 'poolAccount') + 1
+      const accountId = parts[accountIdIndex]
+      const assetId = parts.slice(accountIdIndex + 1).join('/') || ''
+      return { poolAssetId: assetId, poolAccountId: accountId }
+    }
+
+    if (location.pathname.includes('/pool/')) {
+      const [, ...rest] = location.pathname.split('/pool/')
+      return { poolAssetId: rest.join('/') || '', poolAccountId: undefined }
+    }
+  }, [location.pathname]) as { poolAssetId: AssetId; poolAccountId: string | undefined }
+
   const [stepIndex, setStepIndex] = useState<number>(0)
   const [borrowTxid, setBorrowTxid] = useState<string | null>(null)
   const [confirmedQuote, setConfirmedQuote] = useState<LendingQuoteOpen | LendingQuoteClose | null>(
@@ -130,23 +149,6 @@ export const Pool = () => {
   )
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId | null>(null)
-
-  // Extract poolAssetId from the wildcard match, instead of relying on and maintaining the monstrocity that is useRouteAssetId
-  // for lending (that's one less route we have to get right there)
-  const poolAssetId = useMemo(() => {
-    const pathname = location.pathname
-    if (pathname.includes('/poolAccount/')) {
-      const parts = pathname.split('/')
-      const accountIdIndex = parts.findIndex(part => part === 'poolAccount') + 2
-      return parts.slice(accountIdIndex).join('/') || ''
-    }
-
-    if (pathname.includes('/pool/')) {
-      const [, ...rest] = pathname.split('/pool/')
-      return rest.join('/') || ''
-    }
-    return ''
-  }, [location.pathname]) as AssetId
 
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 

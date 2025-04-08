@@ -147,13 +147,37 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
   )
 }
 
-export const createOnRamperUrl = ({
+// Function to generate HMAC SHA256 signature
+const generateSignature = async (data: string): Promise<string> => {
+  const secretKey = getConfig().VITE_ONRAMPER_SIGNING_KEY
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(secretKey)
+  const message = encoder.encode(data)
+
+  // Using the Web Crypto API for HMAC-SHA256
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, message)
+
+  // Convert to hex string
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+export const createOnRamperUrl = async ({
   action,
   assetId,
   address,
   fiatCurrency,
   options: { language, mode, currentUrl },
-}: CreateUrlProps): string => {
+}: CreateUrlProps): Promise<string> => {
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
   if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
 
@@ -187,5 +211,11 @@ export const createOnRamperUrl = ({
   params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)
 
-  return `${baseUrl.toString()}?${params.toString()}`
+  const walletParam = `wallets=${defaultCrypto}:${address}`
+  const signature = await generateSignature(walletParam)
+  params.set('signature', signature)
+
+  const signedUrl = `${baseUrl.toString()}?${params.toString()}`
+
+  return signedUrl
 }

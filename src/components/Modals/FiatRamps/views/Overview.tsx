@@ -169,7 +169,7 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [accountId, accountMetadata, address, wallet])
 
   const handlePopupClick = useCallback(
-    ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
+    async ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
       const ramp = supportedFiatRamps[rampId]
       const mpData = {
         action: fiatRampAction,
@@ -177,7 +177,7 @@ export const Overview: React.FC<OverviewProps> = ({
         ramp: ramp.id,
       }
       getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
-      const url = ramp.onSubmit({
+      const url = await ramp.onSubmit({
         action: fiatRampAction,
         assetId,
         address,

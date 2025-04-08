@@ -110,6 +110,7 @@ const validators = {
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
+  VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
     default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
   }),

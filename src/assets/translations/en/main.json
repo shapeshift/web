@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger Connected",
-        "success": "You can now close this window or it will auto-close shortly",
+        "success": "You can now close this window.",
         "error": "There was an error connecting your wallet"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
-        "success": "You can now close this window or it will auto-close shortly",
+        "success": "You can now close this window.",
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {

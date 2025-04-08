@@ -59,7 +59,6 @@ export const AddressInput = ({
         placeholder={placeholder}
         as={ResizeTextarea}
         value={value}
-        pr={12}
         variant='filled'
         minHeight='auto'
         minRows={1}

@@ -16,11 +16,7 @@ import { DEFAULT_RELAY_EVM_USER_ADDRESS } from '../constant'
 import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
-import type {
-  RelayTradeInputParams,
-  RelayTradeQuoteParams,
-  RelayTradeRateParams,
-} from '../utils/types'
+import type { RelayTradeInputParams } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 
 export async function getTrade<T extends 'quote' | 'rate'>({
@@ -108,6 +104,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     deps.config,
   )
 
+  // @TODO: handle errors properly and bubble them up to view layer so we can display the error to users
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
   const { data: quote } = maybeQuote.unwrap()
@@ -255,7 +252,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       .toFixed()
 
     return {
-      allowanceContract: selectedItem.data.to ?? '',
+      allowanceContract: selectedItem.data?.to ?? '',
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
@@ -276,11 +273,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       source: SwapperName.Relay,
       estimatedExecutionTimeMs: timeEstimate * 1000,
       relayTransactionMetadata: {
-        to: selectedItem.data.to,
-        value: selectedItem.data.value,
-        data: selectedItem.data.data,
-        gasLimit: selectedItem.data.gas,
-        gasAmountBaseUnit: quote.fees.gas.amount,
+        to: selectedItem.data?.to,
+        value: selectedItem.data?.value,
+        data: selectedItem.data?.data,
+        // gas is not documented in the relay docs but refers to gasLimit
+        gasLimit: selectedItem.data?.gas,
       },
     }
   })
@@ -301,7 +298,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 }
 
 export const getRelayTradeRate = (
-  args: RelayTradeRateParams,
+  args: RelayTradeInputParams<'rate'>,
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ) => {
@@ -313,7 +310,7 @@ export const getRelayTradeRate = (
 }
 
 export const getRelayTradeQuote = (
-  args: RelayTradeQuoteParams,
+  args: RelayTradeInputParams<'quote'>,
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ) => {

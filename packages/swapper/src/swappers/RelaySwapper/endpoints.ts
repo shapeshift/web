@@ -40,20 +40,41 @@ export const relayApi: SwapperApi = {
 
     return tradeRateResult
   },
-  getEvmTransactionFees: ({
+  getEvmTransactionFees: async ({
+    from,
     stepIndex,
     tradeQuote,
+    chainId,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<string> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
     const currentStep = tradeQuote.steps[stepIndex]
-    if (!currentStep?.relayTransactionMetadata) throw Error('Invalid step index')
+    if (!currentStep?.relayTransactionMetadata) throw Error('Missing relay transaction metadata')
 
-    const { gasAmountBaseUnit } = currentStep.relayTransactionMetadata
+    const { to, value, data } = currentStep.relayTransactionMetadata
 
-    if (!gasAmountBaseUnit) throw Error('Missing gas amount from relay quote')
+    if (to === undefined || value === undefined || data === undefined) {
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
 
-    return Promise.resolve(gasAmountBaseUnit)
+      throw Error('undefined required values in transactionRequest', {
+        cause: {
+          undefinedRequiredValues,
+        },
+      })
+    }
+
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
+    return networkFeeCryptoBaseUnit
   },
   getUnsignedEvmTransaction: async ({
     chainId,
@@ -95,6 +116,7 @@ export const relayApi: SwapperApi = {
       data,
       chainId: Number(fromChainId(chainId).chainReference),
       ...feeData,
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
     }
   },

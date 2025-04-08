@@ -1,48 +1,25 @@
 import type { Asset } from '@shapeshiftoss/types'
-import type { AxiosRequestConfig } from 'axios'
 
-export type RelayTradeInputParams<T extends 'rate' | 'quote'> = {
+export type RelayTradeBaseParams = {
   buyAsset: Asset
-  receiveAddress: T extends 'rate' ? string | undefined : string
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  sendAddress: T extends 'rate' ? undefined : string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  affiliateBps: string
+  potentialAffiliateBps: string
+}
+
+export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBaseParams & {
   quoteOrRate: T
+  receiveAddress: T extends 'rate' ? string | undefined : string
+  sendAddress: T extends 'rate' ? undefined : string
   accountNumber: T extends 'rate' ? undefined : number
-  affiliateBps: string
-  potentialAffiliateBps: string
   slippageTolerancePercentageDecimal?: string
-}
-
-export type RelayTradeRateParams = {
-  buyAsset: Asset
-  receiveAddress: string | undefined
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sellAsset: Asset
-  sendAddress: undefined
-  quoteOrRate: 'rate'
-  accountNumber: undefined
-  affiliateBps: string
-  potentialAffiliateBps: string
-}
-
-export type RelayTradeQuoteParams = {
-  buyAsset: Asset
-  receiveAddress: string
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sellAsset: Asset
-  sendAddress: string
-  quoteOrRate: 'quote'
-  accountNumber: number
-  affiliateBps: string
-  potentialAffiliateBps: string
 }
 
 export type RelayTransactionMetadata = {
   to: string | undefined
   value: string | undefined
   data: string | undefined
-  gasAmountBaseUnit: string | undefined
   gasLimit: string | undefined
 }
 
@@ -66,7 +43,7 @@ export type Transaction = {
   data: string
 }
 
-export type QuoteParams<T extends 'quote' | 'rate'> = {
+export type RelayFetchQuoteParams<T extends 'quote' | 'rate'> = {
   user: T extends 'quote' ? string : undefined
   originChainId: number
   destinationChainId: number
@@ -75,19 +52,10 @@ export type QuoteParams<T extends 'quote' | 'rate'> = {
   tradeType: 'EXACT_INPUT' | 'EXACT_OUTPUT' | 'EXPECTED_OUTPUT'
   recipient?: string
   amount?: string
-  txs?: Transaction[]
   referrer?: string
-  refundTo?: string
   refundOnOrigin?: boolean
-  useReceiver?: boolean
-  useExternalLiquidity?: boolean
-  usePermit?: boolean
-  useDepositAddress?: boolean
   slippageTolerance?: string
   appFees?: AppFee[]
-  gasLimitForDepositSpecifiedTxs?: number
-  userOperationGasOverhead?: number
-  forceSolverExecution?: boolean
 }
 
 export type RelayToken = {
@@ -96,142 +64,54 @@ export type RelayToken = {
   symbol: string
   name: string
   decimals: number
-  metadata: {
-    logoURI: string
-    verified: boolean
-    isNative: boolean
-  }
 }
 
-export type CallFees = {
-  gas: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
-  relayer: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
-  relayerGas: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
-  relayerService: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
-  app: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
+export type RelayCurrencyData = {
+  currency: RelayToken
+  amount: string
+  amountFormatted: string
+  amountUsd: string
+  minimumAmount: string
+}
+
+export type RelayFees = {
+  gas: RelayCurrencyData
+  relayer: RelayCurrencyData
+  app: RelayCurrencyData
 }
 
 export type QuoteDetails = {
-  currencyIn: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
-  currencyOut: {
-    currency: RelayToken
-    amount: string
-    amountFormatted: string
-    amountUsd: string
-    minimumAmount: string
-  }
-  totalImpact: {
-    usd: string
-    percent: string
-  }
+  currencyOut: RelayCurrencyData
   rate: string
   slippageTolerance: {
     origin: {
-      usd: string
-      value: string
       percent: string
     }
     destination: {
-      usd: string
-      value: string
       percent: string
     }
   }
   timeEstimate: number
-  userBalance: string
 }
 
-// https://github.com/reservoirprotocol/relay-kit/blob/main/packages/sdk/src/types/Execute.ts
-export type Execute = {
-  errors?: {
-    message?: string
-    orderId?: string
-  }[]
-  fees: CallFees
+export type RelayQuoteItemData = {
+  to?: string
+  data?: string
+  value?: string
+  gas?: string
+}
+
+// @TODO: Change this to EVM and add UTXO/SVM types
+export type RelayQuoteItem = {
+  data?: RelayQuoteItemData
+}
+
+export type RelayQuote = {
+  fees: RelayFees
   details: QuoteDetails
-  error?: any
-  refunded?: boolean
   steps: {
-    error?: string
-    errorData?: any
-    action: string
-    description: string
-    kind: 'transaction' | 'signature'
     id: string
     requestId?: string
-    depositAddress?: string
-    items?: {
-      status: 'complete' | 'incomplete'
-      // @TODO: Add instructions and addressLookupTableAddresses for Solana
-      // and psbt for UTXO
-      data: {
-        from?: string
-        to?: string
-        data?: string
-        value?: string
-        chainId?: number
-        gas?: string
-        maxFeePerGas?: string
-        maxPriorityFeePerGas?: string
-        depositAddress?: string
-      }
-      orderIndexes: number[]
-      orderIds: string[]
-      error?: string
-      txHashes?: {
-        txHash: string
-        chainId: number
-        isBatchTx?: boolean
-      }[]
-      internalTxHashes?: {
-        txHash: string
-        chainId: number
-        isBatchTx?: boolean
-      }[]
-      errorData?: any
-      orderData?: {
-        crossPostingOrderId?: string
-        orderId: string
-        orderIndex: string
-      }[]
-      isValidatingSignature?: boolean
-    }[]
+    items?: RelayQuoteItem[]
   }[]
-  request?: AxiosRequestConfig
 }

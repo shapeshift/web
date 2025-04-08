@@ -3,12 +3,12 @@ import type { AxiosResponse } from 'axios'
 import type { SwapErrorRight, SwapperConfig } from 'packages/swapper/src/types'
 
 import { relayService } from './relayService'
-import type { Execute, QuoteParams } from './types'
+import type { RelayFetchQuoteParams, RelayQuote } from './types'
 
 // @TODO: implement affiliate fees
 export const fetchRelayTrade = async <T extends 'quote' | 'rate'>(
-  params: QuoteParams<T>,
+  params: RelayFetchQuoteParams<T>,
   config: SwapperConfig,
-): Promise<Result<AxiosResponse<Execute, any>, SwapErrorRight>> => {
-  return await relayService.post<Execute>(`${config.VITE_RELAY_API_URL}/quote`, params)
+): Promise<Result<AxiosResponse<RelayQuote, any>, SwapErrorRight>> => {
+  return await relayService.post<RelayQuote>(`${config.VITE_RELAY_API_URL}/quote`, params)
 }

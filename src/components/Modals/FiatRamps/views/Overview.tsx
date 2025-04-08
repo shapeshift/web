@@ -168,6 +168,19 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const fiatRampsTitleTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'fiatRamps.titleMessage',
+      {
+        action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+        asset: asset?.symbol ?? '',
+      },
+    ],
+    [asset?.symbol, fiatRampAction, translate],
+  )
+
   const handlePopupClick = useCallback(
     ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
       const ramp = supportedFiatRamps[rampId]
@@ -211,36 +224,45 @@ export const Overview: React.FC<OverviewProps> = ({
             <FaCreditCard />
           </IconCircle>
           <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
-          <Text translation='fiatRamps.noProvidersBody' color='text.subtle' />
+          <Text translation='fiatRamps.noProvidersBody' color='text.subtle' textAlign='center' />
         </Center>
       )
 
-    return filteredRamps
-      .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
-      .map(rampId => {
-        const ramp = supportedFiatRamps[rampId]
-        const passedAddress = address
-        return (
-          <FiatRampButton
-            key={rampId}
-            // this whole render method is already memoized
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => handlePopupClick({ rampId, address: passedAddress })}
-            accountFiatBalance={accountUserCurrencyBalance}
-            action={fiatRampAction}
-            {...ramp}
-          />
-        )
-      })
+    return (
+      <Stack spacing={4}>
+        <Box>
+          <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
+          <Text color='text.subtle' translation={fiatRampsTitleTranslation} />
+        </Box>
+        {filteredRamps
+          .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
+          .map(rampId => {
+            const ramp = supportedFiatRamps[rampId]
+            const passedAddress = address
+            return (
+              <FiatRampButton
+                key={rampId}
+                // this whole render method is already memoized
+                // eslint-disable-next-line react-memo/require-usememo
+                onClick={() => handlePopupClick({ rampId, address: passedAddress })}
+                accountFiatBalance={accountUserCurrencyBalance}
+                action={fiatRampAction}
+                {...ramp}
+              />
+            )
+          })}
+      </Stack>
+    )
   }, [
-    accountUserCurrencyBalance,
-    address,
     assetId,
-    fiatCurrency,
-    fiatRampAction,
-    handlePopupClick,
     isRampsLoading,
     ramps,
+    fiatRampAction,
+    fiatCurrency,
+    fiatRampsTitleTranslation,
+    address,
+    handlePopupClick,
+    accountUserCurrencyBalance,
   ])
 
   const { isOpen: isFiatRampsModalOpen } = useModal('fiatRamps')
@@ -262,18 +284,6 @@ export const Overview: React.FC<OverviewProps> = ({
       </option>
     ))
   }, [])
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-
-  const fiatRampsTitleTranslation: TextPropTypes['translation'] = useMemo(
-    () => [
-      'fiatRamps.titleMessage',
-      {
-        action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
-        asset: asset?.symbol ?? '',
-      },
-    ],
-    [asset?.symbol, fiatRampAction, translate],
-  )
 
   const description: string | [string, InterpolationOptions] | undefined = useMemo(() => {
     if (!asset) return
@@ -399,19 +409,13 @@ export const Overview: React.FC<OverviewProps> = ({
           </Flex>
         </Stack>
         <Stack spacing={4}>
-          {ramps && (
-            <Box>
-              <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
-              <Text color='text.subtle' translation={fiatRampsTitleTranslation} />
-            </Box>
-          )}
           <Box minHeight='170px'>
             {isRampsLoading ? (
               <Center minHeight='150px'>
                 <CircularProgress />
               </Center>
             ) : (
-              <Stack>{renderProviders}</Stack>
+              renderProviders
             )}
           </Box>
         </Stack>

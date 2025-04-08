@@ -1,3 +1,4 @@
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -45,6 +46,26 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const sellRelayChainId = relayChainMap[sellAsset.chainId]
   const buyRelayChainId = relayChainMap[buyAsset.chainId]
+
+  // @TODO: remove this once we have support for non-EVM chains
+  if (!isEvmChainId(sellAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
+  // @TODO: remove this once we have support for non-EVM chains
+  if (!isEvmChainId(buyAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
 
   if (sellRelayChainId === undefined) {
     return Err(

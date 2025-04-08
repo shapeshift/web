@@ -2,7 +2,6 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import partition from 'lodash/partition'
 
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
@@ -24,10 +23,7 @@ import type { BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
-import {
-  selectChainIdParamFromFilter,
-  selectIncludeEarnBalancesParamFromFilter,
-} from '@/state/selectors'
+import { selectChainIdParamFromFilter } from '@/state/selectors'
 
 const makeClaimableStakingRewardsAmountUserCurrency = ({
   assets,
@@ -67,14 +63,12 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
   selectAggregatedEarnUserLpOpportunities,
   selectMarketDataUserCurrency,
   selectAssets,
-  selectIncludeEarnBalancesParamFromFilter,
   selectChainIdParamFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
     marketDataUserCurrency,
     assets,
-    includeEarnBalances,
     chainId,
   ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
@@ -222,30 +216,14 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       byAssetId[assetId].apy = apy.toFixed()
     }
 
-    const aggregatedEarnOpportunitiesByAssetId = Object.values(byAssetId)
-
-    const sortedAggregatedEarnOpportunitiesByFiatAmount = aggregatedEarnOpportunitiesByAssetId.sort(
-      (a, b) => (bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1),
+    const filtered = Object.values(byAssetId).filter(opportunity =>
+      Boolean(
+        bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(opportunity.fiatRewardsAmount).gt(0),
+      ),
     )
 
-    const [activeOpportunities, inactiveOpportunities] = partition(
-      sortedAggregatedEarnOpportunitiesByFiatAmount,
-      opportunity => !bnOrZero(opportunity.fiatAmount).isZero(),
-    )
-    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
-
-    const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
-
-    if (!includeEarnBalances) return sortedOpportunitiesByFiatAmountAndApy
-
-    const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
-      Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
-    )
-    const withRewardsBalances = Object.values(byAssetId).filter(opportunity =>
-      Boolean(bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
-    )
-
-    return withEarnBalances.concat(withRewardsBalances)
+    console.log({ filtered })
+    return filtered
   },
 )
 

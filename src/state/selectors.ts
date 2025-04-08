@@ -48,7 +48,6 @@ type ParamFilter = Partial<{
   defiType: DefiType
   queryStatus: QueryStatus
   endpointName: string
-  includeEarnBalances: boolean
   searchQuery: string
   txStatus: TxStatus
   feeModel: ParameterModel
@@ -90,7 +89,6 @@ export const selectValidatorIdParamFromFilter = selectParamFromFilter('validator
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
-export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')

@@ -63,16 +63,11 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
 export type PositionTableProps = {
   chainId?: ChainId
   searchQuery: string
-  includeEarnBalances?: boolean
 }
 
 const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 
-export const PositionTable: React.FC<PositionTableProps> = ({
-  chainId,
-  includeEarnBalances,
-  searchQuery,
-}) => {
+export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQuery }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const isAnyOpportunitiesApiQueriesPending = useAppSelector(
@@ -85,9 +80,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
     () => ({
       chainId,
-      includeEarnBalances,
     }),
-    [chainId, includeEarnBalances],
+    [chainId],
   )
 
   const {
@@ -231,9 +225,12 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const renderEmptyComponent = useCallback(() => {
-    if (!includeEarnBalances) return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
-    return searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
-  }, [includeEarnBalances, searchQuery])
+    return searchQuery ? (
+      <SearchEmpty searchQuery={searchQuery} />
+    ) : (
+      <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
+    )
+  }, [searchQuery])
 
   const isInitialProcessing = useMemo(
     () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,

@@ -17,7 +17,6 @@ import { useAppSelector } from '@/state/store'
 
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
-  includeEarnBalances?: boolean
   header?: JSX.Element
 } & FlexProps
 
@@ -25,12 +24,7 @@ const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: '
 const flexPaddingX = { base: 4, xl: 0 }
 const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
 
-export const DeFiEarn: React.FC<DefiEarnProps> = ({
-  positionTableProps,
-  includeEarnBalances,
-  header,
-  ...rest
-}) => {
+export const DeFiEarn: React.FC<DefiEarnProps> = ({ positionTableProps, header, ...rest }) => {
   const { isConnected } = useWallet().state
   const { q } = useQuery<{ q?: string }>()
   const [searchQuery, setSearchQuery] = useState(q ?? '')
@@ -64,11 +58,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           </Flex>
         </Flex>
       </Flex>
-      <PositionTable
-        chainId={selectedChainId}
-        searchQuery={searchQuery}
-        includeEarnBalances={Boolean(includeEarnBalances)}
-      />
+      <PositionTable chainId={selectedChainId} searchQuery={searchQuery} />
     </Flex>
   )
 }

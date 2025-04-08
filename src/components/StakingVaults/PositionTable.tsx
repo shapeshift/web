@@ -134,9 +134,16 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           // A fiat amount can be positive or negative (debt) but not zero
-          const hasValue = !bnOrZero(row.original.fiatAmount).isZero()
+          const hasValue =
+            bnOrZero(row.original.fiatAmount).gt(0) ||
+            bnOrZero(row.original.fiatRewardsAmount).gt(0)
+
           return hasValue ? (
-            <Amount.Fiat value={row.original.fiatAmount} />
+            <Amount.Fiat
+              value={bnOrZero(row.original.fiatAmount)
+                .plus(row.original.fiatRewardsAmount)
+                .toFixed(2)}
+            />
           ) : (
             <RawText variant='sub-text'>-</RawText>
           )

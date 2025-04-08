@@ -6,10 +6,7 @@ import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 
 import { selectAssets } from '../../assetsSlice/selectors'
-import {
-  selectEnabledWalletAccountIds,
-  selectPortfolioUserCurrencyBalances,
-} from '../../common-selectors'
+import { selectEnabledWalletAccountIds } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'

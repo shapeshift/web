@@ -215,9 +215,18 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                 .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
                 .toFixed()
 
+          const fiatRewardsAmount = calculateRewardFiatAmount({
+            rewardAssetIds: row.original.rewardAssetIds,
+            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
+            assets,
+            marketDataUserCurrency,
+          })
+
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>
-              <Amount.Fiat value={row.original.fiatAmount} />
+              <Amount.Fiat
+                value={bnOrZero(row.original.fiatAmount).plus(fiatRewardsAmount).toFixed(2)}
+              />
               <Amount.Crypto
                 variant='sub-text'
                 size='xs'

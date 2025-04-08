@@ -211,11 +211,20 @@ export const createOnRamperUrl = async ({
   params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)
 
+  const originalurl = `${baseUrl.toString()}?${params.toString()}`
+  // Copy me from console.log or debugger, and paste me in https://docs.onramper.com/docs/signing-widget-url#/ alongside the signing key
+  console.log({ originalurl })
+  debugger
+
   const walletParam = `wallets=${defaultCrypto}:${address}`
   const signature = await generateSignature(walletParam)
   params.set('signature', signature)
 
   const signedUrl = `${baseUrl.toString()}?${params.toString()}`
+
+  // Then, verify the signedUrl here has the same signature as in the Onramper signing playground above
+  console.log({ signedUrl })
+  debugger
 
   return signedUrl
 }

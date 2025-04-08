@@ -8,17 +8,36 @@ import {
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorRight, SwapperDeps, TradeQuote, TradeQuoteStep } from '../../../types'
+import type {
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+  TradeQuoteStep,
+  TradeRate,
+  TradeRateStep,
+} from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
-import { DEFAULT_RELAY_EVM_USER_ADDRESS } from '../constant'
+import { DEFAULT_RELAY_EVM_USER_ADDRESS, MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
 import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelayTradeInputParams } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
+
+export async function getTrade(args: {
+  input: RelayTradeInputParams<'quote'>
+  deps: SwapperDeps
+  relayChainMap: typeof relayChainMapImplementation
+}): Promise<Result<TradeQuote[], SwapErrorRight>>
+
+export async function getTrade(args: {
+  input: RelayTradeInputParams<'rate'>
+  deps: SwapperDeps
+  relayChainMap: typeof relayChainMapImplementation
+}): Promise<Result<TradeRate[], SwapErrorRight>>
 
 export async function getTrade<T extends 'quote' | 'rate'>({
   input,
@@ -28,7 +47,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   input: RelayTradeInputParams<T>
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
-}): Promise<Result<TradeQuote[], SwapErrorRight>> {
+}): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -61,7 +80,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (!isEvmChainId(buyAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
-        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
@@ -136,12 +155,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const swapSteps = quote.steps.filter(step => step.id !== 'approve')
 
-  if (swapSteps.length >= 2) {
+  if (swapSteps.length >= MAXIMUM_SUPPORTED_RELAY_STEPS) {
     deps.mixPanel?.track(MixPanelEvent.RelayMultiHop)
 
     return Err(
       makeSwapErrorRight({
-        message: `Relay quote with ${swapSteps.length} swap steps not supported (maximum 2)`,
+        message: `Relay quote with ${swapSteps.length} swap steps not supported (maximum ${MAXIMUM_SUPPORTED_RELAY_STEPS})`,
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
@@ -260,7 +279,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return '0'
   })()
 
-  const steps = swapSteps.map((quoteStep): TradeQuoteStep => {
+  const steps = swapSteps.map((quoteStep): TradeQuoteStep | TradeRateStep => {
     const selectedItem = quoteStep.items?.[0]
 
     if (!selectedItem) throw new Error('Relay quote step contains no items')
@@ -303,41 +322,40 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     }
   })
 
-  const tradeQuote: TradeQuote = {
-    id: quote.steps[0].requestId ?? '',
-    steps: steps as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
-    receiveAddress: receiveAddress ?? '',
+  const baseQuoteOrRate = {
+    id: quote.steps[0].requestId,
     rate,
-    quoteOrRate: 'quote',
     swapperName: SwapperName.Relay,
     affiliateBps,
     potentialAffiliateBps,
     slippageTolerancePercentageDecimal,
   }
 
-  return Ok([tradeQuote])
-}
+  if (input.quoteOrRate === 'quote') {
+    // ts is drunk, this is defined as we are under the quote umbrella but extra safety doesn't hurt
+    if (!receiveAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Receive address is required for quote',
+        }),
+      )
+    }
 
-export const getRelayTradeRate = (
-  args: RelayTradeInputParams<'rate'>,
-  deps: SwapperDeps,
-  relayChainMap: typeof relayChainMapImplementation,
-) => {
-  return getTrade({
-    input: args,
-    deps,
-    relayChainMap,
-  })
-}
+    const tradeQuote: TradeQuote = {
+      ...baseQuoteOrRate,
+      steps: steps as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
+      receiveAddress,
+      quoteOrRate: 'quote' as const,
+    }
 
-export const getRelayTradeQuote = (
-  args: RelayTradeInputParams<'quote'>,
-  deps: SwapperDeps,
-  relayChainMap: typeof relayChainMapImplementation,
-) => {
-  return getTrade({
-    input: args,
-    deps,
-    relayChainMap,
-  })
+    return Ok([tradeQuote])
+  }
+
+  const tradeRate: TradeRate = {
+    ...baseQuoteOrRate,
+    steps: steps as [TradeRateStep] | [TradeRateStep, TradeRateStep],
+    receiveAddress,
+    quoteOrRate: 'rate' as const,
+  }
+  return Ok([tradeRate])
 }

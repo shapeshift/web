@@ -111,7 +111,7 @@ export type RelayQuote = {
   details: QuoteDetails
   steps: {
     id: string
-    requestId?: string
+    requestId: string
     items?: RelayQuoteItem[]
   }[]
 }

@@ -1,17 +1,10 @@
-import { isSome } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type {
-  CommonTradeQuoteInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-  TradeQuoteStep,
-} from '../../../types'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { relayChainMap as relayChainMapImplementation } from '../constant'
-import { getRelayTradeQuote } from '../utils/getTrade'
+import { getTrade } from '../utils/getTrade'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -22,6 +15,13 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: 'sendAddress is required',
+      }),
+    )
+  }
+  if (!input.receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'receiveAddress is required',
       }),
     )
   }
@@ -39,22 +39,7 @@ export const getTradeQuote = async (
     potentialAffiliateBps: input.potentialAffiliateBps,
   }
 
-  const quotesResult = await getRelayTradeQuote(args, deps, relayChainMap)
+  const quotesResult = await getTrade({ input: args, deps, relayChainMap })
 
-  return quotesResult.map(quotes =>
-    quotes
-      .map(quote => {
-        if (!quote.receiveAddress) return undefined
-
-        return {
-          ...quote,
-          quoteOrRate: 'quote' as const,
-          receiveAddress: quote.receiveAddress,
-          steps: quote.steps.map(step => step) as
-            | [TradeQuoteStep]
-            | [TradeQuoteStep, TradeQuoteStep],
-        }
-      })
-      .filter(isSome),
-  )
+  return quotesResult
 }

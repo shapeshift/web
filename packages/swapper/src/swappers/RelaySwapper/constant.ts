@@ -61,3 +61,5 @@ export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: relaySupportedChainIds,
   buy: relaySupportedChainIds,
 }
+
+export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2

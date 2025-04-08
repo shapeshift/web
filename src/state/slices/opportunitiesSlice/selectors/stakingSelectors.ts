@@ -69,6 +69,11 @@ export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelect
   byId => byId,
 )
 
+export const selectStakingAccountIds = createDeepEqualOutputSelector(
+  selectStakingOpportunitiesByAccountId,
+  (byAccountId): AccountId[] => Object.keys(byAccountId),
+)
+
 export const selectUserStakingOpportunitiesById = createSelector(
   selectEnabledWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.byId,
@@ -103,10 +108,6 @@ export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
         (!(validatorId || stakingId) || [validatorId, stakingId].includes(stakingOpportunity.id)),
     )
   },
-)
-export const selectStakingAccountIds = createDeepEqualOutputSelector(
-  selectStakingOpportunitiesByAccountId,
-  (byAccountId): AccountId[] => Object.keys(byAccountId),
 )
 
 export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector(

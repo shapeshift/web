@@ -342,7 +342,6 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
 export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunitiesByStakingId): UserStakingOpportunityWithMetadata[] => {
-    console.log({ userStakingOpportunitiesByStakingId })
     return Object.values(userStakingOpportunitiesByStakingId)
       .filter(isSome)
       .map(getAggregatedUserStakingOpportunityByStakingId)
@@ -408,7 +407,6 @@ export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSel
   selectMarketDataUserCurrency,
   selectAssets,
   (aggregatedUserStakingOpportunities, marketData, assets): BN => {
-    console.log({ aggregatedUserStakingOpportunities })
     return aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
       .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0))

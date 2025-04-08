@@ -222,7 +222,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       ),
     )
 
-    console.log({ filtered })
     return filtered
   },
 )

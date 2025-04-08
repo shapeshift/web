@@ -194,7 +194,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const opportunity = row.original
           const opportunityAssetId = opportunity.assetId
           const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
           if (!opportunity.underlyingAssetIds.length) return null
           const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
           const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
@@ -222,11 +221,16 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             marketDataUserCurrency,
           })
 
+          const hasValue =
+            bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(fiatRewardsAmount).gt(0)
+
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount)
+            .plus(fiatRewardsAmount)
+            .toFixed(2)
+
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>
-              <Amount.Fiat
-                value={bnOrZero(row.original.fiatAmount).plus(fiatRewardsAmount).toFixed(2)}
-              />
+              <Amount.Fiat value={totalFiatAmount} />
               <Amount.Crypto
                 variant='sub-text'
                 size='xs'

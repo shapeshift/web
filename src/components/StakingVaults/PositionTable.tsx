@@ -138,9 +138,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
             bnOrZero(row.original.fiatAmount).gt(0) ||
             bnOrZero(row.original.fiatRewardsAmount).gt(0)
 
-          const totalFiatAmount = bnOrZero(row.original.fiatAmount)
-            .plus(row.original.fiatRewardsAmount)
-            .toFixed(2)
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
 
           return hasValue ? (
             <Amount.Fiat value={totalFiatAmount} />

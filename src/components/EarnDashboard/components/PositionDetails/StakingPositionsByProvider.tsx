@@ -224,9 +224,8 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const hasValue =
             bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(fiatRewardsAmount).gt(0)
 
-          const totalFiatAmount = bnOrZero(row.original.fiatAmount)
-            .plus(fiatRewardsAmount)
-            .toFixed(2)
+          // Note, this already includes rewards. Let's not double-count them
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
 
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>

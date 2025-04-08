@@ -387,10 +387,11 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
             .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
             .toFixed(),
           cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit,
-          fiatAmount: bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-            .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
-            .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-            .toString(),
+          fiatAmount: makeOpportunityTotalFiatBalance({
+            opportunity,
+            marketData,
+            assets,
+          }).toString(),
           isLoaded: true,
           icons: makeOpportunityIcons({ opportunity, assets }),
           opportunityName: opportunity.name,

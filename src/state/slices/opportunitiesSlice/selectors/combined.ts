@@ -10,7 +10,7 @@ import type {
   StakingEarnOpportunityType,
 } from '../types'
 import { DefiType } from '../types'
-import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
+import { getOpportunityAccessor } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
@@ -82,16 +82,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         const asset = assets[assetId]
         if (!asset) return acc
 
-        const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
-          ...cur,
-          assets,
-          marketDataUserCurrency,
-        })
-
-        const amountFiat =
-          cur.type === DefiType.LiquidityPool
-            ? underlyingAssetBalances[assetId].fiatAmount
-            : cur.fiatAmount
+        const amountFiat = cur.fiatAmount
 
         const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
           {
@@ -137,16 +128,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           const asset = assets[assetId]
           if (!asset) return acc
 
-          const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
-            ...cur,
-            assets,
-            marketDataUserCurrency,
-          })
-
-          const amountFiat =
-            cur.type === DefiType.LiquidityPool
-              ? underlyingAssetBalances[assetId].fiatAmount
-              : cur.fiatAmount
+          const amountFiat = cur.fiatAmount
 
           const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
             maybeStakingOpportunity: cur,
@@ -195,13 +177,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
-            .plus(
-              bnOrZero(
-                cur.type === DefiType.LiquidityPool
-                  ? underlyingAssetBalances[assetId].cryptoBalancePrecision
-                  : cryptoBalancePrecision,
-              ),
-            )
+            .plus(bnOrZero(cryptoBalancePrecision))
             .toString()
         })
         return acc

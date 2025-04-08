@@ -4,7 +4,6 @@ import type { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export const DefiTypeDisplayName = {
-  [DefiType.LiquidityPool]: 'LP',
   [DefiType.Staking]: 'Staking',
 }
 

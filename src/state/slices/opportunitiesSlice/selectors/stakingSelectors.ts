@@ -345,6 +345,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
 export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunitiesByStakingId): UserStakingOpportunityWithMetadata[] => {
+    console.log({ userStakingOpportunitiesByStakingId })
     return Object.values(userStakingOpportunitiesByStakingId)
       .filter(isSome)
       .map(getAggregatedUserStakingOpportunityByStakingId)
@@ -405,12 +406,10 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 
 // Returns a single aggregated amount, for all opportunities, accounts, and assets
 // Including delegations, undelegations, and rewards
-// Also slaps in ETH/FOX balances which value lives in the portfolio vs. being an "upstream earn opportunity"
 export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectMarketDataUserCurrency,
   selectAssets,
-  selectPortfolioUserCurrencyBalances,
   (aggregatedUserStakingOpportunities, marketData, assets): BN => {
     console.log({ aggregatedUserStakingOpportunities })
     return aggregatedUserStakingOpportunities

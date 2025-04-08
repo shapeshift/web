@@ -18,7 +18,6 @@ import { useAppSelector } from '@/state/store'
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
   includeEarnBalances?: boolean
-  includeRewardsBalances?: boolean
   header?: JSX.Element
 } & FlexProps
 
@@ -29,7 +28,6 @@ const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
   positionTableProps,
   includeEarnBalances,
-  includeRewardsBalances,
   header,
   ...rest
 }) => {
@@ -70,7 +68,6 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
         chainId={selectedChainId}
         searchQuery={searchQuery}
         includeEarnBalances={Boolean(includeEarnBalances)}
-        includeRewardsBalances={Boolean(includeRewardsBalances)}
       />
     </Flex>
   )

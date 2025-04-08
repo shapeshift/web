@@ -64,7 +64,6 @@ export type PositionTableProps = {
   chainId?: ChainId
   searchQuery: string
   includeEarnBalances?: boolean
-  includeRewardsBalances?: boolean
 }
 
 const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
@@ -72,7 +71,6 @@ const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 export const PositionTable: React.FC<PositionTableProps> = ({
   chainId,
   includeEarnBalances,
-  includeRewardsBalances,
   searchQuery,
 }) => {
   const translate = useTranslate()
@@ -88,9 +86,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     () => ({
       chainId,
       includeEarnBalances,
-      includeRewardsBalances,
     }),
-    [chainId, includeEarnBalances, includeRewardsBalances],
+    [chainId, includeEarnBalances],
   )
 
   const {
@@ -234,10 +231,9 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const renderEmptyComponent = useCallback(() => {
-    if (!(includeEarnBalances || includeRewardsBalances))
-      return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
+    if (!includeEarnBalances) return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
     return searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
-  }, [includeEarnBalances, includeRewardsBalances, searchQuery])
+  }, [includeEarnBalances, searchQuery])
 
   const isInitialProcessing = useMemo(
     () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,

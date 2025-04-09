@@ -1,7 +1,8 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
-import { Err } from '@sniptt/monads/build'
+import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
@@ -15,8 +16,7 @@ import type {
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { TradeQuoteError } from '../../types'
-import { checkSafeTransactionStatus, isExecutableTradeQuote, makeSwapErrorRight } from '../../utils'
+import { checkSafeTransactionStatus, isExecutableTradeQuote } from '../../utils'
 import { relayChainMap } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -28,15 +28,6 @@ export const relayApi: SwapperApi = {
     input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
-      return Err(
-        makeSwapErrorRight({
-          message: 'sell amount too low',
-          code: TradeQuoteError.SellAmountBelowMinimum,
-        }),
-      )
-    }
-
     const tradeQuoteResult = await getTradeQuote(input, deps, relayChainMap)
 
     return tradeQuoteResult
@@ -45,46 +36,62 @@ export const relayApi: SwapperApi = {
     input: GetTradeRateInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
-      return Err(
-        makeSwapErrorRight({
-          message: 'sell amount too low',
-          code: TradeQuoteError.SellAmountBelowMinimum,
-        }),
-      )
-    }
-
     const tradeRateResult = await getTradeRate(input, deps, relayChainMap)
 
     return tradeRateResult
+  },
+  getEvmTransactionFees: async ({
+    from,
+    stepIndex,
+    tradeQuote,
+    chainId,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const currentStep = tradeQuote.steps[stepIndex]
+    if (!currentStep?.relayTransactionMetadata) throw Error('Missing relay transaction metadata')
+
+    const { to, value, data } = currentStep.relayTransactionMetadata
+
+    if (to === undefined || value === undefined || data === undefined) {
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
+
+      throw Error('undefined required values in transactionRequest', {
+        cause: {
+          undefinedRequiredValues,
+        },
+      })
+    }
+
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
+    return networkFeeCryptoBaseUnit
   },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
     stepIndex,
     tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+    const currentStep = tradeQuote.steps[stepIndex]
+    if (!currentStep?.relayTransactionMetadata) throw Error('Invalid step index')
 
-    const { to, value, data, gas, maxFeePerGas, maxPriorityFeePerGas } =
-      tradeQuote.steps[stepIndex]?.relayTransactionMetadata ?? {}
+    const { to, value, data, gasLimit: gasLimitFromApi } = currentStep.relayTransactionMetadata
 
-    if (
-      to === undefined ||
-      value === undefined ||
-      data === undefined ||
-      gas === undefined ||
-      maxFeePerGas === undefined ||
-      maxPriorityFeePerGas === undefined
-    ) {
-      const undefinedRequiredValues = [
-        to,
-        value,
-        data,
-        gas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-      ].filter(value => value === undefined)
+    if (to === undefined || value === undefined || data === undefined) {
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
 
       throw Error('undefined required values in swap step', {
         cause: {
@@ -93,16 +100,25 @@ export const relayApi: SwapperApi = {
       })
     }
 
-    return await Promise.resolve({
+    const { gasLimit, ...feeData } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data,
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
+    return {
       to,
       from,
       value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      gasLimit: gas,
-    })
+      ...feeData,
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
+      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
+    }
   },
   checkTradeStatus: async ({
     quoteId,
@@ -163,7 +179,7 @@ export const relayApi: SwapperApi = {
 
     return {
       status,
-      buyTxHash: statusResponse.txHashes?.[statusResponse.txHashes.length - 1],
+      buyTxHash: statusResponse.txHashes?.[0],
       message: undefined,
     }
   },

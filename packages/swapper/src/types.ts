@@ -606,5 +606,6 @@ export type SupportedChainIds = {
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
 
 export enum MixPanelEvent {
-  RelayMultiSteps = 'Relay Multi Steps Quote',
+  RelayMultiHop = 'Unable to execute Relay multi-hop quote',
+  RelayStepMultipleItems = 'Unable to execute relay quote because step contains multiple items',
 }

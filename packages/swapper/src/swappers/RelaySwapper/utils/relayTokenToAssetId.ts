@@ -19,11 +19,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
   })
 
   // @TODO: Handle the same for Solana and BTC
-  const isDefaultAddress = relayToken.address === DEFAULT_RELAY_EVM_TOKEN_ADDRESS
+  const isNativeAsset = relayToken.address === DEFAULT_RELAY_EVM_TOKEN_ADDRESS
 
   const { assetReference, assetNamespace } = (() => {
     // @TODO: Handle the same for Solana and BTC
-    if (!isDefaultAddress)
+    if (!isNativeAsset)
       return {
         assetReference: relayToken.address,
         assetNamespace:
@@ -75,7 +75,7 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.SolanaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Solana,
-          assetNamespace: ASSET_NAMESPACE.splToken,
+          assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)

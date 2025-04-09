@@ -110,6 +110,7 @@ const validators = {
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
+  VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
     default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
   }),
@@ -180,6 +181,8 @@ const validators = {
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: bool({ default: false }),
+  VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
+  VITE_RELAY_API_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

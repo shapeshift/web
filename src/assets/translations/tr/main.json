@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Tahsisat sıfırlama tx:",
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
     "tradeComplete": "Artık cüzdanınızda %{chainName} üzerinde %{cryptoAmountFormatted} var.",
-    "tradeCompleteSurplus": "Fazladan %{extra} kazandın!",
+    "tradeCompleteSurplus": "Fazladan %{extraPercent} kazandın!",
     "doAnotherTrade": "Başka bir takas yap",
     "summary": "Ticaret Özeti",
     "estimatedCompletionTime": "Tahmini Tamamlanma Süresi",

@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Tx da redefinição de permissão:",
     "allowanceApprovalTxName": "Tx da permissão de aprovação:",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
-    "tradeCompleteSurplus": "Você ganhou um %{extra} extra!",
+    "tradeCompleteSurplus": "Você ganhou um %{extraPercent} extra!",
     "doAnotherTrade": "Faça outra negociação",
     "summary": "Resumo de Trades",
     "estimatedCompletionTime": "Tempo estimado de conclusão",

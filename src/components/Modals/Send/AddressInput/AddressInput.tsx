@@ -59,7 +59,6 @@ export const AddressInput = ({
         placeholder={placeholder}
         as={ResizeTextarea}
         value={value}
-        pr={12}
         variant='filled'
         minHeight='auto'
         minRows={1}
@@ -68,7 +67,7 @@ export const AddressInput = ({
         data-1p-ignore
         // Because the InputRightElement is hover the input, we need to let this space free
         pe={pe}
-        isInvalid={!isInvalid && isDirty}
+        isInvalid={isInvalid && isDirty}
         // This is already a `useCallback()`
         // eslint-disable-next-line react-memo/require-usememo
       />

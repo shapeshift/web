@@ -21,6 +21,9 @@ import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants
 import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
+import { relaySwapper } from './swappers/RelaySwapper'
+import { RELAY_SUPPORTED_CHAIN_IDS } from './swappers/RelaySwapper/constant'
+import { relayApi } from './swappers/RelaySwapper/endpoints'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
 import { thorchainApi } from './swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from './swappers/ThorchainSwapper/ThorchainSwapper'
@@ -94,6 +97,12 @@ export const swappers: Record<
     supportedChainIds: JUPITER_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
+  [SwapperName.Relay]: {
+    ...relaySwapper,
+    ...relayApi,
+    supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -128,6 +137,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Jupiter:
       throw new Error('Default slippage not supported by Jupiter')
+    case SwapperName.Relay:
+      throw new Error('Default slippage not supported by Relay')
     default:
       return assertUnreachable(swapperName)
   }
@@ -136,6 +147,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
 export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): boolean => {
   switch (swapperName) {
     case SwapperName.Jupiter:
+      return true
+    case SwapperName.Relay:
       return true
     default:
       return false

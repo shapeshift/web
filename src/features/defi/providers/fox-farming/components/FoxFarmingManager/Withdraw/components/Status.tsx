@@ -97,7 +97,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const handleViewPosition = useCallback(() => {
-    navigate('/earn')
+    navigate('/wallet/earn')
   }, [navigate])
 
   const serializedTxIndex = useMemo(() => {

@@ -2,7 +2,6 @@ import { Button, FormControl, FormLabel, Stack } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -114,7 +113,7 @@ export const Address = () => {
             {translate('modals.send.sendForm.sendTo')}
           </FormLabel>
           <AddressInput
-            pe={isMobile ? 12 : 9.5}
+            pe={16}
             rules={addressInputRules}
             enableQr={true}
             placeholder={translate(

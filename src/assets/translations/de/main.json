@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Zurücksetzen des Genehmigungsbetrags tx:",
     "allowanceApprovalTxName": "Genehmigung der Zulage tx:",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
-    "tradeCompleteSurplus": "Sie haben zusätzliche %{extra} bekommen!",
+    "tradeCompleteSurplus": "Sie haben zusätzliche %{extraPercent} bekommen!",
     "doAnotherTrade": "Einen weiteren Handel tätigen",
     "summary": "Handelszusammenfassung",
     "estimatedCompletionTime": "Geschätzte Fertigstellungszeit",

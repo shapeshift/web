@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Restablecimiento de asignación tx:",
     "allowanceApprovalTxName": "Aprobación de asignación tx:",
     "tradeComplete": "Ahora tienes %{cryptoAmountFormatted} en tu billetera en %{chainName}.",
-    "tradeCompleteSurplus": "¡Obtuviste un %{extra} extra!",
+    "tradeCompleteSurplus": "¡Obtuviste un %{extraPercent} extra!",
     "doAnotherTrade": "Hacer otro intercambio",
     "summary": "Resumen de Intercambio",
     "estimatedCompletionTime": "Tiempo Estimado de Finalización",

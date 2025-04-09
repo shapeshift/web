@@ -1,4 +1,4 @@
-import { AvatarGroup, Flex, HStack, Stack } from '@chakra-ui/react'
+import { AvatarGroup, Flex, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
@@ -18,20 +18,33 @@ type AddressWithNetworksProps = {
   chainIds: AssetId[]
 }
 
-const AddressWithNetworks = ({ address, chainIds }: AddressWithNetworksProps) => (
-  <Flex gap='2'>
-    <Flex minWidth='72px' justifyContent='flex-start'>
-      <AvatarGroup size='xs' max={3}>
-        {chainIds.map((chainId, i) => (
-          <AssetIcon key={chainId} assetId={chainId} zIndex={i} showNetworkIcon />
-        ))}
-      </AvatarGroup>
+const AddressWithNetworks = ({ address, chainIds }: AddressWithNetworksProps) => {
+  const avatarGroupBackground = useColorModeValue('gray.200', 'gray.500')
+
+  const avatarGroupSx = useMemo(() => {
+    return {
+      '& .chakra-avatar__excess': {
+        zIndex: chainIds.length,
+        background: avatarGroupBackground,
+      },
+    }
+  }, [chainIds, avatarGroupBackground])
+
+  return (
+    <Flex gap='2'>
+      <Flex minWidth='72px' justifyContent='flex-start'>
+        <AvatarGroup size='xs' max={3} sx={avatarGroupSx}>
+          {chainIds.map((chainId, i) => (
+            <AssetIcon key={chainId} assetId={chainId} zIndex={i} showNetworkIcon />
+          ))}
+        </AvatarGroup>
+      </Flex>
+      <InlineCopyButton value={address}>
+        <MiddleEllipsis value={address} />
+      </InlineCopyButton>
     </Flex>
-    <InlineCopyButton value={address}>
-      <MiddleEllipsis value={address} />
-    </InlineCopyButton>
-  </Flex>
-)
+  )
+}
 
 export const AddressLinks: React.FC<AddressAndChainProps> = ({ accountIds }) => {
   // A list of addresses with their associated ChainId

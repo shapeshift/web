@@ -22,9 +22,9 @@ import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectCryptoHumanBalanceFilter,
   selectPortfolioAllocationPercentByFilter,
-  selectUserCurrencyBalanceIncludingStakingByFilter,
+  selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -75,12 +75,8 @@ export const AssetAccountRow = (props: AssetAccountRowProps) => {
 
   const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
 
-  const userCurrencyBalance = useAppSelector(s =>
-    selectUserCurrencyBalanceIncludingStakingByFilter(s, filter),
-  )
-  const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
-  )
+  const userCurrencyBalance = useAppSelector(s => selectUserCurrencyBalanceByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s => selectCryptoHumanBalanceFilter(s, filter))
   const allocation =
     useAppSelector(state =>
       selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),

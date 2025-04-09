@@ -22,6 +22,7 @@ import { validateTradeQuote } from './helpers/validateTradeQuote'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
@@ -89,6 +90,7 @@ export const swapperApi = createApi({
           assertGetSolanaChainAdapter,
           fetchIsSmartContractAddressQuery,
           config: getConfig(),
+          mixPanel: getMixPanel(),
         }
 
         const getQuoteResult = () => {

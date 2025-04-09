@@ -471,7 +471,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioFiatBalanceByFilter', () => {
+    describe('selectPortfolioUserCurrencyBalanceByFilter', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },

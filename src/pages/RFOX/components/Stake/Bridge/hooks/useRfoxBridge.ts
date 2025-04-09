@@ -25,6 +25,7 @@ import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import {
@@ -183,6 +184,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       fetchIsSmartContractAddressQuery,
       viemClientByChainId,
       config: getConfig(),
+      mixPanel: getMixPanel(),
     }
   }, [assetsById])
 

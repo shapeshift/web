@@ -20,14 +20,16 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { relayChainMap as relayChainMapImplementation } from '../constant'
+import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelayTradeInputParams } from '../utils/types'
+import { isRelayQuoteUtxoItemData } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
+import { getRelayPsbtInfo } from './getRelayPsbtInfo'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -69,7 +71,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const buyRelayChainId = relayChainMap[buyAsset.chainId]
 
   // @TODO: remove this once we have support for non-EVM chains
-  if (!isEvmChainId(sellAsset.chainId)) {
+  if (!isEvmChainId(sellAsset.chainId) && sellAsset.chainId !== btcChainId) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
@@ -83,16 +85,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return Err(
       makeSwapErrorRight({
         message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  // @TODO: implement sweep or wait for relay to add xpubs support to their quote validation
-  if (sellAsset.chainId === btcChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `BTC not supported as sell asset`,
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
@@ -117,7 +109,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
+    console.log({
+      sendAddress: input.sendAddress,
+    })
     if (input.quoteOrRate === 'rate') {
+      if (sellAsset.chainId === btcChainId) {
+        return getRelayDefaultUserAddress(sellAsset.chainId)
+      }
+
       if (input.sendAddress) return input.sendAddress
 
       // @TODO: Support solana addresses according to relay implementation when
@@ -303,8 +302,41 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       .plus(appFeesBaseUnit)
       .toFixed()
 
+    const { allowanceContract, relayTransactionMetadata } = (() => {
+      if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+
+      if (isRelayQuoteUtxoItemData(selectedItem.data)) {
+        if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+
+        const { destination, opReturnData } = getRelayPsbtInfo(
+          selectedItem.data.psbt,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        )
+
+        return {
+          allowanceContract: '',
+          relayTransactionMetadata: {
+            psbt: selectedItem.data.psbt,
+            opReturnData,
+            to: destination,
+          },
+        }
+      }
+
+      return {
+        allowanceContract: selectedItem.data?.to ?? '',
+        relayTransactionMetadata: {
+          to: selectedItem.data?.to,
+          value: selectedItem.data?.value,
+          data: selectedItem.data?.data,
+          // gas is not documented in the relay docs but refers to gasLimit
+          gasLimit: selectedItem.data?.gas,
+        },
+      }
+    })()
+
     return {
-      allowanceContract: selectedItem.data?.to ?? '',
+      allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
@@ -324,13 +356,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       },
       source: SwapperName.Relay,
       estimatedExecutionTimeMs: timeEstimate * 1000,
-      relayTransactionMetadata: {
-        to: selectedItem.data?.to,
-        value: selectedItem.data?.value,
-        data: selectedItem.data?.data,
-        // gas is not documented in the relay docs but refers to gasLimit
-        gasLimit: selectedItem.data?.gas,
-      },
+      relayTransactionMetadata,
     }
   })
 

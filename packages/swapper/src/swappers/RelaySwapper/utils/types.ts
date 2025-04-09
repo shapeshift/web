@@ -17,10 +17,12 @@ export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBasePa
 }
 
 export type RelayTransactionMetadata = {
-  to: string | undefined
-  value: string | undefined
-  data: string | undefined
-  gasLimit: string | undefined
+  to?: string
+  value?: string
+  data?: string
+  gasLimit?: string
+  psbt?: string
+  opReturnData?: string
 }
 
 export type RelayStatus = {
@@ -94,16 +96,22 @@ export type QuoteDetails = {
   timeEstimate: number
 }
 
-export type RelayQuoteItemData = {
+export type RelayQuoteEvmItemData = {
   to?: string
   data?: string
   value?: string
   gas?: string
 }
 
+export type RelayQuoteUtxoItemData = {
+  psbt?: string
+  to?: string
+  opReturnData?: string
+}
+
 // @TODO: Change this to EVM and add UTXO/SVM types
 export type RelayQuoteItem = {
-  data?: RelayQuoteItemData
+  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData
 }
 
 export type RelayQuote = {
@@ -114,4 +122,10 @@ export type RelayQuote = {
     requestId: string
     items?: RelayQuoteItem[]
   }[]
+}
+
+export const isRelayQuoteUtxoItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData,
+): item is RelayQuoteUtxoItemData => {
+  return 'psbt' in item
 }

@@ -99,6 +99,7 @@ export const Trade = memo(() => {
       ![
         TradeRoutePaths.Confirm,
         TradeRoutePaths.QuoteList,
+        TradeRoutePaths.Sweep,
         TradeRoutePaths.VerifyAddresses,
         LimitOrderRoutePaths.Confirm,
         LimitOrderRoutePaths.Orders,

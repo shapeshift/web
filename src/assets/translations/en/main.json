@@ -1265,7 +1265,7 @@
     },
     "send": {
       "consolidate": {
-        "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
+        "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with %{protocolName}'s protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
         "consolidateFunds": "Consolidate"
       },

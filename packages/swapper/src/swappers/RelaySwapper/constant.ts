@@ -39,7 +39,7 @@ export const relaySupportedChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
 ]
 
-export const relayChainMap: Record<ChainId, number> = {
+export const chainIdToRelayChainId: Record<ChainId, number> = {
   // https://docs.relay.link/resources/supported-chains
   [btcChainId]: 8253038,
   [ethChainId]: ethereum.id,
@@ -53,6 +53,10 @@ export const relayChainMap: Record<ChainId, number> = {
   [avalancheChainId]: avalanche.id,
   [bscChainId]: bsc.id,
 }
+
+export const relayChainIdToChainId: Record<number, ChainId> = Object.fromEntries(
+  Object.entries(chainIdToRelayChainId).map(([chainId, relayChainId]) => [relayChainId, chainId]),
+)
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
 export const DEFAULT_RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'

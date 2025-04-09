@@ -2,8 +2,10 @@ import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@cha
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
@@ -24,7 +26,8 @@ type SweepProps = {
   assetId: AssetId
   fromAddress: string | null
   accountId: AccountId | undefined
-  onBack: () => void
+  protocolName?: string
+  onBack?: () => void
   onSweepSeen: () => void
 }
 
@@ -32,11 +35,13 @@ export const Sweep = ({
   assetId,
   fromAddress,
   accountId,
-  onBack: handleBack,
+  protocolName,
+  onBack,
   onSweepSeen: handleSwepSeen,
 }: SweepProps) => {
   const [isSweepPending, setIsSweepPending] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+  const history = useHistory()
 
   const {
     state: { wallet },
@@ -58,6 +63,12 @@ export const Sweep = ({
     contractAddress: undefined,
     enabled: Boolean(accountId),
   })
+
+  const handleBack = useCallback(() => {
+    if (onBack) return onBack()
+
+    history.goBack()
+  }, [history, onBack])
 
   const handleSweep = useCallback(async () => {
     if (!wallet) return
@@ -164,7 +175,10 @@ export const Sweep = ({
           </Stack>
           <Stack>
             <CText color='text.subtle'>
-              {translate('modals.send.consolidate.body', { asset: asset.name })}
+              {translate('modals.send.consolidate.body', {
+                asset: asset.name,
+                protocolName: protocolName ?? SwapperName.Thorchain,
+              })}
             </CText>
           </Stack>
           <Stack justifyContent='space-between'>

@@ -1,12 +1,13 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { positiveOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, positiveOrZero } from '@shapeshiftoss/utils'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -29,6 +30,7 @@ import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -37,14 +39,18 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
+  selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUsdRateByAssetId,
   selectWalletId,
 } from '@/state/slices/selectors'
 import {
+  selectFirstHopSellAccountId,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
@@ -139,10 +145,18 @@ export const TradeInput = ({
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
   )
+  const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
   const walletId = useAppSelector(selectWalletId)
+  const sellAssetBalanceFilter = useMemo(
+    () => ({ assetId: sellAsset.assetId, accountId: sellAccountId }),
+    [sellAccountId, sellAsset.assetId],
+  )
+  const balanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
+  )
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
@@ -158,12 +172,107 @@ export const TradeInput = ({
 
   const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
+  const accountMetadataFilter = useMemo(() => ({ accountId: sellAccountId }), [sellAccountId])
+
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
+  )
+
+  const { data: fromAddress } = useQuery({
+    queryKey: ['utxoReceiveAddress', sellAccountId],
+    queryFn:
+      wallet && accountMetadata
+        ? async () => {
+            if (!accountMetadata) throw new Error('No account metadata found')
+            const accountType = accountMetadata.accountType
+            const bip44Params = accountMetadata.bip44Params
+            const chainId = fromAssetId(sellAsset.assetId).chainId
+
+            const chainAdapter = getChainAdapterManager().get(chainId)
+
+            // And re-throw if no adapter found. "Shouldn't happen but" yadi yadi yada you know the drill
+            if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
+
+            const firstReceiveAddress = await chainAdapter.getAddress({
+              wallet,
+              accountNumber: bip44Params.accountNumber,
+              accountType,
+              pubKey:
+                isLedger(wallet) && sellAccountId
+                  ? fromAccountId(sellAccountId).account
+                  : undefined,
+            })
+            return firstReceiveAddress
+          }
+        : skipToken,
+  })
+
+  const getHasEnoughBalanceForTxPlusFees = useCallback(
+    ({
+      balanceCryptoBaseUnit,
+      amountCryptoPrecision,
+      txFeeCryptoBaseUnit,
+      precision,
+    }: {
+      balanceCryptoBaseUnit: string
+      amountCryptoPrecision: string
+      txFeeCryptoBaseUnit: string
+      precision: number
+    }) => {
+      const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
+      if (balanceCryptoBaseUnitBn.isZero()) return false
+
+      return bnOrZero(amountCryptoPrecision)
+        .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision))
+    },
+    [],
+  )
+
+  const isSweepNeededArgs = useMemo(
+    () => ({
+      assetId: sellAsset.assetId,
+      address: fromAddress,
+      amountCryptoBaseUnit: sellAmountCryptoPrecision,
+      txFeeCryptoBaseUnit: tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
+      // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
+      enabled: Boolean(
+        bnOrZero(sellAmountCryptoPrecision).gt(0) &&
+          tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit &&
+          getHasEnoughBalanceForTxPlusFees({
+            precision: sellAsset.precision,
+            balanceCryptoBaseUnit,
+            amountCryptoPrecision: sellAmountCryptoPrecision,
+            txFeeCryptoBaseUnit: tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
+          }),
+      ),
+    }),
+    [
+      balanceCryptoBaseUnit,
+      fromAddress,
+      getHasEnoughBalanceForTxPlusFees,
+      sellAmountCryptoPrecision,
+      sellAsset.precision,
+      tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
+      sellAsset.assetId,
+    ],
+  )
+
+  const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
+    useIsSweepNeededQuery(isSweepNeededArgs)
+
+  console.log({
+    isSweepNeeded,
+    isSweepNeededArgs,
+  })
+
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
       Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
+      isSweepNeededLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
@@ -177,6 +286,7 @@ export const TradeInput = ({
       isConfirmationLoading,
       isVotingPowerLoading,
       isWalletReceiveAddressLoading,
+      isSweepNeededLoading,
     ],
   )
 
@@ -274,6 +384,17 @@ export const TradeInput = ({
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
+      if (
+        tradeQuoteStep.sellAsset.assetId === btcAssetId &&
+        activeQuote.swapperName === SwapperName.Relay &&
+        isSweepNeeded &&
+        !isSweepNeededLoading
+      ) {
+        history.push({ pathname: TradeRoutePaths.Sweep })
+        setIsConfirmationLoading(false)
+        return
+      }
+
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
         setIsConfirmationLoading(false)
@@ -293,6 +414,8 @@ export const TradeInput = ({
     handleConnect,
     history,
     isConnected,
+    isSweepNeeded,
+    isSweepNeededLoading,
     mixpanel,
     showErrorToast,
     tradeQuoteStep,

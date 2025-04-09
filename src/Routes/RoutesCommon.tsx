@@ -159,6 +159,11 @@ export const routes: Route[] = [
         hide: true,
       },
       {
+        path: TradeRoutePaths.Sweep,
+        main: Trade,
+        hide: true,
+      },
+      {
         path: TradeRoutePaths.QuoteList,
         main: Trade,
         hide: true,

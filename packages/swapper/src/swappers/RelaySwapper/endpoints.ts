@@ -1,5 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
@@ -10,14 +12,19 @@ import type {
   EvmTransactionRequest,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
+  GetUnsignedUtxoTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { checkSafeTransactionStatus, isExecutableTradeQuote } from '../../utils'
-import { relayChainMap } from './constant'
+import {
+  checkSafeTransactionStatus,
+  isExecutableTradeQuote,
+  isExecutableTradeStep,
+} from '../../utils'
+import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { relayService } from './utils/relayService'
@@ -28,7 +35,7 @@ export const relayApi: SwapperApi = {
     input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input, deps, relayChainMap)
+    const tradeQuoteResult = await getTradeQuote(input, deps, chainIdToRelayChainId)
 
     return tradeQuoteResult
   },
@@ -36,7 +43,7 @@ export const relayApi: SwapperApi = {
     input: GetTradeRateInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    const tradeRateResult = await getTradeRate(input, deps, relayChainMap)
+    const tradeRateResult = await getTradeRate(input, deps, chainIdToRelayChainId)
 
     return tradeRateResult
   },
@@ -120,6 +127,43 @@ export const relayApi: SwapperApi = {
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
     }
   },
+  getUtxoTransactionFees: async ({
+    tradeQuote,
+    xpub,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    if (!firstStep.relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    const { to, opReturnData } = firstStep.relayTransactionMetadata
+
+    if (!to) throw new Error('Missing transaction destination')
+    if (!opReturnData) throw new Error('Missing opReturnData')
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
+  },
+
   checkTradeStatus: async ({
     quoteId,
     txHash,

@@ -19,6 +19,7 @@ type StandaloneTradeProps = Omit<TradeCardProps, 'onChangeTab'>
 const initialEntries = [
   TradeRoutePaths.Input,
   TradeRoutePaths.Confirm,
+  TradeRoutePaths.Sweep,
   TradeRoutePaths.VerifyAddresses,
   TradeRoutePaths.QuoteList,
 ]

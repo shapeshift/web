@@ -1,4 +1,4 @@
-import { AvatarGroup, Flex, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
+import { AvatarGroup, Flex, Grid, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
@@ -31,7 +31,7 @@ const AddressWithNetworks = ({ address, chainIds }: AddressWithNetworksProps) =>
   }, [chainIds, avatarGroupBackground])
 
   return (
-    <Flex gap='2'>
+    <Grid gap='2' gridTemplateColumns='1fr 1fr'>
       <Flex minWidth='72px' justifyContent='flex-start'>
         <AvatarGroup size='xs' max={3} sx={avatarGroupSx}>
           {chainIds.map((chainId, i) => (
@@ -42,7 +42,7 @@ const AddressWithNetworks = ({ address, chainIds }: AddressWithNetworksProps) =>
       <InlineCopyButton value={address}>
         <MiddleEllipsis value={address} />
       </InlineCopyButton>
-    </Flex>
+    </Grid>
   )
 }
 

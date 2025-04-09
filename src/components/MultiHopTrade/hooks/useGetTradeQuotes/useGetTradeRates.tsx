@@ -9,7 +9,7 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
 import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
@@ -301,6 +301,7 @@ export const useGetTradeRates = () => {
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const hasTrackedInitialRatesReceived = useRef(false)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
@@ -320,9 +321,13 @@ export const useGetTradeRates = () => {
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
     if (isAnyTradeQuoteLoading) return
-    if (mixpanel && sortedTradeQuotes.length) {
+    if (!mixpanel || !sortedTradeQuotes.length) return
+
+    // We only want to fire the RatesReceived event once, not on every quote refresh
+    if (!hasTrackedInitialRatesReceived.current) {
       const quoteData = getMixPanelDataFromApiRates(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.RatesReceived, quoteData)
+      hasTrackedInitialRatesReceived.current = true
     }
   }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
 }

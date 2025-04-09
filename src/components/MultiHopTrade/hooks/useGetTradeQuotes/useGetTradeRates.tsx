@@ -318,6 +318,11 @@ export const useGetTradeRates = () => {
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
   }, [activeQuoteMeta, isAnyTradeQuoteLoading, dispatch])
 
+  // If the trade input changes, we need to reset the tracking flag
+  useEffect(() => {
+    hasTrackedInitialRatesReceived.current = false
+  }, [tradeRateInput])
+
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
     if (isAnyTradeQuoteLoading) return

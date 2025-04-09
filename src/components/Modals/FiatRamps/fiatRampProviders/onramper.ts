@@ -147,13 +147,37 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
   )
 }
 
-export const createOnRamperUrl = ({
+const generateSignature = async (data: string): Promise<string> => {
+  const secretKey = getConfig().VITE_ONRAMPER_SIGNING_KEY
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(secretKey)
+  const message = encoder.encode(data)
+
+  // https://gist.github.com/fire015/73de05647cb3c3d5d0400d5286e5be50
+  // Browser equivalent of crypto.createHmac since the browser crypto API is slightly diff from Node's
+  // See https://developer.mozilla.org/en-US/docs/Web/API/Crypto vs. https://nodejs.org/api/crypto.html
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, message)
+
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+export const createOnRamperUrl = async ({
   action,
   assetId,
   address,
   fiatCurrency,
   options: { language, mode, currentUrl },
-}: CreateUrlProps): string => {
+}: CreateUrlProps): Promise<string> => {
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
   if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
 
@@ -187,5 +211,11 @@ export const createOnRamperUrl = ({
   params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)
 
-  return `${baseUrl.toString()}?${params.toString()}`
+  const walletParam = `wallets=${defaultCrypto}:${address}`
+  const signature = await generateSignature(walletParam)
+  params.set('signature', signature)
+
+  const signedUrl = `${baseUrl.toString()}?${params.toString()}`
+
+  return signedUrl
 }

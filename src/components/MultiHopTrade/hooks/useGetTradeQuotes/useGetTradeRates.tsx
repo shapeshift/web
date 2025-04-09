@@ -298,6 +298,7 @@ export const useGetTradeRates = () => {
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

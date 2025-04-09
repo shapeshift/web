@@ -1,4 +1,3 @@
-import type { Location } from 'history'
 import { lazy, memo, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -58,7 +57,7 @@ const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) =>
 
 export const AppRoutes = memo(() => {
   const dispatch = useDispatch()
-  const location = useLocation() as Location & { state?: { background: Location } }
+  const location = useLocation()
   const navigate = useNavigate()
   const { state } = useWallet()
   const { appRoutes } = useBrowserRouter()

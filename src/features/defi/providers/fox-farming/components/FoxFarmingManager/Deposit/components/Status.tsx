@@ -88,7 +88,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const handleViewPosition = useCallback(() => {
-    navigate('/earn')
+    navigate('/wallet/earn')
   }, [navigate])
 
   const handleCancel = useCallback(() => navigate(-1), [navigate])

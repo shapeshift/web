@@ -41,6 +41,7 @@ import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
+import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
 import { csp as shapeshiftGateway } from './shapeshiftGateway'
 import { csp as shapeshiftProxy } from './shapeshiftProxy'
@@ -106,4 +107,5 @@ export const csps = [
   metamask,
   walletConnect,
   walletMigration,
+  relay,
 ]

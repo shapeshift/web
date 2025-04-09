@@ -20,7 +20,6 @@ import type {
   OpportunityId,
   UserStakingId,
 } from './types'
-import { DefiProvider } from './types'
 import { deserializeUserStakingId, opportunityIdToChainId } from './utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
@@ -159,7 +158,7 @@ export const opportunitiesApi = createApi({
               const resolver = getUserDataResolversByDefiProviderAndDefiType(defiProvider, defiType)
 
               if (!resolver) {
-                throw new Error(`resolver for ${DefiProvider.UniV2}::${defiType} not implemented`)
+                throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
               }
 
               const { chainId: accountChainId } = fromAccountId(accountId)

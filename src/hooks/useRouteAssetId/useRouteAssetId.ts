@@ -18,6 +18,8 @@ const getRouteAssetId = (pathname: string) => {
     '/assets/:chainId/:assetSubId',
     '/lending/pool/:chainId/:assetSubId/:nftId',
     '/lending/pool/:chainId/:assetSubId',
+    '/lending/poolAccount/:accountId/:chainId/:assetSubId',
+    '/lending/poolAccount/:accountId/:chainNamespace\\::chainReference/:assetSubId',
   ]
 
   const accountPaths = [

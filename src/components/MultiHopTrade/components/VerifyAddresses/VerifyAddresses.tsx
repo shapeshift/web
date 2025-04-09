@@ -135,7 +135,7 @@ export const VerifyAddresses = () => {
   }, [shouldVerifyBuyAddress])
 
   const handleContinue = useCallback(() => {
-    navigate({ pathname: TradeRoutePaths.Confirm })
+    navigate({ pathname: '/trade/confirm' })
   }, [navigate])
 
   const fetchAddresses = useCallback(async () => {

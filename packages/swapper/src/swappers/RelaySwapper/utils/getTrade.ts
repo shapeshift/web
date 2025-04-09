@@ -255,7 +255,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const relayerFeesAsset = maybeRelayerFeesAsset.unwrap()
 
-  const relayerFeesBuyAssetBaseUnit = (() => {
+  const relayerFeesBuyAssetCryptoBaseUnit = (() => {
     const relayerFeeAmount = quote.fees.relayer.amount
 
     // If fee is already in buy asset, return as is
@@ -299,7 +299,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
     const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
-      .plus(relayerFeesBuyAssetBaseUnit)
+      .plus(relayerFeesBuyAssetCryptoBaseUnit)
       .plus(appFeesBaseUnit)
       .toFixed()
 

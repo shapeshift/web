@@ -30,6 +30,7 @@ import {
 } from '../common-selectors'
 import type { UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
+import { portfolio } from './portfolioSlice'
 import type {
   AssetBalancesById,
   AssetEquityBalance,
@@ -69,7 +70,6 @@ import {
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '@/state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from '@/state/slices/preferencesSlice/selectors'
-import { portfolio } from './portfolioSlice'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
@@ -981,7 +981,8 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
   },
 )
 
-export const selectIsAccountMetadataLoadingByAccountId = portfolio.selectors.selectIsAccountMetadataLoadingByAccountId
+export const selectIsAccountMetadataLoadingByAccountId =
+  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId
 export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
   selectIsAccountMetadataLoadingByAccountId,
   selectChainIdParamFromFilter,

@@ -10,13 +10,12 @@ import {
   selectUserCurrencyToUsdRate,
 } from '../selectors'
 import { calcLimitPriceTargetAsset } from './helpers'
+import { limitOrderSlice } from './limitOrderSlice'
 import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
 
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
-import { limitOrderSlice } from './limitOrderSlice'
-
 
 export const selectActiveQuote = createSelector(
   limitOrderSlice.selectSlice,

@@ -27,7 +27,7 @@ export const initialState: OpportunitiesState = {
 }
 
 export const opportunities = createSlice({
-  name: 'opportunitiesData',
+  name: 'opportunities',
   initialState,
   reducers: create => ({
     clear: create.reducer(() => initialState),

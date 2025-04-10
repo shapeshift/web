@@ -171,7 +171,6 @@ export const txHistory = createSlice({
     selectTxsById: state => state.txs.byId,
     selectTxIds: state => state.txs.ids,
     selectHydrationMeta: state => state.hydrationMeta,
-  
   },
   extraReducers: builder => {
     builder.addCase(PURGE, () => initialState)

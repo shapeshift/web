@@ -88,14 +88,6 @@ export const CreateWallet = ({
     }
   }, [location.state?.vault, setVault, vault])
 
-  useEffect(() => {
-    try {
-      if (!vault) setVault(location.state?.vault ?? createWallet())
-    } catch (e) {
-      console.log(e)
-    }
-  }, [location.state?.vault, setVault, vault])
-
   return (
     <SlideTransition>
       <DialogHeader>

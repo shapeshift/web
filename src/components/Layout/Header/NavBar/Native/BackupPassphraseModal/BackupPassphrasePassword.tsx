@@ -16,7 +16,7 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -40,7 +40,7 @@ const buttonLeftIcon = (
 export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { state } = useWallet()
   const { walletInfo } = state
 
@@ -64,7 +64,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
         const vault = await Vault.open(walletInfo?.deviceId, values.password, false)
         revocableWallet.mnemonic = await vault.unwrap().get('#mnemonic')
         vault.seal()
-        history.push(BackupPassphraseRoutes.Info)
+        navigate(BackupPassphraseRoutes.Info)
       } catch (e) {
         console.error(e)
         setError(
@@ -77,7 +77,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
         )
       }
     },
-    [history, revocableWallet, setError, translate, walletInfo?.deviceId],
+    [navigate, revocableWallet, setError, translate, walletInfo?.deviceId],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

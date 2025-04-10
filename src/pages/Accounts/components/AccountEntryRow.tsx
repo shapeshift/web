@@ -3,7 +3,7 @@ import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -35,7 +35,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   showNetworkIcon,
   ...buttonProps
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
@@ -77,8 +77,8 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   )
 
   const onClick = useCallback(
-    () => history.push(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
-    [history, filter],
+    () => navigate(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
+    [navigate, filter],
   )
 
   return (

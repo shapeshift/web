@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PriceTable } from './PriceTable'
 
@@ -16,10 +16,10 @@ const activeStyle = { opacity: 0.5 }
 const pageProps = { paddingTop: 0 }
 
 export const Home = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleWalletClick = useCallback(() => {
-    history.push('/wallet')
-  }, [history])
+    navigate('/wallet')
+  }, [navigate])
   return (
     <Main
       mt={0}

@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
@@ -218,13 +218,13 @@ export const YourLoans = () => {
     type: 'collateral',
   })
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handlePoolClick = useCallback(
     (assetId: AssetId, accountId: AccountId) => {
-      history.push(generatePath('/lending/poolAccount/:accountId/:assetId', { accountId, assetId }))
+      navigate(generatePath('/lending/poolAccount/:accountId/:assetId', { accountId, assetId }))
     },
-    [history],
+    [navigate],
   )
 
   const { isActive, isLoading: isAllLendingPositionsDataLoading } = useAllLendingPositionsData()

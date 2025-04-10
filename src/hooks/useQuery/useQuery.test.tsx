@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import type { Location } from 'history'
+import type { Location } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 

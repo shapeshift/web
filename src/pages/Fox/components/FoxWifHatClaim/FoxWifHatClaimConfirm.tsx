@@ -17,7 +17,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import { FoxWifHatClaimRoutePaths } from './types'
@@ -57,7 +57,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
   claimTxid,
   setClaimTxid,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const accountNumber = useAppSelector(state =>
@@ -190,9 +190,8 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
-      const txHash = await handleClaim()
-      if (!txHash) return
-      history.push(FoxWifHatClaimRoutePaths.Status)
+      await handleClaim()
+      navigate(FoxWifHatClaimRoutePaths.Status)
     } catch (err) {
       console.error(err)
       toast({
@@ -202,7 +201,7 @@ export const FoxWifHatClaimConfirm: FC<FoxWifHatClaimConfirmProps> = ({
         status: 'error',
       })
     }
-  }, [handleClaim, history, translate, toast])
+  }, [handleClaim, navigate, translate, toast])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

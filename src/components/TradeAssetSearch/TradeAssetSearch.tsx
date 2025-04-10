@@ -8,7 +8,7 @@ import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
@@ -66,7 +66,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>(selectedChainId)
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -92,9 +92,9 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       // AssetId has a `/` separator so the router will have to parse 2 variables
       // e.g., /assets/:chainId/:assetSubId
       const url = `/assets/${asset.assetId}`
-      history.push(url)
+      navigate(url)
     },
-    [history],
+    [navigate],
   )
   const handleAssetClick = onAssetClick ?? defaultClickHandler
   const { register, watch } = useForm<{ search: string }>({

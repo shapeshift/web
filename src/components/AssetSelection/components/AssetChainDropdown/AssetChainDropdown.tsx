@@ -20,6 +20,7 @@ import { AssetChainRow } from './AssetChainRow'
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
@@ -27,7 +28,6 @@ import {
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
-import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 
 type AssetChainDropdownProps = {
   assetId?: AssetId

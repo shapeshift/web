@@ -41,6 +41,7 @@ import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedF
 import { reactQueries } from '@/react-queries'
 import { selectInboundAddressData } from '@/react-queries/selectors'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -48,7 +49,6 @@ import {
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector } from '@/state/store'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type Action =
   | 'swap'

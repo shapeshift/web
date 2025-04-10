@@ -6,10 +6,10 @@ import { useTranslate } from 'react-polyglot'
 import { RawText } from '@/components/Text'
 import { TransactionRow } from '@/components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from '@/hooks/useResizeObserver/useResizeObserver'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectTxDateByIds } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type TransactionsGroupByDateProps = {
   txIds: TxId[]

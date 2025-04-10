@@ -20,12 +20,9 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
-import {
-  selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-} from '@/state/slices/selectors'
-import { store, useAppSelector } from '@/state/store'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type QrCodeFormProps = {
   assetId?: AssetId

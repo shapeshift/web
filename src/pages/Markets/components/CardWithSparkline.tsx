@@ -12,12 +12,9 @@ import { ParsedHtml } from '@/components/ParsedHtml/ParsedHtml'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
 import { markdownLinkToHTML } from '@/lib/utils'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
-import {
-  selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-} from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const CardWithSparkline: React.FC<{
   assetId: AssetId

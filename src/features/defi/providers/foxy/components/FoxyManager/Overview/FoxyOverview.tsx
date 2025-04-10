@@ -29,6 +29,7 @@ import {
   serializeUserStakingId,
   supportsUndelegations,
 } from '@/state/slices/opportunitiesSlice/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
@@ -36,7 +37,6 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type FoxyOverviewProps = {
   accountId: AccountId | undefined

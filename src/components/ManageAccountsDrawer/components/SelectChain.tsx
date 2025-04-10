@@ -14,12 +14,9 @@ import { RawText } from '@/components/Text'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
-import {
-  selectAssetById,
-  selectWalletConnectedChainIds,
-} from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { selectAssetById, selectWalletConnectedChainIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'lg' }
 

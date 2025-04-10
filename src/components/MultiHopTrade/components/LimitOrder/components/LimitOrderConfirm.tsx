@@ -34,7 +34,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
-import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { limitOrder } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
@@ -58,7 +58,7 @@ export const LimitOrderConfirm = () => {
   const {
     state: { wallet, isConnected },
   } = useWallet()
-  const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
+  const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrder.actions)
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()

@@ -63,7 +63,7 @@ import {
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
-import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { limitOrder } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
 import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
@@ -136,7 +136,7 @@ export const LimitOrderInput = ({
     setSelectedSellAssetChainId,
     setSelectedBuyAssetChainId,
   } = useActions(limitOrderInput.actions)
-  const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
+  const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrder.actions)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 

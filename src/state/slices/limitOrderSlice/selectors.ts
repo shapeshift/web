@@ -10,7 +10,7 @@ import {
   selectUserCurrencyToUsdRate,
 } from '../selectors'
 import { calcLimitPriceTargetAsset } from './helpers'
-import { limitOrderSlice } from './limitOrderSlice'
+import { limitOrder } from './limitOrderSlice'
 import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
 
 import type { ReduxState } from '@/state/reducer'
@@ -18,7 +18,7 @@ import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
 
 export const selectActiveQuote = createSelector(
-  limitOrderSlice.selectSlice,
+  limitOrder.selectSlice,
   limitOrderSlice => limitOrderSlice.activeQuote,
 )
 
@@ -35,17 +35,17 @@ export const selectActiveQuoteExpirationTimestamp = createSelector(
 )
 
 export const selectActiveQuoteSellAsset = (state: ReduxState) => {
-  const sellAssetId = state.limitOrderSlice.activeQuote?.params.sellAssetId
+  const sellAssetId = state.limitOrder.activeQuote?.params.sellAssetId
   return sellAssetId ? selectAssetById(state, sellAssetId) : undefined
 }
 
 export const selectActiveQuoteBuyAsset = (state: ReduxState) => {
-  const buyAssetId = state.limitOrderSlice.activeQuote?.params.buyAssetId
+  const buyAssetId = state.limitOrder.activeQuote?.params.buyAssetId
   return buyAssetId ? selectAssetById(state, buyAssetId) : undefined
 }
 
 export const selectActiveQuoteFeeAsset = (state: ReduxState) => {
-  const sellAssetId = state.limitOrderSlice.activeQuote?.params.sellAssetId
+  const sellAssetId = state.limitOrder.activeQuote?.params.sellAssetId
   return sellAssetId ? selectFeeAssetById(state, sellAssetId) : undefined
 }
 
@@ -183,14 +183,14 @@ export const selectActiveQuoteLimitPrice = createSelector(
 )
 
 export const selectConfirmedLimitOrder = createSelector(
-  limitOrderSlice.selectSlice,
+  limitOrder.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
   (limitOrderSlice: LimitOrderState, quoteId: QuoteId) =>
     limitOrderSlice.confirmedLimitOrder[quoteId],
 )
 
 export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(
-  limitOrderSlice.selectSlice,
+  limitOrder.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
   (limitOrders, quoteId): LimitOrderSubmissionMetadata | undefined => {
     return limitOrders.orderSubmission[quoteId]

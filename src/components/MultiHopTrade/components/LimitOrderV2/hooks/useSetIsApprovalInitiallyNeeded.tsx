@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceResetRequired'
-import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { limitOrder } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectLimitOrderSubmissionMetadata,
@@ -57,13 +57,13 @@ export const useSetIsApprovalInitiallyNeeded = () => {
     if (!activeQuote?.response.id) return
 
     dispatch(
-      limitOrderSlice.actions.setInitialApprovalRequirements({
+      limitOrder.actions.setInitialApprovalRequirements({
         id: activeQuote.response.id,
         isAllowanceApprovalRequired: undefined,
       }),
     )
     dispatch(
-      limitOrderSlice.actions.setAllowanceResetRequirements({
+      limitOrder.actions.setAllowanceResetRequirements({
         id: activeQuote.response.id,
         isAllowanceResetRequired: undefined,
       }),
@@ -84,14 +84,14 @@ export const useSetIsApprovalInitiallyNeeded = () => {
     if (!activeQuote?.response.id) return
 
     dispatch(
-      limitOrderSlice.actions.setInitialApprovalRequirements({
+      limitOrder.actions.setInitialApprovalRequirements({
         id: activeQuote.response.id,
         isAllowanceApprovalRequired,
       }),
     )
 
     dispatch(
-      limitOrderSlice.actions.setAllowanceResetRequirements({
+      limitOrder.actions.setAllowanceResetRequirements({
         id: activeQuote.response.id,
         isAllowanceResetRequired,
       }),

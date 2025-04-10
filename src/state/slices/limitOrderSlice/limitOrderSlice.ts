@@ -24,7 +24,7 @@ const makeOrderSubmissionDraft = (
   return orderSubmission[id] as LimitOrderSubmissionMetadata
 }
 
-export const limitOrder = createSlice({
+export const limitOrderSlice = createSlice({
   name: 'limitOrder',
   initialState,
   reducers: create => ({

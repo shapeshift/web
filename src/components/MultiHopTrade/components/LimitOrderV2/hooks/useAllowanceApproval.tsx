@@ -13,7 +13,7 @@ import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceAp
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
-import { limitOrder } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import { selectAccountNumberByAccountId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -71,7 +71,7 @@ export const useAllowanceApproval = ({
     // Mark the whole allowance approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    dispatch(limitOrder.actions.setAllowanceApprovalStepComplete(activeQuote.response.id))
+    dispatch(limitOrderSlice.actions.setAllowanceApprovalStepComplete(activeQuote.response.id))
   }, [activeQuote?.response.id, dispatch, isAllowanceApprovalRequired, isQueryEnabled])
 
   const allowanceApprovalMutation = useMutation({
@@ -91,7 +91,7 @@ export const useAllowanceApproval = ({
         console.error('Attempting to approve with undefined quoteId')
         return
       }
-      dispatch(limitOrder.actions.setAllowanceApprovalTxPending(activeQuote.response.id))
+      dispatch(limitOrderSlice.actions.setAllowanceApprovalTxPending(activeQuote.response.id))
     },
     async onSuccess(txHash) {
       if (!activeQuote?.response.id) {
@@ -99,7 +99,7 @@ export const useAllowanceApproval = ({
         return
       }
       dispatch(
-        limitOrder.actions.setAllowanceApprovalTxHash({
+        limitOrderSlice.actions.setAllowanceApprovalTxHash({
           txHash,
           id: activeQuote.response.id,
         }),
@@ -108,14 +108,14 @@ export const useAllowanceApproval = ({
       const publicClient = assertGetViemClient(activeQuote?.params.chainId ?? '')
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
-      dispatch(limitOrder.actions.setAllowanceApprovalTxComplete(activeQuote.response.id))
+      dispatch(limitOrderSlice.actions.setAllowanceApprovalTxComplete(activeQuote.response.id))
     },
     onError(err) {
       if (!activeQuote?.response.id) {
         console.error('Attempting to approve with undefined quoteId')
         return
       }
-      dispatch(limitOrder.actions.setAllowanceApprovalTxFailed(activeQuote.response.id))
+      dispatch(limitOrderSlice.actions.setAllowanceApprovalTxFailed(activeQuote.response.id))
       showErrorToast(err)
     },
   })

@@ -31,7 +31,7 @@ import {
   selectInputSellAmountCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
-import { limitOrder } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
@@ -50,7 +50,7 @@ export const LimitOrderConfirm = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
-    limitOrder.actions,
+    limitOrderSlice.actions,
   )
   const {
     state: { isConnected, wallet },
@@ -72,7 +72,7 @@ export const LimitOrderConfirm = () => {
   const prevIsConnected = usePrevious(isConnected)
 
   const handleBack = useCallback(() => {
-    dispatch(limitOrder.actions.clear())
+    dispatch(limitOrderSlice.actions.clear())
     navigate(LimitOrderRoutePaths.Input)
   }, [dispatch, navigate])
 

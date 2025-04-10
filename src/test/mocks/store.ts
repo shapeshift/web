@@ -23,6 +23,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
     refetchOnFocus: false,
     refetchOnMountOrArgChange: false,
     refetchOnReconnect: false,
+    invalidationBehavior: 'delayed' as const,
   },
 })
 

@@ -32,6 +32,7 @@ import {
 } from '@/state/apis/snapshot/selectors'
 import { snapshotApi, useGetProposalsQuery } from '@/state/apis/snapshot/snapshot'
 import { selectAssetById, selectWalletAccountIds } from '@/state/slices/selectors'
+import type { AppDispatch } from '@/state/store'
 import { useAppSelector } from '@/state/store'
 
 const containerPaddingX = { base: 4, xl: 0 }
@@ -56,7 +57,7 @@ const tabListPaddingLeft = { base: 6, md: 0 }
 export const FoxGovernance = () => {
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const {
     data: { activeProposals, closedProposals } = { activeProposals: [], closedProposals: [] },
   } = useGetProposalsQuery()

@@ -1,4 +1,4 @@
-import type { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
+import type { BaseQueryApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 
 import type { DefiType, OpportunityId, UserStakingId } from '../types'

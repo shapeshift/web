@@ -1,4 +1,4 @@
-import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { persistStore } from 'redux-persist'
@@ -111,10 +111,6 @@ const stateSanitizer = (state: any) => {
 export const createStore = () =>
   configureStore({
     reducer,
-    enhancers: existingEnhancers => {
-      // Add the autobatch enhancer to the store setup
-      return existingEnhancers.concat(autoBatchEnhancer())
-    },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         // funnily enough, the checks that should check for perf. issues are actually slowing down the app

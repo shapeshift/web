@@ -19,10 +19,12 @@ import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMen
 import { AllChainMenu } from '@/components/ChainMenu'
 import { knownChainIds } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCap,
   selectPortfolioFungibleAssetsSortedByBalance,
+  selectPortfolioTotalUserCurrencyBalance,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -69,9 +71,15 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
+  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
-    hasWallet ? selectPortfolioFungibleAssetsSortedByBalance : selectAssetsSortedByMarketCap,
+    // If a wallet is connected with zero balances everywhere, we do the same
+    // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
+    hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
+      ? selectPortfolioFungibleAssetsSortedByBalance
+      : selectAssetsSortedByMarketCap,
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 

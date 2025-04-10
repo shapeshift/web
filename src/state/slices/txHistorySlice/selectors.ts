@@ -1,4 +1,4 @@
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'

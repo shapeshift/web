@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'

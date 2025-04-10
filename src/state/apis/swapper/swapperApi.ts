@@ -1,4 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type {

@@ -88,11 +88,12 @@ export function AppProviders({ children }: ProvidersProps) {
                                     onError={handleError}
                                   >
                                     <>
-                                      {/* This isn't a provider, the name is misleading. This does not drill context through children, 
+                                      {/* This isn't a provider, it living here is misleading. This does not drill context through children, 
                                           but really is just a subscriber. Do *not* render children with this, there is no reason,
                                           and it would re-render the whole app on every render.
-                                          We probably should move this guy to a hook if we find a sane place for it, but for the time being, 
-                                          this being a sibling fixes most of our rendering issues */}
+                                          Could probably move this guy to a hook if we find a sane place for it (wink wink AppContext), but for the time being, 
+                                          this being a sibling fixes most of our rendering issues 
+                                      */}
                                       <TransactionsSubscriber />
                                       <AppProvider>
                                         <DefiManagerProvider>{children}</DefiManagerProvider>

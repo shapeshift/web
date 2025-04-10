@@ -7,7 +7,7 @@ import type { ChainflipStreamingSwapResponseSuccess } from '../types'
 import { getConfig } from '@/config'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
@@ -122,7 +122,7 @@ export const useChainflipStreamingProgress = ({
 
         // data to update - update
         dispatch(
-          tradeQuote.actions.setStreamingSwapMeta({
+          tradeQuoteSlice.actions.setStreamingSwapMeta({
             hopIndex,
             streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
             id: confirmedTradeId,

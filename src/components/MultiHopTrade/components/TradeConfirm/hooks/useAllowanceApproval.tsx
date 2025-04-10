@@ -12,7 +12,7 @@ import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
 import { selectHopSellAccountId } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 // handles allowance approval tx execution, fees, and state orchestration
@@ -57,7 +57,7 @@ export const useAllowanceApproval = (
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
     dispatch(
-      tradeQuote.actions.setAllowanceApprovalStepComplete({ hopIndex, id: confirmedTradeId }),
+      tradeQuoteSlice.actions.setAllowanceApprovalStepComplete({ hopIndex, id: confirmedTradeId }),
     )
   }, [
     dispatch,
@@ -82,7 +82,7 @@ export const useAllowanceApproval = (
     }),
     onMutate() {
       dispatch(
-        tradeQuote.actions.setAllowanceApprovalTxPending({
+        tradeQuoteSlice.actions.setAllowanceApprovalTxPending({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -90,7 +90,7 @@ export const useAllowanceApproval = (
     },
     async onSuccess(txHash) {
       dispatch(
-        tradeQuote.actions.setAllowanceApprovalTxHash({
+        tradeQuoteSlice.actions.setAllowanceApprovalTxHash({
           hopIndex,
           txHash,
           id: confirmedTradeId,
@@ -101,7 +101,7 @@ export const useAllowanceApproval = (
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
       dispatch(
-        tradeQuote.actions.setAllowanceApprovalTxComplete({
+        tradeQuoteSlice.actions.setAllowanceApprovalTxComplete({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -109,7 +109,7 @@ export const useAllowanceApproval = (
     },
     onError(err) {
       dispatch(
-        tradeQuote.actions.setAllowanceApprovalTxFailed({
+        tradeQuoteSlice.actions.setAllowanceApprovalTxFailed({
           hopIndex,
           id: confirmedTradeId,
         }),

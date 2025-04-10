@@ -11,7 +11,7 @@ import {
   selectActiveQuote,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import type { SwapExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
 import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -120,7 +120,7 @@ export const useHopProgress = (
     // Prioritize swapper-specific progress if we're able to infer it from the hop status
     if (swapperSpecificProgress !== undefined) {
       dispatch(
-        tradeQuote.actions.setHopProgress({
+        tradeQuoteSlice.actions.setHopProgress({
           hopIndex,
           tradeId,
           progress: swapperSpecificProgress,
@@ -132,7 +132,7 @@ export const useHopProgress = (
 
     if (hopExecutionMetadata.swap.sellTxHash) {
       dispatch(
-        tradeQuote.actions.setHopProgress({
+        tradeQuoteSlice.actions.setHopProgress({
           hopIndex,
           tradeId,
           progress: 50,
@@ -155,7 +155,7 @@ export const useHopProgress = (
 
     if (hopExecutionMetadata.swap.state === TransactionExecutionState.Failed) {
       dispatch(
-        tradeQuote.actions.setHopProgress({
+        tradeQuoteSlice.actions.setHopProgress({
           hopIndex,
           tradeId,
           progress: 100,
@@ -166,7 +166,7 @@ export const useHopProgress = (
 
     if (hopExecutionMetadata.swap.state === TransactionExecutionState.Complete) {
       dispatch(
-        tradeQuote.actions.setHopProgress({
+        tradeQuoteSlice.actions.setHopProgress({
           hopIndex,
           tradeId,
           progress: 100,

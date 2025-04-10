@@ -22,7 +22,7 @@ import {
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../preferencesSlice/selectors'
-import { tradeQuote } from '../tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '../tradeQuoteSlice/tradeQuoteSlice'
 import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
@@ -63,12 +63,12 @@ import {
   sortTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/helpers'
 
-export const selectQuoteSortOption = tradeQuote.selectors.selectQuoteSortOption
+export const selectQuoteSortOption = tradeQuoteSlice.selectors.selectQuoteSortOption
 export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
-  createSelector(tradeQuote.selectSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
+  createSelector(tradeQuoteSlice.selectSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
-  tradeQuote.selectSlice,
+  tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 
@@ -197,7 +197,7 @@ export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
 )
 
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
-  createDeepEqualOutputSelector(tradeQuote.selectSlice, tradeQuoteState => {
+  createDeepEqualOutputSelector(tradeQuoteSlice.selectSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
   })
 
@@ -560,7 +560,7 @@ export const selectTradeQuoteAffiliateFeeDiscountUserCurrency = createSelector(
 )
 
 export const selectConfirmedTradeExecution = createSelector(
-  tradeQuote.selectSlice,
+  tradeQuoteSlice.selectSlice,
   selectConfirmedQuoteTradeId,
   (swappers, confirmedTradeId) => {
     if (!confirmedTradeId) return
@@ -569,7 +569,7 @@ export const selectConfirmedTradeExecution = createSelector(
 )
 
 export const selectConfirmedTradeExecutionState = createSelector(
-  tradeQuote.selectSlice,
+  tradeQuoteSlice.selectSlice,
   selectConfirmedQuoteTradeId,
   (swappers, confirmedTradeId) => {
     if (!confirmedTradeId) return
@@ -588,7 +588,7 @@ export const selectHopSellAccountId = createSelector(
 )
 
 export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
-  tradeQuote.selectSlice,
+  tradeQuoteSlice.selectSlice,
   selectTradeIdParamFromRequiredFilter,
   selectHopIndexParamFromRequiredFilter,
   (swappers, tradeId, hopIndex) => {
@@ -599,12 +599,12 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
 )
 
 export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
-  tradeQuote.selectSlice,
+  tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuoteDisplayCache,
 )
 
 export const selectIsTradeQuoteRequestAborted = createSelector(
-  tradeQuote.selectSlice,
+  tradeQuoteSlice.selectSlice,
   swappers => swappers.isTradeQuoteRequestAborted,
 )
 

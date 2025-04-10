@@ -3,7 +3,7 @@ import type { GetTradeQuoteInput, GetTradeRateInput, SwapperName } from '@shapes
 import { useEffect, useMemo } from 'react'
 
 import { swapperApi, useGetTradeQuoteQuery } from '@/state/apis/swapper/swapperApi'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch } from '@/state/store'
 
 export type UseGetSwapperTradeQuoteOrRateArgs = {
@@ -53,7 +53,7 @@ export const useGetSwapperTradeQuoteOrRate = ({
     // Ensures we don't rug the state by upserting undefined data  - this is *not* the place to do so and will rug the switch between quotes and rates
     if (!queryStateMeta.data) return
     dispatch(
-      tradeQuote.actions.upsertTradeQuotes({
+      tradeQuoteSlice.actions.upsertTradeQuotes({
         swapperName,
         quotesById: queryStateMeta.data,
       }),

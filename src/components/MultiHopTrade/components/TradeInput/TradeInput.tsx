@@ -66,7 +66,7 @@ import {
   selectShouldShowTradeQuoteOrAwaitInput,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const emptyPercentOptions: number[] = []
@@ -182,7 +182,7 @@ export const TradeInput = ({
 
   // Reset the trade quote slice to initial state on mount
   useEffect(() => {
-    dispatch(tradeQuote.actions.clearTradeQuotes())
+    dispatch(tradeQuoteSlice.actions.clearTradeQuotes())
   }, [dispatch])
 
   useEffect(() => {
@@ -268,11 +268,11 @@ export const TradeInput = ({
 
       // Set the best quote as activeQuoteMeta, unless user has already a custom quote selected, in which case don't override it
       if (!activeQuoteMeta && bestQuote?.quote !== undefined && !bestQuote.errors.length) {
-        dispatch(tradeQuote.actions.setActiveQuote(bestQuote))
+        dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
       }
 
-      dispatch(tradeQuote.actions.setConfirmedQuote(activeQuote))
-      dispatch(tradeQuote.actions.clearQuoteExecutionState(activeQuote.id))
+      dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
+      dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
         navigate('/trade/verify-addresses')

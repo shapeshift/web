@@ -21,7 +21,7 @@ import {
   selectFirstHop,
   selectLastHop,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -51,7 +51,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
 
   const handleBack = useCallback(() => {
     if (isTradeComplete) {
-      dispatch(tradeQuote.actions.clear())
+      dispatch(tradeQuoteSlice.actions.clear())
     }
 
     navigate('/trade')
@@ -77,7 +77,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
     // Only set the trade to initialized if it was actually initializing previously. Now that we shove quotes in at confirm time, we can't rely on this effect only running once.
     if (confirmedTradeExecutionState !== TradeExecutionState.Initializing) return
 
-    dispatch(tradeQuote.actions.setTradeInitialized(activeQuote.id))
+    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
   }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
 
   const footer = useMemo(() => {

@@ -36,7 +36,7 @@ import {
   selectUserAvailableTradeQuotes,
   selectUserUnavailableTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const MotionBox = motion(Box)
@@ -80,7 +80,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
 
   useEffect(() => {
     dispatch(
-      tradeQuote.actions.updateTradeQuoteDisplayCache({
+      tradeQuoteSlice.actions.updateTradeQuoteDisplayCache({
         isTradeQuoteApiQueryPending,
         sortedQuotes,
         isSwapperQuoteAvailable,

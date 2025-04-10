@@ -14,7 +14,7 @@ import {
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import {
   HopExecutionState,
   TradeExecutionState,
@@ -63,7 +63,7 @@ export const useTradeButtonProps = ({
 
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
-    dispatch(tradeQuote.actions.confirmTrade(activeQuote.id))
+    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
   }, [dispatch, activeQuote])
 
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -95,7 +95,7 @@ export const useTradeButtonProps = ({
 
   const handleBack = useCallback(() => {
     if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
-      dispatch(tradeQuote.actions.clear())
+      dispatch(tradeQuoteSlice.actions.clear())
     }
 
     navigate(TradeRoutePaths.Input)

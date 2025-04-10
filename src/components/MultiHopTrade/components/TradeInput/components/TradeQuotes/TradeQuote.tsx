@@ -40,7 +40,7 @@ import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
 } from '@/state/slices/tradeQuoteSlice/helpers'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type TradeQuoteProps = {
@@ -171,7 +171,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
 
     const handleQuoteSelection = useCallback(() => {
-      dispatch(tradeQuote.actions.setActiveQuote(quoteData))
+      dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
       onBack && onBack()
     }, [dispatch, onBack, quoteData])
 

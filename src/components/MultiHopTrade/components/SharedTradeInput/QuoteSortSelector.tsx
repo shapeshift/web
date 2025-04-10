@@ -7,7 +7,7 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import { selectQuoteSortOption } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -60,7 +60,7 @@ export const QuoteSortSelector: FC = memo(() => {
             return QuoteSortOption.BEST_RATE
         }
       })()
-      dispatch(tradeQuote.actions.setSortOption(sortOption))
+      dispatch(tradeQuoteSlice.actions.setSortOption(sortOption))
     },
     [dispatch],
   )

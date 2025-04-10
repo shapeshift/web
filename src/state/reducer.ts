@@ -38,7 +38,7 @@ import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
-import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 export const slices = {
   assets,
@@ -49,7 +49,7 @@ export const slices = {
   opportunities,
   tradeInput,
   limitOrderInput,
-  tradeQuote,
+  tradeQuote: tradeQuoteSlice,
   limitOrderSlice: limitOrder,
   snapshot,
   localWallet,
@@ -128,7 +128,7 @@ export const sliceReducers = {
     opportunitiesPersistConfig,
     opportunities.reducer,
   ),
-  tradeQuote: tradeQuote.reducer,
+  tradeQuote: tradeQuoteSlice.reducer,
   limitOrder: limitOrder.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
   localWallet: persistReducer<LocalWalletState>(localWalletSlicePersistConfig, localWallet.reducer),

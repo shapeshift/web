@@ -21,7 +21,7 @@ import {
 
 import type { ApiQuote } from '@/state/apis/swapper/types'
 
-export const tradeQuote = createSlice({
+export const tradeQuoteSlice = createSlice({
   name: 'tradeQuote',
   initialState,
   reducers: create => ({

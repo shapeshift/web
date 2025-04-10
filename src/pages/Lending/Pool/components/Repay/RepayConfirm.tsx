@@ -26,7 +26,7 @@ import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -196,12 +196,12 @@ export const RepayConfirm = ({
     })()
   }, [confirmedQuote, eventData, mixpanel, mutateAsync, refetchLendingPositionData, txId])
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    history.push(RepayRoutePaths.Input)
-  }, [history])
+    navigate(-1)
+  }, [navigate])
 
   const divider = useMemo(() => <Divider />, [])
 
@@ -285,7 +285,7 @@ export const RepayConfirm = ({
       setTxid(null)
       setConfirmedQuote(null)
       setRepaymentPercent(100)
-      return history.push(RepayRoutePaths.Input)
+      return navigate(RepayRoutePaths.Input)
     }
 
     if (
@@ -323,7 +323,7 @@ export const RepayConfirm = ({
     confirmedQuote?.repaymentAmountCryptoPrecision,
     confirmedQuote?.repaymentPercent,
     eventData,
-    history,
+    navigate,
     inboundAddressData,
     isQuoteExpired,
     loanTxStatus,

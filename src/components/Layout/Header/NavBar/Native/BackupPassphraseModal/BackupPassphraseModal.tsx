@@ -13,6 +13,8 @@ export type BackupPassphraseModalProps = {
   preventClose?: boolean
 }
 
+const initialEntries = [BackupPassphraseRoutes.Start]
+
 const modalContentPaddingX = { base: 0, md: 4 }
 
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
@@ -28,7 +30,7 @@ export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ pr
     >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={modalContentPaddingX} pt={3} pb={6}>
-        <MemoryRouter initialEntries={entries}>
+        <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
           <BackupPassphraseRouter />
         </MemoryRouter>
       </ModalContent>

@@ -1,8 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { lazy, memo, Suspense, useMemo } from 'react'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { RepayRoutePaths } from './types'
 
@@ -115,7 +116,7 @@ const RepayRoutes = memo(
   }: RepayRoutesProps) => {
     const location = useLocation()
 
-    const renderRepayInput = useCallback(
+    const repayInput = useMemo(
       () => (
         <RepayInput
           isAccountSelectionDisabled={isAccountSelectionDisabled}
@@ -148,7 +149,7 @@ const RepayRoutes = memo(
       ],
     )
 
-    const renderRepayConfirm = useCallback(
+    const repayConfirm = useMemo(
       () => (
         <RepayConfirm
           collateralAssetId={collateralAssetId}
@@ -177,20 +178,16 @@ const RepayRoutes = memo(
 
     return (
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
-          <Suspense fallback={suspenseFallback}>
-            <Route
-              key={RepayRoutePaths.Input}
-              path={RepayRoutePaths.Input}
-              render={renderRepayInput}
-            />
-            <Route
-              key={RepayRoutePaths.Confirm}
-              path={RepayRoutePaths.Confirm}
-              render={renderRepayConfirm}
-            />
-          </Suspense>
-        </Switch>
+        <Suspense fallback={suspenseFallback}>
+          <Switch location={location.pathname}>
+            <Route key={RepayRoutePaths.Input} path={RepayRoutePaths.Input}>
+              {repayInput}
+            </Route>
+            <Route key={RepayRoutePaths.Confirm} path={RepayRoutePaths.Confirm}>
+              {repayConfirm}
+            </Route>
+          </Switch>
+        </Suspense>
       </AnimatePresence>
     )
   },

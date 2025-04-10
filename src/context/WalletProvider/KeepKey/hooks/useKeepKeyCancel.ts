@@ -1,13 +1,13 @@
 import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const useKeepKeyCancel = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -28,7 +28,7 @@ export const useKeepKeyCancel = () => {
   }, [toast, translate, wallet])
 
   const handleCancel = async () => {
-    history.replace('/')
+    navigate('/', { replace: true })
     dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     await cancelWalletRequest()
   }

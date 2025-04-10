@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -45,7 +46,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const [isExiting, setIsExiting] = useState<boolean>(false)
-  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
 
   const assets = useAppSelector(selectAssets)
@@ -151,7 +153,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     ],
   )
 
-  const handleCancel = browserHistory.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const handlePercentClick = useCallback(
     (percent: number) => {

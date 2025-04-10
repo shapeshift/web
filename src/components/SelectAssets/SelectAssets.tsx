@@ -21,7 +21,14 @@ type SelectAssetsProps = {
 
 export const SelectAssets = ({ onClick, onBack }: SelectAssetsProps) => {
   const translate = useTranslate()
-  const handleAssetClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
+
+  const handleAssetClick = useCallback(
+    (asset: Asset) => {
+      onClick(asset.assetId)
+    },
+    [onClick],
+  )
+
   return (
     <>
       <DialogHeader>

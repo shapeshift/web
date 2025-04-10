@@ -91,22 +91,31 @@ export const NavBar = (props: NavBarProps) => {
               aria-label={translate(item.label)}
               data-test={`navigation-${item.label.split('.')[1]}-button`}
               isActive={
-                !!matchPath(pathname, {
-                  path: item.path,
-                  exact: false,
-                  strict: false,
-                }) ||
+                !!matchPath(
+                  {
+                    path: item.path,
+                    end: false,
+                    caseSensitive: false,
+                  },
+                  pathname,
+                ) ||
                 (item.path === '/trade' &&
-                  (!!matchPath(pathname, {
-                    path: '/limit',
-                    exact: false,
-                    strict: false,
-                  }) ||
-                    !!matchPath(pathname, {
-                      path: '/claim',
-                      exact: false,
-                      strict: false,
-                    })))
+                  (!!matchPath(
+                    {
+                      path: '/limit',
+                      end: false,
+                      caseSensitive: false,
+                    },
+                    pathname,
+                  ) ||
+                    !!matchPath(
+                      {
+                        path: '/claim',
+                        end: false,
+                        caseSensitive: false,
+                      },
+                      pathname,
+                    )))
               }
             />
           ))}

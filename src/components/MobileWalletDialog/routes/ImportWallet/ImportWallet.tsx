@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, HStack, Stack, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { FaFile, FaKey } from 'react-icons/fa'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -30,14 +30,14 @@ export const ImportWallet: React.FC<ImportWalletProps> = ({
   isDefaultRoute,
   handleRedirectToHome,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleImportKeystoreClick = useCallback(
-    () => history.push(MobileWalletDialogRoutes.ImportKeystore),
-    [history],
+    () => navigate(MobileWalletDialogRoutes.ImportKeystore),
+    [navigate],
   )
   const handleImportSeedClick = useCallback(
-    () => history.push(MobileWalletDialogRoutes.ImportSeedPhrase),
-    [history],
+    () => navigate(MobileWalletDialogRoutes.ImportSeedPhrase),
+    [navigate],
   )
 
   const handleGoBack = useCallback(() => {

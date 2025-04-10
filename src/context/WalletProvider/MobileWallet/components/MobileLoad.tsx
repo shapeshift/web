@@ -15,7 +15,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileConfig } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
@@ -115,7 +115,8 @@ const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
   )
 }
 
-export const MobileLoad = ({ history }: RouteComponentProps) => {
+export const MobileLoad = () => {
+  const navigate = useNavigate()
   const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
@@ -211,8 +212,8 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
   )
 
   const handleRename = useCallback(
-    (vault: RevocableWallet) => history.push('/mobile/rename', { vault }),
-    [history],
+    (vault: RevocableWallet) => navigate('/mobile/rename', { state: { vault } }),
+    [navigate],
   )
 
   return (

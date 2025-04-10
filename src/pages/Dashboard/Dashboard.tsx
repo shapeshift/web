@@ -2,7 +2,7 @@ import type { FlexProps, TabProps } from '@chakra-ui/react'
 import { Flex, Tab, TabIndicator, TabList, Tabs, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
 import type { SlideRenderProps } from 'react-swipeable-views-utils'
@@ -27,6 +27,14 @@ const mainPadding = { base: 0, md: 4 }
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
 const pageProps = { paddingTop: 0, pb: 0 }
+
+const walletDashboard = <WalletDashboard />
+const earnDashboard = <EarnDashboard />
+const accounts = <Accounts />
+const mobileActivity = <MobileActivity />
+const transactionHistory = <TransactionHistory />
+const notFound = <RawText>Not found</RawText>
+
 const CustomTab = (props: TabProps) => (
   <Tab
     fontWeight='semibold'
@@ -66,9 +74,8 @@ export const Dashboard = memo(() => {
   const translate = useTranslate()
   const [slideIndex, setSlideIndex] = useState(0)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { path } = useRouteMatch()
   const appIsMobile = isMobile || !isLargerThanMd
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const {
     dispatch: walletDispatch,
@@ -85,13 +92,13 @@ export const Dashboard = memo(() => {
     (index: number) => {
       switch (index) {
         case MobileTab.Overview:
-          history.push(`${path}`)
+          navigate('')
           break
         case MobileTab.Earn:
-          history.push(`${path}/earn`)
+          navigate('earn')
           break
         case MobileTab.Activity:
-          history.push(`${path}/activity`)
+          navigate('activity')
           break
         default:
           break
@@ -99,7 +106,7 @@ export const Dashboard = memo(() => {
 
       setSlideIndex(index)
     },
-    [history, path],
+    [navigate],
   )
 
   const mobileTabs = useMemo(() => {
@@ -120,31 +127,24 @@ export const Dashboard = memo(() => {
     [appIsMobile, mobileTabs],
   )
 
-  const slideRenderer = (props: SlideRenderProps) => {
+  const slideRenderer = useCallback((props: SlideRenderProps) => {
     const { index, key } = props
     let content
-    switch (mod(index, 3)) {
+    const tab = mod(index, 3)
+    switch (tab) {
       case MobileTab.Overview:
         content = (
           <>
-            <Route exact path={`${path}`}>
-              <WalletDashboard />
-            </Route>
-            <Route path={`${path}/accounts`}>
-              <Accounts />
-            </Route>
+            <Route path='' element={walletDashboard} />
+            <Route path='accounts' element={accounts} />
           </>
         )
         break
       case MobileTab.Earn:
-        content = (
-          <Route exact path={`${path}/earn`}>
-            <EarnDashboard />
-          </Route>
-        )
+        content = <Route path='*' element={earnDashboard} />
         break
       case MobileTab.Activity:
-        content = <MobileActivity />
+        content = <Route path='*' element={mobileActivity} />
         break
       default:
         content = null
@@ -152,10 +152,10 @@ export const Dashboard = memo(() => {
     }
     return (
       <ScrollView id={`scroll-view-${key}`} key={key}>
-        <Switch>{content}</Switch>
+        <Routes>{content}</Routes>
       </ScrollView>
     )
-  }
+  }, [])
 
   if (appIsMobile) {
     return (
@@ -175,23 +175,13 @@ export const Dashboard = memo(() => {
   return (
     <Main headerComponent={dashboardHeader} py={mainPadding}>
       <SEO title={translate('navBar.dashboard')} />
-      <Switch>
-        <Route exact path={`${path}`}>
-          <WalletDashboard />
-        </Route>
-        <Route exact path={`${path}/earn`}>
-          <EarnDashboard />
-        </Route>
-        <Route path={`${path}/accounts`}>
-          <Accounts />
-        </Route>
-        <Route path={`${path}/activity`}>
-          <TransactionHistory />
-        </Route>
-        <Route>
-          <RawText>Not found</RawText>
-        </Route>
-      </Switch>
+      <Routes>
+        <Route path='*' element={walletDashboard} />
+        <Route path='earn' element={earnDashboard} />
+        <Route path='accounts/*' element={accounts} />
+        <Route path='activity' element={transactionHistory} />
+        <Route path='*' element={notFound} />
+      </Routes>
     </Main>
   )
 })

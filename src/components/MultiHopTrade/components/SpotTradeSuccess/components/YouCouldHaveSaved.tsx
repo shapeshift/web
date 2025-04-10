@@ -2,7 +2,7 @@ import { Button, Card, HStack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
@@ -18,7 +18,7 @@ const foxIcon = <FoxIcon w='full' h='full' />
 type YouSavedProps = { affiliateFeeUserCurrency: string }
 
 export const YouCouldHaveSaved = ({ affiliateFeeUserCurrency }: YouSavedProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const cardRef = useRef<HTMLDivElement>(null)
   const dispatch = useAppDispatch()
@@ -34,8 +34,8 @@ export const YouCouldHaveSaved = ({ affiliateFeeUserCurrency }: YouSavedProps) =
 
     dispatch(tradeInput.actions.setBuyAsset(foxAsset))
 
-    history.push(TradeRoutePaths.Input)
-  }, [dispatch, foxAsset, history])
+    navigate(TradeRoutePaths.Input)
+  }, [dispatch, foxAsset, navigate])
 
   const affiliateFeeUserCurrencyFormatted = useMemo(() => {
     return toFiat(affiliateFeeUserCurrency)

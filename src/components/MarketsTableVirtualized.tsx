@@ -21,7 +21,7 @@ import { truncate } from 'lodash'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
@@ -96,7 +96,7 @@ type MarketsTableVirtualizedProps = {
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
   ({ rows, onRowClick }) => {
     const translate = useTranslate()
-    const history = useHistory()
+    const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
     const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
 
@@ -126,9 +126,9 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         e.stopPropagation()
         const assetId = e.currentTarget.getAttribute('data-asset-id')
         if (!assetId) return
-        history.push(`/trade/${assetId}`)
+        navigate(`/trade/${assetId}`)
       },
-      [history],
+      [navigate],
     )
     const columns = useMemo<ColumnDef<Asset>[]>(
       () => [

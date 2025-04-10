@@ -3,7 +3,7 @@ import { Button, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { DepositContext } from '../DepositContext'
 
@@ -36,8 +36,8 @@ const externalLinkIcon = <ExternalLinkIcon />
 export const Status = () => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
-  const history = useHistory()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const assets = useAppSelector(selectAssets)
   const assetNamespace = 'slip44'
@@ -67,10 +67,10 @@ export const Status = () => {
   )
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/wallet/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
-  const handleCancel = history.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   useEffect(() => {
     if (!opportunityMetadata) return

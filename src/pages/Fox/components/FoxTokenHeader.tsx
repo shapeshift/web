@@ -3,7 +3,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
@@ -49,9 +49,9 @@ export const FoxTokenHeader = () => {
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const fiatRamps = useModal('fiatRamps')
-  const history = useHistory()
+  const navigate = useNavigate()
 
-  const handleSwapClick = useCallback(() => history.push('/trade'), [history])
+  const handleSwapClick = useCallback(() => navigate('/trade'), [navigate])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({
@@ -62,8 +62,8 @@ export const FoxTokenHeader = () => {
   }, [assetAccountId, assetId, fiatRamps])
 
   const handleStakeClick = useCallback(() => {
-    history.push('/rfox')
-  }, [history])
+    navigate('/rfox')
+  }, [navigate])
 
   useEffect(() => {
     appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))

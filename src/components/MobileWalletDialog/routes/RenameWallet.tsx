@@ -2,7 +2,7 @@ import { Button, FormControl, FormErrorMessage, Input } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../types'
 
@@ -18,15 +18,14 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { updateWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import type { MobileLocationState } from '@/context/WalletProvider/MobileWallet/types'
 
 type FormValues = {
   label: string
 }
 
 export const RenameWallet = () => {
-  const location = useLocation<MobileLocationState>()
-  const history = useHistory()
+  const location = useLocation()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     handleSubmit,
@@ -42,15 +41,15 @@ export const RenameWallet = () => {
       if (!location.state.vault?.id) return
       try {
         await updateWallet(location.state.vault.id, { label: values.label })
-        history.goBack()
+        navigate(-1)
       } catch (e) {
         console.log(e)
       }
     },
-    [history, location.state.vault?.id],
+    [navigate, location.state.vault?.id],
   )
 
-  const handleBack = useCallback(() => history.push(MobileWalletDialogRoutes.Saved), [history])
+  const handleBack = useCallback(() => navigate(MobileWalletDialogRoutes.Saved), [navigate])
 
   return (
     <SlideTransition>

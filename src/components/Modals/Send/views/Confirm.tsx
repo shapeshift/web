@@ -14,7 +14,7 @@ import type { ChangeEvent } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
@@ -56,7 +56,7 @@ export const Confirm = () => {
     formState: { isSubmitting },
     setValue,
   } = useFormContext<SendInput>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     accountId,
@@ -101,7 +101,7 @@ export const Confirm = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
-  const handleClick = useCallback(() => history.push(SendRoutes.Details), [history])
+  const handleClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
   // We don't want this firing -- but need it for typing
   const handleAccountChange = useCallback(() => {}, [])

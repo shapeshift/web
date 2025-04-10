@@ -17,8 +17,7 @@ import { FaBroom, FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'rea
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -28,6 +27,7 @@ import { getLocaleLabel } from '@/assets/translations/utils'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { deleteWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
@@ -39,10 +39,6 @@ import {
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type SettingsListProps = {
-  appHistory: RouteComponentProps['history']
-}
-
 const faCoinsIcon = <Icon as={FaCoins} color='text.subtle' />
 const faDollarSignIcon = <Icon as={FaDollarSign} color='text.subtle' />
 const mdLanguageIcon = <Icon as={MdLanguage} color='text.subtle' />
@@ -52,8 +48,9 @@ const ioLockClosedIcon = <Icon as={IoLockClosed} color='text.subtle' />
 const ioDocumentTextIcon = <Icon as={IoDocumentTextOutline} color='text.subtle' />
 const faTrashIcon = <FaTrash />
 
-export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
-  const history = useHistory()
+export const SettingsList: FC = () => {
+  const navigate = useNavigate()
+  const { navigate: browserNavigate } = useBrowserRouter()
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const settings = useModal('settings')
@@ -76,18 +73,18 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     if (clickCount === 4) {
       setClickCount(0)
       settings.close()
-      appHistory.push('/flags')
+      browserNavigate('/flags')
     } else {
       setClickCount(clickCount + 1)
     }
-  }, [appHistory, clickCount, setClickCount, settings])
+  }, [clickCount, setClickCount, settings, browserNavigate])
 
   const closeModalAndNavigateTo = useCallback(
     (linkHref: string) => {
       settings.close()
-      appHistory.push(linkHref)
+      browserNavigate(linkHref)
     },
-    [appHistory, settings],
+    [settings, browserNavigate],
   )
 
   const handleDeleteAccountsClick = useCallback(async () => {
@@ -105,24 +102,22 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     }
   }, [translate, settings, disconnect, appDispatch])
 
-  const handleClearCacheClick = useCallback(
-    () => history.push(SettingsRoutes.ClearCache),
-    [history],
-  )
+  const handleClearCacheClick = useCallback(() => navigate(SettingsRoutes.ClearCache), [navigate])
 
   const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
 
-  const handleCurrencyClick = useCallback(
-    () => history.push(SettingsRoutes.FiatCurrencies),
-    [history],
-  )
+  const handleCurrencyClick = useCallback(() => {
+    navigate(SettingsRoutes.FiatCurrencies)
+  }, [navigate])
 
   const handleCurrencyFormatClick = useCallback(
-    () => history.push(SettingsRoutes.CurrencyFormat),
-    [history],
+    () => navigate(SettingsRoutes.CurrencyFormat),
+    [navigate],
   )
 
-  const handleLanguageClick = useCallback(() => history.push(SettingsRoutes.Languages), [history])
+  const handleLanguageClick = useCallback(() => {
+    navigate(SettingsRoutes.Languages)
+  }, [navigate])
 
   const handleTosClick = useCallback(
     () => closeModalAndNavigateTo('/legal/terms-of-service'),

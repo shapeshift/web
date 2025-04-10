@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
@@ -47,7 +48,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
 }) => {
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
@@ -74,6 +75,8 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       : undefined,
   )
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     try {
       if (!earnOpportunityData) return
@@ -91,17 +94,17 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       // TODO: handle client side errors
       console.error(error)
     }
-  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
+  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData, navigate])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [query, location.pathname, navigate])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

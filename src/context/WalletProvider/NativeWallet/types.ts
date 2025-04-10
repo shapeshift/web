@@ -1,5 +1,4 @@
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import type { RouteComponentProps } from 'react-router-dom'
 
 export type NativeWalletValues = {
   name: string
@@ -18,5 +17,3 @@ export interface LocationState {
     message: string
   }
 }
-
-export type NativeSetupProps = RouteComponentProps<{}, any, LocationState>

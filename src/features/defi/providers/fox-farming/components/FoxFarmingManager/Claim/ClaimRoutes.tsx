@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { ClaimConfirm } from '../Claim/ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -102,25 +102,34 @@ export const ClaimRoutes = ({
     handleAccountIdChange(maybeAccountId)
   }, [handleAccountIdChange, maybeAccountId])
 
+  const claimConfirmElement = useMemo(
+    () =>
+      opportunity ? (
+        <ClaimConfirm
+          accountId={accountId}
+          assetId={rewardAssetId}
+          onBack={onBack}
+          amount={rewardAmountCryptoPrecision}
+        />
+      ) : null,
+    [accountId, rewardAssetId, onBack, rewardAmountCryptoPrecision, opportunity],
+  )
+
+  const claimStatusElement = useMemo(
+    () => (opportunity ? <ClaimStatus accountId={accountId} /> : null),
+    [accountId, opportunity],
+  )
+
   if (!opportunity) return null
 
   return (
     <SlideTransition>
       <RouteSteps routes={routes} location={location} pt={4} />
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location} key={location.key}>
-          <Route exact path='/'>
-            <ClaimConfirm
-              accountId={accountId}
-              assetId={rewardAssetId}
-              onBack={onBack}
-              amount={rewardAmountCryptoPrecision}
-            />
-          </Route>
-          <Route exact path='/status'>
-            <ClaimStatus accountId={accountId} />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path='/' element={claimConfirmElement} />
+          <Route path='/status' element={claimStatusElement} />
+        </Routes>
       </AnimatePresence>
     </SlideTransition>
   )

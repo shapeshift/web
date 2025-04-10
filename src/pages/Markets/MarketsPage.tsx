@@ -1,27 +1,21 @@
-import { Redirect, Route, Switch, useHistory, useRouteMatch } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { Category } from './Category'
 import { Recommended } from './Recommended'
 import { WatchList } from './Watchlist'
 
-export const MarketsPage = () => {
-  const { path } = useRouteMatch()
-  const history = useHistory()
+const recommended = <Recommended />
+const watchList = <WatchList />
+const category = <Category />
+const redirect = <Navigate to='recommended' replace />
 
+export const MarketsPage = () => {
   return (
-    <Switch location={history.location}>
-      <Route exact path={`${path}`}>
-        <Redirect to={`${path}/recommended`} />
-      </Route>
-      <Route exact path={`${path}/recommended`}>
-        <Recommended />
-      </Route>
-      <Route exact path={`${path}/watchlist`}>
-        <WatchList />
-      </Route>
-      <Route exact path={`${path}/category/:category`}>
-        <Category />
-      </Route>
-    </Switch>
+    <Routes>
+      <Route path='' element={redirect} />
+      <Route path='recommended' element={recommended} />
+      <Route path='watchlist' element={watchList} />
+      <Route path='category/:category' element={category} />
+    </Routes>
   )
 }

@@ -2,7 +2,7 @@ import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
@@ -10,10 +10,10 @@ import { Text } from '@/components/Text'
 const arrowForwardIcon = <ArrowForwardIcon />
 
 export const ImportSuccess = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleContinueClick = useCallback(() => history.push('/notice'), [history])
+  const handleContinueClick = useCallback(() => navigate('/notice'), [navigate])
 
   return (
     <SlideTransition>

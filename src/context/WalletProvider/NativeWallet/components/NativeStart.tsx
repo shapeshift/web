@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
@@ -9,7 +9,8 @@ import { useStateIfMounted } from '@/hooks/useStateIfMounted/useStateIfMounted'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-export const NativeStart = ({ history }: RouteComponentProps) => {
+export const NativeStart = () => {
+  const navigate = useNavigate()
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
 
   useEffect(() => {
@@ -25,12 +26,9 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
-  const handleLoad = useCallback(() => history.push(NativeWalletRoutes.Load), [history])
-  const handleCreate = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
-  const handleImportClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportSelect),
-    [history],
-  )
+  const handleLoad = useCallback(() => navigate(NativeWalletRoutes.Load), [navigate])
+  const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
+  const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [navigate])
 
   return (
     <>

@@ -20,7 +20,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
@@ -37,7 +37,6 @@ import { DynamicComponent } from '@/components/DynamicComponent'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { RawText, Text } from '@/components/Text'
-import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { LendingQuoteClose, LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { isLendingQuoteClose, isLendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
@@ -54,18 +53,25 @@ type PoolHeaderProps = {
 const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const translate = useTranslate()
-  const history = useHistory()
-  const { path } = useRouteMatch()
-  const handleBack = useCallback(() => {
-    const isPoolPage = matchPath('/lending/pool/:poolAssetId', path)
-    const isPoolAccountPage = matchPath('/lending/poolAccount/:poolAccountId/:poolAssetId', path)
+  const navigate = useNavigate()
+  const isPoolPage = useMatch({
+    path: '/lending/pool/*',
+    end: true,
+    caseSensitive: false,
+  })
+  const isPoolAccountPage = useMatch({
+    path: '/lending/poolAccount/*',
+    end: true,
+    caseSensitive: false,
+  })
 
+  const handleBack = useCallback(() => {
     if (isPoolAccountPage) {
-      history.push('/lending/loans')
+      navigate('/lending/loans')
     } else if (isPoolPage) {
-      history.push('/lending')
+      navigate('/lending')
     }
-  }, [history, path])
+  }, [navigate, isPoolPage, isPoolAccountPage])
 
   if (!asset) return null
 
@@ -90,10 +96,6 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
-type MatchParams = {
-  poolAccountId?: AccountId
-}
-
 // Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
 // component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
 const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => {
@@ -113,7 +115,23 @@ const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & Skel
 }
 
 export const Pool = () => {
-  const { poolAccountId } = useParams<MatchParams>()
+  const location = useLocation()
+
+  const { poolAssetId, poolAccountId } = useMemo(() => {
+    if (location.pathname.includes('/poolAccount/')) {
+      const parts = location.pathname.split('/')
+      const accountIdIndex = parts.findIndex(part => part === 'poolAccount') + 1
+      const accountId = parts[accountIdIndex]
+      const assetId = parts.slice(accountIdIndex + 1).join('/') || ''
+      return { poolAssetId: assetId, poolAccountId: accountId }
+    }
+
+    if (location.pathname.includes('/pool/')) {
+      const [, ...rest] = location.pathname.split('/pool/')
+      return { poolAssetId: rest.join('/') || '', poolAccountId: undefined }
+    }
+  }, [location.pathname]) as { poolAssetId: AssetId; poolAccountId: string | undefined }
+
   const [stepIndex, setStepIndex] = useState<number>(0)
   const [borrowTxid, setBorrowTxid] = useState<string | null>(null)
   const [confirmedQuote, setConfirmedQuote] = useState<LendingQuoteOpen | LendingQuoteClose | null>(
@@ -132,7 +150,6 @@ export const Pool = () => {
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId | null>(null)
 
-  const poolAssetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
   const translate = useTranslate()

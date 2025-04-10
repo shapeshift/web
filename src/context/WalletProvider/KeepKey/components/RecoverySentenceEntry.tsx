@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { KeyboardEvent, MouseEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from '@/components/Text'
@@ -49,7 +49,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
       },
     },
   } = useWallet()
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleCancel = useKeepKeyCancel()
   const [wordEntropy, setWordEntropy] = useState<12 | 18 | 24>(12)
   const [characterInputValues, setCharacterInputValues] = useState(
@@ -123,7 +123,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     const isLastWord = recoveryWordIndex === wordEntropy - 1
     // If we've entered all words in our seed phrase, tell the KeepKey we're done
     if (isLastWord) {
-      history.push(KeepKeyRoutes.RecoverySettingUp)
+      navigate(KeepKeyRoutes.RecoverySettingUp)
       await keepKeyWallet?.sendCharacterDone()
       // Else send a Space to let the KeepKey know we're ready to enter the next word
     } else {
@@ -135,7 +135,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     }
   }, [
     recoveryWordIndex,
-    history,
+    navigate,
     keepKeyWallet,
     resetInputs,
     wordEntropy,

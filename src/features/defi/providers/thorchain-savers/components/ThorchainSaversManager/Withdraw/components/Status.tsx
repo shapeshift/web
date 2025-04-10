@@ -5,6 +5,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -17,11 +18,6 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { Summary } from '@/features/defi/components/Summary'
 import { TxStatus } from '@/features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -47,8 +43,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const opportunity = state?.opportunity
+  const navigate = useNavigate()
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
@@ -111,12 +107,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, isRunePool, state?.txid])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/wallet/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   useEffect(() => {
     if (!assetId || !opportunity) return

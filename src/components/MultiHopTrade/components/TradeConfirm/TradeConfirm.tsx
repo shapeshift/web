@@ -1,7 +1,7 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
-import { Redirect, useHistory } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SpotTradeSuccess } from '../SpotTradeSuccess/SpotTradeSuccess'
@@ -26,8 +26,8 @@ import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) => {
+  const navigate = useNavigate()
   const { isLoading } = useIsApprovalInitiallyNeeded()
-  const history = useHistory()
   const dispatch = useAppDispatch()
   const {
     state: { isConnected },
@@ -54,8 +54,8 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
       dispatch(tradeQuoteSlice.actions.clear())
     }
 
-    history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, isTradeComplete])
+    navigate('/trade')
+  }, [dispatch, navigate, isTradeComplete])
 
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
@@ -129,7 +129,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
   }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
 
   // We should have some execution state here... unless we're rehydrating or trying to access /trade/confirm directly
-  if (!confirmedTradeExecutionState) return <Redirect to={TradeRoutePaths.Input} />
+  if (!confirmedTradeExecutionState) return <Navigate to={TradeRoutePaths.Input} replace />
   if (!headerTranslation) return null
 
   return (

@@ -16,7 +16,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 
-import { selectIsWalletConnected, selectWalletConnectedChainIds } from '../common-selectors'
+import { selectWalletConnectedChainIds } from '../common-selectors'
 import {
   selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
@@ -41,6 +41,7 @@ import {
   selectTradeIdParamFromRequiredFilter,
 } from '@/state/selectors'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectFirstHopSellAccountId,
   selectHasUserEnteredAmount,
@@ -129,7 +130,7 @@ export const selectIsAnySwapperQuoteAvailable = createSelector(
 // quote responses.
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
-  selectIsWalletConnected,
+  portfolio.selectors.selectIsWalletConnected,
   selectWalletConnectedChainIds,
   selectManualReceiveAddress,
   selectSellAssetBalanceCryptoBaseUnit,

@@ -59,9 +59,9 @@ import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
-  selectSelectedCurrency,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type BorrowConfirmProps = {
   collateralAssetId: AssetId
@@ -203,7 +203,7 @@ export const BorrowConfirm = ({
 
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const {
     data: estimatedFeesData,

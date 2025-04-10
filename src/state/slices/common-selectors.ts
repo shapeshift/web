@@ -32,8 +32,6 @@ import {
 
 export const selectWalletId = portfolio.selectors.selectWalletId
 export const selectWalletName = portfolio.selectors.selectWalletName
-export const selectIsWalletConnected = portfolio.selectors.selectIsWalletConnected
-export const selectWalletSupportedChainIds = portfolio.selectors.selectWalletSupportedChainIds
 
 export const selectEnabledAccountIds = createDeepEqualOutputSelector(
   selectWalletId,

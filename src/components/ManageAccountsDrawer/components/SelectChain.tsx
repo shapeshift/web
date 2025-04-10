@@ -17,9 +17,9 @@ import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
 import {
   selectAssetById,
   selectWalletConnectedChainIds,
-  selectWalletSupportedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 
 const inputGroupProps = { size: 'lg' }
 
@@ -68,7 +68,7 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
   const wallet = useWallet().state.wallet
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
 
   const availableChainIds = useMemo(() => {
     // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet

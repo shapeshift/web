@@ -13,7 +13,7 @@ import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectAssetIdParamFromFilter } from '@/state/selectors'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
-import { selectSelectedCurrency } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const selectMarketDataUsd = marketData.selectors.selectMarketDataUsd
 
@@ -21,7 +21,7 @@ export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
   marketData.selectors.selectMarketDataUsd,
   marketData.selectors.selectMarketDataIdsSortedByMarketCapUsd,
   marketData.selectors.selectFiatMarketData,
-  selectSelectedCurrency,
+  preferences.selectors.selectSelectedCurrency,
   (
     marketDataUsd,
     marketDataAssetIdsSortedByMarketCapUsd,
@@ -57,7 +57,7 @@ export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
 
 export const selectUserCurrencyToUsdRate = createSelector(
   marketData.selectors.selectFiatMarketData,
-  selectSelectedCurrency,
+  preferences.selectors.selectSelectedCurrency,
   (fiatMarketData, selectedCurrency) =>
     bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1).toString(), // fallback to USD
 )
@@ -94,7 +94,7 @@ export const selectCryptoPriceHistoryTimeframe = createSelector(
 
 export const selectFiatPriceHistoryTimeframe = createSelector(
   marketData.selectors.selectFiatPriceHistory,
-  selectSelectedCurrency,
+  preferences.selectors.selectSelectedCurrency,
   selectTimeframeParam,
   (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] => {
     // Used as a last resort if state is already corrupted upstream

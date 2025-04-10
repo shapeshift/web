@@ -24,10 +24,10 @@ import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectChainDisplayNameByAssetId,
-  selectIsWalletConnected,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 
 type AssetChainDropdownProps = {
   assetId?: AssetId
@@ -66,7 +66,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const chainDisplayName = useAppSelector(state =>
       selectChainDisplayNameByAssetId(state, assetId ?? ''),
     )
-    const isWalletConnected = useAppSelector(selectIsWalletConnected)
+    const isWalletConnected = useAppSelector(portfolio.selectors.selectIsWalletConnected)
     const onlyConnectedChains = isWalletConnected ? _onlyConnectedChains : false
 
     const relatedAssetIdsFilter = useMemo(

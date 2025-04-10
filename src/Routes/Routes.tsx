@@ -9,7 +9,6 @@ import { useQuery } from '@/hooks/useQuery/useQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -63,7 +62,7 @@ export const AppRoutes = memo(() => {
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const { lang } = useQuery<{ lang: string }>()
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
 
   useEffect(() => {
     const selectedLocaleExists = selectedLocale in LanguageTypeEnum

@@ -15,9 +15,9 @@ import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSl
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectSelectedLocale,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const CardWithSparkline: React.FC<{
   assetId: AssetId
@@ -25,7 +25,7 @@ export const CardWithSparkline: React.FC<{
 }> = ({ assetId, onClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useGetAssetDescriptionQuery({ assetId, selectedLocale }, { skip: !!asset?.description })
   const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
 

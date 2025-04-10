@@ -19,10 +19,8 @@ import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/addre
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
-} from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 const status = <Status />
@@ -71,7 +69,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const mixpanel = getMixPanel()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
 

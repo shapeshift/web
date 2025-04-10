@@ -11,7 +11,6 @@ import { currencyFormatsRepresenter } from './SettingsCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { CurrencyFormats, preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedCurrency } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -19,7 +18,7 @@ const arrowBackIcon = <ArrowBackIcon />
 export const CurrencyFormat = () => {
   const dispatch = useAppDispatch()
   const currentCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const translate = useTranslate()
   const navigate = useNavigate()
   const formats = sortBy(CurrencyFormats, format =>

@@ -23,9 +23,9 @@ import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/c
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type QrCodeFormProps = {
   assetId?: AssetId
@@ -37,7 +37,7 @@ const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
   const { isOpen, close: handleClose } = useModal('qrCode')

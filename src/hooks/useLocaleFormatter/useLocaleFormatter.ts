@@ -5,7 +5,6 @@ import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFiatNumberFractionDigits } from '@/lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const CRYPTO_PRECISION = 8
@@ -121,7 +120,7 @@ type useLocaleFormatterArgs = {
 export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatter => {
   const currencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
   const deviceLocale = args?.locale ?? currencyFormat
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const fiatTypeToUse = args?.fiatType ?? selectedCurrency
   /**
    * Parse a number in the current locale formatted in the selected currency.

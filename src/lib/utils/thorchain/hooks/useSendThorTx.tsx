@@ -45,10 +45,10 @@ import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
-  selectSelectedCurrency,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector } from '@/state/store'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type Action =
   | 'swap'
@@ -91,7 +91,7 @@ export const useSendThorTx = ({
   const toast = useToast()
   const translate = useTranslate()
 
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, assetId ? fromAssetId(assetId).chainId : ''),

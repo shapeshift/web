@@ -27,27 +27,29 @@ const makeOrderSubmissionDraft = (
 export const limitOrderSlice = createSlice({
   name: 'limitOrder',
   initialState,
-  reducers: (create) => ({
+  reducers: create => ({
     clear: create.reducer(state => ({
       ...initialState,
       orderSubmission: state.orderSubmission, // Leave the limit order submission state alone
     })),
-    setActiveQuote: create.reducer((state, action: PayloadAction<LimitOrderActiveQuote | undefined>) => {
-      if (action.payload === undefined) {
-        state.activeQuote = undefined
-        return
-      }
-      const quoteId = action.payload.response.id
+    setActiveQuote: create.reducer(
+      (state, action: PayloadAction<LimitOrderActiveQuote | undefined>) => {
+        if (action.payload === undefined) {
+          state.activeQuote = undefined
+          return
+        }
+        const quoteId = action.payload.response.id
 
-      // The CoW api deems the ID as optional, but realistically is never undefined. This is here to
-      // prevent bad things happening if this assumption EVER turns out to be false.
-      if (!quoteId) {
-        console.error('Missing quoteId')
-        return
-      }
-      state.activeQuote = action.payload
-      state.orderSubmission[quoteId] = limitOrderSubmissionInitialState
-    }),
+        // The CoW api deems the ID as optional, but realistically is never undefined. This is here to
+        // prevent bad things happening if this assumption EVER turns out to be false.
+        if (!quoteId) {
+          console.error('Missing quoteId')
+          return
+        }
+        state.activeQuote = action.payload
+        state.orderSubmission[quoteId] = limitOrderSubmissionInitialState
+      },
+    ),
     setLimitOrderInitialized: create.reducer((state, action: PayloadAction<QuoteId>) => {
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, action.payload)
       draftOrderSubmission.state = LimitOrderSubmissionState.Previewing
@@ -164,18 +166,20 @@ export const limitOrderSlice = createSlice({
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.limitOrder.state = TransactionExecutionState.Failed
     }),
-    setLimitOrderTxMessage: create.reducer((
-      state,
-      action: PayloadAction<{
-        id: QuoteId
-        hopIndex: number
-        message: string | [string, InterpolationOptions] | undefined
-      }>,
-    ) => {
-      const { id, message } = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      draftOrderSubmission.limitOrder.message = message
-    }),
+    setLimitOrderTxMessage: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          id: QuoteId
+          hopIndex: number
+          message: string | [string, InterpolationOptions] | undefined
+        }>,
+      ) => {
+        const { id, message } = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        draftOrderSubmission.limitOrder.message = message
+      },
+    ),
     setLimitOrderTxComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
 
@@ -184,63 +188,70 @@ export const limitOrderSlice = createSlice({
       draftOrderSubmission.limitOrder.message = undefined
       draftOrderSubmission.state = LimitOrderSubmissionState.Complete
     }),
-    setInitialApprovalRequirements: create.reducer((
-      state,
-      action: PayloadAction<{ isAllowanceApprovalRequired: boolean | undefined; id: QuoteId }>,
-    ) => {
-      const draftOrderSubmission = makeOrderSubmissionDraft(
-        state.orderSubmission,
-        action.payload.id,
-      )
-      draftOrderSubmission.allowanceApproval.isRequired =
-        action.payload?.isAllowanceApprovalRequired
-      draftOrderSubmission.allowanceApproval.isInitiallyRequired =
-        action.payload?.isAllowanceApprovalRequired
-    }),
-    setAllowanceResetRequirements: create.reducer((
-      state,
-      action: PayloadAction<{ isAllowanceResetRequired: boolean | undefined; id: QuoteId }>,
-    ) => {
-      const draftOrderSubmission = makeOrderSubmissionDraft(
-        state.orderSubmission,
-        action.payload.id,
-      )
-      draftOrderSubmission.allowanceReset.isRequired = action.payload?.isAllowanceResetRequired
-      draftOrderSubmission.allowanceReset.isInitiallyRequired =
-        action.payload?.isAllowanceResetRequired
-    }),
-    setAllowanceResetTxHash: create.reducer((
-      state,
-      action: PayloadAction<{
-        txHash: string
-        id: QuoteId
-      }>,
-    ) => {
-      const { txHash, id } = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      draftOrderSubmission.allowanceReset.txHash = txHash
-    }),
-    setAllowanceApprovalTxHash: create.reducer((
-      state,
-      action: PayloadAction<{
-        txHash: string
-        id: QuoteId
-      }>,
-    ) => {
-      const { txHash, id } = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      draftOrderSubmission.allowanceApproval.txHash = txHash
-    }),
-    setLimitOrderSubmissionTxHash: create.reducer((
-      state,
-      action: PayloadAction<{ txHash: string; id: QuoteId }>,
-    ) => {
-      const { txHash } = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(
-        state.orderSubmission,
-        action.payload.id,
-      )
-      draftOrderSubmission.limitOrder.txHash = txHash
-    })
-  })
+    setInitialApprovalRequirements: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ isAllowanceApprovalRequired: boolean | undefined; id: QuoteId }>,
+      ) => {
+        const draftOrderSubmission = makeOrderSubmissionDraft(
+          state.orderSubmission,
+          action.payload.id,
+        )
+        draftOrderSubmission.allowanceApproval.isRequired =
+          action.payload?.isAllowanceApprovalRequired
+        draftOrderSubmission.allowanceApproval.isInitiallyRequired =
+          action.payload?.isAllowanceApprovalRequired
+      },
+    ),
+    setAllowanceResetRequirements: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ isAllowanceResetRequired: boolean | undefined; id: QuoteId }>,
+      ) => {
+        const draftOrderSubmission = makeOrderSubmissionDraft(
+          state.orderSubmission,
+          action.payload.id,
+        )
+        draftOrderSubmission.allowanceReset.isRequired = action.payload?.isAllowanceResetRequired
+        draftOrderSubmission.allowanceReset.isInitiallyRequired =
+          action.payload?.isAllowanceResetRequired
+      },
+    ),
+    setAllowanceResetTxHash: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          txHash: string
+          id: QuoteId
+        }>,
+      ) => {
+        const { txHash, id } = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        draftOrderSubmission.allowanceReset.txHash = txHash
+      },
+    ),
+    setAllowanceApprovalTxHash: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          txHash: string
+          id: QuoteId
+        }>,
+      ) => {
+        const { txHash, id } = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        draftOrderSubmission.allowanceApproval.txHash = txHash
+      },
+    ),
+    setLimitOrderSubmissionTxHash: create.reducer(
+      (state, action: PayloadAction<{ txHash: string; id: QuoteId }>) => {
+        const { txHash } = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(
+          state.orderSubmission,
+          action.payload.id,
+        )
+        draftOrderSubmission.limitOrder.txHash = txHash
+      },
+    ),
+  }),
 })

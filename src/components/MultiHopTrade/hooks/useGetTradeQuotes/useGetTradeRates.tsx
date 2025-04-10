@@ -50,7 +50,7 @@ import {
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type MixPanelQuoteMeta = {
@@ -229,11 +229,11 @@ export const useGetTradeRates = () => {
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions
       // and losing sync on loading state etc.
-      dispatch(tradeQuoteSlice.actions.clear())
+      dispatch(tradeQuote.actions.clear())
 
       // Early exit on any invalid state
       if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-        dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+        dispatch(tradeQuote.actions.setIsTradeQuoteRequestAborted(true))
         return null
       }
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
@@ -316,7 +316,7 @@ export const useGetTradeRates = () => {
       return
     }
 
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
+    dispatch(tradeQuote.actions.setActiveQuote(bestQuote))
   }, [activeQuoteMeta, isAnyTradeQuoteLoading, dispatch])
 
   // If the trade input changes, we need to reset the tracking flag

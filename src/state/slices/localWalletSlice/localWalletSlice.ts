@@ -17,7 +17,7 @@ export const initialState: LocalWalletState = {
   rdns: null,
 }
 
-export const localWalletSlice = createSlice({
+export const localWallet = createSlice({
   name: 'localWallet',
   initialState,
   reducers: create => ({

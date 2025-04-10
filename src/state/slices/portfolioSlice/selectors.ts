@@ -69,10 +69,11 @@ import {
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '@/state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from '@/state/slices/preferencesSlice/selectors'
+import { portfolio } from './portfolioSlice'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.portfolio.accounts.byId,
+  portfolio.selectors.selectAccountsById,
   (walletAccountIds, accountsById): PortfolioAccounts['byId'] => {
     return pickBy(accountsById, (_account, accountId: AccountId) =>
       walletAccountIds.includes(accountId),
@@ -105,7 +106,7 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
-  (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
+  portfolio.selectors.selectAccountMetadataById,
   selectEnabledWalletAccountIds,
   (accountMetadata, walletAccountIds): AccountMetadataById => {
     return pickBy(accountMetadata, (_, accountId: AccountId) =>
@@ -980,8 +981,7 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
   },
 )
 
-export const selectIsAccountMetadataLoadingByAccountId = (state: ReduxState) =>
-  state.portfolio.isAccountMetadataLoadingByAccountId
+export const selectIsAccountMetadataLoadingByAccountId = portfolio.selectors.selectIsAccountMetadataLoadingByAccountId
 export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
   selectIsAccountMetadataLoadingByAccountId,
   selectChainIdParamFromFilter,

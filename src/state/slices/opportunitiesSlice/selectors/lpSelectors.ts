@@ -11,6 +11,7 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
+import { opportunities } from '../opportunitiesSlice'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'
 
@@ -18,7 +19,6 @@ import type { AssetWithBalance } from '@/features/defi/components/Overview/Overv
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
-import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
@@ -26,7 +26,7 @@ import {
   selectLpIdParamFromFilter,
 } from '@/state/selectors'
 
-export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
+const selectLpOpportunitiesById = opportunities.selectors.selectLpOpportunitiesById
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
 // TODO: testme

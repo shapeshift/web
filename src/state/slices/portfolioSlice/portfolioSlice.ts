@@ -31,6 +31,16 @@ type WalletMetaPayload = {
 export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
+  selectors: {
+    selectAccountsById: state => state.accounts.byId,
+    selectAccountMetadataById: state => state.accountMetadata.byId,
+    selectIsAccountMetadataLoadingByAccountId: state => state.isAccountMetadataLoadingByAccountId,
+    selectWalletId: state => state.connectedWallet?.id,
+    selectWalletName: state => state.connectedWallet?.name,
+    selectIsWalletConnected: state => state.connectedWallet !== undefined,
+    selectWalletSupportedChainIds: state => state.connectedWallet?.supportedChainIds ?? [],
+    selectAccountIdsByWalletId: state => state.wallet.byId,
+  },
   reducers: create => ({
     clear: create.reducer(() => {
       return initialState

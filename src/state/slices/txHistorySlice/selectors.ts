@@ -18,6 +18,7 @@ import { selectAssets } from '../assetsSlice/selectors'
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
+import { txHistory } from './txHistorySlice'
 
 import { getTimeFrameBounds, isSome } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
@@ -39,11 +40,11 @@ export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector
 )
 
 export const selectTxs = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.txs.byId,
+  txHistory.selectors.selectTxsById,
   byId => byId,
 )
 export const selectTxIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.txs.ids,
+  txHistory.selectors.selectTxIds,
   ids => ids,
 )
 
@@ -324,7 +325,7 @@ export const selectTxsByQuery = createCachedSelector(
 )
 
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
-  (state: ReduxState) => state.txHistory.hydrationMeta,
+  txHistory.selectors.selectHydrationMeta,
   selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
@@ -364,7 +365,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
 )
 
 export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.hydrationMeta,
+  txHistory.selectors.selectHydrationMeta,
   selectEnabledWalletAccountIds,
   (hydrationMeta, walletEnabledAccountIds) => {
     return Object.entries(hydrationMeta)

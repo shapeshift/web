@@ -85,7 +85,7 @@ export type Flag = keyof FeatureFlags
 export enum CurrencyFormats {
   DotDecimalCommaThousands = 'en-US', // $123,456.78 (examples for a user using USD)
   DotDecimalCommaThousandsLakhCrore = 'en-IN', // $1,23,456.78
-  DotDecimalQuoteThousands = 'de-CH', // $ 123’456.78
+  DotDecimalQuoteThousands = 'de-CH', // $ 123'456.78
   CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
@@ -195,6 +195,18 @@ const initialState: Preferences = {
 export const preferences = createSlice({
   name: 'preferences',
   initialState,
+  selectors: {
+    selectFeatureFlags: state => state.featureFlags,
+    selectWatchedAssetIds: state => state.watchedAssets,
+    selectSelectedLocale: state => state.selectedLocale,
+    selectSelectedCurrency: state => state.selectedCurrency,
+    selectBalanceThreshold: state => state.balanceThreshold,
+    selectCurrencyFormat: state => state.currencyFormat,
+    selectChartTimeframe: state => state.chartTimeframe,
+    selectShowWelcomeModal: state => state.showWelcomeModal,
+    selectShowSnapsModal: state => state.showSnapsModal,
+    selectSelectedHomeView: state => state.selectedHomeView,
+  },
   reducers: create => ({
     clearFeatureFlags: create.reducer(state => {
       state.featureFlags = initialState.featureFlags

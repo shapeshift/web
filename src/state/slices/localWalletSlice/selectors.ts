@@ -1,9 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import type { KeyManager } from '@/context/WalletProvider/KeyManager'
-import type { ReduxState } from '@/state/reducer' // Adjust the import path as needed
+import { localWallet } from './localWalletSlice'
 
-const selectLocalWalletState = (state: ReduxState) => state.localWalletSlice
+import type { KeyManager } from '@/context/WalletProvider/KeyManager'
+
+const selectLocalWalletState = localWallet.selectSlice
 
 export const selectWalletType = createSelector(
   selectLocalWalletState,

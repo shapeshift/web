@@ -15,11 +15,11 @@ import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
+import { limitOrderSlice } from './limitOrderSlice'
 
-const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
 
 export const selectActiveQuote = createSelector(
-  selectLimitOrderSlice,
+  limitOrderSlice.selectSlice,
   limitOrderSlice => limitOrderSlice.activeQuote,
 )
 
@@ -184,14 +184,14 @@ export const selectActiveQuoteLimitPrice = createSelector(
 )
 
 export const selectConfirmedLimitOrder = createSelector(
-  selectLimitOrderSlice,
+  limitOrderSlice.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
   (limitOrderSlice: LimitOrderState, quoteId: QuoteId) =>
     limitOrderSlice.confirmedLimitOrder[quoteId],
 )
 
 export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(
-  selectLimitOrderSlice,
+  limitOrderSlice.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
   (limitOrders, quoteId): LimitOrderSubmissionMetadata | undefined => {
     return limitOrders.orderSubmission[quoteId]

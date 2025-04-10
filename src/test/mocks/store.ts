@@ -260,7 +260,7 @@ export const mockStore: ReduxState = {
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
   },
-  tradeQuoteSlice: {
+  tradeQuote: {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
@@ -287,7 +287,7 @@ export const mockStore: ReduxState = {
     strategies: undefined,
     proposals: undefined,
   },
-  localWalletSlice: {
+  localWallet: {
     _persist: {
       version: 0,
       rehydrated: false,

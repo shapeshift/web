@@ -40,8 +40,12 @@ export const defaultAsset: Asset = {
 export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
 
 export const assets = createSlice({
-  name: 'asset',
+  name: 'assets',
   initialState,
+  selectors: {
+    selectAssetsById: state => state.byId,
+    selectAssetIds: state => state.ids,
+  },
   reducers: create => ({
     clear: create.reducer(() => initialState),
     upsertAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {

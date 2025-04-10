@@ -12,6 +12,7 @@ import {
   selectPortfolioUserCurrencyBalances,
 } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
+import { opportunities } from '../opportunitiesSlice'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
@@ -58,7 +59,7 @@ export const selectStakingIds = createDeepEqualOutputSelector(
 
 export const selectUserStakingIds = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.opportunities.userStaking.ids,
+  opportunities.selectors.selectUserStakingIds,
   (walletAccountIds, userStakingIds): UserStakingId[] =>
     userStakingIds.filter(userStakingId =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
@@ -66,7 +67,7 @@ export const selectUserStakingIds = createDeepEqualOutputSelector(
 )
 
 export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.opportunities.staking.byAccountId,
+  opportunities.selectors.selectStakingByAccountId,
   byId => byId,
 )
 
@@ -80,8 +81,7 @@ export const selectUserStakingOpportunitiesById = createSelector(
   },
 )
 
-export const selectStakingOpportunitiesById = (state: ReduxState) =>
-  state.opportunities.staking.byId
+export const selectStakingOpportunitiesById = opportunities.selectors.selectStakingOpportunitiesById
 
 export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
   selectStakingOpportunitiesById,

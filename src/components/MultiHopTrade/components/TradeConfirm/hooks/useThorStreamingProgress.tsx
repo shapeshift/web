@@ -7,7 +7,7 @@ import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSucces
 import { getConfig } from '@/config'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
@@ -116,7 +116,7 @@ export const useThorStreamingProgress = ({
           streamingSwapDataRef.current = completedStreamingSwapData
 
           dispatch(
-            tradeQuoteSlice.actions.setStreamingSwapMeta({
+            tradeQuote.actions.setStreamingSwapMeta({
               hopIndex,
               streamingSwapMetadata: getStreamingSwapMetadata(completedStreamingSwapData),
               id: confirmedTradeId,
@@ -129,7 +129,7 @@ export const useThorStreamingProgress = ({
         // data to update - update
         streamingSwapDataRef.current = updatedStreamingSwapData
         dispatch(
-          tradeQuoteSlice.actions.setStreamingSwapMeta({
+          tradeQuote.actions.setStreamingSwapMeta({
             hopIndex,
             streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
             id: confirmedTradeId,

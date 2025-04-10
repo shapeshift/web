@@ -21,7 +21,7 @@ import {
 
 import type { ApiQuote } from '@/state/apis/swapper/types'
 
-export const tradeQuoteSlice = createSlice({
+export const tradeQuote = createSlice({
   name: 'tradeQuote',
   initialState,
   reducers: create => ({
@@ -487,4 +487,7 @@ export const tradeQuoteSlice = createSlice({
       state.sortOption = action.payload
     }),
   }),
+  selectors: {
+    selectQuoteSortOption: state => state.sortOption,
+  },
 })

@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import createCachedSelector from 're-reselect'
 
-import { defaultMarketData } from './marketDataSlice'
+import { defaultMarketData, marketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
 import { getTrimmedOutOfBoundsMarketData } from './utils'
 
@@ -15,16 +15,17 @@ import { selectAssetIdParamFromFilter } from '@/state/selectors'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import { selectSelectedCurrency } from '@/state/slices/preferencesSlice/selectors'
 
-export const selectMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
-  state.marketData.crypto.ids
-const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
-
-export const selectMarketDataUsd = ((state: ReduxState) => state.marketData.crypto.byId) as (
-  state: ReduxState,
-) => MarketDataById<AssetId>
+const {
+  selectMarketDataIdsSortedByMarketCapUsd,
+  selectFiatMarketData,
+  selectCryptoPriceHistory,
+  selectFiatPriceHistory,
+  selectIsMarketDataLoaded,
+  selectMarketDataUsd,
+} = marketData.selectors
 
 export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectMarketDataIdsSortedByMarketCapUsd,
   selectFiatMarketData,
   selectSelectedCurrency,
@@ -86,10 +87,6 @@ export const selectMarketDataByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
-export const selectCryptoPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory
-export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
-export const selectIsMarketDataLoaded = (state: ReduxState) => state.marketData.isMarketDataLoaded
-
 const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
 
 export const selectCryptoPriceHistoryTimeframe = createSelector(
@@ -145,7 +142,7 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
 )
 
 export const selectUsdRateByAssetId = createCachedSelector(
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectAssetId,
   (marketDataUsd, assetId): string | undefined => {
     return marketDataUsd[assetId]?.price
@@ -153,7 +150,7 @@ export const selectUsdRateByAssetId = createCachedSelector(
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectUserCurrencyRateByAssetId = createCachedSelector(
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   selectAssetId,
   (marketDataUsd, userCurrencyToUsdRate, assetId): string => {
@@ -162,3 +159,13 @@ export const selectUserCurrencyRateByAssetId = createCachedSelector(
       .toString()
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
+
+// Re-export rootish selectors from the slice for convenience
+export {
+  selectMarketDataIdsSortedByMarketCapUsd,
+  selectFiatMarketData,
+  selectCryptoPriceHistory,
+  selectFiatPriceHistory,
+  selectIsMarketDataLoaded,
+  selectMarketDataUsd,
+}

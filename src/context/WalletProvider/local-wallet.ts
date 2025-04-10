@@ -1,6 +1,6 @@
 import type { KeyManager } from './KeyManager'
 
-import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
+import { localWallet } from '@/state/slices/localWalletSlice/localWalletSlice'
 import {
   selectNativeWalletName,
   selectWalletDeviceId,
@@ -21,14 +21,14 @@ export const useLocalWallet = () => {
     deviceId: string
     rdns?: string | null
   }) => {
-    dispatch(localWalletSlice.actions.setLocalWallet({ type, deviceId, rdns: rdns ?? null }))
+    dispatch(localWallet.actions.setLocalWallet({ type, deviceId, rdns: rdns ?? null }))
   }
 
   const clearLocalWallet = () => {
-    dispatch(localWalletSlice.actions.clearLocalWallet())
+    dispatch(localWallet.actions.clearLocalWallet())
   }
   const setLocalNativeWalletName = (name: string) => {
-    dispatch(localWalletSlice.actions.setNativeWalletName(name))
+    dispatch(localWallet.actions.setNativeWalletName(name))
   }
   const nativeLocalWalletName = useAppSelector(selectNativeWalletName)
   const localWalletType = useAppSelector(selectWalletType)

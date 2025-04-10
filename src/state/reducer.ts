@@ -24,7 +24,7 @@ import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
 import { limitOrderSlice } from './slices/limitOrderSlice/limitOrderSlice'
 import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlice'
-import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
+import { localWallet } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import type { MarketDataState } from './slices/marketDataSlice/types'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
@@ -38,7 +38,7 @@ import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 export const slices = {
   assets,
@@ -49,10 +49,10 @@ export const slices = {
   opportunities,
   tradeInput,
   limitOrderInput,
-  tradeQuoteSlice,
+  tradeQuote,
   limitOrderSlice,
   snapshot,
-  localWalletSlice,
+  localWallet,
 }
 
 const preferencesPersistConfig = {
@@ -128,13 +128,10 @@ export const sliceReducers = {
     opportunitiesPersistConfig,
     opportunities.reducer,
   ),
-  tradeQuoteSlice: tradeQuoteSlice.reducer,
+  tradeQuote: tradeQuote.reducer,
   limitOrderSlice: limitOrderSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
-  localWalletSlice: persistReducer<LocalWalletState>(
-    localWalletSlicePersistConfig,
-    localWalletSlice.reducer,
-  ),
+  localWallet: persistReducer<LocalWalletState>(localWalletSlicePersistConfig, localWallet.reducer),
 }
 
 export const apiSlices = {

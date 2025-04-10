@@ -61,7 +61,7 @@ import {
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeQuote } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
@@ -404,14 +404,14 @@ export const useGetTradeQuotes = () => {
 
     // Set the execution metadata to that of the previous rate so we can take over
     dispatch(
-      tradeQuoteSlice.actions.setTradeExecutionMetadata({
+      tradeQuote.actions.setTradeExecutionMetadata({
         id: quoteData.quote.id,
         executionMetadata: confirmedTradeExecution,
       }),
     )
     // Set as both confirmed *and* active
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
-    dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
+    dispatch(tradeQuote.actions.setActiveQuote(quoteData))
+    dispatch(tradeQuote.actions.setConfirmedQuote(quoteData.quote))
   }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
 
   // TODO: move to separate hook so we don't need to pull quote data into here

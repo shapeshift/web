@@ -61,6 +61,14 @@ type CryptoPriceHistoryPayload = {
 export const marketData = createSlice({
   name: 'marketData',
   initialState,
+  selectors: {
+    selectMarketDataIdsSortedByMarketCapUsd: state => state.crypto.ids,
+    selectFiatMarketData: state => state.fiat.byId,
+    selectMarketDataUsd: state => state.crypto.byId,
+    selectCryptoPriceHistory: state => state.crypto.priceHistory,
+    selectFiatPriceHistory: state => state.fiat.priceHistory,
+    selectIsMarketDataLoaded: state => state.isMarketDataLoaded,
+  },
   reducers: {
     clear: () => initialState,
     setMarketDataLoaded: state => {

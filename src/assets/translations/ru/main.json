@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Сброс разрешений tx:",
     "allowanceApprovalTxName": "Утверждение разрешения tx:",
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
-    "tradeCompleteSurplus": "Вы получили дополнительно %{extra}!",
+    "tradeCompleteSurplus": "Вы получили дополнительно %{extraPercent}!",
     "doAnotherTrade": "Совершите еще одну сделку",
     "summary": "Торговая сводка",
     "estimatedCompletionTime": "Предполагаемое время завершения",

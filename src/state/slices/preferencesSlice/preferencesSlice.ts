@@ -269,5 +269,6 @@ export const preferences = createSlice({
     selectShowWelcomeModal: state => state.showWelcomeModal,
     selectShowSnapsModal: state => state.showSnapsModal,
     selectSelectedHomeView: state => state.selectedHomeView,
+    selectShowConsentBanner: state => state.showConsentBanner,
   },
 })

@@ -995,7 +995,7 @@
     "allowanceResetTxName": "额度重置交易：",
     "allowanceApprovalTxName": "额度授权交易：",
     "tradeComplete": "现在，您的钱包在 %{chainName} 上持有 %{cryptoAmountFormatted} 。",
-    "tradeCompleteSurplus": "您获得了额外的 %{extra}!",
+    "tradeCompleteSurplus": "您获得了额外的 %{extraPercent}!",
     "doAnotherTrade": "进行另一笔交易",
     "summary": "交易概览",
     "estimatedCompletionTime": "预计完成时间",

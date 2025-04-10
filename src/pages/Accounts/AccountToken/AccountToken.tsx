@@ -50,7 +50,7 @@ export const AccountToken = () => {
   }, [assetId])
 
   if (!accountIds.length) return null
-  if (!isCurrentAccountIdOwner) return <Navigate to='/accounts' replace />
+  if (!isCurrentAccountIdOwner) return <Navigate to='/wallet/accounts' replace />
 
   if (!assetId) return null
   if (!accountId) return null

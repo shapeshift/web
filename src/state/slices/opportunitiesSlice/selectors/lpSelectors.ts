@@ -26,12 +26,11 @@ import {
   selectLpIdParamFromFilter,
 } from '@/state/selectors'
 
-const selectLpOpportunitiesById = opportunities.selectors.selectLpOpportunitiesById
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
 // TODO: testme
 export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
-  selectLpOpportunitiesById,
+  opportunities.selectors.selectLpOpportunitiesById,
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectAssets,
@@ -133,7 +132,7 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
 
 export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpIdParamFromFilter,
-  selectLpOpportunitiesById,
+  opportunities.selectors.selectLpOpportunitiesById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
   selectMarketDataUserCurrency,
@@ -182,7 +181,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
 
 /* Get LP opportunities for all assets with balance data aggregated across all accounts */
 export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSelector(
-  selectLpOpportunitiesById,
+  opportunities.selectors.selectLpOpportunitiesById,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
   selectMarketDataUserCurrency,
@@ -259,7 +258,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
 )
 
 export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSelector(
-  selectLpOpportunitiesById,
+  opportunities.selectors.selectLpOpportunitiesById,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,

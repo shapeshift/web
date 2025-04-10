@@ -15,19 +15,12 @@ import { selectAssetIdParamFromFilter } from '@/state/selectors'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import { selectSelectedCurrency } from '@/state/slices/preferencesSlice/selectors'
 
-const {
-  selectMarketDataIdsSortedByMarketCapUsd,
-  selectFiatMarketData,
-  selectCryptoPriceHistory,
-  selectFiatPriceHistory,
-  selectIsMarketDataLoaded,
-  selectMarketDataUsd,
-} = marketData.selectors
+export const selectMarketDataUsd = marketData.selectors.selectMarketDataUsd
 
 export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
   marketData.selectors.selectMarketDataUsd,
-  selectMarketDataIdsSortedByMarketCapUsd,
-  selectFiatMarketData,
+  marketData.selectors.selectMarketDataIdsSortedByMarketCapUsd,
+  marketData.selectors.selectFiatMarketData,
   selectSelectedCurrency,
   (
     marketDataUsd,
@@ -63,7 +56,7 @@ export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
 )
 
 export const selectUserCurrencyToUsdRate = createSelector(
-  selectFiatMarketData,
+  marketData.selectors.selectFiatMarketData,
   selectSelectedCurrency,
   (fiatMarketData, selectedCurrency) =>
     bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1).toString(), // fallback to USD
@@ -90,7 +83,7 @@ export const selectMarketDataByFilter = createCachedSelector(
 const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
 
 export const selectCryptoPriceHistoryTimeframe = createSelector(
-  selectCryptoPriceHistory,
+  marketData.selectors.selectCryptoPriceHistory,
   selectTimeframeParam,
   (priceHistory, timeframe): PriceHistoryData<AssetId> => {
     const ids = Object.keys(priceHistory[timeframe] ?? {})
@@ -100,7 +93,7 @@ export const selectCryptoPriceHistoryTimeframe = createSelector(
 )
 
 export const selectFiatPriceHistoryTimeframe = createSelector(
-  selectFiatPriceHistory,
+  marketData.selectors.selectFiatPriceHistory,
   selectSelectedCurrency,
   selectTimeframeParam,
   (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] => {
@@ -133,7 +126,7 @@ export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
 )((_state: ReduxState, assetId: AssetId, timeframe: HistoryTimeframe) => `${assetId}-${timeframe}`)
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
-  selectCryptoPriceHistory,
+  marketData.selectors.selectCryptoPriceHistory,
   (_state: ReduxState, assetIds: AssetId[], _timeframe: HistoryTimeframe) => assetIds,
   (_state: ReduxState, _assetIds: AssetId[], timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
@@ -159,13 +152,3 @@ export const selectUserCurrencyRateByAssetId = createCachedSelector(
       .toString()
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
-
-// Re-export rootish selectors from the slice for convenience
-export {
-  selectMarketDataIdsSortedByMarketCapUsd,
-  selectFiatMarketData,
-  selectCryptoPriceHistory,
-  selectFiatPriceHistory,
-  selectIsMarketDataLoaded,
-  selectMarketDataUsd,
-}

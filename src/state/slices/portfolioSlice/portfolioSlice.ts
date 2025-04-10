@@ -31,16 +31,6 @@ type WalletMetaPayload = {
 export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
-  selectors: {
-    selectAccountsById: state => state.accounts.byId,
-    selectAccountMetadataById: state => state.accountMetadata.byId,
-    selectIsAccountMetadataLoadingByAccountId: state => state.isAccountMetadataLoadingByAccountId,
-    selectWalletId: state => state.connectedWallet?.id,
-    selectWalletName: state => state.connectedWallet?.name,
-    selectIsWalletConnected: state => state.connectedWallet !== undefined,
-    selectWalletSupportedChainIds: state => state.connectedWallet?.supportedChainIds ?? [],
-    selectAccountIdsByWalletId: state => state.wallet.byId,
-  },
   reducers: create => ({
     clear: create.reducer(() => {
       return initialState
@@ -144,6 +134,10 @@ export const portfolio = createSlice({
       )
       draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
     }),
+    /**
+     * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
+     * during initial load, leading to all auto-detected accounts being disabled.
+     */
     enableAccountId: create.reducer(
       (draftState, { payload: accountId }: { payload: AccountId }) => {
         const walletId = draftState.connectedWallet?.id
@@ -175,6 +169,16 @@ export const portfolio = createSlice({
     ),
   }),
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
+  selectors: {
+    selectAccountsById: state => state.accounts.byId,
+    selectAccountMetadataById: state => state.accountMetadata.byId,
+    selectIsAccountMetadataLoadingByAccountId: state => state.isAccountMetadataLoadingByAccountId,
+    selectWalletId: state => state.connectedWallet?.id,
+    selectWalletName: state => state.connectedWallet?.name,
+    selectIsWalletConnected: state => state.connectedWallet !== undefined,
+    selectWalletSupportedChainIds: state => state.connectedWallet?.supportedChainIds ?? [],
+    selectAccountIdsByWalletId: state => state.wallet.byId,
+  },
 })
 
 type GetAccountArgs = {

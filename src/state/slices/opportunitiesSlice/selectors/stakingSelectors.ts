@@ -81,10 +81,8 @@ export const selectUserStakingOpportunitiesById = createSelector(
   },
 )
 
-export const selectStakingOpportunitiesById = opportunities.selectors.selectStakingOpportunitiesById
-
 export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,
   selectAssetIdParamFromFilter,
@@ -115,7 +113,7 @@ export const selectStakingAccountIds = createDeepEqualOutputSelector(
 
 export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector(
   selectUserStakingOpportunitiesById,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
@@ -179,7 +177,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,
   selectDeserializedStakingIdFromUserStakingIdParam,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   (
     userStakingOpportunities,
     userStakingId,
@@ -227,7 +225,7 @@ export const selectHasClaimByUserStakingId = createSelector(
 export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIds,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   selectStakingIds,
   (
     userStakingOpportunities,
@@ -439,7 +437,7 @@ export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSel
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
   createDeepEqualOutputSelector(
     selectAggregatedEarnUserStakingOpportunities,
-    selectStakingOpportunitiesById,
+    opportunities.selectors.selectStakingOpportunitiesById,
     selectAssets,
     (
       aggregatedEarnUserStakingOpportunities,

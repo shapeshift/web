@@ -129,11 +129,14 @@ export const limitOrderSlice = createSlice({
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.allowanceReset.state = TransactionExecutionState.Complete
     }),
+    // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setAllowanceApprovalTxComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Complete
     }),
+    // This is deliberately disjoint to the allowance reset transaction orchestration to allow users to
+    // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceResetStepComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
 
@@ -145,6 +148,8 @@ export const limitOrderSlice = createSlice({
 
       draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingAllowanceApproval
     }),
+    // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
+    // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceApprovalStepComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
       const id = action.payload
 

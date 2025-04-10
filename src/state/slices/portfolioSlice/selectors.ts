@@ -28,6 +28,7 @@ import {
   selectWalletId,
   selectWalletName,
 } from '../common-selectors'
+import { opportunities } from '../opportunitiesSlice/opportunitiesSlice'
 import type { UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
 import { portfolio } from './portfolioSlice'
@@ -60,10 +61,7 @@ import {
   selectChainIdParamFromFilter,
 } from '@/state/selectors'
 import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import {
-  selectStakingOpportunitiesById,
-  selectUserStakingOpportunitiesById,
-} from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'
+import { selectUserStakingOpportunitiesById } from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'
 import {
   genericBalanceByFilter,
   getFirstAccountIdByChainId,
@@ -402,7 +400,7 @@ export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
 export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectUserStakingOpportunitiesById,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   (accounts, userStakingOpportunities, stakingOpportunitiesById): PortfolioAccountBalancesById => {
     return Object.entries(accounts).reduce<PortfolioAccountBalancesById>((acc, [accountId]) => {
       Object.entries(userStakingOpportunities)

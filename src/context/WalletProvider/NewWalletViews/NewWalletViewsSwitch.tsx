@@ -15,9 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import type { StaticContext } from 'react-router'
-import type { RouteComponentProps } from 'react-router-dom'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { KeyManager } from '../KeyManager'
 import type { LocationState } from '../NativeWallet/types'
@@ -50,13 +48,10 @@ const arrowBackIcon = <ArrowBackIcon />
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
-const RightPanelContent = ({
-  isLoading,
-  setIsLoading,
-  error,
-  setError,
-  location,
-}: RightPanelContentProps) => {
+type RightPanelProps = Omit<RightPanelContentProps, 'location'>
+
+const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPanelProps) => {
+  const location = useLocation()
   const {
     state: { modalType, isMipdProvider },
   } = useWallet()
@@ -97,8 +92,9 @@ export const NewWalletViewsSwitch = () => {
   // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
 
-  const history = useHistory()
-  const location = useLocation<LocationState>()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const locationState = location.state as LocationState | undefined
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -132,20 +128,21 @@ export const NewWalletViewsSwitch = () => {
   }, [toast, translate, wallet])
 
   const handleBack = useCallback(async () => {
-    const { pathname } = history.location
+    // Save the pathname before navigation
+    const pathname = location.pathname
 
-    if (location.state?.vault && pathname === NativeWalletRoutes.CreateTest) {
-      history.replace({
-        pathname: NativeWalletRoutes.Create,
-        state: { vault: location.state.vault },
+    if (locationState?.vault && pathname === NativeWalletRoutes.CreateTest) {
+      navigate(NativeWalletRoutes.Create, {
+        state: { vault: locationState.vault },
+        replace: true,
       })
 
       // Queue navigation in the next tick to ensure state is updated
       setTimeout(() => {
-        history.goBack()
+        navigate(-1)
       }, 0)
     } else {
-      history.goBack()
+      navigate(-1)
     }
 
     // If we're back at the select wallet modal, remove the initial route
@@ -154,14 +151,14 @@ export const NewWalletViewsSwitch = () => {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()
-  }, [cancelWalletRequests, dispatch, history, location.state])
+  }, [cancelWalletRequests, dispatch, navigate, locationState, location.pathname])
 
   const handleRouteReset = useCallback(() => {
-    history.replace(INITIAL_WALLET_MODAL_ROUTE)
+    navigate(INITIAL_WALLET_MODAL_ROUTE, { replace: true })
 
     setSelectedWalletId(null)
     setError(null)
-  }, [history])
+  }, [navigate])
 
   const onClose = useCallback(async () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
@@ -169,7 +166,7 @@ export const NewWalletViewsSwitch = () => {
       disconnect()
       dispatch({ type: WalletActions.OPEN_KEEPKEY_DISCONNECT })
     } else {
-      history.replace(INITIAL_WALLET_MODAL_ROUTE)
+      navigate(INITIAL_WALLET_MODAL_ROUTE, { replace: true })
       if (disconnectOnCloseModal) {
         disconnect()
       } else {
@@ -183,23 +180,37 @@ export const NewWalletViewsSwitch = () => {
     disconnectOnCloseModal,
     dispatch,
     disposition,
-    history,
+    navigate,
     wallet,
   ])
 
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
-      if (_initialRoute) history.push(_initialRoute)
+      if (_initialRoute) navigate(_initialRoute)
 
       setSelectedWalletId(walletId)
       setError(null)
     },
-    [history],
+    [navigate],
   )
 
   useEffect(() => {
-    if (initialRoute) history.push(initialRoute)
-  }, [history, initialRoute])
+    if (initialRoute) navigate(initialRoute)
+    // Don't add navigate as a dep, or problems.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialRoute])
+
+  // Reset history on modal open/unmount - yes technically could be in the same effect as above
+  // but such effects are such risky I ain't risking it
+  useEffect(() => {
+    if (!initialRoute) navigate('/', { replace: true })
+
+    return () => {
+      if (!initialRoute) navigate('/', { replace: true })
+    }
+    // Only run this on initial render, and unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Set the native wallet pending unlock as selected on refresh
   useEffect(() => {
@@ -207,17 +218,6 @@ export const NewWalletViewsSwitch = () => {
 
     setSelectedWalletId(nativeWalletPendingDeviceId)
   }, [nativeVaultsQuery.data, nativeWalletPendingDeviceId])
-
-  // Reset history on modal open/unmount
-  useEffect(() => {
-    if (!initialRoute) history.replace('/')
-
-    return () => {
-      if (!initialRoute) history.replace('/')
-    }
-    // Only run this on initial render, and unmount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const sections = useMemo(
     () => (
@@ -253,74 +253,61 @@ export const NewWalletViewsSwitch = () => {
   const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
-  const body = useCallback(
-    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
-      // These routes do not have a previous step, so don't display back button
-      const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(
-        routeProps.history.location.pathname,
-      )
-      // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
-      const isConnectRoute =
-        /^\/[^/]+\/connect$/.test(routeProps.history.location.pathname) ||
-        routeProps.history.location.pathname === '/native/enter-password'
+  const Body = useCallback(() => {
+    // These routes do not have a previous step, so don't display back button
+    const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(location.pathname)
+    // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
+    const isConnectRoute =
+      /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
-      return (
-        <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
-          {!isRootRoute || isMobile ? (
-            <Box
-              position='absolute'
-              left={3}
-              top={3}
-              zIndex={1}
-              bg={buttonContainerBgColor}
-              borderRadius='2xl'
-            >
-              <IconButton
-                icon={arrowBackIcon}
-                aria-label={translate('common.back')}
-                variant='ghost'
-                fontSize='xl'
-                size='sm'
-                isRound
-                position='static'
-                isDisabled={isLoading}
-                onClick={isConnectRoute ? handleRouteReset : handleBack}
-              />
-            </Box>
-          ) : null}
-          <Flex height='full' alignItems='center'>
-            <Box width='full'>
-              <RightPanelContent
-                location={routeProps.history.location}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-                error={error}
-                setError={setError}
-              />
-            </Box>
-          </Flex>
-        </Box>
-      )
-    },
-    [
-      bodyBgColor,
-      buttonContainerBgColor,
-      error,
-      handleBack,
-      handleRouteReset,
-      isLoading,
-      translate,
-    ],
-  )
+    return (
+      <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
+        {!isRootRoute || isMobile ? (
+          <Box
+            position='absolute'
+            left={3}
+            top={3}
+            zIndex={1}
+            bg={buttonContainerBgColor}
+            borderRadius='2xl'
+          >
+            <IconButton
+              icon={arrowBackIcon}
+              aria-label={translate('common.back')}
+              variant='ghost'
+              fontSize='xl'
+              size='sm'
+              isRound
+              position='static'
+              isDisabled={isLoading}
+              onClick={isConnectRoute ? handleRouteReset : handleBack}
+            />
+          </Box>
+        ) : null}
+        <Flex height='full' alignItems='center'>
+          <Box width='full'>
+            <RightPanelContent
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              error={error}
+              setError={setError}
+            />
+          </Box>
+        </Flex>
+      </Box>
+    )
+  }, [
+    bodyBgColor,
+    buttonContainerBgColor,
+    error,
+    handleBack,
+    handleRouteReset,
+    isLoading,
+    location.pathname,
+    translate,
+  ])
 
-  const bodyDesktopOnly = useCallback(
-    (routeProps: RouteComponentProps<{}, StaticContext, unknown>) => {
-      if (isMobile) return null
-
-      return body(routeProps)
-    },
-    [body],
-  )
+  const body = useMemo(() => <Body />, [Body])
 
   return (
     <>
@@ -345,20 +332,18 @@ export const NewWalletViewsSwitch = () => {
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
             <Flex minH='800px' w={containerWidth}>
-              <Switch>
+              <Routes>
                 {/* Always display sections for the root route, no matter the viewport */}
-                <Route exact path='/'>
-                  {sections}
-                </Route>
+                <Route path='/' element={sections} />
                 {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                <Route path='*'>{!isMobile ? sections : null}</Route>
-              </Switch>
-              <Switch>
+                <Route path='*' element={!isMobile ? sections : null} />
+              </Routes>
+              <Routes>
                 {/* Only display side panel after a wallet has been selected on mobile */}
-                <Route exact path='/' render={bodyDesktopOnly} />
+                <Route path='/' element={isMobile ? null : <Body />} />
                 {/* And for all non-root routes, no matter the viewport */}
-                <Route path='*' render={body} />
-              </Switch>
+                <Route path='*' element={body} />
+              </Routes>
             </Flex>
           </Box>
         </ModalContent>

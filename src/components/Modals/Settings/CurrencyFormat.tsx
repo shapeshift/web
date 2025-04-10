@@ -1,9 +1,10 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
 import sortBy from 'lodash/sortBy'
+import { useCallback } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { currencyFormatsRepresenter } from './SettingsCommon'
 
@@ -20,12 +21,15 @@ export const CurrencyFormat = () => {
   const currentCurrencyFormat = useAppSelector(selectCurrencyFormat)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
-  const history = useHistory()
-  const { goBack } = history
+  const navigate = useNavigate()
   const formats = sortBy(CurrencyFormats, format =>
     currencyFormatsRepresenter(format, selectedCurrency),
   )
   const { setCurrencyFormat } = preferences.actions
+
+  const handleGoBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   return (
     <SlideTransition>
@@ -39,7 +43,7 @@ export const CurrencyFormat = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={goBack}
+        onClick={handleGoBack}
       />
       <ModalHeader textAlign='center'>{translate('modals.settings.currencyFormat')}</ModalHeader>
       <>

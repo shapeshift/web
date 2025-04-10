@@ -14,12 +14,15 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-import type { NativeSetupProps, NativeWalletValues } from '../types'
+import type { NativeWalletValues } from '../types'
 
 import { Text } from '@/components/Text'
 
-export const NativeRename = ({ history, location }: NativeSetupProps) => {
+export const NativeRename = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -41,12 +44,12 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
           if (result) {
             vault.meta.delete('name')
             await vault.save()
-            history.goBack()
+            navigate(-1)
           }
         } else {
           vault.meta.set('name', values.name)
           await vault.save()
-          history.goBack()
+          navigate(-1)
         }
       } catch (e) {
         console.error(e)
@@ -56,7 +59,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
         })
       }
     },
-    [history, location.state.vault.id, setError, translate],
+    [navigate, location.state.vault.id, setError, translate],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

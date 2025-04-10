@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Скидання дозволу tx:",
     "allowanceApprovalTxName": "Затвердження дозволу tx:",
     "tradeComplete": "Тепер у вас є %{cryptoAmountFormatted} у вашому гаманці на %{chainName}.",
-    "tradeCompleteSurplus": "У вас є додатковий %{extra}!",
+    "tradeCompleteSurplus": "У вас є додатковий %{extraPercent}!",
     "doAnotherTrade": "Зробіть іншу угоду",
     "summary": "Короткий огляд торгівлі",
     "estimatedCompletionTime": "Орієнтовний час завершення",

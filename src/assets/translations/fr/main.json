@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Tx. de réinitialisation d'allocation :",
     "allowanceApprovalTxName": "Tx. d'autorisation d'allocation :",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
-    "tradeCompleteSurplus": "Vous avez reçu %{extra} supplémentaires !",
+    "tradeCompleteSurplus": "Vous avez reçu %{extraPercent} supplémentaires !",
     "doAnotherTrade": "Faire un autre échange",
     "summary": "Afficher le sommaire",
     "estimatedCompletionTime": "Temps d'exécution estimé",

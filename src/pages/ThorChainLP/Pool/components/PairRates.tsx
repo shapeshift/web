@@ -1,7 +1,7 @@
 import { Card, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -45,7 +45,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ assetId, value, prefix, symbol, o
 }
 
 export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const asset0 = useAppSelector(state => selectAssetById(state, assetIds[0]))
   const asset1 = useAppSelector(state => selectAssetById(state, assetIds[1]))
   const asset0MarketData = useAppSelector(state =>
@@ -61,9 +61,9 @@ export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
   const handleAssetClick = useCallback(
     (assetId: AssetId) => {
       const url = `/assets/${assetId}`
-      history.push(url)
+      navigate(url)
     },
-    [history],
+    [navigate],
   )
 
   if (!(asset0 && asset1 && asset0MarketData && asset1MarketData)) {

@@ -1,11 +1,12 @@
-import type { History, Location } from 'history'
+import type { Location } from 'history'
 import { createContext } from 'react'
+import type { NavigateFunction } from 'react-router'
 
 import type { Route as NestedRoute } from '@/Routes/helpers'
 
 export type BrowserRouterContextProps<Q, P> = {
   location: Location
-  history: History
+  navigate: NavigateFunction
   params: P
   query: Q
   appRoutes: NestedRoute[]

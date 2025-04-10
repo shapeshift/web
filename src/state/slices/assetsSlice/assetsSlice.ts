@@ -42,20 +42,20 @@ export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
 export const assets = createSlice({
   name: 'asset',
   initialState,
-  reducers: {
-    clear: () => initialState,
-    upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
+  reducers: create => ({
+    clear: create.reducer(() => initialState),
+    upsertAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
-    },
-    upsertAsset: (state, action: PayloadAction<Asset>) => {
+    }),
+    upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
-    },
-  },
+    }),
+  }),
 })
 
 export const assetApi = createApi({

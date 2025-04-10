@@ -138,35 +138,35 @@ const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: A
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
-  reducers: {
-    clear: () => {
+  reducers: create => ({
+    clear: create.reducer(() => {
       return initialState
-    },
-    onMessage: (txState, { payload }: TxMessage) => {
+    }),
+    onMessage: create.reducer((txState, { payload }: TxMessage) => {
       updateOrInsertTxs(txState, [payload.message], payload.accountId)
-    },
-    upsertTxsByAccountId: (txState, { payload }: TxsMessage) => {
+    }),
+    upsertTxsByAccountId: create.reducer((txState, { payload }: TxsMessage) => {
       for (const [accountId, txs] of Object.entries(payload)) {
         updateOrInsertTxs(txState, txs, accountId)
       }
 
       return txState
-    },
-    setAccountIdHydrated: (txState, { payload }: { payload: AccountId }) => {
+    }),
+    setAccountIdHydrated: create.reducer((txState, { payload }: { payload: AccountId }) => {
       txState.hydrationMeta[payload] = {
         minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
         isHydrated: true,
         isErrored: false,
       }
-    },
-    setAccountIdErrored: (txState, { payload }: { payload: AccountId }) => {
+    }),
+    setAccountIdErrored: create.reducer((txState, { payload }: { payload: AccountId }) => {
       txState.hydrationMeta[payload] = {
         minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
         isHydrated: false,
         isErrored: true,
       }
-    },
-  },
+    }),
+  }),
   extraReducers: builder => {
     builder.addCase(PURGE, () => initialState)
   },

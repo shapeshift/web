@@ -26,7 +26,6 @@ import {
   selectLpIdParamFromFilter,
 } from '@/state/selectors'
 
-
 // A user LpOpportunity, parsed as an EarnOpportunityType
 // TODO: testme
 export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(

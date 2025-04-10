@@ -21,7 +21,7 @@ import {
   selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
-import { selectFeatureFlags } from '../preferencesSlice/selectors'
+import { preferences } from '../preferencesSlice/preferencesSlice'
 import { tradeQuoteSlice } from '../tradeQuoteSlice/tradeQuoteSlice'
 import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
@@ -63,7 +63,6 @@ import {
   sortTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/helpers'
 
-export const selectQuoteSortOption = tradeQuoteSlice.selectors.selectQuoteSortOption
 export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
   createSelector(tradeQuoteSlice.selectSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
 
@@ -73,7 +72,7 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
 )
 
 const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
-  selectFeatureFlags,
+  preferences.selectors.selectFeatureFlags,
   featureFlags => {
     // cross account trade logic is irrelevant here, so we can set the flags to false here
     const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
@@ -189,7 +188,7 @@ export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
 )
 
 export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
-  [selectTradeQuotes, selectQuoteSortOption],
+  [selectTradeQuotes, tradeQuoteSlice.selectors.selectQuoteSortOption],
   (tradeQuotes, sortOption) => {
     const result = sortTradeQuotes(tradeQuotes, sortOption)
     return result

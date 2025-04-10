@@ -195,18 +195,6 @@ const initialState: Preferences = {
 export const preferences = createSlice({
   name: 'preferences',
   initialState,
-  selectors: {
-    selectFeatureFlags: state => state.featureFlags,
-    selectWatchedAssetIds: state => state.watchedAssets,
-    selectSelectedLocale: state => state.selectedLocale,
-    selectSelectedCurrency: state => state.selectedCurrency,
-    selectBalanceThreshold: state => state.balanceThreshold,
-    selectCurrencyFormat: state => state.currencyFormat,
-    selectChartTimeframe: state => state.chartTimeframe,
-    selectShowWelcomeModal: state => state.showWelcomeModal,
-    selectShowSnapsModal: state => state.showSnapsModal,
-    selectSelectedHomeView: state => state.selectedHomeView,
-  },
   reducers: create => ({
     clearFeatureFlags: create.reducer(state => {
       state.featureFlags = initialState.featureFlags
@@ -270,4 +258,16 @@ export const preferences = createSlice({
       state.selectedHomeView = payload
     }),
   }),
+  selectors: {
+    selectFeatureFlags: state => state.featureFlags,
+    selectWatchedAssetIds: state => state.watchedAssets,
+    selectSelectedLocale: state => state.selectedLocale,
+    selectSelectedCurrency: state => state.selectedCurrency,
+    selectBalanceThreshold: state => state.balanceThreshold,
+    selectCurrencyFormat: state => state.currencyFormat,
+    selectChartTimeframe: state => state.chartTimeframe,
+    selectShowWelcomeModal: state => state.showWelcomeModal,
+    selectShowSnapsModal: state => state.showSnapsModal,
+    selectSelectedHomeView: state => state.selectedHomeView,
+  },
 })

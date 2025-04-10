@@ -31,6 +31,7 @@ import {
 import { opportunities } from '../opportunitiesSlice/opportunitiesSlice'
 import type { UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
+import { preferences } from '../preferencesSlice/preferencesSlice'
 import { portfolio } from './portfolioSlice'
 import type {
   AssetBalancesById,
@@ -67,7 +68,6 @@ import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '@/state/slices/portfolioSlice/utils'
-import { selectBalanceThreshold } from '@/state/slices/preferencesSlice/selectors'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
@@ -287,7 +287,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectPortfolioAccountBalancesBaseUnit,
     selectPortfolioAssetBalancesBaseUnit,
     selectMarketDataUserCurrency,
-    selectBalanceThreshold,
+    preferences.selectors.selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAccountIdParamFromFilter,
     (
@@ -336,7 +336,7 @@ export const selectIsPortfolioLoading = createSelector(
 
 export const selectPortfolioAssetAccountBalancesSortedUserCurrency = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalancesByAccountId,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (portfolioUserCurrencyAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
     return Object.entries(
       portfolioUserCurrencyAccountBalances,
@@ -631,7 +631,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createCachedSel
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectAccountIdParamFromFilter,
   selectAssets,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (accountAssets, accountId, assets, balanceThreshold): AssetId[] => {
     if (!accountId) return []
     const assetsByAccountIds = accountAssets?.[accountId] ?? {}
@@ -686,7 +686,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
     const accounts = findAccountsByAssetId(portfolioAccounts, assetId)
     const aboveThreshold = Object.entries(accountBalances).reduce<AccountId[]>(
@@ -740,7 +740,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalUserCurrencyBalance,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (
     assetsById,
     marketData,
@@ -979,10 +979,8 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
   },
 )
 
-export const selectIsAccountMetadataLoadingByAccountId =
-  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId
 export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
-  selectIsAccountMetadataLoadingByAccountId,
+  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
   selectChainIdParamFromFilter,
   (isAccountMetadataLoadingByAccountId, chainId): boolean => {
     return Object.entries(isAccountMetadataLoadingByAccountId).some(
@@ -991,7 +989,7 @@ export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
   },
 )
 export const selectIsAnyAccountMetadataLoadedForChainId = createSelector(
-  selectIsAccountMetadataLoadingByAccountId,
+  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
   selectChainIdParamFromFilter,
   (isAccountMetadataLoadingByAccountId, chainId): boolean => {
     return Object.entries(isAccountMetadataLoadingByAccountId).some(

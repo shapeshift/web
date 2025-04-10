@@ -39,7 +39,7 @@ import type { ReduxState } from '@/state/reducer'
 import { selectAssets } from '@/state/slices/assetsSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 
 export const swapperApi = createApi({
@@ -66,7 +66,7 @@ export const swapperApi = createApi({
         const isCrossAccountTrade =
           Boolean(sendAddress && receiveAddress) &&
           sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
-        const featureFlags: FeatureFlags = selectFeatureFlags(state)
+        const featureFlags: FeatureFlags = preferences.selectors.selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
@@ -266,7 +266,7 @@ export const swapperApi = createApi({
       ) => {
         const state = getState() as ReduxState
 
-        const featureFlags = selectFeatureFlags(state)
+        const featureFlags = preferences.selectors.selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
         const assets = selectAssets(state)
         const sellAsset = selectInputSellAsset(state)

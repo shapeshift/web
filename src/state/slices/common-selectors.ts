@@ -17,7 +17,7 @@ import {
 } from './marketDataSlice/selectors'
 import { portfolio } from './portfolioSlice/portfolioSlice'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
-import { selectBalanceThreshold } from './preferencesSlice/selectors'
+import { preferences } from './preferencesSlice/preferencesSlice'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -139,7 +139,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
     Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
       const asset = assetsById[assetId]

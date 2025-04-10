@@ -7,13 +7,15 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router'
 
+import { preferences } from './state/slices/preferencesSlice/preferencesSlice'
+
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
 import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
 import { AppRoutes } from '@/Routes/Routes'
-import { selectShowConsentBanner, selectShowWelcomeModal } from '@/state/slices/selectors'
+import { selectShowConsentBanner } from '@/state/slices/selectors'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -26,7 +28,7 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const showWelcomeModal = useSelector(selectShowWelcomeModal)
+  const showWelcomeModal = useSelector(preferences.selectors.selectShowWelcomeModal)
   const showConsentBanner = useSelector(selectShowConsentBanner)
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 

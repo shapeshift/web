@@ -170,6 +170,7 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Complete
       },
     ),
+    // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setAllowanceApprovalTxComplete: create.reducer(
       (state, action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>) => {
         const { hopIndex, id } = action.payload
@@ -193,6 +194,8 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[id][hopKey].state = HopExecutionState.AwaitingSwap
       },
     ),
+    // This is deliberately disjoint to the allowance reset transaction orchestration to allow users to
+    // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceResetStepComplete: create.reducer(
       (state, action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>) => {
         const { hopIndex, id } = action.payload
@@ -206,6 +209,8 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[id][key].state = HopExecutionState.AwaitingAllowanceApproval
       },
     ),
+    // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
+    // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceApprovalStepComplete: create.reducer(
       (state, action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>) => {
         const { hopIndex, id } = action.payload

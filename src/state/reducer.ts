@@ -24,7 +24,7 @@ import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
 import { limitOrderSlice } from './slices/limitOrderSlice/limitOrderSlice'
 import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlice'
-import { localWallet } from './slices/localWalletSlice/localWalletSlice'
+import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import type { MarketDataState } from './slices/marketDataSlice/types'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
@@ -50,9 +50,9 @@ export const slices = {
   tradeInput,
   limitOrderInput,
   tradeQuote: tradeQuoteSlice,
-  limitOrderSlice: limitOrderSlice,
+  limitOrder: limitOrderSlice,
   snapshot,
-  localWallet,
+  localWallet: localWalletSlice,
 }
 
 const preferencesPersistConfig = {
@@ -131,7 +131,10 @@ export const sliceReducers = {
   tradeQuote: tradeQuoteSlice.reducer,
   limitOrder: limitOrderSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
-  localWallet: persistReducer<LocalWalletState>(localWalletSlicePersistConfig, localWallet.reducer),
+  localWallet: persistReducer<LocalWalletState>(
+    localWalletSlicePersistConfig,
+    localWalletSlice.reducer,
+  ),
 }
 
 export const apiSlices = {

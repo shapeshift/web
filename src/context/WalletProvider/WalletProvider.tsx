@@ -33,7 +33,7 @@ import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHa
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
-import { localWallet } from '@/state/slices/localWalletSlice/localWalletSlice'
+import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 import {
   selectWalletDeviceId,
   selectWalletRdns,
@@ -137,7 +137,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       const currentConnectedType = state.connectedType
       if (currentConnectedType === 'walletconnectv2') {
         state.wallet?.disconnect?.()
-        store.dispatch(localWallet.actions.clearLocalWallet())
+        store.dispatch(localWalletSlice.actions.clearLocalWallet())
         store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       }
       const { deviceId, name, wallet, icon, meta, connectedType } = action.payload
@@ -301,7 +301,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal'])
       // reset wallet meta in redux store
-      store.dispatch(localWallet.actions.clearLocalWallet())
+      store.dispatch(localWalletSlice.actions.clearLocalWallet())
       store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       return { ...state, ...resetProperties }
     // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
@@ -331,7 +331,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         initialRoute: KeepKeyRoutes.Disconnect,
       }
     case WalletActions.SET_NATIVE_PENDING_DEVICE_ID:
-      store.dispatch(localWallet.actions.clearLocalWallet())
+      store.dispatch(localWalletSlice.actions.clearLocalWallet())
       store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       return {
         ...state,

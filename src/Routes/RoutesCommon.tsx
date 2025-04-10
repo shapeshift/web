@@ -110,14 +110,6 @@ const MarketsPage = makeSuspenseful(
   ),
 )
 
-const Trade = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Trade/Trade').then(({ Trade }) => ({
-      default: Trade,
-    })),
-  ),
-)
-
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need
  * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
@@ -323,7 +315,7 @@ export const routes: Route[] = [
       },
       {
         path: ClaimRoutePaths.Status,
-        main: Trade,
+        main: ClaimTab,
         hide: true,
       },
     ],

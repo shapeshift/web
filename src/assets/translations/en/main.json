@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Allowance reset tx:",
     "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}!",
-    "tradeCompleteSurplus": "You got an extra %{extra}!",
+    "tradeCompleteSurplus": "You got an extra %{extraPercent}!",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
     "estimatedCompletionTime": "Estimated Completion Time",
@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger Connected",
-        "success": "You can now close this window or it will auto-close shortly",
+        "success": "You can now close this window.",
         "error": "There was an error connecting your wallet"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
-        "success": "You can now close this window or it will auto-close shortly",
+        "success": "You can now close this window.",
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {
@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Connect All Accounts",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",

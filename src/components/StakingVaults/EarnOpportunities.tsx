@@ -28,7 +28,7 @@ type EarnOpportunitiesProps = {
   isLoaded?: boolean
 }
 
-const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps) => {
+export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const navigate = useNavigate()
   const location = useLocation()
   const {
@@ -85,21 +85,22 @@ const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps
         return navigate('/rfox')
       }
 
-      navigate(location.pathname, {
-        state: {
-          search: qs.stringify({
-            chainId,
-            contractAddress,
-            assetNamespace,
-            assetReference,
-            highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
-            rewardId: rewardAddress,
-            provider,
-            type,
-            modal: 'overview',
-          }),
-          state: { background: location },
-        },
+      // @ts-ignore that's incorrect according to types but is absolutely valid
+      // The correct signature doesn't cut it and will bork DeFi row click in account/asset page
+      navigate({
+        pathname: location.pathname,
+        search: qs.stringify({
+          chainId,
+          contractAddress,
+          assetNamespace,
+          assetReference,
+          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
+          rewardId: rewardAddress,
+          provider,
+          type,
+          modal: 'overview',
+        }),
+        state: { background: location },
       })
     },
     [dispatch, isConnected, location, navigate],

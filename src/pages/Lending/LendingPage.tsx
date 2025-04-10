@@ -17,7 +17,7 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 export const LendingPage = () => (
   <Routes>
     <Route path={'/'} index element={availablePools} />
-    <Route path={'/poolAccount/:poolAccountId/*'} element={pool} />
+    <Route path={'/poolAccount/*'} element={pool} />
     <Route path={'/pool/*'} element={pool} />
     <Route path={'/loans'} element={yourLoans} />
   </Routes>

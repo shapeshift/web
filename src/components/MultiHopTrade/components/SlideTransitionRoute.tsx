@@ -2,7 +2,7 @@ import type { CardProps } from '@chakra-ui/react'
 import { Box, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LimitOrderRoutePaths } from './LimitOrder/types'
 
@@ -31,12 +31,12 @@ export const SlideTransitionRoute = ({
 }: SlideTransitionRouteProps) => {
   const [width] = useState(initialWidth)
   const [height] = useState(initialHeight)
-  const history = useHistory()
+  const navigate = useNavigate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
 
   const handleBack = useCallback(() => {
-    history.push({ pathname: parentRoute })
-  }, [history, parentRoute])
+    navigate(parentRoute)
+  }, [navigate, parentRoute])
 
   const cardProps: CardProps = useMemo(
     () => ({

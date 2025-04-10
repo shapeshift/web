@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import { useCallback, useMemo, useState } from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
 
@@ -141,30 +141,42 @@ export const LedgerRoutes = () => {
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
 
+  const ledgerPairElement = useMemo(
+    () => (
+      <PairBody
+        icon={icon}
+        headerTranslation='walletProvider.ledger.connect.header'
+        bodyTranslation={
+          isPreviousLedgerDeviceDetected
+            ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
+            : 'walletProvider.ledger.connect.pairNewDeviceBody'
+        }
+        buttonTranslation={
+          isPreviousLedgerDeviceDetected
+            ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
+            : 'walletProvider.ledger.connect.pairNewDeviceButton'
+        }
+        isLoading={isLoading}
+        error={error ?? deviceCountError}
+        onPairDeviceClick={handlePair}
+        secondaryContent={secondaryButton}
+      />
+    ),
+    [
+      deviceCountError,
+      error,
+      handlePair,
+      isLoading,
+      isPreviousLedgerDeviceDetected,
+      secondaryButton,
+    ],
+  )
+
   if (!modalType) return null
 
   return (
-    <Switch>
-      <Route path='/ledger/connect'>
-        <PairBody
-          icon={icon}
-          headerTranslation='walletProvider.ledger.connect.header'
-          bodyTranslation={
-            isPreviousLedgerDeviceDetected
-              ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
-              : 'walletProvider.ledger.connect.pairNewDeviceBody'
-          }
-          buttonTranslation={
-            isPreviousLedgerDeviceDetected
-              ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
-              : 'walletProvider.ledger.connect.pairNewDeviceButton'
-          }
-          isLoading={isLoading}
-          error={error ?? deviceCountError}
-          onPairDeviceClick={handlePair}
-          secondaryContent={secondaryButton}
-        />
-      </Route>
-    </Switch>
+    <Routes>
+      <Route path='/ledger/connect' element={ledgerPairElement} />
+    </Routes>
   )
 }

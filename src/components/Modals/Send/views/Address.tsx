@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -25,7 +25,7 @@ import { useAppSelector } from '@/state/store'
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     setValue,
@@ -47,15 +47,17 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
+  const handleNext = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
   const handleClick = useCallback(
     () =>
-      history.push(SendRoutes.Select, {
-        toRoute: SelectAssetRoutes.Search,
-        assetId: asset?.assetId ?? '',
+      navigate(SendRoutes.Select, {
+        state: {
+          toRoute: SelectAssetRoutes.Search,
+          assetId: asset?.assetId ?? '',
+        },
       }),
-    [history, asset],
+    [navigate, asset],
   )
 
   const addressInputRules = useMemo(

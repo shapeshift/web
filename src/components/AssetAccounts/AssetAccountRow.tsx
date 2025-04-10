@@ -73,7 +73,7 @@ export const AssetAccountRow = (props: AssetAccountRowProps) => {
     [asset],
   )
 
-  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+  const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
 
   const userCurrencyBalance = useAppSelector(s => selectUserCurrencyBalanceByFilter(s, filter))
   const cryptoHumanBalance = useAppSelector(s => selectCryptoHumanBalanceFilter(s, filter))

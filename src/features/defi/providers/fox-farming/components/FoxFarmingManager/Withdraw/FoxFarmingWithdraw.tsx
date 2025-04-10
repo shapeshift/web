@@ -4,6 +4,7 @@ import qs from 'qs'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import { Confirm } from './components/Confirm'
 import { ExpiredWithdraw } from './components/ExpiredWithdraw'
@@ -41,8 +42,9 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
+  const navigate = useNavigate()
 
   const opportunityDataFilter = useMemo(() => {
     if (!accountId) return
@@ -66,14 +68,14 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const loading = useSelector(selectIsPortfolioLoading)
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

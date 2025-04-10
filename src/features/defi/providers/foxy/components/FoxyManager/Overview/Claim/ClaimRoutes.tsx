@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -52,26 +52,29 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
     [foxyEarnOpportunityData],
   )
 
-  const location = useLocation()
+  const claimConfirmElement = useMemo(
+    () => (
+      <ClaimConfirm
+        stakingAssetId={stakingAssetId}
+        accountId={accountId}
+        chainId={chainId}
+        contractAddress={contractAddress}
+        onBack={onBack}
+        amount={undelegationAmount}
+      />
+    ),
+    [stakingAssetId, accountId, chainId, contractAddress, onBack, undelegationAmount],
+  )
+
+  const claimStatusElement = useMemo(() => <ClaimStatus accountId={accountId} />, [accountId])
 
   return (
     <SlideTransition>
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location} key={location.key}>
-          <Route exact path='/'>
-            <ClaimConfirm
-              stakingAssetId={stakingAssetId}
-              accountId={accountId}
-              chainId={chainId}
-              contractAddress={contractAddress}
-              onBack={onBack}
-              amount={undelegationAmount}
-            />
-          </Route>
-          <Route exact path='/status'>
-            <ClaimStatus accountId={accountId} />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path='/' element={claimConfirmElement} />
+          <Route path='/status' element={claimStatusElement} />
+        </Routes>
       </AnimatePresence>
     </SlideTransition>
   )

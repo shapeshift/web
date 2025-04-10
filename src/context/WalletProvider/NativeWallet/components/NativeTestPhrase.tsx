@@ -18,8 +18,7 @@ import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-
-import type { NativeSetupProps } from '../types'
+import { useLocation, useNavigate } from 'react-router'
 
 import { Text } from '@/components/Text'
 
@@ -38,7 +37,9 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
+export const NativeTestPhrase = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.300', 'whiteAlpha.200')
   const dottedTitleBackground = useColorModeValue('#f7fafc', '#2e3236')
@@ -109,9 +110,9 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
 
   const handleBackupComplete = useCallback(() => {
     vault.seal()
-    history.replace('/native/password', { vault })
+    navigate('/native/password', { state: { vault }, replace: true })
     setTimeout(() => revoker.revoke(), 250)
-  }, [history, revoker, vault])
+  }, [navigate, revoker, vault])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {

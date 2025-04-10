@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
 
@@ -18,7 +18,7 @@ import { useAppSelector } from '@/state/store'
 
 export const RFOXHeader = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const {
     stakingAssetId,
@@ -28,8 +28,8 @@ export const RFOXHeader = () => {
   } = useRFOXContext()
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
-  }, [history])
+    navigate('/explore')
+  }, [navigate])
 
   const accountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),

@@ -1,14 +1,13 @@
 import { Button } from '@chakra-ui/react'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LedgerConfig } from '../config'
 import { LEDGER_DEVICE_ID } from '../constants'
 
-import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
@@ -18,15 +17,8 @@ import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolio
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export interface LedgerSetupProps
-  extends RouteComponentProps<
-    {},
-    any // history
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
-
-export const LedgerConnect = ({ history }: LedgerSetupProps) => {
+export const LedgerConnect = () => {
+  const navigate = useNavigate()
   const { dispatch: walletDispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
@@ -110,7 +102,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
         if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
           walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         } else {
-          history.push('/ledger/chains')
+          navigate('/ledger/chains')
         }
       } catch (e: any) {
         console.error(e)
@@ -124,7 +116,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   }, [
     getAdapter,
     handleCheckNumDevices,
-    history,
+    navigate,
     isAccountManagementEnabled,
     isLedgerAccountManagementEnabled,
     localWallet,

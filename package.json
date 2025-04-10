@@ -194,9 +194,9 @@
     "react-number-format": "^4.9.3",
     "react-polyglot": "^0.7.2",
     "react-redux": "^7.2.8",
-    "react-router": "^5.3.3",
+    "react-router": "^6.30.0",
     "react-router-breadcrumbs-hoc": "^4.1.0",
-    "react-router-dom": "^5.3.3",
+    "react-router-dom": "^6.30.0",
     "react-swipeable-views": "^0.14.0",
     "react-swipeable-views-core": "^0.14.0",
     "react-swipeable-views-utils": "^0.14.0",
@@ -219,7 +219,8 @@
     "vite": "^6.1.1",
     "vite-plugin-checker": "^0.9.0",
     "wagmi": "^2.9.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "wouter": "^3.6.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
@@ -319,6 +320,8 @@
     "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2": "patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch",
     "@typescript-eslint/parser": "^8.16.0",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
-    "eslint-plugin-import": "^2.31.0"
+    "eslint-plugin-import": "^2.31.0",
+    "react-router@^6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
+    "react-router@6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch"
   }
 }

@@ -90,7 +90,7 @@ const snapshotPersistConfig = {
 }
 
 const localWalletSlicePersistConfig = {
-  key: 'localWalletSlice',
+  key: 'localWallet',
   storage: localforage,
   version: Math.max(...Object.keys(localWalletMigrations).map(Number)),
   migrate: createMigrate(localWalletMigrations, { debug: false }),

@@ -311,7 +311,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       },
     ],
-    [assetId, assets, handleClick, marketDataUserCurrency, translate],
+    [assets, handleClick, marketDataUserCurrency, translate],
   )
 
   if (!filteredDown.length) return null

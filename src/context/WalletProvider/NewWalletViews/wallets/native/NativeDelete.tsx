@@ -9,10 +9,9 @@ import {
   ModalBody,
   ModalHeader,
   useToast,
-  useUnmountEffect,
 } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm, useWatch } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -37,15 +36,19 @@ export const NativeDelete = () => {
     }),
   )
 
-  useUnmountEffect(() => {
-    revocableWallet?.revoke()
-    setRevocableWallet(
-      createRevocableWallet({
-        id: state.walletInfo?.deviceId,
-        label: state.walletInfo?.name,
-      }),
-    )
-  }, [])
+  // Revoke on unmount
+  useEffect(
+    () => () => {
+      revocableWallet?.revoke()
+      setRevocableWallet(
+        createRevocableWallet({
+          id: state.walletInfo?.deviceId,
+          label: state.walletInfo?.name,
+        }),
+      )
+    },
+    [],
+  )
 
   const {
     control,

@@ -13,11 +13,10 @@ import {
   ModalHeader,
   Tag,
   useColorModeValue,
-  useUnmountEffect,
   Wrap,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -50,9 +49,13 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
 
   const alertColor = useColorModeValue('blue.500', 'blue.200')
 
-  useUnmountEffect(() => {
-    if (revealedOnce.current) revoker.revoke()
-  }, [revoker])
+  // Revoke on unmount
+  useEffect(
+    () => () => {
+      if (revealedOnce.current) revoker.revoke()
+    },
+    [revoker],
+  )
 
   const words = useMemo(() => {
     if (!revocableWallet) return

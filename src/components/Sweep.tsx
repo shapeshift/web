@@ -5,7 +5,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
@@ -41,7 +41,7 @@ export const Sweep = ({
 }: SweepProps) => {
   const [isSweepPending, setIsSweepPending] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const {
     state: { wallet },
@@ -67,8 +67,8 @@ export const Sweep = ({
   const handleBack = useCallback(() => {
     if (onBack) return onBack()
 
-    history.goBack()
-  }, [history, onBack])
+    navigate(-1)
+  }, [navigate, onBack])
 
   const handleSweep = useCallback(async () => {
     if (!wallet) return

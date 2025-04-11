@@ -4,7 +4,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { TradeRoutePaths } from '../../types'
 
@@ -22,7 +22,7 @@ import { useAppSelector } from '@/state/store'
 export const MultiHopSweep = () => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -34,7 +34,7 @@ export const MultiHopSweep = () => {
   )
 
   const { data: fromAddress } = useQuery({
-    queryKey: ['utxoFirstReceiveAddress', sellAccountId],
+    queryKey: ['utxoReceiveAddress', sellAccountId],
     queryFn:
       wallet && accountMetadata
         ? async () => {
@@ -45,7 +45,6 @@ export const MultiHopSweep = () => {
 
             const chainAdapter = getChainAdapterManager().get(chainId)
 
-            // And re-throw if no adapter found. "Shouldn't happen but" yadi yadi yada you know the drill
             if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
 
             const firstReceiveAddress = await chainAdapter.getAddress({
@@ -64,13 +63,13 @@ export const MultiHopSweep = () => {
 
   useEffect(() => {
     if (!isConnected) {
-      history.push(TradeRoutePaths.Input)
+      navigate(TradeRoutePaths.Input)
     }
-  }, [history, isConnected])
+  }, [navigate, isConnected])
 
   const handleSweepSeen = useCallback(() => {
-    history.push(TradeRoutePaths.Confirm)
-  }, [history])
+    navigate(TradeRoutePaths.Confirm)
+  }, [navigate])
 
   if (!isConnected) return null
 
@@ -84,8 +83,6 @@ export const MultiHopSweep = () => {
           fromAddress={fromAddress}
           accountId={sellAccountId}
           protocolName={SwapperName.Relay}
-          // @todo: implement me
-          // eslint-disable-next-line react-memo/require-usememo
           onSweepSeen={handleSweepSeen}
         />
       </Card>

@@ -1,6 +1,5 @@
 import { Flex } from '@chakra-ui/react'
 
-import { LpPositionsByProvider } from './LpPositionsByProvider'
 import { StakingPositionsByProvider } from './StakingPositionsByProvider'
 
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
@@ -17,7 +16,6 @@ export const PositionDetails: React.FC<AggregatedOpportunitiesByAssetIdReturn> =
   return (
     <Flex px={flexPx} py={flexPy} flexDir='column' gap={flexGap}>
       <StakingPositionsByProvider ids={opportunities.staking} assetId={assetId} />
-      <LpPositionsByProvider ids={opportunities.lp} assetId={assetId} />
     </Flex>
   )
 }

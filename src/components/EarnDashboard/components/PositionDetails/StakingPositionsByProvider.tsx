@@ -25,7 +25,6 @@ import type {
   StakingEarnOpportunityType,
 } from '@/state/slices/opportunitiesSlice/types'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -196,27 +195,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
-          const opportunityAssetId = opportunity.assetId
-          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          if (!opportunity.underlyingAssetIds.length) return null
-          const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
-          const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
-
-          const underlyingBalances = getUnderlyingAssetIdsBalances({
-            assetId: opportunityUnderlyingAssetId,
-            underlyingAssetIds: opportunity.underlyingAssetIds,
-            underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
-            cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit ?? '0',
-            assets,
-            marketDataUserCurrency,
-          })
-
-          const cryptoAmountPrecision = isUnderlyingAsset
-            ? underlyingBalances[opportunity.underlyingAssetIds[underlyingAssetIndex]]
-                .cryptoBalancePrecision
-            : bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-                .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
-                .toFixed()
 
           const fiatRewardsAmount = calculateRewardFiatAmount({
             rewardAssetIds: row.original.rewardAssetIds,
@@ -234,12 +212,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>
               <Amount.Fiat value={totalFiatAmount} />
-              <Amount.Crypto
-                variant='sub-text'
-                size='xs'
-                value={cryptoAmountPrecision.toString()}
-                symbol={assets[assetId]?.symbol ?? ''}
-              />
             </Flex>
           ) : (
             <RawText variant='sub-text'>-</RawText>

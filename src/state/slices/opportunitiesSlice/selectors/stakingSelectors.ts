@@ -8,6 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import { selectAssets } from '../../assetsSlice/selectors'
 import { selectEnabledWalletAccountIds } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
+import { opportunities } from '../opportunitiesSlice'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
@@ -54,7 +55,7 @@ export const selectStakingIds = createDeepEqualOutputSelector(
 
 export const selectUserStakingIds = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.opportunities.userStaking.ids,
+  opportunities.selectors.selectUserStakingIds,
   (walletAccountIds, userStakingIds): UserStakingId[] =>
     userStakingIds.filter(userStakingId =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
@@ -62,7 +63,7 @@ export const selectUserStakingIds = createDeepEqualOutputSelector(
 )
 
 export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.opportunities.staking.byAccountId,
+  opportunities.selectors.selectStakingByAccountId,
   byId => byId,
 )
 
@@ -82,7 +83,7 @@ export const selectUserStakingOpportunitiesById = createSelector(
 )
 
 export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,
   selectAssetIdParamFromFilter,
@@ -109,7 +110,7 @@ export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
 
 export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector(
   selectUserStakingOpportunitiesById,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
@@ -163,7 +164,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,
   selectDeserializedStakingIdFromUserStakingIdParam,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   (
     userStakingOpportunities,
     userStakingId,
@@ -211,7 +212,7 @@ export const selectHasClaimByUserStakingId = createSelector(
 export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIds,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   selectStakingIds,
   (
     userStakingOpportunities,
@@ -417,7 +418,7 @@ export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSel
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
   createDeepEqualOutputSelector(
     selectAggregatedEarnUserStakingOpportunities,
-    selectStakingOpportunitiesById,
+    opportunities.selectors.selectStakingOpportunitiesById,
     selectAssets,
     (
       aggregatedEarnUserStakingOpportunities,

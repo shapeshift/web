@@ -11,7 +11,7 @@ import { partitionCompareWith } from '@/lib/utils'
 import { PluginManager } from '@/plugins'
 import { activePlugins } from '@/plugins/activePlugins'
 import type { Route } from '@/Routes/helpers'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type PluginProviderProps = {
   children: React.ReactNode
@@ -34,7 +34,7 @@ const PluginContext = createContext<PluginProviderContextProps>({
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [supportedChains, setSupportedChains] = useState<ChainId[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
-  const featureFlags = useSelector(selectFeatureFlags)
+  const featureFlags = useSelector(preferences.selectors.selectFeatureFlags)
 
   const pluginManagerRef = useRef<PluginManager>(new PluginManager())
   const pluginManager = useMemo(() => pluginManagerRef.current, [pluginManagerRef])

@@ -1,4 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 
 import type { FiatRamp } from '@/components/Modals/FiatRamps/config'

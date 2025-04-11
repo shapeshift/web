@@ -13,10 +13,10 @@ import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
-import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
+import { ConditionalRouter } from './context/ConditionalRouter'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
@@ -75,7 +75,7 @@ export function AppProviders({ children }: ProvidersProps) {
                 <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
                   <ToastContainer />
                   <PersistGate loading={splashScreen} persistor={persistor}>
-                    <HashRouter basename='/'>
+                    <ConditionalRouter basename='/'>
                       <ScrollToTop />
                       <BrowserRouterProvider>
                         <I18nProvider>
@@ -106,7 +106,7 @@ export function AppProviders({ children }: ProvidersProps) {
                           </WalletProvider>
                         </I18nProvider>
                       </BrowserRouterProvider>
-                    </HashRouter>
+                    </ConditionalRouter>
                   </PersistGate>
                 </ChakraProvider>
               </PluginProvider>

@@ -2,6 +2,8 @@ https://app.shapeshift.com
 https://app.shapeshift.com/#/fox
 https://app.shapeshift.com/#/rFOX
 https://app.shapeshift.com/#/trade
+https://app.shapeshift.com/#/limit
+https://app.shapeshift.com/#/claim
 https://app.shapeshift.com/#/buy-crypto
 https://app.shapeshift.com/#/wallet
 https://app.shapeshift.com/#/wallet/accounts

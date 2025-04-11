@@ -1,5 +1,5 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -61,6 +61,14 @@ type CryptoPriceHistoryPayload = {
 export const marketData = createSlice({
   name: 'marketData',
   initialState,
+  selectors: {
+    selectMarketDataIdsSortedByMarketCapUsd: state => state.crypto.ids,
+    selectFiatMarketData: state => state.fiat.byId,
+    selectMarketDataUsd: state => state.crypto.byId,
+    selectCryptoPriceHistory: state => state.crypto.priceHistory,
+    selectFiatPriceHistory: state => state.fiat.priceHistory,
+    selectIsMarketDataLoaded: state => state.isMarketDataLoaded,
+  },
   reducers: {
     clear: () => initialState,
     setMarketDataLoaded: state => {

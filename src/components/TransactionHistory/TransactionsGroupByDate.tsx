@@ -6,7 +6,8 @@ import { useTranslate } from 'react-polyglot'
 import { RawText } from '@/components/Text'
 import { TransactionRow } from '@/components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from '@/hooks/useResizeObserver/useResizeObserver'
-import { selectSelectedLocale, selectTxDateByIds } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectTxDateByIds } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
@@ -27,7 +28,7 @@ const TransactionsGroupByDateLoaded = memo(
   ({ txIds, useCompactMode = false }: Omit<TransactionsGroupByDateProps, 'isLoading'>) => {
     const { setNode, entry } = useResizeObserver()
     const translate = useTranslate()
-    const locale = useAppSelector(selectSelectedLocale)
+    const locale = useAppSelector(state => preferences.selectors.selectSelectedLocale(state))
     const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
     const txRows = useMemo(() => {
       const groups: TransactionGroup[] = []
@@ -96,11 +97,11 @@ const TransactionsGroupByDateLoading = () => {
   )
 }
 
-export const TransactionsGroupByDate = ({
+export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = ({
   isLoading,
   txIds,
   useCompactMode,
-}: TransactionsGroupByDateProps) => {
+}) => {
   if (isLoading) return <TransactionsGroupByDateLoading />
   return <TransactionsGroupByDateLoaded txIds={txIds} useCompactMode={useCompactMode} />
 }

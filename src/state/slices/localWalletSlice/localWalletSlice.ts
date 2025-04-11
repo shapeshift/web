@@ -20,24 +20,26 @@ export const initialState: LocalWalletState = {
 export const localWalletSlice = createSlice({
   name: 'localWallet',
   initialState,
-  reducers: {
-    clear: () => initialState,
-    setLocalWallet: (
-      state,
-      action: PayloadAction<{ type: KeyManager; deviceId: string; rdns: string | null }>,
-    ) => {
-      state.walletType = action.payload.type
-      state.walletDeviceId = action.payload.deviceId
-      state.rdns = action.payload.rdns
-    },
-    clearLocalWallet: state => {
+  reducers: create => ({
+    clear: create.reducer(() => initialState),
+    setLocalWallet: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ type: KeyManager; deviceId: string; rdns: string | null }>,
+      ) => {
+        state.walletType = action.payload.type
+        state.walletDeviceId = action.payload.deviceId
+        state.rdns = action.payload.rdns
+      },
+    ),
+    clearLocalWallet: create.reducer(state => {
       state.walletType = null
       state.walletDeviceId = null
       state.nativeWalletName = null
       state.rdns = null
-    },
-    setNativeWalletName: (state, action: PayloadAction<string>) => {
+    }),
+    setNativeWalletName: create.reducer((state, action: PayloadAction<string>) => {
       state.nativeWalletName = action.payload
-    },
-  },
+    }),
+  }),
 })

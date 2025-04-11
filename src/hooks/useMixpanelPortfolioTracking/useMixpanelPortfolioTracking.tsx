@@ -2,23 +2,19 @@ import { useEffect, useState } from 'react'
 
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { selectWalletId } from '@/state/slices/common-selectors'
-import { selectIsMarketDataLoaded } from '@/state/slices/marketDataSlice/selectors'
-import {
-  selectCurrencyFormat,
-  selectPortfolioAnonymized,
-  selectSelectedCurrency,
-  selectSelectedLocale,
-} from '@/state/slices/selectors'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectPortfolioAnonymized } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useMixpanelPortfolioTracking = () => {
   const anonymizedPortfolio = useAppSelector(selectPortfolioAnonymized)
   const [isTracked, setIsTracked] = useState(false)
-  const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
+  const isMarketDataLoaded = useAppSelector(marketData.selectors.selectIsMarketDataLoaded)
   const walletId = useAppSelector(selectWalletId)
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
-  const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
+  const selectedCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
 
   useEffect(() => {
     // only track once per wallet connection

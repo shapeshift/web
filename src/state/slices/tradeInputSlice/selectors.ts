@@ -7,7 +7,7 @@ import type { Selector } from 'react-redux'
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
 import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
 import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
-import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
+import { tradeQuoteSlice } from '../tradeQuoteSlice/tradeQuoteSlice'
 import type { TradeInputState } from './tradeInputSlice'
 
 import type { ApiQuote } from '@/state/apis/swapper/types'
@@ -52,13 +52,12 @@ export const selectLastHopBuyAccountId = selectBuyAccountId
 // All the below selectors are re-declared from tradeQuoteSlice/selectors to avoid circular deps
 // and allow selectSecondHopSellAccountId to keep a pwetty API
 
-const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
-const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
-  selectTradeQuoteSlice,
+const selectActiveQuoteMeta = createSelector(
+  tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
 )
 const selectTradeQuotes = createDeepEqualOutputSelector(
-  selectTradeQuoteSlice,
+  tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 const selectSortedTradeQuotes = createDeepEqualOutputSelector(selectTradeQuotes, tradeQuotes =>
@@ -84,7 +83,10 @@ const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined>
     },
   )
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
+  createDeepEqualOutputSelector(
+    tradeQuoteSlice.selectSlice,
+    tradeQuote => tradeQuote.confirmedQuote,
+  )
 const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(
     selectActiveSwapperApiResponse,

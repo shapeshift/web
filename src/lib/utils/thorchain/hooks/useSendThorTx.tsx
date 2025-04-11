@@ -41,11 +41,11 @@ import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedF
 import { reactQueries } from '@/react-queries'
 import { selectInboundAddressData } from '@/react-queries/selectors'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
-  selectSelectedCurrency,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector } from '@/state/store'
@@ -91,7 +91,7 @@ export const useSendThorTx = ({
   const toast = useToast()
   const translate = useTranslate()
 
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, assetId ? fromAssetId(assetId).chainId : ''),

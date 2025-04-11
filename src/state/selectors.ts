@@ -1,6 +1,6 @@
 // Utility selectors, which are only used for params selecting and do NOT select from the store
 
-import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import type { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'

@@ -30,7 +30,6 @@ import {
   selectAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-  selectSelectedCurrency,
   selectSelectedLocale,
   selectWalletId,
 } from '@/state/slices/selectors'
@@ -173,7 +172,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   /**
    * fetch forex spot and history for user's selected currency
    */
-  const currency = useAppSelector(state => selectSelectedCurrency(state))
+  const currency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   useEffect(() => {
     // we already know 1usd costs 1usd

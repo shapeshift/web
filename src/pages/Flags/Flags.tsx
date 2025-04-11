@@ -23,7 +23,7 @@ import { Main } from '@/components/Layout/Main'
 import { RawText } from '@/components/Text'
 import { slices } from '@/state/reducer'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import type { AppDispatch } from '@/state/store'
 import { clearState, useAppSelector } from '@/state/store'
 
@@ -52,7 +52,7 @@ const stackDivider = <StackDivider />
 export const Flags = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
-  const featureFlags = useAppSelector(selectFeatureFlags)
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
 
   const handleApply = useCallback(() => {

@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
-import { selectQuoteSortOption } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -20,7 +19,7 @@ enum SortType {
 export const QuoteSortSelector: FC = memo(() => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const currentSortOption = useAppSelector(selectQuoteSortOption)
+  const currentSortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
   const currentSortType = useMemo(() => {
     switch (currentSortOption) {

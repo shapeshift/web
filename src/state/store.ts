@@ -1,4 +1,4 @@
-import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { persistStore } from 'redux-persist'
@@ -49,9 +49,9 @@ export const clearState = () => {
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
   store.dispatch(slices.tradeInput.actions.clear())
-  store.dispatch(slices.localWalletSlice.actions.clear())
+  store.dispatch(slices.localWallet.actions.clear())
   store.dispatch(slices.limitOrderInput.actions.clear())
-  store.dispatch(slices.limitOrderSlice.actions.clear())
+  store.dispatch(slices.limitOrder.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -111,10 +111,6 @@ const stateSanitizer = (state: any) => {
 export const createStore = () =>
   configureStore({
     reducer,
-    enhancers: existingEnhancers => {
-      // Add the autobatch enhancer to the store setup
-      return existingEnhancers.concat(autoBatchEnhancer())
-    },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         // funnily enough, the checks that should check for perf. issues are actually slowing down the app

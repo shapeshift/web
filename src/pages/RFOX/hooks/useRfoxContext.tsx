@@ -13,7 +13,7 @@ import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
 } from '@/state/slices/portfolioSlice/selectors'
-import { selectFeatureFlags } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from '@/state/store'
 
 type RFOXContextType = {
@@ -28,7 +28,7 @@ type RFOXContextType = {
 const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 
 export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const featureFlags = useSelector(selectFeatureFlags)
+  const featureFlags = useSelector(preferences.selectors.selectFeatureFlags)
 
   const [stakingAssetId, setStakingAssetId] = useState<AssetId>(foxOnArbitrumOneAssetId)
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()

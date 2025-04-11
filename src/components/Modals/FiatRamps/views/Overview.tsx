@@ -48,13 +48,12 @@ import { isKeepKeyHDWallet } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioUserCurrencyBalanceByFilter,
-  selectSelectedCurrency,
-  selectSelectedLocale,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -85,7 +84,7 @@ export const Overview: React.FC<OverviewProps> = ({
   vanityAddress,
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
   const handleSelectChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -93,7 +92,7 @@ export const Overview: React.FC<OverviewProps> = ({
     [],
   )
   const popup = useModal('popup')
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()

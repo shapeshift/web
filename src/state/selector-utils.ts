@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual'
-import { createSelectorCreator, defaultMemoize } from 'reselect'
+import { createSelectorCreator, lruMemoize } from 'reselect'
 
 // memoize selector output with lodash isEqual
-export const createDeepEqualOutputSelector = createSelectorCreator(defaultMemoize, {
+export const createDeepEqualOutputSelector = createSelectorCreator(lruMemoize, {
   resultEqualityCheck: isEqual,
 })

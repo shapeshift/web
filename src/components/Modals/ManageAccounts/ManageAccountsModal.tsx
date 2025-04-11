@@ -20,7 +20,7 @@ import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constan
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
-import { selectWalletSupportedChainIds } from '@/state/slices/common-selectors'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
@@ -78,7 +78,7 @@ export const ManageAccountsModal = () => {
   const wallet = useWallet().state.wallet
 
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
   const availableChainIds = useMemo(() => {
     // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
     return wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds

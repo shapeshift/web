@@ -18,7 +18,6 @@ import {
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch } from 'react-redux'
 
 import { FoxGovernanceProposal } from './FoxGovernanceProposal'
 
@@ -32,7 +31,7 @@ import {
 } from '@/state/apis/snapshot/selectors'
 import { snapshotApi, useGetProposalsQuery } from '@/state/apis/snapshot/snapshot'
 import { selectAssetById, selectWalletAccountIds } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const containerPaddingX = { base: 4, xl: 0 }
 const headerTitleMb = { base: 4, md: 0 }
@@ -56,7 +55,7 @@ const tabListPaddingLeft = { base: 6, md: 0 }
 export const FoxGovernance = () => {
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const {
     data: { activeProposals, closedProposals } = { activeProposals: [], closedProposals: [] },
   } = useGetProposalsQuery()

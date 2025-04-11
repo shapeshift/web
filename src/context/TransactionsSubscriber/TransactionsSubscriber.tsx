@@ -17,6 +17,7 @@ import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from '@/state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { opportunities } from '@/state/slices/opportunitiesSlice/opportunitiesSlice'
 import { fetchAllOpportunitiesUserDataByAccountId } from '@/state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
@@ -24,7 +25,6 @@ import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
-  selectStakingOpportunitiesById,
 } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
@@ -39,7 +39,9 @@ export const TransactionsSubscriber: React.FC = () => {
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const { supportedChains } = usePlugins()
 
-  const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
+  const stakingOpportunitiesById = useSelector(
+    opportunities.selectors.selectStakingOpportunitiesById,
+  )
 
   const maybeRefetchOpportunities = useCallback(
     ({ chainId, data, transfers, status }: Transaction, accountId: AccountId) => {

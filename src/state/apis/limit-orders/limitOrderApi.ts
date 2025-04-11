@@ -1,4 +1,4 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'

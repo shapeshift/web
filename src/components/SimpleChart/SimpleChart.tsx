@@ -16,7 +16,7 @@ import { ChartHeader } from './ChartHeader'
 import type { ChartInterval } from './utils'
 import { formatHistoryDuration, formatTickMarks } from './utils'
 
-import { selectSelectedCurrency } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { semanticTokens } from '@/theme/semanticTokens'
 import { opacify } from '@/theme/utils'
@@ -37,7 +37,7 @@ const textColors = semanticTokens.colors.text
 const borderColors = semanticTokens.colors.border
 
 const currentLocale = window.navigator.languages[0]
-const selectedCurrency = selectSelectedCurrency(store.getState())
+const selectedCurrency = preferences.selectors.selectSelectedCurrency(store.getState())
 const priceFormatter = Intl.NumberFormat(currentLocale, {
   style: 'currency',
   currency: selectedCurrency,

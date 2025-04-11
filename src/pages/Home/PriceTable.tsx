@@ -6,11 +6,10 @@ import { WatchlistTable } from './WatchlistTable'
 
 import { Text } from '@/components/Text'
 import { HomeMarketView, preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedHomeView } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const PriceTable = () => {
-  const selectedHomeView = useAppSelector(selectSelectedHomeView)
+  const selectedHomeView = useAppSelector(preferences.selectors.selectSelectedHomeView)
   const dispatch = useAppDispatch()
 
   const handleViewChange = useCallback(

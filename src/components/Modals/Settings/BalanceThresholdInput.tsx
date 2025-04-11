@@ -10,7 +10,6 @@ import {
   allowedDecimalSeparators,
   preferences,
 } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectBalanceThreshold } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const InputComponent = (props: InputProps) => (
@@ -26,7 +25,7 @@ const InputComponent = (props: InputProps) => (
 )
 
 export const BalanceThresholdInput = () => {
-  const balanceThreshold = useAppSelector(selectBalanceThreshold)
+  const balanceThreshold = useAppSelector(preferences.selectors.selectBalanceThreshold)
   const dispatch = useAppDispatch()
   const {
     number: { localeParts },

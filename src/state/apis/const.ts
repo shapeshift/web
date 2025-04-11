@@ -1,4 +1,4 @@
-import { fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 
 // https://redux-toolkit.js.org/rtk-query/api/createApi#parameters
 export const BASE_RTK_CREATE_API_CONFIG = {

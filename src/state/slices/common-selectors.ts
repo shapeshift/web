@@ -15,8 +15,9 @@ import {
   selectMarketDataUsd,
   selectMarketDataUserCurrency,
 } from './marketDataSlice/selectors'
+import { portfolio } from './portfolioSlice/portfolioSlice'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
-import { selectBalanceThreshold } from './preferencesSlice/selectors'
+import { preferences } from './preferencesSlice/preferencesSlice'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -29,12 +30,9 @@ import {
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
 
-export const selectWalletId = (state: ReduxState) => state.portfolio.connectedWallet?.id
-export const selectWalletName = (state: ReduxState) => state.portfolio.connectedWallet?.name
-export const selectIsWalletConnected = (state: ReduxState) =>
-  state.portfolio.connectedWallet !== undefined
-export const selectWalletSupportedChainIds = (state: ReduxState) =>
-  state.portfolio.connectedWallet?.supportedChainIds ?? []
+export const selectWalletId = portfolio.selectors.selectWalletId
+export const selectWalletName = portfolio.selectors.selectWalletName
+
 export const selectEnabledAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.enabledAccountIds,
@@ -56,9 +54,9 @@ export const selectEnabledWalletAccountIds = createDeepEqualOutputSelector(
 
 export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
-  (state: ReduxState) => state.portfolio.wallet.byId,
-  (walletId, walletById): AccountId[] => {
-    const walletAccountIds = walletById?.[walletId ?? ''] ?? []
+  portfolio.selectors.selectAccountIdsByWalletId,
+  (walletId, accountIdsByWalletId): AccountId[] => {
+    const walletAccountIds = accountIdsByWalletId?.[walletId ?? ''] ?? []
     return walletAccountIds
   },
 )
@@ -139,7 +137,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
     Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
       const asset = assetsById[assetId]

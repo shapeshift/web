@@ -21,7 +21,7 @@ import {
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
-import { selectShowSnapsModal } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { getSnapVersion } from '@/utils/snaps'
 
 type MipdBodyProps = {
@@ -41,7 +41,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     () => mipdProviders.find(provider => provider.info.rdns === rdns),
     [mipdProviders, rdns],
   )
-  const showSnapModal = useSelector(selectShowSnapsModal)
+  const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
 
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()

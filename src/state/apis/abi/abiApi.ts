@@ -1,4 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import isEmpty from 'lodash/isEmpty'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'

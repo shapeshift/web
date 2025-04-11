@@ -18,13 +18,14 @@ import { Link } from 'react-router-dom'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText, Text } from '@/components/Text'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from '@/state/slices/selectors'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from '@/state/store'
 
 export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description, icon, name } = asset || {}
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { isLoading } = useGetAssetDescriptionQuery(
     { assetId, selectedLocale },
     { skip: !!description },

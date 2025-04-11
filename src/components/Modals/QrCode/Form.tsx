@@ -20,11 +20,8 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
-import {
-  selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
-} from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 type QrCodeFormProps = {
@@ -37,7 +34,7 @@ const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
   const { isOpen, close: handleClose } = useModal('qrCode')

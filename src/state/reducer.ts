@@ -49,10 +49,10 @@ export const slices = {
   opportunities,
   tradeInput,
   limitOrderInput,
-  tradeQuoteSlice,
-  limitOrderSlice,
+  tradeQuote: tradeQuoteSlice,
+  limitOrder: limitOrderSlice,
   snapshot,
-  localWalletSlice,
+  localWallet: localWalletSlice,
 }
 
 const preferencesPersistConfig = {
@@ -90,7 +90,7 @@ const snapshotPersistConfig = {
 }
 
 const localWalletSlicePersistConfig = {
-  key: 'localWalletSlice',
+  key: 'localWallet',
   storage: localforage,
   version: Math.max(...Object.keys(localWalletMigrations).map(Number)),
   migrate: createMigrate(localWalletMigrations, { debug: false }),
@@ -128,10 +128,10 @@ export const sliceReducers = {
     opportunitiesPersistConfig,
     opportunities.reducer,
   ),
-  tradeQuoteSlice: tradeQuoteSlice.reducer,
-  limitOrderSlice: limitOrderSlice.reducer,
+  tradeQuote: tradeQuoteSlice.reducer,
+  limitOrder: limitOrderSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
-  localWalletSlice: persistReducer<LocalWalletState>(
+  localWallet: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
   ),

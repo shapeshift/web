@@ -20,6 +20,7 @@ const initialEntries = [
   { pathname: TradeRoutePaths.Input },
   { pathname: TradeRoutePaths.Confirm },
   { pathname: TradeRoutePaths.VerifyAddresses },
+  { pathname: TradeRoutePaths.Sweep },
   { pathname: TradeRoutePaths.QuoteList },
 ]
 

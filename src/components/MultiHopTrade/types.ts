@@ -5,6 +5,7 @@ export enum TradeRoutePaths {
   Input = '/trade',
   Confirm = 'confirm',
   VerifyAddresses = 'verify-addresses',
+  Sweep = 'sweep',
   QuoteList = 'quote-list',
 }
 

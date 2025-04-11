@@ -4,6 +4,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
+import { MultiHopSweep } from './components/MultiHopSweep/MultiHopSweep'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
@@ -40,6 +41,7 @@ const GetTradeRates = () => {
 }
 
 const verifyAddresses = <VerifyAddresses />
+const multiHopSweep = <MultiHopSweep />
 
 export const MultiHopTrade = memo(
   ({
@@ -179,6 +181,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     const isAssetSpecificPath =
       pathname.startsWith(TradeRoutePaths.Input) &&
       !pathname.includes(TradeRoutePaths.Confirm) &&
+      !pathname.includes(TradeRoutePaths.Sweep) &&
       !pathname.includes(TradeRoutePaths.VerifyAddresses) &&
       !pathname.includes(TradeRoutePaths.QuoteList)
 
@@ -220,6 +223,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
             path={TradeRoutePaths.VerifyAddresses}
             element={verifyAddresses}
           />
+          <Route key={TradeRoutePaths.Sweep} path={TradeRoutePaths.Sweep} element={multiHopSweep} />
           <Route
             key={TradeRoutePaths.QuoteList}
             path={TradeRoutePaths.QuoteList}

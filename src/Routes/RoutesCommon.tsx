@@ -154,6 +154,11 @@ export const routes: Route[] = [
         hide: true,
       },
       {
+        path: TradeRoutePaths.Sweep,
+        main: TradeTab,
+        hide: true,
+      },
+      {
         path: TradeRoutePaths.QuoteList,
         main: TradeTab,
         hide: true,

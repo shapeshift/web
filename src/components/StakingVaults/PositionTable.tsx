@@ -63,18 +63,11 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
 export type PositionTableProps = {
   chainId?: ChainId
   searchQuery: string
-  includeEarnBalances?: boolean
-  includeRewardsBalances?: boolean
 }
 
 const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 
-export const PositionTable: React.FC<PositionTableProps> = ({
-  chainId,
-  includeEarnBalances,
-  includeRewardsBalances,
-  searchQuery,
-}) => {
+export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQuery }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const isAnyOpportunitiesApiQueriesPending = useAppSelector(
@@ -87,10 +80,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
     () => ({
       chainId,
-      includeEarnBalances,
-      includeRewardsBalances,
     }),
-    [chainId, includeEarnBalances, includeRewardsBalances],
+    [chainId],
   )
 
   const {
@@ -143,9 +134,14 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           // A fiat amount can be positive or negative (debt) but not zero
-          const hasValue = !bnOrZero(row.original.fiatAmount).isZero()
+          const hasValue =
+            bnOrZero(row.original.fiatAmount).gt(0) ||
+            bnOrZero(row.original.fiatRewardsAmount).gt(0)
+
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
+
           return hasValue ? (
-            <Amount.Fiat value={row.original.fiatAmount} />
+            <Amount.Fiat value={totalFiatAmount} />
           ) : (
             <RawText variant='sub-text'>-</RawText>
           )
@@ -234,10 +230,12 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const renderEmptyComponent = useCallback(() => {
-    if (!(includeEarnBalances || includeRewardsBalances))
-      return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
-    return searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
-  }, [includeEarnBalances, includeRewardsBalances, searchQuery])
+    return searchQuery ? (
+      <SearchEmpty searchQuery={searchQuery} />
+    ) : (
+      <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
+    )
+  }, [searchQuery])
 
   const isInitialProcessing = useMemo(
     () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,

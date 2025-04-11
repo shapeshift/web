@@ -84,76 +84,78 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const handleClick = useCallback(() => {}, [])
 
   return (
-    <SlideTransition>
+    <>
       <ModalHeader>
         <Text translation={'modals.shapeShift.backupPassphrase.enterPassword'} />
       </ModalHeader>
       {!preventClose && <ModalCloseButton />}
       <ModalBody>
-        <Button
-          px={4}
-          variant='unstyled'
-          display='flex'
-          mb={4}
-          leftIcon={buttonLeftIcon}
-          onClick={handleClick}
-          data-test='native-saved-wallet-button'
-        >
-          <Box textAlign='left'>
-            <RawText
-              fontWeight='medium'
-              maxWidth='260px'
-              lineHeight='1.2'
-              mb={1}
-              noOfLines={1}
-              data-test='native-saved-wallet-name'
-            >
-              {walletInfo?.meta?.label}
-            </RawText>
-          </Box>
-        </Button>
-        <form onSubmit={handleFormSubmit}>
-          <FormControl isInvalid={Boolean(errors.password)} mb={6}>
-            <InputGroup size='lg' variant='filled'>
-              <Input
-                {...register('password', {
-                  required: translate('modals.shapeShift.password.error.required'),
-                  minLength: {
-                    value: 8,
-                    message: translate('modals.shapeShift.password.error.length', { length: 8 }),
-                  },
-                })}
-                pr='4.5rem'
-                type={showPw ? 'text' : 'password'}
-                placeholder={translate('modals.shapeShift.password.placeholder')}
-                autoComplete={'password'}
-                id='password'
-                data-test='wallet-password-input'
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
-                  h='1.75rem'
-                  size='sm'
-                  onClick={handleShowClick}
-                  icon={!showPw ? <FaEye /> : <FaEyeSlash />}
-                />
-              </InputRightElement>
-            </InputGroup>
-            <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
-          </FormControl>
+        <SlideTransition>
           <Button
-            colorScheme='blue'
-            size='lg'
-            width='full'
-            type='submit'
-            isLoading={isSubmitting}
-            data-test='wallet-password-submit-button'
+            px={4}
+            variant='unstyled'
+            display='flex'
+            mb={4}
+            leftIcon={buttonLeftIcon}
+            onClick={handleClick}
+            data-test='native-saved-wallet-button'
           >
-            <Text translation={'walletProvider.shapeShift.password.button'} />
+            <Box textAlign='left'>
+              <RawText
+                fontWeight='medium'
+                maxWidth='260px'
+                lineHeight='1.2'
+                mb={1}
+                noOfLines={1}
+                data-test='native-saved-wallet-name'
+              >
+                {walletInfo?.meta?.label}
+              </RawText>
+            </Box>
           </Button>
-        </form>
+          <form onSubmit={handleFormSubmit}>
+            <FormControl isInvalid={Boolean(errors.password)} mb={6}>
+              <InputGroup size='lg' variant='filled'>
+                <Input
+                  {...register('password', {
+                    required: translate('modals.shapeShift.password.error.required'),
+                    minLength: {
+                      value: 8,
+                      message: translate('modals.shapeShift.password.error.length', { length: 8 }),
+                    },
+                  })}
+                  pr='4.5rem'
+                  type={showPw ? 'text' : 'password'}
+                  placeholder={translate('modals.shapeShift.password.placeholder')}
+                  autoComplete={'password'}
+                  id='password'
+                  data-test='wallet-password-input'
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
+                    h='1.75rem'
+                    size='sm'
+                    onClick={handleShowClick}
+                    icon={!showPw ? <FaEye /> : <FaEyeSlash />}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
+            </FormControl>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              type='submit'
+              isLoading={isSubmitting}
+              data-test='wallet-password-submit-button'
+            >
+              <Text translation={'walletProvider.shapeShift.password.button'} />
+            </Button>
+          </form>
+        </SlideTransition>
       </ModalBody>
-    </SlideTransition>
+    </>
   )
 }

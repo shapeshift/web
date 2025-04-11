@@ -35,7 +35,7 @@ export const BackupPassphraseRouter = () => {
         }),
       )
     },
-    [],
+    [revocableWallet, state.walletInfo?.deviceId, state.walletInfo?.name],
   )
 
   return (

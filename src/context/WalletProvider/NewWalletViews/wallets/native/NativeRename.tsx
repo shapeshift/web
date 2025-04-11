@@ -48,7 +48,7 @@ export const NativeRename = () => {
         }),
       )
     },
-    [],
+    [revocableWallet, state.walletInfo?.deviceId, state.walletInfo?.name],
   )
 
   const {

@@ -47,7 +47,7 @@ export const NativeDelete = () => {
         }),
       )
     },
-    [],
+    [revocableWallet, state.walletInfo?.deviceId, state.walletInfo?.name],
   )
 
   const {

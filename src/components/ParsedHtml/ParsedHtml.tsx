@@ -2,7 +2,7 @@ import './style.css'
 
 import type { TextProps } from '@chakra-ui/react'
 import { Link } from '@chakra-ui/react'
-import type { HTMLReactParserOptions } from 'html-react-parser'
+import type { DOMNode, HTMLReactParserOptions } from 'html-react-parser'
 import parse, { domToReact, Element } from 'html-react-parser'
 import { Link as RouterLink } from 'react-router-dom'
 
@@ -20,13 +20,14 @@ export const ParsedHtml = ({ innerHtml, ...rest }: { innerHtml: string } & TextP
       if (domNode instanceof Element && domNode.attribs) {
         const { href } = domNode.attribs
         if (domNode.name === 'a' && href) {
+          const domChildren: DOMNode[] = domNode.children as DOMNode[]
           return isExternalURL(href) ? (
             <Link isExternal href={href} className='parsed-link'>
-              {domToReact(domNode.children)}
+              {domToReact(domChildren)}
             </Link>
           ) : (
             <Link as={RouterLink} to={href} className='parsed-link'>
-              {domToReact(domNode.children)}
+              {domToReact(domChildren)}
             </Link>
           )
         }

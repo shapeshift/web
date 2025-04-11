@@ -8,6 +8,11 @@ const listBorderLeftWidth = { base: 0, md: 1 }
 
 export const NestedList = forwardRef<ListProps, 'div'>((props, ref) => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  // Technically, <List /> supports many more props, but trying and spreading the whole props object will result in the tsc error below:
+  // Expression produces a union type that is too complex to represent. [2590]
+  // Since we only consume this component in two places, and pr is the only prop we need from `props`, destructuring it for sanity's sake.
+  const pr = props.pr
+
   return (
     <List
       px={listPaddingX}
@@ -15,7 +20,7 @@ export const NestedList = forwardRef<ListProps, 'div'>((props, ref) => {
       borderLeftWidth={listBorderLeftWidth}
       borderColor={borderColor}
       ref={ref}
-      {...props}
+      pr={pr}
     />
   )
 })

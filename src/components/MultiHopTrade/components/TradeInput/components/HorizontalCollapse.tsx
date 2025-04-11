@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import type { MotionStyle } from 'framer-motion'
 import { motion } from 'framer-motion'
+import type { JSX } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
 export type HorizontalCollapseProps = {

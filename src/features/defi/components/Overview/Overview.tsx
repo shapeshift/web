@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import type { PropsWithChildren } from 'react'
+import type { JSX, PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'

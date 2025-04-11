@@ -27,7 +27,7 @@ export function Amount({
   abbreviated = false,
   noSpace = false,
   ...props
-}: any): React.ReactElement {
+}: any): React.ReactElement<any> {
   const {
     number: { toString },
   } = useLocaleFormatter()

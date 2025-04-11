@@ -16,6 +16,7 @@ import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

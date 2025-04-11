@@ -1,6 +1,7 @@
 import type { IconButtonProps } from '@chakra-ui/react'
 import type { EmblaOptionsType } from 'embla-carousel-react'
 import type React from 'react'
+import type { JSX } from 'react'
 
 export type CarouselHeaderProps = {
   controls?: JSX.Element

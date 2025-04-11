@@ -29,7 +29,7 @@ export const useBridgeClaimNotification = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
-  const toastIdRef = useRef<ToastId | undefined>()
+  const toastIdRef = useRef<ToastId | undefined>(undefined)
 
   const {
     state: { deviceId: walletDeviceId },

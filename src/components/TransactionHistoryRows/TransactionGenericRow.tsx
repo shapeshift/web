@@ -5,6 +5,7 @@ import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

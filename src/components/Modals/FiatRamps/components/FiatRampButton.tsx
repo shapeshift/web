@@ -1,6 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Box, Button, Flex, Tag, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

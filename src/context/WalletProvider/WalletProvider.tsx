@@ -6,6 +6,7 @@ import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamas
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
+import type { JSX } from 'react'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 
 import type { ActionTypes } from './actions'

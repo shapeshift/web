@@ -9,9 +9,10 @@ import {
   Link,
   Progress,
   Skeleton,
+  Tag,
+  TagLeftIcon,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { Tag, TagLeftIcon } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'

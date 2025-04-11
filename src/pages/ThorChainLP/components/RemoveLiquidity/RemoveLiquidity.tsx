@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
+import type { JSX } from 'react'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'wouter'

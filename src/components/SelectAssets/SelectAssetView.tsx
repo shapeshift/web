@@ -1,12 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
-
-const searchRedirect = <Navigate to={SelectAssetRoutes.Search} replace />
 
 type SelectAssetViewProps = {
   onClick: (assetId: AssetId) => void
@@ -34,18 +33,26 @@ export const SelectAssetView = ({
         path={SelectAssetRoutes.Search}
         // This is already within a useMemo call, lint rule drunk
         // eslint-disable-next-line react-memo/require-usememo
-        element={<SelectAssets onBack={handleBack} onClick={onClick} />}
-      />
+      >
+        {<SelectAssets onBack={handleBack} onClick={onClick} />}
+      </Route>
     ),
     [handleBack, onClick],
   )
 
-  const redirectRoute = useMemo(() => <Route path='/' element={searchRedirect} />, [])
+  const redirectRoute = useMemo(
+    () => (
+      <Route path='/'>
+        <SelectAssets onBack={handleBack} onClick={onClick} />
+      </Route>
+    ),
+    [handleBack, onClick],
+  )
 
   return (
-    <Routes>
+    <Switch>
       {searchRoute}
       {redirectRoute}
-    </Routes>
+    </Switch>
   )
 }

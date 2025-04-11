@@ -320,6 +320,8 @@
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "eslint-plugin-import": "^2.31.0",
     "react-router@^6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
-    "react-router@6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch"
+    "react-router@6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
   }
 }

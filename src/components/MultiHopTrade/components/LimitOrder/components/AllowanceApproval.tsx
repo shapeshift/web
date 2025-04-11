@@ -4,7 +4,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { StatusBody } from '../../StatusBody'
 import { WithBackButton } from '../../WithBackButton'
@@ -31,7 +31,7 @@ import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 const cardBorderRadius = { base: '2xl' }
 
 const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActiveQuote }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const { showErrorToast } = useErrorToast()
   const [txStatus, setTxStatus] = useState(TxStatus.Unknown)
@@ -62,8 +62,8 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
 
   const onSuccess = useCallback(() => {
     setTxStatus(TxStatus.Confirmed)
-    history.push(LimitOrderRoutePaths.Confirm)
-  }, [history])
+    navigate(LimitOrderRoutePaths.Confirm)
+  }, [navigate])
 
   const {
     approveMutation,
@@ -98,8 +98,8 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
   }, [approveMutation])
 
   const handleGoBack = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Input)
-  }, [history])
+    navigate(LimitOrderRoutePaths.Input)
+  }, [navigate])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,
@@ -238,13 +238,13 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
 }
 
 export const AllowanceApproval = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const activeQuote = useAppSelector(selectActiveQuote)
 
   // This should never happen but for paranoia and typescript reasons:
   if (activeQuote === undefined) {
     console.error('Attempted to perform allowance approval on non-existent quote')
-    history.push(LimitOrderRoutePaths.Input)
+    navigate(LimitOrderRoutePaths.Input)
     return null
   }
 

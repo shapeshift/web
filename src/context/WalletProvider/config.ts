@@ -9,7 +9,7 @@ import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { lazy } from 'react'
-import type { RouteProps } from 'react-router-dom'
+import type { RouteProps as _RouteProps } from 'react-router-dom'
 
 import { CoinbaseConfig } from './Coinbase/config'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
@@ -29,6 +29,10 @@ import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { getConfig } from '@/config'
 import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
+
+export type WalletProviderRouteProps = _RouteProps & {
+  component: React.LazyExoticComponent<any>
+}
 
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
@@ -299,8 +303,8 @@ export type SupportedWalletInfo<T> = {
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   description?: string
-  routes: RouteProps[]
-  connectedWalletMenuRoutes?: RouteProps[]
+  routes: WalletProviderRouteProps[]
+  connectedWalletMenuRoutes?: WalletProviderRouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
   connectedMenuComponent?: React.ComponentType<any>
 }

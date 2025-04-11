@@ -6,7 +6,7 @@ import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -54,7 +54,7 @@ export const Header = memo(() => {
   const showSnapModal = useSelector(selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { isConnected, wallet },
     dispatch,
@@ -79,10 +79,10 @@ export const Header = memo(() => {
   const handleKeyPress = useCallback(
     (event: { altKey: unknown; shiftKey: unknown; keyCode: number }) => {
       if (event.altKey && event.shiftKey && event.keyCode === 70) {
-        history.push('/flags')
+        navigate('/flags')
       }
     },
-    [history],
+    [navigate],
   )
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export const Header = memo(() => {
       previousConnectedRdns === METAMASK_RDNS &&
       connectedRdns === METAMASK_RDNS
     ) {
-      history.push(`/assets/${btcAssetId}`)
+      navigate(`/assets/${btcAssetId}`)
 
       // they installed the snap
       toast({
@@ -153,7 +153,7 @@ export const Header = memo(() => {
     connectedRdns,
     currentWalletId,
     dispatch,
-    history,
+    navigate,
     isCorrectVersion,
     isSnapInstalled,
     previousConnectedRdns,

@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { MultiHopSweep } from './components/MultiHopSweep/MultiHopSweep'
 import { QuoteList } from './components/QuoteList/QuoteList'
@@ -15,7 +15,6 @@ import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
 import { fromBaseUnit } from '@/lib/math'
-import type { TradeRouterMatchParams } from '@/pages/Trade/types'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
@@ -41,6 +40,9 @@ const GetTradeRates = () => {
   return <></>
 }
 
+const verifyAddresses = <VerifyAddresses />
+const multiHopSweep = <MultiHopSweep />
+
 export const MultiHopTrade = memo(
   ({
     defaultBuyAssetId,
@@ -58,22 +60,18 @@ export const MultiHopTrade = memo(
     // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
     // There is probably a nicer way to make this work by removing assetIdPaths from trade routes in RoutesCommon,
     // and ensure that other consumers are correctly prefixed with their own route, but spent way too many hours on this and this works for now
-    const match = matchPath<TradeRouterMatchParams>(location.pathname, {
-      path: TRADE_ROUTE_ASSET_SPECIFIC,
-      exact: true,
-    })
+    const match = matchPath({ path: TRADE_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname)
 
-    const {
-      chainId,
-      assetSubId,
-      sellChainId,
-      sellAssetSubId,
-      sellAmountCryptoBaseUnit: paramsSellAmountCryptoBaseUnit,
-    } = match?.params || {}
+    const params = match?.params
+    const chainId = params?.chainId
+    const assetSubId = params?.assetSubId
+    const sellChainId = params?.sellChainId
+    const sellAssetSubId = params?.sellAssetSubId
+    const paramsSellAmountCryptoBaseUnit = params?.sellAmountCryptoBaseUnit
 
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
-    const history = useHistory()
+    const navigate = useNavigate()
     const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
     const [isInitialMount, setIsInitialMount] = useState(true)
@@ -84,7 +82,7 @@ export const MultiHopTrade = memo(
       dispatch(tradeInput.actions.clear())
 
       if (isRewritingUrl) {
-        history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/0`)
+        navigate(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/0`)
       }
 
       setIsInitialMount(false)
@@ -93,7 +91,7 @@ export const MultiHopTrade = memo(
       isStandalone,
       isInitialMount,
       isRewritingUrl,
-      history,
+      navigate,
       buyAsset.assetId,
       sellAsset.assetId,
     ])
@@ -103,14 +101,14 @@ export const MultiHopTrade = memo(
 
       const sellAmountBaseUnit =
         sellInputAmountCryptoBaseUnit ?? paramsSellAmountCryptoBaseUnit ?? ''
-      history.push(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
+      navigate(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
     }, [
       isInitialMount,
       isRewritingUrl,
       isStandalone,
       buyAsset,
       sellAsset,
-      history,
+      navigate,
       sellInputAmountCryptoBaseUnit,
       paramsSellAmountCryptoBaseUnit,
     ])
@@ -190,36 +188,50 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
 
+  const tradeConfirm = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
+  const quoteListElement = useMemo(
+    () => (
+      <SlideTransitionRoute
+        height={tradeInputRef.current?.offsetHeight ?? '500px'}
+        width={tradeInputRef.current?.offsetWidth ?? 'full'}
+        component={QuoteList}
+        parentRoute={TradeRoutePaths.Input}
+      />
+    ),
+    [tradeInputRef],
+  )
+
+  const tradeInputElement = useMemo(
+    () => (
+      <TradeInput
+        isCompact={isCompact}
+        tradeInputRef={tradeInputRef}
+        onChangeTab={onChangeTab}
+        isStandalone={isStandalone}
+      />
+    ),
+    [isCompact, onChangeTab, isStandalone],
+  )
+
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
-          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-            <TradeConfirm isCompact={isCompact} />
-          </Route>
-          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
-            <VerifyAddresses />
-          </Route>
-          <Route key={TradeRoutePaths.Sweep} path={TradeRoutePaths.Sweep}>
-            <MultiHopSweep />
-          </Route>
-          <Route key={TradeRoutePaths.QuoteList} path={TradeRoutePaths.QuoteList}>
-            <SlideTransitionRoute
-              height={tradeInputRef.current?.offsetHeight ?? '500px'}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              component={QuoteList}
-              parentRoute={TradeRoutePaths.Input}
-            />
-          </Route>
-          <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-            <TradeInput
-              isCompact={isCompact}
-              tradeInputRef={tradeInputRef}
-              onChangeTab={onChangeTab}
-              isStandalone={isStandalone}
-            />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route key={TradeRoutePaths.Confirm} path={'confirm'} element={tradeConfirm} />
+          <Route
+            key={TradeRoutePaths.VerifyAddresses}
+            path={TradeRoutePaths.VerifyAddresses}
+            element={verifyAddresses}
+          />
+          <Route key={TradeRoutePaths.Sweep} path={TradeRoutePaths.Sweep} element={multiHopSweep} />
+          <Route
+            key={TradeRoutePaths.QuoteList}
+            path={TradeRoutePaths.QuoteList}
+            element={quoteListElement}
+          />
+          <Route key={TradeRoutePaths.Input} path={'*'} element={tradeInputElement} />
+          <Route path='/trade/*' element={tradeInputElement} />
+        </Routes>
       </AnimatePresence>
       {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
       {/* corrupted from state being mutated during trade execution. */}

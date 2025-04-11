@@ -49,8 +49,3 @@ export type DefiQueryParams = {
 export type DefiManagerProviderProps = {
   children: React.ReactNode
 }
-
-export type DefiManagerContextProps = {
-  open(): void
-  close(): void
-}

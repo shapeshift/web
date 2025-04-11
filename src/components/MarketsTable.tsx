@@ -5,7 +5,7 @@ import { truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -34,7 +34,7 @@ type MarketsTableProps = {
 
 export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClick }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
   const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
@@ -51,9 +51,9 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
       e.stopPropagation()
       const assetId = e.currentTarget.getAttribute('data-asset-id')
       if (!assetId) return
-      history.push(`/trade/${assetId}`)
+      navigate(`/trade/${assetId}`)
     },
-    [history],
+    [navigate],
   )
   const columns: Column<Asset>[] = useMemo(
     () => [

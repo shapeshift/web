@@ -18,17 +18,18 @@ const ASSETS_LIMIT = 100
 
 export const Category: React.FC = () => {
   const params = useParams<{ category: MarketsCategories }>()
+  const category = params.category as MarketsCategories
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 
   const allRows = useRows({ limit: ASSETS_LIMIT })
-  const row = allRows[params.category]
+  const row = allRows[category]
 
   const shouldShowSortFilter = useMemo(() => {
-    if (!sortOptionsByCategory[params.category]) return false
+    if (!sortOptionsByCategory[category]) return false
 
     return true
-  }, [params.category])
+  }, [category])
 
   const body = useMemo(
     () => (

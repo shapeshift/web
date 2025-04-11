@@ -3,10 +3,10 @@ import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 
 export enum TradeRoutePaths {
   Input = '/trade',
-  Confirm = '/trade/confirm',
-  VerifyAddresses = '/trade/verify-addresses',
-  QuoteList = '/trade/quote-list',
-  Sweep = '/trade/sweep',
+  Confirm = 'confirm',
+  VerifyAddresses = 'verify-addresses',
+  Sweep = 'sweep',
+  QuoteList = 'quote-list',
 }
 
 export type GetReceiveAddressArgs = {

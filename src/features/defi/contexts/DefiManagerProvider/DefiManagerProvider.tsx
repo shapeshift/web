@@ -1,23 +1,17 @@
-import React, { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
-import type {
-  DefiManagerContextProps,
-  DefiManagerProviderProps,
-  DefiParams,
-  DefiQueryParams,
-} from './DefiCommon'
+import type { DefiManagerProviderProps, DefiParams, DefiQueryParams } from './DefiCommon'
 import { getDefiProviderModulesResolvers } from './utils'
 
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
-const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 /*
 Cosmos modals are not part of this provider, those can be found under plugins/cosmos/components/modals.
 Cosmos modals are opened via AllEarnOpportunities component (TODO : refactor the modals in order to use them in this file)
 */
-export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
+export const DefiManagerProvider = memo(({ children }: DefiManagerProviderProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { type, provider } = query
 
@@ -48,9 +42,9 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   }, [provider, type])
 
   return (
-    <DefiManagerContext.Provider value={null}>
+    <>
       {children}
       {provider && renderModules}
-    </DefiManagerContext.Provider>
+    </>
   )
-}
+})

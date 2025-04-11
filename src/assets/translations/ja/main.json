@@ -995,7 +995,7 @@
     "allowanceResetTxName": "手当リセットトランザクション:",
     "allowanceApprovalTxName": "手当承認トランザクション:",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
-    "tradeCompleteSurplus": "追加の%{extra}を獲得しました!",
+    "tradeCompleteSurplus": "追加の%{extraPercent}を獲得しました!",
     "doAnotherTrade": "別の取引をする",
     "summary": "取引概要",
     "estimatedCompletionTime": "推定完了時間",

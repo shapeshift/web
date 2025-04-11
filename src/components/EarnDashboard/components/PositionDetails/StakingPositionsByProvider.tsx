@@ -35,7 +35,6 @@ import { useAppSelector } from '@/state/store'
 
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
-  assetId: AssetId
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -71,10 +70,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
-  ids,
-  assetId,
-}) => {
+export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({ ids }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()

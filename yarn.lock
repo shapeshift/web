@@ -5349,15 +5349,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/is-prop-valid@npm:^0.8.2":
-  version: 0.8.8
-  resolution: "@emotion/is-prop-valid@npm:0.8.8"
-  dependencies:
-    "@emotion/memoize": 0.7.4
-  checksum: bb7ec6d48c572c540e24e47cc94fc2f8dec2d6a342ae97bc9c8b6388d9b8d283862672172a1bb62d335c02662afe6291e10c71e9b8642664a8b43416cdceffac
-  languageName: node
-  linkType: hard
-
 "@emotion/is-prop-valid@npm:^1.2.1":
   version: 1.2.1
   resolution: "@emotion/is-prop-valid@npm:1.2.1"
@@ -5373,13 +5364,6 @@ __metadata:
   dependencies:
     "@emotion/memoize": ^0.9.0
   checksum: d3e36e493de3b4446634010c46cb8b99fa8ca271a8e7efba9cecf59a672ce1ebcfea8e8c7a0627dcafae87b4ab0d58c70fcf4589b849ca48e0d1e9f6c899e8be
-  languageName: node
-  linkType: hard
-
-"@emotion/memoize@npm:0.7.4":
-  version: 0.7.4
-  resolution: "@emotion/memoize@npm:0.7.4"
-  checksum: 4e3920d4ec95995657a37beb43d3f4b7d89fed6caa2b173a4c04d10482d089d5c3ea50bbc96618d918b020f26ed6e9c4026bbd45433566576c1f7b056c3271dc
   languageName: node
   linkType: hard
 
@@ -11527,7 +11511,7 @@ __metadata:
     eventemitter2: 5.0.1
     events: ^3.3.0
     fast-json-stable-stringify: ^2.1.0
-    framer-motion: ^11.0.3
+    framer-motion: ^12.6.5
     friendly-challenge: 0.9.2
     grapheme-splitter: ^1.0.4
     happy-dom: ^15.10.2
@@ -23268,24 +23252,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "framer-motion@npm:11.0.3"
+"framer-motion@npm:^12.6.5":
+  version: 12.6.5
+  resolution: "framer-motion@npm:12.6.5"
   dependencies:
-    "@emotion/is-prop-valid": ^0.8.2
+    motion-dom: ^12.6.5
+    motion-utils: ^12.6.5
     tslib: ^2.4.0
   peerDependencies:
-    react: ^18.0.0
-    react-dom: ^18.0.0
-  dependenciesMeta:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
     "@emotion/is-prop-valid":
       optional: true
-  peerDependenciesMeta:
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: fcc287089c5beabefee6b06eea1c764ff6f3d28294e15fd00da6a88ddc8210261f106352db382ee6d59e44a1ad9f3cf0fbeef297380645400db1f9985097f481
+  checksum: bff4ce055686028a8aafa8629e391b3c470bfbab8eaf3d367272fb7ea2f9e1372fafd6ac1279ba2e23230595a9e2e9f6d25db5f1a8d373a1345a2f3895c74d3f
   languageName: node
   linkType: hard
 
@@ -27775,6 +27760,22 @@ __metadata:
   version: 1.0.9
   resolution: "monero-regex@npm:1.0.9"
   checksum: 8d7dae45647426e0f34a77111d43c082912272f2348aba848155404ee1f85b0985b96a7b7ba7b5c27c574030726b01c4309c344a8506aa45b9df4d6f8ca2b2de
+  languageName: node
+  linkType: hard
+
+"motion-dom@npm:^12.6.5":
+  version: 12.6.5
+  resolution: "motion-dom@npm:12.6.5"
+  dependencies:
+    motion-utils: ^12.6.5
+  checksum: d59624e63fce717b036b7beebe3ba32fb69821ffbba4b0671dce4e56881c5009c36cfd406010f9e5650a03b9b36dcb6fb9be842aa52579cbe1d150126910b61d
+  languageName: node
+  linkType: hard
+
+"motion-utils@npm:^12.6.5":
+  version: 12.6.5
+  resolution: "motion-utils@npm:12.6.5"
+  checksum: d0f7d47ac6b73f655266014220b9c0c2e14bed0af2544a8c7117fd861446a41374e0407419b4552654059c497fcd85fd22e1d5ce500b35917f2bceccb10ba11c
   languageName: node
   linkType: hard
 

@@ -7,6 +7,13 @@ https://app.shapeshift.com/#/wallet
 https://app.shapeshift.com/#/wallet/accounts
 https://app.shapeshift.com/#/wallet/earn
 https://app.shapeshift.com/#/wallet/activity
+http://app.shapeshift.com/#/markets
+http://app.shapeshift.com/#/markets/category/tradingVolume
+http://app.shapeshift.com/#/markets/category/marketCap
+http://app.shapeshift.com/#/markets/category/trending
+http://app.shapeshift.com/#/markets/category/topMovers
+http://app.shapeshift.com/#/markets/category/recentlyAdded
+https://app.shapeshift.com/#/markets/category/oneClickDefiAssets
 https://app.shapeshift.com/#/assets/bip122:000000000019d6689c085ae165831e93/slip44:0
 https://app.shapeshift.com/#/assets/eip155:1/slip44:60
 https://app.shapeshift.com/#/assets/eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d

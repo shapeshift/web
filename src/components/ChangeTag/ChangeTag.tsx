@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Skeleton, Tag } from '@chakra-ui/react'
 import type { TagProps } from '@chakra-ui/react'
+import { Skeleton, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 
 import { Amount } from '@/components/Amount/Amount'

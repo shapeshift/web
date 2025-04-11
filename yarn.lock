@@ -3633,7 +3633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.20.13":
+"@babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.21.0":
   version: 7.27.0
   resolution: "@babel/runtime@npm:7.27.0"
   dependencies:
@@ -11522,6 +11522,9 @@ __metadata:
     qs: ^6.10.5
     re-reselect: ^4.0.0
     react: ^19.0.0
+    react-canvas-confetti: ^2.0.7
+    react-datepicker: ^4.8.0
+    react-device-detect: ^2.2.2
     react-dom: ^19.0.0
     react-error-boundary: ^3.1.4
     react-helmet-async: ^1.3.0
@@ -12716,6 +12719,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 1a54c922b45d0ea6b945cd4700195b58484b488abb8f75ea4882939bbef58bb7351fb0e203bb9e98d242d7abb8e10182277158b60dac97c4b5d422206ab91b86
+  languageName: node
+  linkType: hard
+
+"@types/canvas-confetti@npm:^1.6.4":
+  version: 1.9.0
+  resolution: "@types/canvas-confetti@npm:1.9.0"
+  checksum: 56227a362cead21ab76b0870e07e0cc2d26c800f5bc0fc109e4a3eca1a4d4dd317e1292163246d389827b7f30ce9e6eca3915681f3c80ed1e46491018f48a266
   languageName: node
   linkType: hard
 
@@ -18309,6 +18319,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"canvas-confetti@npm:^1.9.2":
+  version: 1.9.3
+  resolution: "canvas-confetti@npm:1.9.3"
+  checksum: db044a9c9ca0e58eafd115f7dfc2f9ecc377be34d8a5dd75901dae0dafd4fb0b75fbbf8edd48bbefad2468653c5838348f0e768b79727a924259a9ada343ea30
+  languageName: node
+  linkType: hard
+
 "caseless@npm:~0.12.0":
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
@@ -18577,6 +18594,13 @@ __metadata:
   version: 1.1.0
   resolution: "class-is@npm:1.1.0"
   checksum: 49024de3b264fc501a38dd59d8668f1a2b4973fa6fcef6b83d80fe6fe99a2000a8fbea5b50d4607169c65014843c9f6b41a4f8473df806c1b4787b4d47521880
+  languageName: node
+  linkType: hard
+
+"classnames@npm:^2.2.6":
+  version: 2.5.1
+  resolution: "classnames@npm:2.5.1"
+  checksum: da424a8a6f3a96a2e87d01a432ba19315503294ac7e025f9fece656db6b6a0f7b5003bb1fbb51cbb0d9624d964f1b9bb35a51c73af9b2434c7b292c42231c1e5
   languageName: node
   linkType: hard
 
@@ -19863,6 +19887,15 @@ __metadata:
   version: 2.29.3
   resolution: "date-fns@npm:2.29.3"
   checksum: e01cf5b62af04e05dfff921bb9c9933310ed0e1ae9a81eb8653452e64dc841acf7f6e01e1a5ae5644d0337e9a7f936175fd2cb6819dc122fdd9c5e86c56be484
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.30.0":
+  version: 2.30.0
+  resolution: "date-fns@npm:2.30.0"
+  dependencies:
+    "@babel/runtime": ^7.21.0
+  checksum: f7be01523282e9bb06c0cd2693d34f245247a29098527d4420628966a2d9aad154bd0e90a6b1cf66d37adcb769cd108cf8a7bd49d76db0fb119af5cdd13644f4
   languageName: node
   linkType: hard
 
@@ -29966,6 +29999,18 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"react-canvas-confetti@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "react-canvas-confetti@npm:2.0.7"
+  dependencies:
+    "@types/canvas-confetti": ^1.6.4
+    canvas-confetti: ^1.9.2
+  peerDependencies:
+    react: "*"
+  checksum: 256f0e6e01b35535d7f26ba43c85d4dad488b3ea77b3e36c6849c8ef76a9354a4d85d8908445cc3820e7553e77a1a7dfa1a86904cc9a74746d5ec12a66cdcd5f
+  languageName: node
+  linkType: hard
+
 "react-clientside-effect@npm:^1.2.7":
   version: 1.2.7
   resolution: "react-clientside-effect@npm:1.2.7"
@@ -29974,6 +30019,35 @@ pvutils@latest:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
   checksum: acbbf3c923aebeeaf7b37683eb6188a1eb5a30ac1ae7fe6701e073b0445eb1419fcf2f53fde389a1af0021453a97dd31f98da206afec6ddb0cfd049cfbfc4d7f
+  languageName: node
+  linkType: hard
+
+"react-datepicker@npm:^4.8.0":
+  version: 4.25.0
+  resolution: "react-datepicker@npm:4.25.0"
+  dependencies:
+    "@popperjs/core": ^2.11.8
+    classnames: ^2.2.6
+    date-fns: ^2.30.0
+    prop-types: ^15.7.2
+    react-onclickoutside: ^6.13.0
+    react-popper: ^2.3.0
+  peerDependencies:
+    react: ^16.9.0 || ^17 || ^18
+    react-dom: ^16.9.0 || ^17 || ^18
+  checksum: c619dc2ed1325e455a24cfd0428edf9da3b921853e27f28141bcda705962820912dd0e7221a1d00e984a468ba70475664a5bd6cb732776a5d32eb318a710ae0c
+  languageName: node
+  linkType: hard
+
+"react-device-detect@npm:^2.2.2":
+  version: 2.2.3
+  resolution: "react-device-detect@npm:2.2.3"
+  dependencies:
+    ua-parser-js: ^1.0.33
+  peerDependencies:
+    react: ">= 0.14.0"
+    react-dom: ">= 0.14.0"
+  checksum: 42d9b3182b9d2495bf0d7914c9f370da51d8bdb853a3eba2acaf433894ae760386a075ba103185be825b33d42f50d85ef462087f261656d433f4c74dab23861f
   languageName: node
   linkType: hard
 
@@ -30183,6 +30257,16 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"react-onclickoutside@npm:^6.13.0":
+  version: 6.13.2
+  resolution: "react-onclickoutside@npm:6.13.2"
+  peerDependencies:
+    react: ^15.5.x || ^16.x || ^17.x || ^18.x
+    react-dom: ^15.5.x || ^16.x || ^17.x || ^18.x
+  checksum: ca28eac0f26b5c55e880574bab3baa54af3350d92ffee27a5c9487fe4fdfad66ef19e1192c6456bde0b7fc30ed12c04415e0e4d2764eaa2dd0c35a4bff41a52d
+  languageName: node
+  linkType: hard
+
 "react-polyglot@npm:^0.7.2":
   version: 0.7.2
   resolution: "react-polyglot@npm:0.7.2"
@@ -30196,7 +30280,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-popper@npm:^2.2.5":
+"react-popper@npm:^2.2.5, react-popper@npm:^2.3.0":
   version: 2.3.0
   resolution: "react-popper@npm:2.3.0"
   dependencies:
@@ -34502,6 +34586,15 @@ pvutils@latest:
   version: 5.2.0
   resolution: "typical@npm:5.2.0"
   checksum: ccaeb151a9a556291b495571ca44c4660f736fb49c29314bbf773c90fad92e9485d3cc2b074c933866c1595abbbc962f2b8bfc6e0f52a8c6b0cdd205442036ac
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.33":
+  version: 1.0.40
+  resolution: "ua-parser-js@npm:1.0.40"
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: ae555a33dc9395dd877e295d6adbf5634e047aad7c3358328830218f3ca3a6233e35848cd355465a7612f269860e8029984389282940c7a27c9af4dfcdbba8c3
   languageName: node
   linkType: hard
 

@@ -11500,7 +11500,7 @@ __metadata:
     browserify-zlib: ^0.2.0
     bs58check: ^2.1.2
     buffer: ^6.0.3
-    chakra-ui-steps: ^2.1.0
+    chakra-ui-steps: ^2.2.0
     chalk: 5.3.0
     cli-progress: ^3.12.0
     colorthief: ^2.4.0
@@ -18566,16 +18566,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chakra-ui-steps@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "chakra-ui-steps@npm:2.1.0"
+"chakra-ui-steps@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "chakra-ui-steps@npm:2.2.0"
   peerDependencies:
     "@chakra-ui/react": ^2.0.0
     "@emotion/react": ^11.4.1
     "@emotion/styled": ^11.3.0
-    framer-motion: ^7.0.0
+    framer-motion: ">=4.0.0"
     react: ^18.0.0
-  checksum: 007fb70235f0801eeab95868148eb3053421d1e056244d4b9917d37d35e8aad2f3f2497180bbbd720a4fd453616c670469816708c5ed1723f714600cc6057dc5
+  checksum: 8246d1aed09e239bd272ff42b281c9a0fcd8f46f7629190199cba63187d6bc54077c981f173df80af85e2eba92ec9e8b60a06ad4c7487d0522d93b0a91485d2e
   languageName: node
   linkType: hard
 

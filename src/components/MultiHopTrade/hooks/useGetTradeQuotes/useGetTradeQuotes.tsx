@@ -316,6 +316,7 @@ export const useGetTradeQuotes = () => {
           allowMultiHop: true,
           affiliateBps: isFoxBuyAsset ? '0' : affiliateBps,
           potentialAffiliateBps: isFoxBuyAsset ? '0' : potentialAffiliateBps,
+          swapperName,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
@@ -338,6 +339,7 @@ export const useGetTradeQuotes = () => {
     sellAccountMetadata?.bip44Params?.accountNumber,
     sellAmountCryptoPrecision,
     sellAsset,
+    swapperName,
     sellAssetUsdRate,
     foxWifHatHeld,
     userSlippageTolerancePercentageDecimal,

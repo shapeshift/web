@@ -1,6 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
@@ -126,6 +127,59 @@ export const relayApi: SwapperApi = {
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
     }
+  },
+  getUnsignedUtxoTransaction: async ({
+    tradeQuote,
+    xpub,
+    accountType,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    const {
+      accountNumber,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset,
+      relayTransactionMetadata,
+    } = firstStep
+
+    if (!relayTransactionMetadata) throw new Error('Missing relay transaction metadata')
+
+    const { to, opReturnData } = relayTransactionMetadata
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    if (!to) throw new Error('Missing transaction destination')
+    if (!opReturnData) throw new Error('Missing opReturnData')
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
+      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      xpub,
+      to,
+      accountNumber,
+      chainSpecific: {
+        accountType,
+        opReturnData,
+        satoshiPerByte: feeData.fast.chainSpecific.satoshiPerByte,
+      },
+    })
   },
   getUtxoTransactionFees: async ({
     tradeQuote,

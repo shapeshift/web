@@ -29,7 +29,7 @@ import type { RelayTradeInputParams } from '../utils/types'
 import { isRelayQuoteUtxoItemData } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
-import { getRelayPsbtInfo } from './getRelayPsbtInfo'
+import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -109,9 +109,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
-    console.log({
-      sendAddress: input.sendAddress,
-    })
     if (input.quoteOrRate === 'rate') {
       if (sellAsset.chainId === btcChainId) {
         return getRelayDefaultUserAddress(sellAsset.chainId)
@@ -308,7 +305,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       if (isRelayQuoteUtxoItemData(selectedItem.data)) {
         if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
 
-        const { destination, opReturnData } = getRelayPsbtInfo(
+        const relayer = getRelayPsbtRelayer(
           selectedItem.data.psbt,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
         )
@@ -317,8 +314,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           allowanceContract: '',
           relayTransactionMetadata: {
             psbt: selectedItem.data.psbt,
-            opReturnData,
-            to: destination,
+            opReturnData: quoteStep.requestId,
+            to: relayer,
           },
         }
       }

@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
@@ -30,7 +30,6 @@ import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -39,10 +38,12 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
+  selectAccountNumberByAccountId,
   selectIsAnyAccountMetadataLoadedForChainId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -179,30 +180,37 @@ export const TradeInput = ({
   )
 
   const { data: fromAddress } = useQuery({
-    queryKey: ['utxoReceiveAddress', sellAccountId],
+    queryKey: ['utxoReceiveAddress', sellAccountId, sellAmountCryptoPrecision],
     queryFn:
-      wallet && accountMetadata
+      wallet && accountMetadata && sellAccountId && sellAmountCryptoPrecision
         ? async () => {
             if (!accountMetadata) throw new Error('No account metadata found')
+            if (!sellAccountId) throw new Error('No sell account id found')
+
             const accountType = accountMetadata.accountType
-            const bip44Params = accountMetadata.bip44Params
             const chainId = fromAssetId(sellAsset.assetId).chainId
-
-            const chainAdapter = getChainAdapterManager().get(chainId)
-
-            // And re-throw if no adapter found. "Shouldn't happen but" yadi yadi yada you know the drill
-            if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
-
-            const firstReceiveAddress = await chainAdapter.getAddress({
-              wallet,
-              accountNumber: bip44Params.accountNumber,
-              accountType,
-              pubKey:
-                isLedger(wallet) && sellAccountId
-                  ? fromAccountId(sellAccountId).account
-                  : undefined,
+            const sellAccountNumber = selectAccountNumberByAccountId(store.getState(), {
+              accountId: sellAccountId,
             })
-            return firstReceiveAddress
+
+            if (sellAccountNumber === undefined) throw new Error('No sell account number found')
+            if (!accountType) throw new Error('No account type found')
+
+            const sellAssetChainAdapter = assertGetUtxoChainAdapter(chainId)
+
+            const xpub = (
+              await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, accountType)
+            ).xpub
+
+            const account = await sellAssetChainAdapter.getAccount(xpub)
+
+            if (!account.chainSpecific.addresses) throw new Error('No addresses found')
+
+            const addressWithEnoughBalance = account.chainSpecific.addresses.find(address => {
+              return bnOrZero(address.balance).gte(sellAmountCryptoPrecision)
+            })
+
+            return addressWithEnoughBalance?.pubkey
           }
         : skipToken,
   })
@@ -237,7 +245,8 @@ export const TradeInput = ({
       txFeeCryptoBaseUnit: tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
-        bnOrZero(sellAmountCryptoPrecision).gt(0) &&
+        fromAddress &&
+          bnOrZero(sellAmountCryptoPrecision).gt(0) &&
           tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit &&
           getHasEnoughBalanceForTxPlusFees({
             precision: sellAsset.precision,
@@ -260,11 +269,6 @@ export const TradeInput = ({
 
   const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
     useIsSweepNeededQuery(isSweepNeededArgs)
-
-  console.log({
-    isSweepNeeded,
-    isSweepNeededArgs,
-  })
 
   const isLoading = useMemo(
     () =>

@@ -48,6 +48,8 @@ const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) =>
     <Routes>
       {appRoutesList}
       <Route path='/' element={tradeRedirect} />
+      {/* Handle legacy /connect-wallet/* routes by redirecting to main app route. We don't expose these anymore, but users may have old bookmarks */}
+      <Route path='/connect-wallet/*' element={tradeRedirect} />
       {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
       {/* eslint-disable-next-line react-memo/require-usememo */}
       <Route path='*' element={<NotFound />} />

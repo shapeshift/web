@@ -26,7 +26,6 @@ import { I18nProvider } from '@/context/I18nProvider/I18nProvider'
 import { ModalProvider } from '@/context/ModalProvider/ModalProvider'
 import { PluginProvider } from '@/context/PluginProvider/PluginProvider'
 import { QueryClientProvider } from '@/context/QueryClientProvider/QueryClientProvider'
-import { TransactionsSubscriber } from '@/context/TransactionsSubscriber/TransactionsSubscriber'
 import { KeepKeyProvider } from '@/context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from '@/context/WalletProvider/WalletProvider'
 import { DefiManagerProvider } from '@/features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
@@ -88,13 +87,6 @@ export function AppProviders({ children }: ProvidersProps) {
                                     onError={handleError}
                                   >
                                     <>
-                                      {/* This isn't a provider, it living here is misleading. This does not drill context through children, 
-                                          but really is just a subscriber. Do *not* render children with this, there is no reason,
-                                          and it would re-render the whole app on every render.
-                                          Could probably move this guy to a hook if we find a sane place for it (wink wink AppContext), but for the time being, 
-                                          this being a sibling fixes most of our rendering issues 
-                                      */}
-                                      <TransactionsSubscriber />
                                       <AppProvider>
                                         <DefiManagerProvider>{children}</DefiManagerProvider>
                                       </AppProvider>

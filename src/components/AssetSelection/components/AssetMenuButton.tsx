@@ -67,7 +67,7 @@ export const StyledAssetMenuButton = ({
   rightIcon,
   buttonProps,
   ...rest
-}: AssetMenuButtonProps & { rightIcon?: React.ReactElement<any> }) => {
+}: AssetMenuButtonProps & { rightIcon?: React.ReactElement }) => {
   const combinedButtonProps = useMemo(
     () => getStyledMenuButtonProps({ isDisabled, rightIcon, buttonProps }),
     [isDisabled, rightIcon, buttonProps],

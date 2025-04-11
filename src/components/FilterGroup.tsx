@@ -18,7 +18,7 @@ import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from '@/components/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 
-export type Option = [string, string, (ReactElement<any> | string | number)?]
+export type Option = [string, string, (ReactElement | string | number)?]
 
 const buttonHover = { bg: 'transparent' }
 

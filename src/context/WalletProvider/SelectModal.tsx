@@ -102,7 +102,7 @@ const SelectItem = ({
   isActive: boolean
   onClick: () => void
   name: string
-  Icon: ReactElement<any>
+  Icon: ReactElement
 }) => {
   const greenColor = useColorModeValue('green.500', 'green.200')
   const walletSubText = isActive ? 'common.connected' : null

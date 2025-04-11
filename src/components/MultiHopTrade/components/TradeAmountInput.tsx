@@ -49,7 +49,7 @@ type RenderController = ({
   field,
 }: {
   field: ControllerRenderProps<TradeAmountInputFormValues, 'amountFieldInput'>
-}) => React.ReactElement<any>
+}) => React.ReactElement
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
 const buttonProps = {

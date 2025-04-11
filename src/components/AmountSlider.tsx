@@ -29,7 +29,7 @@ type RenderController = ({
   field,
 }: {
   field: ControllerRenderProps<AmountSliderInputValues, 'percentage'>
-}) => React.ReactElement<any>
+}) => React.ReactElement
 
 const defaultFormValues = {
   percentage: 100,

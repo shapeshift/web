@@ -13,7 +13,7 @@ import { Text } from '@/components/Text'
 const iconProps = { boxSize: '14px' }
 
 type DynamicComponentProps = {
-  component: ReactElement<any>
+  component: ReactElement
   newValue?: Record<string, any>
   label: string
   toolTipLabel?: string

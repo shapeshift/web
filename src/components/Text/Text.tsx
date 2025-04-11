@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 export type TextPropTypes = TextProps & {
   translation: string | null | [string, number | Polyglot.InterpolationOptions]
-  components?: Record<string, ReactElement<any>>
+  components?: Record<string, ReactElement>
 }
 
 const cTextStyle = { fontFeatureSettings: `'zero' on, 'ss01' on` }

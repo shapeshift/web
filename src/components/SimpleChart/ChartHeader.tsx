@@ -32,7 +32,7 @@ const ChartHeaderLeftDisplay = styled.div`
 
 type HeaderValueDisplayProps = {
   /** The number to be formatted and displayed, or the ReactElement to be displayed */
-  value?: number | ReactElement<any>
+  value?: number | ReactElement
 }
 
 function HeaderValueDisplay({ value }: HeaderValueDisplayProps) {

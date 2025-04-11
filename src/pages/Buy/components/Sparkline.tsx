@@ -60,24 +60,22 @@ export const SparkLine: React.FC<SparkLineProps> = ({
       {loading ? (
         <Center width={100} height={height} />
       ) : (
-        <>
-          <XYChart
-            margin={xyChartMargin}
-            width={100}
-            height={height}
-            xScale={xyChartxScale}
-            yScale={xyChartYScale}
-          >
-            <LineSeries
-              dataKey={`${assetId}-series`}
-              data={priceData}
-              stroke={chartColor}
-              strokeWidth={2}
-              curve={curveNatural}
-              {...accessors}
-            />
-          </XYChart>
-        </>
+        <XYChart
+          margin={xyChartMargin}
+          width={100}
+          height={height}
+          xScale={xyChartxScale}
+          yScale={xyChartYScale}
+        >
+          <LineSeries
+            dataKey={`${assetId}-series`}
+            data={priceData}
+            stroke={chartColor}
+            strokeWidth={2}
+            curve={curveNatural}
+            {...accessors}
+          />
+        </XYChart>
       )}
     </Box>
   )

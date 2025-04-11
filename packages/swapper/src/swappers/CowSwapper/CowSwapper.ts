@@ -1,17 +1,12 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import { SigningScheme } from '@shapeshiftoss/types'
 
 import { assertGetCowNetwork, signCowOrder } from '../../cowswap-utils'
 import type {
-  BuyAssetBySellIdInput,
   EvmMessageExecutionProps,
   EvmMessageToSign,
   Swapper,
   SwapperConfig,
 } from '../../types'
-import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { cowService } from './utils/cowService'
 
 export const cowSwapper: Swapper = {
@@ -44,13 +39,5 @@ export const cowSwapper: Swapper = {
     const { data: orderUid } = maybeOrdersResponse.unwrap()
 
     return orderUid
-  },
-
-  filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
-    return Promise.resolve(filterAssetIdsBySellable(assets))
-  },
-
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
-    return Promise.resolve(filterBuyAssetsBySellAssetId(input))
   },
 }

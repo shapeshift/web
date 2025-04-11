@@ -128,7 +128,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   if (!testState) return null
 
   return (
-    <SlideTransition>
+    <Box>
       <IconButton
         variant='ghost'
         icon={arrowBackIcon}
@@ -143,73 +143,75 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
       </ModalHeader>
       {!preventClose && <ModalCloseButton />}
       <ModalBody>
-        <RawText>
-          <Text
-            as='span'
-            color='text.subtle'
-            translation={'walletProvider.shapeShift.testPhrase.body'}
-          />{' '}
-          <Tag colorScheme='green'>
-            {translate(
-              `walletProvider.shapeShift.testPhrase.${
-                testState.targetWordIndex + 1
-              }${makeOrdinalSuffix(testState.targetWordIndex + 1)}`,
-            )}
-            <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
-          </Tag>{' '}
-          <Text
-            as='span'
-            color='text.subtle'
-            translation={'walletProvider.shapeShift.testPhrase.body3'}
-          />
-        </RawText>
-        <Wrap mt={12} mb={6}>
-          {testState &&
-            testState.randomWords.map((word: string, index: number) =>
-              revocable(
-                <Button
-                  key={index}
-                  flexGrow={4}
-                  flexBasis='auto'
-                  // we need to pass an arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
-                  onClick={() => handleClick(index)}
-                >
-                  {word}
-                </Button>,
-                revoker.addRevoker.bind(revoker),
-              ),
-            )}
-        </Wrap>
-        <Box>
-          <Box position='relative' mb={8} mt={10}>
-            <Divider />
+        <SlideTransition>
+          <RawText>
             <Text
-              translation={'common.or'}
-              transform='translate(-50%, -50%)'
-              left='50%'
-              position='absolute'
+              as='span'
               color='text.subtle'
-            />
-          </Box>
-          <Checkbox mb={4} spacing={4} onChange={handleCheckBoxClick} isChecked={hasAlreadySaved}>
+              translation={'walletProvider.shapeShift.testPhrase.body'}
+            />{' '}
+            <Tag colorScheme='green'>
+              {translate(
+                `walletProvider.shapeShift.testPhrase.${
+                  testState.targetWordIndex + 1
+                }${makeOrdinalSuffix(testState.targetWordIndex + 1)}`,
+              )}
+              <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
+            </Tag>{' '}
             <Text
-              fontSize='sm'
-              fontWeight='bold'
-              translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
+              as='span'
+              color='text.subtle'
+              translation={'walletProvider.shapeShift.testPhrase.body3'}
             />
-          </Checkbox>
-          <Button
-            colorScheme='blue'
-            width='full'
-            size='md'
-            isDisabled={!hasAlreadySaved}
-            onClick={handleSkipClick}
-          >
-            <Text translation={'common.skip'} />
-          </Button>
-        </Box>
+          </RawText>
+          <Wrap mt={12} mb={6}>
+            {testState &&
+              testState.randomWords.map((word: string, index: number) =>
+                revocable(
+                  <Button
+                    key={index}
+                    flexGrow={4}
+                    flexBasis='auto'
+                    // we need to pass an arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
+                    onClick={() => handleClick(index)}
+                  >
+                    {word}
+                  </Button>,
+                  revoker.addRevoker.bind(revoker),
+                ),
+              )}
+          </Wrap>
+          <Box>
+            <Box position='relative' mb={8} mt={10}>
+              <Divider />
+              <Text
+                translation={'common.or'}
+                transform='translate(-50%, -50%)'
+                left='50%'
+                position='absolute'
+                color='text.subtle'
+              />
+            </Box>
+            <Checkbox mb={4} spacing={4} onChange={handleCheckBoxClick} isChecked={hasAlreadySaved}>
+              <Text
+                fontSize='sm'
+                fontWeight='bold'
+                translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
+              />
+            </Checkbox>
+            <Button
+              colorScheme='blue'
+              width='full'
+              size='md'
+              isDisabled={!hasAlreadySaved}
+              onClick={handleSkipClick}
+            >
+              <Text translation={'common.skip'} />
+            </Button>
+          </Box>
+        </SlideTransition>
       </ModalBody>
-    </SlideTransition>
+    </Box>
   )
 }

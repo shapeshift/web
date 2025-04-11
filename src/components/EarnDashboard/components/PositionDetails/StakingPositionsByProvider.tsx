@@ -25,7 +25,6 @@ import type {
   StakingEarnOpportunityType,
 } from '@/state/slices/opportunitiesSlice/types'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -36,7 +35,6 @@ import { useAppSelector } from '@/state/store'
 
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
-  assetId: AssetId
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -72,10 +70,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
-  ids,
-  assetId,
-}) => {
+export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({ ids }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -196,38 +191,23 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
-          const opportunityAssetId = opportunity.assetId
-          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
-          if (!opportunity.underlyingAssetIds.length) return null
-          const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
-          const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
 
-          const underlyingBalances = getUnderlyingAssetIdsBalances({
-            assetId: opportunityUnderlyingAssetId,
-            underlyingAssetIds: opportunity.underlyingAssetIds,
-            underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
-            cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit ?? '0',
+          const fiatRewardsAmount = calculateRewardFiatAmount({
+            rewardAssetIds: row.original.rewardAssetIds,
+            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
             assets,
             marketDataUserCurrency,
           })
 
-          const cryptoAmountPrecision = isUnderlyingAsset
-            ? underlyingBalances[opportunity.underlyingAssetIds[underlyingAssetIndex]]
-                .cryptoBalancePrecision
-            : bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-                .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
-                .toFixed()
+          const hasValue =
+            bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(fiatRewardsAmount).gt(0)
+
+          // Note, this already includes rewards. Let's not double-count them
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
 
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>
-              <Amount.Fiat value={row.original.fiatAmount} />
-              <Amount.Crypto
-                variant='sub-text'
-                size='xs'
-                value={cryptoAmountPrecision.toString()}
-                symbol={assets[assetId]?.symbol ?? ''}
-              />
+              <Amount.Fiat value={totalFiatAmount} />
             </Flex>
           ) : (
             <RawText variant='sub-text'>-</RawText>
@@ -327,7 +307,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       },
     ],
-    [assetId, assets, handleClick, marketDataUserCurrency, translate],
+    [assets, handleClick, marketDataUserCurrency, translate],
   )
 
   if (!filteredDown.length) return null

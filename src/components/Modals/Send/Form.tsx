@@ -2,9 +2,10 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { useCallback, useMemo, useState } from 'react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -15,6 +16,7 @@ import { Status } from './views/Status'
 
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { SlideTransition } from '@/components/SlideTransition'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -55,15 +57,7 @@ type SendFormProps = {
   input?: string
 }
 
-const RedirectToSelect = () => {
-  const navigate = useNavigate()
-  useEffect(() => {
-    navigate(SendRoutes.Select, { replace: true })
-  }, [navigate])
-  return null
-}
-
-const selectRedirect = <RedirectToSelect />
+const selectRedirect = <Navigate to={SendRoutes.Select} replace />
 
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
   const navigate = useNavigate()
@@ -87,6 +81,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       fiatSymbol: selectedCurrency,
       txHash: '',
     },
+  })
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
+    control: methods.control,
   })
 
   const handleSubmit = useCallback(
@@ -164,14 +162,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     [navigate, methods],
   )
 
-  useEffect(() => {
-    if (!initialAssetId) {
-      navigate(SendRoutes.Select)
-    }
-    // Don't add navigate there or problems
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialAssetId])
-
   const qrCodeScanner = useMemo(
     () => (
       <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleBack} addressError={addressError} />
@@ -184,6 +174,8 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     [handleAssetSelect],
   )
 
+  const location = useLocation()
+
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
@@ -193,15 +185,20 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         onKeyDown={checkKeyDown}
       >
         <AnimatePresence mode='wait' initial={false}>
-          <Routes>
-            <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouter} />
-            <Route path={SendRoutes.Address} element={address} />
-            <Route path={SendRoutes.Details} element={details} />
-            <Route path={SendRoutes.Scan} element={qrCodeScanner} />
-            <Route path={SendRoutes.Confirm} element={confirm} />
-            <Route path={SendRoutes.Status} element={status} />
-            <Route path='/' element={selectRedirect} />
-          </Routes>
+          {/* Instead of a redirect which would produce a flash of content, we simply render the select route in place of <Switch />ing here */}
+          {!initialAssetId && !assetId ? (
+            <SlideTransition className='flex flex-col h-full'>{selectAssetRouter}</SlideTransition>
+          ) : (
+            <Switch location={location.pathname}>
+              <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
+              <Route path={SendRoutes.Address}>{address}</Route>
+              <Route path={SendRoutes.Details}> {details}</Route>
+              <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
+              <Route path={SendRoutes.Confirm}>{confirm}</Route>
+              <Route path={SendRoutes.Status}>{status}</Route>
+              <Route path='/'>{selectRedirect}</Route>
+            </Switch>
+          )}
         </AnimatePresence>
       </form>
     </FormProvider>

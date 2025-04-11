@@ -3,6 +3,7 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Box,
   Button,
   Code,
   IconButton,
@@ -115,7 +116,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   }, [navigate, close])
 
   return (
-    <SlideTransition>
+    <Box>
       <IconButton
         variant='ghost'
         icon={arrowBackIcon}
@@ -129,41 +130,43 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         <Text translation={'modals.shapeShift.backupPassphrase.info.title'} />
       </ModalHeader>
       {!preventClose && <ModalCloseButton />}
-      <ModalBody>
-        <Text
-          color='text.subtle'
-          translation={'modals.shapeShift.backupPassphrase.info.description'}
-          mb={6}
-        />
-        <Alert status='info'>
-          <AlertIcon />
-          <AlertDescription>
-            <Text
-              color={alertColor}
-              translation={'modals.shapeShift.backupPassphrase.info.warning'}
-            />
-          </AlertDescription>
-        </Alert>
-
-        <Wrap mt={12} mb={6}>
-          {revealed ? words : placeholders}
-        </Wrap>
-      </ModalBody>
-      <ModalFooter justifyContent='space-between'>
-        <Button onClick={handleShow} leftIcon={faEyeIcon}>
+      <SlideTransition>
+        <ModalBody>
           <Text
-            translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
+            color='text.subtle'
+            translation={'modals.shapeShift.backupPassphrase.info.description'}
+            mb={6}
           />
-        </Button>
-        <Button
-          colorScheme='blue'
-          size='lg'
-          disabled={!(words && revealedOnce.current)}
-          onClick={handleCreateBackupClick}
-        >
-          <Text translation={'walletProvider.shapeShift.create.button'} />
-        </Button>
-      </ModalFooter>
-    </SlideTransition>
+          <Alert status='info'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text
+                color={alertColor}
+                translation={'modals.shapeShift.backupPassphrase.info.warning'}
+              />
+            </AlertDescription>
+          </Alert>
+
+          <Wrap mt={12} mb={6}>
+            {revealed ? words : placeholders}
+          </Wrap>
+        </ModalBody>
+        <ModalFooter justifyContent='space-between'>
+          <Button onClick={handleShow} leftIcon={faEyeIcon}>
+            <Text
+              translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
+            />
+          </Button>
+          <Button
+            colorScheme='blue'
+            size='lg'
+            disabled={!(words && revealedOnce.current)}
+            onClick={handleCreateBackupClick}
+          >
+            <Text translation={'walletProvider.shapeShift.create.button'} />
+          </Button>
+        </ModalFooter>
+      </SlideTransition>
+    </Box>
   )
 }

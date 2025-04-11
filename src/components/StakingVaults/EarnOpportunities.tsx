@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { StakingTable } from './StakingTable'
 
 import { Text } from '@/components/Text'
-import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { FoxEthProvider, useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
@@ -28,7 +28,7 @@ type EarnOpportunitiesProps = {
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
+export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const navigate = useNavigate()
   const location = useLocation()
   const {
@@ -129,3 +129,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     </Card>
   )
 }
+
+export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => (
+  <FoxEthProvider>
+    <EarnOpportunitiesContent assetId={assetId} accountId={accountId} />
+  </FoxEthProvider>
+)

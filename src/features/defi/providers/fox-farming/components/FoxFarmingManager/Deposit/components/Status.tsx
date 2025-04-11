@@ -5,7 +5,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -73,8 +73,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
 
-  const history = useHistory()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state =>
@@ -89,10 +88,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
-  const handleCancel = history.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),

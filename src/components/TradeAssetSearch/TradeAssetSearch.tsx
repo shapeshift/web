@@ -8,7 +8,7 @@ import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
@@ -19,10 +19,12 @@ import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMen
 import { AllChainMenu } from '@/components/ChainMenu'
 import { knownChainIds } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCap,
   selectPortfolioFungibleAssetsSortedByBalance,
+  selectPortfolioTotalUserCurrencyBalance,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -64,14 +66,20 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>(selectedChainId)
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
+  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
-    hasWallet ? selectPortfolioFungibleAssetsSortedByBalance : selectAssetsSortedByMarketCap,
+    // If a wallet is connected with zero balances everywhere, we do the same
+    // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
+    hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
+      ? selectPortfolioFungibleAssetsSortedByBalance
+      : selectAssetsSortedByMarketCap,
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -84,9 +92,9 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       // AssetId has a `/` separator so the router will have to parse 2 variables
       // e.g., /assets/:chainId/:assetSubId
       const url = `/assets/${asset.assetId}`
-      history.push(url)
+      navigate(url)
     },
-    [history],
+    [navigate],
   )
   const handleAssetClick = onAssetClick ?? defaultClickHandler
   const { register, watch } = useForm<{ search: string }>({

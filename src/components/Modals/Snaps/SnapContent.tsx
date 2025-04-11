@@ -1,7 +1,25 @@
-import { MemoryRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import { useMemo } from 'react'
+import { MemoryRouter, Navigate, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { SnapConfirm } from './SnapConfirm'
 import { SnapIntro } from './SnapIntro'
+
+const introRedirect = <Navigate to='/intro' replace />
+
+export const SnapContentRouter = (props: {
+  isRemoved?: boolean
+  isCorrectVersion: boolean
+  isSnapInstalled: boolean
+  onClose: () => void
+}) => {
+  return (
+    <MemoryRouter>
+      <SnapContent {...props} />
+    </MemoryRouter>
+  )
+}
 
 export const SnapContent = ({
   isRemoved,
@@ -14,25 +32,27 @@ export const SnapContent = ({
   isSnapInstalled: boolean
   onClose: () => void
 }) => {
+  const location = useLocation()
+  const snapIntro = useMemo(
+    () => (
+      <SnapIntro
+        isRemoved={isRemoved}
+        isCorrectVersion={isCorrectVersion}
+        isSnapInstalled={isSnapInstalled}
+      />
+    ),
+    [isRemoved, isCorrectVersion, isSnapInstalled],
+  )
+
+  const snapConfirm = useMemo(() => <SnapConfirm onClose={onClose} />, [onClose])
+
   return (
-    <MemoryRouter>
-      <Route>
-        {({ location }) => (
-          <Switch key={location.key} location={location}>
-            <Route path='/intro'>
-              <SnapIntro
-                isRemoved={isRemoved}
-                isCorrectVersion={isCorrectVersion}
-                isSnapInstalled={isSnapInstalled}
-              />
-            </Route>
-            <Route path='/confirm'>
-              <SnapConfirm onClose={onClose} />
-            </Route>
-            <Redirect exact from='/' to='/intro' />
-          </Switch>
-        )}
-      </Route>
-    </MemoryRouter>
+    <AnimatePresence mode='wait' initial={false}>
+      <Switch location={location.pathname}>
+        <Route path='/intro'>{snapIntro}</Route>
+        <Route path='/confirm'>{snapConfirm}</Route>
+        <Route path='/'>{introRedirect}</Route>
+      </Switch>
+    </AnimatePresence>
   )
 }

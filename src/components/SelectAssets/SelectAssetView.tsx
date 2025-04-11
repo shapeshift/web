@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useEffect } from 'react'
-import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
@@ -17,22 +18,41 @@ export const SelectAssetView = ({
   toRoute,
   assetId,
 }: SelectAssetViewProps) => {
-  const location = useLocation<SelectAssetLocation>()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (toRoute && assetId) {
-      history.push(toRoute, { assetId })
+      navigate(toRoute, { state: { assetId } })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return (
-    <Switch location={location} key={location.key}>
-      <Route path={SelectAssetRoutes.Search}>
+  const searchRoute = useMemo(
+    () => (
+      <Route
+        path={SelectAssetRoutes.Search}
+        // This is already within a useMemo call, lint rule drunk
+        // eslint-disable-next-line react-memo/require-usememo
+      >
+        {<SelectAssets onBack={handleBack} onClick={onClick} />}
+      </Route>
+    ),
+    [handleBack, onClick],
+  )
+
+  const redirectRoute = useMemo(
+    () => (
+      <Route path='/'>
         <SelectAssets onBack={handleBack} onClick={onClick} />
       </Route>
-      <Redirect from='/' to={SelectAssetRoutes.Search} />
+    ),
+    [handleBack, onClick],
+  )
+
+  return (
+    <Switch>
+      {searchRoute}
+      {redirectRoute}
     </Switch>
   )
 }

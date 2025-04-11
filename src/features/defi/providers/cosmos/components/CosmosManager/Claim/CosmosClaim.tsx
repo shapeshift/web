@@ -4,6 +4,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { CosmosClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -43,7 +44,8 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
   const { assetNamespace, contractAddress: validatorAddress, assetReference, chainId } = query
   const { state: walletState } = useWallet()
   const assetId = toAssetId({
@@ -102,14 +104,14 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({
   const translate = useTranslate()
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [navigate, location.pathname, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

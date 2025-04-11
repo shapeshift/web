@@ -1,7 +1,8 @@
 import { useUnmountEffect } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
+import { Route, Switch } from 'wouter'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseInfo } from './BackupPassphraseInfo'
@@ -14,8 +15,9 @@ import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/Rev
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const BackupPassphraseRouter = () => {
-  const location = useLocation()
   const { state } = useWallet()
+  const location = useLocation()
+
   const [revocableWallet, setRevocableWallet] = useState(
     createRevocableWallet({
       id: state.walletInfo?.deviceId,
@@ -35,8 +37,8 @@ export const BackupPassphraseRouter = () => {
 
   return (
     <AnimatePresence mode='wait'>
-      <Switch location={location} key={location.key}>
-        <Route exact path={BackupPassphraseRoutes.Start}>
+      <Switch location={location.pathname}>
+        <Route path={BackupPassphraseRoutes.Start}>
           <BackupPassphraseStart revocableWallet={revocableWallet} />
         </Route>
         <Route path={BackupPassphraseRoutes.Info}>
@@ -51,7 +53,9 @@ export const BackupPassphraseRouter = () => {
         <Route path={BackupPassphraseRoutes.Success}>
           <BackupPassphraseSuccess />
         </Route>
-        <Redirect to={BackupPassphraseRoutes.Start} />
+        <Route>
+          <BackupPassphraseStart revocableWallet={revocableWallet} />
+        </Route>
       </Switch>
     </AnimatePresence>
   )

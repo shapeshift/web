@@ -39,7 +39,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { AmountsByPosition } from '../LpType'
 import { LpType } from '../LpType'
@@ -169,8 +169,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { wallet, isConnected } = useWallet().state
   const queryClient = useQueryClient()
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter()
-  const history = useHistory()
+  const { navigate: browserNavigate } = useBrowserRouter()
+  const navigate = useNavigate()
   const [isFiat, toggleIsFiat] = useToggle(false)
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
@@ -497,8 +497,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const handleBackClick = useCallback(() => {
-    browserHistory.push('/pools')
-  }, [browserHistory])
+    browserNavigate('/pools')
+  }, [browserNavigate])
 
   const toggleFeeModal = useCallback(() => {
     toggleShowFeeModal(!showFeeModal)
@@ -888,19 +888,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!mixpanel) return
     if (!confirmedQuote) return
     if (isApprovalRequired) return handleApprove()
-    if (isSweepNeeded) return history.push(AddLiquidityRoutePaths.Sweep)
+    if (isSweepNeeded) return navigate(AddLiquidityRoutePaths.Sweep)
 
     if (Boolean(incompleteSide)) {
-      history.push(AddLiquidityRoutePaths.Status)
+      navigate(AddLiquidityRoutePaths.Status)
       mixpanel.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
     } else {
-      history.push(AddLiquidityRoutePaths.Confirm)
+      navigate(AddLiquidityRoutePaths.Confirm)
       mixpanel.track(MixPanelEvent.LpDepositPreview, confirmedQuote)
     }
   }, [
     confirmedQuote,
     handleApprove,
-    history,
+    navigate,
     isApprovalRequired,
     incompleteSide,
     isSweepNeeded,
@@ -1602,8 +1602,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         {incompleteAlert}
         {maybeOpportunityNotSupportedExplainer}
         {maybeAlert}
-        {isThorchainPoolsInstable && isThorchainLpDepositEnabled ? (
-          <Alert status='warning' variant='subtle' mx={-2} width='auto'>
+        {isThorchainPoolsInstable ? (
+          <Alert status='error' variant='subtle' mx={-2} width='auto'>
             <AlertIcon />
             <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
           </Alert>

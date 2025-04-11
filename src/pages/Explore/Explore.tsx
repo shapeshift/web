@@ -4,7 +4,7 @@ import type { JSX } from 'react'
 import { memo, useCallback } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -48,19 +48,19 @@ const pageProps = { paddingTop: 4 }
 
 export const Explore = memo(() => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handlePoolsClick = useCallback(() => {
-    history.push('/pools')
-  }, [history])
+    navigate('/pools')
+  }, [navigate])
 
   const handleLendingClick = useCallback(() => {
-    history.push('/lending')
-  }, [history])
+    navigate('/lending')
+  }, [navigate])
 
   const handleRFOXClick = useCallback(() => {
-    history.push('/rfox')
-  }, [history])
+    navigate('/rfox')
+  }, [navigate])
 
   return (
     <>

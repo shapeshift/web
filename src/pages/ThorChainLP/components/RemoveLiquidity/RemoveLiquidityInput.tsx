@@ -31,7 +31,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useLocation } from 'wouter'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -42,7 +42,6 @@ import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippageP
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -112,9 +111,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   poolAssetId,
 }) => {
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const [, setLocation] = useLocation()
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
 
@@ -324,8 +322,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [opportunityId, userLpData])
 
   const handleBackClick = useCallback(() => {
-    browserHistory.push('/pools')
-  }, [browserHistory])
+    setLocation('/pools')
+  }, [setLocation])
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {
@@ -730,16 +728,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (!mixpanel) return
     if (!confirmedQuote) return
-    if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
+    if (isSweepNeeded) return setLocation(RemoveLiquidityRoutePaths.Sweep)
 
-    if (incompleteSide) {
+    if (confirmedQuote.positionStatus?.incomplete) {
       mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
     } else {
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
-    history.push(RemoveLiquidityRoutePaths.Confirm)
-  }, [confirmedQuote, history, incompleteSide, isSweepNeeded, mixpanel])
+    setLocation(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, setLocation, mixpanel, isSweepNeeded])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && withdrawType)) return null

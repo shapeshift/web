@@ -2,7 +2,7 @@ import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/re
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Redirect, useHistory } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { LimitTradeSuccess } from '../LimitOrder/components/LimitTradeSuccess'
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
@@ -47,7 +47,7 @@ import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const LimitOrderConfirm = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
     limitOrderSlice.actions,
@@ -73,8 +73,8 @@ export const LimitOrderConfirm = () => {
 
   const handleBack = useCallback(() => {
     dispatch(limitOrderSlice.actions.clear())
-    history.push(LimitOrderRoutePaths.Input)
-  }, [dispatch, history])
+    navigate(LimitOrderRoutePaths.Input)
+  }, [dispatch, navigate])
 
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
@@ -432,7 +432,7 @@ export const LimitOrderConfirm = () => {
   }, [detail, button])
 
   // We should have some submission state here... unless we're rehydrating or trying to access /limit/confirm directly
-  if (!orderSubmissionState) return <Redirect to={LimitOrderRoutePaths.Input} />
+  if (!orderSubmissionState) return <Navigate to={LimitOrderRoutePaths.Input} replace />
   if (!body) return null
   return (
     <SharedConfirm

@@ -16,7 +16,7 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
@@ -108,7 +108,7 @@ export const BorrowInput = ({
     state: { wallet },
   } = useWallet()
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const { data: borrowAssets, isLoading: isSupportedBorrowAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
@@ -406,15 +406,15 @@ export const BorrowInput = ({
       mixpanel.track(MixPanelEvent.BorrowPreview, eventData)
     }
 
-    if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
-    history.push(BorrowRoutePaths.Sweep)
+    if (!isSweepNeeded) return navigate(BorrowRoutePaths.Confirm)
+    navigate(BorrowRoutePaths.Sweep)
   }, [
     borrowAsset,
     borrowFeeAsset?.networkName,
     collateralAsset,
     collateralFeeAsset?.networkName,
     depositAmountCryptoPrecision,
-    history,
+    navigate,
     isSweepNeeded,
     lendingQuoteData,
     mixpanel,

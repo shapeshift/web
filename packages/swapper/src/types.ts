@@ -25,10 +25,12 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
+import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -55,6 +57,7 @@ export type SwapperConfig = {
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
   VITE_JUPITER_API_URL: string
+  VITE_RELAY_API_URL: string
 }
 
 export enum SwapperName {
@@ -67,6 +70,7 @@ export enum SwapperName {
   Portals = 'Portals',
   Chainflip = 'Chainflip',
   Jupiter = 'Jupiter',
+  Relay = 'Relay',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -251,6 +255,7 @@ export type SolanaSwapperDeps = {
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
+  mixPanel: Mixpanel | undefined
   assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
@@ -301,6 +306,7 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  relayTransactionMetadata?: RelayTransactionMetadata
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
@@ -598,3 +604,8 @@ export type SupportedChainIds = {
 }
 
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
+
+export enum MixPanelEvent {
+  RelayMultiHop = 'Unable to execute Relay multi-hop quote',
+  RelayStepMultipleItems = 'Unable to execute relay quote because step contains multiple items',
+}

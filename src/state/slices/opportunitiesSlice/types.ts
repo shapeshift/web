@@ -23,7 +23,6 @@ export enum DefiProvider {
   ShapeShift = 'ShapeShift',
   rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
-  UniV2 = 'Uniswap V2',
   CosmosSdk = 'Cosmos SDK',
   ThorchainSavers = 'THORChain Savers',
 }

@@ -1,11 +1,12 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Flex, Link, Portal, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
 
-import { RawText } from './Text'
+import { Text } from './Text'
+import type { TextPropTypes } from './Text/Text'
 
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
@@ -18,6 +19,21 @@ export const ConsentBanner: React.FC = () => {
   const handleDimiss = useCallback(() => {
     store.dispatch(preferences.actions.setShowConsentBanner(false))
   }, [])
+  const consentBannerTranslationComponents: TextPropTypes['components'] = useMemo(
+    () => ({
+      privateLink: (
+        <Link color='blue.200' href='https://private.shapeshift.com' isExternal target='_self'>
+          private.shapeshift.com
+        </Link>
+      ),
+      privacyPolicyLink: (
+        <Link as={NavLink} to='/legal/privacy-policy' color='blue.200'>
+          {translate('common.privacy')}
+        </Link>
+      ),
+    }),
+    [translate],
+  )
   return (
     <Portal>
       <Flex
@@ -38,21 +54,14 @@ export const ConsentBanner: React.FC = () => {
           alignItems={containerAlignItems}
           gap={6}
         >
-          <RawText flex={1} fontSize='sm' fontWeight='medium' letterSpacing='0.02em'>
-            {translate('consentBanner.body.1')}
-            {` `}
-            <Link color='blue.200' href='https://private.shapeshift.com' isExternal target='_self'>
-              {translate('consentBanner.body.2')}
-            </Link>
-            {` `}
-            {translate('consentBanner.body.3')}
-            {` `}
-            <Link as={NavLink} to='/legal/privacy-policy' color='blue.200'>
-              {translate('consentBanner.body.4')}
-            </Link>
-            {` `}
-            {translate('consentBanner.body.5')}
-          </RawText>
+          <Text
+            flex={1}
+            fontSize='sm'
+            fontWeight='medium'
+            letterSpacing='0.02em'
+            translation='consentBanner.body'
+            components={consentBannerTranslationComponents}
+          ></Text>
           <Button colorScheme='blue' onClick={handleDimiss}>
             {translate('consentBanner.cta')}
           </Button>

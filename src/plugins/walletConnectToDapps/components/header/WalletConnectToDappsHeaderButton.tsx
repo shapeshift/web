@@ -59,7 +59,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
           return (
             <DappAvatar
               key={session.topic}
-              image={session.peer.metadata.icons[0]}
+              image={session.peer.metadata.icons?.[0]}
               connected={session.acknowledged}
               size='xs'
               connectedDotSize={2}

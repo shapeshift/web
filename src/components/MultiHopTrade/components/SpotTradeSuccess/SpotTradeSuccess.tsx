@@ -34,7 +34,6 @@ import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetai
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -117,10 +116,6 @@ export const SpotTradeSuccess = ({
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
   const transfers = txTransfers || manualReceiveAddressTransfers
 
-  const buyAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
-  )
-
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!transfers?.length || !buyAsset) return undefined
 
@@ -139,14 +134,6 @@ export const SpotTradeSuccess = ({
       ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toFixed()
       : undefined
   }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
-
-  const maybeExraDeltaUserCurrency = useMemo(() => {
-    if (!maybeExtraDeltaCryptoPrecision || !buyAsset) return undefined
-
-    return bnOrZero(maybeExtraDeltaCryptoPrecision)
-      .times(buyAssetMarketDataUserCurrency?.price ?? 0)
-      .toString()
-  }, [buyAssetMarketDataUserCurrency, maybeExtraDeltaCryptoPrecision, buyAsset])
 
   const { buyAmountAfterFeesCryptoPrecision, buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
     const { buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } = lastHop ?? {}
@@ -234,9 +221,19 @@ export const SpotTradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
+  const surplusPercentage = useMemo(() => {
+    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return '0'
+
+    return bnOrZero(actualBuyAmountCryptoPrecision)
+      .minus(quoteBuyAmountCryptoPrecision)
+      .div(quoteBuyAmountCryptoPrecision)
+      .times(100)
+      .toString()
+  }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
+
   const surplusComponents = useMemo(
     () => ({
-      extra: (
+      extraPercent: (
         <Box color='green.200' display='inline'>
           <Amount.Crypto
             as='span'
@@ -248,14 +245,14 @@ export const SpotTradeSuccess = ({
             {' '}
             (
           </CText>
-          <Amount.Fiat as='span' value={maybeExraDeltaUserCurrency} />
+          <Amount.Percent as='span' value={bnOrZero(surplusPercentage).div(100).toString()} />
           <CText as='span' color='green.200'>
             )
           </CText>
         </Box>
       ),
     }),
-    [buyAsset?.symbol, maybeExraDeltaUserCurrency, maybeExtraDeltaCryptoPrecision],
+    [buyAsset?.symbol, maybeExtraDeltaCryptoPrecision, surplusPercentage],
   )
 
   const SurplusLine = useCallback(() => {
@@ -264,6 +261,9 @@ export const SpotTradeSuccess = ({
     if (!maybeExtraDeltaCryptoPrecision) return null
     // Superseeded by the "You Saved" explainer
     if (hasFeeSaving) return null
+
+    // 0.3% min heuristic before showing surplus
+    if (bnOrZero(surplusPercentage).lt(0.3)) return null
 
     return (
       <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
@@ -277,6 +277,7 @@ export const SpotTradeSuccess = ({
     surplusComponents,
     maybeExtraDeltaCryptoPrecision,
     hasFeeSaving,
+    surplusPercentage,
   ])
 
   // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT

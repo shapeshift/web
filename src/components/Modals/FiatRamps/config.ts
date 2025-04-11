@@ -54,7 +54,7 @@ export interface SupportedFiatRampConfig {
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
   getSupportedFiatList: () => CommonFiatCurrencies[]
-  onSubmit: (args: CreateUrlProps) => string | undefined
+  onSubmit: (args: CreateUrlProps) => Promise<string | undefined>
   minimumSellThreshold?: number
 }
 
@@ -76,7 +76,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
     getSupportedFiatList: () => getSupportedCoinbaseFiatCurrencies(),
     onSubmit: props => {
-      return createCoinbaseUrl(props)
+      return Promise.resolve(createCoinbaseUrl(props))
     },
     isActive: () => true,
     minimumSellThreshold: 0,
@@ -98,12 +98,13 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [filteredBuyAndSellAssetIds, filteredBuyAndSellAssetIds]
     },
     getSupportedFiatList: () => getSupportedOnRamperFiatCurrencies(),
-    onSubmit: props => {
+    onSubmit: async props => {
       try {
-        const onRamperCheckoutUrl = createOnRamperUrl(props)
+        const onRamperCheckoutUrl = await createOnRamperUrl(props)
         return onRamperCheckoutUrl
       } catch (err) {
         console.error(err)
+        return Promise.resolve(undefined)
       }
     },
   },
@@ -123,9 +124,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)
-        return banxaCheckoutUrl
+        return Promise.resolve(banxaCheckoutUrl)
       } catch (err) {
         console.error(err)
+        return Promise.resolve(undefined)
       }
     },
   },
@@ -148,9 +150,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(props)
-        return mtPelerinCheckoutUrl
+        return Promise.resolve(mtPelerinCheckoutUrl)
       } catch (err) {
         console.error(err)
+        return Promise.resolve(undefined)
       }
     },
   },

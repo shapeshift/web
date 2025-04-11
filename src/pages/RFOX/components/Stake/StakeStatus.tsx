@@ -3,7 +3,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
@@ -38,7 +38,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   setStakeTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
     txHash: txId,
@@ -46,8 +46,8 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   })
 
   const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
+    navigate(StakeRoutePaths.Input)
+  }, [navigate])
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),

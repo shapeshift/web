@@ -62,7 +62,6 @@
     "walletActions": "Cüzdan Hareketleri",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
-    "seeAll": "Hepsini Gör",
     "darkMode": "Karanlık Mod",
     "darkTheme": "Karanlık Tema",
     "rename": "İsim Değiştir",
@@ -198,13 +197,7 @@
     "hardwareWallets": "Donanım Cüzdanları"
   },
   "consentBanner": {
-    "body": {
-      "1": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz. ",
-      "2": "private.shapeshift.com",
-      "3": "Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için",
-      "4": "Gizlilik Politikamıza",
-      "5": "göz atın."
-    },
+    "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
     "cta": "Anladım"
   },
   "errorPage": {
@@ -213,18 +206,10 @@
     "cta": "Tekrar dene"
   },
   "buyPage": {
-    "title": {
-      "first": "Saniyeler içinde",
-      "second": "Kripto Satın Alın"
-    },
+    "title": "Saniyeler içinde <span>Kripto Satın Alın</span>",
     "body": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer en iyi kripto para birimlerini satın alın. KYC gerekmeyen sağlayıcılar mevcuttur.",
     "disclaimer": "*Ayrıca kriptonuzu banka hesabınıza doğrudan nakit olarak satabilirsiniz.",
-    "cta": {
-      "title": {
-        "first": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve",
-        "second": "Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz"
-      }
-    },
+    "ctaTitle": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve <span>Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz</span>",
     "availableAssets": "Kullanılabilir Varlıklar"
   },
   "updateToast": {
@@ -435,10 +420,8 @@
         "introducingSaversVaults": "Saver Vaults Giriş",
         "introducingRunePool": "RUNEPool'u Tanıtımı",
         "risksBody": {
-          "1": "Saver Vaults ile ilgili riskler için",
-          "2": "bu makaleye",
-          "3": "bakın.",
-          "runePool": "RUNEPool ile ilgili riskler için."
+          "vaults": "Saver Vaults ile ilgili riskler için <link>bu makaleye</link> bakın.",
+          "runePool": "Saver Vaults ile ilgili riskler için <link>bu makaleye</link> RUNEPool ile ilgili riskler için."
         },
         "understand": "Anladım",
         "days": "%{amount} günler",
@@ -450,9 +433,7 @@
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
         "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
         "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün.",
-        "agreeRunePool": {
-          "1": "RUNEPool'un hem 30 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu anlıyorum."
-        }
+        "agreeRunePool": "RUNEPool'un hem 30 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu anlıyorum."
       }
     },
     "memoNote": {
@@ -515,8 +496,6 @@
     "overview": "Genel Bakış",
     "myPositions": "Pozisyonlarım",
     "myPositionsBody": "Şu anda DeFi'deki aktif pozisyonlarınızın listesi.",
-    "myRewards": "Ödüllerim",
-    "myRewardsBody": "Talep edilebilir ödüllere sahip aktif DeFi pozisyonlarınız.",
     "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
     "liquidityLockupWarning": "%{time} kilitlenme süresi vardır. Kilitlenme süresince likiditenize erişemezsiniz.",
@@ -1016,6 +995,7 @@
     "allowanceResetTxName": "Tahsisat sıfırlama tx:",
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
     "tradeComplete": "Artık cüzdanınızda %{chainName} üzerinde %{cryptoAmountFormatted} var.",
+    "tradeCompleteSurplus": "Fazladan %{extraPercent} kazandın!",
     "doAnotherTrade": "Başka bir takas yap",
     "summary": "Ticaret Özeti",
     "estimatedCompletionTime": "Tahmini Tamamlanma Süresi",
@@ -1055,7 +1035,8 @@
       "youCouldHaveSaved": "FOX Savings ile yaptığınız işlemde %{fee} tasarruf edebilirdiniz.",
       "buyFox": "FOX satın al",
       "share": "Paylaş",
-      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!"
+      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!",
+      "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız çünkü FOX tutuyorsunuz"
     },
     "networkFee": "Ağ Ücreti",
     "learnMoreAboutFox": "FOX Avantajları hakkında daha fazla bilgi edinin",
@@ -1071,8 +1052,8 @@
     "placeOrder": "Emir Ver",
     "placeAnotherOrder": "Başka Bir Emir Ver",
     "orderSummary": "Emir Özeti",
-    "when": "When",
-    "isWorth": "is worth",
+    "when": "Ne zaman",
+    "isWorth": "değer",
     "market": "Market:",
     "success": "Limit emri başarıyla verildi",
     "cancel": {
@@ -1102,6 +1083,7 @@
     "awaitingAllowanceApproval": "Ödenek onayı bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
     "orderPlacement": "%{swapperName} üzerinde emir verin",
+    "explanation": "%{assetSymbol} fiyatı %{limitPrice} değerine ulaştığında, limit emriniz otomatik olarak %{sellAmount} tutarında satış yapacak ve en az %{receiveAmount} tutarında alım yapmanızı sağlayacaktır.",
     "sellBuy": "Sat → Satın al",
     "limitExecution": "Limit/Uygulama",
     "statusHead": "Durum",
@@ -1146,7 +1128,9 @@
         "insufficientBalance": "Cüzdanınız şu anda bu emri yürütmek için %{chainName} üzerinde yeterli %{symbol} bakiyesine sahip değil. Emir hala açık ve %{chainName} üzerinde %{symbol} bakiyenizi yüklediğinizde yürütülebilir hale gelecek.",
         "insufficientAllowance": "Bu emir, CoW Swap'ın bu emri yürütmesi için onaylanması için %{chainName} üzerinde ek bir %{symbol} ödeneği gerektirir. Emir hala açıktır ve ödenek onayını tamamladığınızda yürütülebilir hale gelecektir."
       }
-    }
+    },
+    "limitOrderFilled": "Limit emri dolduruldu",
+    "assetToAsset": "%{sellAmount} %{sellAsset} - %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -1748,11 +1732,7 @@
       "warningExperimental": "ShapeShift Multichain Snap, sağlanan yeni, deneysel bir özelliktir",
       "warningBackup": "MetaMask tohum ifadenizi yedeklediğinizden emin olun. Bu Snap'i kullanarak EVM dışı zincirlere göndereceğiniz tüm fonlar, MetaMask ile kurduğunuz varsayılan hesaba yönlendirilecektir.",
       "agreeIntro": "Devam etmeden önce lütfen aşağıdakileri okuyun:",
-      "agreeItem1Parts": {
-        "1": "Donanım cüzdanları",
-        "2": "DESTEKLENMİYOR",
-        "3": "!"
-      },
+      "agreeItem1": "Donanım cüzdanları <strong>DESTEKLENMİYOR</strong> !",
       "agreeItem2": "ShapeShift Multichain Snap'in sağladığı ekstra zincirler için yalnızca MetaMask'taki Account #1 Hesap desteklenir",
       "agreeItem3": "MetaMask tarafından sağlanan mevcut Ethereum zincirlerini kullanmak için Account #1'i MetaMask'taki ShapeShift'e bağlamanız gerekir.",
       "agreeItem4": "ShapeShift Multichain Snap'i etkinleştirerek, riski size ait olmak üzere kullandığınızı kabul etmiş olursunuz.",
@@ -2658,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Staking ile daha fazla kazanın",
-      "body": "Varlıklarınızı THORChain Savers Vault ile stake ederek pasif gelir elde edin."
-    },
     "pools": {
       "title": "Havuzlar",
       "body": "Havuzlardaki işlemlerden Ücret kazanın."
@@ -2873,11 +2849,7 @@
     },
     "governance": {
       "title": "Yönetim",
-      "description": {
-        "0": "Forumda",
-        "1": "bize katılın",
-        "2": "ve DAO'nun geleceğini şekillendireceğiz."
-      },
+      "description": "Forumda <link>bize katılın</link> ve DAO'nun geleceğini şekillendireceğiz.",
       "totalVotingPower": "Toplam Oy Gücü",
       "noActiveProposals": "Aktif teklif yok",
       "noClosedProposals": "Kapalı teklif yok"

@@ -21,7 +21,7 @@ import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissio
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
-import { selectAccountIdsByChainId } from '@/state/slices/selectors'
+import { selectAccountIdsByChainId, selectWalletAccountIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
@@ -98,6 +98,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     assertIsDefined(proposal)
 
     const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+    const portfolioAccountIds = useAppSelector(selectWalletAccountIds)
 
     const wallet = useWallet().state.wallet
     const translate = useTranslate()
@@ -181,29 +182,68 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       )
     }, [accountIdsByChainId, optionalNamespaces, requiredNamespaces, wallet])
 
-    const approvalNamespaces: SessionTypes.Namespaces = useMemo(
-      () => createApprovalNamespaces(requiredNamespaces, optionalNamespaces, selectedAccountIds),
-      [optionalNamespaces, requiredNamespaces, selectedAccountIds],
+    const handleConnectAccountIds = useCallback(
+      async (_selectedAccountIds: AccountId[]) => {
+        const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
+          requiredNamespaces,
+          optionalNamespaces,
+          _selectedAccountIds,
+        )
+
+        // exit if the proposal was not found - likely duplicate call rerendering shenanigans
+        const pendingProposals = web3wallet.getPendingSessionProposals()
+        if (
+          !Object.values(pendingProposals).some(
+            pendingProposal => pendingProposal.id === proposal.id,
+          )
+        ) {
+          return
+        }
+
+        setIsLoading(true)
+
+        const session = await web3wallet.approveSession({
+          id: proposal.id,
+          namespaces: approvalNamespaces,
+        })
+        dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
+        handleClose()
+      },
+      [dispatch, handleClose, proposal, web3wallet, optionalNamespaces, requiredNamespaces],
     )
 
-    const handleApprove = useCallback(async () => {
-      // exit if the proposal was not found - likely duplicate call rerendering shenanigans
-      const pendingProposals = web3wallet.getPendingSessionProposals()
-      if (
-        !Object.values(pendingProposals).some(pendingProposal => pendingProposal.id === proposal.id)
-      ) {
-        return
-      }
+    const handleConnectSelectedAccountIds = useCallback(
+      () => handleConnectAccountIds(selectedAccountIds),
+      [handleConnectAccountIds, selectedAccountIds],
+    )
 
-      setIsLoading(true)
+    const handleConnectAll = useCallback(() => {
+      const namespacesChainIds = Object.values({
+        ...requiredNamespaces,
+        ...optionalNamespaces,
+      }).flatMap(namespace => namespace.chains ?? [])
 
-      const session = await web3wallet.approveSession({
-        id: proposal.id,
-        namespaces: approvalNamespaces,
+      const filteredAccountIds = portfolioAccountIds.filter(accountId => {
+        const chainId = fromAccountId(accountId).chainId
+        return namespacesChainIds.includes(chainId)
       })
-      dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
-      handleClose()
-    }, [approvalNamespaces, dispatch, handleClose, proposal, web3wallet])
+
+      filteredAccountIds.forEach(accountId => {
+        if (!selectedAccountIds.includes(accountId)) {
+          // For correctness' sake only - it doesn't really matter if we toggle this state field, as we'll then
+          // call handleApproveAccountIds with all AccountIds directly and users won't see the selection
+          toggleAccountId(accountId)
+        }
+      })
+      handleConnectAccountIds(filteredAccountIds)
+    }, [
+      handleConnectAccountIds,
+      selectedAccountIds,
+      toggleAccountId,
+      requiredNamespaces,
+      optionalNamespaces,
+      portfolioAccountIds,
+    ])
 
     const handleReject = useCallback(async () => {
       setIsLoading(true)
@@ -227,6 +267,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const modalBody: JSX.Element = useMemo(() => {
       return allNamespacesSupported ? (
         <>
+          <Button width='full' colorScheme='blue' onClick={handleConnectAll} isLoading={isLoading}>
+            {translate('plugins.walletConnectToDapps.modal.connectAll')}
+          </Button>
           <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
             <Alert status={allNamespacesHaveAccounts ? 'success' : 'warning'} mb={4} mt={-2}>
               <AlertIcon />
@@ -269,6 +312,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       supportedOptionalNamespacesWithAccounts,
       allNamespacesHaveAccounts,
       translate,
+      handleConnectAll,
+      isLoading,
     ])
 
     return (
@@ -284,7 +329,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               width='full'
               colorScheme='blue'
               type='submit'
-              onClick={handleApprove}
+              onClick={handleConnectSelectedAccountIds}
               isDisabled={
                 selectedAccountIds.length === 0 ||
                 !allNamespacesSupported ||

@@ -197,13 +197,7 @@
     "hardwareWallets": "Hardware Wallets"
   },
   "consentBanner": {
-    "body": {
-      "1": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit",
-      "2": "private.shapeshift.com",
-      "3": "if you don't want to be anonymously tracked. See our",
-      "4": "Privacy Policy",
-      "5": "for more details."
-    },
+    "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
     "cta": "Got It"
   },
   "errorPage": {
@@ -212,18 +206,10 @@
     "cta": "Try again"
   },
   "buyPage": {
-    "title": {
-      "first": "Buy Crypto",
-      "second": "in Seconds"
-    },
+    "title": "Buy Crypto <span>in Seconds</span>",
     "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
     "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
-    "cta": {
-      "title": {
-        "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
-        "second": "track your crypto across %{chainCount} chains"
-      }
-    },
+    "ctaTitle": "You can also use ShapeShift with all the top wallets to trade, earn yield and <span>track your crypto across %{chainCount} chains</span>",
     "availableAssets": "Available Assets"
   },
   "updateToast": {
@@ -434,10 +420,8 @@
         "introducingSaversVaults": "Introducing Savers Vaults",
         "introducingRunePool": "Introducing RUNEPool",
         "risksBody": {
-          "1": "Refer to",
-          "2": "this article",
-          "3": "for risks involved with savers vaults.",
-          "runePool": "for risks involved with RUNEPool."
+          "vaults": "Refer to <link>this article</link> for risks involved with savers vaults.",
+          "runePool": "Refer to <link>this article</link> for risks involved with RUNEPool."
         },
         "understand": "I understand",
         "days": "%{amount} days",
@@ -449,9 +433,7 @@
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
         "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
-        "agreeRunePool": {
-          "1": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss."
-        }
+        "agreeRunePool": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss."
       }
     },
     "memoNote": {
@@ -1013,7 +995,7 @@
     "allowanceResetTxName": "Allowance reset tx:",
     "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}!",
-    "tradeCompleteSurplus": "You got an extra %{extra}!",
+    "tradeCompleteSurplus": "You got an extra %{extraPercent}!",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
     "estimatedCompletionTime": "Estimated Completion Time",
@@ -1146,7 +1128,9 @@
         "insufficientBalance": "Your wallet currently has insufficient %{symbol} balance on %{chainName} to execute this order. The order is still open and will become executable when you top up your %{symbol} balance on %{chainName}.",
         "insufficientAllowance": "This order requires a additional allowance of %{symbol} on %{chainName} to be approved for CoW Swap to execute this order. The order is still open and will become executable when you complete the allowance approval."
       }
-    }
+    },
+    "limitOrderFilled": "Limit order filled",
+    "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -1660,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger Connected",
-        "success": "You can now close this window or it will auto-close shortly",
+        "success": "You can now close this window.",
         "error": "There was an error connecting your wallet"
       },
       "errors": {
@@ -1748,11 +1732,7 @@
       "warningExperimental": "The ShapeShift Multichain Snap is a new, experimental feature, provided \"as is\"",
       "warningBackup": "Ensure you have backed up your MetaMask seed phrase. Any funds you send to non-EVM chains using this Snap will be directed to the default account you set up with MetaMask.",
       "agreeIntro": "Before continuing please read the following:",
-      "agreeItem1Parts": {
-        "1": "Hardware wallets are",
-        "2": "NOT",
-        "3": "supported"
-      },
+      "agreeItem1": "Hardware wallets are <strong>NOT</strong> supported",
       "agreeItem2": "Only Account #0 in MetaMask is supported for the extra chains the ShapeShift Multichain Snap provides",
       "agreeItem3": "To use the existing Ethereum chains provided by MetaMask, you must connect Account #0 to ShapeShift in MetaMask",
       "agreeItem4": "By enabling the ShapeShift Multichain Snap, you acknowledge you are using it at your own risk",
@@ -1849,7 +1829,7 @@
       "success": {
         "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
-        "success": "You can now close this window or it will auto-close shortly",
+        "success": "You can now close this window.",
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {
@@ -2290,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Connect All Accounts",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",
@@ -2581,7 +2562,8 @@
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedNetworkExplainer": "Your wallet isn't connected to %{network}. Please connect this chain or switch to a wallet that supports this network.",
     "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
-    "instabilityWarning": "Users are currently experiencing refunds while depositing to THORChain pools. Please proceed with caution.",
+    "instabilityWarning": "Deposits for thorchain LP are disabled on a protocol level. If you try to deposit, assets will bounce back with a refund. This will revert on version 3.5.",
+    "depositsDisabled": "Deposits Disabled",
     "shareOfPool": "Share of Pool",
     "assetDepositAmount": "%{asset} Deposit Amount",
     "totalLiquidity": "Total Liquidity",
@@ -2869,11 +2851,7 @@
     },
     "governance": {
       "title": "Governance",
-      "description": {
-        "0": "Join us",
-        "1": "on the forum",
-        "2": "and shape the future of the DAO."
-      },
+      "description": "Join us <link>on the forum</link> and shape the future of the DAO.",
       "totalVotingPower": "Total Voting Power",
       "noActiveProposals": "No active proposals available",
       "noClosedProposals": "No closed proposals available"

@@ -10,6 +10,7 @@ import pDebounce from 'p-debounce'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -69,8 +70,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const translate = useTranslate()
   const toast = useToast()
   const queryClient = useQueryClient()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const navigate = useNavigate()
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { control, setValue } = methods
@@ -310,8 +312,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   )
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const handlePercentClick = useCallback(
     (percent: number) => {

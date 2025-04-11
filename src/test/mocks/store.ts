@@ -34,8 +34,12 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
 
 const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
   provided: {
-    LimitOrder: {},
+    limitOrders: {},
     limitOrderQuote: {},
+  },
+  _persist: {
+    version: 0,
+    rehydrated: false,
   },
 })
 
@@ -142,6 +146,7 @@ export const mockStore: ReduxState = {
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
       ThorchainPoolsInstabilityWarning: false,
+      RelaySwapper: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

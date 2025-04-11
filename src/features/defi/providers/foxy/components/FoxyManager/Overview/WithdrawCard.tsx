@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
@@ -39,7 +40,7 @@ const stackMarginLeft = { base: 0, md: 'auto' }
 const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'left', md: 'right' }
 
 export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: WithdrawCardProps) => {
-  const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     state: { isConnected },
     dispatch,
@@ -51,6 +52,7 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
     canClaimWithdraw && undelegation && dayjs().isAfter(dayjs.unix(undelegation.completionTime))
   const successColor = useColorModeValue('green.500', 'green.200')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
+  const navigate = useNavigate()
 
   const handleWalletModalOpen = useCallback(
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -60,14 +62,14 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
   const handleClick = useCallback(() => {
     if (!isConnected) return handleWalletModalOpen()
 
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Claim,
       }),
     })
-  }, [handleWalletModalOpen, history, isConnected, location.pathname, query])
+  }, [handleWalletModalOpen, navigate, isConnected, location.pathname, query])
 
   const availableDateTranslation: TextPropTypes['translation'] = useMemo(
     () => [

@@ -23,7 +23,6 @@ export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
   defaultSellAssetId?: AssetId
   isCompact?: boolean
-  isRewritingUrl?: boolean
   isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }

@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
@@ -109,13 +110,13 @@ export const Sweep = ({
 
   const adapter = assertGetUtxoChainAdapter(fromAssetId(assetId).chainId)
 
-  useEffect(() => {
-    if (!adapter || !fromAddress) return
-    // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
-    // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
-    if (!txId) return
-    ;(async () => {
-      await sleep(60_000)
+  useQuery({
+    queryKey: ['utxoSweepTxStatus', txId, requiredConfirmations],
+    queryFn: async () => {
+      if (!adapter || !fromAddress) return
+      // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
+      // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
+      if (!txId) return
       const utxos = await adapter.getUtxos({
         pubkey: fromAddress,
       })
@@ -127,8 +128,10 @@ export const Sweep = ({
         )
       )
         handleSwepSeen()
-    })()
-  }, [adapter, fromAddress, handleSwepSeen, requiredConfirmations, txId])
+    },
+    enabled: Boolean(txId && adapter && fromAddress),
+    refetchInterval: 60_000,
+  })
 
   if (!asset) return null
 

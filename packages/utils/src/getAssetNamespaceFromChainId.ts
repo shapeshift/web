@@ -20,12 +20,13 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.BaseMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.CosmosMainnet:
-    case KnownChainIds.ThorchainMainnet:
       return ASSET_NAMESPACE.ibc
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:
     case KnownChainIds.DogecoinMainnet:
     case KnownChainIds.LitecoinMainnet:
+    case KnownChainIds.ThorchainMainnet:
+    case KnownChainIds.MayachainMainnet:
       throw Error(`Unhandled case '${chainId}'`)
     default:
       return assertUnreachable(chainId)

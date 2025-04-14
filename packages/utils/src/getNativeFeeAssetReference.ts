@@ -49,6 +49,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Cosmos
           case CHAIN_REFERENCE.ThorchainMainnet:
             return ASSET_REFERENCE.Thorchain
+          case CHAIN_REFERENCE.MayachainMainnet:
+            return ASSET_REFERENCE.Mayachain
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

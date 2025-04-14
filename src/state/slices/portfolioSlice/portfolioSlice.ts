@@ -179,6 +179,8 @@ export const portfolio = createSlice({
     selectWalletSupportedChainIds: state => state.connectedWallet?.supportedChainIds ?? [],
     selectAccountIdsByWalletId: state => state.wallet.byId,
     selectWalletIds: state => state.wallet.ids,
+    selectAccountBalancesById: state => state.accountBalances.byId,
+    selectEnabledAccountIds: state => state.enabledAccountIds,
   },
 })
 

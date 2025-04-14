@@ -1,4 +1,3 @@
-import type { QuoteId } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
@@ -7,7 +6,7 @@ import { PriceDirection } from '../limitOrderInputSlice/constants'
 import { selectAssets, selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../selectors'
 import { calcLimitPriceTargetAsset } from './helpers'
 import { limitOrderSlice } from './limitOrderSlice'
-import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
+import type { LimitOrderSubmissionMetadata } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
@@ -186,8 +185,7 @@ export const selectActiveQuoteLimitPrice = createSelector(
 export const selectConfirmedLimitOrder = createSelector(
   limitOrderSlice.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
-  (limitOrderSlice: LimitOrderState, quoteId: QuoteId) =>
-    limitOrderSlice.confirmedLimitOrder[quoteId],
+  (limitOrderSlice, quoteId) => limitOrderSlice.confirmedLimitOrder[quoteId],
 )
 
 export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(

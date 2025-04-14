@@ -10,13 +10,9 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-
-import { selectTxIdsByFilter } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -25,11 +21,9 @@ const NotificationCenterIcon = <Icon as={TbBellFilled} />
 export const NotificationCenter = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
   const translate = useTranslate()
-  const filter = useMemo(() => ({ txStatus: TxStatus.Pending }), [])
-  const pendingTxIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
-  const hasPendingTxs = useMemo(() => pendingTxIds.length > 0, [pendingTxIds])
   const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
   const handleClose = useCallback(() => setIsOpen(false), [])
+  const hasPendingTxs = true
   return (
     <>
       <Box position='relative'>
@@ -40,7 +34,7 @@ export const NotificationCenter = memo(() => {
         />
         <Circle
           position='absolute'
-          size='18px'
+          size='10px'
           fontSize='12px'
           fontWeight='bold'
           bg='blue.500'
@@ -50,9 +44,7 @@ export const NotificationCenter = memo(() => {
           opacity={hasPendingTxs ? 1 : 0}
           transitionProperty='common'
           transitionDuration='normal'
-        >
-          {pendingTxIds.length}
-        </Circle>
+        />
       </Box>
       <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />

@@ -29,6 +29,7 @@ type SweepProps = {
   protocolName?: string
   onBack?: () => void
   onSweepSeen: () => void
+  requiredConfirmations?: number
 }
 
 export const Sweep = ({
@@ -38,6 +39,7 @@ export const Sweep = ({
   protocolName,
   onBack,
   onSweepSeen: handleSwepSeen,
+  requiredConfirmations,
 }: SweepProps) => {
   const [isSweepPending, setIsSweepPending] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -115,9 +117,16 @@ export const Sweep = ({
       const utxos = await adapter.getUtxos({
         pubkey: fromAddress,
       })
-      if (utxos.some(utxo => utxo.txid === txId)) handleSwepSeen()
+      if (
+        utxos.some(
+          utxo =>
+            utxo.txid === txId &&
+            (!requiredConfirmations || utxo.confirmations >= requiredConfirmations),
+        )
+      )
+        handleSwepSeen()
     })()
-  }, [adapter, fromAddress, handleSwepSeen, txId])
+  }, [adapter, fromAddress, handleSwepSeen, requiredConfirmations, txId])
 
   if (!asset) return null
 

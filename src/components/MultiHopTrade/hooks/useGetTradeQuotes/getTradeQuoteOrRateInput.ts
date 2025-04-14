@@ -5,13 +5,12 @@ import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
   LifiTradeQuote,
+  SwapperName,
   TradeRate,
 } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -39,7 +38,6 @@ export type GetTradeQuoteOrRateInputArgs = {
   receiveAddress: string | undefined
   sellAccountNumber: number | undefined
   wallet: HDWallet | undefined
-  swapperName?: SwapperName
 }
 
 export const getTradeQuoteOrRateInput = async ({
@@ -57,7 +55,6 @@ export const getTradeQuoteOrRateInput = async ({
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
-  swapperName,
 }: GetTradeQuoteOrRateInputArgs): Promise<GetTradeQuoteInput | GetTradeRateInput> => {
   const tradeQuoteInputCommonArgs =
     quoteOrRate === 'quote' && receiveAddress && sellAccountNumber !== undefined
@@ -167,30 +164,12 @@ export const getTradeQuoteOrRateInput = async ({
         pubKey ??
         (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
 
-      const sendAddress = await (async () => {
-        if (swapperName === SwapperName.Relay) {
-          const account = await sellAssetChainAdapter.getAccount(xpub)
-
-          if (!account.chainSpecific.addresses) throw new Error('No addresses found')
-
-          const addressWithEnoughBalance = account.chainSpecific.addresses.find(address => {
-            return bnOrZero(address.balance).gte(
-              tradeQuoteInputCommonArgs.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            )
-          })
-
-          return addressWithEnoughBalance?.pubkey
-        }
-
-        const nextReceiveAddress = await sellAssetChainAdapter.getAddress({
-          accountNumber: sellAccountNumber,
-          wallet,
-          accountType: sellAccountType,
-          pubKey,
-        })
-
-        return nextReceiveAddress
-      })()
+      const sendAddress = await sellAssetChainAdapter.getAddress({
+        accountNumber: sellAccountNumber,
+        wallet,
+        accountType: sellAccountType,
+        pubKey,
+      })
 
       // This is closer to a quote input than a rate input with those BIP44 params, but we do need the xpub here for fees estimation
       return {

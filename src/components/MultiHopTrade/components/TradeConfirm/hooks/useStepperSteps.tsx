@@ -13,7 +13,6 @@ import {
   selectActiveQuote,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from '@/state/store'
 
 export const useStepperSteps = () => {
@@ -59,12 +58,6 @@ export const useStepperSteps = () => {
       lastHopPermit2,
       lastHopAllowanceReset,
       isMultiHopTrade,
-      firstHopSweep: {
-        state: TransactionExecutionState.Pending,
-        txHash: undefined,
-        isInitiallyRequired: true,
-        isRequired: true,
-      },
     }),
     [
       firstHopAllowanceApproval,

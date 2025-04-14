@@ -6,8 +6,6 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { TradeRoutePaths } from '../../types'
-
 import { SlideTransition } from '@/components/SlideTransition'
 import { Sweep } from '@/components/Sweep'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -34,7 +32,7 @@ export const MultiHopSweep = () => {
   )
 
   const { data: fromAddress } = useQuery({
-    queryKey: ['utxoReceiveAddress', sellAccountId],
+    queryKey: ['utxoNextReceiveAddress', sellAccountId],
     queryFn:
       wallet && accountMetadata
         ? async () => {
@@ -63,12 +61,12 @@ export const MultiHopSweep = () => {
 
   useEffect(() => {
     if (!isConnected) {
-      navigate(TradeRoutePaths.Input)
+      navigate('/trade/input')
     }
   }, [navigate, isConnected])
 
   const handleSweepSeen = useCallback(() => {
-    navigate(TradeRoutePaths.Confirm)
+    navigate('/trade/confirm')
   }, [navigate])
 
   if (!isConnected) return null
@@ -84,6 +82,7 @@ export const MultiHopSweep = () => {
           accountId={sellAccountId}
           protocolName={SwapperName.Relay}
           onSweepSeen={handleSweepSeen}
+          requiredConfirmations={1}
         />
       </Card>
     </SlideTransition>

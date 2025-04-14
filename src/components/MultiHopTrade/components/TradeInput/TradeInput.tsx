@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
@@ -29,7 +29,7 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
-import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -54,6 +54,7 @@ import {
   selectFirstHopSellAccountId,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
+  selectInputSellAmountCryptoBaseUnit,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
@@ -128,6 +129,7 @@ export const TradeInput = ({
 
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
@@ -180,13 +182,14 @@ export const TradeInput = ({
   )
 
   const { data: fromAddress } = useQuery({
-    queryKey: ['utxoReceiveAddress', sellAccountId, sellAmountCryptoPrecision],
+    queryKey: ['swapRelayUtxoAddress', sellAccountId, sellAmountCryptoBaseUnit],
     queryFn:
-      wallet && accountMetadata && sellAccountId && sellAmountCryptoPrecision
+      wallet && accountMetadata && sellAccountId && sellAmountCryptoBaseUnit
         ? async () => {
             if (!accountMetadata) throw new Error('No account metadata found')
             if (!sellAccountId) throw new Error('No sell account id found')
 
+            const bip44Params = accountMetadata.bip44Params
             const accountType = accountMetadata.accountType
             const chainId = fromAssetId(sellAsset.assetId).chainId
             const sellAccountNumber = selectAccountNumberByAccountId(store.getState(), {
@@ -207,8 +210,22 @@ export const TradeInput = ({
             if (!account.chainSpecific.addresses) throw new Error('No addresses found')
 
             const addressWithEnoughBalance = account.chainSpecific.addresses.find(address => {
-              return bnOrZero(address.balance).gte(sellAmountCryptoPrecision)
+              return bnOrZero(address.balance).gte(sellAmountCryptoBaseUnit)
             })
+
+            if (!addressWithEnoughBalance) {
+              const nextReceiveAddress = await sellAssetChainAdapter.getAddress({
+                wallet,
+                accountNumber: bip44Params.accountNumber,
+                accountType,
+                pubKey:
+                  isLedger(wallet) && sellAccountId
+                    ? fromAccountId(sellAccountId).account
+                    : undefined,
+              })
+
+              return nextReceiveAddress
+            }
 
             return addressWithEnoughBalance?.pubkey
           }
@@ -394,7 +411,7 @@ export const TradeInput = ({
         isSweepNeeded &&
         !isSweepNeededLoading
       ) {
-        navigate({ pathname: TradeRoutePaths.Sweep })
+        navigate('/trade/sweep')
         setIsConfirmationLoading(false)
         return
       }

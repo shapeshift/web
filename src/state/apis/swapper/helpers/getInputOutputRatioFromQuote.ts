@@ -66,7 +66,8 @@ const _getTotalNetworkFeeUsdPrecision = (
     const feeAsset = selectFeeAssetById(state, feeAssetId)
     if (feeAsset === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
     const feeAssetMarketData = marketDataUsd[feeAsset.assetId]
-    if (feeAssetMarketData === undefined) throw Error(`missing market data for assetId ${feeAssetId}`)
+    if (feeAssetMarketData === undefined)
+      throw Error(`missing market data for assetId ${feeAssetId}`)
     return feeAssetMarketData.price
   }
 

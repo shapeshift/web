@@ -16,7 +16,6 @@ import {
   selectMarketDataUserCurrency,
 } from './marketDataSlice/selectors'
 import { portfolio } from './portfolioSlice/portfolioSlice'
-import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { preferences } from './preferencesSlice/preferencesSlice'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -33,9 +32,9 @@ import {
 export const selectWalletId = portfolio.selectors.selectWalletId
 export const selectWalletName = portfolio.selectors.selectWalletName
 
-export const selectEnabledAccountIds = createDeepEqualOutputSelector(
+export const selectWalletEnabledAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
-  (state: ReduxState) => state.portfolio.enabledAccountIds,
+  portfolio.selectors.selectEnabledAccountIds,
   (walletId, enabledAccountIds) => {
     if (!walletId) return []
     return enabledAccountIds[walletId] ?? []
@@ -44,8 +43,8 @@ export const selectEnabledAccountIds = createDeepEqualOutputSelector(
 
 export const selectEnabledWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
-  (state: ReduxState) => state.portfolio.wallet.byId,
-  selectEnabledAccountIds,
+  portfolio.selectors.selectAccountIdsByWalletId,
+  selectWalletEnabledAccountIds,
   (walletId, walletById, enabledAccountIds): AccountId[] => {
     const walletAccountIds = (walletId && walletById[walletId]) ?? []
     return walletAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
@@ -80,7 +79,7 @@ export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
 
 export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
+  portfolio.selectors.selectAccountBalancesById,
   (walletAccountIds, accountBalancesById) =>
     pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
       walletAccountIds.includes(accountId),

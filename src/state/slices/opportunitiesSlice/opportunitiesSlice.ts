@@ -76,8 +76,10 @@ export const opportunities = createSlice({
   selectors: {
     selectLpOpportunitiesById: state => state.lp.byId,
     selectStakingOpportunitiesById: state => state.staking.byId,
+    selectUserStakingOpportunitiesById: state => state.userStaking.byId,
     selectUserStakingIds: state => state.userStaking.ids,
     selectStakingByAccountId: state => state.staking.byAccountId,
+    selectStakingIds: state => state.staking.ids,
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })

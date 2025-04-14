@@ -745,7 +745,6 @@
       "success": {
         "encryptingWallet": "Mengenkripsi dompet Anda... jika browser Anda meminta untuk menyimpan data di penyimpanan persisten, silakan klik 'Izinkan'.",
         "header": "Dompet Terhubung",
-        "success": "Anda sekarang dapat menutup jendela ini atau akan segera ditutup secara otomatis",
         "error": "Terjadi kesalahan saat menghubungkan dompet Anda"
       },
       "testPhrase": {

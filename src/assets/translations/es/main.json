@@ -1644,7 +1644,6 @@
       },
       "success": {
         "header": "Ledger Conectada",
-        "success": "Cierra esta ventana o se cerrará automáticamente en breve",
         "error": "Hubo un error al conectar tu billetera"
       },
       "errors": {
@@ -1829,7 +1828,6 @@
       "success": {
         "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, clic en 'Permitir'.",
         "header": "Billetera Conectado",
-        "success": "Puede cerrar esta ventana o se cerrará automáticamente",
         "error": "Hubo un error al conectar tu billetera"
       },
       "testPhrase": {
@@ -2561,7 +2559,6 @@
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
     "unsupportedNetworkExplainer": "Tu billetera no está conectada a %{network}. Conecte esta cadena o cambie a una billetera que admita esta red.",
     "unsupportedNetworksExplainer": "Tu billetera no está conectada a %{network1} y %{network2}. Conecte esta cadena o cambie a una billetera que admita estas redes.",
-    "instabilityWarning": "Actualmente, usuarios están recibiendo reembolsos al realizar depósitos en pools THORChain. Proceda con precaución.",
     "shareOfPool": "Participación de Pool",
     "assetDepositAmount": "%{asset} Monto de Depósito",
     "totalLiquidity": "Liquidez Total",

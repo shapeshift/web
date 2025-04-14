@@ -1644,7 +1644,6 @@
       },
       "success": {
         "header": "Ledger connecté",
-        "success": "Vous pouvez fermer cette fenêtre maintenant ou elle se fermera automatiquement dans un instant",
         "error": "Une erreur s'est produite lors de la connexion de votre porte-monnaie"
       },
       "errors": {
@@ -1829,7 +1828,6 @@
       "success": {
         "encryptingWallet": "Cryptage de votre porte-monnaie... si votre navigateur vous demande de stocker des données dans une mémoire persistante, veuillez cliquer sur 'Autoriser'.",
         "header": "Porte-monnaie connecté",
-        "success": "Vous pouvez maintenant fermer cette fenêtre ou elle se fermera automatiquement sous peu",
         "error": "Une erreur s'est produite lors de la connexion de votre porte-monnaie"
       },
       "testPhrase": {
@@ -2561,7 +2559,6 @@
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
     "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
-    "instabilityWarning": "Les utilisateurs sont actuellement confrontés à des remboursements lors des dépôts dans les pools THORChain. Veuillez procéder avec prudence.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",

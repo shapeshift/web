@@ -4,23 +4,21 @@ import { localWalletSlice } from './localWalletSlice'
 
 import type { KeyManager } from '@/context/WalletProvider/KeyManager'
 
-const selectLocalWalletState = localWalletSlice.selectSlice
-
 export const selectWalletType = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): KeyManager | null => localWalletState.walletType,
 )
 
 export const selectWalletDeviceId = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.walletDeviceId,
 )
 
 export const selectNativeWalletName = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.nativeWalletName,
 )
 export const selectWalletRdns = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.rdns,
 )

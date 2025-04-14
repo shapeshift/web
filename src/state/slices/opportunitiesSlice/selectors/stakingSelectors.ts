@@ -45,9 +45,6 @@ import {
   selectValidatorIdParamFromFilter,
 } from '@/state/selectors'
 
-export const selectStakingOpportunitiesById = (state: ReduxState) =>
-  state.opportunities.staking.byId
-
 export const selectStakingIds = createDeepEqualOutputSelector(
   (state: ReduxState) => state.opportunities.staking.ids,
   ids => ids,

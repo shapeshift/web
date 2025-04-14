@@ -97,7 +97,7 @@ const selectMatchingAssetsParamFromFilter = (_state: ReduxState, filter: TxHisto
 
 const selectWalletTxIdsByAccountIdAssetId = createSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
+  txHistory.selectors.selectTxIdsByAccountIdAssetId,
   (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )

@@ -5,7 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useQuery } from '@tanstack/react-query'
 import pDebounce from 'p-debounce'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { getConfig } from '@/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -80,15 +80,7 @@ export const useIsSnapInstalled = (): {
     gcTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  const data = useMemo(
-    () => ({
-      isSnapInstalled: snapInstallation.isSnapInstalled,
-      isCorrectVersion: snapInstallation.isCorrectVersion,
-    }),
-    [snapInstallation],
-  )
-
-  return data
+  return snapInstallation
 }
 
 export const canAddMetaMaskAccount = ({

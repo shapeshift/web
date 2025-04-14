@@ -70,3 +70,5 @@ export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
 }
 
 export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
+
+export const MINIMUM_RELAY_CONFIRMATIONS_UTXO = 1

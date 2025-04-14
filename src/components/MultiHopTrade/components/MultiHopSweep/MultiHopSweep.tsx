@@ -3,6 +3,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { MINIMUM_RELAY_CONFIRMATIONS_UTXO } from 'packages/swapper/src/swappers/RelaySwapper/constant'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -71,18 +72,17 @@ export const MultiHopSweep = () => {
 
   if (!isConnected) return null
 
-  if (!fromAddress) return null
-
   return (
     <SlideTransition>
       <Card width='full' maxWidth='500px' px={6}>
         <Sweep
           assetId={sellAsset.assetId}
-          fromAddress={fromAddress}
+          fromAddress={fromAddress ?? ''}
+          isLoading={!fromAddress}
           accountId={sellAccountId}
           protocolName={SwapperName.Relay}
           onSweepSeen={handleSweepSeen}
-          requiredConfirmations={1}
+          requiredConfirmations={MINIMUM_RELAY_CONFIRMATIONS_UTXO}
         />
       </Card>
     </SlideTransition>

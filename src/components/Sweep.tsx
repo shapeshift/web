@@ -30,6 +30,7 @@ type SweepProps = {
   onBack?: () => void
   onSweepSeen: () => void
   requiredConfirmations?: number
+  isLoading?: boolean
 }
 
 export const Sweep = ({
@@ -40,6 +41,7 @@ export const Sweep = ({
   onBack,
   onSweepSeen: handleSwepSeen,
   requiredConfirmations,
+  isLoading,
 }: SweepProps) => {
   const [isSweepPending, setIsSweepPending] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -193,12 +195,12 @@ export const Sweep = ({
           <Stack justifyContent='space-between'>
             <Button
               onClick={handleSweep}
-              disabled={isEstimatedFeesDataLoading || isSweepPending}
+              disabled={isEstimatedFeesDataLoading || isSweepPending || !fromAddress || isLoading}
               size='lg'
               colorScheme={'blue'}
               width='full'
               data-test='utxo-sweep-button'
-              isLoading={isEstimatedFeesDataLoading || isSweepPending}
+              isLoading={isEstimatedFeesDataLoading || isSweepPending || isLoading}
               loadingText={translate('common.loadingText')}
             >
               {translate('modals.send.consolidate.consolidateFunds')}

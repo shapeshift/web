@@ -5,7 +5,6 @@ import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
   LifiTradeQuote,
-  SwapperName,
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'

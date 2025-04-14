@@ -10,9 +10,9 @@ import { createSelector } from 'reselect'
 
 import { selectAssets, selectAssetsSortedByMarketCap } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
+import { marketData } from './marketDataSlice/marketDataSlice'
 import {
   selectMarketDataByAssetIdUserCurrency,
-  selectMarketDataUsd,
   selectMarketDataUserCurrency,
 } from './marketDataSlice/selectors'
 import { portfolio } from './portfolioSlice/portfolioSlice'
@@ -185,7 +185,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
   createDeepEqualOutputSelector(
     selectAssets,
     selectPortfolioUserCurrencyBalances,
-    selectMarketDataUsd,
+    marketData.selectors.selectMarketDataUsd,
     (assets, portfolioUserCurrencyBalances, marketDataUsd) => {
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
@@ -209,7 +209,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndN
     selectAssets,
     selectPortfolioAssetBalancesBaseUnit,
     selectPortfolioUserCurrencyBalances,
-    selectMarketDataUsd,
+    marketData.selectors.selectMarketDataUsd,
     (assets, portfolioBalancesCryptoBaseUnit, portfolioBalancesUserCurrency, marketDataUsd) => {
       const getAssetBalanceCryptoPrecision = (asset: Asset) =>
         fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
@@ -263,7 +263,7 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
 
 export const selectHighestMarketCapFeeAsset = createSelector(
   selectWalletConnectedChainIds,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectAssets,
   (walletChainIds, marketDataUsd, assetsById): Asset | undefined => {
     const feeAssets = walletChainIds.map(chainId => getFeeAssetByChainId(assetsById, chainId))
@@ -290,7 +290,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   selectAssetsSortedByMarketCap,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
   (
     sortedAssets: Asset[],

@@ -15,8 +15,6 @@ import { selectAssetIdParamFromFilter } from '@/state/selectors'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
-export const selectMarketDataUsd = marketData.selectors.selectMarketDataUsd
-
 export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
   marketData.selectors.selectMarketDataUsd,
   marketData.selectors.selectMarketDataIdsSortedByMarketCapUsd,

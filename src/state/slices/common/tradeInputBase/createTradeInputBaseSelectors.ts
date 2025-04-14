@@ -5,7 +5,8 @@ import {
   selectEnabledWalletAccountIds,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '../../common-selectors'
-import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
+import { marketData } from '../../marketDataSlice/marketDataSlice'
+import { selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectPortfolioAccountMetadata,
@@ -59,7 +60,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
 
   const selectInputSellAssetUsdRate = createSelector(
     selectInputSellAsset,
-    selectMarketDataUsd,
+    marketData.selectors.selectMarketDataUsd,
     (sellAsset, marketDataUsd) => {
       if (sellAsset === undefined) return
       return marketDataUsd[sellAsset.assetId]?.price
@@ -68,7 +69,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
 
   const selectInputBuyAssetUsdRate = createSelector(
     selectInputBuyAsset,
-    selectMarketDataUsd,
+    marketData.selectors.selectMarketDataUsd,
     (buyAsset, marketDataUsd) => {
       if (buyAsset === undefined) return
       return marketDataUsd[buyAsset.assetId]?.price

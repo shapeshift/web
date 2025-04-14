@@ -3,7 +3,8 @@ import { createSelector } from 'reselect'
 
 import { getFeeAssetByAssetId } from '../assetsSlice/utils'
 import { PriceDirection } from '../limitOrderInputSlice/constants'
-import { selectAssets, selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../selectors'
+import { marketData } from '../marketDataSlice/marketDataSlice'
+import { selectAssets, selectUserCurrencyToUsdRate } from '../selectors'
 import { calcLimitPriceTargetAsset } from './helpers'
 import { limitOrderSlice } from './limitOrderSlice'
 import type { LimitOrderSubmissionMetadata } from './types'
@@ -108,7 +109,7 @@ export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
 
 export const selectActiveQuoteSellAssetRateUserCurrency = createSelector(
   selectActiveQuoteSellAsset,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   (asset, marketDataUsd, userCurrencyToUsdRate) => {
     const usdRate = marketDataUsd[asset?.assetId ?? '']?.price
@@ -118,7 +119,7 @@ export const selectActiveQuoteSellAssetRateUserCurrency = createSelector(
 
 export const selectActiveQuoteBuyAssetRateUserCurrency = createSelector(
   selectActiveQuoteBuyAsset,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   (asset, marketDataUsd, userCurrencyToUsdRate) => {
     const usdRate = marketDataUsd[asset?.assetId ?? '']?.price
@@ -128,7 +129,7 @@ export const selectActiveQuoteBuyAssetRateUserCurrency = createSelector(
 
 export const selectActiveQuoteFeeAssetRateUserCurrency = createSelector(
   selectActiveQuoteFeeAsset,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   (asset, marketDataUsd, userCurrencyToUsdRate) => {
     const usdRate = marketDataUsd[asset?.assetId ?? '']?.price

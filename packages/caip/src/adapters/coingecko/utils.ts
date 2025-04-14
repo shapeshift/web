@@ -26,6 +26,7 @@ import {
   gnosisAssetId,
   gnosisChainId,
   ltcChainId,
+  mayachainChainId,
   optimismAssetId,
   optimismChainId,
   polygonAssetId,
@@ -40,6 +41,7 @@ import {
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
+  mayachainAssetMap,
   thorchainAssetMap,
 } from '../../utils'
 import { CoingeckoAssetPlatform } from '.'
@@ -220,6 +222,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [ltcChainId]: litecoinAssetMap,
     [cosmosChainId]: cosmosAssetMap,
     [thorchainChainId]: thorchainAssetMap,
+    [mayachainChainId]: mayachainAssetMap,
   }
 }
 

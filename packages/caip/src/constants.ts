@@ -47,6 +47,7 @@ export const foxWifHatAssetId: AssetId =
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'
+export const mayachainAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:931'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
 
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
@@ -66,6 +67,7 @@ export const baseChainId: ChainId = 'eip155:8453'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
+export const mayachainChainId: ChainId = 'cosmos:mayachain-mainnet-v1'
 export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 
 export const solanaChainId: ChainId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
@@ -89,6 +91,7 @@ export const CHAIN_REFERENCE = {
   LitecoinMainnet: '12a765e31ffd4059bada1e25190f6e98',
   CosmosHubMainnet: 'cosmoshub-4',
   ThorchainMainnet: 'thorchain-1',
+  MayachainMainnet: 'mayachain-mainnet-v1',
   BinanceMainnet: 'binance-chain-tigris', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
   OptimismMainnet: '10', //https://community.optimism.io/docs/useful-tools/networks/#optimism-mainnet
@@ -120,6 +123,7 @@ export const ASSET_REFERENCE = {
   Dogecoin: '3',
   Cosmos: '118',
   Thorchain: '931',
+  Mayachain: '931',
   Binance: '714',
   Ethereum: '60',
   AvalancheC: '60', // evm chain which uses ethereum derivation path as common practice
@@ -154,6 +158,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
     CHAIN_REFERENCE.ThorchainMainnet,
+    CHAIN_REFERENCE.MayachainMainnet,
     CHAIN_REFERENCE.BinanceMainnet,
   ],
   [CHAIN_NAMESPACE.Solana]: [CHAIN_REFERENCE.SolanaMainnet],
@@ -185,6 +190,7 @@ export const FEE_ASSET_IDS = [
   bchAssetId,
   cosmosAssetId,
   thorchainAssetId,
+  mayachainAssetId,
   dogeAssetId,
   ltcAssetId,
   avalancheAssetId,

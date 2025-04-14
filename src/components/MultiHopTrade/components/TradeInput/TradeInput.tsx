@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
@@ -184,7 +184,7 @@ export const TradeInput = ({
   const { data: fromAddress } = useQuery({
     queryKey: ['swapRelayUtxoAddress', sellAccountId, sellAmountCryptoBaseUnit],
     queryFn:
-      wallet && accountMetadata && sellAccountId && sellAmountCryptoBaseUnit
+      wallet && accountMetadata && sellAccountId && sellAmountCryptoBaseUnit && !isLedger(wallet)
         ? async () => {
             if (!accountMetadata) throw new Error('No account metadata found')
             if (!sellAccountId) throw new Error('No sell account id found')
@@ -218,10 +218,6 @@ export const TradeInput = ({
                 wallet,
                 accountNumber: bip44Params.accountNumber,
                 accountType,
-                pubKey:
-                  isLedger(wallet) && sellAccountId
-                    ? fromAccountId(sellAccountId).account
-                    : undefined,
               })
 
               return nextReceiveAddress

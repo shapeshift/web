@@ -13,6 +13,7 @@ import type { ReduxState } from '@/state/reducer'
 import { selectFeeModelParamFromFilter } from '@/state/selectors'
 import { selectPortfolioAssetBalancesBaseUnit } from '@/state/slices/common-selectors'
 import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
+import { snapshot } from './snapshot'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
 
@@ -26,10 +27,8 @@ export const selectIsSnapshotApiQueriesRejected = createSelector(
     !Object.values(queries).some(query => query?.status === QueryStatus.fulfilled),
 )
 
-export const selectVotingPowerByModel = (state: ReduxState) => state.snapshot.votingPowerByModel
-
 export const selectVotingPower = createSelector(
-  selectVotingPowerByModel,
+  snapshot.selectors.selectVotingPowerByModel,
   selectFeeModelParamFromFilter,
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,
@@ -44,11 +43,15 @@ export const selectVotingPower = createSelector(
   },
 )
 
-export const selectThorchainLpVotingPower = (state: ReduxState) =>
-  state.snapshot.votingPowerByModel['THORCHAIN_LP']
+export const selectThorchainLpVotingPower = createSelector(
+  snapshot.selectors.selectVotingPowerByModel,
+  votingPowerByModel => votingPowerByModel['THORCHAIN_LP']
+)
 
-export const selectSwapperVotingPower = (state: ReduxState) =>
-  state.snapshot.votingPowerByModel['SWAPPER']
+export const selectSwapperVotingPower = createSelector(
+  snapshot.selectors.selectVotingPowerByModel,
+  votingPowerByModel => votingPowerByModel['SWAPPER']
+)
 
 type AffiliateFeesProps = {
   feeModel: ParameterModel

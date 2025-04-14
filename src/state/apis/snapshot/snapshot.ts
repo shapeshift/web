@@ -60,6 +60,9 @@ export const snapshot = createSlice({
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
+  selectors: {
+    selectVotingPowerByModel: state => state.votingPowerByModel,
+  },
 })
 
 export const snapshotApi = createApi({

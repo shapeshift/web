@@ -31,7 +31,6 @@ import {
   selectAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-  selectSelectedLocale,
   selectWalletId,
 } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -101,7 +100,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Master hook for accounts fetch as a react-query
   useAccountsFetchQuery()
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {
     if (selectedLocale in LanguageTypeEnum) {
       void import(`dayjs/locale/${selectedLocale}.js`)

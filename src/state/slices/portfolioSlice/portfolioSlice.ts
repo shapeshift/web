@@ -178,6 +178,7 @@ export const portfolio = createSlice({
     selectIsWalletConnected: state => state.connectedWallet !== undefined,
     selectWalletSupportedChainIds: state => state.connectedWallet?.supportedChainIds ?? [],
     selectAccountIdsByWalletId: state => state.wallet.byId,
+    selectWalletIds: state => state.wallet.ids,
   },
 })
 

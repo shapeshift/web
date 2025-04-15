@@ -2,9 +2,10 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { useCallback, useMemo, useState } from 'react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -15,13 +16,19 @@ import { Status } from './views/Status'
 
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { SlideTransition } from '@/components/SlideTransition'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
-} from '@/state/slices/selectors'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+
+const status = <Status />
+const confirm = <Confirm />
+const details = <Details />
+const address = <Address />
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
@@ -50,11 +57,13 @@ type SendFormProps = {
   input?: string
 }
 
+const selectRedirect = <Navigate to={SendRoutes.Select} replace />
+
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
-  const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const mixpanel = getMixPanel()
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
 
@@ -73,34 +82,43 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       txHash: '',
     },
   })
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
+    control: methods.control,
+  })
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
+      mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
-      history.push(SendRoutes.Status)
+      navigate(SendRoutes.Status)
     },
-    [handleFormSend, history, methods],
+    [handleFormSend, navigate, methods, mixpanel],
   )
 
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
+      // Set all form values
       methods.setValue(SendFormFields.AssetId, assetId)
       methods.setValue(SendFormFields.AccountId, '')
       methods.setValue(SendFormFields.AmountCryptoPrecision, '')
       methods.setValue(SendFormFields.FiatAmount, '')
       methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
-      history.push(SendRoutes.Address)
+      // Use requestAnimationFrame to ensure navigation happens after state updates
+      requestAnimationFrame(() => {
+        navigate(SendRoutes.Address, { replace: true })
+      })
     },
-    [history, methods, selectedCurrency],
+    [navigate, methods, selectedCurrency],
   )
 
   const handleBack = useCallback(() => {
     setAddressError(null)
-    history.goBack()
-  }, [history])
+    navigate(-1)
+  }, [navigate])
 
   const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') event.preventDefault()
@@ -136,19 +154,27 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           )
         }
 
-        history.push(SendRoutes.Address)
+        navigate(SendRoutes.Address)
       } catch (e: any) {
         setAddressError(e.message)
       }
     },
-    [history, methods],
+    [navigate, methods],
   )
 
-  useEffect(() => {
-    if (!initialAssetId) {
-      history.push(SendRoutes.Select)
-    }
-  }, [history, initialAssetId])
+  const qrCodeScanner = useMemo(
+    () => (
+      <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleBack} addressError={addressError} />
+    ),
+    [addressError, handleBack, handleQrSuccess],
+  )
+
+  const selectAssetRouter = useMemo(
+    () => <SelectAssetRouter onClick={handleAssetSelect} />,
+    [handleAssetSelect],
+  )
+
+  const location = useLocation()
 
   return (
     <FormProvider {...methods}>
@@ -159,31 +185,20 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         onKeyDown={checkKeyDown}
       >
         <AnimatePresence mode='wait' initial={false}>
-          <Switch location={location} key={location.key}>
-            <Route path={SendRoutes.Select}>
-              <SelectAssetRouter onClick={handleAssetSelect} />
-            </Route>
-            <Route path={SendRoutes.Address}>
-              <Address />
-            </Route>
-            <Route path={SendRoutes.Details}>
-              <Details />
-            </Route>
-            <Route path={SendRoutes.Scan}>
-              <QrCodeScanner
-                onSuccess={handleQrSuccess}
-                onBack={handleBack}
-                addressError={addressError}
-              />
-            </Route>
-            <Route path={SendRoutes.Confirm}>
-              <Confirm />
-            </Route>
-            <Route path={SendRoutes.Status}>
-              <Status />
-            </Route>
-            <Redirect exact from='/' to={SendRoutes.Select} />
-          </Switch>
+          {/* Instead of a redirect which would produce a flash of content, we simply render the select route in place of <Switch />ing here */}
+          {!initialAssetId && !assetId ? (
+            <SlideTransition className='flex flex-col h-full'>{selectAssetRouter}</SlideTransition>
+          ) : (
+            <Switch location={location.pathname}>
+              <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
+              <Route path={SendRoutes.Address}>{address}</Route>
+              <Route path={SendRoutes.Details}> {details}</Route>
+              <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
+              <Route path={SendRoutes.Confirm}>{confirm}</Route>
+              <Route path={SendRoutes.Status}>{status}</Route>
+              <Route path='/'>{selectRedirect}</Route>
+            </Switch>
+          )}
         </AnimatePresence>
       </form>
     </FormProvider>

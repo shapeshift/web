@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@cha
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { WalletCard } from './WalletCard'
 
@@ -29,7 +29,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
   const { dispatch, getAdapter, state } = useWallet()
   const { walletInfo } = state
   const localWallet = useLocalWallet()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
 
@@ -103,16 +103,16 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
 
   const handleRename = useCallback(
     (wallet: RevocableWallet) => {
-      history.push(MobileWalletDialogRoutes.Rename, { vault: wallet })
+      navigate(MobileWalletDialogRoutes.Rename, { state: { vault: wallet } })
     },
-    [history],
+    [navigate],
   )
 
   const handleDelete = useCallback(
     (wallet: RevocableWallet) => {
-      history.push(MobileWalletDialogRoutes.Delete, { vault: wallet })
+      navigate(MobileWalletDialogRoutes.Delete, { state: { vault: wallet } })
     },
-    [history],
+    [navigate],
   )
 
   useEffect(() => {

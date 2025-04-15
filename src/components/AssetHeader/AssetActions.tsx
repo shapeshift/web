@@ -6,7 +6,7 @@ import { ethAssetId, isNft } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
@@ -15,6 +15,8 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -57,7 +59,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   cryptoBalance,
   isMobile,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
@@ -65,6 +67,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const receive = useModal('receive')
   const fiatRamps = useModal('fiatRamps')
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     state: { isConnected },
     dispatch,
@@ -83,10 +86,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
-  const handleSendClick = useCallback(
-    () => (isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()),
-    [accountId, assetId, handleWalletModalOpen, isConnected, send],
-  )
+  const handleSendClick = useCallback(() => {
+    if (!isConnected) return handleWalletModalOpen()
+    mixpanel?.track(MixPanelEvent.SendClick)
+    send.open({ assetId, accountId })
+  }, [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send])
   const handleReceiveClick = useCallback(
     () => (isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()),
     [accountId, asset, handleWalletModalOpen, isConnected, receive],
@@ -102,8 +106,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   }, [accountId, assetId, assetSupportsBuy, fiatRamps])
 
   const handleTradeClick = useCallback(() => {
-    history.push(`/trade/${assetId}`)
-  }, [assetId, history])
+    navigate(`/trade/${assetId}`)
+  }, [assetId, navigate])
 
   if (isMobile) {
     return (

@@ -31,7 +31,6 @@ import {
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
-  selectQuoteSortOption,
   selectSortedTradeQuotes,
   selectUserAvailableTradeQuotes,
   selectUserUnavailableTradeQuotes,
@@ -72,7 +71,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const bestTotalReceiveAmountCryptoPrecision = useAppSelector(
     selectBuyAmountAfterFeesCryptoPrecision,
   )
-  const sortOption = useAppSelector(selectQuoteSortOption)
+  const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
   const shouldUseComisSansMs = useMemo(() => {
     return buyAsset?.assetId === dogeAssetId || sellAsset?.assetId === dogeAssetId

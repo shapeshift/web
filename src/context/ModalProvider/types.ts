@@ -6,7 +6,7 @@ import type { BackupPassphraseModalProps } from '@/components/Layout/Header/NavB
 import type { AssetSearchModalProps } from '@/components/Modals/AssetSearch/AssetSearchModal'
 import type { FiatRampsModalProps } from '@/components/Modals/FiatRamps/FiatRampsModal'
 import type { LedgerOpenAppModalProps } from '@/components/Modals/LedgerOpenApp/LedgerOpenAppModal'
-import type { NftModalProps } from '@/components/Modals/Nfts/NftModal'
+import type { NativeOnboardingModalProps } from '@/components/Modals/NativeOnboarding/NativeOnboarding'
 import type { PopupWindowModalProps } from '@/components/Modals/PopupWindowModal'
 import type { QrCodeModalProps } from '@/components/Modals/QrCode/QrCode'
 import type { RateChangedModalProps } from '@/components/Modals/RateChanged/RateChanged'
@@ -31,8 +31,7 @@ export type Modals = {
   buyTradeAssetSearch: FC<TradeAssetSearchModalProps>
   sellTradeAssetSearch: FC<TradeAssetSearchModalProps>
   popup: FC<PopupWindowModalProps>
-  nativeOnboard: FC
-  nft: FC<NftModalProps>
+  nativeOnboard: FC<NativeOnboardingModalProps>
   feedbackSupport: FC
   snaps: FC<SnapsModalProps>
   manageAccounts: FC

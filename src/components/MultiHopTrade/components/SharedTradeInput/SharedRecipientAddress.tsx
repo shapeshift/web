@@ -184,7 +184,10 @@ export const SharedRecipientAddress = ({
       validate: {
         validateAddress: async (rawInput: string) => {
           try {
+            if (rawInput === '') return
+
             const value = rawInput.trim() // trim leading/trailing spaces
+            // Don't go invalid on initial empty string
             // this does not throw, everything inside is handled
             const parseAddressInputWithChainIdArgs = {
               assetId: buyAssetAssetId,
@@ -269,7 +272,7 @@ export const SharedRecipientAddress = ({
             <AddressInput
               rules={rules}
               placeholder={translate('trade.enterCustomRecipientAddress')}
-              pe={16}
+              pe={20}
             />
             <InputRightElement
               width='full'

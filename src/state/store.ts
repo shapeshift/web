@@ -1,4 +1,4 @@
-import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { persistStore } from 'redux-persist'
@@ -8,7 +8,6 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
-import { nftApi } from './apis/nft/nftApi'
 import { portals, portalsApi } from './apis/portals/portalsApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
@@ -36,7 +35,6 @@ const apiMiddleware = [
   snapshotApi.middleware,
   portals.middleware,
   portalsApi.middleware,
-  nftApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
   limitOrderApi.middleware,
@@ -51,9 +49,9 @@ export const clearState = () => {
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
   store.dispatch(slices.tradeInput.actions.clear())
-  store.dispatch(slices.localWalletSlice.actions.clear())
+  store.dispatch(slices.localWallet.actions.clear())
   store.dispatch(slices.limitOrderInput.actions.clear())
-  store.dispatch(slices.limitOrderSlice.actions.clear())
+  store.dispatch(slices.limitOrder.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -61,8 +59,8 @@ export const clearState = () => {
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.portalsApi.util.resetApiState())
-  store.dispatch(apiSlices.nftApi.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
+  store.dispatch(apiSlices.limitOrderApi.util.resetApiState())
 }
 
 /**
@@ -84,7 +82,6 @@ const actionSanitizer = (action: any) => {
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
     'portalsApi/executeQuery/fulfilled',
-    'nftApi/executeQuery/fulfilled',
     'portals/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)
@@ -114,10 +111,6 @@ const stateSanitizer = (state: any) => {
 export const createStore = () =>
   configureStore({
     reducer,
-    enhancers: existingEnhancers => {
-      // Add the autobatch enhancer to the store setup
-      return existingEnhancers.concat(autoBatchEnhancer())
-    },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         // funnily enough, the checks that should check for perf. issues are actually slowing down the app

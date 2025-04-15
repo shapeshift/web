@@ -22,13 +22,13 @@ import { priceAtDate } from '@/lib/charts'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectIsTxHistoryAvailableByFilter,
-  selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
 } from '@/state/slices/selectors'
@@ -358,7 +358,7 @@ export const useBalanceChartData = (
   const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
 
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories(assetIds, timeframe)

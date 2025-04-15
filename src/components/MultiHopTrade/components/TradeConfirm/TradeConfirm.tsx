@@ -1,10 +1,10 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
-import { Redirect, useHistory } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
-import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
+import { SpotTradeSuccess } from '../SpotTradeSuccess/SpotTradeSuccess'
 import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
@@ -26,8 +26,8 @@ import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) => {
+  const navigate = useNavigate()
   const { isLoading } = useIsApprovalInitiallyNeeded()
-  const history = useHistory()
   const dispatch = useAppDispatch()
   const {
     state: { isConnected },
@@ -54,8 +54,8 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
       dispatch(tradeQuoteSlice.actions.clear())
     }
 
-    history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, isTradeComplete])
+    navigate('/trade')
+  }, [dispatch, navigate, isTradeComplete])
 
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
@@ -99,7 +99,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
   const body = useMemo(() => {
     if (isTradeComplete && activeQuote && tradeQuoteLastHop)
       return (
-        <TradeSuccess
+        <SpotTradeSuccess
           handleBack={handleBack}
           titleTranslation={
             isArbitrumBridgeWithdraw
@@ -122,14 +122,14 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />
           </Stepper>
-        </TradeSuccess>
+        </SpotTradeSuccess>
       )
 
     return <TradeConfirmBody />
   }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
 
   // We should have some execution state here... unless we're rehydrating or trying to access /trade/confirm directly
-  if (!confirmedTradeExecutionState) return <Redirect to={TradeRoutePaths.Input} />
+  if (!confirmedTradeExecutionState) return <Navigate to={TradeRoutePaths.Input} replace />
   if (!headerTranslation) return null
 
   return (

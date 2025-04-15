@@ -11,7 +11,7 @@ import {
   mockStakingContractOne,
 } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
-import { DefiProvider, DefiType } from './types'
+import { DefiType } from './types'
 import { serializeUserStakingId } from './utils'
 
 import { clearState, store } from '@/state/store'
@@ -26,7 +26,7 @@ describe('opportunitiesSlice', () => {
       ...initialState,
       _persist: {
         rehydrated: true,
-        version: 2,
+        version: 4,
       },
     })
   })
@@ -48,7 +48,7 @@ describe('opportunitiesSlice', () => {
               id: foxEthLpAssetId,
               name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.UniV2,
+              provider: 'Uniswap V2',
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -77,7 +77,7 @@ describe('opportunitiesSlice', () => {
               id: foxEthLpAssetId,
               name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.UniV2,
+              provider: 'Uniswap V2',
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -104,7 +104,7 @@ describe('opportunitiesSlice', () => {
               id: foxEthLpAssetId,
               name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.UniV2,
+              provider: 'Uniswap V2',
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,

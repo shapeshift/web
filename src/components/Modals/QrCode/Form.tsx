@@ -2,9 +2,9 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
@@ -20,11 +20,8 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
-import {
-  selectAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedCurrency,
-} from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 type QrCodeFormProps = {
@@ -32,11 +29,12 @@ type QrCodeFormProps = {
   accountId?: AccountId
 }
 
+const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
+
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
-  const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
   const { isOpen, close: handleClose } = useModal('qrCode')
@@ -56,6 +54,12 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     },
   })
 
+  useEffect(() => {
+    navigate(SendRoutes.Scan)
+    // Do not add navigate as a dep here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       const asset = selectAssetById(store.getState(), assetId ?? '')
@@ -63,24 +67,24 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       if (!asset) return
       methods.setValue(SendFormFields.AssetId, asset.assetId)
 
-      history.push(SendRoutes.Address)
+      navigate(SendRoutes.Address)
     },
-    [history, methods],
+    [methods, navigate],
   )
 
   const handleBack = useCallback(() => {
     setAddressError(null)
-    history.goBack()
-  }, [history])
+    navigate(-1)
+  }, [navigate])
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
       methods.setValue(SendFormFields.TxHash, txHash)
-      history.push(SendRoutes.Status)
+      navigate(SendRoutes.Status)
     },
-    [handleFormSend, history, methods],
+    [handleFormSend, methods, navigate],
   )
 
   const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -134,19 +138,31 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           // Others might do dangerous tricks in the way they represent an asset, using various parameters to do so
           // There's also the fact that we will assume the AssetId to be the native one of the first chain we managed to validate the address
           // Which may not be the chain the user wants to send, or they may want to send a token - so we should always ask the user to select the asset
-          if (maybeUrlResult.assetId === ethAssetId) return history.push(SendRoutes.Select)
-          history.push(SendRoutes.Address)
+          if (maybeUrlResult.assetId === ethAssetId) return navigate(SendRoutes.Select)
+          navigate(SendRoutes.Address)
         } catch (e: any) {
           setAddressError(e.message)
         }
       })()
     },
-    [history, methods],
+    [methods, navigate],
   )
 
-  useEffect(() => {
-    history.push(SendRoutes.Scan)
-  }, [history])
+  const selectAssetRouterElement = useMemo(
+    () => <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />,
+    [handleBack, handleAssetSelect],
+  )
+
+  const addressElement = useMemo(() => <Address />, [])
+  const detailsElement = useMemo(() => <Details />, [])
+  const qrCodeScannerElement = useMemo(
+    () => (
+      <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleClose} addressError={addressError} />
+    ),
+    [handleClose, handleQrSuccess, addressError],
+  )
+  const confirmElement = useMemo(() => <Confirm />, [])
+  const statusElement = useMemo(() => <Status />, [])
 
   if (walletConnectDappUrl)
     return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
@@ -156,31 +172,15 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
         <AnimatePresence mode='wait' initial={false}>
-          <Switch location={location} key={location.key}>
-            <Route path={SendRoutes.Select}>
-              <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />
-            </Route>
-            <Route path={SendRoutes.Address}>
-              <Address />
-            </Route>
-            <Route path={SendRoutes.Details}>
-              <Details />
-            </Route>
-            <Route path={SendRoutes.Scan}>
-              <QrCodeScanner
-                onSuccess={handleQrSuccess}
-                onBack={handleClose}
-                addressError={addressError}
-              />
-            </Route>
-            <Route path={SendRoutes.Confirm}>
-              <Confirm />
-            </Route>
-            <Route path={SendRoutes.Status}>
-              <Status />
-            </Route>
-            <Redirect exact from='/' to={SendRoutes.Scan} />
-          </Switch>
+          <Routes>
+            <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />
+            <Route path={SendRoutes.Address} element={addressElement} />
+            <Route path={SendRoutes.Details} element={detailsElement} />
+            <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />
+            <Route path={SendRoutes.Confirm} element={confirmElement} />
+            <Route path={SendRoutes.Status} element={statusElement} />
+            <Route path='/' element={scanRedirect} />
+          </Routes>
         </AnimatePresence>
       </form>
     </FormProvider>

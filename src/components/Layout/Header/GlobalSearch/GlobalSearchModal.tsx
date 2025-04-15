@@ -9,25 +9,35 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
 import { SearchResults } from './SearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
+import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInput } from '@/lib/address/address'
+import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isSome } from '@/lib/utils'
+import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import type { GlobalSearchResult, SendResult } from '@/state/slices/search-selectors'
 import {
   GlobalSearchResultType,
   selectGlobalItemsFromFilter,
 } from '@/state/slices/search-selectors'
-import { useAppSelector } from '@/state/store'
+import { selectAssets } from '@/state/slices/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'xl' }
 const sxProp2 = { p: 0 }
@@ -45,14 +55,70 @@ export const GlobalSearchModal = memo(
     const menuRef = useRef<HTMLDivElement>(null)
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
-    const history = useHistory()
-
+    const navigate = useNavigate()
+    const dispatch = useAppDispatch()
+    const mixpanel = getMixPanel()
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
     const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
     const [assetResults, txResults] = results
     const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
     const resultsCount = flatResults.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
+
+    const customTokenSupportedChainIds = useMemo(() => {
+      // Solana _is_ supported by Alchemy, but not by the SDK
+      return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
+    }, [])
+
+    const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
+      contractAddress: searchQuery,
+      chainIds: customTokenSupportedChainIds,
+    })
+
+    const customAssets = useMemo(() => {
+      if (!customTokens?.length) return []
+
+      // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
+      const assetsById = selectAssets(store.getState())
+
+      const assets = customTokens
+        .map(metaData => {
+          if (!metaData) return null
+          const { name, symbol, decimals, logo, chainId, contractAddress } = metaData
+
+          if (!name || !symbol || !decimals) return null
+
+          const assetId = toAssetId({
+            chainId,
+            assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+            assetReference: contractAddress,
+          })
+
+          const minimalAsset = {
+            assetId,
+            name,
+            symbol,
+            precision: decimals,
+            icon: logo ?? undefined,
+          }
+
+          return makeAsset(assetsById, minimalAsset)
+        })
+        .filter(isSome)
+
+      return assets
+    }, [customTokens])
+
+    useEffect(() => {
+      customAssets.forEach(asset => {
+        // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
+        const assetsById = selectAssets(store.getState())
+
+        if (!assetsById[asset.assetId]) {
+          dispatch(assetsSlice.actions.upsertAsset(asset))
+        }
+      })
+    }, [customAssets, dispatch])
 
     const send = useModal('send')
     useEffect(() => {
@@ -97,13 +163,16 @@ export const GlobalSearchModal = memo(
           case GlobalSearchResultType.Send: {
             // We don't want to pre-select the asset for EVM ChainIds
             const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
+            mixpanel?.track(MixPanelEvent.SendClick)
             send.open({ assetId, input: searchQuery })
             onToggle()
             break
           }
           case GlobalSearchResultType.Asset: {
+            // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
+            dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
             const url = `/assets/${item.id}`
-            history.push(url)
+            navigate(url)
             onToggle()
             break
           }
@@ -111,7 +180,7 @@ export const GlobalSearchModal = memo(
             const path = generatePath('/wallet/activity/transaction/:txId', {
               txId: item.id,
             })
-            history.push(path)
+            navigate(path)
             onToggle()
             break
           }
@@ -119,7 +188,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [history, onToggle, searchQuery, send],
+      [mixpanel, send, searchQuery, onToggle, dispatch, navigate],
     )
 
     const onKeyDown = useCallback(
@@ -192,7 +261,10 @@ export const GlobalSearchModal = memo(
       setActiveIndex(0)
     }, [searchQuery])
 
-    const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+    const isSearching = useMemo(
+      () => searchQuery.length > 0 || isLoadingCustomTokens,
+      [searchQuery.length, isLoadingCustomTokens],
+    )
 
     return (
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>

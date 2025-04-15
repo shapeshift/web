@@ -1,13 +1,8 @@
 # Rerenders
 
-We use `why-did-you-render` to detect components re-renders.
+We use `react-scan` to detect components re-renders.
 
-To use it, add the following after your component declaration:
+It is automatically enabled in localhost dev builds. To explicitly enable it when testing another env locally, go to src/index.ts, and change `enabled` to true.
 
-```typescript
-ComponentName.whyDidYouRender = true
-```
 
-This will detect re-renders despite values being equal.
-
-For advanced usage, see [why-did-you-render](https://github.com/welldone-software/why-did-you-render) docs.
+For advanced usage, see [react-scan](https://github.com/aidenybai/react-scan) docs.

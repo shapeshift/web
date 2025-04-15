@@ -23,10 +23,8 @@ import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
-
-import { ReceiveRoutes } from './ReceiveCommon'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -58,11 +56,12 @@ const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'whit
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
+  const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string | null>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const chainAdapterManager = getChainAdapterManager()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { chainId, name, symbol } = asset
   const { wallet } = state
   const chainAdapter = chainAdapterManager.get(chainId)
@@ -77,6 +76,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!accountMetadata) return
       if (!wallet) return
+      setIsAddressLoading(true)
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
@@ -88,6 +88,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             : undefined,
       })
       setReceiveAddress(selectedAccountAddress)
+      setIsAddressLoading(false)
     })()
   }, [
     setReceiveAddress,
@@ -99,6 +100,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     bip44Params,
     accountMetadata,
     selectedAccountId,
+    navigate,
   ])
 
   useEffect(() => {
@@ -149,7 +151,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
-  const onBackClick = useCallback(() => history.push(ReceiveRoutes.Select), [history])
+  const handleBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],
     [name, symbol],
@@ -160,7 +165,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     <>
       <DialogHeader>
         <DialogHeader.Left>
-          <DialogBackButton onClick={onBackClick} />
+          <DialogBackButton onClick={handleBack} />
         </DialogHeader.Left>
         <DialogHeader.Middle>
           <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>
@@ -209,10 +214,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             >
               <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
-                  <Skeleton isLoaded={!!receiveAddress} mb={2}>
+                  <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
-                  <Skeleton isLoaded={!!receiveAddress}>
+                  <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
                     <Flex
                       color='text.subtle'
                       alignItems='center'

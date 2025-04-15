@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 import react from '@vitejs/plugin-react-swc'
 import * as fs from 'fs'
 import { CID } from 'multiformats/cid'
@@ -144,6 +143,7 @@ export default defineConfig(({ mode }) => {
 
           warn(warning)
         },
+        external: ['fsevents'],
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
       sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,

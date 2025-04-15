@@ -7,6 +7,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -18,13 +19,8 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { Summary } from '@/features/defi/components/Summary'
 import { TxStatus as TransactionStatus } from '@/features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 
@@ -35,8 +31,8 @@ const externalLinkIcon = <ExternalLinkIcon />
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset, underlyingAsset, feeAsset, feeMarketData } = useFoxyQuery()
+  const navigate = useNavigate()
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: state?.txid ?? undefined,
@@ -52,12 +48,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
     if (maybeSafeTx?.isQueuedSafeTx)

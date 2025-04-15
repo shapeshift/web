@@ -14,7 +14,7 @@ import { union } from 'lodash'
 import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileNavLink } from './MobileNavLink'
 
@@ -29,6 +29,8 @@ import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import type { Route } from '@/Routes/helpers'
 import { routes } from '@/Routes/RoutesCommon'
 
@@ -142,7 +144,8 @@ export const MobileNavBar = memo(() => {
   const receive = useModal('receive')
   const qrCode = useModal('qrCode')
   const { routes: pluginRoutes } = usePlugins()
-  const history = useHistory()
+  const mixpanel = getMixPanel()
+  const navigate = useNavigate()
   const allRoutes = useMemo(() => {
     return union(routes, pluginRoutes)
       .filter(
@@ -177,9 +180,10 @@ export const MobileNavBar = memo(() => {
   }, [onClose, qrCode])
 
   const handleSendClick = useCallback(() => {
+    mixpanel?.track(MixPanelEvent.SendClick)
     onClose()
     send.open({})
-  }, [onClose, send])
+  }, [mixpanel, onClose, send])
 
   const handleReceiveClick = useCallback(() => {
     onClose()
@@ -188,13 +192,13 @@ export const MobileNavBar = memo(() => {
 
   const handleTradeClick = useCallback(() => {
     onClose()
-    history.push('/trade')
-  }, [history, onClose])
+    navigate('/trade')
+  }, [navigate, onClose])
 
   const handleBuyClick = useCallback(() => {
     onClose()
-    history.push('/buy-crypto')
-  }, [history, onClose])
+    navigate('/buy-crypto')
+  }, [navigate, onClose])
 
   return (
     <>

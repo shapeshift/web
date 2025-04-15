@@ -1,16 +1,15 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Redirect, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 
 import { AccountBalance } from './AccountBalance'
 
 import { AssetAccounts } from '@/components/AssetAccounts/AssetAccounts'
-import { Equity } from '@/components/Equity/Equity'
 import { EarnOpportunities } from '@/components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -19,7 +18,8 @@ import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 
 export type MatchParams = {
   accountId: AccountId
-  assetId: AssetId
+  chainId: string
+  assetSubId: string
 }
 
 const stackDirection: StackDirection = { base: 'column', xl: 'row' }
@@ -27,7 +27,7 @@ const flexMaxWidth = { base: 'full', xl: 'sm' }
 const multiHopTradeDisplay = { base: 'none', md: 'flex' }
 
 export const AccountToken = () => {
-  const { accountId, assetId } = useParams<MatchParams>()
+  const { accountId, chainId, assetSubId } = useParams<MatchParams>()
 
   /**
    * if the user switches the wallet while visiting this page,
@@ -38,25 +38,29 @@ export const AccountToken = () => {
   const accountIds = useSelector(selectEnabledWalletAccountIds)
   const isCurrentAccountIdOwner = Boolean(accountIds.map(toLower).includes(toLower(accountId)))
 
-  const id = assetId ? decodeURIComponent(assetId) : null
+  const assetId = useMemo(() => {
+    if (!chainId || !assetSubId) return null
+    return `${decodeURIComponent(chainId)}/${decodeURIComponent(assetSubId)}`
+  }, [chainId, assetSubId])
 
   const nativeSellAssetId = useMemo(() => {
-    if (!id) return
-    return getChainAdapterManager().get(fromAssetId(id).chainId)?.getFeeAssetId()
-  }, [id])
+    if (!assetId) return
+    return getChainAdapterManager().get(fromAssetId(assetId).chainId)?.getFeeAssetId()
+  }, [assetId])
 
   if (!accountIds.length) return null
-  if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
+  if (!isCurrentAccountIdOwner) return <Navigate to='/wallet/accounts' replace />
 
-  if (!id) return null
+  if (!assetId) return null
+  if (!accountId) return null
+
   return (
     <Stack alignItems='flex-start' spacing={4} width='full' direction={stackDirection}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
-        <AccountBalance assetId={id} accountId={accountId} />
-        <Equity assetId={id} accountId={accountId} />
-        <AssetAccounts assetId={id} accountId={accountId} />
-        <EarnOpportunities assetId={id} accountId={accountId} />
-        <AssetTransactionHistory assetId={id} accountId={accountId} />
+        <AccountBalance assetId={assetId} accountId={accountId} />
+        <AssetAccounts assetId={assetId} accountId={accountId} />
+        <EarnOpportunities assetId={assetId} accountId={accountId} />
+        <AssetTransactionHistory assetId={assetId} accountId={accountId} />
       </Stack>
       <Flex
         flexDir='column'
@@ -66,7 +70,11 @@ export const AccountToken = () => {
         gap={4}
         display={multiHopTradeDisplay}
       >
-        <StandaloneTrade isCompact defaultBuyAssetId={id} defaultSellAssetId={nativeSellAssetId} />
+        <StandaloneTrade
+          isCompact
+          defaultBuyAssetId={assetId}
+          defaultSellAssetId={nativeSellAssetId}
+        />
       </Flex>
     </Stack>
   )

@@ -59,9 +59,9 @@
     "pairing": "ペアリング",
     "connectWalletToGetStartedWith": "%{feature} を使い始めるにはウォレットを接続してください",
     "connectedWallet": "ウォレット接続済み",
+    "walletActions": "ウォレットアクション\n",
     "connectedWalletSettings": "ウォレットの設定",
     "noWallet": "ウォレットが接続されていません",
-    "seeAll": "すべてを見る",
     "darkMode": "ダークモード",
     "darkTheme": "ダークテーマ",
     "rename": "名前の変更",
@@ -197,13 +197,7 @@
     "hardwareWallets": "ハードウェアウォレット"
   },
   "consentBanner": {
-    "body": {
-      "1": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。",
-      "2": "private.shapeshift.com",
-      "3": "を確認する。匿名で追跡されたくない場合は、こちらを参照してください。",
-      "4": "プライバシーポリシー",
-      "5": "で詳細を確認する。"
-    },
+    "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
     "cta": "了解"
   },
   "errorPage": {
@@ -212,18 +206,10 @@
     "cta": "もう一度やり直してください"
   },
   "buyPage": {
-    "title": {
-      "first": "暗号通貨を購入",
-      "second": "即時に"
-    },
+    "title": "暗号通貨を購入 <span>即時に</span>",
     "body": "クレジットカード、デビットカード、または銀行口座を使用します。ビットコイン、イーサリアム、USDT、USDC、またはその他のトップ暗号通貨を購入します。非KYCプロバイダーも利用可能。",
     "disclaimer": "＊暗号通貨を直接売却して銀行口座に現金化することもできます。",
-    "cta": {
-      "title": {
-        "first": "また、ShapeShiftをすべてのトップウォレットで使用して、取引し、利回りを獲得し、",
-        "second": "%{chainCount} チェーン全体で暗号通貨を追跡します"
-      }
-    },
+    "ctaTitle": "また、ShapeShiftをすべてのトップウォレットで使用して、取引し、利回りを獲得し、 <span>%{chainCount} チェーン全体で暗号通貨を追跡します</span>",
     "availableAssets": "利用可能なアセット"
   },
   "updateToast": {
@@ -268,7 +254,6 @@
     "recentTransactions": {
       "recentTransactions": "最近の取引"
     },
-    "nfts": "NFT",
     "tradeCard": {
       "trade": "取引",
       "bridge": "ブリッジ",
@@ -324,7 +309,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "ウォレットを接続する",
-      "switchWallet": "ウォレットプロバイダーの切り替え",
+      "switchWallet": "ウォレットを切り替える",
       "disconnect": "切断する",
       "disconnected": "(切断済み)",
       "connecting": "接続中..."
@@ -435,10 +420,8 @@
         "introducingSaversVaults": "Savers Vaultについて",
         "introducingRunePool": "RUNEPoolの説明",
         "risksBody": {
-          "1": "参照する",
-          "2": "この記事",
-          "3": "Savers Vaultに伴うリスクについて。",
-          "runePool": "RUNEPool に伴うリスクについて。"
+          "vaults": "参照する <link>この記事</link> Savers Vaultに伴うリスクについて。",
+          "runePool": "参照する <link>この記事</link> RUNEPool に伴うリスクについて。"
         },
         "understand": "同意する",
         "days": "%{amount} 日",
@@ -450,9 +433,7 @@
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
         "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。",
-        "agreeRunePool": {
-          "1": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
-        }
+        "agreeRunePool": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
       }
     },
     "memoNote": {
@@ -515,8 +496,6 @@
     "overview": "概要",
     "myPositions": "ポジション",
     "myPositionsBody": "DeFi における現在アクティブなポジションのリスト。",
-    "myRewards": "報酬",
-    "myRewardsBody": "請求可能な報酬のあるアクティブな DeFi ポジション。",
     "viewAllPositions": "すべてのポジションを表示",
     "liquidityPools": "流動性プール",
     "liquidityLockupWarning": "%{time} のロックアップ期間があります。ロックアップ中は流動性にアクセスできません。",
@@ -614,12 +593,13 @@
     "foxToken": "FOXの機会",
     "dApps": "dApps",
     "featureFlags": "機能フラグ",
-    "demoMode": "デモモード",
     "clickToConnect": "クリックしてウォレットに接続します",
     "wallet": "ウォレット",
     "explore": "エクスプローラー",
     "rewards": "報酬",
     "trade": "取引/ブリッジ",
+    "limitOrder": "指値注文",
+    "claims": "クレーム",
     "tradeShort": "取引",
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
@@ -845,6 +825,14 @@
       "warning": "スリッページ許容度が高いと、不利な取引が生じる可能性があります。",
       "lowSlippage": "スリッページが0.05%を下回ると、取引が失敗する可能性があります。"
     },
+    "sort": {
+      "sortBy": "並べ替え",
+      "auto": "オート",
+      "bestRate": "ベストレート",
+      "lowestGas": "最小のガス代",
+      "fastest": "最速",
+      "info": "利用可能な見積もりの並べ替え方法を選択する"
+    },
     "from": "から",
     "to": "に",
     "on": "チェーン",
@@ -898,6 +886,7 @@
     "thisIsYourCustomRecipientAddress": "これはカスタム受信者アドレスです",
     "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
     "receiveAtLeast": "少なくとも受け取る",
+    "viewOnBlockExplorer": "ブロックエクスプローラーで表示",
     "tooltip": {
       "continueSwapping": "最終的な詳細について交換を続ける",
       "changeQuote": "見積もりの​​変更",
@@ -1006,6 +995,7 @@
     "allowanceResetTxName": "手当リセットトランザクション:",
     "allowanceApprovalTxName": "手当承認トランザクション:",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
+    "tradeCompleteSurplus": "追加の%{extraPercent}を獲得しました!",
     "doAnotherTrade": "別の取引をする",
     "summary": "取引概要",
     "estimatedCompletionTime": "推定完了時間",
@@ -1045,8 +1035,13 @@
       "youCouldHaveSaved": "FOX Savings を利用すれば、取引で %{fee} を節約できたはずです。",
       "buyFox": "FOXを購入する",
       "share": "共有",
-      "postBody": "$FOX を所有しているだけで、@ShapeShift での取引で %{fee} を節約できました!"
-    }
+      "postBody": "$FOX を所有しているだけで、@ShapeShift での取引で %{fee} を節約できました!",
+      "youGotMore": "FOXを保有しているため、この取引で%{cryptoUpside}増加しました"
+    },
+    "networkFee": "ネットワーク料金",
+    "learnMoreAboutFox": "FOXの特典について詳しくはこちら",
+    "freeTrade": "この取引は、FOX保有株数%{foxBalance}FOXに基づいて無料です",
+    "feeExplainer": "見積もりには、%{foxBalance} FOX の FOX 保有量に基づく %{feePercentage}% の ShapeShift 手数料が含まれます。"
   },
   "limitOrder": {
     "heading": "制限",
@@ -1057,6 +1052,9 @@
     "placeOrder": "注文する",
     "placeAnotherOrder": "別の注文をする",
     "orderSummary": "注文の概要",
+    "when": "条件",
+    "isWorth": "の価値がある",
+    "market": "マーケット ：",
     "success": "指値注文が正常に行われました",
     "cancel": {
       "cancelOrder": "指値注文をキャンセル",
@@ -1072,7 +1070,6 @@
     "executionPrice": "執行価格",
     "provider": "プロバイダー",
     "expiration": "有効期限",
-    "networkFee": "ネットワーク料金",
     "confirmInfo": "オンチェーン価格が制限価格に達したときに、指値注文が正確に約定されない場合があります。",
     "learnMore": "もっと詳しく知る",
     "previewOrder": "注文のプレビュー",
@@ -1086,6 +1083,10 @@
     "awaitingAllowanceApproval": "利用許可の承認待ち",
     "awaitingAllowanceReset": "利用許可のリセット待ち",
     "orderPlacement": "%{swapperName} で注文する",
+    "explanation": "%{assetSymbol} の価格が %{limitPrice} に達すると、指値注文により自動的に %{sellAmount} が売却され、少なくとも %{receiveAmount} を受け取ることが保証されます。",
+    "sellBuy": "売る → 買う",
+    "limitExecution": "制限/実行",
+    "statusHead": "状態.",
     "expiryOption": {
       "oneHour": "1時間",
       "oneDay": "1日",
@@ -1094,6 +1095,7 @@
       "twentyEightDays": "28日",
       "custom": "カスタム"
     },
+    "expires": "%{time} で期限切れ",
     "errors": {
       "nativeSellAssetNotSupported": "ネイティブトークンの売却はサポートされていません",
       "insufficientValidTo": "注文の有効期限が近すぎます",
@@ -1126,7 +1128,9 @@
         "insufficientBalance": "この注文の実行には %{chainName} 上の %{symbol} の残高が不足しています。注文は有効な状態で維持され、%{chainName} の %{symbol} 残高を追加すると実行可能になります。",
         "insufficientAllowance": "この注文の実行には、CoW Swapへの %{chainName} の %{symbol} の追加アローワンスが必要です。注文は有効な状態で維持され、アローワンスの承認後に実行可能となります。"
       }
-    }
+    },
+    "limitOrderFilled": "指値注文が成立",
+    "assetToAsset": "%{sellAmount} %{sellAsset} から %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -1507,12 +1511,13 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "ウォレットと通信できません。問題が解決しない場合は、Keepkeyサポートにお問い合わせください。"
+      "walletNotFound": "ウォレットと通信できません。問題が解決しない場合は、Keepkeyサポートにお問い合わせください。",
+      "walletVersionTooOld": "ウォレットをペアリングできません。ウォレットを最新バージョンに更新してください。"
     },
     "keepKey": {
       "errors": {
         "unknown": "KeepKeyとの通信で予期せぬエラーが発生しました",
-        "updateAlert": "このクライアントでKeepkeyを使用するには、ファームウェア 6.1.0 以降が必要です。デバイスを更新してください。",
+        "updateAlert": "このクライアントでKeepKeyを使用するには、ファームウェア %{version} 以降が必要です。デバイスを更新してください。",
         "pinCancelled": "PIN入力がキャンセルされました",
         "pinInvalid": "入力したPINは無効です",
         "pinMismatch": "入力した2つのPINが一致しません"
@@ -1727,11 +1732,7 @@
       "warningExperimental": "ShapeShiftマルチチェーンスナップは新しい実験的な機能であり、現状のまま提供されます。",
       "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
       "agreeIntro": "続行する前に、以下をお読みください。",
-      "agreeItem1Parts": {
-        "1": "ハードウェアウォレットは、",
-        "2": "ない",
-        "3": "サポートされてい"
-      },
+      "agreeItem1": "ハードウェアウォレットは、 <strong>ない</strong> サポートされてい",
       "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#1のみがサポートされています。",
       "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#1をMetaMaskのShapeShiftに接続する必要があります",
       "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",
@@ -1865,10 +1866,20 @@
       "rename": {
         "header": "ウォレットの名前を変更する",
         "walletName": "ウォレットの新しいニックネーム",
-        "body": "ウォレットの新しいニックネームとパスワードを入力してウォレットを復号化します。",
+        "body": "ウォレットの新しいニックネームとパスワードを入力して、%{name} を復号化します。",
         "mobileBody": "ウォレットの新しいニックネームを入力してください。",
         "button": "次へ",
-        "confirmDelete": "このウォレットのニックネームを削除してもよろしいですか?"
+        "confirmDelete": "このウォレットのニックネームを削除してもよろしいですか?",
+        "success": "ウォレットの名前が変更されました",
+        "error": {
+          "empty": "ウォレット名は空欄にできません"
+        }
+      },
+      "delete": {
+        "header": "ウォレットを削除する",
+        "body": "%{name} を削除するにはパスワードを入力してください。",
+        "confirmDelete": "確認する",
+        "success": "ウォレットが正常に削除されました"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShiftログインは非推奨になります",
@@ -1977,18 +1988,18 @@
         "share": "他の人と共有しないでください\n",
         "lose": "紛失した場合、復旧することはできません"
       },
-      "button": "バックアップを続行"
+      "button": "わかりました"
     },
     "manualBackup": {
-      "header": "手動バックアップ",
+      "header": "ウォレットを安全にする",
       "subHeader": "秘密の回復フレーズを、自分だけが管理できる安全な場所に保存します。",
       "copyToClipboard": "クリップボードにコピー",
       "copied": "コピーしました！",
       "nextStep": "次に、秘密の回復フレーズ内の特定の単語の位置を確認するように求められます。",
-      "button": "バックアップを続行",
+      "button": "確認を続ける",
       "success": {
-        "title": "手動バックアップが完了しました",
-        "description": "ウォレットのバックアップが正常に完了しました。",
+        "title": "バックアップを確認しました",
+        "description": "シークレット リカバリー フレーズを確認しました。必ず安全に保管してください。これがウォレットを復元する唯一の方法です。",
         "viewWallet": "ウォレットを表示"
       }
     }
@@ -2382,27 +2393,6 @@
       "cta": "今すぐ入金"
     }
   },
-  "nft": {
-    "customizeFoxatar": "FOXatarをカスタマイズする",
-    "setAsAvatar": "Avatarとして設定",
-    "floorPrice": "最低価格",
-    "lastPrice": "最終価格",
-    "overview": "概要",
-    "properties": "プロパティ",
-    "collection": "コレクション",
-    "tokenId": "トークンID",
-    "address": "アドレス",
-    "chain": "チェーン",
-    "standard": "標準",
-    "description": "説明",
-    "details": "詳細",
-    "attributes": "属性",
-    "aboutCollection": "%{collectionName}について",
-    "emptyTitle": "すべてのNFTはどこに行ったのでしょうか?",
-    "emptyBody": "心配しないでください、私たちはより素晴らしいNFTを取り戻すために捜索隊を派遣しました。その間、何もない空間を見つめて、存在の意味をじっくり考えてみてください。",
-    "reportSpam": "スパム報告",
-    "refresh": "リフレッシュ"
-  },
   "avatar": {
     "modal": {
       "title": "新しいAvatarを設定する",
@@ -2530,7 +2520,8 @@
     "underThreshold": "少額取引",
     "thorHolder": "THORSwapホルダー",
     "foxHolder": "FOXホルダー",
-    "foxWifHatHolder": "FOX Wif ハットホルダー"
+    "foxWifHatHolder": "FOX Wif ハットホルダー",
+    "foxBuy": "FOX を購入"
   },
   "chart": {
     "interval": {
@@ -2568,7 +2559,6 @@
     "withdrawTypeNotAvailable": "この引き出しタイプはこのプールでは利用できません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
-    "unsupportedDemoWalletExplainer": "デモ ウォレットはサポートされていません。この機能を使用するには、ウォレットに接続してください。",
     "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
     "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
     "instabilityWarning": "現在、THORChain プールへの入金中に払い戻しが発生しています。注意して進めてください。",
@@ -2648,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "ステーキングでもっと稼ぐ",
-      "body": "THORChain Savers Vault で資産をステーキングすることで受動的な収入を得る"
-    },
     "pools": {
       "title": "プール",
       "body": "プールでの取引で手数料を獲得する"
@@ -2688,7 +2674,6 @@
     "approvalFee": "承認手数料",
     "lockupPeriod": "ロックアップ期間",
     "shareOfPool": "プールのシェア",
-    "networkFee": "ネットワーク料金",
     "thorchainRewardAddress": "THORChain 報酬アドレス",
     "rewardAddressHelper": "報酬はこちらに送られます",
     "useWalletAddress": "ウォレットアドレスを使用する",
@@ -2850,20 +2835,21 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "FOXwifhat を請求してください。すぐに行動してください。割引は時間の経過とともに減少します。FOX または FOXwifhat を多く保有するほど、節約額が増えます。FOX トークンをさらに積み重ねると、継続的な節約に加えて、収益分配、ガバナンス、およびイールド ファーミングの特典が得られます。このページの残りの部分で、これらのプログラムについて詳しく説明します。",
+      "description": "FOX Wif Hat (FWH) を請求してください。すぐに行動してください。割引は時間の経過とともに減少します。FOX または FWH を多く保有するほど、節約額が増えます。FOX トークンをさらに積み重ねると、継続的な節約に加えて、収益分配、ガバナンス、およびイールド ファーミングの特典が得られます。このページの残りの部分で、これらのプログラムについて詳しくはこちらをご覧ください。",
       "discount": "*割引は時間の経過とともに直線的に減少し、%{date} に期限切れになります。割引がさらに減少する前に、%{percent}% 割引をご利用ください。",
       "claim": "請求",
       "claimed": "クレーム済",
       "discountText": "*取引手数料が%{percent}%オフ",
-      "noClaims": "請求できません"
+      "noClaims": "請求できません",
+      "banner": {
+        "title": "特典を付与する。",
+        "description": "保有する FOX または FWH が多いほど、スワップごとに取得するトークンが多くなります。",
+        "cta": "もっと詳しく知る"
+      }
     },
     "governance": {
       "title": "ガバナンス",
-      "description": {
-        "0": "参加しましょう",
-        "1": "フォーラムで",
-        "2": "DAO の未来を形作ります。"
-      },
+      "description": "参加しましょう <link>フォーラムで</link> DAO の未来を形作ります。",
       "totalVotingPower": "総投票権",
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"

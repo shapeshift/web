@@ -1,5 +1,5 @@
 import './wdyr'
-import './lib/polyfills'
+import '@/lib/polyfills'
 import 'vite/modulepreload-polyfill'
 
 import {
@@ -13,6 +13,7 @@ import {
 import { isAxiosError } from 'axios'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { scan } from 'react-scan'
 import { v4 as uuid } from 'uuid'
 
 import { App } from './App'
@@ -21,6 +22,13 @@ import { getConfig } from './config'
 import { renderConsoleArt } from './lib/consoleArt'
 import { reportWebVitals } from './lib/reportWebVitals'
 import { httpClientIntegration } from './utils/sentry/httpclient'
+
+const mode = process.env.MODE ?? process.env.NODE_ENV
+const enableReactScan = mode === 'development' && window.location.hostname === 'localhost'
+
+scan({
+  enabled: enableReactScan,
+})
 
 // Remove this condition to test sentry locally
 if (window.location.hostname !== 'localhost') {

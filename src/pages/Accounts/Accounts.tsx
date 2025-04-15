@@ -4,7 +4,7 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useRouteMatch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
@@ -86,8 +86,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   )
 }
 
-export const Accounts = () => {
-  const { path } = useRouteMatch()
+const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
@@ -98,8 +97,6 @@ export const Accounts = () => {
       )),
     [portfolioChainIdsSortedUserCurrency],
   )
-
-  const walletId = useAppSelector(selectWalletId)
 
   const blankRows = useMemo(() => {
     return blanks.map(index => (
@@ -112,16 +109,30 @@ export const Accounts = () => {
   }, [blankRows, chainRows, loading])
 
   return (
-    <Switch>
-      <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
-        <AccountHeader isLoading={loading} />
-        <List ml={0} mt={0} spacing={4}>
-          {renderRows}
-        </List>
-      </Route>
-      <Route path={`${path}/:accountId`}>
-        <Account />
-      </Route>
-    </Switch>
+    <>
+      <AccountHeader isLoading={loading} />
+      <List ml={0} mt={0} spacing={4}>
+        {renderRows}
+      </List>
+    </>
+  )
+}
+
+export const Accounts = () => {
+  const loading = useSelector(selectIsPortfolioLoading)
+  const walletId = useAppSelector(selectWalletId)
+
+  const accountsContentElement = useMemo(
+    () => <AccountsContent key={`${walletId}-${loading}`} />,
+    [walletId, loading],
+  )
+
+  const accountElement = useMemo(() => <Account />, [])
+
+  return (
+    <Routes>
+      <Route path='/' element={accountsContentElement} />
+      <Route path=':accountId/*' element={accountElement} />
+    </Routes>
   )
 }

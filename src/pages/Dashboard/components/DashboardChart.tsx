@@ -13,18 +13,17 @@ import {
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
-import { useCallback, useState } from 'react'
+import { Suspense, useCallback, useMemo, useState } from 'react'
 
 import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'
 
 import { Amount } from '@/components/Amount/Amount'
-import { BalanceChart } from '@/components/BalanceChart/BalanceChart'
+import { BalanceChart, BalanceChartSkeleton } from '@/components/BalanceChart/BalanceChart'
 import { TimeControls } from '@/components/Graph/TimeControls'
 import { MaybeChartUnavailable } from '@/components/MaybeChartUnavailable'
 import { Text } from '@/components/Text'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectChartTimeframe,
   selectIsPortfolioLoading,
   selectPortfolioAssetIds,
   selectPortfolioTotalUserCurrencyBalance,
@@ -47,7 +46,7 @@ const timeControlsButtonGroupProps = {
 }
 
 export const DashboardChart = () => {
-  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const userChartTimeframe = useAppSelector(preferences.selectors.selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
   const dispatch = useAppDispatch()
   const handleTimeframeChange = useCallback(
@@ -70,6 +69,19 @@ export const DashboardChart = () => {
 
   const [isRainbowChart, setIsRainbowChart] = useState(false)
   const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
+
+  const balanceChartFallback = useMemo(
+    () => (
+      <BalanceChartSkeleton
+        timeframe={timeframe}
+        percentChange={percentChange}
+        setPercentChange={setPercentChange}
+        isRainbowChart={isRainbowChart}
+      />
+    ),
+    [timeframe, percentChange, isRainbowChart, setPercentChange],
+  )
+
   return (
     <Card variant='dashboard'>
       <CardHeader
@@ -115,12 +127,14 @@ export const DashboardChart = () => {
           </Skeleton>
         )}
       </Flex>
-      <BalanceChart
-        timeframe={timeframe}
-        percentChange={percentChange}
-        setPercentChange={setPercentChange}
-        isRainbowChart={isRainbowChart}
-      />
+      <Suspense fallback={balanceChartFallback}>
+        <BalanceChart
+          timeframe={timeframe}
+          percentChange={percentChange}
+          setPercentChange={setPercentChange}
+          isRainbowChart={isRainbowChart}
+        />
+      </Suspense>
       <Skeleton isLoaded={isLoaded} display={displayMdNone}>
         <TimeControls
           onChange={handleTimeframeChange}

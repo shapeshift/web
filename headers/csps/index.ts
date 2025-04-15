@@ -31,7 +31,6 @@ import { csp as lifi } from './defi/swappers/Lifi'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
-import { csp as yearn } from './defi/yearn'
 import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
@@ -42,6 +41,7 @@ import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
+import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
 import { csp as shapeshiftGateway } from './shapeshiftGateway'
 import { csp as shapeshiftProxy } from './shapeshiftProxy'
@@ -94,7 +94,6 @@ export const csps = [
   idle,
   mtpelerin,
   safe,
-  yearn,
   zeroX,
   cowSwap,
   lifi,
@@ -108,4 +107,5 @@ export const csps = [
   metamask,
   walletConnect,
   walletMigration,
+  relay,
 ]

@@ -1,10 +1,9 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -18,7 +17,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
@@ -51,9 +50,9 @@ export const Deposit: React.FC<DepositProps> = ({
 }) => {
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, assetReference, chainId, contractAddress, rewardId } = query
 
   const foxFarmingOpportunityFilter = useMemo(
@@ -257,16 +256,6 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset, cryptoBalance, marketData.price],
   )
 
-  const handleBack = useCallback(() => {
-    history.push({
-      pathname: `/defi/earn`,
-      search: qs.stringify({
-        ...query,
-        modal: DefiAction.Overview,
-      }),
-    })
-  }, [history, query])
-
   const cryptoInputValidation = useMemo(
     () => ({
       required: true,
@@ -283,9 +272,9 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmount],
   )
 
-  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
-  const handleCancel = browserHistory.goBack
+  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
   return (
     <ReusableDeposit
@@ -302,7 +291,6 @@ export const Deposit: React.FC<DepositProps> = ({
       onCancel={handleCancel}
       onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
-      onBack={handleBack}
       percentOptions={percentOptions}
       enableSlippage={false}
       isLoading={state.loading || !lpTokenPrice}

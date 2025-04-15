@@ -23,6 +23,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
     refetchOnFocus: false,
     refetchOnMountOrArgChange: false,
     refetchOnReconnect: false,
+    invalidationBehavior: 'delayed' as const,
   },
 })
 
@@ -34,8 +35,12 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
 
 const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
   provided: {
-    LimitOrder: {},
+    limitOrders: {},
     limitOrderQuote: {},
+  },
+  _persist: {
+    version: 0,
+    rehydrated: false,
   },
 })
 
@@ -46,7 +51,6 @@ export const mockStore: ReduxState = {
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   portalsApi: mockApiFactory('portalsApi' as const),
   portals: mockApiFactory('portals' as const),
-  nftApi: mockApiFactory('nftApi' as const),
   swapperApi: mockSwapperApi,
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
@@ -80,7 +84,6 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
-      Jaypegz: false,
       Optimism: false,
       Polygon: false,
       Gnosis: false,
@@ -144,6 +147,7 @@ export const mockStore: ReduxState = {
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
       ThorchainPoolsInstabilityWarning: false,
+      RelaySwapper: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -220,21 +224,6 @@ export const mockStore: ReduxState = {
       ids: [],
     },
   },
-  nft: {
-    _persist: {
-      version: 0,
-      rehydrated: false,
-    },
-    selectedNftAvatarByWalletId: {},
-    nfts: {
-      byId: {},
-      ids: [],
-    },
-    collections: {
-      byId: {},
-      ids: [],
-    },
-  },
   tradeInput: {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
@@ -271,7 +260,7 @@ export const mockStore: ReduxState = {
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
   },
-  tradeQuoteSlice: {
+  tradeQuote: {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
@@ -281,7 +270,7 @@ export const mockStore: ReduxState = {
     isTradeQuoteRequestAborted: false,
     sortOption: QuoteSortOption.BEST_RATE,
   },
-  limitOrderSlice: {
+  limitOrder: {
     activeQuote: undefined,
     confirmedLimitOrder: {},
     orderSubmission: {},
@@ -298,7 +287,7 @@ export const mockStore: ReduxState = {
     strategies: undefined,
     proposals: undefined,
   },
-  localWalletSlice: {
+  localWallet: {
     _persist: {
       version: 0,
       rehydrated: false,

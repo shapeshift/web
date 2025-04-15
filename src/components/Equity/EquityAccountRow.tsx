@@ -2,7 +2,7 @@ import { Avatar } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { EquityRow } from './EquityRow'
 
@@ -32,12 +32,12 @@ export const EquityAccountRow = ({
   color,
 }: EquityAccountRowProps) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
 
-  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+  const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
@@ -52,8 +52,8 @@ export const EquityAccountRow = ({
   )
 
   const handleClick = useCallback(() => {
-    history.push(path)
-  }, [history, path])
+    navigate(path)
+  }, [navigate, path])
 
   const equityRowIcon = useMemo(
     () =>

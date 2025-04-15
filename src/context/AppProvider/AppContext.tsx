@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetchQuery } from './hooks/useAccountsFetchQuery'
 
+import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
@@ -14,6 +15,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { snapshotApi } from '@/state/apis/snapshot/snapshot'
@@ -29,8 +31,6 @@ import {
   selectAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-  selectSelectedCurrency,
-  selectSelectedLocale,
   selectWalletId,
 } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -60,6 +60,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
+
+  // Previously <TransactionsProvider />
+  useTransactionsSubscriber()
+  // App-wide long-poll of limit orders
+  useLimitOrders()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {
@@ -95,7 +100,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Master hook for accounts fetch as a react-query
   useAccountsFetchQuery()
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {
     if (selectedLocale in LanguageTypeEnum) {
       void import(`dayjs/locale/${selectedLocale}.js`)
@@ -169,7 +174,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   /**
    * fetch forex spot and history for user's selected currency
    */
-  const currency = useAppSelector(state => selectSelectedCurrency(state))
+  const currency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   useEffect(() => {
     // we already know 1usd costs 1usd

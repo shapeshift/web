@@ -5,27 +5,34 @@ import { useCallback, useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router'
+
+import { preferences } from './state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlag } from './state/slices/selectors'
+import { useAppSelector } from './state/store'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
 import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
-import { Routes } from '@/Routes/Routes'
-import { selectShowConsentBanner, selectShowWelcomeModal } from '@/state/slices/selectors'
+import { isMobile as isMobileApp } from '@/lib/globals'
+import { AppRoutes } from '@/Routes/Routes'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexAlignItems = { base: 'flex-start', md: 'center' }
 
 export const App = () => {
+  const navigate = useNavigate()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const showWelcomeModal = useSelector(selectShowWelcomeModal)
-  const showConsentBanner = useSelector(selectShowConsentBanner)
+  const showWelcomeModal = useSelector(preferences.selectors.selectShowWelcomeModal)
+  const showConsentBanner = useAppSelector(preferences.selectors.selectShowConsentBanner)
+  const isMixpanelEnabled = useAppSelector(state => selectFeatureFlag(state, 'Mixpanel'))
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
   useBridgeClaimNotification()
@@ -66,14 +73,14 @@ export const App = () => {
 
   useEffect(() => {
     if (showWelcomeModal && !isNativeOnboardOpen) {
-      openNativeOnboard({})
+      openNativeOnboard({ browserNavigate: navigate })
     }
-  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
+  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal, navigate])
 
   return (
     <>
-      {showConsentBanner && <ConsentBanner />}
-      <Routes />
+      {showConsentBanner && isMixpanelEnabled && !isMobileApp && <ConsentBanner />}
+      <AppRoutes />
     </>
   )
 }

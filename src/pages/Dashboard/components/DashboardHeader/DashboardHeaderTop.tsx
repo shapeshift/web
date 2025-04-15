@@ -6,17 +6,19 @@ import { memo, useCallback } from 'react'
 import { FiLogOut } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
-import { EditAvatarButton, ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
+import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
 
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
@@ -36,12 +38,13 @@ const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
 
 export const DashboardHeaderTop = memo(() => {
   const { isOpen, onClose, onOpen } = useDisclosure()
+  const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
     state: { isConnected },
   } = useWallet()
 
-  const { history } = useBrowserRouter()
+  const navigate = useNavigate()
   const send = useModal('send')
   const receive = useModal('receive')
   const qrCode = useModal('qrCode')
@@ -51,16 +54,17 @@ export const DashboardHeaderTop = memo(() => {
   }, [qrCode])
 
   const handleSendClick = useCallback(() => {
+    mixpanel?.track(MixPanelEvent.SendClick)
     send.open({})
-  }, [send])
+  }, [send, mixpanel])
 
   const handleReceiveClick = useCallback(() => {
     receive.open({})
   }, [receive])
 
   const handleTradeClick = useCallback(() => {
-    history.push('/trade')
-  }, [history])
+    navigate('/trade')
+  }, [navigate])
 
   return (
     <Container
@@ -81,9 +85,7 @@ export const DashboardHeaderTop = memo(() => {
         gap={4}
         gridColumn={profileGridColumn}
       >
-        <EditAvatarButton>
-          <ProfileAvatar />
-        </EditAvatarButton>
+        <ProfileAvatar />
         <WalletBalance />
       </Flex>
       <Flex

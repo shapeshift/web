@@ -6,6 +6,7 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -48,8 +49,9 @@ type WithdrawProps = {
 export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const navigate = useNavigate()
 
   const assetId = toAssetId({
     chainId,
@@ -130,14 +132,14 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
   }, [opportunityData, state.opportunity, wallet])
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location, query])
+  }, [navigate, location, query])
 
   const makeHandleSweepBack = useCallback(
     (onNext: StepComponentProps['onNext']) => () => onNext(DefiStep.Info),

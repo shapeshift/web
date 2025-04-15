@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { StatusBody } from '../../StatusBody'
 import { LimitOrderRoutePaths } from '../types'
@@ -16,7 +16,7 @@ const cardBorderRadius = { base: '2xl' }
 const asset = ethereum
 
 export const PlaceLimitOrder = ({ isCompact }: { isCompact?: boolean }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const [txStatus, setTxStatus] = useState(TxStatus.Pending)
 
@@ -30,15 +30,15 @@ export const PlaceLimitOrder = ({ isCompact }: { isCompact?: boolean }) => {
     // Route to order list explicitly on compact views, otherwise go back to input since it's got
     // the order list anyway
     if (isCompact || isSmallerThanXl) {
-      history.push(LimitOrderRoutePaths.Orders)
+      navigate(LimitOrderRoutePaths.Orders)
     } else {
-      history.push(LimitOrderRoutePaths.Input)
+      navigate(LimitOrderRoutePaths.Input)
     }
-  }, [history, isCompact, isSmallerThanXl])
+  }, [navigate, isCompact, isSmallerThanXl])
 
   const handleGoBack = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Input)
-  }, [history])
+    navigate(LimitOrderRoutePaths.Input)
+  }, [navigate])
 
   const statusBody = useMemo(() => {
     if (!asset) return null

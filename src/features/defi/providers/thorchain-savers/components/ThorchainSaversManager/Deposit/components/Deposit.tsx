@@ -6,10 +6,9 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
 import pDebounce from 'p-debounce'
-import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
@@ -27,7 +26,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -90,7 +89,6 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const toast = useToast()
   const queryClient = useQueryClient()
-  const history = useHistory()
   const translate = useTranslate()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
@@ -102,7 +100,8 @@ export const Deposit: React.FC<DepositProps> = ({
     fiatAmount: string
     cryptoAmount: string
   } | null>(null)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const assets = useAppSelector(selectAssets)
 
@@ -405,8 +404,8 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const outboundFeeInAssetCryptoBaseUnit = useMemo(() => {
     if (!asset) return bn(0)
@@ -799,16 +798,6 @@ export const Deposit: React.FC<DepositProps> = ({
     [],
   )
 
-  const handleBack = useCallback(() => {
-    history.push({
-      pathname: `/defi/earn`,
-      search: qs.stringify({
-        ...query,
-        modal: DefiAction.Overview,
-      }),
-    })
-  }, [history, query])
-
   const cryptoInputValidation = useMemo(
     () => ({
       required: true,
@@ -877,7 +866,6 @@ export const Deposit: React.FC<DepositProps> = ({
         onCancel={handleCancel}
         onPercentClick={handlePercentClick}
         onContinue={handleContinueOrAcknowledgement}
-        onBack={handleBack}
         onChange={handleInputChange}
         percentOptions={percentOptions}
         enableSlippage={false}

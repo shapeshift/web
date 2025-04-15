@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react'
 
 const defaultAmount = 20
 
@@ -14,12 +14,22 @@ export const useInfiniteScroll = <T extends any>({
   isScrollable = false,
 }: UseInfiniteScrollProps<T>) => {
   const [amount, setAmount] = useState(initialTxsCount ?? defaultAmount)
+  const [, startTransition] = useTransition()
+
+  const [rawData, setRawData] = useState<T[]>([])
+
+  useEffect(() => {
+    startTransition(() => {
+      setRawData(array.slice(0, amount))
+    })
+  }, [amount, array, startTransition])
+
+  const data = useDeferredValue(rawData)
 
   const next = useCallback(() => {
     setAmount(prevAmount => prevAmount + defaultAmount)
   }, [])
 
-  const data = useMemo(() => array.slice(0, amount), [amount, array])
   const hasMore = useMemo(() => array.length !== data.length, [data, array])
 
   useEffect(() => {

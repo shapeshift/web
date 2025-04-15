@@ -6,8 +6,6 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
-import type { NftState } from './apis/nft/nftApi'
-import { nft, nftApi } from './apis/nft/nftApi'
 import { portals, portalsApi } from './apis/portals/portalsApi'
 import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
@@ -15,7 +13,6 @@ import { swapperApi } from './apis/swapper/swapperApi'
 import {
   clearAssetsMigrations,
   clearMarketDataMigrations,
-  clearNftsMigrations,
   clearOpportunitiesMigrations,
   clearPortfolioMigrations,
   clearSnapshotMigrations,
@@ -50,13 +47,12 @@ export const slices = {
   portfolio,
   preferences,
   opportunities,
-  nft,
   tradeInput,
   limitOrderInput,
-  tradeQuoteSlice,
-  limitOrderSlice,
+  tradeQuote: tradeQuoteSlice,
+  limitOrder: limitOrderSlice,
   snapshot,
-  localWalletSlice,
+  localWallet: localWalletSlice,
 }
 
 const preferencesPersistConfig = {
@@ -86,13 +82,6 @@ const opportunitiesPersistConfig = {
   migrate: createMigrate(clearOpportunitiesMigrations, { debug: false }),
 }
 
-const nftPersistConfig = {
-  key: 'nft',
-  storage: localforage,
-  version: Math.max(...Object.keys(clearNftsMigrations).map(Number)),
-  migrate: createMigrate(clearNftsMigrations, { debug: false }),
-}
-
 const snapshotPersistConfig = {
   key: 'snapshot',
   storage: localforage,
@@ -101,7 +90,7 @@ const snapshotPersistConfig = {
 }
 
 const localWalletSlicePersistConfig = {
-  key: 'localWalletSlice',
+  key: 'localWallet',
   storage: localforage,
   version: Math.max(...Object.keys(localWalletMigrations).map(Number)),
   migrate: createMigrate(localWalletMigrations, { debug: false }),
@@ -121,6 +110,12 @@ const assetsPersistConfig = {
   migrate: createMigrate(clearAssetsMigrations, { debug: false }),
 }
 
+const limitOrderApiPersistConfig = {
+  key: 'limitOrderApi',
+  storage: localforage,
+  version: 0,
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -133,11 +128,10 @@ export const sliceReducers = {
     opportunitiesPersistConfig,
     opportunities.reducer,
   ),
-  nft: persistReducer<NftState>(nftPersistConfig, nft.reducer),
-  tradeQuoteSlice: tradeQuoteSlice.reducer,
-  limitOrderSlice: limitOrderSlice.reducer,
+  tradeQuote: tradeQuoteSlice.reducer,
+  limitOrder: limitOrderSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
-  localWalletSlice: persistReducer<LocalWalletState>(
+  localWallet: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
   ),
@@ -154,7 +148,6 @@ export const apiSlices = {
   snapshotApi,
   portals,
   portalsApi,
-  nftApi,
   opportunitiesApi,
   abiApi,
   limitOrderApi,
@@ -171,10 +164,9 @@ export const apiReducers = {
   [snapshotApi.reducerPath]: snapshotApi.reducer,
   [portals.reducerPath]: portals.reducer,
   [portalsApi.reducerPath]: portalsApi.reducer,
-  [nftApi.reducerPath]: nftApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
-  [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+  [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react'
+import { Box, Button, Spinner } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -33,25 +33,35 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       [hasMore, isAnyTxHistoryApiQueryPending],
     )
 
+    const isInitialPending = useMemo(() => {
+      return txIds.length && !data.length
+    }, [data.length, txIds])
+
+    if (isInitialPending)
+      return (
+        <Box position='relative' p={4} textAlign='center'>
+          <Spinner size='xl' color='blue.500' thickness='4px' />
+        </Box>
+      )
+
+    if (!data.length)
+      return (
+        <Text
+          color='text.subtle'
+          translation='assets.assetDetails.assetHistory.emptyTransactions'
+          fontWeight='normal'
+          textAlign='center'
+          px='6'
+          mb='4'
+        />
+      )
+
     return (
       <>
-        {data.length > 0 ? (
-          <TransactionsGroupByDate txIds={data} useCompactMode={useCompactMode} />
-        ) : (
-          <Text
-            color='text.subtle'
-            translation='assets.assetDetails.assetHistory.emptyTransactions'
-            fontWeight='normal'
-            textAlign='center'
-            px='6'
-            mb='4'
-          />
-        )}
-        {data.length > 0 && (
-          <Button mx={2} my={2} onClick={next} isDisabled={!hasMore} rightIcon={loadMoreRightIcon}>
-            {translate('common.loadMore')}
-          </Button>
-        )}
+        <TransactionsGroupByDate txIds={data} useCompactMode={useCompactMode} />
+        <Button mx={2} my={2} onClick={next} isDisabled={!hasMore} rightIcon={loadMoreRightIcon}>
+          {translate('common.loadMore')}
+        </Button>
       </>
     )
   },

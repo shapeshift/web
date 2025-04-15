@@ -2,7 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AccountNumberRow } from './AccountNumberRow'
 
@@ -13,7 +13,7 @@ import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
-  selectPortfolioTotalChainIdBalanceIncludeStaking,
+  selectPortfolioTotalChainIdBalanceUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -28,17 +28,19 @@ const stackPx = { base: 2, md: 4 }
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const { isOpen, onToggle } = useDisclosure()
-  const history = useHistory()
+  const navigate = useNavigate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
-    selectPortfolioTotalChainIdBalanceIncludeStaking(s, filter),
+    selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
-    selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
+    isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : {},
   )
 
   const accountRows = useMemo(() => {
+    if (!isOpen) return null
+
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
       <AccountNumberRow
         key={accountNumber}
@@ -48,12 +50,12 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         onClick={
           // accountIds is strictly length 1 per accountNumber for account-based chains
           !isUtxoAccountId(accountIds[0])
-            ? () => history.push(`/wallet/accounts/${accountIds[0]}`)
+            ? () => navigate(`/wallet/accounts/${accountIds[0]}`)
             : undefined
         }
       />
     ))
-  }, [accountIdsByAccountNumber, chainId, history])
+  }, [accountIdsByAccountNumber, chainId, navigate, isOpen])
 
   return asset ? (
     <ListItem

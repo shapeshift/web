@@ -82,7 +82,8 @@ export const NavBar = (props: NavBarProps) => {
               key={id}
               leftIcon={item.icon}
               href={item.path}
-              to={item.path}
+              // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
+              to={item.path.replace('/*', '')}
               isNew={item.isNew}
               isViewOnly={item.isViewOnly}
               size='lg'
@@ -91,11 +92,31 @@ export const NavBar = (props: NavBarProps) => {
               aria-label={translate(item.label)}
               data-test={`navigation-${item.label.split('.')[1]}-button`}
               isActive={
-                !!matchPath(pathname, {
-                  path: item.path,
-                  exact: false,
-                  strict: false,
-                })
+                !!matchPath(
+                  {
+                    path: item.path,
+                    end: false,
+                    caseSensitive: false,
+                  },
+                  pathname,
+                ) ||
+                (item.path === '/trade' &&
+                  (!!matchPath(
+                    {
+                      path: '/limit',
+                      end: false,
+                      caseSensitive: false,
+                    },
+                    pathname,
+                  ) ||
+                    !!matchPath(
+                      {
+                        path: '/claim',
+                        end: false,
+                        caseSensitive: false,
+                      },
+                      pathname,
+                    )))
               }
             />
           ))}

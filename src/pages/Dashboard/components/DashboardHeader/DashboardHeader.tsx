@@ -10,11 +10,7 @@ import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
 
 import { Amount } from '@/components/Amount/Amount'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import {
-  selectClaimableRewards,
-  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-} from '@/state/slices/selectors'
+import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const paddingTop = { base: 'env(safe-area-inset-top)', md: '4.5rem' }
@@ -38,17 +34,11 @@ const navCss = {
 }
 
 export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
-  const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
-  )
-  const portfolioTotalUserCurrencyBalance = useAppSelector(
-    selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-  )
+  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
 
   useEffect(() => {
@@ -78,24 +68,12 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         rightElement: <EarnBalance />,
       },
       {
-        label: 'navBar.rewards',
-        path: '/wallet/rewards',
-        color: 'green',
-        rightElement: <Amount.Fiat value={claimableRewardsUserCurrencyBalance} />,
-      },
-      {
-        label: 'dashboard.nfts',
-        path: '/wallet/nfts',
-        color: 'pink',
-        hide: !isNftsEnabled,
-      },
-      {
         label: 'navBar.activity',
         path: '/wallet/activity',
         color: 'blue',
       },
     ]
-  }, [claimableRewardsUserCurrencyBalance, isNftsEnabled, portfolioTotalUserCurrencyBalance])
+  }, [portfolioTotalUserCurrencyBalance])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (

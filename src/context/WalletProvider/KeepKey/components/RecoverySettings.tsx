@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { RadioOption } from '@/components/Radio/Radio'
 import { Radio } from '@/components/Radio/Radio'
@@ -52,7 +52,7 @@ const buttonGroupProps = {
 
 export const KeepKeyRecoverySettings = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [useRecoveryPassphrase, setUseRecoveryPassphrase] = useState(false)
   const [sentenceLengthSelection, setSentenceLengthSelection] = useState<Entropy>(
     sentenceLength.TwelveWords,
@@ -67,8 +67,8 @@ export const KeepKeyRecoverySettings = () => {
       recoverWithPassphrase: useRecoveryPassphrase,
       recoveryEntropy: sentenceLengthSelection,
     })
-    history.push(KeepKeyRoutes.NewLabel)
-  }, [history, sentenceLengthSelection, setDeviceState, useRecoveryPassphrase])
+    navigate(KeepKeyRoutes.NewLabel)
+  }, [navigate, sentenceLengthSelection, setDeviceState, useRecoveryPassphrase])
 
   const handlePassphraseToggle = useCallback(
     () => setUseRecoveryPassphrase(current => !current),

@@ -1,4 +1,3 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
   CircularProgress,
   CircularProgressLabel,
@@ -10,6 +9,7 @@ import {
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { LuArrowUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
 import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
@@ -18,14 +18,14 @@ import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isToken } from '@/lib/utils'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectHighestMarketCapFeeAsset,
-  selectIsAccountMetadataLoadingByAccountId,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const arrowDownIcon = <ArrowDownIcon />
+const arrowUpDownIcon = <LuArrowUpDown />
 
 type SharedTradeInputBodyProps = {
   buyAsset: Asset
@@ -73,7 +73,7 @@ export const SharedTradeInputBody = ({
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isAccountMetadataLoadingByAccountId = useAppSelector(
-    selectIsAccountMetadataLoadingByAccountId,
+    portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
   )
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')
@@ -194,7 +194,7 @@ export const SharedTradeInputBody = ({
               borderColor='border.base'
               zIndex={1}
               aria-label={translate('lending.switchAssets')}
-              icon={arrowDownIcon}
+              icon={arrowUpDownIcon}
               isDisabled={isSwitchAssetsDisabled}
             />
           </CircularProgressLabel>

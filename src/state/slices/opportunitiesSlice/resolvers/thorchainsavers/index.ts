@@ -40,7 +40,7 @@ import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 import { thornode } from '@/react-queries/queries/thornode'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -100,7 +100,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const { SaversVaults } = selectFeatureFlags(state)
+  const { SaversVaults } = preferences.selectors.selectFeatureFlags(state)
 
   if (!(SaversVaults && opportunityIds?.length)) {
     return Promise.resolve({
@@ -178,7 +178,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       saversMaxSupplyFiat: saversMaxSupplyUserCurrency,
       isFull: thorchainPool.synth_mint_paused,
       isClaimableRewards: false,
-      isReadOnly: true,
     }
   }
 
@@ -290,7 +289,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,
-      isReadOnly: true,
     }
   }
 

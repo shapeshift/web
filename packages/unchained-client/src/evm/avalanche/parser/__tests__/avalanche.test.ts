@@ -1,5 +1,4 @@
 import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/common-api'
 import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -20,19 +19,7 @@ import zrxTradeAvaxToWeth from './mockData/zrxTradeAvaxToWeth'
 import zrxTradeWethToAvax from './mockData/zrxTradeWethToAvax'
 import zrxTradeWethToWbtc from './mockData/zrxTradeWethToWbtc'
 
-vi.hoisted(() => {
-  vi.stubEnv('VITE_FEATURE_NFT_METADATA', 'true')
-})
-
 const mockedApi = vi.mocked(new V1Api())
-
-const tokenMetadata: evm.TokenMetadata = {
-  name: 'Foxy',
-  description: 'The foxiest Fox',
-  media: { url: 'http://foxy.fox', type: 'image' },
-}
-
-mockedApi.getTokenMetadata = vi.fn().mockResolvedValue(tokenMetadata)
 
 const txParser = new TransactionParser({
   rpcUrl: '',
@@ -314,10 +301,6 @@ describe('parseTx', () => {
             assetId: avalancheAssetId,
             value: '12197872615144426',
           },
-          data: {
-            parser: 'nft',
-            mediaById: { '34': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Send,
@@ -375,10 +358,6 @@ describe('parseTx', () => {
           chainId: 'eip155:43114',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '34': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Receive,
@@ -442,10 +421,6 @@ describe('parseTx', () => {
             assetId: avalancheAssetId,
             value: '8660269633799979',
           },
-          data: {
-            parser: 'nft',
-            mediaById: { '690': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Send,
@@ -503,10 +478,6 @@ describe('parseTx', () => {
           chainId: 'eip155:43114',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
-          data: {
-            parser: 'nft',
-            mediaById: { '690': tokenMetadata.media },
-          },
           transfers: [
             {
               type: TransferType.Receive,

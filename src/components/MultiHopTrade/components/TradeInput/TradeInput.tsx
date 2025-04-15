@@ -10,7 +10,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -27,7 +27,7 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
-import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -99,7 +99,7 @@ export const TradeInput = ({
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { showErrorToast } = useErrorToast()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
@@ -183,14 +183,6 @@ export const TradeInput = ({
   useEffect(() => {
     dispatch(tradeQuoteSlice.actions.clearTradeQuotes())
   }, [dispatch])
-
-  // Reset the sell amount to zero on mount if this is a standalone swapper, since we may be coming from a different
-  // sell asset in regular swapper
-  useEffect(() => {
-    if (isStandalone) {
-      dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
-    }
-  }, [dispatch, isStandalone])
 
   useEffect(() => {
     // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
@@ -282,12 +274,12 @@ export const TradeInput = ({
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
-        history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+        navigate('/trade/verify-addresses')
         setIsConfirmationLoading(false)
         return
       }
 
-      history.push({ pathname: TradeRoutePaths.Confirm })
+      navigate('/trade/confirm')
     } catch (e) {
       showErrorToast(e)
     }
@@ -298,7 +290,7 @@ export const TradeInput = ({
     activeQuoteMeta,
     dispatch,
     handleConnect,
-    history,
+    navigate,
     isConnected,
     mixpanel,
     showErrorToast,

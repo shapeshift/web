@@ -1,9 +1,9 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, IconButton, Tag } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Spinner, Tag } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 
@@ -28,7 +28,7 @@ import {
   selectAssetById,
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
-  selectOpportunityApiPending,
+  selectIsAnyOpportunitiesApiQueryPending,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -63,28 +63,25 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
 export type PositionTableProps = {
   chainId?: ChainId
   searchQuery: string
-  includeEarnBalances?: boolean
-  includeRewardsBalances?: boolean
 }
 
 const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 
-export const PositionTable: React.FC<PositionTableProps> = ({
-  chainId,
-  includeEarnBalances,
-  includeRewardsBalances,
-  searchQuery,
-}) => {
+export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQuery }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const isLoading = useAppSelector(selectOpportunityApiPending)
+  const isAnyOpportunitiesApiQueriesPending = useAppSelector(
+    selectIsAnyOpportunitiesApiQueryPending,
+  )
+
+  const [processedRows, setProcessedRows] = useState<AggregatedOpportunitiesByAssetIdReturn[]>([])
+  const [, startTransition] = useTransition()
+
   const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
     () => ({
       chainId,
-      includeEarnBalances,
-      includeRewardsBalances,
     }),
-    [chainId, includeEarnBalances, includeRewardsBalances],
+    [chainId],
   )
 
   const {
@@ -137,9 +134,14 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           // A fiat amount can be positive or negative (debt) but not zero
-          const hasValue = !bnOrZero(row.original.fiatAmount).isZero()
+          const hasValue =
+            bnOrZero(row.original.fiatAmount).gt(0) ||
+            bnOrZero(row.original.fiatRewardsAmount).gt(0)
+
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
+
           return hasValue ? (
-            <Amount.Fiat value={row.original.fiatAmount} />
+            <Amount.Fiat value={totalFiatAmount} />
           ) : (
             <RawText variant='sub-text'>-</RawText>
           )
@@ -209,9 +211,16 @@ export const PositionTable: React.FC<PositionTableProps> = ({
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
-  const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(filteredPositions, searchQuery) : filteredPositions
-  }, [filterRowsBySearchTerm, filteredPositions, searchQuery, isSearching])
+  useEffect(() => {
+    if (!filteredPositions.length) return setProcessedRows([])
+
+    startTransition(() => {
+      const newRows = isSearching
+        ? filterRowsBySearchTerm(filteredPositions, searchQuery)
+        : filteredPositions
+      setProcessedRows(newRows)
+    })
+  }, [filteredPositions, isSearching, searchQuery, filterRowsBySearchTerm])
 
   const handleRowClick = useCallback((row: RowProps) => row.toggleRowExpanded(), [])
 
@@ -221,21 +230,32 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const renderEmptyComponent = useCallback(() => {
-    if (!(includeEarnBalances || includeRewardsBalances))
-      return <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
     return searchQuery ? (
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
-      <ResultsEmpty ctaHref='/earn' ctaText='defi.startEarning' />
+      <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
     )
-  }, [includeEarnBalances, includeRewardsBalances, searchQuery])
+  }, [searchQuery])
+
+  const isInitialProcessing = useMemo(
+    () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,
+    [processedRows, isAnyOpportunitiesApiQueriesPending, positions],
+  )
+
+  if (isInitialProcessing) {
+    return (
+      <Box position='relative' p={4} textAlign='center'>
+        <Spinner size='xl' color='blue.500' thickness='4px' />
+      </Box>
+    )
+  }
 
   return (
     <ReactTable
       onRowClick={handleRowClick}
-      data={rows}
+      data={processedRows}
       columns={columns}
-      isLoading={isLoading}
+      isLoading={isAnyOpportunitiesApiQueriesPending}
       renderSubComponent={renderSubComponent}
       renderEmptyComponent={renderEmptyComponent}
       initialState={initialState}

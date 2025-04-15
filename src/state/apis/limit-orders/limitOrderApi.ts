@@ -1,4 +1,4 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -6,6 +6,7 @@ import {
   assertGetCowNetwork,
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   getAffiliateAppDataFragmentByChainId,
+  getCowNetwork,
   getFullAppData,
   isNativeEvmAsset,
   signCowMessage,
@@ -21,20 +22,24 @@ import type {
   OrderQuoteRequest,
   OrderQuoteResponse,
   OrderStatus,
+  ParsedAppData,
   QuoteId,
   Trade,
 } from '@shapeshiftoss/types'
 import {
   EcdsaSigningScheme,
+  isLegacyAppData,
   OrderClass,
   OrderQuoteSideKindSell,
   PriceQuality,
   SellTokenSource,
   SigningScheme,
 } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { TypedData } from 'eip-712'
+import orderBy from 'lodash/orderBy'
 import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
 
@@ -60,9 +65,70 @@ export const limitOrderApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
-  tagTypes: ['LimitOrder', 'limitOrderQuote'] as const,
+  tagTypes: ['limitOrders', 'limitOrderQuote'] as const,
   baseQuery: fakeBaseQuery<CowSwapError | null>(),
   endpoints: build => ({
+    getLimitOrders: build.query<{ order: Order; accountId: AccountId }[], AccountId[]>({
+      queryFn: async (accountIds: AccountId[]) => {
+        const supportedAccountIds = accountIds.filter(accountId => {
+          const { chainId } = fromAccountId(accountId)
+          return Boolean(getCowNetwork(chainId))
+        })
+
+        try {
+          const results = await Promise.all(
+            supportedAccountIds.map(async accountId => {
+              const { account, chainId } = fromAccountId(accountId)
+              const network = assertGetCowNetwork(chainId)
+              const config = getConfig()
+              const baseUrl = config.VITE_COWSWAP_BASE_URL
+
+              try {
+                const result = await axios.get<Order[]>(
+                  `${baseUrl}/${network}/api/v1/account/${account}/orders?limit=1000`,
+                )
+
+                // CowSwap limit and spot orders API is the same, so we need to filter out spot orders
+                // there are no parameters to filter from their API, they are filtering after fetching
+                // on their interface as it's some custom metadata they add
+                const limitOrders = result.data.filter(order => {
+                  // This shouldn't happen but...
+                  if (!order.fullAppData) return true
+
+                  const appData = JSON.parse(order.fullAppData) as ParsedAppData
+
+                  // Legacy appdata was used for market orders only
+                  if (isLegacyAppData(appData)) return false
+
+                  return appData.metadata.orderClass?.orderClass !== OrderClass.MARKET
+                })
+
+                return limitOrders.map(order => {
+                  return { order, accountId }
+                })
+              } catch (e) {
+                console.error(`Error fetching orders for account ${accountId}:`, e)
+                return []
+              }
+            }),
+          )
+
+          const flattened = orderBy(
+            results.flat().filter(isSome),
+            ({ order }) => order.creationDate,
+            'desc',
+          )
+
+          return { data: flattened }
+        } catch (e) {
+          const axiosError = e as AxiosError
+          return {
+            error: (axiosError.response?.data ?? null) as CowSwapError | null,
+          }
+        }
+      },
+      providesTags: ['limitOrders'],
+    }),
     quoteLimitOrder: build.query<OrderQuoteResponse, LimitOrderQuoteParams>({
       queryFn: async (params: LimitOrderQuoteParams) => {
         const {
@@ -177,6 +243,7 @@ export const limitOrderApi = createApi({
           }
         }
       },
+      invalidatesTags: ['limitOrders'],
     }),
     cancelLimitOrder: build.mutation<
       number,
@@ -222,6 +289,7 @@ export const limitOrderApi = createApi({
 
         return { data: result.status }
       },
+      invalidatesTags: ['limitOrders'],
     }),
     getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({
       queryFn: async ({ orderId, chainId }) => {
@@ -248,5 +316,9 @@ export const limitOrderApi = createApi({
   }),
 })
 
-export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation, useCancelLimitOrderMutation } =
-  limitOrderApi
+export const {
+  useGetLimitOrdersQuery,
+  useQuoteLimitOrderQuery,
+  usePlaceLimitOrderMutation,
+  useCancelLimitOrderMutation,
+} = limitOrderApi

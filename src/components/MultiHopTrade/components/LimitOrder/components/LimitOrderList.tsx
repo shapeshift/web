@@ -1,5 +1,6 @@
 import type { CardProps, TableColumnHeaderProps } from '@chakra-ui/react'
 import {
+  Box,
   Card,
   CardBody,
   CardHeader,
@@ -25,12 +26,12 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { partition } from 'lodash'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { WithBackButton } from '../../WithBackButton'
-import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersQuery'
+import { useLimitOrdersQuery } from '../hooks/useLimitOrders'
 import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'
@@ -62,15 +63,23 @@ const tableContainerHeight = {
   md: '100%',
 }
 
+const tableContainerStyle = {
+  minHeight: '300px',
+}
+
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
   onBack?: () => void
 }
 
-export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
-  const [orderToCancel, setOrderToCancel] = useState<OrderToCancel>()
-  const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
+const OpenLimitOrders: FC<{
+  cardProps?: CardProps
+  onCancelOrderClick: (order: OrderToCancel) => void
+}> = ({ cardProps, onCancelOrderClick }) => {
+  const { currentData: ordersResponse, isLoading } = useLimitOrdersQuery()
+  const parentRef = useRef<HTMLDivElement>(null)
+
   const headBackground = useColorModeValue('gray.50', '#181c1e')
 
   const thSx: TableColumnHeaderProps = useMemo(
@@ -84,36 +93,256 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     [headBackground],
   )
 
-  const [openLimitOrders, historicalLimitOrders] = useMemo(() => {
+  const openLimitOrders = useMemo(() => {
     if (!ordersResponse) return []
-    return partition(
-      ordersResponse
-        .filter(({ order }) => {
-          // Parse appData json to extract the order class
-          const appDataOrderClass = JSON.parse(order.fullAppData ?? '{}').metadata?.orderClass
-            ?.orderClass as OrderClass
-          // Prefer appData as the source of truth for order class, falling back to `order.class`.
-          // Required because they often differ, and appData has the most correct information.
-          const orderClass = appDataOrderClass ?? order.class
-          return orderClass === OrderClass.LIMIT && order.signingScheme === SigningScheme.EIP712
-        })
-        .map(({ accountId, order }) => {
-          const { chainId } = fromAccountId(accountId)
-          const sellAssetId = cowSwapTokenToAssetId(chainId, order.sellToken)
-          const buyAssetId = cowSwapTokenToAssetId(chainId, order.buyToken)
-          return { accountId, sellAssetId, buyAssetId, order }
-        }),
-      ({ order }) => [OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status),
-    )
+
+    return ordersResponse
+      .filter(({ order }) => {
+        return (
+          order.class === OrderClass.LIMIT &&
+          order.signingScheme === SigningScheme.EIP712 &&
+          [OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status)
+        )
+      })
+      .map(({ accountId, order }) => {
+        const { chainId } = fromAccountId(accountId)
+        const sellAssetId = cowSwapTokenToAssetId(chainId, order.sellToken)
+        const buyAssetId = cowSwapTokenToAssetId(chainId, order.buyToken)
+        return { accountId, sellAssetId, buyAssetId, order }
+      })
   }, [ordersResponse])
+
+  const rowVirtualizer = useVirtualizer({
+    count: openLimitOrders.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 65, // Estimated row height
+    overscan: 5,
+  })
+
+  const virtualRows = rowVirtualizer.getVirtualItems()
+  const topRowSpacerHeight = virtualRows.length > 0 ? virtualRows[0].start : 0
+  const bottomRowSpacerHeight =
+    virtualRows.length > 0
+      ? rowVirtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
+      : 0
 
   const handleCancelOrderClick = useCallback(
     (uid: string) => {
-      const order = openLimitOrders?.find(order => order.order.uid === uid)
-      setOrderToCancel(order)
+      const order = openLimitOrders.find(({ order }) => order.uid === uid)
+      if (!order) return
+      onCancelOrderClick(order)
     },
-    [openLimitOrders],
+    [onCancelOrderClick, openLimitOrders],
   )
+
+  return (
+    <>
+      {isLoading && (
+        <Center width='full' height={`calc(${cardProps?.height}px - 40px)`}>
+          <VStack>
+            <Spinner />
+            <Text color='text.subtle' translation='limitOrder.loadingOrderList' />
+          </VStack>
+        </Center>
+      )}
+      {openLimitOrders !== undefined && openLimitOrders.length > 0 && (
+        <Box height={tableContainerHeight} style={tableContainerStyle}>
+          <TableContainer
+            height='100%'
+            overflowY='auto'
+            className='scroll-container'
+            ref={parentRef}
+          >
+            <Table variant='unstyled' size='sm' sx={tableStyles}>
+              <Thead>
+                <Tr>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.sellBuy' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.limitExecution' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.statusHead' />
+                  </Th>
+                  <Th {...thSx} width='48px'></Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {virtualRows.length > 0 && (
+                  <>
+                    {topRowSpacerHeight > 0 && <Tr height={topRowSpacerHeight} />}
+                    {virtualRows.map(virtualRow => {
+                      const { accountId, sellAssetId, buyAssetId, order } =
+                        openLimitOrders[virtualRow.index]
+                      return (
+                        <LimitOrderCard
+                          key={`${order.uid}-${virtualRow.index}`}
+                          uid={order.uid}
+                          accountId={accountId}
+                          sellAmountCryptoBaseUnit={order.sellAmount}
+                          buyAmountCryptoBaseUnit={order.buyAmount}
+                          buyAssetId={buyAssetId}
+                          sellAssetId={sellAssetId}
+                          validTo={order.validTo}
+                          filledDecimalPercentage={bnOrZero(order.executedSellAmount)
+                            .div(order.sellAmount)
+                            .toNumber()}
+                          status={order.status}
+                          onCancelClick={handleCancelOrderClick}
+                          executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
+                          executedSellAmountCryptoBaseUnit={order.executedSellAmount}
+                        />
+                      )
+                    })}
+                    {bottomRowSpacerHeight > 0 && <Tr height={bottomRowSpacerHeight} />}
+                  </>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
+      {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (
+        <Center h='full'>
+          <Text color='text.subtle' translation='limitOrder.noOpenOrders' />
+        </Center>
+      )}
+    </>
+  )
+}
+
+const HistoricalLimitOrders: FC<{
+  cardProps?: CardProps
+}> = ({ cardProps }) => {
+  const { currentData: ordersResponse, isLoading } = useLimitOrdersQuery()
+  const parentRef = useRef<HTMLDivElement>(null)
+  const headBackground = useColorModeValue('gray.50', '#181c1e')
+
+  const thSx: TableColumnHeaderProps = useMemo(
+    () => ({
+      position: 'sticky',
+      top: 0,
+      zIndex: 'docked',
+      color: 'text.subtle',
+      background: headBackground,
+    }),
+    [headBackground],
+  )
+
+  const historicalLimitOrders = useMemo(() => {
+    if (!ordersResponse) return []
+
+    return ordersResponse
+      .filter(({ order }) => {
+        return (
+          order.class === OrderClass.LIMIT &&
+          order.signingScheme === SigningScheme.EIP712 &&
+          ![OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status)
+        )
+      })
+      .map(({ accountId, order }) => {
+        const { chainId } = fromAccountId(accountId)
+        const sellAssetId = cowSwapTokenToAssetId(chainId, order.sellToken)
+        const buyAssetId = cowSwapTokenToAssetId(chainId, order.buyToken)
+        return { accountId, sellAssetId, buyAssetId, order }
+      })
+  }, [ordersResponse])
+
+  const rowVirtualizer = useVirtualizer({
+    count: historicalLimitOrders.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 65, // Estimated row height
+    overscan: 5,
+  })
+
+  const virtualRows = rowVirtualizer.getVirtualItems()
+  const topRowSpacerHeight = virtualRows.length > 0 ? virtualRows[0].start : 0
+  const bottomRowSpacerHeight =
+    virtualRows.length > 0
+      ? rowVirtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
+      : 0
+
+  return (
+    <>
+      {isLoading && (
+        <Center width='full' height={`calc(${cardProps?.height}px - 40px)`}>
+          <VStack>
+            <Spinner />
+            <Text color='text.subtle' translation='limitOrder.loadingOrderList' />
+          </VStack>
+        </Center>
+      )}
+      {historicalLimitOrders !== undefined && historicalLimitOrders.length > 0 ? (
+        <Box height={tableContainerHeight} style={tableContainerStyle}>
+          <TableContainer
+            height='100%'
+            overflowY='auto'
+            className='scroll-container'
+            ref={parentRef}
+          >
+            <Table variant='unstyled' size='sm' sx={tableStyles}>
+              <Thead>
+                <Tr>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.sellBuy' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.limitExecution' />
+                  </Th>
+                  <Th {...thSx}>
+                    <Text translation='limitOrder.statusHead' />
+                  </Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {virtualRows.length > 0 && (
+                  <>
+                    {topRowSpacerHeight > 0 && <Tr height={topRowSpacerHeight} />}
+                    {virtualRows.map(virtualRow => {
+                      const { accountId, sellAssetId, buyAssetId, order } =
+                        historicalLimitOrders[virtualRow.index]
+                      return (
+                        <LimitOrderCard
+                          key={order.uid}
+                          uid={order.uid}
+                          accountId={accountId}
+                          sellAmountCryptoBaseUnit={order.sellAmount}
+                          buyAmountCryptoBaseUnit={order.buyAmount}
+                          buyAssetId={buyAssetId}
+                          sellAssetId={sellAssetId}
+                          validTo={order.validTo}
+                          filledDecimalPercentage={bnOrZero(order.executedSellAmount)
+                            .div(order.sellAmount)
+                            .toNumber()}
+                          status={order.status}
+                          executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
+                          executedSellAmountCryptoBaseUnit={order.executedSellAmount}
+                        />
+                      )
+                    })}
+                    {bottomRowSpacerHeight > 0 && <Tr height={bottomRowSpacerHeight} />}
+                  </>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Box>
+      ) : (
+        <Center h='full'>
+          <Text color='text.subtle' translation='limitOrder.noHistoricalOrders' />
+        </Center>
+      )}
+    </>
+  )
+}
+
+export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
+  const [orderToCancel, setOrderToCancel] = useState<OrderToCancel>()
+
+  const handleCancelOrderClick = useCallback((order: OrderToCancel) => {
+    setOrderToCancel(order)
+  }, [])
 
   const handleResetOrderToCancel = useCallback(() => {
     setOrderToCancel(undefined)
@@ -143,6 +372,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
         mt={4}
         pe={1}
         pb={8}
+        isLazy
       >
         <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
           <Tab
@@ -167,116 +397,11 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
         <CardBody flex='1' minH={0} px={2} py={0} pe={1}>
           <TabPanels height='100%'>
             <TabPanel px={0} py={0} height='100%'>
-              {isLoading && (
-                <Center width='full' height={`calc(${cardProps?.height}px - 40px)`}>
-                  <VStack>
-                    <Spinner />
-                    <Text color='text.subtle' translation='limitOrder.loadingOrderList' />
-                  </VStack>
-                </Center>
-              )}
-              {openLimitOrders !== undefined && openLimitOrders.length > 0 && (
-                <TableContainer
-                  height={tableContainerHeight}
-                  overflowY='auto'
-                  className='scroll-container'
-                >
-                  <Table variant='unstyled' size='sm' sx={tableStyles}>
-                    <Thead>
-                      <Tr>
-                        <Th {...thSx}>
-                          <Text translation='limitOrder.sellBuy' />
-                        </Th>
-                        <Th {...thSx}>
-                          <Text translation='limitOrder.limitExecution' />
-                        </Th>
-                        <Th {...thSx}>
-                          <Text translation='limitOrder.statusHead' />
-                        </Th>
-                        <Th {...thSx} width='48px'></Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {openLimitOrders.map(({ accountId, sellAssetId, buyAssetId, order }) => (
-                        <LimitOrderCard
-                          key={order.uid}
-                          uid={order.uid}
-                          accountId={accountId}
-                          sellAmountCryptoBaseUnit={order.sellAmount}
-                          buyAmountCryptoBaseUnit={order.buyAmount}
-                          buyAssetId={buyAssetId}
-                          sellAssetId={sellAssetId}
-                          validTo={order.validTo}
-                          filledDecimalPercentage={bnOrZero(order.executedSellAmount)
-                            .div(order.sellAmount)
-                            .toNumber()}
-                          status={order.status}
-                          onCancelClick={handleCancelOrderClick}
-                          executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
-                          executedSellAmountCryptoBaseUnit={order.executedSellAmount}
-                        />
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
-              )}
-              {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (
-                <Center h='full'>
-                  <Text color='text.subtle' translation='limitOrder.noOpenOrders' />
-                </Center>
-              )}
+              <OpenLimitOrders cardProps={cardProps} onCancelOrderClick={handleCancelOrderClick} />
             </TabPanel>
 
             <TabPanel px={0} py={0} height='100%'>
-              {historicalLimitOrders !== undefined && historicalLimitOrders.length > 0 ? (
-                <TableContainer
-                  height={tableContainerHeight}
-                  overflowY='auto'
-                  className='scroll-container'
-                >
-                  <Table variant='unstyled' size='sm' sx={tableStyles}>
-                    <Thead>
-                      <Tr>
-                        <Th {...thSx}>
-                          <Text translation='limitOrder.sellBuy' />
-                        </Th>
-                        <Th {...thSx}>
-                          <Text translation='limitOrder.limitExecution' />
-                        </Th>
-                        <Th {...thSx}>
-                          <Text translation='limitOrder.statusHead' />
-                        </Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {historicalLimitOrders.map(
-                        ({ accountId, sellAssetId, buyAssetId, order }) => (
-                          <LimitOrderCard
-                            key={order.uid}
-                            uid={order.uid}
-                            accountId={accountId}
-                            sellAmountCryptoBaseUnit={order.sellAmount}
-                            buyAmountCryptoBaseUnit={order.buyAmount}
-                            buyAssetId={buyAssetId}
-                            sellAssetId={sellAssetId}
-                            validTo={order.validTo}
-                            filledDecimalPercentage={bnOrZero(order.executedSellAmount)
-                              .div(order.sellAmount)
-                              .toNumber()}
-                            status={order.status}
-                            executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
-                            executedSellAmountCryptoBaseUnit={order.executedSellAmount}
-                          />
-                        ),
-                      )}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Center h='full'>
-                  <Text color='text.subtle' translation='limitOrder.noHistoricalOrders' />
-                </Center>
-              )}
+              <HistoricalLimitOrders cardProps={cardProps} />
             </TabPanel>
           </TabPanels>
         </CardBody>

@@ -70,7 +70,6 @@ const validators = {
   VITE_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   VITE_FEATURE_LIFI_SWAP: bool({ default: false }),
   VITE_FEATURE_COWSWAP: bool({ default: false }),
-  VITE_FEATURE_JAYPEGZ: bool({ default: false }),
   VITE_FEATURE_OPTIMISM: bool({ default: false }),
   VITE_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   VITE_FEATURE_POLYGON: bool({ default: false }),
@@ -95,7 +94,6 @@ const validators = {
   VITE_WALLET_CONNECT_WALLET_PROJECT_ID: str({ default: '' }),
   VITE_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
   VITE_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
-  VITE_LOCAL_IP: str({ default: '192.168.1.222' }),
   VITE_BOARDROOM_API_BASE_URL: url({
     default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
   }),
@@ -111,6 +109,7 @@ const validators = {
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
+  VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
     default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
   }),
@@ -132,11 +131,6 @@ const validators = {
   VITE_ALCHEMY_API_KEY: str(),
   VITE_ALCHEMY_SOLANA_BASE_URL: url(),
   VITE_PORTALS_API_KEY: str(),
-  VITE_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_POLYGON_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL: url(),
-  VITE_ALCHEMY_BASE_JAYPEGS_BASE_URL: url(),
   VITE_CHATWOOT_TOKEN: str(),
   VITE_CHATWOOT_URL: str(),
   VITE_FEATURE_CHATWOOT: bool({ default: false }),
@@ -186,6 +180,8 @@ const validators = {
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: bool({ default: false }),
+  VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
+  VITE_RELAY_API_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
@@ -199,5 +195,5 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() => {
-  return Object.freeze({ ...cleanEnv(import.meta.env, validators, { reporter }) })
+  return Object.freeze({ ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }) })
 })

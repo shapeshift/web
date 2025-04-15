@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
@@ -13,12 +13,8 @@ import { getRelatedAssetIds, serializeTxIndex } from './utils'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from '@/lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
-import {
-  BLACKLISTED_COLLECTION_IDS,
-  isSpammyNftText,
-  isSpammyTokenText,
-} from '@/state/apis/nft/constants'
 import type { State } from '@/state/apis/types'
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { Nominal } from '@/types/common'
 
 export type TxId = Nominal<string, 'TxId'>
@@ -142,34 +138,40 @@ const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: A
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
-  reducers: {
-    clear: () => {
+  reducers: create => ({
+    clear: create.reducer(() => {
       return initialState
-    },
-    onMessage: (txState, { payload }: TxMessage) => {
+    }),
+    onMessage: create.reducer((txState, { payload }: TxMessage) => {
       updateOrInsertTxs(txState, [payload.message], payload.accountId)
-    },
-    upsertTxsByAccountId: (txState, { payload }: TxsMessage) => {
+    }),
+    upsertTxsByAccountId: create.reducer((txState, { payload }: TxsMessage) => {
       for (const [accountId, txs] of Object.entries(payload)) {
         updateOrInsertTxs(txState, txs, accountId)
       }
 
       return txState
-    },
-    setAccountIdHydrated: (txState, { payload }: { payload: AccountId }) => {
+    }),
+    setAccountIdHydrated: create.reducer((txState, { payload }: { payload: AccountId }) => {
       txState.hydrationMeta[payload] = {
         minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
         isHydrated: true,
         isErrored: false,
       }
-    },
-    setAccountIdErrored: (txState, { payload }: { payload: AccountId }) => {
+    }),
+    setAccountIdErrored: create.reducer((txState, { payload }: { payload: AccountId }) => {
       txState.hydrationMeta[payload] = {
         minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
         isHydrated: false,
         isErrored: true,
       }
-    },
+    }),
+  }),
+  selectors: {
+    selectTxsById: state => state.txs.byId,
+    selectTxIds: state => state.txs.ids,
+    selectHydrationMeta: state => state.hydrationMeta,
+    selectTxIdsByAccountIdAssetId: state => state.txs.byAccountIdAssetId,
   },
   extraReducers: builder => {
     builder.addCase(PURGE, () => initialState)

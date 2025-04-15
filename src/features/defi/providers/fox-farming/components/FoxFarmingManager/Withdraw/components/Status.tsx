@@ -5,7 +5,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -73,8 +73,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }),
   )
 
-  const history = useHistory()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
@@ -95,11 +94,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [accountId],
   )
 
-  const handleViewPosition = useCallback(() => {
-    browserHistory.push('/earn')
-  }, [browserHistory])
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
-  const handleCancel = history.goBack
+  const handleViewPosition = useCallback(() => {
+    navigate('/wallet/earn')
+  }, [navigate])
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountId && accountAddress?.length)) return ''

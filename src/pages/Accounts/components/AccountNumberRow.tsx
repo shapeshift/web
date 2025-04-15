@@ -35,7 +35,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  selectPortfolioAccountsUserCurrencyBalances,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -48,6 +48,7 @@ type AccountNumberRowProps = {
 type UtxoAccountEntriesProps = {
   accountIds: AccountId[]
   chainId: ChainId
+  isVisible: boolean
 }
 
 const mdOutlineMoreVertIcon = <MdOutlineMoreVert />
@@ -57,13 +58,17 @@ const arrowUpIcon = <ArrowUpIcon />
 const copyIcon = <CopyIcon />
 const checkIcon = <CheckIcon />
 
-const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, chainId }) => {
+const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({
+  accountIds,
+  chainId,
+  isVisible,
+}) => {
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const assetId = feeAsset?.assetId
 
   const result = useMemo(
     () =>
-      assetId ? (
+      assetId && isVisible ? (
         <>
           {accountIds.map(accountId => (
             <AccountEntryRow
@@ -74,18 +79,24 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, cha
           ))}
         </>
       ) : null,
-    [accountIds, assetId],
+    [accountIds, assetId, isVisible],
   )
+
+  if (!isVisible) return null
 
   return result
 }
 
 type AccountBasedChainEntriesProps = {
   accountId: AccountId
+  isVisible: boolean
 }
-const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ accountId }) => {
+const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
+  accountId,
+  isVisible,
+}) => {
   const accountAssetBalancesSortedUserCurrency = useSelector(
-    selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+    selectPortfolioAccountsUserCurrencyBalances,
   )
   const assetIds = useMemo(
     () => Object.keys(accountAssetBalancesSortedUserCurrency[accountId] ?? {}),
@@ -101,6 +112,8 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
     ),
     [accountId, assetIds],
   )
+
+  if (!isVisible) return null
 
   return result
 }
@@ -141,11 +154,11 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const accountEntries = useMemo(
     () =>
       isUtxoAccount ? (
-        <UtxoAccountEntries chainId={chainId} accountIds={accountIds} />
+        <UtxoAccountEntries chainId={chainId} accountIds={accountIds} isVisible={isOpen} />
       ) : (
-        <AccountBasedChainEntries accountId={accountIds[0]} />
+        <AccountBasedChainEntries accountId={accountIds[0]} isVisible={isOpen} />
       ),
-    [accountIds, chainId, isUtxoAccount],
+    [accountIds, chainId, isUtxoAccount, isOpen],
   )
 
   const title = useMemo(() => {
@@ -218,7 +231,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
         )}
       </Flex>
       <NestedList as={Collapse} in={isOpen} pr={0}>
-        <ListItem>{accountEntries}</ListItem>
+        <ListItem>{isOpen && accountEntries}</ListItem>
       </NestedList>
     </ListItem>
   )

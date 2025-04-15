@@ -20,7 +20,6 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
-import { selectNftCollections } from '@/state/apis/nft/selectors'
 import type { ReduxState } from '@/state/reducer'
 
 type WalletMetaPayload = {
@@ -32,45 +31,46 @@ type WalletMetaPayload = {
 export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
-  reducers: {
-    clear: () => {
+  reducers: create => ({
+    clear: create.reducer(() => {
       return initialState
-    },
-    setIsAccountMetadataLoading: (
-      state,
-      { payload }: { payload: { accountId: AccountId; isLoading: boolean } },
-    ) => {
-      state.isAccountMetadataLoadingByAccountId[payload.accountId] = payload.isLoading
-    },
-    setWalletMeta: (
-      state,
-      { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChainIds'> | undefined },
-    ) => {
-      // don't fire and rerender with same action
-      if (state.connectedWallet?.id === payload?.walletId) return
+    }),
+    setIsAccountMetadataLoading: create.reducer(
+      (state, { payload }: { payload: { accountId: AccountId; isLoading: boolean } }) => {
+        state.isAccountMetadataLoadingByAccountId[payload.accountId] = payload.isLoading
+      },
+    ),
+    setWalletMeta: create.reducer(
+      (
+        state,
+        { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChainIds'> | undefined },
+      ) => {
+        // don't fire and rerender with same action
+        if (state.connectedWallet?.id === payload?.walletId) return
 
-      // note this function can unset the walletId to undefined
-      if (payload !== undefined) {
-        const { walletId, walletName } = payload
+        // note this function can unset the walletId to undefined
+        if (payload !== undefined) {
+          const { walletId, walletName } = payload
 
-        const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
-        // if we already have state.walletId, we're switching wallets, otherwise connecting
-        getMixPanel()?.track(
-          state.connectedWallet?.id ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
-          data,
-        )
-        state.connectedWallet = {
-          id: walletId,
-          name: walletName,
-          supportedChainIds: [],
+          const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
+          // if we already have state.walletId, we're switching wallets, otherwise connecting
+          getMixPanel()?.track(
+            state.connectedWallet?.id ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
+            data,
+          )
+          state.connectedWallet = {
+            id: walletId,
+            name: walletName,
+            supportedChainIds: [],
+          }
+          state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
+        } else {
+          state.connectedWallet = undefined
+          getMixPanel()?.track(MixPanelEvent.DisconnectWallet)
         }
-        state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
-      } else {
-        state.connectedWallet = undefined
-        getMixPanel()?.track(MixPanelEvent.DisconnectWallet)
-      }
-    },
-    setWalletSupportedChainIds: (state, { payload }: { payload: ChainId[] }) => {
+      },
+    ),
+    setWalletSupportedChainIds: create.reducer((state, { payload }: { payload: ChainId[] }) => {
       // should never happen as connectedWallet is set in the wallet provider before other actions can be fired
       if (state.connectedWallet === undefined) return
 
@@ -78,29 +78,33 @@ export const portfolio = createSlice({
       if (haveSameElements(payload, state.connectedWallet.supportedChainIds)) return
 
       Object.assign(state.connectedWallet, { supportedChainIds: payload })
-    },
-    upsertAccountMetadata: (
-      draftState,
-      {
-        payload,
-      }: { payload: { accountMetadataByAccountId: AccountMetadataById; walletId: string } },
-    ) => {
-      // WARNING: don't use the current state.connectedWallet.id here because it's updated async
-      // to this and results in account data corruption
-      const { accountMetadataByAccountId, walletId } = payload
-      draftState.accountMetadata.byId = merge(
-        draftState.accountMetadata.byId,
-        accountMetadataByAccountId,
-      )
-      draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
+    }),
+    upsertAccountMetadata: create.reducer(
+      (
+        draftState,
+        {
+          payload,
+        }: { payload: { accountMetadataByAccountId: AccountMetadataById; walletId: string } },
+      ) => {
+        // WARNING: don't use the current state.connectedWallet.id here because it's updated async
+        // to this and results in account data corruption
+        const { accountMetadataByAccountId, walletId } = payload
+        draftState.accountMetadata.byId = merge(
+          draftState.accountMetadata.byId,
+          accountMetadataByAccountId,
+        )
+        draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-      if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
-      const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
-      const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
-      // keep an index of what account ids belong to this wallet
-      draftState.wallet.byId[walletId] = uniq(existingWalletAccountIds.concat(newWalletAccountIds))
-    },
-    clearWalletMetadata: (draftState, { payload }: { payload: WalletId }) => {
+        if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
+        const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
+        const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
+        // keep an index of what account ids belong to this wallet
+        draftState.wallet.byId[walletId] = uniq(
+          existingWalletAccountIds.concat(newWalletAccountIds),
+        )
+      },
+    ),
+    clearWalletMetadata: create.reducer((draftState, { payload }: { payload: WalletId }) => {
       const walletId = payload
       // Clear AccountIds that were previously associated with that wallet
       draftState.wallet.byId[walletId] = []
@@ -108,8 +112,8 @@ export const portfolio = createSlice({
 
       // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
       // Theoretically, not doing so would make reloading these easier?
-    },
-    clearWalletPortfolioState: (draftState, { payload }: { payload: string }) => {
+    }),
+    clearWalletPortfolioState: create.reducer((draftState, { payload }: { payload: string }) => {
       const walletId = payload
 
       delete draftState.wallet.byId[walletId]
@@ -119,8 +123,8 @@ export const portfolio = createSlice({
       delete draftState.accountBalances.byId[walletId]
       draftState.accountBalances.ids = draftState.accountBalances.ids.filter(id => id !== walletId)
       delete draftState.enabledAccountIds[walletId]
-    },
-    upsertPortfolio: (draftState, { payload }: { payload: Portfolio }) => {
+    }),
+    upsertPortfolio: create.reducer((draftState, { payload }: { payload: Portfolio }) => {
       // upsert all
       draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
       draftState.accounts.ids = Object.keys(draftState.accounts.byId)
@@ -129,38 +133,55 @@ export const portfolio = createSlice({
         payload.accountBalances.byId,
       )
       draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
-    },
+    }),
     /**
      * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
      * during initial load, leading to all auto-detected accounts being disabled.
      */
-    enableAccountId: (draftState, { payload: accountId }: { payload: AccountId }) => {
-      const walletId = draftState.connectedWallet?.id
+    enableAccountId: create.reducer(
+      (draftState, { payload: accountId }: { payload: AccountId }) => {
+        const walletId = draftState.connectedWallet?.id
 
-      if (!walletId) return
+        if (!walletId) return
 
-      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
-      enabledAccountIdsSet.add(accountId)
-      draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
-    },
-    toggleAccountIdEnabled: (draftState, { payload: accountId }: { payload: AccountId }) => {
-      const walletId = draftState.connectedWallet?.id
-
-      if (!walletId) return
-
-      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
-      const isEnabled = enabledAccountIdsSet.has(accountId)
-
-      if (isEnabled) {
-        enabledAccountIdsSet.delete(accountId)
-      } else {
+        const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
         enabledAccountIdsSet.add(accountId)
-      }
+        draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
+      },
+    ),
+    toggleAccountIdEnabled: create.reducer(
+      (draftState, { payload: accountId }: { payload: AccountId }) => {
+        const walletId = draftState.connectedWallet?.id
 
-      draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
-    },
-  },
+        if (!walletId) return
+
+        const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
+        const isEnabled = enabledAccountIdsSet.has(accountId)
+
+        if (isEnabled) {
+          enabledAccountIdsSet.delete(accountId)
+        } else {
+          enabledAccountIdsSet.add(accountId)
+        }
+
+        draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
+      },
+    ),
+  }),
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
+  selectors: {
+    selectAccountsById: state => state.accounts.byId,
+    selectAccountMetadataById: state => state.accountMetadata.byId,
+    selectIsAccountMetadataLoadingByAccountId: state => state.isAccountMetadataLoadingByAccountId,
+    selectWalletId: state => state.connectedWallet?.id,
+    selectWalletName: state => state.connectedWallet?.name,
+    selectIsWalletConnected: state => state.connectedWallet !== undefined,
+    selectWalletSupportedChainIds: state => state.connectedWallet?.supportedChainIds ?? [],
+    selectAccountIdsByWalletId: state => state.wallet.byId,
+    selectWalletIds: state => state.wallet.ids,
+    selectAccountBalancesById: state => state.accountBalances.byId,
+    selectEnabledAccountIds: state => state.enabledAccountIds,
+  },
 })
 
 type GetAccountArgs = {
@@ -199,8 +220,6 @@ export const portfolioApi = createApi({
             }),
           }
 
-          const nftCollectionsById = selectNftCollections(state)
-
           // Prefetch smart contract checks - do *not* await/.then() me, this is only for the purpose of having this cached later
           fetchIsSmartContractAddressQuery(pubkey, chainId)
 
@@ -213,7 +232,6 @@ export const portfolioApi = createApi({
             return accountToPortfolio({
               portfolioAccounts,
               assetIds: assetIds.concat(assets?.ids ?? []),
-              nftCollectionsById,
             })
           })()
 

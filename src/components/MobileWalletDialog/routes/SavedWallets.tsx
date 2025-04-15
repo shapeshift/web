@@ -3,7 +3,7 @@ import { Button, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { TbCircleArrowDown, TbCirclePlus, TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../types'
 
@@ -59,7 +59,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [onClose, settings])
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const accountManagementPopover = useModal('manageAccounts')
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleBackupMenuItemClick = useCallback(async () => {
     const revocableWallet = createRevocableWallet({
@@ -71,9 +71,9 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     if (wallet?.mnemonic) {
       revocableWallet.mnemonic = wallet.mnemonic
 
-      history.push(MobileWalletDialogRoutes.Backup, { vault: wallet })
+      navigate(MobileWalletDialogRoutes.Backup, { state: { vault: wallet } })
     }
-  }, [history, state])
+  }, [navigate, state])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
     accountManagementPopover.open({})
@@ -85,12 +85,12 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [onClose, feedbackSupport])
 
   const handleCreateClick = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.Create)
-  }, [history])
+    navigate(MobileWalletDialogRoutes.Create)
+  }, [navigate])
 
   const handleImportClick = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.Import)
-  }, [history])
+    navigate(MobileWalletDialogRoutes.Import)
+  }, [navigate])
 
   const mobileWalletFooter = useMemo(() => {
     return (

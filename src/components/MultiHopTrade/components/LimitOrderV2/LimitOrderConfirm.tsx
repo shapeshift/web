@@ -2,14 +2,14 @@ import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/re
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Redirect, useHistory } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
+import { LimitTradeSuccess } from '../LimitOrder/components/LimitTradeSuccess'
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
-import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { useAllowanceApproval } from './hooks/useAllowanceApproval'
 import { useAllowanceReset } from './hooks/useAllowanceReset'
 import { useSetIsApprovalInitiallyNeeded } from './hooks/useSetIsApprovalInitiallyNeeded'
@@ -33,7 +33,6 @@ import {
 import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
-  selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAsset,
   selectActiveQuoteFeeAsset,
@@ -47,7 +46,7 @@ import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const LimitOrderConfirm = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
     limitOrderSlice.actions,
@@ -56,7 +55,7 @@ export const LimitOrderConfirm = () => {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
@@ -73,8 +72,8 @@ export const LimitOrderConfirm = () => {
 
   const handleBack = useCallback(() => {
     dispatch(limitOrderSlice.actions.clear())
-    history.push(LimitOrderRoutePaths.Input)
-  }, [dispatch, history])
+    navigate(LimitOrderRoutePaths.Input)
+  }, [dispatch, navigate])
 
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
@@ -155,7 +154,7 @@ export const LimitOrderConfirm = () => {
     if (!sellAsset || !buyAsset) return null
     if (orderSubmissionState === LimitOrderSubmissionState.Complete) {
       return (
-        <TradeSuccess
+        <LimitTradeSuccess
           titleTranslation='limitOrder.success'
           buttonTranslation={'limitOrder.placeAnotherOrder'}
           summaryTranslation={'limitOrder.orderSummary'}
@@ -428,11 +427,11 @@ export const LimitOrderConfirm = () => {
 
   const footer = useMemo(() => {
     if (!detail && !button) return null
-    return <SharedConfirmFooter detail={detail} button={button} />
+    return <SharedConfirmFooter detail={detail} button={button} pt={0} />
   }, [detail, button])
 
   // We should have some submission state here... unless we're rehydrating or trying to access /limit/confirm directly
-  if (!orderSubmissionState) return <Redirect to={LimitOrderRoutePaths.Input} />
+  if (!orderSubmissionState) return <Navigate to={LimitOrderRoutePaths.Input} replace />
   if (!body) return null
   return (
     <SharedConfirm

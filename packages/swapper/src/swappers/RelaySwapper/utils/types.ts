@@ -119,7 +119,6 @@ export type RelayQuoteSolanaItemData = {
   addressLookupTableAddresses: string[]
 }
 
-// @TODO: Change this to EVM and add UTXO/SVM types
 export type RelayQuoteItem = {
   data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
 }

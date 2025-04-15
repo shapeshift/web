@@ -1,9 +1,9 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { selectFeatureFlags } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 
-const enabledFlags = selectFeatureFlags(store.getState())
+const enabledFlags = preferences.selectors.selectFeatureFlags(store.getState())
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
 export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {

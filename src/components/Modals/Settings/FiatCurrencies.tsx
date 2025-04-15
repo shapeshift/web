@@ -12,14 +12,13 @@ import { RawText, Text } from '@/components/Text'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { SupportedFiatCurrenciesList } from '@/lib/market-service'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedCurrency } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
 
 export const FiatCurrencies = () => {
   const dispatch = useAppDispatch()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const translate = useTranslate()
   const navigate = useNavigate()
   const defaultCurrency: SupportedFiatCurrencies = 'USD'

@@ -189,7 +189,7 @@ const StandaloneTradeRoutes = memo(
     const quoteListElement = useMemo(
       () => (
         <SlideTransitionRoute
-          height={tradeInputRef.current?.offsetHeight ?? '500px'}
+          height={tradeInputRef.current?.offsetHeight ?? '660px'}
           width={tradeInputRef.current?.offsetWidth ?? 'full'}
           component={QuoteList}
           parentRoute={TradeRoutePaths.Input}

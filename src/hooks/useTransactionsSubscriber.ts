@@ -4,19 +4,18 @@ import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { usePlugins } from '../PluginProvider/PluginProvider'
-
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from '@/state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { opportunities } from '@/state/slices/opportunitiesSlice/opportunitiesSlice'
 import { fetchAllOpportunitiesUserDataByAccountId } from '@/state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
@@ -24,12 +23,11 @@ import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
-  selectStakingOpportunitiesById,
 } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
 
-export const TransactionsSubscriber: React.FC = () => {
+export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const {
@@ -39,7 +37,9 @@ export const TransactionsSubscriber: React.FC = () => {
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const { supportedChains } = usePlugins()
 
-  const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
+  const stakingOpportunitiesById = useSelector(
+    opportunities.selectors.selectStakingOpportunitiesById,
+  )
 
   const maybeRefetchOpportunities = useCallback(
     ({ chainId, data, transfers, status }: Transaction, accountId: AccountId) => {
@@ -212,6 +212,4 @@ export const TransactionsSubscriber: React.FC = () => {
     maybeRefetchOpportunities,
     maybeRefetchVotingPower,
   ])
-
-  return null
 }

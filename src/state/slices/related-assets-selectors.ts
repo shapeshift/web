@@ -3,6 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
 
+import { assets } from './assetsSlice/assetsSlice'
 import { selectAssetByFilter, selectAssets } from './assetsSlice/selectors'
 import {
   selectPortfolioUserCurrencyBalances,
@@ -20,7 +21,7 @@ import { selectOnlyConnectedChainsParamFromFilter } from '@/state/selectors'
  * Excludes assetIds that are not in the assets slice.
  */
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
-  (state: ReduxState) => state.assets.relatedAssetIndex,
+  assets.selectors.selectRelatedAssetIndex,
   selectAssetByFilter,
   selectWalletConnectedChainIds,
   selectOnlyConnectedChainsParamFromFilter,

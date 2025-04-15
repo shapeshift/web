@@ -1,4 +1,4 @@
-import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
+import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 
@@ -9,27 +9,6 @@ import { DefiProvider, DefiType } from './types'
 
 import { assertIsKnownChainId } from '@/lib/utils'
 import type { AppDispatch } from '@/state/store'
-
-export const fetchAllLpOpportunitiesMetadataByChainId = async (
-  dispatch: AppDispatch,
-  chainId: ChainId,
-  options?: StartQueryActionCreatorOptions,
-) => {
-  const { getOpportunitiesMetadata } = opportunitiesApi.endpoints
-
-  assertIsKnownChainId(chainId)
-  const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
-
-  const lpQueries = queries.filter(query => query.defiType === DefiType.LiquidityPool)
-
-  await dispatch(
-    getOpportunitiesMetadata.initiate(
-      lpQueries,
-      // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-      { forceRefetch: false, ...options },
-    ),
-  )
-}
 
 export const fetchAllStakingOpportunitiesMetadataByChainId = async (
   dispatch: AppDispatch,
@@ -90,17 +69,6 @@ export const fetchAllOpportunitiesIdsByChainId = async (
   }
 
   return
-}
-
-export const fetchAllOpportunitiesMetadataByChainId = async (
-  dispatch: AppDispatch,
-  chainId: ChainId,
-  options?: StartQueryActionCreatorOptions,
-) => {
-  // Don't Promise.all() me - parallel execution would be better, but the market data of the LP tokens gets populated when fetching LP opportunities
-  // Without it, we won't have all we need to populate the staking one - which is relying on the market data of the staked LP token for EVM chains LP token farming
-  await fetchAllLpOpportunitiesMetadataByChainId(dispatch, chainId, options)
-  await fetchAllStakingOpportunitiesMetadataByChainId(dispatch, chainId, options)
 }
 
 export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
@@ -165,19 +133,11 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   ])
 }
 
-export const fetchAllLpOpportunitiesUserdataByAccountId = (
-  _dispatch: AppDispatch,
-  _accountId: AccountId,
-  _options?: StartQueryActionCreatorOptions,
-  // User data for all our current LP opportunities is held as a portfolio balance, there's no need to fetch it
-) => Promise.resolve()
-
 export const fetchAllOpportunitiesUserDataByAccountId = (
   dispatch: AppDispatch,
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) =>
   Promise.allSettled([
-    fetchAllLpOpportunitiesUserdataByAccountId(dispatch, accountId, options),
     fetchAllStakingOpportunitiesUserDataByAccountId(dispatch, accountId, options),
   ])

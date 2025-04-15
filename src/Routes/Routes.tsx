@@ -9,7 +9,6 @@ import { useQuery } from '@/hooks/useQuery/useQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -42,12 +41,17 @@ const MobileConnect = makeSuspenseful(
 )
 
 const tradeRedirect = <Navigate to='/trade' replace />
+const walletEarnRedirect = <Navigate to='/wallet/earn' replace />
 
 const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) => {
   return (
     <Routes>
       {appRoutesList}
       <Route path='/' element={tradeRedirect} />
+      {/* Handle legacy /connect-wallet/* routes by redirecting to main app route. We don't expose these anymore, but users may have old bookmarks */}
+      <Route path='/connect-wallet/*' element={tradeRedirect} />
+      {/* Handle legacy /earn/* routes by redirecting to wallet/earn route. We don't expose these anymore, but users may have old bookmarks */}
+      <Route path='/earn/*' element={walletEarnRedirect} />
       {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
       {/* eslint-disable-next-line react-memo/require-usememo */}
       <Route path='*' element={<NotFound />} />
@@ -63,7 +67,7 @@ export const AppRoutes = memo(() => {
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const { lang } = useQuery<{ lang: string }>()
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
 
   useEffect(() => {
     const selectedLocaleExists = selectedLocale in LanguageTypeEnum

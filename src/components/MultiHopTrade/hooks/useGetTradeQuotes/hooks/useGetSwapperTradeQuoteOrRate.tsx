@@ -1,4 +1,4 @@
-import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { skipToken } from '@reduxjs/toolkit/query'
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 

@@ -1,4 +1,4 @@
-import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,

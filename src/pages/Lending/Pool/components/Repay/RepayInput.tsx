@@ -19,7 +19,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -35,7 +35,6 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useApprove } from '@/hooks/mutations/useApprove'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -107,6 +106,7 @@ export const RepayInput = ({
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
   const translate = useTranslate()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const repaymentFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
@@ -243,6 +243,7 @@ export const RepayInput = ({
     approvalTx,
     inboundAddressData?.router,
     isApprovalTxPending,
+    queryClient,
     repaymentAsset?.assetId,
     userAddress,
   ])

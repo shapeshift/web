@@ -1,5 +1,6 @@
 import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { useQueryClient } from '@tanstack/react-query'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
@@ -19,7 +20,6 @@ import { LimitOrderDetail } from './LimitOrderDetail'
 import { Amount } from '@/components/Amount/Amount'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text/Text'
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useActions } from '@/hooks/useActions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -55,6 +55,7 @@ export const LimitOrderConfirm = () => {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
+  const queryClient = useQueryClient()
   const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
@@ -363,6 +364,7 @@ export const LimitOrderConfirm = () => {
     mixpanel,
     orderSubmissionState,
     placeLimitOrder,
+    queryClient,
     quoteId,
     sellAmountCryptoPrecision,
     sellAsset,

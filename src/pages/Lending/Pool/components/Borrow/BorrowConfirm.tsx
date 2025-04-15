@@ -19,7 +19,7 @@ import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useMutationState } from '@tanstack/react-query'
+import { useMutation, useMutationState, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -40,7 +40,6 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useInterval } from '@/hooks/useInterval/useInterval'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -95,6 +94,7 @@ export const BorrowConfirm = ({
   const borrowAssetId = borrowAsset?.assetId ?? ''
   const navigate = useNavigate()
   const translate = useTranslate()
+  const queryClient = useQueryClient()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const debtAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))

@@ -1,14 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
-import { skipToken, useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
 
 import type { RFOXAccountLog } from '../types'
 import { getAccountLogsQueryFn, getAccountLogsQueryKey } from './useAccountLogsQuery'
-
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
 const client = viemClientByNetworkId[arbitrum.id]
 
@@ -96,6 +94,8 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
   stakingAssetId,
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
+  const queryClient = useQueryClient()
+
   const queryKey: TimeInPoolQueryKey = useMemo(
     () => getTimeInPoolQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
     [stakingAssetAccountAddress, stakingAssetId],
@@ -112,7 +112,7 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
             return getTimeInPoolSeconds(sortedAccountLogs)
           }
         : skipToken,
-    [stakingAssetAccountAddress, stakingAssetId],
+    [queryClient, stakingAssetAccountAddress, stakingAssetId],
   )
   const timeInPoolQuery = useQuery({
     queryKey,

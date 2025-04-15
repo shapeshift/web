@@ -3,8 +3,9 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { useQuery } from '@tanstack/react-query'
 import pDebounce from 'p-debounce'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback } from 'react'
 
 import { getConfig } from '@/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -42,9 +43,6 @@ export const useIsSnapInstalled = (): {
   isSnapInstalled: boolean | null
   isCorrectVersion: boolean | null
 } => {
-  const [isSnapInstalled, setIsSnapInstalled] = useState<null | boolean>(null)
-  const [isCorrectVersion, setIsCorrectVersion] = useState<boolean | null>(null)
-
   const {
     state: { wallet, isConnected },
   } = useWallet()
@@ -52,35 +50,37 @@ export const useIsSnapInstalled = (): {
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const checkSnapInstallation = useCallback(async () => {
-    if (connectedRdns !== METAMASK_RDNS) return setIsSnapInstalled(null)
-    if (!isConnected) return setIsSnapInstalled(null)
+    if (connectedRdns !== METAMASK_RDNS || !isConnected)
+      return {
+        isCorrectVersion: null,
+        isSnapInstalled: null,
+      }
+
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
-    if (!isMetaMaskDesktop) return
+    if (!isMetaMaskDesktop)
+      return {
+        isCorrectVersion: null,
+        isSnapInstalled: null,
+      }
 
     const version = await getSnapVersion()
     const _isSnapInstalled = await checkIsSnapInstalled()
 
-    setIsCorrectVersion(version === snapVersion)
-    setIsSnapInstalled(_isSnapInstalled)
+    return {
+      isCorrectVersion: version === snapVersion,
+      isSnapInstalled: _isSnapInstalled,
+    }
   }, [connectedRdns, isConnected, wallet])
 
-  useEffect(() => {
-    // Call the function immediately
-    checkSnapInstallation()
+  const { data: snapInstallation = { isCorrectVersion: null, isSnapInstalled: null } } = useQuery({
+    queryKey: ['snapInstallation', connectedRdns, isConnected],
+    queryFn: checkSnapInstallation,
+    refetchInterval: POLL_INTERVAL,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  })
 
-    // Set up a polling interval
-    const intervalId = setInterval(checkSnapInstallation, POLL_INTERVAL)
-
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId)
-  }, [checkSnapInstallation, wallet])
-
-  const data = useMemo(
-    () => ({ isSnapInstalled, isCorrectVersion }),
-    [isSnapInstalled, isCorrectVersion],
-  )
-
-  return data
+  return snapInstallation
 }
 
 export const canAddMetaMaskAccount = ({

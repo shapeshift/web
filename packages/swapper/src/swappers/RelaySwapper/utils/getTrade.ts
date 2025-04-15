@@ -109,11 +109,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
-    if (input.quoteOrRate === 'rate') {
-      if (sellAsset.chainId === btcChainId) {
-        return getRelayDefaultUserAddress(sellAsset.chainId)
-      }
+    if (sellAsset.chainId === btcChainId) {
+      return getRelayDefaultUserAddress(sellAsset.chainId)
+    }
 
+    if (input.quoteOrRate === 'rate') {
       if (input.sendAddress) return input.sendAddress
 
       // @TODO: Support solana addresses according to relay implementation when
@@ -136,6 +136,18 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return input.receiveAddress
   })()
 
+  const refundTo = (() => {
+    if (input.quoteOrRate === 'rate') {
+      if (input.sendAddress) return input.sendAddress
+
+      return getRelayDefaultUserAddress(sellAsset.chainId)
+    }
+
+    if (!input.sendAddress) throw new Error('Send address is required for refund')
+
+    return input.sendAddress
+  })()
+
   const maybeQuote = await fetchRelayTrade(
     {
       originChainId: sellRelayChainId,
@@ -146,6 +158,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       recipient,
       user: sendAddress,
+      refundTo,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
     },

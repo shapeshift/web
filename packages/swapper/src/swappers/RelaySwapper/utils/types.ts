@@ -56,6 +56,11 @@ export type RelayFetchQuoteParams<T extends 'quote' | 'rate'> = {
   amount?: string
   referrer?: string
   refundOnOrigin?: boolean
+  // Not mandatory on relay side but we keep it mandatory here to avoid
+  // losing user funds for UTXOs as we rely on their address to get the quote
+  // it would mean there would be a risk of refunding to their own address
+  // instead of our user address
+  refundTo: string
   slippageTolerance?: string
   appFees?: AppFee[]
 }

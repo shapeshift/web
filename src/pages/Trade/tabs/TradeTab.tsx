@@ -79,7 +79,6 @@ export const TradeTab = memo(() => {
       ![
         TradeRoutePaths.Confirm,
         TradeRoutePaths.QuoteList,
-        TradeRoutePaths.Sweep,
         TradeRoutePaths.VerifyAddresses,
         LimitOrderRoutePaths.Confirm,
         LimitOrderRoutePaths.Orders,

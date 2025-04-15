@@ -2,11 +2,8 @@ import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@cha
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
@@ -15,6 +12,7 @@ import { handleSend } from './Modals/Send/utils'
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
+import { sleep } from '@/lib/poll/poll'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -26,26 +24,19 @@ type SweepProps = {
   assetId: AssetId
   fromAddress: string | null
   accountId: AccountId | undefined
-  protocolName?: string
-  onBack?: () => void
+  onBack: () => void
   onSweepSeen: () => void
-  requiredConfirmations?: number
-  isLoading?: boolean
 }
 
 export const Sweep = ({
   assetId,
   fromAddress,
   accountId,
-  protocolName,
-  onBack,
+  onBack: handleBack,
   onSweepSeen: handleSwepSeen,
-  requiredConfirmations,
-  isLoading,
 }: SweepProps) => {
   const [isSweepPending, setIsSweepPending] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
-  const navigate = useNavigate()
 
   const {
     state: { wallet },
@@ -67,12 +58,6 @@ export const Sweep = ({
     contractAddress: undefined,
     enabled: Boolean(accountId),
   })
-
-  const handleBack = useCallback(() => {
-    if (onBack) return onBack()
-
-    navigate(-1)
-  }, [navigate, onBack])
 
   const handleSweep = useCallback(async () => {
     if (!wallet) return
@@ -109,33 +94,19 @@ export const Sweep = ({
 
   const adapter = assertGetUtxoChainAdapter(fromAssetId(assetId).chainId)
 
-  useQuery({
-    queryKey: ['utxoSweepTxStatus', txId, requiredConfirmations],
-    queryFn: async () => {
-      if (!adapter || !fromAddress) return
-      // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
-      // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
-      // and wait for a confirmations if requiredConfirmations is set and > 0
-      if (!txId) return
+  useEffect(() => {
+    if (!adapter || !fromAddress) return
+    // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
+    // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
+    if (!txId) return
+    ;(async () => {
+      await sleep(60_000)
       const utxos = await adapter.getUtxos({
         pubkey: fromAddress,
       })
-      if (
-        utxos.some(
-          utxo =>
-            utxo.txid === txId &&
-            (!requiredConfirmations || utxo.confirmations >= requiredConfirmations),
-        )
-      )
-        handleSwepSeen()
-    },
-    enabled: Boolean(txId && adapter && fromAddress),
-    refetchInterval: 60_000,
-    // We need to set initialData to undefined using staleTime to avoid the query throwing its initial fetch before 60sec
-    // or UTXO data might be not propagated yet
-    staleTime: 60_000,
-    initialData: undefined,
-  })
+      if (utxos.some(utxo => utxo.txid === txId)) handleSwepSeen()
+    })()
+  }, [adapter, fromAddress, handleSwepSeen, txId])
 
   if (!asset) return null
 
@@ -193,21 +164,18 @@ export const Sweep = ({
           </Stack>
           <Stack>
             <CText color='text.subtle'>
-              {translate('modals.send.consolidate.body', {
-                asset: asset.name,
-                protocolName: protocolName ?? SwapperName.Thorchain,
-              })}
+              {translate('modals.send.consolidate.body', { asset: asset.name })}
             </CText>
           </Stack>
           <Stack justifyContent='space-between'>
             <Button
               onClick={handleSweep}
-              disabled={isEstimatedFeesDataLoading || isSweepPending || !fromAddress || isLoading}
+              disabled={isEstimatedFeesDataLoading || isSweepPending}
               size='lg'
               colorScheme={'blue'}
               width='full'
               data-test='utxo-sweep-button'
-              isLoading={isEstimatedFeesDataLoading || isSweepPending || isLoading}
+              isLoading={isEstimatedFeesDataLoading || isSweepPending}
               loadingText={translate('common.loadingText')}
             >
               {translate('modals.send.consolidate.consolidateFunds')}

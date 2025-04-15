@@ -14,10 +14,7 @@ import {
   Spinner,
   Stack,
 } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { bnOrZero } from '@shapeshiftoss/utils'
-import { skipToken, useQuery } from '@tanstack/react-query'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -34,24 +31,16 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { fromBaseUnit } from '@/lib/math'
-import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
-import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import {
   selectAccountIdsByChainIdFilter,
-  selectAccountNumberByAccountId,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
-  selectInputSellAmountCryptoBaseUnit,
-  selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectManualReceiveAddress,
 } from '@/state/slices/tradeInputSlice/selectors'
-import { selectFirstHop } from '@/state/slices/tradeQuoteSlice/selectors'
-import { store, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 enum AddressVerificationType {
   Sell = 'sell',
@@ -88,20 +77,8 @@ export const VerifyAddresses = () => {
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
+
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
-
-  const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const sellAssetBalanceFilter = useMemo(
-    () => ({ assetId: sellAsset.assetId, accountId: sellAssetAccountId }),
-    [sellAssetAccountId, sellAsset.assetId],
-  )
-  const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
-  )
-
-  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-
-  const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
 
   const sellAccountFilter = useMemo(
     () => ({ accountId: sellAssetAccountId ?? '' }),
@@ -151,112 +128,6 @@ export const VerifyAddresses = () => {
     ],
   )
 
-  const getHasEnoughBalanceForTxPlusFees = useCallback(
-    ({
-      balanceCryptoBaseUnit,
-      amountCryptoPrecision,
-      txFeeCryptoBaseUnit,
-      precision,
-    }: {
-      balanceCryptoBaseUnit: string
-      amountCryptoPrecision: string
-      txFeeCryptoBaseUnit: string
-      precision: number
-    }) => {
-      const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-      if (balanceCryptoBaseUnitBn.isZero()) return false
-
-      return bnOrZero(amountCryptoPrecision)
-        .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
-        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision))
-    },
-    [],
-  )
-
-  const { data: fromAddress } = useQuery({
-    queryKey: ['swapRelayUtxoAddress', sellAssetAccountId, sellAmountCryptoBaseUnit],
-    queryFn:
-      wallet && sellAccountMetadata && sellAssetAccountId && sellAmountCryptoBaseUnit
-        ? async () => {
-            if (!sellAccountMetadata) throw new Error('No account metadata found')
-            if (!sellAssetAccountId) throw new Error('No sell account id found')
-
-            const bip44Params = sellAccountMetadata.bip44Params
-            const accountType = sellAccountMetadata.accountType
-            const chainId = fromAssetId(sellAsset.assetId).chainId
-            const sellAccountNumber = selectAccountNumberByAccountId(store.getState(), {
-              accountId: sellAssetAccountId,
-            })
-
-            if (sellAccountNumber === undefined) throw new Error('No sell account number found')
-            if (!accountType) throw new Error('No account type found')
-
-            const sellAssetChainAdapter = assertGetUtxoChainAdapter(chainId)
-
-            const xpub = (
-              await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, accountType)
-            ).xpub
-
-            const account = await sellAssetChainAdapter.getAccount(xpub)
-
-            if (!account.chainSpecific.addresses) throw new Error('No addresses found')
-
-            const addressWithEnoughBalance = account.chainSpecific.addresses.find(address => {
-              return bnOrZero(address.balance).gte(sellAmountCryptoBaseUnit)
-            })
-
-            if (!addressWithEnoughBalance) {
-              const nextReceiveAddress = await sellAssetChainAdapter.getAddress({
-                wallet,
-                accountNumber: bip44Params.accountNumber,
-                accountType,
-                pubKey:
-                  isLedger(wallet) && sellAssetAccountId
-                    ? fromAccountId(sellAssetAccountId).account
-                    : undefined,
-              })
-
-              return nextReceiveAddress
-            }
-
-            return addressWithEnoughBalance?.pubkey
-          }
-        : skipToken,
-  })
-
-  const isSweepNeededArgs = useMemo(
-    () => ({
-      assetId: sellAsset.assetId,
-      address: fromAddress,
-      amountCryptoBaseUnit: sellAmountCryptoPrecision,
-      txFeeCryptoBaseUnit: tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
-      // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
-      enabled: Boolean(
-        fromAddress &&
-          bnOrZero(sellAmountCryptoPrecision).gt(0) &&
-          tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit &&
-          getHasEnoughBalanceForTxPlusFees({
-            precision: sellAsset.precision,
-            balanceCryptoBaseUnit,
-            amountCryptoPrecision: sellAmountCryptoPrecision,
-            txFeeCryptoBaseUnit: tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
-          }),
-      ),
-    }),
-    [
-      balanceCryptoBaseUnit,
-      fromAddress,
-      getHasEnoughBalanceForTxPlusFees,
-      sellAmountCryptoPrecision,
-      sellAsset.precision,
-      tradeQuoteStep?.feeData?.networkFeeCryptoBaseUnit,
-      sellAsset.assetId,
-    ],
-  )
-
-  const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
-    useIsSweepNeededQuery(isSweepNeededArgs)
-
   useEffect(() => {
     if (!shouldVerifyBuyAddress) {
       setBuyAddressVerificationStatus(AddressVerificationStatus.NotRequired)
@@ -264,12 +135,8 @@ export const VerifyAddresses = () => {
   }, [shouldVerifyBuyAddress])
 
   const handleContinue = useCallback(() => {
-    if (isSweepNeeded) {
-      return navigate({ pathname: '/trade/sweep' })
-    }
-
     navigate({ pathname: '/trade/confirm' })
-  }, [navigate, isSweepNeeded])
+  }, [navigate])
 
   const fetchAddresses = useCallback(async () => {
     if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
@@ -492,14 +359,7 @@ export const VerifyAddresses = () => {
     }
 
     return (
-      <Button
-        onClick={handleContinue}
-        isLoading={isSweepNeededLoading}
-        isDisabled={isSweepNeededLoading}
-        size='lg'
-        colorScheme='blue'
-        width='full'
-      >
+      <Button onClick={handleContinue} size='lg' colorScheme='blue' width='full'>
         <Text translation='common.continue' />
       </Button>
     )
@@ -514,7 +374,6 @@ export const VerifyAddresses = () => {
     handleSellVerify,
     isSellVerifying,
     verifySellAssetTranslation,
-    isSweepNeededLoading,
   ])
 
   const handleBack = useCallback(() => {

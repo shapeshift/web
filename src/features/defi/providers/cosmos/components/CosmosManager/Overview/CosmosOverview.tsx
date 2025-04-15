@@ -34,13 +34,13 @@ import {
   serializeUserStakingId,
   toValidatorId,
 } from '@/state/slices/opportunitiesSlice/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectAssets,
   selectHasClaimByUserStakingId,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectSelectedLocale,
   selectStakingOpportunityByFilter,
   selectUserStakingOpportunityByUserStakingId,
 } from '@/state/slices/selectors'
@@ -140,7 +140,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const cryptoAmountAvailable = totalBondings.div(bn(10).pow(stakingAsset.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
   const navigate = useNavigate()

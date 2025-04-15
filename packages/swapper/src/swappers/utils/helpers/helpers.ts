@@ -57,6 +57,7 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<EvmTreasuryChainId, string> = {
   [KnownChainIds.BnbSmartChainMainnet]: DAO_TREASURY_BSC,
   [KnownChainIds.ArbitrumMainnet]: DAO_TREASURY_ARBITRUM,
   [KnownChainIds.BaseMainnet]: DAO_TREASURY_BASE,
+  [KnownChainIds.SolanaMainnet]: DAO_TREASURY_SOLANA,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

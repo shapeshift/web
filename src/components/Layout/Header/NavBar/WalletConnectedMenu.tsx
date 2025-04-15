@@ -3,7 +3,8 @@ import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import {
   useMenuRoutes,
@@ -106,41 +107,35 @@ export const WalletConnectedMenu = ({
     [connectedType],
   )
 
+  const location = useLocation()
+
   const renderRoute = useCallback((route: WalletProviderRouteProps, i: number) => {
     const Component = route.component
     return (
-      <Route
-        key={`walletConnectedMenuRoute_${i}`}
-        path={route.path || ''}
-        // eslint-disable-next-line react-memo/require-usememo
-        element={<Component />}
-      />
+      <Route key={`walletConnectedMenuRoute_${i}`} path={route.path || ''}>
+        <Component />
+      </Route>
     )
   }, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
-        <Route
-          path={WalletConnectedRoutes.Connected}
-          // This is already a memo()'d component
-          // eslint-disable-next-line react-memo/require-usememo
-          element={
-            <SubMenuContainer>
-              <ConnectedMenu
-                connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
-                isConnected={isConnected}
-                connectedType={connectedType}
-                walletInfo={walletInfo}
-                onDisconnect={onDisconnect}
-                onSwitchProvider={onSwitchProvider}
-                onClose={onClose}
-              />
-            </SubMenuContainer>
-          }
-        />
+      <Switch location={location.pathname}>
+        <Route path={WalletConnectedRoutes.Connected}>
+          <SubMenuContainer>
+            <ConnectedMenu
+              connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
+              isConnected={isConnected}
+              connectedType={connectedType}
+              walletInfo={walletInfo}
+              onDisconnect={onDisconnect}
+              onSwitchProvider={onSwitchProvider}
+              onClose={onClose}
+            />
+          </SubMenuContainer>
+        </Route>
         {connectedWalletMenuRoutes?.map((route, index) => renderRoute(route, index))}
-      </Routes>
+      </Switch>
     </AnimatePresence>
   )
 }

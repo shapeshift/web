@@ -33,7 +33,6 @@ import {
 import { LimitOrderSubmissionState } from '@/state/slices/limitOrderSlice/constants'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
-  selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAsset,
   selectActiveQuoteFeeAsset,
@@ -56,7 +55,7 @@ export const LimitOrderConfirm = () => {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)

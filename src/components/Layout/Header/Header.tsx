@@ -25,10 +25,10 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectEnabledWalletAccountIds,
   selectPortfolioDegradedState,
-  selectShowSnapsModal,
   selectWalletId,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -52,7 +52,7 @@ export const Header = memo(() => {
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const previousIsCorrectVersion = usePrevious(isCorrectVersion)
-  const showSnapModal = useSelector(selectShowSnapsModal)
+  const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const navigate = useNavigate()

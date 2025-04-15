@@ -6,7 +6,8 @@ import { useEffect } from 'react'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { selectPortfolioLoadingStatus, selectSelectedCurrency } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectPortfolioLoadingStatus } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const { findPriceHistoryByFiatSymbol } = marketApi.endpoints
@@ -15,7 +16,7 @@ const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minute
 
 export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTimeframe) => {
   const dispatch = useAppDispatch()
-  const symbol = useAppSelector(selectSelectedCurrency)
+  const symbol = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const {
     state: { isConnected },
   } = useWallet()

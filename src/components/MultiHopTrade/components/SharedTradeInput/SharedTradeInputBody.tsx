@@ -18,9 +18,9 @@ import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isToken } from '@/lib/utils'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectHighestMarketCapFeeAsset,
-  selectIsAccountMetadataLoadingByAccountId,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -73,7 +73,7 @@ export const SharedTradeInputBody = ({
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isAccountMetadataLoadingByAccountId = useAppSelector(
-    selectIsAccountMetadataLoadingByAccountId,
+    portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
   )
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')

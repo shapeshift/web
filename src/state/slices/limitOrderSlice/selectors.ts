@@ -1,57 +1,57 @@
-import type { QuoteId } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
+import { getFeeAssetByAssetId } from '../assetsSlice/utils'
 import { PriceDirection } from '../limitOrderInputSlice/constants'
-import {
-  selectAssetById,
-  selectFeeAssetById,
-  selectMarketDataUsd,
-  selectUserCurrencyToUsdRate,
-} from '../selectors'
+import { marketData } from '../marketDataSlice/marketDataSlice'
+import { selectAssets, selectUserCurrencyToUsdRate } from '../selectors'
 import { calcLimitPriceTargetAsset } from './helpers'
-import type { LimitOrderState, LimitOrderSubmissionMetadata } from './types'
+import { limitOrderSlice } from './limitOrderSlice'
+import type { LimitOrderSubmissionMetadata } from './types'
 
-import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
 
-const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
-
-export const selectActiveQuote = createSelector(
-  selectLimitOrderSlice,
-  limitOrderSlice => limitOrderSlice.activeQuote,
-)
-
 export const selectActiveQuoteId = createSelector(
-  selectActiveQuote,
+  limitOrderSlice.selectors.selectActiveQuote,
   activeQuote => activeQuote?.response.id,
 )
 
 export const selectActiveQuoteExpirationTimestamp = createSelector(
-  selectActiveQuote,
-  activeQuote => {
-    return activeQuote?.params.validTo
-  },
+  limitOrderSlice.selectors.selectActiveQuote,
+  activeQuote => activeQuote?.params.validTo,
 )
 
-export const selectActiveQuoteSellAsset = (state: ReduxState) => {
-  const sellAssetId = state.limitOrderSlice.activeQuote?.params.sellAssetId
-  return sellAssetId ? selectAssetById(state, sellAssetId) : undefined
-}
+const selectActiveQuoteSellAssetId = createSelector(
+  limitOrderSlice.selectors.selectActiveQuote,
+  activeQuote => activeQuote?.params.sellAssetId,
+)
 
-export const selectActiveQuoteBuyAsset = (state: ReduxState) => {
-  const buyAssetId = state.limitOrderSlice.activeQuote?.params.buyAssetId
-  return buyAssetId ? selectAssetById(state, buyAssetId) : undefined
-}
+export const selectActiveQuoteSellAsset = createSelector(
+  selectActiveQuoteSellAssetId,
+  selectAssets,
+  (sellAssetId, assetsById) => assetsById[sellAssetId ?? ''],
+)
 
-export const selectActiveQuoteFeeAsset = (state: ReduxState) => {
-  const sellAssetId = state.limitOrderSlice.activeQuote?.params.sellAssetId
-  return sellAssetId ? selectFeeAssetById(state, sellAssetId) : undefined
-}
+const selectActiveQuoteBuyAssetId = createSelector(
+  limitOrderSlice.selectors.selectActiveQuote,
+  activeQuote => activeQuote?.params.buyAssetId,
+)
+
+export const selectActiveQuoteBuyAsset = createSelector(
+  selectActiveQuoteBuyAssetId,
+  selectAssets,
+  (buyAssetId, assetsById) => assetsById[buyAssetId ?? ''],
+)
+
+export const selectActiveQuoteFeeAsset = createSelector(
+  selectActiveQuoteSellAssetId,
+  selectAssets,
+  (sellAssetId, assetsById) => getFeeAssetByAssetId(assetsById, sellAssetId),
+)
 
 export const selectActiveQuoteSellAmountCryptoBaseUnit = createSelector(
-  selectActiveQuote,
+  limitOrderSlice.selectors.selectActiveQuote,
   activeQuote => {
     if (!activeQuote) return '0'
 
@@ -63,7 +63,7 @@ export const selectActiveQuoteSellAmountCryptoBaseUnit = createSelector(
 )
 
 export const selectActiveQuoteBuyAmountCryptoBaseUnit = createSelector(
-  selectActiveQuote,
+  limitOrderSlice.selectors.selectActiveQuote,
   activeQuote => {
     if (!activeQuote) return '0'
 
@@ -95,7 +95,7 @@ export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
 )
 
 export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
-  selectActiveQuote,
+  limitOrderSlice.selectors.selectActiveQuote,
   selectActiveQuoteFeeAsset,
   (activeQuote, asset) => {
     if (!activeQuote || !asset) return '0'
@@ -109,7 +109,7 @@ export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
 
 export const selectActiveQuoteSellAssetRateUserCurrency = createSelector(
   selectActiveQuoteSellAsset,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   (asset, marketDataUsd, userCurrencyToUsdRate) => {
     const usdRate = marketDataUsd[asset?.assetId ?? '']?.price
@@ -119,7 +119,7 @@ export const selectActiveQuoteSellAssetRateUserCurrency = createSelector(
 
 export const selectActiveQuoteBuyAssetRateUserCurrency = createSelector(
   selectActiveQuoteBuyAsset,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   (asset, marketDataUsd, userCurrencyToUsdRate) => {
     const usdRate = marketDataUsd[asset?.assetId ?? '']?.price
@@ -129,7 +129,7 @@ export const selectActiveQuoteBuyAssetRateUserCurrency = createSelector(
 
 export const selectActiveQuoteFeeAssetRateUserCurrency = createSelector(
   selectActiveQuoteFeeAsset,
-  selectMarketDataUsd,
+  marketData.selectors.selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   (asset, marketDataUsd, userCurrencyToUsdRate) => {
     const usdRate = marketDataUsd[asset?.assetId ?? '']?.price
@@ -184,14 +184,13 @@ export const selectActiveQuoteLimitPrice = createSelector(
 )
 
 export const selectConfirmedLimitOrder = createSelector(
-  selectLimitOrderSlice,
+  limitOrderSlice.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
-  (limitOrderSlice: LimitOrderState, quoteId: QuoteId) =>
-    limitOrderSlice.confirmedLimitOrder[quoteId],
+  (limitOrderSlice, quoteId) => limitOrderSlice.confirmedLimitOrder[quoteId],
 )
 
 export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(
-  selectLimitOrderSlice,
+  limitOrderSlice.selectSlice,
   selectQuoteIdParamFromRequiredFilter,
   (limitOrders, quoteId): LimitOrderSubmissionMetadata | undefined => {
     return limitOrders.orderSubmission[quoteId]

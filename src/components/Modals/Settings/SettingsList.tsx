@@ -32,11 +32,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectCurrencyFormat,
-  selectSelectedCurrency,
-  selectSelectedLocale,
-} from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const faCoinsIcon = <Icon as={FaCoins} color='text.subtle' />
@@ -57,9 +53,9 @@ export const SettingsList: FC = () => {
   const { toggleColorMode } = useColorMode()
   const [clickCount, setClickCount] = useState<number>(0)
   const isDarkMode = useColorModeValue(false, true)
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
-  const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
+  const selectedCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
   const appDispatch = useAppDispatch()
 
   // for both locale and currency

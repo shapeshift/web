@@ -36,7 +36,6 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
-  selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAmountUserCurrency,
   selectActiveQuoteBuyAsset,
@@ -63,7 +62,7 @@ export const LimitOrderConfirm = () => {
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
 
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)

@@ -25,15 +25,15 @@ export const useLimitOrders = () => {
   const limitOrdersQuery = useLimitOrdersQuery()
   const toast = useToast()
   const translate = useTranslate()
-  const prevLimitOrdersData = usePrevious(limitOrdersQuery.data)
+  const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
 
   useEffect(() => {
-    if (!prevLimitOrdersData || !limitOrdersQuery.data) return
+    if (!prevLimitOrdersData || !limitOrdersQuery.currentData) return
 
     // Introspects the current limit orders data to check if some orders got *newly* full filled from last query
     // Note this says full filled and now fulfilled, as we are not displaying partial fills for now
     // We will probably want to follow-up on this and display partial fills change, too?
-    const newlyFilledOrders = limitOrdersQuery.data.filter(current => {
+    const newlyFilledOrders = limitOrdersQuery.currentData.filter(current => {
       const prevOrder = prevLimitOrdersData.find(prev => prev.order.uid === current.order.uid)
 
       return (
@@ -88,7 +88,7 @@ export const useLimitOrders = () => {
         position: 'top-right',
       })
     })
-  }, [limitOrdersQuery.data, prevLimitOrdersData, toast, translate])
+  }, [limitOrdersQuery.currentData, prevLimitOrdersData, toast, translate])
 
   return limitOrdersQuery
 }

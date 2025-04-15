@@ -29,12 +29,12 @@ import {
   serializeUserStakingId,
   supportsUndelegations,
 } from '@/state/slices/opportunitiesSlice/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectSelectedLocale,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -143,7 +143,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   const claimDisabled = !canClaim || !(hasAvailableUndelegation || hasPendingUndelegation)
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
   const underlyingAssetsCryptoPrecision = useMemo(

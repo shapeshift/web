@@ -9,7 +9,7 @@ import { MarketsHeader } from './MarketsHeader'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { selectWatchedAssetIds } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from '@/state/store'
 
 const containerPaddingX = { base: 4, xl: 0 }
@@ -18,7 +18,7 @@ export const WatchList: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 
-  const watchedAssetIds = useAppSelector(selectWatchedAssetIds)
+  const watchedAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
 
   const component = useCallback(
     ({ selectedChainId, showSparkline }: RowProps) => (

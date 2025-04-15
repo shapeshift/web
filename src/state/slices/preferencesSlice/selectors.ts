@@ -6,8 +6,6 @@ import { preferences } from './preferencesSlice'
 
 import type { ReduxState } from '@/state/reducer'
 
-export const selectSelectedLocale = preferences.selectors.selectSelectedLocale
-
 export const selectFeatureFlag = createCachedSelector(
   preferences.selectors.selectFeatureFlags,
   (_state: ReduxState, flag: Flag) => flag,

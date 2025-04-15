@@ -5,6 +5,8 @@ import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
 
+import { snapshot } from './snapshot'
+
 import type { CalculateFeeBpsReturn } from '@/lib/fees/model'
 import { calculateFees } from '@/lib/fees/model'
 import type { ParameterModel } from '@/lib/fees/parameters/types'
@@ -26,10 +28,8 @@ export const selectIsSnapshotApiQueriesRejected = createSelector(
     !Object.values(queries).some(query => query?.status === QueryStatus.fulfilled),
 )
 
-export const selectVotingPowerByModel = (state: ReduxState) => state.snapshot.votingPowerByModel
-
 export const selectVotingPower = createSelector(
-  selectVotingPowerByModel,
+  snapshot.selectors.selectVotingPowerByModel,
   selectFeeModelParamFromFilter,
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,
@@ -44,11 +44,15 @@ export const selectVotingPower = createSelector(
   },
 )
 
-export const selectThorchainLpVotingPower = (state: ReduxState) =>
-  state.snapshot.votingPowerByModel['THORCHAIN_LP']
+export const selectThorchainLpVotingPower = createSelector(
+  snapshot.selectors.selectVotingPowerByModel,
+  votingPowerByModel => votingPowerByModel['THORCHAIN_LP'],
+)
 
-export const selectSwapperVotingPower = (state: ReduxState) =>
-  state.snapshot.votingPowerByModel['SWAPPER']
+export const selectSwapperVotingPower = createSelector(
+  snapshot.selectors.selectVotingPowerByModel,
+  votingPowerByModel => votingPowerByModel['SWAPPER'],
+)
 
 type AffiliateFeesProps = {
   feeModel: ParameterModel

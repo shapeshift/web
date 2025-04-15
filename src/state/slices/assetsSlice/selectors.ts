@@ -19,7 +19,7 @@ export const selectAssetById = createCachedSelector(
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectAssetByFilter = createCachedSelector(
-  (state: ReduxState) => state.assets.byId,
+  assets.selectors.selectAssetsById,
   selectAssetIdParamFromFilter,
   (byId, assetId) => byId[assetId ?? ''] || undefined,
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')

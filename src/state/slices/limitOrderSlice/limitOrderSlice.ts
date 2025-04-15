@@ -259,4 +259,7 @@ export const limitOrderSlice = createSlice({
       },
     ),
   }),
+  selectors: {
+    selectActiveQuote: state => state.activeQuote,
+  },
 })

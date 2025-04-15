@@ -33,7 +33,6 @@ import type { BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome, isToken } from '@/lib/utils'
-import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
@@ -45,11 +44,8 @@ import {
   selectValidatorIdParamFromFilter,
 } from '@/state/selectors'
 
-export const selectStakingOpportunitiesById = (state: ReduxState) =>
-  state.opportunities.staking.byId
-
 export const selectStakingIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.opportunities.staking.ids,
+  opportunities.selectors.selectStakingIds,
   ids => ids,
 )
 
@@ -74,7 +70,7 @@ export const selectStakingAccountIds = createDeepEqualOutputSelector(
 
 export const selectUserStakingOpportunitiesById = createSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.opportunities.userStaking.byId,
+  opportunities.selectors.selectUserStakingOpportunitiesById,
   (walletAccountIds, userStakingById) => {
     return pickBy(userStakingById, (_userStaking, userStakingId) =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),

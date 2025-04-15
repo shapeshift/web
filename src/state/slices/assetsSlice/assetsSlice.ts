@@ -45,6 +45,7 @@ export const assets = createSlice({
   selectors: {
     selectAssetsById: state => state.byId,
     selectAssetIds: state => state.ids,
+    selectRelatedAssetIndex: state => state.relatedAssetIndex,
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),

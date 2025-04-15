@@ -245,8 +245,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const appFeesBaseUnit = (() => {
     const isNativeCurrencyInput = (() => {
-      if (!appFeesAsset) return false
-
       if (isEvmChainId(sellAsset.chainId)) {
         return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
       }

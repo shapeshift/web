@@ -4,8 +4,8 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
-import type { TransactionInstruction } from '@solana/web3.js'
 import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -22,12 +22,12 @@ import type {
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { isSolanaFeeData } from '../../types'
 import {
   checkSafeTransactionStatus,
   isExecutableTradeQuote,
   isExecutableTradeStep,
 } from '../../utils'
+import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../JupiterSwapper/utils/constants'
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -233,36 +233,14 @@ export const relayApi: SwapperApi = {
 
     if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
 
-    const solanaInstructions = firstStep.solanaTransactionMetadata?.instructions?.map(instruction =>
-      adapter.convertInstruction(instruction),
-    )
-
-    if (!isSolanaFeeData(firstStep.feeData.chainSpecific)) throw Error('Unable to execute step')
-
-    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
-      to: '',
-      from,
-      value: '0',
-      accountNumber: firstStep.accountNumber,
-      chainSpecific: {
-        addressLookupTableAccounts:
-          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-        instructions: solanaInstructions,
-        computeUnitLimit: firstStep.feeData.chainSpecific?.computeUnits,
-        computeUnitPrice: firstStep.feeData.chainSpecific?.priorityFee,
-      },
-    }
-
-    const { txToSign } = await adapter.buildSendApiTransaction(buildSwapTxInput)
-
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: txToSign.to,
-      value: txToSign.value,
+      to: '',
+      value: '0',
       chainSpecific: {
         from,
         addressLookupTableAccounts:
           firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-        instructions: txToSign.instructions as TransactionInstruction[] | undefined,
+        instructions: firstStep.solanaTransactionMetadata?.instructions,
       },
     }
 
@@ -277,28 +255,43 @@ export const relayApi: SwapperApi = {
   }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
-    const step = tradeQuote.steps[0]
+    const firstStep = tradeQuote.steps[0]
 
-    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+    const adapter = assertGetSolanaChainAdapter(firstStep.sellAsset.chainId)
 
-    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+    if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
 
-    const solanaInstructions = step.solanaTransactionMetadata?.instructions?.map(instruction =>
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
+      value: '0',
+      chainSpecific: {
+        from,
+        addressLookupTableAccounts:
+          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
+        instructions: firstStep.solanaTransactionMetadata?.instructions,
+      },
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    const solanaInstructions = firstStep.solanaTransactionMetadata?.instructions?.map(instruction =>
       adapter.convertInstruction(instruction),
     )
-
-    if (!isSolanaFeeData(step.feeData.chainSpecific)) throw Error('Unable to execute step')
 
     const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
       to: '',
       from,
       value: '0',
-      accountNumber: step.accountNumber,
+      accountNumber: firstStep.accountNumber,
       chainSpecific: {
-        addressLookupTableAccounts: step.solanaTransactionMetadata?.addressLookupTableAddresses,
+        addressLookupTableAccounts:
+          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
         instructions: solanaInstructions,
-        computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
-        computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
+        // As always, as relay uses jupiter under the hood, we need to add the compute unit safety margin
+        computeUnitLimit: bnOrZero(feeData.fast.chainSpecific.computeUnits)
+          .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
+          .toFixed(0),
+        computeUnitPrice: feeData.fast.chainSpecific.priorityFee,
       },
     }
 

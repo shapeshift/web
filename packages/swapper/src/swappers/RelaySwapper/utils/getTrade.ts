@@ -1,4 +1,4 @@
-import { btcChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
@@ -10,6 +10,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
+import { zeroAddress } from 'viem'
 
 import type {
   SwapErrorRight,
@@ -76,8 +77,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const sellRelayChainId = relayChainMap[sellAsset.chainId]
   const buyRelayChainId = relayChainMap[buyAsset.chainId]
 
-  // @TODO: remove this once we have support for non-EVM chains
-  if (!isEvmChainId(sellAsset.chainId) && sellAsset.chainId !== btcChainId) {
+  if (
+    !isEvmChainId(sellAsset.chainId) &&
+    sellAsset.chainId !== btcChainId &&
+    sellAsset.chainId !== solanaChainId
+  ) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
@@ -86,8 +90,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
-  // @TODO: remove this once we have support for Solana
-  if (!isEvmChainId(buyAsset.chainId) && buyAsset.chainId !== btcChainId) {
+  if (
+    !isEvmChainId(buyAsset.chainId) &&
+    buyAsset.chainId !== btcChainId &&
+    buyAsset.chainId !== solanaChainId
+  ) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
@@ -125,8 +132,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     if (input.quoteOrRate === 'rate') {
       if (input.sendAddress) return input.sendAddress
 
-      // @TODO: Support solana addresses according to relay implementation when
-      // wallet is not connected
       return getRelayDefaultUserAddress(sellAsset.chainId)
     }
 
@@ -137,8 +142,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     if (input.quoteOrRate === 'rate') {
       if (input.receiveAddress) return input.receiveAddress
 
-      // @TODO: Support solana addresses according to relay implementation when
-      // wallet is not connected
       return getRelayDefaultUserAddress(buyAsset.chainId)
     }
 
@@ -253,18 +256,43 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const isCrossChain = sellAsset.chainId !== buyAsset.chainId
 
-  const maybeAppFeesAsset = relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
+  const appFeesAsset = (() => {
+    // @TODO: when implementing fees, find if solana to solana assets are always showing empty app fees even if
+    // affiliate bps are set
+    if (
+      sellAsset.chainId === solanaChainId &&
+      buyAsset.chainId === solanaChainId &&
+      quote.fees.app.currency.address === zeroAddress
+    ) {
+      return
+    }
+    const maybeAppFeesAsset = relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
 
-  if (maybeAppFeesAsset.isErr()) {
-    return Err(maybeAppFeesAsset.unwrapErr())
-  }
+    if (maybeAppFeesAsset.isErr()) {
+      throw maybeAppFeesAsset.unwrapErr()
+    }
 
-  const appFeesAsset = maybeAppFeesAsset.unwrap()
+    return maybeAppFeesAsset.unwrap()
+  })()
 
   const appFeesBaseUnit = (() => {
-    // @TODO: we might need to change this logic when solana and BTC are supported
-    const isNativeCurrencyInput =
-      isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+    const isNativeCurrencyInput = (() => {
+      if (!appFeesAsset) return false
+
+      if (isEvmChainId(sellAsset.chainId)) {
+        return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+      }
+
+      if (sellAsset.chainId === btcChainId) {
+        return sellAsset.assetId === appFeesAsset.assetId
+      }
+
+      if (sellAsset.chainId === solanaChainId) {
+        return sellAsset.assetId === appFeesAsset.assetId
+      }
+
+      return false
+    })()
 
     // For cross-chain: always add back app fees
     // For same-chain: only add back if input is native currency
@@ -351,6 +379,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             opReturnData: quoteStep.requestId,
             to: relayer,
           },
+          solanaTransactionMetadata: undefined,
         }
       }
 
@@ -364,6 +393,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             // gas is not documented in the relay docs but refers to gasLimit
             gasLimit: selectedItem.data?.gas,
           },
+          solanaTransactionMetadata: undefined,
         }
       }
 
@@ -374,6 +404,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             addressLookupTableAddresses: selectedItem.data?.addressLookupTableAddresses,
             instructions: selectedItem.data?.instructions?.map(convertSolanaInstruction),
           },
+          relayTransactionMetadata: undefined,
         }
       }
 

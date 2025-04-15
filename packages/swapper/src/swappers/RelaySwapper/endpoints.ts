@@ -164,7 +164,6 @@ export const relayApi: SwapperApi = {
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
 
-
     const status = (() => {
       switch (statusResponse.status) {
         case 'success':

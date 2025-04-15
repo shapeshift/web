@@ -1,4 +1,4 @@
-import { btcChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
@@ -244,9 +244,19 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const appFeesAsset = maybeAppFeesAsset.unwrap()
 
   const appFeesBaseUnit = (() => {
-    // @TODO: we might need to change this logic when solana and BTC are supported
-    const isNativeCurrencyInput =
-      isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+    const isNativeCurrencyInput = (() => {
+      if (!appFeesAsset) return false
+
+      if (isEvmChainId(sellAsset.chainId)) {
+        return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+      }
+
+      if (sellAsset.chainId === btcChainId) {
+        return sellAsset.assetId === appFeesAsset.assetId
+      }
+
+      return false
+    })()
 
     // For cross-chain: always add back app fees
     // For same-chain: only add back if input is native currency

@@ -168,32 +168,30 @@ export const getTradeQuoteOrRateInput = async ({
         (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
 
       const sendAddress = await (async () => {
-        // Relay doesn't accept an xpub and requires an address with enough balance,
-        // This why we have a sweep step, at this step we are supposed to have an address with enough balance
-        if (swapperName === SwapperName.Relay) {
-          const account = await sellAssetChainAdapter.getAccount(xpub)
-
-          if (!account.chainSpecific.addresses) throw new Error('No addresses found')
-
-          const addressWithEnoughBalance = account.chainSpecific.addresses.find(address => {
-            return bnOrZero(address.balance).gte(
-              tradeQuoteInputCommonArgs.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            )
+        if (swapperName !== SwapperName.Relay) {
+          const nextReceiveAddress = await sellAssetChainAdapter.getAddress({
+            accountNumber: sellAccountNumber,
+            wallet,
+            accountType: sellAccountType,
+            pubKey,
           })
 
-          if (addressWithEnoughBalance) {
-            return addressWithEnoughBalance?.pubkey
-          }
+          return nextReceiveAddress
         }
 
-        const nextReceiveAddress = await sellAssetChainAdapter.getAddress({
-          accountNumber: sellAccountNumber,
-          wallet,
-          accountType: sellAccountType,
-          pubKey,
+        // Relay doesn't accept an xpub and requires an address with enough balance,
+        // This why we have a sweep step, at this step we are supposed to have an address with enough balance
+        const account = await sellAssetChainAdapter.getAccount(xpub)
+
+        if (!account.chainSpecific.addresses) throw new Error('No addresses found')
+
+        const addressWithEnoughBalance = account.chainSpecific.addresses.find(address => {
+          return bnOrZero(address.balance).gte(
+            tradeQuoteInputCommonArgs.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          )
         })
 
-        return nextReceiveAddress
+        return addressWithEnoughBalance?.pubkey
       })()
 
       // This is closer to a quote input than a rate input with those BIP44 params, but we do need the xpub here for fees estimation

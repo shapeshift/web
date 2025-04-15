@@ -10,8 +10,8 @@ import {
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
 import {
-  DEFAULT_RELAY_BTC_TOKEN_ADDRESS,
   DEFAULT_RELAY_EVM_TOKEN_ADDRESS,
+  RELAY_BTC_TOKEN_ADDRESS,
   relayChainIdToChainId,
 } from '../constant'
 import type { RelayToken } from './types'
@@ -27,7 +27,7 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
     }
 
     if (chainId === btcChainId) {
-      return relayToken.address === DEFAULT_RELAY_BTC_TOKEN_ADDRESS
+      return relayToken.address === RELAY_BTC_TOKEN_ADDRESS
     }
 
     return false

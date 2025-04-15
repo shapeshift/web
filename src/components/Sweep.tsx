@@ -115,6 +115,7 @@ export const Sweep = ({
       if (!adapter || !fromAddress) return
       // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
       // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
+      // and wait for a confirmations if requiredConfirmations is set and > 0
       if (!txId) return
       const utxos = await adapter.getUtxos({
         pubkey: fromAddress,
@@ -130,6 +131,10 @@ export const Sweep = ({
     },
     enabled: Boolean(txId && adapter && fromAddress),
     refetchInterval: 60_000,
+    // We need to set initialData to undefined using staleTime to avoid the query throwing its initial fetch before 60sec
+    // or UTXO data might be not propagated yet
+    staleTime: 60_000,
+    initialData: undefined,
   })
 
   if (!asset) return null

@@ -8,11 +8,11 @@ import { filterRelayAssetIds } from './utils/filterRelayAssetIds'
 
 export const relaySwapper: Swapper = {
   executeEvmTransaction,
-  executeUtxoTransaction: async (
+  executeUtxoTransaction: (
     txToSign: BTCSignTx,
     { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
   ): Promise<string> => {
-    return await signAndBroadcastTransaction(txToSign)
+    return signAndBroadcastTransaction(txToSign)
   },
 
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {

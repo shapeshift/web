@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -12,6 +11,7 @@ import {
   solanaChainId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
   arbitrum,
@@ -39,7 +39,7 @@ export const relaySupportedChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
 ]
 
-export const chainIdToRelayChainId: Record<ChainId, number> = {
+export const chainIdToRelayChainId = {
   // https://docs.relay.link/resources/supported-chains
   [btcChainId]: 8253038,
   [ethChainId]: ethereum.id,
@@ -54,12 +54,10 @@ export const chainIdToRelayChainId: Record<ChainId, number> = {
   [bscChainId]: bsc.id,
 }
 
-export const relayChainIdToChainId: Record<number, ChainId> = Object.fromEntries(
-  Object.entries(chainIdToRelayChainId).map(([chainId, relayChainId]) => [relayChainId, chainId]),
-)
+export const relayChainIdToChainId = invert(chainIdToRelayChainId)
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
-export const DEFAULT_RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'
+export const RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'
 
 export const DEFAULT_RELAY_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_RELAY_BTC_USER_ADDRESS = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'
@@ -71,4 +69,5 @@ export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
 
 export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
 
+// Relay UTXO balance check requires 1 confirmation or the quote fetching will fail
 export const MINIMUM_RELAY_CONFIRMATIONS_UTXO = 1

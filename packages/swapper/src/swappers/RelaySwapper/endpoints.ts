@@ -177,7 +177,7 @@ export const relayApi: SwapperApi = {
       }
     })()
 
-    // Relay refers to in Txs as "inTxHashes" out out Txs as simply "txHashes" when they really mean "outTxHashes"
+    // Relay refers to in Txs as "inTxHashes" but to out Txs as simply "txHashes" when they really mean "outTxHashes"
     // One thing to note is that for same-chain Txs, there is no "out Tx" per se since the in Tx *is* the out Tx
     const outTxHashes = statusResponse.txHashes
     const isSameChainSwap = statusResponse.destinationChainId === statusResponse.originChainId

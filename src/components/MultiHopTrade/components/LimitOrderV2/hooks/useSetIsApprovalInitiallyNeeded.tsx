@@ -4,15 +4,12 @@ import { useEffect, useMemo } from 'react'
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceResetRequired'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
-import {
-  selectActiveQuote,
-  selectLimitOrderSubmissionMetadata,
-} from '@/state/slices/limitOrderSlice/selectors'
+import { selectLimitOrderSubmissionMetadata } from '@/state/slices/limitOrderSlice/selectors'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const useSetIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
 
   const orderSubmissionMetadataFilter = useMemo(() => {
     return { quoteId: activeQuote?.response.id ?? 0 }

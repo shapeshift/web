@@ -1,10 +1,10 @@
 import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { TransactionInstruction } from '@solana/web3.js'
+import { bnOrZero } from '@shapeshiftoss/utils'
 
+import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../..'
 import type { GetUnsignedSolanaTransactionArgs, SwapperApi } from '../../types'
-import { isSolanaFeeData } from '../../types'
 import { checkSolanaSwapStatus, isExecutableTradeQuote, isExecutableTradeStep } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
@@ -29,7 +29,17 @@ export const jupiterApi: SwapperApi = {
       adapter.convertInstruction(instruction),
     )
 
-    if (!isSolanaFeeData(step.feeData.chainSpecific)) throw Error('Unable to execute step')
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
+      value: '0',
+      chainSpecific: {
+        from,
+        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
+        instructions: step.jupiterTransactionMetadata?.instructions,
+      },
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
 
     const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
       to: '',
@@ -39,8 +49,10 @@ export const jupiterApi: SwapperApi = {
       chainSpecific: {
         addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
         instructions: solanaInstructions,
-        computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
-        computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
+        computeUnitLimit: bnOrZero(feeData.fast.chainSpecific.computeUnits)
+          .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
+          .toFixed(0),
+        computeUnitPrice: feeData.fast.chainSpecific?.priorityFee,
       },
     }
 
@@ -59,34 +71,13 @@ export const jupiterApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    const solanaInstructions = step.jupiterTransactionMetadata?.instructions?.map(instruction =>
-      adapter.convertInstruction(instruction),
-    )
-
-    if (!isSolanaFeeData(step.feeData.chainSpecific)) throw Error('Unable to execute step')
-
-    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
-      to: '',
-      from,
-      value: '0',
-      accountNumber: step.accountNumber,
-      chainSpecific: {
-        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
-        instructions: solanaInstructions,
-        computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
-        computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
-      },
-    }
-
-    const { txToSign } = await adapter.buildSendApiTransaction(buildSwapTxInput)
-
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: txToSign.to,
-      value: txToSign.value,
+      to: '',
+      value: '0',
       chainSpecific: {
         from,
         addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
-        instructions: txToSign.instructions as TransactionInstruction[] | undefined,
+        instructions: step.jupiterTransactionMetadata?.instructions,
       },
     }
 

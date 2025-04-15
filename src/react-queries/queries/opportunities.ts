@@ -16,8 +16,8 @@ import {
 
 import {
   fetchAllOpportunitiesIdsByChainId,
-  fetchAllOpportunitiesMetadataByChainId,
   fetchAllOpportunitiesUserDataByAccountId,
+  fetchAllStakingOpportunitiesMetadataByChainId,
 } from '@/state/slices/opportunitiesSlice/thunks'
 import type { PortfolioAccount } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import type { AppDispatch } from '@/state/store'
@@ -41,7 +41,7 @@ const fetchAll = async ({ dispatch, accountId, chainId }: FetchAllArgs): Promise
     case ethChainId:
     case thorchainChainId:
       await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
-      await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
+      await fetchAllStakingOpportunitiesMetadataByChainId(dispatch, chainId)
       if (accountId) {
         await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
       }

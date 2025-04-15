@@ -259,7 +259,7 @@ export const ConfirmSummary = ({
 
   const handleOpenCompactQuoteList = useCallback(() => {
     if (!isCompact && !isSmallerThanXl) return
-    navigate(TradeRoutePaths.QuoteList)
+    navigate(`/trade/${TradeRoutePaths.QuoteList}`)
   }, [navigate, isCompact, isSmallerThanXl])
 
   const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =

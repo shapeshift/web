@@ -26,11 +26,6 @@ import {
   thorchainSaversStakingOpportunitiesMetadataResolver,
   thorchainSaversStakingOpportunitiesUserDataResolver,
 } from './resolvers/thorchainsavers'
-import {
-  uniV2LpLpOpportunityIdsResolver,
-  uniV2LpOpportunitiesMetadataResolver,
-  uniV2LpUserDataResolver,
-} from './resolvers/uniV2'
 import type {
   DefiProviderToMetadataResolver,
   DefiProviderToOpportunitiesMetadataResolver,
@@ -51,9 +46,6 @@ export const DefiProviderToMetadataResolverByDeFiType: DefiProviderToMetadataRes
 
 export const DefiProviderToOpportunitiesMetadataResolverByDeFiType: DefiProviderToOpportunitiesMetadataResolver =
   {
-    [`${DefiProvider.UniV2}`]: {
-      [`${DefiType.LiquidityPool}`]: uniV2LpOpportunitiesMetadataResolver,
-    },
     [`${DefiProvider.CosmosSdk}`]: {
       [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
     },
@@ -80,9 +72,6 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType: DefiProvider
 
 export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOpportunityIdsResolver =
   {
-    [`${DefiProvider.UniV2}`]: {
-      [`${DefiType.LiquidityPool}`]: uniV2LpLpOpportunityIdsResolver,
-    },
     [`${DefiProvider.EthFoxStaking}`]: {
       [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
     },
@@ -101,9 +90,6 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOppor
   }
 
 export const DefiProviderToUserDataResolverByDeFiType: DefiProviderToOpportunityUserDataResolver = {
-  [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: uniV2LpUserDataResolver,
-  },
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingUserDataResolver,
   },
@@ -150,10 +136,6 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
     },
   ],
   [KnownChainIds.EthereumMainnet]: [
-    {
-      defiProvider: DefiProvider.UniV2,
-      defiType: DefiType.LiquidityPool,
-    },
     {
       defiProvider: DefiProvider.EthFoxStaking,
       defiType: DefiType.Staking,

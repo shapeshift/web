@@ -22,12 +22,11 @@ import { ScrollToTop } from './Routes/ScrollToTop'
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { AppProvider } from '@/context/AppProvider/AppContext'
 import { BrowserRouterProvider } from '@/context/BrowserRouterProvider/BrowserRouterProvider'
-import { FoxEthProvider } from '@/context/FoxEthProvider/FoxEthProvider'
 import { I18nProvider } from '@/context/I18nProvider/I18nProvider'
 import { ModalProvider } from '@/context/ModalProvider/ModalProvider'
 import { PluginProvider } from '@/context/PluginProvider/PluginProvider'
 import { QueryClientProvider } from '@/context/QueryClientProvider/QueryClientProvider'
-import { TransactionsProvider } from '@/context/TransactionsProvider/TransactionsProvider'
+import { TransactionsSubscriber } from '@/context/TransactionsSubscriber/TransactionsSubscriber'
 import { KeepKeyProvider } from '@/context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from '@/context/WalletProvider/WalletProvider'
 import { DefiManagerProvider } from '@/features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
@@ -35,8 +34,6 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { wagmiConfig } from '@/lib/wagmi-config'
 import { ErrorPage } from '@/pages/ErrorPage/ErrorPage'
-import { FoxPageProvider } from '@/pages/Fox/hooks/useFoxPageContext'
-import { RFOXProvider } from '@/pages/RFOX/hooks/useRfoxContext'
 import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
 import { WalletConnectV2Provider } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { persistor, store } from '@/state/store'
@@ -90,17 +87,18 @@ export function AppProviders({ children }: ProvidersProps) {
                                     FallbackComponent={ErrorPage}
                                     onError={handleError}
                                   >
-                                    <TransactionsProvider>
+                                    <>
+                                      {/* This isn't a provider, it living here is misleading. This does not drill context through children, 
+                                          but really is just a subscriber. Do *not* render children with this, there is no reason,
+                                          and it would re-render the whole app on every render.
+                                          Could probably move this guy to a hook if we find a sane place for it (wink wink AppContext), but for the time being, 
+                                          this being a sibling fixes most of our rendering issues 
+                                      */}
+                                      <TransactionsSubscriber />
                                       <AppProvider>
-                                        <FoxEthProvider>
-                                          <DefiManagerProvider>
-                                            <RFOXProvider>
-                                              <FoxPageProvider>{children}</FoxPageProvider>
-                                            </RFOXProvider>
-                                          </DefiManagerProvider>
-                                        </FoxEthProvider>
+                                        <DefiManagerProvider>{children}</DefiManagerProvider>
                                       </AppProvider>
-                                    </TransactionsProvider>
+                                    </>
                                   </ErrorBoundary>
                                 </ModalProvider>
                               </WalletConnectV2Provider>

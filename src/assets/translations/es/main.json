@@ -62,7 +62,6 @@
     "walletActions": "Acciones de Billetera",
     "connectedWalletSettings": "Configuración de billetera",
     "noWallet": "Sin billetera conectada",
-    "seeAll": "Ver Todo",
     "darkMode": "Modo Oscuro",
     "darkTheme": "Tema oscuro",
     "rename": "Renombrar",
@@ -497,8 +496,6 @@
     "overview": "Overview",
     "myPositions": "Mis Posiciones",
     "myPositionsBody": "Una lista de sus posiciones actualmente activas en DeFi.",
-    "myRewards": "Mis Recompensas",
-    "myRewardsBody": "Tus posiciones DeFi activas con recompensas reclamables.",
     "viewAllPositions": "Ver Todas las Posiciones",
     "liquidityPools": "Pools de liquidez",
     "liquidityLockupWarning": "Hay un período de bloqueo de %{time}. Durante el bloqueo, no puedes acceder a tu liquidez.",
@@ -998,6 +995,7 @@
     "allowanceResetTxName": "Restablecimiento de asignación tx:",
     "allowanceApprovalTxName": "Aprobación de asignación tx:",
     "tradeComplete": "Ahora tienes %{cryptoAmountFormatted} en tu billetera en %{chainName}.",
+    "tradeCompleteSurplus": "¡Obtuviste un %{extraPercent} extra!",
     "doAnotherTrade": "Hacer otro intercambio",
     "summary": "Resumen de Intercambio",
     "estimatedCompletionTime": "Tiempo Estimado de Finalización",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "Podrías haber ahorrado %{fee} en tu intercambio con Ahorros FOX.",
       "buyFox": "Comprar FOX",
       "share": "Compartir",
-      "postBody": "¡Acabo de ahorrar %{fee} al intercambiar en @ShapeShift simplemente por ser propietario de $FOX!"
+      "postBody": "¡Acabo de ahorrar %{fee} al intercambiar en @ShapeShift simplemente por ser propietario de $FOX!",
+      "youGotMore": "Obtuviste %{cryptoUpside} más en esta operación porque tienes FOX"
     },
     "networkFee": "Tarifa de Red",
     "learnMoreAboutFox": "Aprende más sobre beneficios FOX",
@@ -1084,6 +1083,7 @@
     "awaitingAllowanceApproval": "Esperando aprobación de la asignación",
     "awaitingAllowanceReset": "Esperando restablecimiento de la asignación",
     "orderPlacement": "Realizar pedido en %{swapperName}",
+    "explanation": "Cuando el precio de %{assetSymbol} alcance %{limitPrice}, su orden limitada venderá automáticamente %{sellAmount}, lo que garantiza que recibirá al menos %{receiveAmount}.",
     "sellBuy": "Vender → Comprar",
     "limitExecution": "Límite/Ejecución",
     "statusHead": "Estado",
@@ -1128,7 +1128,9 @@
         "insufficientBalance": "Actualmente, su billetera no tiene saldo suficiente de %{symbol} en %{chainName} para ejecutar esta orden. La orden aún está abierta y se podrá ejecutar cuando recargue su saldo de %{symbol} en %{chainName}.",
         "insufficientAllowance": "Esta orden requiere una asignación adicional de %{symbol} en %{chainName} para que CoW Swap apruebe y ejecute. La orden aún está abierta y se podrá ejecutar cuando complete la aprobación de la asignación."
       }
-    }
+    },
+    "limitOrderFilled": "Orden limite completada",
+    "assetToAsset": "%{sellAmount} %{sellAsset} a %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2636,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Gana más con Staking",
-      "body": "Obtenga ingresos pasivos Staking sus activos con THORChain Savers Vault."
-    },
     "pools": {
       "title": "Pools",
       "body": "Gana comisiones por operaciones en pools."

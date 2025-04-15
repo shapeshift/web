@@ -1,10 +1,12 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
-import { Err } from '@sniptt/monads/build'
+import type { TransactionInstruction } from '@solana/web3.js'
+import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
@@ -13,20 +15,20 @@ import type {
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedSolanaTransactionArgs,
+  GetUnsignedUtxoTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { isSolanaFeeData, TradeQuoteError } from '../../types'
+import { isSolanaFeeData } from '../../types'
 import {
   checkSafeTransactionStatus,
   isExecutableTradeQuote,
   isExecutableTradeStep,
-  makeSwapErrorRight,
 } from '../../utils'
-import { relayChainMap } from './constant'
+import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { relayService } from './utils/relayService'
@@ -37,16 +39,7 @@ export const relayApi: SwapperApi = {
     input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
-      return Err(
-        makeSwapErrorRight({
-          message: 'sell amount too low',
-          code: TradeQuoteError.SellAmountBelowMinimum,
-        }),
-      )
-    }
-
-    const tradeQuoteResult = await getTradeQuote(input, deps, relayChainMap)
+    const tradeQuoteResult = await getTradeQuote(input, deps, chainIdToRelayChainId)
 
     return tradeQuoteResult
   },
@@ -54,46 +47,62 @@ export const relayApi: SwapperApi = {
     input: GetTradeRateInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
-      return Err(
-        makeSwapErrorRight({
-          message: 'sell amount too low',
-          code: TradeQuoteError.SellAmountBelowMinimum,
-        }),
-      )
-    }
-
-    const tradeRateResult = await getTradeRate(input, deps, relayChainMap)
+    const tradeRateResult = await getTradeRate(input, deps, chainIdToRelayChainId)
 
     return tradeRateResult
+  },
+  getEvmTransactionFees: async ({
+    from,
+    stepIndex,
+    tradeQuote,
+    chainId,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const currentStep = tradeQuote.steps[stepIndex]
+    if (!currentStep?.relayTransactionMetadata) throw Error('Missing relay transaction metadata')
+
+    const { to, value, data } = currentStep.relayTransactionMetadata
+
+    if (to === undefined || value === undefined || data === undefined) {
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
+
+      throw Error('undefined required values in transactionRequest', {
+        cause: {
+          undefinedRequiredValues,
+        },
+      })
+    }
+
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
+    return networkFeeCryptoBaseUnit
   },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
     stepIndex,
     tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+    const currentStep = tradeQuote.steps[stepIndex]
+    if (!currentStep?.relayTransactionMetadata) throw Error('Invalid step index')
 
-    const { to, value, data, gas, maxFeePerGas, maxPriorityFeePerGas } =
-      tradeQuote.steps[stepIndex]?.relayTransactionMetadata ?? {}
+    const { to, value, data, gasLimit: gasLimitFromApi } = currentStep.relayTransactionMetadata
 
-    if (
-      to === undefined ||
-      value === undefined ||
-      data === undefined ||
-      gas === undefined ||
-      maxFeePerGas === undefined ||
-      maxPriorityFeePerGas === undefined
-    ) {
-      const undefinedRequiredValues = [
-        to,
-        value,
-        data,
-        gas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-      ].filter(value => value === undefined)
+    if (to === undefined || value === undefined || data === undefined) {
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
 
       throw Error('undefined required values in swap step', {
         cause: {
@@ -102,16 +111,164 @@ export const relayApi: SwapperApi = {
       })
     }
 
-    return await Promise.resolve({
+    const { gasLimit, ...feeData } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data,
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
+    return {
       to,
       from,
       value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      gasLimit: gas,
+      ...feeData,
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
+      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
+    }
+  },
+  getUnsignedUtxoTransaction: async ({
+    tradeQuote,
+    xpub,
+    accountType,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    const {
+      accountNumber,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset,
+      relayTransactionMetadata,
+    } = firstStep
+
+    if (!relayTransactionMetadata) throw new Error('Missing relay transaction metadata')
+
+    const { to, opReturnData } = relayTransactionMetadata
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    if (!to) throw new Error('Missing transaction destination')
+    if (!opReturnData) throw new Error('Missing opReturnData')
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
+      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      xpub,
+      to,
+      accountNumber,
+      chainSpecific: {
+        accountType,
+        opReturnData,
+        satoshiPerByte: feeData.fast.chainSpecific.satoshiPerByte,
+      },
     })
+  },
+  getUtxoTransactionFees: async ({
+    tradeQuote,
+    xpub,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    if (!firstStep.relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    const { to, opReturnData } = firstStep.relayTransactionMetadata
+
+    if (!to) throw new Error('Missing transaction destination')
+    if (!opReturnData) throw new Error('Missing opReturnData')
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
+  },
+  getSolanaTransactionFees: async ({
+    tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+  }: GetUnsignedSolanaTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const firstStep = tradeQuote.steps[0]
+
+    const adapter = assertGetSolanaChainAdapter(firstStep.sellAsset.chainId)
+
+    if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
+
+    const solanaInstructions = firstStep.solanaTransactionMetadata?.instructions?.map(instruction =>
+      adapter.convertInstruction(instruction),
+    )
+
+    if (!isSolanaFeeData(firstStep.feeData.chainSpecific)) throw Error('Unable to execute step')
+
+    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
+      from,
+      value: '0',
+      accountNumber: firstStep.accountNumber,
+      chainSpecific: {
+        addressLookupTableAccounts:
+          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
+        instructions: solanaInstructions,
+        computeUnitLimit: firstStep.feeData.chainSpecific?.computeUnits,
+        computeUnitPrice: firstStep.feeData.chainSpecific?.priorityFee,
+      },
+    }
+
+    const { txToSign } = await adapter.buildSendApiTransaction(buildSwapTxInput)
+
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: txToSign.to,
+      value: txToSign.value,
+      chainSpecific: {
+        from,
+        addressLookupTableAccounts:
+          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
+        instructions: txToSign.instructions as TransactionInstruction[] | undefined,
+      },
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
   },
   getUnsignedSolanaTransaction: async ({
     tradeQuote,
@@ -147,6 +304,7 @@ export const relayApi: SwapperApi = {
 
     return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
   },
+
   checkTradeStatus: async ({
     quoteId,
     txHash,
@@ -207,7 +365,7 @@ export const relayApi: SwapperApi = {
 
     return {
       status,
-      buyTxHash: statusResponse.txHashes?.[statusResponse.txHashes.length - 1],
+      buyTxHash: statusResponse.txHashes?.[0],
       message: undefined,
     }
   },

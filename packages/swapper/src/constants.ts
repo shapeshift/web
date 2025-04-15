@@ -21,7 +21,7 @@ import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants
 import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
-import { RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL, relaySwapper } from './swappers/RelaySwapper'
+import { relaySwapper } from './swappers/RelaySwapper'
 import { RELAY_SUPPORTED_CHAIN_IDS } from './swappers/RelaySwapper/constant'
 import { relayApi } from './swappers/RelaySwapper/endpoints'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
@@ -101,7 +101,7 @@ export const swappers: Record<
     ...relaySwapper,
     ...relayApi,
     supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
-    pollingInterval: RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,
 }

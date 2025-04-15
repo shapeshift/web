@@ -6,17 +6,16 @@ import type { BuyAssetBySellIdInput, Swapper, UtxoTransactionExecutionProps } fr
 import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
 import { filterRelayAssetIds } from './utils/filterRelayAssetIds'
 
-export const RELAY_GET_TRADE_QUOTE_POLLING_INTERVAL = 30_000
-
 export const relaySwapper: Swapper = {
   executeEvmTransaction,
   executeSolanaTransaction,
-  executeUtxoTransaction: async (
+  executeUtxoTransaction: (
     txToSign: BTCSignTx,
     { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
   ): Promise<string> => {
-    return await signAndBroadcastTransaction(txToSign)
+    return signAndBroadcastTransaction(txToSign)
   },
+
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
     return Promise.resolve(filterRelayAssetIds(assets).map(asset => asset.assetId))
   },

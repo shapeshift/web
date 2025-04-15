@@ -62,7 +62,6 @@
     "walletActions": "Cüzdan Hareketleri",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
-    "seeAll": "Hepsini Gör",
     "darkMode": "Karanlık Mod",
     "darkTheme": "Karanlık Tema",
     "rename": "İsim Değiştir",
@@ -497,8 +496,6 @@
     "overview": "Genel Bakış",
     "myPositions": "Pozisyonlarım",
     "myPositionsBody": "Şu anda DeFi'deki aktif pozisyonlarınızın listesi.",
-    "myRewards": "Ödüllerim",
-    "myRewardsBody": "Talep edilebilir ödüllere sahip aktif DeFi pozisyonlarınız.",
     "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
     "liquidityLockupWarning": "%{time} kilitlenme süresi vardır. Kilitlenme süresince likiditenize erişemezsiniz.",
@@ -998,6 +995,7 @@
     "allowanceResetTxName": "Tahsisat sıfırlama tx:",
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
     "tradeComplete": "Artık cüzdanınızda %{chainName} üzerinde %{cryptoAmountFormatted} var.",
+    "tradeCompleteSurplus": "Fazladan %{extraPercent} kazandın!",
     "doAnotherTrade": "Başka bir takas yap",
     "summary": "Ticaret Özeti",
     "estimatedCompletionTime": "Tahmini Tamamlanma Süresi",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "FOX Savings ile yaptığınız işlemde %{fee} tasarruf edebilirdiniz.",
       "buyFox": "FOX satın al",
       "share": "Paylaş",
-      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!"
+      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!",
+      "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız çünkü FOX tutuyorsunuz"
     },
     "networkFee": "Ağ Ücreti",
     "learnMoreAboutFox": "FOX Avantajları hakkında daha fazla bilgi edinin",
@@ -1053,8 +1052,8 @@
     "placeOrder": "Emir Ver",
     "placeAnotherOrder": "Başka Bir Emir Ver",
     "orderSummary": "Emir Özeti",
-    "when": "When",
-    "isWorth": "is worth",
+    "when": "Ne zaman",
+    "isWorth": "değer",
     "market": "Market:",
     "success": "Limit emri başarıyla verildi",
     "cancel": {
@@ -1084,6 +1083,7 @@
     "awaitingAllowanceApproval": "Ödenek onayı bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
     "orderPlacement": "%{swapperName} üzerinde emir verin",
+    "explanation": "%{assetSymbol} fiyatı %{limitPrice} değerine ulaştığında, limit emriniz otomatik olarak %{sellAmount} tutarında satış yapacak ve en az %{receiveAmount} tutarında alım yapmanızı sağlayacaktır.",
     "sellBuy": "Sat → Satın al",
     "limitExecution": "Limit/Uygulama",
     "statusHead": "Durum",
@@ -1128,7 +1128,9 @@
         "insufficientBalance": "Cüzdanınız şu anda bu emri yürütmek için %{chainName} üzerinde yeterli %{symbol} bakiyesine sahip değil. Emir hala açık ve %{chainName} üzerinde %{symbol} bakiyenizi yüklediğinizde yürütülebilir hale gelecek.",
         "insufficientAllowance": "Bu emir, CoW Swap'ın bu emri yürütmesi için onaylanması için %{chainName} üzerinde ek bir %{symbol} ödeneği gerektirir. Emir hala açıktır ve ödenek onayını tamamladığınızda yürütülebilir hale gelecektir."
       }
-    }
+    },
+    "limitOrderFilled": "Limit emri dolduruldu",
+    "assetToAsset": "%{sellAmount} %{sellAsset} - %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2636,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Staking ile daha fazla kazanın",
-      "body": "Varlıklarınızı THORChain Savers Vault ile stake ederek pasif gelir elde edin."
-    },
     "pools": {
       "title": "Havuzlar",
       "body": "Havuzlardaki işlemlerden Ücret kazanın."

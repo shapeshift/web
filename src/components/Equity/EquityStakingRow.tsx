@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { EquityRow } from './EquityRow'
 
@@ -47,7 +47,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const assets = useAppSelector(selectAssets)
   const isLoading = useAppSelector(selectIsAnyOpportunitiesApiQueryPending)
@@ -141,25 +141,29 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     )
 
     if (provider === DefiProvider.rFOX) {
-      return history.push('/rfox')
+      return navigate('/rfox')
     }
 
-    history.push({
-      pathname: location.pathname,
-      search: qs.stringify({
-        type,
-        provider,
-        chainId,
-        contractAddress,
-        assetNamespace,
-        assetReference,
-        highestBalanceAccountAddress,
-        rewardId: rewardAddress,
-        modal: DefiAction.Overview,
-      }),
-      state: { background: location },
-    })
-  }, [assets, dispatch, history, isConnected, location, opportunity])
+    navigate(
+      {
+        pathname: location.pathname,
+        search: qs.stringify({
+          type,
+          provider,
+          chainId,
+          contractAddress,
+          assetNamespace,
+          assetReference,
+          highestBalanceAccountAddress,
+          rewardId: rewardAddress,
+          modal: DefiAction.Overview,
+        }),
+      },
+      {
+        state: { background: location },
+      },
+    )
+  }, [assets, dispatch, navigate, isConnected, location, opportunity])
 
   if (!opportunity || !asset) return null
   return (

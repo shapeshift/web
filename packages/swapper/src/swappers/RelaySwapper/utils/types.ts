@@ -1,23 +1,28 @@
-import type { Execute } from '@reservoir0x/relay-sdk'
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { Address } from 'viem'
+import type { Asset } from '@shapeshiftoss/types'
 
-import type { TradeQuote, TradeRate } from '../../../types'
-
-export interface RelayTradeQuote extends TradeQuote {
-  selectedRelayRoute?: Execute
+export type RelayTradeBaseParams = {
+  buyAsset: Asset
+  sellAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  affiliateBps: string
+  potentialAffiliateBps: string
 }
-export interface RelayTradeRate extends TradeRate {
-  selectedRelayRoute?: Execute
+
+export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBaseParams & {
+  quoteOrRate: T
+  receiveAddress: T extends 'rate' ? string | undefined : string
+  sendAddress: T extends 'rate' ? undefined : string
+  accountNumber: T extends 'rate' ? undefined : number
+  slippageTolerancePercentageDecimal?: string
 }
 
 export type RelayTransactionMetadata = {
-  to: Address | undefined
-  value: string | undefined
-  data: string | undefined
-  gas: string | undefined
-  maxFeePerGas: string | undefined
-  maxPriorityFeePerGas: string | undefined
+  to?: string
+  value?: string
+  data?: string
+  gasLimit?: string
+  psbt?: string
+  opReturnData?: string
 }
 
 export type RelayStatus = {
@@ -40,8 +45,8 @@ export type Transaction = {
   data: string
 }
 
-export type QuoteParams = {
-  user: string
+export type RelayFetchQuoteParams<T extends 'quote' | 'rate'> = {
+  user: T extends 'quote' ? string : undefined
   originChainId: number
   destinationChainId: number
   originCurrency: string
@@ -49,44 +54,102 @@ export type QuoteParams = {
   tradeType: 'EXACT_INPUT' | 'EXACT_OUTPUT' | 'EXPECTED_OUTPUT'
   recipient?: string
   amount?: string
-  txs?: Transaction[]
   referrer?: string
-  refundTo?: string
   refundOnOrigin?: boolean
-  useReceiver?: boolean
-  useExternalLiquidity?: boolean
-  usePermit?: boolean
-  useDepositAddress?: boolean
+  // Not mandatory on relay side but we keep it mandatory here to avoid
+  // losing user funds for UTXOs as we rely on their address to get the quote
+  // it would mean there would be a risk of refunding to their own address
+  // instead of our user address
+  refundTo: string
   slippageTolerance?: string
   appFees?: AppFee[]
-  gasLimitForDepositSpecifiedTxs?: number
-  userOperationGasOverhead?: number
-  forceSolverExecution?: boolean
 }
 
 export type RelayToken = {
-  chainId: ChainId
+  chainId: number
   address: string
   symbol: string
   name: string
   decimals: number
-  metadata: {
-    logoURI: string
-    verified: boolean
-    isNative: boolean
-  }
 }
 
-export const isRelayToken = (token: Record<string, unknown>): token is RelayToken => {
-  return Boolean(
-    token &&
-      token.chainId &&
-      token.address &&
-      token.symbol &&
-      token.name &&
-      token.decimals &&
-      token.metadata,
-  )
+export type RelayCurrencyData = {
+  currency: RelayToken
+  amount: string
+  amountFormatted: string
+  amountUsd: string
+  minimumAmount: string
+}
+
+export type RelayFees = {
+  gas: RelayCurrencyData
+  relayer: RelayCurrencyData
+  app: RelayCurrencyData
+}
+
+export type QuoteDetails = {
+  currencyOut: RelayCurrencyData
+  rate: string
+  slippageTolerance: {
+    origin: {
+      percent: string
+    }
+    destination: {
+      percent: string
+    }
+  }
+  timeEstimate: number
+}
+
+export type RelayQuoteEvmItemData = {
+  to?: string
+  data?: string
+  value?: string
+  gas?: string
+}
+
+export type RelayQuoteUtxoItemData = {
+  psbt?: string
+  to?: string
+  opReturnData?: string
+}
+
+export type RelayQuoteSolanaItemData = {
+  instructions: RelaySolanaInstruction[]
+  addressLookupTableAddresses: string[]
+}
+
+// @TODO: Change this to EVM and add UTXO/SVM types
+export type RelayQuoteItem = {
+  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
+}
+
+export type RelayQuote = {
+  fees: RelayFees
+  details: QuoteDetails
+  steps: {
+    id: string
+    requestId: string
+    items?: RelayQuoteItem[]
+  }[]
+}
+
+export const isRelayQuoteUtxoItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteUtxoItemData => {
+  return 'psbt' in item
+}
+
+export const isRelayQuoteEvmItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteEvmItemData => {
+  return 'to' in item && 'data' in item && 'value' in item && 'gas' in item
+}
+
+export const isRelayQuoteSolanaItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteSolanaItemData => {
+  return 'instructions' in item && 'addressLookupTableAddresses' in item
 }
 
 export type RelaySolanaInstruction = {

@@ -1,25 +1,24 @@
 import { Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useLocation } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 import { OnboardingRoutes } from '../config'
 
-type OnboardPagerProps = {
-  activeRoute: string
-}
-
-export const OnboardPager: React.FC<OnboardPagerProps> = ({ activeRoute }) => {
-  const history = useHistory()
+export const OnboardPager: React.FC = () => {
+  const location = useLocation()
+  const activeRoute = location.pathname
+  const navigate = useNavigate()
   const translate = useTranslate()
   const pageColor = useColorModeValue('gray.100', 'gray.700')
   const activeIndex = OnboardingRoutes.findIndex(route => route.path === activeRoute)
 
   const handleGoToPage = useCallback(
     (path: string) => {
-      return history.push(path)
+      return navigate(path)
     },
-    [history],
+    [navigate],
   )
 
   const renderPages = useMemo(() => {
@@ -36,8 +35,8 @@ export const OnboardPager: React.FC<OnboardPagerProps> = ({ activeRoute }) => {
   }, [activeRoute, handleGoToPage, pageColor])
 
   const handleNext = useCallback(() => {
-    history.push(OnboardingRoutes[activeIndex + 1].path)
-  }, [activeIndex, history])
+    navigate(OnboardingRoutes[activeIndex + 1].path)
+  }, [activeIndex, navigate])
 
   const canGoNext = useMemo(() => {
     return activeIndex + 1 < OnboardingRoutes.length

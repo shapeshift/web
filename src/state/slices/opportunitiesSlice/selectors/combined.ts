@@ -10,7 +10,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
-import { DefiProvider, DefiType } from '../types'
+import { DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from './../../marketDataSlice/selectors'
@@ -242,44 +242,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
     const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
 
-    const filterThorchainSaversZeroBalance = (
-      opportunities: AggregatedOpportunitiesByAssetIdReturn[],
-    ) => {
-      return (
-        opportunities
-          .map(opportunity => {
-            // Individual opportunities - all but savers
-            const filteredStakingOpportunities = opportunity.opportunities.staking.filter(
-              opportunityId => {
-                const maybeOpportunity = combined.find(opp => opp.id === opportunityId)
-                if (!maybeOpportunity) return false
-                if (maybeOpportunity.provider !== DefiProvider.ThorchainSavers) return true
-                return !bnOrZero(maybeOpportunity.fiatAmount).isZero()
-              },
-            )
-
-            return {
-              ...opportunity,
-              opportunities: {
-                // LP stays as-is, savers are OpportunityType.Staking
-                ...opportunity.opportunities,
-                staking: filteredStakingOpportunities,
-              },
-            }
-          })
-          // Second pass on the actual aggregate. These are *not* indivial opportunities but an aggregation of many.
-          // We want to filter savers out, but keep the rest
-          .filter(aggregate => {
-            // Filter out the entire aggregate if it has no opportunities left after filtering savers out
-            return (
-              aggregate.opportunities.staking.length > 0 || aggregate.opportunities.lp.length > 0
-            )
-          })
-      )
-    }
-
     if (!includeEarnBalances && !includeRewardsBalances)
-      return filterThorchainSaversZeroBalance(sortedOpportunitiesByFiatAmountAndApy)
+      return sortedOpportunitiesByFiatAmountAndApy
 
     const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
       Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
@@ -288,7 +252,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return filterThorchainSaversZeroBalance(withEarnBalances.concat(withRewardsBalances))
+    return withEarnBalances.concat(withRewardsBalances)
   },
 )
 

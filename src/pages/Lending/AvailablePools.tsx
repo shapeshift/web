@@ -6,7 +6,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
@@ -147,13 +147,14 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
 
 export const AvailablePools = () => {
   const translate = useTranslate()
-  const history = useHistory()
-  const { path } = useRouteMatch()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const path = location.pathname
   const handlePoolClick = useCallback(
     (assetId: AssetId) => {
-      history.push(`${path}/pool/${assetId}`)
+      navigate(`${path}/pool/${assetId}`)
     },
-    [history, path],
+    [navigate, path],
   )
   const headerComponent = useMemo(() => <LendingHeader />, [])
   const { isLoading: isLendingSupportedAssetsLoading, data: lendingSupportedAssets } =

@@ -94,7 +94,6 @@ const validators = {
   VITE_WALLET_CONNECT_WALLET_PROJECT_ID: str({ default: '' }),
   VITE_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
   VITE_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
-  VITE_LOCAL_IP: str({ default: '192.168.1.222' }),
   VITE_BOARDROOM_API_BASE_URL: url({
     default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
   }),
@@ -110,6 +109,7 @@ const validators = {
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
+  VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
     default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
   }),

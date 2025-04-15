@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
@@ -41,11 +41,11 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   setClaimTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleGoBack = useCallback(() => {
-    history.push(ClaimRoutePaths.Select)
-  }, [history])
+    navigate(ClaimRoutePaths.Select)
+  }, [navigate])
 
   const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))
   const claimAmountCryptoPrecision = useMemo(

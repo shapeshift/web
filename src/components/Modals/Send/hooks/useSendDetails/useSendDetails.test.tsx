@@ -6,11 +6,11 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook, waitFor } from '@testing-library/react'
-import type { History, LocationState } from 'history'
 import type { PropsWithChildren } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
+import type { NavigateFunction } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useSendDetails } from './useSendDetails'
@@ -43,7 +43,7 @@ vi.mock('@/lib/market-service', () => ({
   findPriceHistoryByAssetId: vi.fn,
 }))
 vi.mock('react-hook-form')
-vi.mock('react-router-dom', () => ({ useHistory: vi.fn() }))
+vi.mock('react-router-dom', () => ({ useNavigate: vi.fn() }))
 vi.mock('@/hooks/useWallet/useWallet')
 vi.mock('@/context/PluginProvider/PluginProvider')
 vi.mock('@/lib/utils/cosmosSdk')
@@ -166,9 +166,7 @@ describe('useSendDetails', () => {
 
   beforeEach(() => {
     vi.mocked(useWallet).mockImplementation(() => ({ state: { wallet: {} } }) as IWalletContext)
-    vi.mocked(useHistory).mockImplementation(
-      () => ({ push: vi.fn() }) as unknown as History<LocationState>,
-    )
+    vi.mocked(useNavigate).mockImplementation(() => ({}) as NavigateFunction)
     vi.mocked(assertGetCosmosSdkChainAdapter).mockImplementation(() => mockAdapterAtom)
     vi.mocked(assertGetEvmChainAdapter).mockImplementation(() => mockAdapterEth)
     vi.mocked(assertGetUtxoChainAdapter).mockImplementation(() => mockAdapterBtc)

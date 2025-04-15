@@ -1,14 +1,15 @@
 import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 
 import { useNativeSuccess } from '../hooks/useNativeSuccess'
-import type { NativeSetupProps } from '../types'
 
 import { Text } from '@/components/Text'
 import { reactQueries } from '@/react-queries'
 
-export const NativeSuccess = ({ location }: NativeSetupProps) => {
+export const NativeSuccess = () => {
+  const location = useLocation()
   const queryClient = useQueryClient()
   const { isSuccessful } = useNativeSuccess({ vault: location.state.vault })
 

@@ -7,7 +7,7 @@ import { FoxFarmingOverview } from './Overview/FoxFarmingOverview'
 import { FoxFarmingWithdraw } from './Withdraw/FoxFarmingWithdraw'
 
 import { SlideTransition } from '@/components/SlideTransition'
-import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { FoxEthProvider, useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -15,7 +15,7 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
-export const FoxFarmingManager = () => {
+const FoxFarmingManagerContent = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
   const { farmingAccountId, setFarmingAccountId: handleFarmingAccountIdChange } = useFoxEth()
@@ -68,3 +68,9 @@ export const FoxFarmingManager = () => {
     </AnimatePresence>
   )
 }
+
+export const FoxFarmingManager = () => (
+  <FoxEthProvider>
+    <FoxFarmingManagerContent />
+  </FoxEthProvider>
+)

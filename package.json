@@ -89,7 +89,6 @@
     "@metaplex-foundation/js": "^0.20.1",
     "@react-spring/web": "^9.7.4",
     "@reduxjs/toolkit": "^1.9.7",
-    "@reservoir0x/relay-sdk": "^1.6.12",
     "@sentry-internal/browser-utils": "^8.26.0",
     "@sentry/react": "^8.26.0",
     "@shapeshiftoss/caip": "workspace:^",
@@ -195,13 +194,15 @@
     "react-number-format": "^4.9.3",
     "react-polyglot": "^0.7.2",
     "react-redux": "^7.2.8",
-    "react-router": "^5.3.3",
+    "react-router": "^6.30.0",
     "react-router-breadcrumbs-hoc": "^4.1.0",
-    "react-router-dom": "^5.3.3",
+    "react-router-dom": "^6.30.0",
+    "react-scan": "^0.3.3",
     "react-swipeable-views": "^0.14.0",
     "react-swipeable-views-core": "^0.14.0",
     "react-swipeable-views-utils": "^0.14.0",
     "react-table": "^7.8.0",
+    "react-textarea-autosize": "^8.5.9",
     "react-virtualized-auto-sizer": "^1.0.5",
     "react-virtuoso": "^4.7.11",
     "react-window": "^1.8.7",
@@ -219,7 +220,8 @@
     "vite": "^6.1.1",
     "vite-plugin-checker": "^0.9.0",
     "wagmi": "^2.9.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "wouter": "^3.6.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
@@ -263,7 +265,6 @@
     "@walletconnect/ethereum-provider": "^2.17.5",
     "@walletconnect/types": "^2.11.3",
     "@walletconnect/web3-provider": "^1.8.0",
-    "@welldone-software/why-did-you-render": "^7.0.1",
     "assert": "^2.0.0",
     "axios-retry": "^4.5.0",
     "chalk": "5.3.0",
@@ -319,6 +320,8 @@
     "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2": "patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch",
     "@typescript-eslint/parser": "^8.16.0",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
-    "eslint-plugin-import": "^2.31.0"
+    "eslint-plugin-import": "^2.31.0",
+    "react-router@^6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
+    "react-router@6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch"
   }
 }

@@ -62,7 +62,6 @@
     "walletActions": "Действия с кошельком",
     "connectedWalletSettings": "Настройки кошелька",
     "noWallet": "Нет подключенного кошелька",
-    "seeAll": "Посмотреть все",
     "darkMode": "Темный режим",
     "darkTheme": "Темная тема",
     "rename": "Переименовать",
@@ -207,7 +206,7 @@
     "cta": "Попробуйте еще раз"
   },
   "buyPage": {
-    "title": "Купить криптовалюту <span>в секундах</span>",
+    "title": "Купить криптовалюту <span>за секунду</span>",
     "body": "Используйте кредитную карту, дебетовую карту или банковский счет. Покупайте Bitcoin, Ethereum, USDT, USDC или сотни других криптовалют.",
     "disclaimer": "*Вы также можете продавать криптовалюту напрямую за наличные на свой банковский счет.",
     "ctaTitle": "Вы также можете использовать ShapeShift со всеми ведущими кошельками для торговли, получения доходности и <span>отслеживайте свою криптовалюту по %{chainCount} сетям</span>",
@@ -497,8 +496,6 @@
     "overview": "Обзор",
     "myPositions": "Мои позиции",
     "myPositionsBody": "Список ваших текущих активных позиций в DeFi.",
-    "myRewards": "Мои награды",
-    "myRewardsBody": "Ваши активные позиции DeFi с возможностью получения вознаграждения.",
     "viewAllPositions": "Посмотреть все позиции",
     "liquidityPools": "Пулы ликвидности",
     "liquidityLockupWarning": "Существует период блокировки %{time}. Во время блокировки вы не можете получить доступ к своей ликвидности.",
@@ -998,6 +995,7 @@
     "allowanceResetTxName": "Сброс разрешений tx:",
     "allowanceApprovalTxName": "Утверждение разрешения tx:",
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
+    "tradeCompleteSurplus": "Вы получили дополнительно %{extraPercent}!",
     "doAnotherTrade": "Совершите еще одну сделку",
     "summary": "Торговая сводка",
     "estimatedCompletionTime": "Предполагаемое время завершения",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "Вы могли бы сэкономить %{fee} на сделке с FOX Savings. ",
       "buyFox": "Купить FOX ",
       "share": "Поделиться ",
-      "postBody": "Я только что сэкономил %{fee}, торгуя на @ShapeShift, просто владея $FOX! "
+      "postBody": "Я только что сэкономил %{fee}, торгуя на @ShapeShift, просто владея $FOX! ",
+      "youGotMore": "Вы получили на %{cryptoUpside} больше на этой сделке, потому что вы держите FOX"
     },
     "networkFee": "Сетевой сбор",
     "learnMoreAboutFox": "Узнайте больше о преимуществах FOX",
@@ -1084,6 +1083,7 @@
     "awaitingAllowanceApproval": "Ожидает утверждения разрешения ",
     "awaitingAllowanceReset": "Ожидание сброса разрешения",
     "orderPlacement": "Разместите ордер на %{swapperName}",
+    "explanation": "Когда цена %{assetSymbol} достигнет %{limitPrice}, ваш лимитный ордер автоматически продаст %{sellAmount}, гарантируя, что вы получите не менее %{receiveAmount}.",
     "sellBuy": "Продать → Купить",
     "limitExecution": "Лимит/Исполнение",
     "statusHead": "Статус",
@@ -1128,7 +1128,9 @@
         "insufficientBalance": "В настоящее время в вашем кошельке недостаточно %{symbol} баланса на %{chainName} для выполнения этого ордера. Ордер все еще открыт и будет исполнен, когда вы пополните свой баланс %{символ} на %{chainName}.",
         "insufficientAllowance": "Для исполнения этого ордера требуется дополнительная надбавка в размере %{symbol} на %{chainName}, которая должна быть одобрена для CoW Swap. Ордер все еще открыт и станет исполняемым, когда вы завершите утверждение надбавки."
       }
-    }
+    },
+    "limitOrderFilled": "Лимитный ордер выполнен",
+    "assetToAsset": "%{sellAmount} %{sellAsset} на %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2636,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Зарабатывайте больше с помощью стейкинга",
-      "body": "Получайте пассивный доход, стейкингом на свои активы с помощью THORChain Savers Vault."
-    },
     "pools": {
       "title": "Пулы",
       "body": "Зарабатывайте комиссионные на сделках в пулах."

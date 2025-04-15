@@ -1,0 +1,36 @@
+diff --git a/dist/index.js b/dist/index.js
+index 7571a89e4da9f6db4254afacb063f093f3a2fab0..33e6cc50ae0ab0640be0064827d2371e99ade08d 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1191,7 +1191,6 @@ function Router(_ref5) {
+     static: staticProp = false,
+     future
+   } = _ref5;
+-  !!useInRouterContext() ? process.env.NODE_ENV !== "production" ? UNSAFE_invariant(false, "You cannot render a <Router> inside another <Router>." + " You should never have more than one in your app.") : UNSAFE_invariant(false) : void 0;
+ 
+   // Preserve trailing slashes on basename, so we can let the user control
+   // the enforcement of trailing slashes throughout the app
+diff --git a/dist/react-router.development.js b/dist/react-router.development.js
+index 6e2a3d3047c7f88b55a52c0fd25b50f891c07f29..630914ce212ee8ac6fbf5dfe78380ff07fb5fa15 100644
+--- a/dist/react-router.development.js
++++ b/dist/react-router.development.js
+@@ -1097,7 +1097,6 @@ function Router({
+   static: staticProp = false,
+   future
+ }) {
+-  !!useInRouterContext() ? UNSAFE_invariant(false, `You cannot render a <Router> inside another <Router>.` + ` You should never have more than one in your app.`)  : void 0;
+   // Preserve trailing slashes on basename, so we can let the user control
+   // the enforcement of trailing slashes throughout the app
+   let basename = basenameProp.replace(/^\/*/, "/");
+diff --git a/dist/umd/react-router.development.js b/dist/umd/react-router.development.js
+index 8b1fe9cd437cdc9d84d4f56a980835c64c45f9fa..62b0c7acf2cb57acd8cd7fee7d2e090ac8715087 100644
+--- a/dist/umd/react-router.development.js
++++ b/dist/umd/react-router.development.js
+@@ -1213,7 +1213,6 @@
+       static: staticProp = false,
+       future
+     } = _ref5;
+-    !!useInRouterContext() ? router.UNSAFE_invariant(false, "You cannot render a <Router> inside another <Router>." + " You should never have more than one in your app.")  : void 0;
+ 
+     // Preserve trailing slashes on basename, so we can let the user control
+     // the enforcement of trailing slashes throughout the app

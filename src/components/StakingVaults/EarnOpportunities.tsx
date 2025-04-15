@@ -3,12 +3,12 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { StakingTable } from './StakingTable'
 
 import { Text } from '@/components/Text'
-import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
+import { FoxEthProvider, useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
@@ -28,8 +28,8 @@ type EarnOpportunitiesProps = {
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
-  const history = useHistory()
+export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps) => {
+  const navigate = useNavigate()
   const location = useLocation()
   const {
     state: { isConnected },
@@ -82,10 +82,12 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       }
 
       if (provider === DefiProvider.rFOX) {
-        return history.push('/rfox')
+        return navigate('/rfox')
       }
 
-      history.push({
+      // @ts-ignore that's incorrect according to types but is absolutely valid
+      // The correct signature doesn't cut it and will bork DeFi row click in account/asset page
+      navigate({
         pathname: location.pathname,
         search: qs.stringify({
           chainId,
@@ -101,7 +103,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, location],
+    [dispatch, isConnected, location, navigate],
   )
 
   if (!asset) return null
@@ -127,3 +129,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     </Card>
   )
 }
+
+export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => (
+  <FoxEthProvider>
+    <EarnOpportunitiesContent assetId={assetId} accountId={accountId} />
+  </FoxEthProvider>
+)

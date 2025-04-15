@@ -62,7 +62,6 @@
     "walletActions": "Ações da Carteira",
     "connectedWalletSettings": "Configurar Carteira",
     "noWallet": "Carteira não conectada",
-    "seeAll": "Ver tudo",
     "darkMode": "Modo noturno",
     "darkTheme": "Tema Escuro",
     "rename": "Renomear",
@@ -497,8 +496,6 @@
     "overview": "Visão Geral",
     "myPositions": "Minhas Posições",
     "myPositionsBody": "Uma lista de suas posições atualmente ativas no DeFi.",
-    "myRewards": "Minhas recompensas",
-    "myRewardsBody": "Suas posições DeFi ativas com recompensas resgatáveis.",
     "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
     "liquidityLockupWarning": "Há um período de bloqueio de %{time}. Durante o bloqueio, você não pode acessar sua liquidez.",
@@ -998,6 +995,7 @@
     "allowanceResetTxName": "Tx da redefinição de permissão:",
     "allowanceApprovalTxName": "Tx da permissão de aprovação:",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
+    "tradeCompleteSurplus": "Você ganhou um %{extraPercent} extra!",
     "doAnotherTrade": "Faça outra negociação",
     "summary": "Resumo de Trades",
     "estimatedCompletionTime": "Tempo estimado de conclusão",
@@ -1037,7 +1035,8 @@
       "youCouldHaveSaved": "Você poderia ter economizado %{fee} em sua negociação com a FOX Savings.",
       "buyFox": "Comprar FOX",
       "share": "Compartilhar",
-      "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!"
+      "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!",
+      "youGotMore": "Você obteve %{cryptoUpside} a mais nesta negociação porque você mantém FOX"
     },
     "networkFee": "Taxa de rede",
     "learnMoreAboutFox": "Leia mais sobre benefícios do FOX",
@@ -1084,6 +1083,7 @@
     "awaitingAllowanceApproval": "Aguardando aprovação da permissão",
     "awaitingAllowanceReset": "Aguardando redefinição da permissão",
     "orderPlacement": "Coloque a ordem %{swapperName}",
+    "explanation": "Quando o preço de %{assetSymbol} atingir %{limitPrice}, sua ordem limite venderá automaticamente %{sellAmount}, garantindo que você receba pelo menos %{receiveAmount}.",
     "sellBuy": "Venda → Compra",
     "limitExecution": "Limite/Execução",
     "statusHead": "Status",
@@ -1128,7 +1128,9 @@
         "insufficientBalance": "Sua carteira atualmente tem saldo %{symbol} insuficiente em %{chainName} para executar esta ordem. A ordem ainda está aberta e se tornará executável quando você recarregar seu saldo %{symbol} em %{chainName}.",
         "insufficientAllowance": "Esta ordem requer uma permissão adicional de %{symbol} em %{chainName} para ser aprovada para que o CoW Swap execute esta ordem. A ordem ainda está aberta e se tornará executável quando você concluir a aprovação da permissão."
       }
-    }
+    },
+    "limitOrderFilled": "Ordem de limite preenchida",
+    "assetToAsset": "%{sellAmount} %{sellAsset} para %{buyAmount} %{buyAsset}"
   },
   "modals": {
     "assetSearch": {
@@ -2636,10 +2638,6 @@
     }
   },
   "explore": {
-    "staking": {
-      "title": "Ganhe mais com staking",
-      "body": "Ganhe renda passiva fazendo o staking seus ativos com THORChain Savers Vault."
-    },
     "pools": {
       "title": "Pools",
       "body": "Ganhe taxas em negociações em pools."

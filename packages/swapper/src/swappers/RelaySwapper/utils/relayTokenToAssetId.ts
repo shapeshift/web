@@ -2,48 +2,53 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   ASSET_REFERENCE,
+  btcChainId,
   CHAIN_REFERENCE,
   fromChainId,
+  solanaChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
 import {
-  chainIdToRelayChainIdMap,
-  DEFAULT_RELAY_BTC_TOKEN_ADDRESS,
   DEFAULT_RELAY_EVM_TOKEN_ADDRESS,
-  DEFAULT_RELAY_SOLANA_TOKEN_ADDRESS,
+  RELAY_BTC_TOKEN_ADDRESS,
+  RELAY_SOLANA_TOKEN_ADDRESS,
+  relayChainIdToChainId,
 } from '../constant'
 import type { RelayToken } from './types'
 
 export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
-  const chainId = chainIdToRelayChainIdMap[relayToken.chainId].toString()
-  const chainReference = fromChainId(chainId).chainReference
+  const chainId = relayChainIdToChainId[relayToken.chainId]
+  const { chainReference } = fromChainId(chainId)
 
-  const isDefaultAddress = (() => {
-    if (relayToken.address === DEFAULT_RELAY_EVM_TOKEN_ADDRESS) return true
-    if (relayToken.address === DEFAULT_RELAY_BTC_TOKEN_ADDRESS) return true
-    if (relayToken.address === DEFAULT_RELAY_SOLANA_TOKEN_ADDRESS) return true
+  const isNativeAsset = (() => {
+    if (isEvmChainId(chainId)) {
+      return relayToken.address === DEFAULT_RELAY_EVM_TOKEN_ADDRESS
+    }
+
+    if (chainId === btcChainId) {
+      return relayToken.address === RELAY_BTC_TOKEN_ADDRESS
+    }
+
+    if (chainId === solanaChainId) {
+      return relayToken.address === RELAY_SOLANA_TOKEN_ADDRESS
+    }
 
     return false
   })()
 
   const { assetReference, assetNamespace } = (() => {
-    if (!isDefaultAddress) {
+    if (!isNativeAsset) {
       const assetNamespace = (() => {
-        switch (chainReference) {
-          case CHAIN_REFERENCE.ArbitrumMainnet:
-          case CHAIN_REFERENCE.EthereumMainnet:
-          case CHAIN_REFERENCE.AvalancheCChain:
-          case CHAIN_REFERENCE.OptimismMainnet:
-          case CHAIN_REFERENCE.PolygonMainnet:
-          case CHAIN_REFERENCE.GnosisMainnet:
-          case CHAIN_REFERENCE.BaseMainnet:
-            return ASSET_NAMESPACE.erc20
-          case CHAIN_REFERENCE.BnbSmartChainMainnet:
+        switch (true) {
+          case CHAIN_REFERENCE.BnbSmartChainMainnet === chainReference:
             return ASSET_NAMESPACE.bep20
-          case CHAIN_REFERENCE.BitcoinMainnet:
+          case isEvmChainId(chainId):
+            return ASSET_NAMESPACE.erc20
+          case CHAIN_REFERENCE.BitcoinMainnet === chainReference:
             return ASSET_NAMESPACE.slip44
-          case CHAIN_REFERENCE.SolanaMainnet:
+          case CHAIN_REFERENCE.SolanaMainnet === chainReference:
             return ASSET_NAMESPACE.splToken
           default:
             throw Error(`chainReference '${chainReference}' not supported`)

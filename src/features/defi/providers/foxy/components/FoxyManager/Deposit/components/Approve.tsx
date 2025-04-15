@@ -4,7 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -32,7 +32,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const toast = useToast()
   const {
@@ -199,7 +199,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  const handleCancel = useCallback(() => history.push('/'), [history])
+  const handleCancel = useCallback(() => {
+    navigate('/')
+  }, [navigate])
   const handleToggle = useCallback(
     () =>
       dispatch?.({

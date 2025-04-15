@@ -75,7 +75,7 @@ export const EIP155SignMessageConfirmationModal: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='md'>
           <HStack align='center' p={4}>
-            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons[0]} />
+            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
             <RawText fontWeight='semibold' flex={1}>
               {peerMetadata.name}
             </RawText>

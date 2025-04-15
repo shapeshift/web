@@ -1,3 +1,4 @@
+import { btcChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
@@ -19,13 +20,16 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { relayChainMap as relayChainMapImplementation } from '../constant'
-import { DEFAULT_RELAY_EVM_USER_ADDRESS, MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
-import { getRelayEvmAssetAddress } from '../utils/getRelayEvmAssetAddress'
+import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
+import { MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
+import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelayTradeInputParams } from '../utils/types'
+import { isRelayQuoteEvmItemData, isRelayQuoteUtxoItemData } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
+import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
+import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -67,7 +71,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const buyRelayChainId = relayChainMap[buyAsset.chainId]
 
   // @TODO: remove this once we have support for non-EVM chains
-  if (!isEvmChainId(sellAsset.chainId)) {
+  if (!isEvmChainId(sellAsset.chainId) && sellAsset.chainId !== btcChainId) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
@@ -76,8 +80,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
-  // @TODO: remove this once we have support for non-EVM chains
-  if (!isEvmChainId(buyAsset.chainId)) {
+  // @TODO: remove this once we have support for Solana
+  if (!isEvmChainId(buyAsset.chainId) && buyAsset.chainId !== btcChainId) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
@@ -105,12 +109,19 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
+    // We absolutely need to use the default user address for BTC swaps
+    // or relay quote endpoint will fail at estimation time because we don't necessarily
+    // send an address with enough funds but use multiple UTXOs to fund the swap
+    if (sellAsset.chainId === btcChainId) {
+      return getRelayDefaultUserAddress(sellAsset.chainId)
+    }
+
     if (input.quoteOrRate === 'rate') {
       if (input.sendAddress) return input.sendAddress
 
-      // @TODO: Support solana and BTC addresses according to relay implementation when
+      // @TODO: Support solana addresses according to relay implementation when
       // wallet is not connected
-      return DEFAULT_RELAY_EVM_USER_ADDRESS
+      return getRelayDefaultUserAddress(sellAsset.chainId)
     }
 
     return input.sendAddress
@@ -120,24 +131,37 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     if (input.quoteOrRate === 'rate') {
       if (input.receiveAddress) return input.receiveAddress
 
-      // @TODO: Support solana and BTC addresses according to relay implementation when
+      // @TODO: Support solana addresses according to relay implementation when
       // wallet is not connected
-      return DEFAULT_RELAY_EVM_USER_ADDRESS
+      return getRelayDefaultUserAddress(buyAsset.chainId)
     }
 
     return input.receiveAddress
   })()
 
+  const refundTo = (() => {
+    if (input.quoteOrRate === 'rate') {
+      if (input.sendAddress) return input.sendAddress
+
+      return getRelayDefaultUserAddress(sellAsset.chainId)
+    }
+
+    if (!input.sendAddress) throw new Error('Send address is required for refund')
+
+    return input.sendAddress
+  })()
+
   const maybeQuote = await fetchRelayTrade(
     {
       originChainId: sellRelayChainId,
-      originCurrency: getRelayEvmAssetAddress(sellAsset),
+      originCurrency: getRelayAssetAddress(sellAsset),
       destinationChainId: buyRelayChainId,
-      destinationCurrency: getRelayEvmAssetAddress(buyAsset),
+      destinationCurrency: getRelayAssetAddress(buyAsset),
       tradeType: 'EXACT_INPUT',
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       recipient,
       user: sendAddress,
+      refundTo,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
     },
@@ -220,9 +244,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const appFeesAsset = maybeAppFeesAsset.unwrap()
 
   const appFeesBaseUnit = (() => {
-    // @TODO: we might need to change this logic when solana and BTC are supported
-    const isNativeCurrencyInput =
-      isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+    const isNativeCurrencyInput = (() => {
+      if (isEvmChainId(sellAsset.chainId)) {
+        return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+      }
+
+      if (sellAsset.chainId === btcChainId) {
+        return sellAsset.assetId === appFeesAsset.assetId
+      }
+
+      return false
+    })()
 
     // For cross-chain: always add back app fees
     // For same-chain: only add back if input is native currency
@@ -243,7 +275,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const relayerFeesAsset = maybeRelayerFeesAsset.unwrap()
 
-  const relayerFeesBuyAssetBaseUnit = (() => {
+  const relayerFeesBuyAssetCryptoBaseUnit = (() => {
     const relayerFeeAmount = quote.fees.relayer.amount
 
     // If fee is already in buy asset, return as is
@@ -287,12 +319,49 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
     const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
-      .plus(relayerFeesBuyAssetBaseUnit)
+      .plus(relayerFeesBuyAssetCryptoBaseUnit)
       .plus(appFeesBaseUnit)
       .toFixed()
 
+    const { allowanceContract, relayTransactionMetadata } = (() => {
+      if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+
+      if (isRelayQuoteUtxoItemData(selectedItem.data)) {
+        if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+
+        const relayer = getRelayPsbtRelayer(
+          selectedItem.data.psbt,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        )
+
+        return {
+          allowanceContract: '',
+          relayTransactionMetadata: {
+            psbt: selectedItem.data.psbt,
+            opReturnData: quoteStep.requestId,
+            to: relayer,
+          },
+        }
+      }
+
+      if (isRelayQuoteEvmItemData(selectedItem.data)) {
+        return {
+          allowanceContract: selectedItem.data?.to ?? '',
+          relayTransactionMetadata: {
+            to: selectedItem.data?.to,
+            value: selectedItem.data?.value,
+            data: selectedItem.data?.data,
+            // gas is not documented in the relay docs but refers to gasLimit
+            gasLimit: selectedItem.data?.gas,
+          },
+        }
+      }
+
+      throw new Error('Relay quote step contains no data')
+    })()
+
     return {
-      allowanceContract: selectedItem.data?.to ?? '',
+      allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
@@ -312,13 +381,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       },
       source: SwapperName.Relay,
       estimatedExecutionTimeMs: timeEstimate * 1000,
-      relayTransactionMetadata: {
-        to: selectedItem.data?.to,
-        value: selectedItem.data?.value,
-        data: selectedItem.data?.data,
-        // gas is not documented in the relay docs but refers to gasLimit
-        gasLimit: selectedItem.data?.gas,
-      },
+      relayTransactionMetadata,
     }
   })
 

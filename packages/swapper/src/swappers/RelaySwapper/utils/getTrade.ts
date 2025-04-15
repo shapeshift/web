@@ -26,7 +26,7 @@ import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelayTradeInputParams } from '../utils/types'
-import { isRelayQuoteUtxoItemData } from '../utils/types'
+import { isRelayQuoteEvmItemData, isRelayQuoteUtxoItemData } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
@@ -109,6 +109,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const sendAddress = (() => {
+    // We absolutely need to use the default user address for BTC swaps
+    // or relay quote endpoint will fail at estimation time because we don't necessarily
+    // send an address with enough funds but use multiple UTXOs to fund the swap
     if (sellAsset.chainId === btcChainId) {
       return getRelayDefaultUserAddress(sellAsset.chainId)
     }
@@ -333,16 +336,20 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         }
       }
 
-      return {
-        allowanceContract: selectedItem.data?.to ?? '',
-        relayTransactionMetadata: {
-          to: selectedItem.data?.to,
-          value: selectedItem.data?.value,
-          data: selectedItem.data?.data,
-          // gas is not documented in the relay docs but refers to gasLimit
-          gasLimit: selectedItem.data?.gas,
-        },
+      if (isRelayQuoteEvmItemData(selectedItem.data)) {
+        return {
+          allowanceContract: selectedItem.data?.to ?? '',
+          relayTransactionMetadata: {
+            to: selectedItem.data?.to,
+            value: selectedItem.data?.value,
+            data: selectedItem.data?.data,
+            // gas is not documented in the relay docs but refers to gasLimit
+            gasLimit: selectedItem.data?.gas,
+          },
+        }
       }
+
+      throw new Error('Relay quote step contains no data')
     })()
 
     return {

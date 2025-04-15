@@ -134,3 +134,9 @@ export const isRelayQuoteUtxoItemData = (
 ): item is RelayQuoteUtxoItemData => {
   return 'psbt' in item
 }
+
+export const isRelayQuoteEvmItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData,
+): item is RelayQuoteEvmItemData => {
+  return 'to' in item && 'data' in item && 'value' in item && 'gas' in item
+}

@@ -54,7 +54,9 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
     () => () => {
       if (revealedOnce.current) revoker.revoke()
     },
-    [revoker],
+    // Don't add revoker here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
 
   const words = useMemo(() => {

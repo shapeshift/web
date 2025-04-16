@@ -35,7 +35,9 @@ export const BackupPassphraseRouter = () => {
         }),
       )
     },
-    [revocableWallet, state.walletInfo?.deviceId, state.walletInfo?.name],
+    // Don't add revoker and related deps here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
 
   return (

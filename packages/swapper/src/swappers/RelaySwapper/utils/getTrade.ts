@@ -258,7 +258,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const appFeesAsset = (() => {
     // @TODO: when implementing fees, find if solana to solana assets are always showing empty app fees even if
-    // affiliate bps are set
+    // affiliate bps are set, if we remove this the quote fetching will fail because relayTokenToAsset will throw
     if (
       sellAsset.chainId === solanaChainId &&
       buyAsset.chainId === solanaChainId &&

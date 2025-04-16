@@ -478,7 +478,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   async signAndBroadcastTransaction({
-    senderAddress,
     receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
@@ -493,7 +492,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const hex = await this.signTransaction(signTxInput)
 
-      return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
+      return this.broadcastTransaction({ hex })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',
@@ -527,12 +526,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async broadcastTransaction({ receiverAddress, hex }: BroadcastTransactionInput): Promise<string> {
+  async broadcastTransaction({ hex }: Pick<BroadcastTransactionInput, 'hex'>): Promise<string> {
     try {
-      if (receiverAddress !== CONTRACT_INTERACTION) {
-        await assertAddressNotSanctioned(receiverAddress)
-      }
-
       const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
 
       return txHash

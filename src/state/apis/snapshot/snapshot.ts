@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -60,6 +60,9 @@ export const snapshot = createSlice({
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
+  selectors: {
+    selectVotingPowerByModel: state => state.votingPowerByModel,
+  },
 })
 
 export const snapshotApi = createApi({

@@ -1,25 +1,24 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import type { KeyManager } from '@/context/WalletProvider/KeyManager'
-import type { ReduxState } from '@/state/reducer' // Adjust the import path as needed
+import { localWalletSlice } from './localWalletSlice'
 
-const selectLocalWalletState = (state: ReduxState) => state.localWalletSlice
+import type { KeyManager } from '@/context/WalletProvider/KeyManager'
 
 export const selectWalletType = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): KeyManager | null => localWalletState.walletType,
 )
 
 export const selectWalletDeviceId = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.walletDeviceId,
 )
 
 export const selectNativeWalletName = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.nativeWalletName,
 )
 export const selectWalletRdns = createSelector(
-  selectLocalWalletState,
+  localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.rdns,
 )

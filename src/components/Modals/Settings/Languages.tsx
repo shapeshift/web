@@ -10,7 +10,6 @@ import { getLocaleLabel } from '@/assets/translations/utils'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -19,7 +18,7 @@ const disabledProps = { opacity: 1 }
 export const Languages = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
 

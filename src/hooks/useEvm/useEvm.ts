@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getSupportedEvmChainIds } from '@/lib/utils/evm'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from '@/state/store'
 
 export const useEvm = () => {
@@ -16,7 +16,7 @@ export const useEvm = () => {
   } = useWallet()
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [chainId, setChainId] = useState<ChainId>()
-  const featureFlags = useAppSelector(selectFeatureFlags)
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
     () => getSupportedEvmChainIds(),
     // We want to explicitly react on featureFlags to get a new reference here

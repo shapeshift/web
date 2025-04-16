@@ -10,7 +10,6 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
-import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from '@/state/slices/opportunitiesSlice/utils'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -81,10 +80,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag
-              textTransform={value === DefiType.LiquidityPool ? 'uppercase' : 'capitalize'}
-              size={tagSize}
-            >
+            <Tag textTransform='capitalize' size={tagSize}>
               {value?.replace('_', ' ')}
             </Tag>
           </Skeleton>

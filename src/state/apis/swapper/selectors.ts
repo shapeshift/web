@@ -1,4 +1,4 @@
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
 

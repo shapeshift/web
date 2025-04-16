@@ -8,10 +8,10 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { assertUnreachable } from '@/lib/utils'
 import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
 import type { ReduxState } from '@/state/reducer'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
   selectFeeAssetById,
-  selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { store } from '@/state/store'
@@ -99,7 +99,7 @@ export const getMixpanelLimitOrderEventData = ({
   const buyAssetFeeAsset = selectFeeAssetById(state, buyAsset.assetId)
   const sellAssetFeeAsset = selectFeeAssetById(state, sellAsset.assetId)
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(state)
-  const marketDataUsd = selectMarketDataUsd(state)
+  const marketDataUsd = marketData.selectors.selectMarketDataUsd(state)
   const assets = selectAssets(state)
 
   const sellAmountBeforeFeesUsd = bn(sellAmountCryptoPrecision)

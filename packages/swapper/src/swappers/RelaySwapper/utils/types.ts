@@ -148,7 +148,7 @@ export const isRelayQuoteEvmItemData = (
 export const isRelayQuoteSolanaItemData = (
   item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
 ): item is RelayQuoteSolanaItemData => {
-  return 'instructions' in item && 'addressLookupTableAddresses' in item
+  return 'instructions' in item
 }
 
 export type RelaySolanaInstruction = {

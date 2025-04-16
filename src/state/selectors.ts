@@ -1,6 +1,6 @@
 // Utility selectors, which are only used for params selecting and do NOT select from the store
 
-import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import type { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
@@ -48,8 +48,6 @@ type ParamFilter = Partial<{
   defiType: DefiType
   queryStatus: QueryStatus
   endpointName: string
-  includeEarnBalances: boolean
-  includeRewardsBalances: boolean
   searchQuery: string
   txStatus: TxStatus
   feeModel: ParameterModel
@@ -91,9 +89,6 @@ export const selectValidatorIdParamFromFilter = selectParamFromFilter('validator
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
-export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
-export const selectIncludeRewardsBalancesParamFromFilter =
-  selectParamFromFilter('includeRewardsBalances')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')

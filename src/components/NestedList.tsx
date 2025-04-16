@@ -1,6 +1,5 @@
 import type { ListProps } from '@chakra-ui/react'
-import { List } from '@chakra-ui/react'
-import { forwardRef, useColorModeValue } from '@chakra-ui/system'
+import { forwardRef, List, useColorModeValue } from '@chakra-ui/react'
 
 const listPaddingX = { base: 2, md: 4 }
 const listMarginLeft = { base: 2, md: 8 }
@@ -10,7 +9,6 @@ export const NestedList = forwardRef<ListProps, 'div'>((props, ref) => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   return (
     <List
-      // @ts-ignore tsc is drunk with this guy
       px={listPaddingX}
       ml={listMarginLeft}
       borderLeftWidth={listBorderLeftWidth}

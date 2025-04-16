@@ -22,7 +22,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
@@ -173,6 +173,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       refundTo,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
+      appFees: [
+        {
+          recipient: getTreasuryAddressFromChainId(sellAsset.chainId),
+          fee: affiliateBps,
+        },
+      ],
     },
     deps.config,
   )
@@ -275,25 +281,25 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return maybeAppFeesAsset.unwrap()
   })()
 
+  const isNativeCurrencyInput = (() => {
+    if (!appFeesAsset) return false
+
+    if (isEvmChainId(sellAsset.chainId)) {
+      return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+    }
+
+    if (sellAsset.chainId === btcChainId) {
+      return sellAsset.assetId === appFeesAsset.assetId
+    }
+
+    if (sellAsset.chainId === solanaChainId) {
+      return sellAsset.assetId === appFeesAsset.assetId
+    }
+
+    return false
+  })()
+
   const appFeesBaseUnit = (() => {
-    const isNativeCurrencyInput = (() => {
-      if (!appFeesAsset) return false
-
-      if (isEvmChainId(sellAsset.chainId)) {
-        return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
-      }
-
-      if (sellAsset.chainId === btcChainId) {
-        return sellAsset.assetId === appFeesAsset.assetId
-      }
-
-      if (sellAsset.chainId === solanaChainId) {
-        return sellAsset.assetId === appFeesAsset.assetId
-      }
-
-      return false
-    })()
-
     // For cross-chain: always add back app fees
     // For same-chain: only add back if input is native currency
     if (isCrossChain || isNativeCurrencyInput) {
@@ -302,6 +308,20 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     // cross-chain or same-chain with native currency as input are not applicable
     return '0'
+  })()
+
+  // If same chain and not sellAsset as native currency, convert to protocol fee as native value is sent as well as erc20 tokens
+  // This is a edge case we never encountered before and it's more convenient to consider it as protocol fee as quickwin
+  const appFeesAsProtocolFee = (() => {
+    if (!appFeesAsset || isNativeCurrencyInput) return {}
+
+    return {
+      [appFeesAsset.assetId]: {
+        amountCryptoBaseUnit: quote.fees.app.amount,
+        asset: appFeesAsset,
+        requiresBalance: true,
+      },
+    }
   })()
 
   const relayerFeeRelayToken = quote.fees.relayer.currency
@@ -428,6 +448,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             asset: protocolAsset,
             requiresBalance: false,
           },
+          ...appFeesAsProtocolFee,
         },
       },
       source: SwapperName.Relay,

@@ -5,6 +5,7 @@ import {
   btcChainId,
   CHAIN_REFERENCE,
   fromChainId,
+  solanaChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -12,6 +13,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   DEFAULT_RELAY_EVM_TOKEN_ADDRESS,
   RELAY_BTC_TOKEN_ADDRESS,
+  RELAY_SOLANA_TOKEN_ADDRESS,
   relayChainIdToChainId,
 } from '../constant'
 import type { RelayToken } from './types'
@@ -20,7 +22,6 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
   const chainId = relayChainIdToChainId[relayToken.chainId]
   const { chainReference } = fromChainId(chainId)
 
-  // @TODO: Handle the same for Solana
   const isNativeAsset = (() => {
     if (isEvmChainId(chainId)) {
       return relayToken.address === DEFAULT_RELAY_EVM_TOKEN_ADDRESS
@@ -30,19 +31,34 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       return relayToken.address === RELAY_BTC_TOKEN_ADDRESS
     }
 
+    if (chainId === solanaChainId) {
+      return relayToken.address === RELAY_SOLANA_TOKEN_ADDRESS
+    }
+
     return false
   })()
 
   const { assetReference, assetNamespace } = (() => {
-    // @TODO: Handle the same for Solana and BTC
-    if (!isNativeAsset)
+    if (!isNativeAsset) {
+      const assetNamespace = (() => {
+        switch (true) {
+          case CHAIN_REFERENCE.BnbSmartChainMainnet === chainReference:
+            return ASSET_NAMESPACE.bep20
+          case isEvmChainId(chainId):
+            return ASSET_NAMESPACE.erc20
+          case CHAIN_REFERENCE.SolanaMainnet === chainReference:
+            return ASSET_NAMESPACE.splToken
+          default:
+            throw Error(`chainReference '${chainReference}' not supported`)
+        }
+      })()
+
       return {
         assetReference: relayToken.address,
-        assetNamespace:
-          chainReference === CHAIN_REFERENCE.BnbSmartChainMainnet
-            ? ASSET_NAMESPACE.bep20
-            : ASSET_NAMESPACE.erc20,
+        assetNamespace,
       }
+    }
+
     switch (chainReference) {
       case CHAIN_REFERENCE.EthereumMainnet:
         return {

@@ -1,4 +1,4 @@
-import { arbitrumNovaChainId, btcChainId } from '@shapeshiftoss/caip'
+import { arbitrumNovaChainId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 
@@ -7,6 +7,10 @@ export function filterRelayAssetIds(assets: Asset[]): Asset[] {
     const { chainId } = asset
 
     if (chainId === btcChainId) {
+      return true
+    }
+
+    if (chainId === solanaChainId) {
       return true
     }
 

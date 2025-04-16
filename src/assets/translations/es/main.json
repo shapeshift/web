@@ -1644,6 +1644,7 @@
       },
       "success": {
         "header": "Ledger Conectada",
+        "success": "Ahora puedes cerrar esta ventana.",
         "error": "Hubo un error al conectar tu billetera"
       },
       "errors": {
@@ -1828,6 +1829,7 @@
       "success": {
         "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, clic en 'Permitir'.",
         "header": "Billetera Conectado",
+        "success": "Ahora puedes cerrar esta ventana.",
         "error": "Hubo un error al conectar tu billetera"
       },
       "testPhrase": {
@@ -2268,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Conectar Todas las Cuentas",
         "signMessage": {
           "signingFrom": "Firmando desde",
           "requestFrom": "Solicitud de",
@@ -2559,6 +2562,8 @@
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
     "unsupportedNetworkExplainer": "Tu billetera no está conectada a %{network}. Conecte esta cadena o cambie a una billetera que admita esta red.",
     "unsupportedNetworksExplainer": "Tu billetera no está conectada a %{network1} y %{network2}. Conecte esta cadena o cambie a una billetera que admita estas redes.",
+    "instabilityWarning": "Depósitos para Thorchain LP deshabilitados a nivel de protocolo. Si intentas depositar, los activos se recuperarán con un reembolso. Esto se revertirá en versión 3.5.",
+    "depositsDisabled": "Depósitos Deshabilitados",
     "shareOfPool": "Participación de Pool",
     "assetDepositAmount": "%{asset} Monto de Depósito",
     "totalLiquidity": "Liquidez Total",

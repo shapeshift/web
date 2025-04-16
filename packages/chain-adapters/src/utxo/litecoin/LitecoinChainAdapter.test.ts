@@ -314,8 +314,6 @@ describe('LitecoinChainAdapter', () => {
       const adapter = new litecoin.ChainAdapter(args)
       const mockTx = '0x123'
       const result = await adapter.broadcastTransaction({
-        senderAddress: '0x1234',
-        receiverAddress: '0x1234',
         hex: mockTx,
       })
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })

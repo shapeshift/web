@@ -1,4 +1,4 @@
-import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
+import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 

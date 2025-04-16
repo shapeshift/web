@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 
 const main = async () => {

@@ -46,8 +46,6 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
             return ASSET_NAMESPACE.bep20
           case isEvmChainId(chainId):
             return ASSET_NAMESPACE.erc20
-          case CHAIN_REFERENCE.BitcoinMainnet === chainReference:
-            return ASSET_NAMESPACE.slip44
           case CHAIN_REFERENCE.SolanaMainnet === chainReference:
             return ASSET_NAMESPACE.splToken
           default:

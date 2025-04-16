@@ -70,6 +70,3 @@ export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
 }
 
 export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
-
-// Relay UTXO balance check requires 1 confirmation or the quote fetching will fail
-export const MINIMUM_RELAY_CONFIRMATIONS_UTXO = 1

@@ -7,6 +7,7 @@ import { dirname, resolve } from 'path'
 import * as path from 'path'
 import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
+import type { PluginOption } from 'vite'
 import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import checker from 'vite-plugin-checker'
@@ -46,10 +47,21 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   publicFilesEnvVars[`VITE_CID_${mungedName}`] = JSON.stringify(cid)
 }
 
+const defineGlobalThis: PluginOption = {
+  name: 'define-global-this',
+  enforce: 'pre',
+  transform(code) {
+    if (code.includes('vite-plugin-node-polyfills')) {
+      return `globalThis = window || global || self || this;${code}`
+    }
+  },
+}
+
 // eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
+      mode === 'development' && !process.env.DEPLOY && defineGlobalThis,
       nodePolyfills({
         globals: {
           Buffer: true,
@@ -143,14 +155,15 @@ export default defineConfig(({ mode }) => {
 
           warn(warning)
         },
-        external: ['fsevents'],
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
       sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
       outDir: 'build',
     },
     optimizeDeps: {
-      force: true,
+      esbuildOptions: {
+        target: 'esnext',
+      },
     },
   }
 })

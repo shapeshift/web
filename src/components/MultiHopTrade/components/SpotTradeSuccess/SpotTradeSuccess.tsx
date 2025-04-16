@@ -177,6 +177,25 @@ export const SpotTradeSuccess = ({
       .toFixed()
   }, [lastHop, totalUpsideCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
 
+  const feesOrTotalUpsideCryptoPrecision = useMemo(() => {
+    // Total upside should never be negative, if it is, it means that there was a *downside* in terms of delta, but there may still
+    // be a fees "upside" (or lack of downside, rather)
+    if (bnOrZero(totalUpsideCryptoPrecision).lte(0) && bnOrZero(feesUpsideCryptoPrecision).gt(0))
+      return bnOrZero(feesUpsideCryptoPrecision).toFixed()
+
+    return totalUpsideCryptoPrecision
+  }, [totalUpsideCryptoPrecision, feesUpsideCryptoPrecision])
+
+  const feesOrTotalUpsidePercentage = useMemo(() => {
+    if (bnOrZero(totalUpsidePercentage).lte(0) && bnOrZero(feesUpsideCryptoPrecision).gt(0))
+      return bnOrZero(feesUpsideCryptoPrecision)
+        .dividedBy(buyAmountBeforeFeesCryptoPrecision ?? 0)
+        .times(100)
+        .toFixed()
+
+    return totalUpsidePercentage
+  }, [totalUpsidePercentage, feesUpsideCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
+
   const relatedAssetIdsFilter = useMemo(
     () => ({
       assetId: foxAssetId,
@@ -311,16 +330,18 @@ export const SpotTradeSuccess = ({
             </Stack>
             <AmountsLine />
             <SurplusLine />
-            {enableFoxDiscountSummary && hasFeeSaving && (
-              <Box px={8}>
-                <YouSaved
-                  totalUpsidePercentage={totalUpsidePercentage}
-                  totalUpsideCryptoPrecision={totalUpsideCryptoPrecision ?? '0'}
-                  sellAsset={sellAsset}
-                  buyAsset={buyAsset}
-                />
-              </Box>
-            )}
+            {enableFoxDiscountSummary &&
+              hasFeeSaving &&
+              bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
+                <Box px={8}>
+                  <YouSaved
+                    totalUpsidePercentage={feesOrTotalUpsidePercentage}
+                    totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
+                    sellAsset={sellAsset}
+                    buyAsset={buyAsset}
+                  />
+                </Box>
+              )}
             {couldHaveReducedFee && affiliateFeeUserCurrency && (
               <Box px={8}>
                 <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />

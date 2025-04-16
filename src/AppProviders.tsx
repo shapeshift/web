@@ -5,10 +5,6 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
-import {
-  QueryClient,
-  QueryClientProvider as TanstackQueryClientProvider,
-} from '@tanstack/react-query'
 import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
@@ -47,8 +43,6 @@ const manager = createLocalStorageManager('ss-theme')
 
 const splashScreen = <SplashScreen />
 
-const queryClient = new QueryClient()
-
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback(
@@ -67,46 +61,44 @@ export function AppProviders({ children }: ProvidersProps) {
     <HelmetProvider>
       <ReduxProvider store={store}>
         <WagmiProvider config={wagmiConfig}>
-          <TanstackQueryClientProvider client={queryClient}>
-            <QueryClientProvider>
-              <PluginProvider>
-                <ColorModeScript storageKey='ss-theme' />
-                <ChatwootWidget />
-                <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-                  <ToastContainer />
-                  <PersistGate loading={splashScreen} persistor={persistor}>
-                    <HashRouter basename='/'>
-                      <ScrollToTop />
-                      <BrowserRouterProvider>
-                        <I18nProvider>
-                          <WalletProvider>
-                            <KeepKeyProvider>
-                              <WalletConnectV2Provider>
-                                <ModalProvider>
-                                  <Suspense fallback={defaultSuspenseFallback}>
-                                    <ErrorBoundary
-                                      FallbackComponent={ErrorPage}
-                                      onError={handleError}
-                                    >
-                                      <>
-                                        <AppProvider>
-                                          <DefiManagerProvider>{children}</DefiManagerProvider>
-                                        </AppProvider>
-                                      </>
-                                    </ErrorBoundary>
-                                  </Suspense>
-                                </ModalProvider>
-                              </WalletConnectV2Provider>
-                            </KeepKeyProvider>
-                          </WalletProvider>
-                        </I18nProvider>
-                      </BrowserRouterProvider>
-                    </HashRouter>
-                  </PersistGate>
-                </ChakraProvider>
-              </PluginProvider>
-            </QueryClientProvider>
-          </TanstackQueryClientProvider>
+          <QueryClientProvider>
+            <PluginProvider>
+              <ColorModeScript storageKey='ss-theme' />
+              <ChatwootWidget />
+              <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+                <ToastContainer />
+                <PersistGate loading={splashScreen} persistor={persistor}>
+                  <HashRouter basename='/'>
+                    <ScrollToTop />
+                    <BrowserRouterProvider>
+                      <I18nProvider>
+                        <WalletProvider>
+                          <KeepKeyProvider>
+                            <WalletConnectV2Provider>
+                              <ModalProvider>
+                                <Suspense fallback={defaultSuspenseFallback}>
+                                  <ErrorBoundary
+                                    FallbackComponent={ErrorPage}
+                                    onError={handleError}
+                                  >
+                                    <>
+                                      <AppProvider>
+                                        <DefiManagerProvider>{children}</DefiManagerProvider>
+                                      </AppProvider>
+                                    </>
+                                  </ErrorBoundary>
+                                </Suspense>
+                              </ModalProvider>
+                            </WalletConnectV2Provider>
+                          </KeepKeyProvider>
+                        </WalletProvider>
+                      </I18nProvider>
+                    </BrowserRouterProvider>
+                  </HashRouter>
+                </PersistGate>
+              </ChakraProvider>
+            </PluginProvider>
+          </QueryClientProvider>
         </WagmiProvider>
       </ReduxProvider>
     </HelmetProvider>

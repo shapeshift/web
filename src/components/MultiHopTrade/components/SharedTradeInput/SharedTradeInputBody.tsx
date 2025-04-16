@@ -1,4 +1,3 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
   CircularProgress,
   CircularProgressLabel,
@@ -11,6 +10,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { LuArrowUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
 import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
@@ -26,7 +26,7 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const arrowDownIcon = <ArrowDownIcon />
+const arrowUpDownIcon = <LuArrowUpDown />
 
 type SharedTradeInputBodyProps = {
   buyAsset: Asset
@@ -195,7 +195,7 @@ export const SharedTradeInputBody = ({
               borderColor='border.base'
               zIndex={1}
               aria-label={translate('lending.switchAssets')}
-              icon={arrowDownIcon}
+              icon={arrowUpDownIcon}
               isDisabled={isSwitchAssetsDisabled}
             />
           </CircularProgressLabel>

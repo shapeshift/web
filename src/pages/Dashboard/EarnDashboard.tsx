@@ -25,7 +25,7 @@ const EarnHeader = () => {
 const earnHeader = <EarnHeader />
 
 const EarnContent = () => {
-  return <DeFiEarn includeEarnBalances header={earnHeader} />
+  return <DeFiEarn header={earnHeader} />
 }
 
 export const EarnDashboard = memo(() => {

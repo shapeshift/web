@@ -1,8 +1,7 @@
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import partition from 'lodash/partition'
 
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
@@ -11,7 +10,7 @@ import type {
   StakingEarnOpportunityType,
 } from '../types'
 import { DefiType } from '../types'
-import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
+import { getOpportunityAccessor } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
@@ -24,11 +23,7 @@ import type { BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
-import {
-  selectChainIdParamFromFilter,
-  selectIncludeEarnBalancesParamFromFilter,
-  selectIncludeRewardsBalancesParamFromFilter,
-} from '@/state/selectors'
+import { selectChainIdParamFromFilter } from '@/state/selectors'
 
 const makeClaimableStakingRewardsAmountUserCurrency = ({
   assets,
@@ -68,16 +63,12 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
   selectAggregatedEarnUserLpOpportunities,
   selectMarketDataUserCurrency,
   selectAssets,
-  selectIncludeEarnBalancesParamFromFilter,
-  selectIncludeRewardsBalancesParamFromFilter,
   selectChainIdParamFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
     marketDataUserCurrency,
     assets,
-    includeEarnBalances,
-    includeRewardsBalances,
     chainId,
   ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
@@ -91,16 +82,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         const asset = assets[assetId]
         if (!asset) return acc
 
-        const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
-          ...cur,
-          assets,
-          marketDataUserCurrency,
-        })
-
-        const amountFiat =
-          cur.type === DefiType.LiquidityPool
-            ? underlyingAssetBalances[assetId].fiatAmount
-            : cur.fiatAmount
+        const amountFiat = cur.fiatAmount
 
         const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
           {
@@ -111,9 +93,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         )
 
         if (
-          (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(amountFiat).isZero()) ||
-          (includeEarnBalances && !bnOrZero(amountFiat).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
+          !bnOrZero(amountFiat).isZero() ||
+          bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0)
         ) {
           acc[assetId] = true
           return acc
@@ -147,16 +128,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           const asset = assets[assetId]
           if (!asset) return acc
 
-          const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
-            ...cur,
-            assets,
-            marketDataUserCurrency,
-          })
-
-          const amountFiat =
-            cur.type === DefiType.LiquidityPool
-              ? underlyingAssetBalances[assetId].fiatAmount
-              : cur.fiatAmount
+          const amountFiat = cur.fiatAmount
 
           const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
             maybeStakingOpportunity: cur,
@@ -165,9 +137,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           })
 
           const isActiveOpportunityByFilter =
-            (!includeEarnBalances && !includeRewardsBalances) ||
-            (includeEarnBalances && !bnOrZero(amountFiat).isZero()) ||
-            (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+            !bnOrZero(amountFiat).isZero() || bnOrZero(maybeStakingRewardsAmountFiat).gt(0)
 
           acc[assetId].fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
             .plus(acc[assetId].fiatRewardsAmount)
@@ -207,13 +177,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
-            .plus(
-              bnOrZero(
-                cur.type === DefiType.LiquidityPool
-                  ? underlyingAssetBalances[assetId].cryptoBalancePrecision
-                  : cryptoBalancePrecision,
-              ),
-            )
+            .plus(bnOrZero(cryptoBalancePrecision))
             .toString()
         })
         return acc
@@ -228,31 +192,13 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       byAssetId[assetId].apy = apy.toFixed()
     }
 
-    const aggregatedEarnOpportunitiesByAssetId = Object.values(byAssetId)
-
-    const sortedAggregatedEarnOpportunitiesByFiatAmount = aggregatedEarnOpportunitiesByAssetId.sort(
-      (a, b) => (bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1),
+    const filtered = Object.values(byAssetId).filter(opportunity =>
+      Boolean(
+        bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(opportunity.fiatRewardsAmount).gt(0),
+      ),
     )
 
-    const [activeOpportunities, inactiveOpportunities] = partition(
-      sortedAggregatedEarnOpportunitiesByFiatAmount,
-      opportunity => !bnOrZero(opportunity.fiatAmount).isZero(),
-    )
-    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
-
-    const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
-
-    if (!includeEarnBalances && !includeRewardsBalances)
-      return sortedOpportunitiesByFiatAmountAndApy
-
-    const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
-      Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
-    )
-    const withRewardsBalances = Object.values(byAssetId).filter(opportunity =>
-      Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
-    )
-
-    return withEarnBalances.concat(withRewardsBalances)
+    return filtered
   },
 )
 

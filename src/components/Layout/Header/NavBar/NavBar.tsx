@@ -82,7 +82,8 @@ export const NavBar = (props: NavBarProps) => {
               key={id}
               leftIcon={item.icon}
               href={item.path}
-              to={item.path}
+              // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
+              to={item.path.replace('/*', '')}
               isNew={item.isNew}
               isViewOnly={item.isViewOnly}
               size='lg'

@@ -20,11 +20,11 @@ import { AssetChainRow } from './AssetChainRow'
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectChainDisplayNameByAssetId,
-  selectIsWalletConnected,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
@@ -66,7 +66,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const chainDisplayName = useAppSelector(state =>
       selectChainDisplayNameByAssetId(state, assetId ?? ''),
     )
-    const isWalletConnected = useAppSelector(selectIsWalletConnected)
+    const isWalletConnected = useAppSelector(portfolio.selectors.selectIsWalletConnected)
     const onlyConnectedChains = isWalletConnected ? _onlyConnectedChains : false
 
     const relatedAssetIdsFilter = useMemo(

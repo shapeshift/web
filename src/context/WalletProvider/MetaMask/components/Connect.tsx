@@ -21,7 +21,7 @@ import {
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS, staticMipdProviders, useMipdProviders } from '@/lib/mipd'
-import { selectShowSnapsModal } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { getSnapVersion } from '@/utils/snaps'
 
 export const MetaMaskConnect = () => {
@@ -36,7 +36,7 @@ export const MetaMaskConnect = () => {
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const showSnapModal = useSelector(selectShowSnapsModal)
+  const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
 
   const detectedMipdProviders = useMipdProviders()
   const mipdProviders = useMemo(

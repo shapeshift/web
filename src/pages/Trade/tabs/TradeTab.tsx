@@ -73,29 +73,15 @@ export const TradeTab = memo(() => {
     return translate('navBar.trade')
   }, [translate])
 
-  // Only rewrite for /trade (input) else problems, we'll be redirected back to input on confirm
-  const isRewritingUrl = useMemo(
-    () =>
-      ![
-        TradeRoutePaths.Confirm,
-        TradeRoutePaths.QuoteList,
-        TradeRoutePaths.VerifyAddresses,
-        LimitOrderRoutePaths.Confirm,
-        LimitOrderRoutePaths.Orders,
-      ].some(path => location.pathname.includes(path)),
-    [location.pathname],
-  )
-
   const tradeElement = useMemo(
     () => (
       <MultiHopTrade
-        isRewritingUrl={isRewritingUrl}
         defaultBuyAssetId={defaultBuyAssetId}
         defaultSellAssetId={defaultSellAssetId}
         onChangeTab={handleChangeTab}
       />
     ),
-    [handleChangeTab, isRewritingUrl, defaultBuyAssetId, defaultSellAssetId],
+    [handleChangeTab, defaultBuyAssetId, defaultSellAssetId],
   )
 
   return (

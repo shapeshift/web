@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation } from 'react-router-dom'
 
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
@@ -16,11 +16,6 @@ import { TradeRoutePaths } from './types'
 import { fromBaseUnit } from '@/lib/math'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import {
-  selectInputBuyAsset,
-  selectInputSellAmountCryptoBaseUnit,
-  selectInputSellAsset,
-} from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -28,7 +23,6 @@ export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
   defaultSellAssetId?: AssetId
   isCompact?: boolean
-  isRewritingUrl?: boolean
   isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
@@ -46,9 +40,8 @@ export const MultiHopTrade = memo(
     defaultBuyAssetId,
     defaultSellAssetId,
     isCompact,
-    isRewritingUrl,
-    onChangeTab,
     isStandalone,
+    onChangeTab,
   }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
@@ -67,49 +60,7 @@ export const MultiHopTrade = memo(
     const sellAssetSubId = params?.sellAssetSubId
     const paramsSellAmountCryptoBaseUnit = params?.sellAmountCryptoBaseUnit
 
-    const sellAsset = useAppSelector(selectInputSellAsset)
-    const buyAsset = useAppSelector(selectInputBuyAsset)
-    const navigate = useNavigate()
-    const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
     const [isInitialized, setIsInitialized] = useState(false)
-    const [isInitialMount, setIsInitialMount] = useState(true)
-
-    useEffect(() => {
-      if (!isInitialMount || isStandalone) return
-
-      dispatch(tradeInput.actions.clear())
-
-      if (isRewritingUrl) {
-        navigate(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/0`)
-      }
-
-      setIsInitialMount(false)
-    }, [
-      dispatch,
-      isStandalone,
-      isInitialMount,
-      isRewritingUrl,
-      navigate,
-      buyAsset.assetId,
-      sellAsset.assetId,
-    ])
-
-    useEffect(() => {
-      if (!isRewritingUrl || isStandalone || isInitialMount) return
-
-      const sellAmountBaseUnit =
-        sellInputAmountCryptoBaseUnit ?? paramsSellAmountCryptoBaseUnit ?? ''
-      navigate(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
-    }, [
-      isInitialMount,
-      isRewritingUrl,
-      isStandalone,
-      buyAsset,
-      sellAsset,
-      navigate,
-      sellInputAmountCryptoBaseUnit,
-      paramsSellAmountCryptoBaseUnit,
-    ])
 
     const buyAssetId = useMemo(() => {
       if (defaultBuyAssetId) return defaultBuyAssetId
@@ -123,31 +74,33 @@ export const MultiHopTrade = memo(
       return ''
     }, [defaultSellAssetId, sellChainId, sellAssetSubId])
 
-    const routeSellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
-    const routeBuyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
+    const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
+    const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
 
+    // Sync store with queryParams - we *do* use URL as source of truth at input time, but should always re-sync the store from these
+    // since we'll need them later on (and the store uses buy/sell Assets vs. AssetIds)
     useEffect(() => {
       // Absolutely needed or else we'll end up in a loop
       if (isInitialized) return
 
-      if (routeBuyAsset) {
-        dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
+      if (buyAsset) {
+        dispatch(tradeInput.actions.setBuyAsset(buyAsset))
       }
 
-      if (routeSellAsset) {
-        dispatch(tradeInput.actions.setSellAsset(routeSellAsset))
+      if (sellAsset) {
+        dispatch(tradeInput.actions.setSellAsset(sellAsset))
       }
 
-      if (paramsSellAmountCryptoBaseUnit && routeSellAsset) {
+      if (paramsSellAmountCryptoBaseUnit && sellAsset) {
         dispatch(
           tradeInput.actions.setSellAmountCryptoPrecision(
-            fromBaseUnit(paramsSellAmountCryptoBaseUnit, routeSellAsset.precision),
+            fromBaseUnit(paramsSellAmountCryptoBaseUnit, sellAsset.precision),
           ),
         )
       }
 
       setIsInitialized(true)
-    }, [dispatch, routeBuyAsset, routeSellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
+    }, [dispatch, buyAsset, sellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
 
     return (
       <FormProvider {...methods}>

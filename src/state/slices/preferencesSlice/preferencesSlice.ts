@@ -78,6 +78,7 @@ export type FeatureFlags = {
   ThorchainSwapperVolatilityAck: boolean
   ThorchainPoolsInstabilityWarning: boolean
   RelaySwapper: boolean
+  NotificationCenter: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -178,6 +179,7 @@ const initialState: Preferences = {
     ThorchainSwapperVolatilityAck: getConfig().VITE_FEATURE_THORCHAIN_SWAPPER_ACK,
     ThorchainPoolsInstabilityWarning: getConfig().VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS,
     RelaySwapper: getConfig().VITE_FEATURE_SWAPPER_RELAY,
+    NotificationCenter: getConfig().VITE_FEATURE_NOTIFICATION_CENTER,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

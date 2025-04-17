@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger Bağlandı",
-        "success": "Artık bu pencereyi kapatabilirsiniz veya kısa süre içinde otomatik olarak kapanacaktır.",
+        "success": "Artık bu pencereyi kapatabilirsiniz.",
         "error": "Cüzdanınız bağlanırken bir hata oluştu"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "Cüzdanınız şifreleniyor... Tarayıcınız verileri kalıcı depolamada saklamak isterse, lütfen 'İzin Ver'i tıklayın.",
         "header": "Cüzdan Bağlandı",
-        "success": "Şimdi bu pencereyi kapatabilirsiniz, yoksa kısa süre sonra otomatik olarak kapanacaktır.",
+        "success": "Artık bu pencereyi kapatabilirsiniz.",
         "error": "Cüzdanınız bağlanırken bir hata oluştu"
       },
       "testPhrase": {
@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Tüm Hesapları Bağla",
         "signMessage": {
           "signingFrom": "İmzalayan",
           "requestFrom": "İstek Gönderen",
@@ -2561,7 +2562,8 @@
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
     "unsupportedNetworkExplainer": "Cüzdanınız %{network} ağına bağlı değil. Lütfen bu zinciri bağlayın veya bu ağı destekleyen bir cüzdana geçin.",
     "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'ye bağlı değil. Lütfen bu zinciri bağlayın veya bu ağları destekleyen bir cüzdana geçin.",
-    "instabilityWarning": "Kullanıcılar şu anda THORChain havuzlarına para yatırırken geri ödeme alıyorlar. Lütfen dikkatli ilerleyin.",
+    "instabilityWarning": "Thorchain LP için mevduatlar protokol düzeyinde devre dışı bırakıldı. Eğer mevduat yapmayı denerseniz, varlıklar geri ödemeyle geri dönecek. Bu, 3.5 sürümünde geri dönecek.",
+    "depositsDisabled": "Yatırma Devredışı",
     "shareOfPool": "Havuz Payı",
     "assetDepositAmount": "%{asset} Yatırma Tutarı",
     "totalLiquidity": "Toplam Likidite",

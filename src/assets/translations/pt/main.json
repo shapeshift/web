@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger conectada",
-        "success": "Agora você pode fechar esta janela ou ela será fechada automaticamente em breve",
+        "success": "Agora você pode fechar esta janela.",
         "error": "Ocorreu um erro ao conectar sua carteira"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "Criptografando sua carteira... Caso seu navegador solicitar armazenamento persistente, clique em 'Permitir'.",
         "header": "Carteira Conectada",
-        "success": "Você pode fechar esta janela ou ela fechará automaticamente em breve",
+        "success": "Agora você pode fechar esta janela.",
         "error": "Ocorreu um erro ao conectar sua carteira"
       },
       "testPhrase": {
@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Conectar todas as contas",
         "signMessage": {
           "signingFrom": "Assinatura de",
           "requestFrom": "Requisitado por",
@@ -2561,7 +2562,8 @@
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
     "unsupportedNetworkExplainer": "Sua carteira não está conectada a %{network}. Conecte esta rede ou mude para uma carteira que suporte esta rede.",
     "unsupportedNetworksExplainer": "Sua carteira não está conectada a %{network1} e %{network2}. Conecte esta rede ou mude para uma carteira que suporte essas redes.",
-    "instabilityWarning": "Os usuários estão atualmente enfrentando resgates ao depositar em pools THORChain. Por favor, prossiga com cautela.",
+    "instabilityWarning": "Os depósitos para LP da Thorchain estão desativados no nível do protocolo. Se você tentar depositar, os ativos serão devolvidos com um reembolso. Isso será revertido na versão 3.5.",
+    "depositsDisabled": "Depósitos Desativados",
     "shareOfPool": "Participação na pool",
     "assetDepositAmount": "%{asset} Valor do depósito",
     "totalLiquidity": "Liquidez Total",

@@ -52,7 +52,11 @@ const defineGlobalThis: PluginOption = {
   enforce: 'pre',
   transform(code) {
     if (code.includes('vite-plugin-node-polyfills')) {
-      return `globalThis = window || global || self || this;${code}`
+      return `if (typeof globalThis === 'undefined') {
+        globalThis = typeof window !== 'undefined' ? window :
+                     typeof global !== 'undefined' ? global :
+                     typeof self !== 'undefined' ? self : this;
+      };${code}`
     }
   },
 }
@@ -127,43 +131,33 @@ export default defineConfig(({ mode }) => {
               if (id.includes('lodash')) return 'lodash'
               if (id.includes('@formatjs')) return '@formatjs'
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
+
               return null
             }
+
             if (id.includes('assets/translations')) return 'translations'
             if (id.includes('packages/unchained-client')) return 'unchained-client'
+
             return null
           },
         },
         onwarn(warning, warn) {
           // Ignore annotation warnings with /*#__PURE__*/ pattern
-          if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment')) {
-            return
-          }
+          if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment')) return
 
           // Ignore eval warnings in dependencies
-          if (warning.code === 'EVAL' && warning.id?.includes('node_modules')) {
-            return
-          }
+          if (warning.code === 'EVAL' && warning.id?.includes('node_modules')) return
 
           // Ignore dynamic import chunking warnings
-          if (
-            warning.plugin === 'vite:reporter' &&
-            warning.message.includes('dynamic import will not move module into another chunk')
-          ) {
-            return
-          }
+          const dynamicImport = 'dynamic import will not move module into another chunk'
+          if ( warning.plugin === 'vite:reporter' && warning.message.includes(dynamicImport)) return
 
           warn(warning)
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
       outDir: 'build',
-    },
-    optimizeDeps: {
-      esbuildOptions: {
-        target: 'esnext',
-      },
     },
   }
 })

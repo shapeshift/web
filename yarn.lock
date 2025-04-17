@@ -18407,7 +18407,7 @@ __metadata:
     hash-base: ~3.0
     inherits: ^2.0.4
     parse-asn1: ^5.1.7
-    readable-stream: ^2.3.8
+    readable-stream: ^3.6.2
     safe-buffer: ^5.2.1
   checksum: 403a8061d229ae31266670345b4a7c00051266761d2c9bbeb68b1a9bcb05f68143b16110cf23a171a5d6716396a1f41296282b3e73eeec0a1871c77f0ff4ee6b
   languageName: node
@@ -30942,7 +30942,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^2.0.0, readable-stream@npm:^2.2.9, readable-stream@npm:^2.3.3, readable-stream@npm:^2.3.8, readable-stream@npm:~2.3.6":
+"readable-stream@npm:^2.0.0, readable-stream@npm:^2.2.9, readable-stream@npm:^2.3.3, readable-stream@npm:~2.3.6":
   version: 2.3.8
   resolution: "readable-stream@npm:2.3.8"
   dependencies:

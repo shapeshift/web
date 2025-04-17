@@ -1,19 +1,17 @@
-import { Contract } from '@ethersproject/contracts'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 
-import erc20Abi from './erc20Abi.json'
 import type { EvmChainAdapter } from './EvmBaseAdapter'
 import type { FeeData, Fees } from './types'
 
-export const getErc20Data = async (
-  to: string,
-  value: string,
-  contractAddress?: string,
-): Promise<string> => {
+export const getErc20Data = (to: string, value: string, contractAddress?: string): string => {
   if (!contractAddress) return ''
-  const erc20Contract = new Contract(contractAddress, erc20Abi)
-  const { data: callData } = await erc20Contract.populateTransaction.transfer(to, value)
-  return callData || ''
+
+  return encodeFunctionData({
+    abi: erc20Abi,
+    functionName: 'transfer',
+    args: [getAddress(to), BigInt(value)],
+  })
 }
 
 type CalcNetworkFeeCryptoBaseUnitArgs = FeeData & {

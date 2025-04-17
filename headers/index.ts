@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 import { csps } from './csps'
 import type { Csp } from './types'
 import { cspMerge, serializeCsp } from './util'

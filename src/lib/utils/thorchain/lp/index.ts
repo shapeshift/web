@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
+import { assetIdToPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 
 import { fromThorBaseUnit } from '..'
 import { THOR_PRECISION } from '../constants'

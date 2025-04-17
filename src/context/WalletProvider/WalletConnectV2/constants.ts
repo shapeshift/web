@@ -130,6 +130,19 @@ type ChainsProps =
       optionalChains: ArrayOneOrMore<number>
     }
 
+type Metadata = {
+  name: string
+  description: string
+  url: string
+  icons: string[]
+  verifyUrl?: string
+  redirect?: {
+    native?: string
+    universal?: string
+    linkMode?: boolean
+  }
+}
+
 export type EthereumProviderOptions = {
   projectId: string
   methods?: string[]

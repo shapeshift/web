@@ -7,14 +7,8 @@
   "include": ["src/**/*", "src/**/*.json", "src/**/*.d.ts"],
   "exclude": ["dist"],
   "references": [
-    {
-      "path": "../types"
-    },
-    {
-      "path": "../caip"
-    },
-    {
-      "path": "../utils"
-    }
+    { "path": "../caip" },
+    { "path": "../types" },
+    { "path": "../utils" }
   ]
 }

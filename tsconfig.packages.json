@@ -4,37 +4,18 @@
     "composite": true,
     "declaration": true,
     "noEmit": false,
-    "module": "esnext",
-    "target": "ESNext",
-    "noImplicitReturns": false,
-    "types": ["vite/client"]
+    "noImplicitReturns": false
   },
   "include": [],
   "exclude": [],
   "references": [
-    {
-      "path": "./packages/caip"
-    },
-    {
-      "path": "./packages/types"
-    },
-    {
-      "path": "./packages/utils"
-    },
-    {
-      "path": "./packages/contracts"
-    },
-    {
-      "path": "./packages/unchained-client"
-    },
-    {
-      "path": "./packages/chain-adapters"
-    },
-    {
-      "path": "./packages/errors"
-    },
-    {
-      "path": "./packages/swapper"
-    }
+    { "path": "./packages/caip" },
+    { "path": "./packages/chain-adapters" },
+    { "path": "./packages/contracts" },
+    { "path": "./packages/errors" },
+    { "path": "./packages/swapper" },
+    { "path": "./packages/types" },
+    { "path": "./packages/unchained-client" },
+    { "path": "./packages/utils" }
   ]
 }

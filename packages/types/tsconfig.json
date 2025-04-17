@@ -7,8 +7,6 @@
   "include": ["src/**/*"],
   "exclude": ["dist"],
   "references": [
-    {
-      "path": "../caip"
-    }
+    { "path": "../caip" }
   ]
 }

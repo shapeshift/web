@@ -1,4 +1,3 @@
-import './lib/global-polyfills'
 import '@/lib/polyfills'
 
 import {

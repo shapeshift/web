@@ -1,6 +1,5 @@
 import type { ListProps } from '@chakra-ui/react'
-import { List } from '@chakra-ui/react'
-import { forwardRef, useColorModeValue } from '@chakra-ui/system'
+import { forwardRef, List, useColorModeValue } from '@chakra-ui/react'
 
 const listPaddingX = { base: 2, md: 4 }
 const listMarginLeft = { base: 2, md: 8 }

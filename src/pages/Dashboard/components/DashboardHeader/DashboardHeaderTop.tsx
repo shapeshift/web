@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Flex, IconButton, useDisclosure } from '@chakra-ui/react'
-import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import { memo, useCallback } from 'react'
 import { FiLogOut } from 'react-icons/fi'

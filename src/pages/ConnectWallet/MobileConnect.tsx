@@ -9,11 +9,11 @@ import {
   Flex,
   Heading as CkHeading,
   Image,
-  keyframes,
   Link,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
+import { keyframes } from '@emotion/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

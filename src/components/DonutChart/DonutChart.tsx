@@ -1,4 +1,4 @@
-import { useToken } from '@chakra-ui/system'
+import { useToken } from '@chakra-ui/react'
 import { Group } from '@visx/group'
 import type { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie'
 import Pie from '@visx/shape/lib/shapes/Pie'

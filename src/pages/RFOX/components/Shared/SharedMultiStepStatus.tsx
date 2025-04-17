@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { PropsWithChildren } from 'react'
+import type { JSX, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'

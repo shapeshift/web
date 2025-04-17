@@ -14,7 +14,7 @@ export function useRefCallback<T>({
   onInit,
   onDestroy,
   deps,
-}: RefCallback<T>): [Nullable<T>, (node: Nullable<T>) => Nullable<T>] {
+}: RefCallback<T>): [Nullable<T>, (node: Nullable<T>) => void] {
   const ref = useRef<Nullable<T>>(null)
   const setRef = useCallback(
     (node: Nullable<T>) => {
@@ -27,7 +27,6 @@ export function useRefCallback<T>({
       }
       // Save a reference to the node
       ref.current = node
-      return node
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [deps],

@@ -1,6 +1,7 @@
 import type { StepProps } from '@chakra-ui/react'
 import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import type { JSX } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

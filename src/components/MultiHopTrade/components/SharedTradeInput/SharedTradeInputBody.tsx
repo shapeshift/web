@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { LuArrowUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'

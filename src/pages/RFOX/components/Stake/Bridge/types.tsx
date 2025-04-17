@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { JSX } from 'react'
 
 export enum BridgeRoutePaths {
   Confirm = '/bridge/confirm',

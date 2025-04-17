@@ -1,6 +1,5 @@
-import type { FlexProps } from '@chakra-ui/react'
+import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex, Skeleton } from '@chakra-ui/react'
-import type { ResponsiveValue } from '@chakra-ui/system'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Property } from 'csstype'
 import { memo, useMemo } from 'react'

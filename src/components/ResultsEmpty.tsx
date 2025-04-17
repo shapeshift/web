@@ -1,9 +1,8 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Circle, Flex } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { Box, Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { PropsWithChildren } from 'react'
+import type { JSX, PropsWithChildren } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link } from 'react-router-dom'
 

@@ -1,6 +1,5 @@
-import { useUnmountEffect } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -25,15 +24,21 @@ export const BackupPassphraseRouter = () => {
     }),
   )
 
-  useUnmountEffect(() => {
-    revocableWallet?.revoke()
-    setRevocableWallet(
-      createRevocableWallet({
-        id: state.walletInfo?.deviceId,
-        label: state.walletInfo?.name,
-      }),
-    )
-  }, [])
+  useEffect(
+    // Revoke on unmount
+    () => () => {
+      revocableWallet?.revoke()
+      setRevocableWallet(
+        createRevocableWallet({
+          id: state.walletInfo?.deviceId,
+          label: state.walletInfo?.name,
+        }),
+      )
+    },
+    // Don't add revoker and related deps here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   return (
     <AnimatePresence mode='wait'>

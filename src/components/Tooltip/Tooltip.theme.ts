@@ -1,4 +1,4 @@
-import { cssVar } from '@chakra-ui/system'
+import { cssVar } from '@chakra-ui/react'
 
 const $bg = cssVar('tooltip-bg')
 const $fg = cssVar('tooltip-fg')

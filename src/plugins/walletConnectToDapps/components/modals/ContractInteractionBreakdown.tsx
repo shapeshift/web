@@ -2,7 +2,7 @@ import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { ParamType, TransactionDescription } from 'ethers'
 import startCase from 'lodash/startCase'
-import type { FC } from 'react'
+import type { FC, JSX } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 

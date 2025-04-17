@@ -1,6 +1,5 @@
-import type { BoxProps } from '@chakra-ui/react'
+import type { BoxProps, ResponsiveValue } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
-import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'

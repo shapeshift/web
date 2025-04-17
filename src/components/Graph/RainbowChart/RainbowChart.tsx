@@ -1,5 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { curveLinear } from '@visx/curve'
 import type { Margin } from '@visx/xychart'
 import { AnimatedAxis, AreaSeries, AreaStack, Tooltip, XYChart } from '@visx/xychart'

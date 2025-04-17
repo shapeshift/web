@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { TradeType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import type { JSX } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { TransactionCommon } from '@/components/TransactionHistoryRows/TransactionCommon'

@@ -1,6 +1,5 @@
 import { Search2Icon } from '@chakra-ui/icons'
-import { Circle, Flex } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 
 import { Text } from '@/components/Text'

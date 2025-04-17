@@ -17,10 +17,12 @@ export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBasePa
 }
 
 export type RelayTransactionMetadata = {
-  to: string | undefined
-  value: string | undefined
-  data: string | undefined
-  gasLimit: string | undefined
+  to?: string
+  value?: string
+  data?: string
+  gasLimit?: string
+  psbt?: string
+  opReturnData?: string
 }
 
 export type RelayStatus = {
@@ -54,6 +56,11 @@ export type RelayFetchQuoteParams<T extends 'quote' | 'rate'> = {
   amount?: string
   referrer?: string
   refundOnOrigin?: boolean
+  // Not mandatory on relay side but we keep it mandatory here to avoid
+  // losing user funds for UTXOs as we rely on their address to get the quote
+  // it would mean there would be a risk of refunding to their own address
+  // instead of our user address
+  refundTo: string
   slippageTolerance?: string
   appFees?: AppFee[]
 }
@@ -94,16 +101,26 @@ export type QuoteDetails = {
   timeEstimate: number
 }
 
-export type RelayQuoteItemData = {
+export type RelayQuoteEvmItemData = {
   to?: string
   data?: string
   value?: string
   gas?: string
 }
 
-// @TODO: Change this to EVM and add UTXO/SVM types
+export type RelayQuoteUtxoItemData = {
+  psbt?: string
+  to?: string
+  opReturnData?: string
+}
+
+export type RelayQuoteSolanaItemData = {
+  instructions: RelaySolanaInstruction[]
+  addressLookupTableAddresses: string[]
+}
+
 export type RelayQuoteItem = {
-  data?: RelayQuoteItemData
+  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
 }
 
 export type RelayQuote = {
@@ -114,4 +131,32 @@ export type RelayQuote = {
     requestId: string
     items?: RelayQuoteItem[]
   }[]
+}
+
+export const isRelayQuoteUtxoItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteUtxoItemData => {
+  return 'psbt' in item
+}
+
+export const isRelayQuoteEvmItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteEvmItemData => {
+  return 'to' in item && 'data' in item && 'value' in item && 'gas' in item
+}
+
+export const isRelayQuoteSolanaItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteSolanaItemData => {
+  return 'instructions' in item
+}
+
+export type RelaySolanaInstruction = {
+  keys: {
+    pubkey: string
+    isSigner: boolean
+    isWritable: boolean
+  }[]
+  data: string
+  programId: string
 }

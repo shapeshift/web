@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger 已连接",
-        "success": "您现在可以关闭此窗口，或者它将很快自动关闭",
+        "success": "您现在可以关闭此窗口了。",
         "error": "连接你的钱包时出错"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "正在加密您的钱包... 如果您的浏览器要求将数据存储在持久存储中，请单击“允许”。",
         "header": "钱包已连接",
-        "success": "您现在可以关闭此窗口，或者它将很快自动关闭。",
+        "success": "您现在可以关闭此窗口了。",
         "error": "连接你的钱包时出错"
       },
       "testPhrase": {
@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "钱包连接",
         "ethereum": "以太坊",
+        "connectAll": "连接所有帐户",
         "signMessage": {
           "signingFrom": "签名来自",
           "requestFrom": "请求来自",
@@ -2561,7 +2562,8 @@
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
-    "instabilityWarning": "目前，用户在向 THORChain 流动性池存款时可能会收到退款，请谨慎操作。",
+    "instabilityWarning": "Thorchain LP 的存款已在协议层面禁用。如果您尝试充值，资产将被自动退还。此限制将在 3.5 版本中恢复正常。",
+    "depositsDisabled": "充值已禁用",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
     "totalLiquidity": "总流动性",

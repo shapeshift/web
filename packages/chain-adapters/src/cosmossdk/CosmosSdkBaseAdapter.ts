@@ -161,7 +161,10 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const account = await (async () => {
-        if (this.providers.http instanceof unchained.thorchain.V1Api) {
+        if (
+          this.providers.http instanceof unchained.thorchain.V1Api ||
+          this.providers.http instanceof unchained.mayachain.V1Api
+        ) {
           const data = await this.providers.http.getAccount({ pubkey })
           return { ...data, delegations: [], redelegations: [], undelegations: [], rewards: [] }
         }
@@ -410,7 +413,11 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   async getValidator(address: string): Promise<Validator | undefined> {
     try {
-      if (this.providers.http instanceof unchained.thorchain.V1Api) return
+      if (
+        this.providers.http instanceof unchained.thorchain.V1Api ||
+        this.providers.http instanceof unchained.mayachain.V1Api
+      )
+        return
 
       const validator = await this.providers.http.getValidator({ pubkey: address })
       return transformValidator(validator)

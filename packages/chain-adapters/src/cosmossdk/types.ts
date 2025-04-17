@@ -107,6 +107,8 @@ export type CosmosSdkMsgWithdrawDelegationReward = {
 export type Message =
   | ThorchainMsgDeposit
   | ThorchainMsgSend
+  | MayachainMsgDeposit
+  | MayachainMsgSend
   | CosmosSdkMsgBeginRedelegate
   | CosmosSdkMsgDelegate
   | CosmosSdkMsgSend

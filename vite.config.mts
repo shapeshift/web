@@ -126,11 +126,19 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              if (id.includes('react-icons')) return 'react-icons'
-              if (id.includes('dayjs')) return 'dayjs'
-              if (id.includes('lodash')) return 'lodash'
-              if (id.includes('@formatjs')) return '@formatjs'
+              if (id.match(/(react-icons|@chakra-ui|framer-motion|@visx|@react-spring|@coral-xyz)/)) return 'ui'
+              if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
+              if (id.match(/(@redux|@tanstack)/)) return 'state'
+              if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
+              if (id.match(/(@sentry|mixpanel)/)) return 'sdk'
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
+              if (id.includes('osmojs')) return 'osmojs'
+              if (id.includes('@arbitrum')) return '@arbitrum'
+              if (id.includes('@unstoppabledomains')) return '@unstoppabledomains'
+              if (id.includes('@metamask')) return '@metamask'
+              if (id.includes('@walletconnect')) return '@walletconnect'
+              if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
+              if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
 
               return null
             }
@@ -140,6 +148,7 @@ export default defineConfig(({ mode }) => {
 
             return null
           },
+          hashCharacters: 'hex',
         },
         onwarn(warning, warn) {
           // Ignore annotation warnings with /*#__PURE__*/ pattern
@@ -156,7 +165,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
       outDir: 'build',
     },
   }

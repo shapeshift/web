@@ -14,6 +14,7 @@ import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as litecoin } from './chains/litecoin'
+import { csp as mayachain } from './chains/mayachain'
 import { csp as optimism } from './chains/optimism'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
@@ -85,6 +86,7 @@ export const csps = [
   polygon,
   solana,
   thorchain,
+  mayachain,
   unstoppable,
   trustwallet,
   coincap,

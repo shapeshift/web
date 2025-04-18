@@ -32,7 +32,7 @@ export default function register(): Plugins {
                 return new avalanche.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().VITE_AVALANCHE_NODE_URL,
-                  midgardUrl: getConfig().VITE_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                 })
               },
             ],

@@ -92,6 +92,7 @@ export const mockStore: ReduxState = {
       ArbitrumBridge: false,
       Base: false,
       BnbSmartChain: false,
+      Mayachain: false,
       ZrxSwap: false,
       ThorSwap: false,
       ThorSwapStreamingSwaps: false,

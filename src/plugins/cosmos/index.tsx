@@ -34,7 +34,7 @@ export default function register(): Plugins {
                 return new cosmos.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Cosmos',
-                  midgardUrl: getConfig().VITE_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                 })
               },
             ],

@@ -2841,12 +2841,7 @@
       "claim": "Claim",
       "claimed": "Claimed",
       "discountText": "*%{percent}% off trade fees",
-      "noClaims": "No claims available",
-      "banner": {
-        "title": "Put a hat on it.",
-        "description": "The more FOX or FWH you hold, the more tokens you get per swap.",
-        "cta": "Learn More"
-      }
+      "noClaims": "No claims available"
     },
     "governance": {
       "title": "Governance",

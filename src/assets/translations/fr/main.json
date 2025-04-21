@@ -2840,12 +2840,7 @@
       "claim": "Réclamer",
       "claimed": "Réclamé",
       "discountText": "*%{percent}% de réduction sur les frais d'échange",
-      "noClaims": "Aucune réclamation disponible",
-      "banner": {
-        "title": "Chapeautez-vous de réductions !",
-        "description": "Plus vous détenez de FOX ou de FWH, plus vous obtenez de jetons lors de vos échanges.",
-        "cta": "En savoir plus"
-      }
+      "noClaims": "Aucune réclamation disponible"
     },
     "governance": {
       "title": "Gouvernance",

@@ -47,6 +47,9 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
   publicFilesEnvVars[`VITE_CID_${mungedName}`] = JSON.stringify(cid)
 }
 
+// For whatever reason, globalThis is not defined for the local esbuild environment while
+// using the vite-plugin-node-polyfills plugin. This plugin will appropriately define globalThis
+// to fix this scenario (may be resolved in a future release of vite-plugin-node-polyfills hopefully).
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
   enforce: 'pre',

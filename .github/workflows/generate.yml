@@ -13,7 +13,7 @@ jobs:
       - name: Checkout develop
         uses: actions/checkout@v3
         with:
-          ref: develop
+          ref: fix-asset-gen
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3

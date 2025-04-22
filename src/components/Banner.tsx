@@ -6,16 +6,15 @@ import { RawText } from './Text'
 const display = { base: 'none', md: 'flex' }
 
 type BannerProps = {
-  maxWidth?: number;
-  iconSrc: string;
-  titleKey: string;
-  descriptionKey: string;
-  ctaKey: string;
-  ctaLink: string;
-  endingTimeMs?: number;
+  maxWidth?: number
+  iconSrc: string
+  titleKey: string
+  descriptionKey: string
+  ctaLink: string
+  endingTimeMs?: number
 };
-export const Banner: React.FC<BannerProps> = (props) => {
-  const { maxWidth, iconSrc, titleKey, descriptionKey, ctaKey, ctaLink, endingTimeMs } = props
+export const Banner: React.FC<BannerProps> = props => {
+  const { maxWidth, iconSrc, titleKey, descriptionKey, ctaLink, endingTimeMs } = props
   const translate = useTranslate()
 
   // Hide the banner after the campaign ends, if endingTimeMs is provided.  make a constant in  '@/lib/fees/constant' if you like.
@@ -24,7 +23,7 @@ export const Banner: React.FC<BannerProps> = (props) => {
 
   // replace cta link with route, banner background with something pretty, title, icon, and description. then edit translations with the key.
   return (
-    <LinkOverlay href={ctaLink} maxWidth={maxWidth} display={display} mb={4}>
+    <LinkOverlay href={ctaLink} maxWidth={maxWidth} width='full' display={display} mb={4}>
       <Card overflow='hidden' position='relative'>
         <CardBody
           display='flex'
@@ -44,5 +43,5 @@ export const Banner: React.FC<BannerProps> = (props) => {
         </CardBody>
       </Card>
     </LinkOverlay>
-  );
-};
+  )
+}

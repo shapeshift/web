@@ -3,7 +3,7 @@ import { Err } from '@sniptt/monads'
 
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { relayChainMap as relayChainMapImplementation } from '../constant'
+import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getTrade } from '../utils/getTrade'
 
 export const getTradeQuote = async (
@@ -18,6 +18,7 @@ export const getTradeQuote = async (
       }),
     )
   }
+
   if (!input.receiveAddress) {
     return Err(
       makeSwapErrorRight({

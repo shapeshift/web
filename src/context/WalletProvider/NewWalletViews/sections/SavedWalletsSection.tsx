@@ -92,26 +92,29 @@ export const SavedWalletsSection = ({
           const walletInstance = await adapter.pairDevice(deviceId)
           if (!(await walletInstance?.isInitialized())) {
             await walletInstance?.initialize()
-          } else {
-            dispatch({
-              type: WalletActions.SET_WALLET,
-              payload: {
-                wallet: walletInstance,
-                name,
-                icon,
-                deviceId,
-                meta: { label: wallet.name },
-                connectedType: KeyManager.Native,
-              },
-            })
-            dispatch({
-              type: WalletActions.SET_IS_CONNECTED,
-              payload: true,
-            })
-            dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
-            dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           }
 
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet: walletInstance,
+              name,
+              icon,
+              deviceId,
+              meta: { label: wallet.name },
+              connectedType: KeyManager.Native,
+            },
+          })
+          dispatch({
+            type: WalletActions.SET_CONNECTOR_TYPE,
+            payload: { modalType: KeyManager.Native, isMipdProvider: false },
+          })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
+          dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           localWallet.setLocalWallet({ type: KeyManager.Native, deviceId })
           localWallet.setLocalNativeWalletName(wallet.name)
         } catch (e) {

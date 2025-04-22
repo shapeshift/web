@@ -143,12 +143,6 @@ export type QuoteFeeData = {
   chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
 }
 
-export const isSolanaFeeData = (
-  chainSpecific: QuoteFeeData['chainSpecific'],
-): chainSpecific is SolanaFeeData => {
-  return Boolean(chainSpecific && 'priorityFee' in chainSpecific)
-}
-
 export type BuyAssetBySellIdInput = {
   sellAsset: Asset
   assets: Asset[]
@@ -294,7 +288,7 @@ export type TradeQuoteStep = {
     gasLimit: string
   }
   jupiterQuoteResponse?: QuoteResponse
-  jupiterTransactionMetadata?: {
+  solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
   }

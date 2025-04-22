@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainAdapter, mayachain, thorchain } from '@shapeshiftoss/chain-adapters'
 import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -29,4 +29,8 @@ export const assertGetCosmosSdkChainAdapter = (
 
 export const assertGetThorchainChainAdapter = (): thorchain.ChainAdapter => {
   return assertGetCosmosSdkChainAdapter(KnownChainIds.ThorchainMainnet) as thorchain.ChainAdapter
+}
+
+export const assertGetMayachainChainAdapter = (): mayachain.ChainAdapter => {
+  return assertGetCosmosSdkChainAdapter(KnownChainIds.MayachainMainnet) as mayachain.ChainAdapter
 }

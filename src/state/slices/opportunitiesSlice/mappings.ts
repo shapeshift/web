@@ -175,6 +175,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
       defiType: DefiType.Staking,
     },
   ],
+  [KnownChainIds.MayachainMainnet]: [],
   [KnownChainIds.ArbitrumMainnet]: [
     {
       defiProvider: DefiProvider.rFOX,

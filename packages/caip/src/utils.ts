@@ -37,7 +37,7 @@ export const dogecoinAssetMap = { [constants.dogeAssetId]: 'dogecoin' }
 export const litecoinAssetMap = { [constants.ltcAssetId]: 'litecoin' }
 export const cosmosAssetMap = { [constants.cosmosAssetId]: 'cosmos' }
 export const thorchainAssetMap = { [constants.thorchainAssetId]: 'thorchain' }
-export const mayachainAssetMap = { [constants.mayachainAssetId]: 'mayachain' }
+export const mayachainAssetMap = { [constants.mayachainAssetId]: 'cacao' }
 
 interface Flavoring<FlavorT> {
   _type?: FlavorT

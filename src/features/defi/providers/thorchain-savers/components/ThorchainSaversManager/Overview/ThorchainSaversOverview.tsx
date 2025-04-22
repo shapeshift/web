@@ -11,7 +11,7 @@ import {
   Progress,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'

@@ -14,6 +14,7 @@ import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
+import { NotificationCenter } from './NotificationCenter/NotificationCenter'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -24,10 +25,10 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectEnabledWalletAccountIds,
   selectPortfolioDegradedState,
-  selectShowSnapsModal,
   selectWalletId,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -51,7 +52,7 @@ export const Header = memo(() => {
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const previousIsCorrectVersion = usePrevious(isCorrectVersion)
-  const showSnapModal = useSelector(selectShowSnapsModal)
+  const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const navigate = useNavigate()
@@ -71,6 +72,7 @@ export const Header = memo(() => {
   }, [scrollY])
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isNotificationCenterEnabled = useFeatureFlag('NotificationCenter')
 
   /**
    * FOR DEVELOPERS:
@@ -208,6 +210,7 @@ export const Header = memo(() => {
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
+              {isConnected && isNotificationCenterEnabled && <NotificationCenter />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

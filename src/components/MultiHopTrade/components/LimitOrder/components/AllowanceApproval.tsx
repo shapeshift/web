@@ -19,7 +19,7 @@ import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceReset
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { getTxLink } from '@/lib/getTxLink'
-import { selectActiveQuote } from '@/state/slices/limitOrderSlice/selectors'
+import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import {
   selectAssetById,
@@ -239,7 +239,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
 
 export const AllowanceApproval = () => {
   const navigate = useNavigate()
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
 
   // This should never happen but for paranoia and typescript reasons:
   if (activeQuote === undefined) {

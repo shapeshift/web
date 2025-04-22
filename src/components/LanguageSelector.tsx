@@ -6,12 +6,11 @@ import { locales } from '@/assets/translations/constants'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const LanguageSelector: React.FC<SelectProps> = props => {
   const dispatch = useAppDispatch()
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
 
   const handleLanguageChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {

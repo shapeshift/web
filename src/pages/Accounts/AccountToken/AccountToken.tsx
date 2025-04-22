@@ -10,7 +10,6 @@ import { Navigate, useParams } from 'react-router-dom'
 import { AccountBalance } from './AccountBalance'
 
 import { AssetAccounts } from '@/components/AssetAccounts/AssetAccounts'
-import { Equity } from '@/components/Equity/Equity'
 import { EarnOpportunities } from '@/components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -59,7 +58,6 @@ export const AccountToken = () => {
     <Stack alignItems='flex-start' spacing={4} width='full' direction={stackDirection}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance assetId={assetId} accountId={accountId} />
-        <Equity assetId={assetId} accountId={accountId} />
         <AssetAccounts assetId={assetId} accountId={accountId} />
         <EarnOpportunities assetId={assetId} accountId={accountId} />
         <AssetTransactionHistory assetId={assetId} accountId={accountId} />

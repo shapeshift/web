@@ -28,6 +28,7 @@ export const clearPortfolioMigrations = {
 
 export const localWalletMigrations = {
   0: clearLocalWallet,
+  1: clearLocalWallet,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAssetsMigrations = {
@@ -96,6 +97,7 @@ export const clearAssetsMigrations = {
   62: clearAssets,
   63: clearAssets,
   64: clearAssets,
+  65: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {

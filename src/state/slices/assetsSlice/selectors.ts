@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 
+import { assets } from './assetsSlice'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -12,13 +13,13 @@ import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectAssetIdParamFromFilter } from '@/state/selectors'
 
 export const selectAssetById = createCachedSelector(
-  (state: ReduxState) => state.assets.byId,
+  assets.selectors.selectAssetsById,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectAssetByFilter = createCachedSelector(
-  (state: ReduxState) => state.assets.byId,
+  assets.selectors.selectAssetsById,
   selectAssetIdParamFromFilter,
   (byId, assetId) => byId[assetId ?? ''] || undefined,
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
@@ -35,12 +36,12 @@ export const selectChainDisplayNameByAssetId = createSelector(selectAssetById, (
 })
 
 export const selectAssets = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.assets.byId,
+  assets.selectors.selectAssetsById,
   byId => byId,
 )
 
 export const selectAssetIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.assets.ids,
+  assets.selectors.selectAssetIds,
   ids => ids,
 )
 

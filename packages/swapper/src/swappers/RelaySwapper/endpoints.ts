@@ -1,23 +1,33 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import type {
   CommonTradeQuoteInput,
   EvmTransactionRequest,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
+  GetUnsignedUtxoTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { checkSafeTransactionStatus, isExecutableTradeQuote } from '../../utils'
-import { relayChainMap } from './constant'
+import {
+  checkSafeTransactionStatus,
+  isExecutableTradeQuote,
+  isExecutableTradeStep,
+} from '../../utils'
+import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { relayService } from './utils/relayService'
@@ -28,7 +38,7 @@ export const relayApi: SwapperApi = {
     input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input, deps, relayChainMap)
+    const tradeQuoteResult = await getTradeQuote(input, deps, chainIdToRelayChainId)
 
     return tradeQuoteResult
   },
@@ -36,7 +46,7 @@ export const relayApi: SwapperApi = {
     input: GetTradeRateInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    const tradeRateResult = await getTradeRate(input, deps, relayChainMap)
+    const tradeRateResult = await getTradeRate(input, deps, chainIdToRelayChainId)
 
     return tradeRateResult
   },
@@ -120,6 +130,97 @@ export const relayApi: SwapperApi = {
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
     }
   },
+  getUnsignedUtxoTransaction: async ({
+    tradeQuote,
+    xpub,
+    accountType,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    const {
+      accountNumber,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset,
+      relayTransactionMetadata,
+    } = firstStep
+
+    if (!relayTransactionMetadata) throw new Error('Missing relay transaction metadata')
+
+    const { to, opReturnData } = relayTransactionMetadata
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    if (!to) throw new Error('Missing transaction destination')
+    if (!opReturnData) throw new Error('Missing opReturnData')
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
+      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      xpub,
+      to,
+      accountNumber,
+      chainSpecific: {
+        accountType,
+        opReturnData,
+        satoshiPerByte: feeData.fast.chainSpecific.satoshiPerByte,
+      },
+    })
+  },
+  getUtxoTransactionFees: async ({
+    tradeQuote,
+    xpub,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    if (!firstStep.relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    const { to, opReturnData } = firstStep.relayTransactionMetadata
+
+    if (!to) throw new Error('Missing transaction destination')
+    if (!opReturnData) throw new Error('Missing opReturnData')
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
+  },
+  getSolanaTransactionFees,
+  getUnsignedSolanaTransaction,
   checkTradeStatus: async ({
     quoteId,
     txHash,
@@ -171,15 +272,22 @@ export const relayApi: SwapperApi = {
         case 'pending':
           return TxStatus.Pending
         case 'failed':
+        case 'refund':
           return TxStatus.Failed
         default:
           return TxStatus.Unknown
       }
     })()
 
+    // Relay refers to in Txs as "inTxHashes" but to out Txs as simply "txHashes" when they really mean "outTxHashes"
+    // One thing to note is that for same-chain Txs, there is no "out Tx" per se since the in Tx *is* the out Tx
+    const outTxHashes = statusResponse.txHashes
+    const isSameChainSwap = statusResponse.destinationChainId === statusResponse.originChainId
+    const buyTxHash = isSameChainSwap ? txHash : outTxHashes?.[0]
+
     return {
       status,
-      buyTxHash: statusResponse.txHashes?.[0],
+      buyTxHash,
       message: undefined,
     }
   },

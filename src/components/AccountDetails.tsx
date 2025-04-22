@@ -7,7 +7,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
-import { Equity } from './Equity/Equity'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
@@ -43,7 +42,6 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
           backPath='/wallet/accounts'
           backLabel={translate('navBar.accounts')}
         />
-        <Equity assetId={assetId} accountId={accountId} />
         {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
         <RelatedAssets assetId={assetId} />
         <AssetAccounts assetId={assetId} accountId={isUtxoAccountId(accountId) ? '' : accountId} />

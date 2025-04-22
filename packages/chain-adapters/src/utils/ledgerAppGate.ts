@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import EventEmitter from 'events'
+import { EventEmitter } from 'node:events'
 
 import { ChainAdapterError } from '../error/ErrorHandler'
 

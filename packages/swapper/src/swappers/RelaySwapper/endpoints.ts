@@ -1,20 +1,20 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import type {
   CommonTradeQuoteInput,
   EvmTransactionRequest,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
-  GetUnsignedSolanaTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
   SwapErrorRight,
   SwapperApi,
@@ -27,7 +27,6 @@ import {
   isExecutableTradeQuote,
   isExecutableTradeStep,
 } from '../../utils'
-import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../JupiterSwapper/utils/constants'
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -220,84 +219,8 @@ export const relayApi: SwapperApi = {
 
     return feeData.fast.txFee
   },
-  getSolanaTransactionFees: async ({
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }: GetUnsignedSolanaTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
-
-    const firstStep = tradeQuote.steps[0]
-
-    const adapter = assertGetSolanaChainAdapter(firstStep.sellAsset.chainId)
-
-    if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
-
-    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: '',
-      value: '0',
-      chainSpecific: {
-        from,
-        addressLookupTableAccounts:
-          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-        instructions: firstStep.solanaTransactionMetadata?.instructions,
-      },
-    }
-
-    const feeData = await adapter.getFeeData(getFeeDataInput)
-
-    return feeData.fast.txFee
-  },
-  getUnsignedSolanaTransaction: async ({
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
-
-    const firstStep = tradeQuote.steps[0]
-
-    const adapter = assertGetSolanaChainAdapter(firstStep.sellAsset.chainId)
-
-    if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
-
-    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: '',
-      value: '0',
-      chainSpecific: {
-        from,
-        addressLookupTableAccounts:
-          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-        instructions: firstStep.solanaTransactionMetadata?.instructions,
-      },
-    }
-
-    const feeData = await adapter.getFeeData(getFeeDataInput)
-
-    const solanaInstructions = firstStep.solanaTransactionMetadata?.instructions?.map(instruction =>
-      adapter.convertInstruction(instruction),
-    )
-
-    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
-      to: '',
-      from,
-      value: '0',
-      accountNumber: firstStep.accountNumber,
-      chainSpecific: {
-        addressLookupTableAccounts:
-          firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-        instructions: solanaInstructions,
-        // As always, as relay uses jupiter under the hood, we need to add the compute unit safety margin
-        computeUnitLimit: bnOrZero(feeData.fast.chainSpecific.computeUnits)
-          .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
-          .toFixed(0),
-        computeUnitPrice: feeData.fast.chainSpecific.priorityFee,
-      },
-    }
-
-    return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
-  },
-
+  getSolanaTransactionFees,
+  getUnsignedSolanaTransaction,
   checkTradeStatus: async ({
     quoteId,
     txHash,

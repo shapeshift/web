@@ -262,7 +262,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const isCrossChain = sellAsset.chainId !== buyAsset.chainId
 
-  const appFeesAsset = (() => {
+  const maybeAppFeesAsset = (() => {
     // @TODO: when implementing fees, find if solana to solana assets are always showing empty app fees even if
     // affiliate bps are set, if we remove this the quote fetching will fail because relayTokenToAsset will throw
     if (
@@ -270,18 +270,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       buyAsset.chainId === solanaChainId &&
       quote.fees.app.currency.address === zeroAddress
     ) {
-      return
-    }
-    const maybeAppFeesAsset = relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
-
-    if (maybeAppFeesAsset.isErr()) {
-      throw maybeAppFeesAsset.unwrapErr()
+      return Ok(undefined)
     }
 
-    return maybeAppFeesAsset.unwrap()
+    return relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
   })()
 
   const isNativeCurrencyInput = (() => {
+    if (maybeAppFeesAsset.isErr()) return false
+    const appFeesAsset = maybeAppFeesAsset.unwrap()
+
     if (!appFeesAsset) return false
 
     if (isEvmChainId(sellAsset.chainId)) {
@@ -313,6 +311,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   // If same chain and not sellAsset as native currency, convert to protocol fee as native value is sent as well as erc20 tokens
   // This is a edge case we never encountered before and it's more convenient to consider it as protocol fee as quickwin
   const appFeesAsProtocolFee = (() => {
+    if (maybeAppFeesAsset.isErr()) return {}
+
+    const appFeesAsset = maybeAppFeesAsset.unwrap()
+
     if (!appFeesAsset || isNativeCurrencyInput) return {}
 
     return {

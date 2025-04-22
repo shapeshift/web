@@ -126,7 +126,8 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              if (id.match(/(react-icons|@chakra-ui|framer-motion|@visx|@react-spring|@coral-xyz)/)) return 'ui'
+              if (id.match(/(react-icons|@chakra-ui|framer-motion|@visx|@react-spring|@coral-xyz)/))
+                return 'ui'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
               if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
@@ -152,14 +153,15 @@ export default defineConfig(({ mode }) => {
         },
         onwarn(warning, warn) {
           // Ignore annotation warnings with /*#__PURE__*/ pattern
-          if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment')) return
+          if (warning.message.includes('/*#__PURE__*/') || warning.message.includes('A comment'))
+            return
 
           // Ignore eval warnings in dependencies
           if (warning.code === 'EVAL' && warning.id?.includes('node_modules')) return
 
           // Ignore dynamic import chunking warnings
           const dynamicImport = 'dynamic import will not move module into another chunk'
-          if ( warning.plugin === 'vite:reporter' && warning.message.includes(dynamicImport)) return
+          if (warning.plugin === 'vite:reporter' && warning.message.includes(dynamicImport)) return
 
           warn(warning)
         },

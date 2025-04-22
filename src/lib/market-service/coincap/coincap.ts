@@ -20,10 +20,18 @@ import type { CoinCapMarketCap } from './coincap-types'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
 
-const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
+const apiKey = '478b07654ff6dd0716b52e63cb2ad27c2b6aa7b7679d56eda0ea250d8b27dfcd'
+const axios = setupCache(
+  Axios.create({
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  }),
+  { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false },
+)
 
 export class CoinCapMarketService implements MarketService {
-  baseUrl = 'https://api.coincap.io/v2'
+  baseUrl = 'https://rest.coincap.io/v3'
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 2500,

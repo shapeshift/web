@@ -17,10 +17,11 @@ import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinCapMarketCap } from './coincap-types'
 
+import { getConfig } from '@/config'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
 
-const apiKey = '478b07654ff6dd0716b52e63cb2ad27c2b6aa7b7679d56eda0ea250d8b27dfcd'
+const apiKey = getConfig().VITE_COINCAP_API_KEY
 const axios = setupCache(
   Axios.create({
     headers: {

@@ -327,7 +327,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         value: toHex(isTokenSend ? 0n : BigInt(value)),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
-        data: data || (await getErc20Data(to, value, contractAddress)) || '0x',
+        data: data || getErc20Data(to, value, contractAddress) || '0x',
         nonce,
         gasLimit: toHex(BigInt(gasLimit)),
         ...fees,
@@ -358,18 +358,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  protected async buildEstimateGasRequest({
+  protected buildEstimateGasRequest({
     to,
     value,
     chainSpecific: { contractAddress, from, data },
-  }: GetFeeDataInput<T>): Promise<EstimateGasRequest> {
+  }: GetFeeDataInput<T>): EstimateGasRequest {
     const isTokenSend = !!contractAddress
 
     return {
       from,
       to: isTokenSend ? contractAddress : to,
       value: isTokenSend ? '0' : value,
-      data: data || (await getErc20Data(to, value, contractAddress)),
+      data: data || getErc20Data(to, value, contractAddress),
     }
   }
 
@@ -681,7 +681,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const req = await this.buildEstimateGasRequest(input)
+      const req = this.buildEstimateGasRequest(input)
 
       const { gasLimit } = await this.providers.http.estimateGas(req)
       const { fast, average, slow } = await this.getGasFeeData()

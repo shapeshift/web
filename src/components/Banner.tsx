@@ -12,7 +12,7 @@ type BannerProps = {
   descriptionKey: string
   ctaLink: string
   endingTimeMs?: number
-};
+}
 export const Banner: React.FC<BannerProps> = props => {
   const { maxWidth, iconSrc, titleKey, descriptionKey, ctaLink, endingTimeMs } = props
   const translate = useTranslate()

@@ -12,6 +12,7 @@ import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
@@ -20,6 +21,7 @@ import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
+import { TCY } from '@/pages/TCY/tcy'
 import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
@@ -228,6 +230,14 @@ export const routes: Route[] = [
     priority: 6,
     mobileNav: true,
     disable: !getConfig().VITE_FEATURE_FOX_PAGE,
+  },
+  {
+    path: '/tcy',
+    label: 'navBar.tcy',
+    icon: <TCYIcon />,
+    main: TCY,
+    category: RouteCategory.Thorchain,
+    disable: !getConfig().VITE_FEATURE_TCY,
   },
   {
     path: '/pools/*',

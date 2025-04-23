@@ -503,7 +503,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     )
 
   return (
-    <SlideTransition>
+    <SlideTransition key='stakeInput'>
       <InfoAcknowledgement
         message={warningAcknowledgementMessage}
         onAcknowledge={handleSubmit}

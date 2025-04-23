@@ -182,6 +182,7 @@ const validators = {
   VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: bool({ default: false }),
   VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
   VITE_FEATURE_NOTIFICATION_CENTER: bool({ default: false }),
+  VITE_FEATURE_TCY: bool({ default: false }),
   VITE_RELAY_API_URL: url(),
   VITE_COINCAP_API_KEY: str(),
 }

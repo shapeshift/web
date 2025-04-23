@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { NativeEvents } from '@shapeshiftoss/hdwallet-native'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 
@@ -65,7 +66,12 @@ export const SavedWalletsSection = ({
 }) => {
   const navigate = useNavigate()
   const localWallet = useLocalWallet()
-  const { getAdapter, dispatch } = useWallet()
+  const {
+    getAdapter,
+    dispatch,
+    state: { keyring },
+  } = useWallet()
+  const isMnemonicRequiredRef = useRef(false)
 
   const nativeVaultsQuery = useQuery({
     ...reactQueries.common.hdwalletNativeVaultsList(),
@@ -80,49 +86,81 @@ export const SavedWalletsSection = ({
       onWalletSelect(wallet.id, '/native/enter-password')
 
       const adapter = await getAdapter(KeyManager.Native)
+      if (!adapter) return
+
       const deviceId = wallet.id
-      if (adapter) {
-        const { name, icon } = NativeConfig
-        try {
-          dispatch({
-            type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
-            payload: deviceId,
-          })
 
-          const walletInstance = await adapter.pairDevice(deviceId)
-          if (!(await walletInstance?.isInitialized())) {
-            await walletInstance?.initialize()
+      const detectIsMnemonicRequired = new Promise<boolean>(resolve => {
+        const handleMnemonicRequired = (e: [string, any]) => {
+          if (e[0] === deviceId) {
+            isMnemonicRequiredRef.current = true
+            keyring.off(
+              ['Native', deviceId, NativeEvents.MNEMONIC_REQUIRED],
+              handleMnemonicRequired,
+            )
+            resolve(true)
           }
+        }
 
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet: walletInstance,
-              name,
-              icon,
-              deviceId,
-              meta: { label: wallet.name },
-              connectedType: KeyManager.Native,
-            },
-          })
-          dispatch({
-            type: WalletActions.SET_CONNECTOR_TYPE,
-            payload: { modalType: KeyManager.Native, isMipdProvider: false },
-          })
+        keyring.on(['Native', deviceId, NativeEvents.MNEMONIC_REQUIRED], handleMnemonicRequired)
+
+        // Assume false if no event is received after a sane timeout - this shouldn't happen under locked circumstances, but it
+        // may if we're already unlocked, and no new event is fired, so we just assume unlocked
+        setTimeout(() => {
+          keyring.off(['Native', deviceId, NativeEvents.MNEMONIC_REQUIRED], handleMnemonicRequired)
+          resolve(false)
+        }, 300)
+      })
+
+      dispatch({
+        type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
+        payload: deviceId,
+      })
+
+      try {
+        const { name, icon } = NativeConfig
+        const walletInstance = await adapter.pairDevice(deviceId)
+
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: walletInstance,
+            name,
+            icon,
+            deviceId,
+            meta: { label: wallet.name },
+            connectedType: KeyManager.Native,
+          },
+        })
+
+        dispatch({
+          type: WalletActions.SET_CONNECTOR_TYPE,
+          payload: { modalType: KeyManager.Native, isMipdProvider: false },
+        })
+
+        // Store wallet info - regardless of un/locked state
+        localWallet.setLocalWallet({ type: KeyManager.Native, deviceId })
+        localWallet.setLocalNativeWalletName(wallet.name)
+
+        // Initialize wallet (triggers native event handlers)
+        await walletInstance?.initialize()
+
+        const isMnemonicRequired = await detectIsMnemonicRequired
+
+        // Only close the modal if mnemonic is not required - if it is, useNativeEventHandler() will take over
+        if (!isMnemonicRequired && !isMnemonicRequiredRef.current) {
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
             payload: true,
           })
           dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          localWallet.setLocalWallet({ type: KeyManager.Native, deviceId })
-          localWallet.setLocalNativeWalletName(wallet.name)
-        } catch (e) {
-          console.error(e)
         }
+      } catch (e) {
+        console.error(e)
       }
     },
-    [dispatch, getAdapter, localWallet, onWalletSelect],
+    [dispatch, getAdapter, localWallet, onWalletSelect, keyring],
   )
 
   const handleAddNewWalletClick = useCallback(() => {

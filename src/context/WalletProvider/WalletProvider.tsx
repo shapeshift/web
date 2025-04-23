@@ -91,6 +91,7 @@ export type InitialState = {
   wcV2Provider: EthereumProviderType | null
   isLocked: boolean
   modal: boolean
+  isMnemonicRequired?: boolean
   isLoadingLocalWallet: boolean
   deviceId: string | null
   showBackButton: boolean
@@ -229,6 +230,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       return {
         ...state,
         modal: action.payload.modal,
+        isMnemonicRequired: action.payload.modal,
         modalType: KeyManager.Native,
         showBackButton: !state.isLoadingLocalWallet,
         deviceId: null,

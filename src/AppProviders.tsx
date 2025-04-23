@@ -5,7 +5,7 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
-import React, { Suspense, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'

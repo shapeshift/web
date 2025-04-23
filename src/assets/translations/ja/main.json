@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledgerが接続されました",
-        "success": "このウィンドウは自動的に閉じます。",
+        "success": "このウィンドウを閉じることができます。",
         "error": "ウォレットの接続中にエラーが発生しました"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "ウォレットを暗号化しています...ブラウザが永続ストレージにデータを保存するように要求した場合は、「許可」をクリックしてください。",
         "header": "ウォレットが接続されました",
-        "success": "このウィンドウは自動的に閉じます。",
+        "success": "このウィンドウを閉じることができます。",
         "error": "ウォレットの接続中にエラーが発生しました"
       },
       "testPhrase": {
@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "イーサリアム",
+        "connectAll": "すべてのアカウントを接続する",
         "signMessage": {
           "signingFrom": "署名者",
           "requestFrom": "リクエスト元",
@@ -2561,7 +2562,8 @@
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
     "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
     "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
-    "instabilityWarning": "現在、THORChain プールへの入金中に払い戻しが発生しています。注意して進めてください。",
+    "instabilityWarning": "Thorchain LPへの入金はプロトコルレベルで無効化されています。入金を試みると、アセットは返金されます。これはバージョン3.5で元に戻ります。",
+    "depositsDisabled": "デポジットが無効です",
     "shareOfPool": "プールのシェア",
     "assetDepositAmount": "%{asset} 入金額",
     "totalLiquidity": "総流動性",

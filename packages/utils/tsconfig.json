@@ -7,11 +7,7 @@
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],
   "references": [
-    {
-      "path": "../types"
-    },
-    {
-      "path": "../caip"
-    }
+    { "path": "../caip" },
+    { "path": "../types" }
   ]
 }

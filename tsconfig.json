@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["vite/client"],
     "skipLibCheck": true,
     "noEmit": true,
 
@@ -54,9 +55,9 @@
     { "path": "./packages/chain-adapters" },
     { "path": "./packages/contracts" },
     { "path": "./packages/errors" },
+    { "path": "./packages/swapper" },
     { "path": "./packages/types" },
     { "path": "./packages/unchained-client" },
-    { "path": "./packages/swapper" },
     { "path": "./packages/utils" }
   ]
 }

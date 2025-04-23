@@ -114,9 +114,13 @@ export type RelayQuoteUtxoItemData = {
   opReturnData?: string
 }
 
-// @TODO: Change this to EVM and add UTXO/SVM types
+export type RelayQuoteSolanaItemData = {
+  instructions: RelaySolanaInstruction[]
+  addressLookupTableAddresses: string[]
+}
+
 export type RelayQuoteItem = {
-  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData
+  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
 }
 
 export type RelayQuote = {
@@ -130,13 +134,29 @@ export type RelayQuote = {
 }
 
 export const isRelayQuoteUtxoItemData = (
-  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData,
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
 ): item is RelayQuoteUtxoItemData => {
   return 'psbt' in item
 }
 
 export const isRelayQuoteEvmItemData = (
-  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData,
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
 ): item is RelayQuoteEvmItemData => {
   return 'to' in item && 'data' in item && 'value' in item && 'gas' in item
+}
+
+export const isRelayQuoteSolanaItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteSolanaItemData => {
+  return 'instructions' in item
+}
+
+export type RelaySolanaInstruction = {
+  keys: {
+    pubkey: string
+    isSigner: boolean
+    isWritable: boolean
+  }[]
+  data: string
+  programId: string
 }

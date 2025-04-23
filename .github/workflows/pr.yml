@@ -56,4 +56,4 @@ jobs:
         run: yarn type-check
 
       - name: Test
-        run: yarn test:ci
+        run: yarn test

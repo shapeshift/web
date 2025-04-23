@@ -8,6 +8,8 @@ import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import type {
   CommonTradeQuoteInput,
   EvmTransactionRequest,
@@ -217,7 +219,8 @@ export const relayApi: SwapperApi = {
 
     return feeData.fast.txFee
   },
-
+  getSolanaTransactionFees,
+  getUnsignedSolanaTransaction,
   checkTradeStatus: async ({
     quoteId,
     txHash,
@@ -269,6 +272,7 @@ export const relayApi: SwapperApi = {
         case 'pending':
           return TxStatus.Pending
         case 'failed':
+        case 'refund':
           return TxStatus.Failed
         default:
           return TxStatus.Unknown

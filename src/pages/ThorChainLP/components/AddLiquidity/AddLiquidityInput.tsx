@@ -1459,13 +1459,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           variant='ghost'
           icon={backIcon}
           aria-label='go back'
-          disabled={!confirmedQuote}
         />
         {translate('pools.addLiquidity')}
         <SlippagePopover isDisabled tooltipTranslation='pools.customSlippageDisabled' />
       </CardHeader>
     )
-  }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
+  }, [backIcon, handleBackClick, headerComponent, translate])
 
   const hasUserEnteredValue = useMemo(() => {
     return Boolean(

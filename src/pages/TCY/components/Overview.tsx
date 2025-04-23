@@ -1,14 +1,4 @@
-import { InfoIcon } from '@chakra-ui/icons'
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Flex,
-  Heading,
-  HStack,
-  SimpleGrid,
-  Tooltip,
-} from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, Flex, Heading, HStack, SimpleGrid } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 

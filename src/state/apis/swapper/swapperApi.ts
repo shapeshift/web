@@ -1,4 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type {
@@ -22,6 +22,7 @@ import { validateTradeQuote } from './helpers/validateTradeQuote'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
@@ -38,7 +39,7 @@ import type { ReduxState } from '@/state/reducer'
 import { selectAssets } from '@/state/slices/assetsSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 
 export const swapperApi = createApi({
@@ -65,7 +66,7 @@ export const swapperApi = createApi({
         const isCrossAccountTrade =
           Boolean(sendAddress && receiveAddress) &&
           sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
-        const featureFlags: FeatureFlags = selectFeatureFlags(state)
+        const featureFlags: FeatureFlags = preferences.selectors.selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
@@ -89,6 +90,7 @@ export const swapperApi = createApi({
           assertGetSolanaChainAdapter,
           fetchIsSmartContractAddressQuery,
           config: getConfig(),
+          mixPanel: getMixPanel(),
         }
 
         const getQuoteResult = () => {
@@ -264,7 +266,7 @@ export const swapperApi = createApi({
       ) => {
         const state = getState() as ReduxState
 
-        const featureFlags = selectFeatureFlags(state)
+        const featureFlags = preferences.selectors.selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
         const assets = selectAssets(state)
         const sellAsset = selectInputSellAsset(state)

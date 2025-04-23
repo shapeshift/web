@@ -1,7 +1,7 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
 
-import { SnapContent } from './SnapContent'
+import { SnapContentRouter } from './SnapContent'
 
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -32,7 +32,7 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
       <ModalOverlay />
       <ModalContent minW='450px'>
         <ModalCloseButton />
-        <SnapContent
+        <SnapContentRouter
           isRemoved={isRemoved}
           isCorrectVersion={isCorrectVersion}
           isSnapInstalled={isSnapInstalled}

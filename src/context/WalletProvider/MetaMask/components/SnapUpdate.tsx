@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { SnapContent } from '@/components/Modals/Snaps/SnapContent'
+import { SnapContentRouter } from '@/components/Modals/Snaps/SnapContent'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -13,6 +13,6 @@ export const SnapUpdate = () => {
 
   return (
     // If we land here, we know the version is incorrect
-    <SnapContent onClose={handleClose} isCorrectVersion={false} isSnapInstalled={true} />
+    <SnapContentRouter onClose={handleClose} isCorrectVersion={false} isSnapInstalled={true} />
   )
 }

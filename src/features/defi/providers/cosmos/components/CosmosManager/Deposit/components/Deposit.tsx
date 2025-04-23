@@ -4,7 +4,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -48,7 +48,7 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
@@ -158,7 +158,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset, assetId, assets, dispatch, onNext, opportunityMetadata, state, toast, translate],
   )
 
-  const handleCancel = history.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const validateCryptoAmount = useCallback(
     (value: string) => {

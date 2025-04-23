@@ -1,5 +1,5 @@
 export enum ClaimRoutePaths {
   Select = '/claim',
-  Confirm = '/claim/confirm',
-  Status = '/claim/status',
+  Confirm = 'confirm',
+  Status = 'status',
 }

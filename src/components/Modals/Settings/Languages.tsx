@@ -1,15 +1,15 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { locales } from '@/assets/translations/constants'
 import { getLocaleLabel } from '@/assets/translations/utils'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -17,11 +17,14 @@ const disabledProps = { opacity: 1 }
 
 export const Languages = () => {
   const dispatch = useAppDispatch()
-  const history = useHistory()
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const navigate = useNavigate()
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
-  const { goBack } = history
+
+  const handleGoBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   return (
     <SlideTransition>
@@ -35,7 +38,7 @@ export const Languages = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={goBack}
+        onClick={handleGoBack}
       />
       <ModalHeader textAlign='center'>{translate('modals.settings.language')}</ModalHeader>
       <>

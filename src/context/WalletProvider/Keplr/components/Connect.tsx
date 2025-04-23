@@ -1,24 +1,16 @@
-import React, { useCallback, useState } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { KeplrConfig } from '../config'
 
-import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-export interface KeplrSetupProps
-  extends RouteComponentProps<
-    {},
-    any // history
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
-
-export const KeplrConnect = ({ history }: KeplrSetupProps) => {
+export const KeplrConnect = () => {
+  const navigate = useNavigate()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
@@ -70,11 +62,11 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.keplr.errors.unknown')
-        history.push('/keplr/failure')
+        navigate('/keplr/failure')
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet])
+  }, [dispatch, getAdapter, navigate, localWallet])
 
   return (
     <ConnectModal

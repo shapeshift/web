@@ -2,7 +2,7 @@ import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Text } from '@/components/Text'
@@ -63,7 +63,7 @@ export const SavedWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const localWallet = useLocalWallet()
   const { getAdapter, dispatch } = useWallet()
 
@@ -92,26 +92,29 @@ export const SavedWalletsSection = ({
           const walletInstance = await adapter.pairDevice(deviceId)
           if (!(await walletInstance?.isInitialized())) {
             await walletInstance?.initialize()
-          } else {
-            dispatch({
-              type: WalletActions.SET_WALLET,
-              payload: {
-                wallet: walletInstance,
-                name,
-                icon,
-                deviceId,
-                meta: { label: wallet.name },
-                connectedType: KeyManager.Native,
-              },
-            })
-            dispatch({
-              type: WalletActions.SET_IS_CONNECTED,
-              payload: true,
-            })
-            dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
-            dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           }
 
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet: walletInstance,
+              name,
+              icon,
+              deviceId,
+              meta: { label: wallet.name },
+              connectedType: KeyManager.Native,
+            },
+          })
+          dispatch({
+            type: WalletActions.SET_CONNECTOR_TYPE,
+            payload: { modalType: KeyManager.Native, isMipdProvider: false },
+          })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
+          dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           localWallet.setLocalWallet({ type: KeyManager.Native, deviceId })
           localWallet.setLocalNativeWalletName(wallet.name)
         } catch (e) {
@@ -123,8 +126,8 @@ export const SavedWalletsSection = ({
   )
 
   const handleAddNewWalletClick = useCallback(() => {
-    history.push(NativeWalletRoutes.Connect)
-  }, [history])
+    navigate(NativeWalletRoutes.Connect)
+  }, [navigate])
 
   return (
     <>

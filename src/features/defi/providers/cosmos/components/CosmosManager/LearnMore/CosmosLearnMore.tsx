@@ -4,7 +4,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import rewards from '@/assets/rewards.svg'
 import risk from '@/assets/risk.svg'
@@ -58,7 +58,7 @@ const maxWidthProps = { base: 'full', md: '500px' }
 
 export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -85,11 +85,11 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
 
   const handlePrevClick = useCallback(() => {
     if (isFirstStep) {
-      return history.goBack()
+      return navigate(-1)
     }
 
     prevStep()
-  }, [history, isFirstStep, prevStep])
+  }, [navigate, isFirstStep, prevStep])
 
   const currentElement = STEP_TO_ELEMENTS_MAPPING[activeStep - 1]
 

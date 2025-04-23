@@ -8,6 +8,7 @@ import debounce from 'lodash/debounce'
 import pDebounce from 'p-debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
@@ -99,7 +100,8 @@ export const Deposit: React.FC<DepositProps> = ({
     fiatAmount: string
     cryptoAmount: string
   } | null>(null)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const assets = useAppSelector(selectAssets)
 
@@ -402,8 +404,8 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const outboundFeeInAssetCryptoBaseUnit = useMemo(() => {
     if (!asset) return bn(0)

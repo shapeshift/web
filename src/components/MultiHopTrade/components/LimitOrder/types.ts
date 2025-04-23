@@ -3,10 +3,10 @@ import type { Order } from '@shapeshiftoss/types'
 
 export enum LimitOrderRoutePaths {
   Input = '/limit',
-  Confirm = '/limit/confirm',
-  AllowanceApproval = '/limit/allowance-approval',
-  PlaceOrder = '/limit/place-order',
-  Orders = '/limit/orders',
+  Confirm = 'confirm',
+  AllowanceApproval = 'allowance-approval',
+  PlaceOrder = 'place-order',
+  Orders = 'orders',
 }
 
 export type OrderToCancel = {

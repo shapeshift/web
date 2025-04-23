@@ -48,13 +48,12 @@ import { isKeepKeyHDWallet } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioUserCurrencyBalanceByFilter,
-  selectSelectedCurrency,
-  selectSelectedLocale,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -85,7 +84,7 @@ export const Overview: React.FC<OverviewProps> = ({
   vanityAddress,
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
   const handleSelectChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -93,7 +92,7 @@ export const Overview: React.FC<OverviewProps> = ({
     [],
   )
   const popup = useModal('popup')
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
@@ -168,8 +167,21 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const fiatRampsTitleTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'fiatRamps.titleMessage',
+      {
+        action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+        asset: asset?.symbol ?? '',
+      },
+    ],
+    [asset?.symbol, fiatRampAction, translate],
+  )
+
   const handlePopupClick = useCallback(
-    ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
+    async ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
       const ramp = supportedFiatRamps[rampId]
       const mpData = {
         action: fiatRampAction,
@@ -177,7 +189,7 @@ export const Overview: React.FC<OverviewProps> = ({
         ramp: ramp.id,
       }
       getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
-      const url = ramp.onSubmit({
+      const url = await ramp.onSubmit({
         action: fiatRampAction,
         assetId,
         address,
@@ -198,47 +210,58 @@ export const Overview: React.FC<OverviewProps> = ({
     if (isRampsLoading) return null
     if (!ramps) return null
     const rampIdsForAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
-    if (!rampIdsForAssetIdAndAction.length)
+
+    const filteredRamps = [...rampIdsForAssetIdAndAction].filter(rampId => {
+      const list = supportedFiatRamps[rampId].getSupportedFiatList()
+      return list.includes(fiatCurrency)
+    })
+
+    if (!filteredRamps.length)
       return (
         <Center display='flex' flexDir='column' minHeight='150px'>
           <IconCircle mb={4}>
             <FaCreditCard />
           </IconCircle>
           <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
-          <Text translation='fiatRamps.noProvidersBody' color='text.subtle' />
+          <Text translation='fiatRamps.noProvidersBody' color='text.subtle' textAlign='center' />
         </Center>
       )
-    const listOfRamps = [...rampIdsForAssetIdAndAction]
-    return listOfRamps
-      .filter(rampId => {
-        const list = supportedFiatRamps[rampId].getSupportedFiatList()
-        return list.includes(fiatCurrency)
-      })
-      .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
-      .map(rampId => {
-        const ramp = supportedFiatRamps[rampId]
-        const passedAddress = address
-        return (
-          <FiatRampButton
-            key={rampId}
-            // this whole render method is already memoized
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => handlePopupClick({ rampId, address: passedAddress })}
-            accountFiatBalance={accountUserCurrencyBalance}
-            action={fiatRampAction}
-            {...ramp}
-          />
-        )
-      })
+
+    return (
+      <Stack spacing={4}>
+        <Box>
+          <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
+          <Text color='text.subtle' translation={fiatRampsTitleTranslation} />
+        </Box>
+        {filteredRamps
+          .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
+          .map(rampId => {
+            const ramp = supportedFiatRamps[rampId]
+            const passedAddress = address
+            return (
+              <FiatRampButton
+                key={rampId}
+                // this whole render method is already memoized
+                // eslint-disable-next-line react-memo/require-usememo
+                onClick={() => handlePopupClick({ rampId, address: passedAddress })}
+                accountFiatBalance={accountUserCurrencyBalance}
+                action={fiatRampAction}
+                {...ramp}
+              />
+            )
+          })}
+      </Stack>
+    )
   }, [
-    accountUserCurrencyBalance,
-    address,
     assetId,
-    fiatCurrency,
-    fiatRampAction,
-    handlePopupClick,
     isRampsLoading,
     ramps,
+    fiatRampAction,
+    fiatCurrency,
+    fiatRampsTitleTranslation,
+    address,
+    handlePopupClick,
+    accountUserCurrencyBalance,
   ])
 
   const { isOpen: isFiatRampsModalOpen } = useModal('fiatRamps')
@@ -260,18 +283,6 @@ export const Overview: React.FC<OverviewProps> = ({
       </option>
     ))
   }, [])
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-
-  const fiatRampsTitleTranslation: TextPropTypes['translation'] = useMemo(
-    () => [
-      'fiatRamps.titleMessage',
-      {
-        action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
-        asset: asset?.symbol ?? '',
-      },
-    ],
-    [asset?.symbol, fiatRampAction, translate],
-  )
 
   const description: string | [string, InterpolationOptions] | undefined = useMemo(() => {
     if (!asset) return
@@ -397,19 +408,13 @@ export const Overview: React.FC<OverviewProps> = ({
           </Flex>
         </Stack>
         <Stack spacing={4}>
-          {ramps && (
-            <Box>
-              <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
-              <Text color='text.subtle' translation={fiatRampsTitleTranslation} />
-            </Box>
-          )}
           <Box minHeight='170px'>
             {isRampsLoading ? (
               <Center minHeight='150px'>
                 <CircularProgress />
               </Center>
             ) : (
-              <Stack>{renderProviders}</Stack>
+              renderProviders
             )}
           </Box>
         </Stack>

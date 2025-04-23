@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -25,7 +25,7 @@ import { useAppSelector } from '@/state/store'
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     setValue,
@@ -47,16 +47,17 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
+  const handleNext = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
-  const handleClick = useCallback(
-    () =>
-      history.push(SendRoutes.Select, {
+  const handleBackClick = useCallback(() => {
+    setValue(SendFormFields.AssetId, '')
+    navigate(SendRoutes.Select, {
+      state: {
         toRoute: SelectAssetRoutes.Search,
-        assetId: asset?.assetId ?? '',
-      }),
-    [history, asset],
-  )
+        assetId: '',
+      },
+    })
+  }, [navigate, setValue])
 
   const addressInputRules = useMemo(
     () => ({
@@ -100,7 +101,7 @@ export const Address = () => {
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <DialogBackButton aria-label={translate('common.back')} onClick={handleClick} />
+        <DialogBackButton aria-label={translate('common.back')} onClick={handleBackClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>

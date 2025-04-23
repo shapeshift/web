@@ -77,7 +77,7 @@ const OpenLimitOrders: FC<{
   cardProps?: CardProps
   onCancelOrderClick: (order: OrderToCancel) => void
 }> = ({ cardProps, onCancelOrderClick }) => {
-  const { data: ordersResponse, isLoading } = useLimitOrdersQuery()
+  const { currentData: ordersResponse, isLoading } = useLimitOrdersQuery()
   const parentRef = useRef<HTMLDivElement>(null)
 
   const headBackground = useColorModeValue('gray.50', '#181c1e')
@@ -215,7 +215,7 @@ const OpenLimitOrders: FC<{
 const HistoricalLimitOrders: FC<{
   cardProps?: CardProps
 }> = ({ cardProps }) => {
-  const { data: ordersResponse, isLoading } = useLimitOrdersQuery()
+  const { currentData: ordersResponse, isLoading } = useLimitOrdersQuery()
   const parentRef = useRef<HTMLDivElement>(null)
   const headBackground = useColorModeValue('gray.50', '#181c1e')
 

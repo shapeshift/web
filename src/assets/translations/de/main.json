@@ -995,7 +995,7 @@
     "allowanceResetTxName": "Zurücksetzen des Genehmigungsbetrags tx:",
     "allowanceApprovalTxName": "Genehmigung der Zulage tx:",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
-    "tradeCompleteSurplus": "Sie haben zusätzliche %{extra} bekommen!",
+    "tradeCompleteSurplus": "Sie haben zusätzliche %{extraPercent} bekommen!",
     "doAnotherTrade": "Einen weiteren Handel tätigen",
     "summary": "Handelszusammenfassung",
     "estimatedCompletionTime": "Geschätzte Fertigstellungszeit",
@@ -1644,7 +1644,7 @@
       },
       "success": {
         "header": "Ledger Verbunden",
-        "success": "Sie können dieses Fenster jetzt schließen, andernfalls wird es in Kürze automatisch geschlossen",
+        "success": "Sie können dieses Fenster jetzt schließen.",
         "error": "Beim Verbinden Ihrer Wallet ist ein Fehler aufgetreten"
       },
       "errors": {
@@ -1829,7 +1829,7 @@
       "success": {
         "encryptingWallet": "Verschlüsselung Ihrer Wallet... Wenn Ihr Browser Sie auffordert, Daten zu speichern, klicken Sie bitte auf \"Zulassen\".",
         "header": "Wallet verbunden",
-        "success": "Sie können dieses Fenster jetzt schließen oder es wird in Kürze automatisch geschlossen",
+        "success": "Sie können dieses Fenster jetzt schließen.",
         "error": "Beim Verbinden Ihrer Wallet ist ein Fehler aufgetreten"
       },
       "testPhrase": {
@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "Wallet verbinden",
         "ethereum": "Ethereum",
+        "connectAll": "Alle Konten verbinden",
         "signMessage": {
           "signingFrom": "Signieren von",
           "requestFrom": "Anfrage von",
@@ -2561,7 +2562,8 @@
     "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
     "unsupportedNetworkExplainer": "Ihre Wallet ist nicht mit %{network} verbunden. Bitte verbinden Sie sie oder wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
     "unsupportedNetworksExplainer": "Ihre Wallet ist nicht mit %{network1} und %{network2} verbunden. Bitte verbinden Sie sie  oder wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
-    "instabilityWarning": "Benutzer erhalten derzeit Rückerstattungen, wenn sie Einzahlungen in THORChain-Pools vornehmen. Bitte gehen Sie mit Vorsicht vor.",
+    "instabilityWarning": "Einzahlungen für Thorchain LP sind auf Protokollebene deaktiviert. Wenn Sie versuchen eine Einzahlung vorzunehmen, werden die Vermögenswerte mit einer Rückerstattung zurückgebucht. Dies wird ab Version 3.5 wieder rückgängig gemacht.",
+    "depositsDisabled": "Einzahlungen deaktiviert",
     "shareOfPool": "Anteil am Pool",
     "assetDepositAmount": "%{asset} Einzahlungsbetrag",
     "totalLiquidity": "Gesamtliquidität",

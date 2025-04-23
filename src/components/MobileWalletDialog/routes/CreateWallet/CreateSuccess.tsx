@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
+import type { Location } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -28,7 +29,7 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
   const translate = useTranslate()
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
-  const location = useLocation<MobileLocationState>()
+  const location: Location<MobileLocationState> = useLocation()
   const queryClient = useQueryClient()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 import { useIsLendingActive } from '../hooks/useIsLendingActive'
@@ -34,7 +34,7 @@ const containerPaddingTop = { base: 0, md: 8 }
 
 export const LendingHeader = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const NavItems: TabItem[] = useMemo(() => {
     return [
       {
@@ -53,8 +53,8 @@ export const LendingHeader = () => {
   const { isLendingActive, isMimirLoading } = useIsLendingActive()
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
-  }, [history])
+    navigate('/explore')
+  }, [navigate])
 
   const { isLoading, collateralValueUserCurrency, debtValueUserCurrency } =
     useAllLendingPositionsData()

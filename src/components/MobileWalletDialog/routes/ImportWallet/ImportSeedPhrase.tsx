@@ -13,7 +13,7 @@ import * as bip39 from 'bip39'
 import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -41,11 +41,11 @@ export const ImportSeedPhrase = () => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
-    history.push(MobileWalletDialogRoutes.Import)
-  }, [history])
+    navigate(MobileWalletDialogRoutes.Import)
+  }, [navigate])
 
   const onSubmit = useCallback(
     async (values: FormValues) => {
@@ -55,14 +55,14 @@ export const ImportSeedPhrase = () => {
           label: values.name.trim(),
         })
 
-        history.push(MobileWalletDialogRoutes.ImportSuccess, { vault })
+        navigate(MobileWalletDialogRoutes.ImportSuccess, { state: { vault } })
         queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       } catch (e) {
         console.log(e)
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
       }
     },
-    [history, queryClient, setError],
+    [navigate, queryClient, setError],
   )
 
   const textareaFormProps = useMemo(() => {

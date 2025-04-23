@@ -24,7 +24,7 @@ export const Banner: React.FC<BannerProps> = props => {
   // replace cta link with route, banner background with something pretty, title, icon, and description. then edit translations with the key.
   return (
     <LinkOverlay href={ctaLink} maxWidth={maxWidth} width='full' display={display} mb={4}>
-      <Card overflow='hidden' position='relative'>
+      <Card overflow='hidden' width='full' position='relative'>
         <CardBody
           display='flex'
           alignItems='center'

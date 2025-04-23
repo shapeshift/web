@@ -1,4 +1,5 @@
-import { Route, Switch } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
@@ -20,30 +21,43 @@ export const MipdRoutes = ({
     state: { modalType },
   } = useWallet()
 
-  if (!modalType) return null
+  const coinbaseQrBodyElement = useMemo(
+    () => (
+      <CoinbaseQrBody
+        isLoading={isLoading}
+        error={error}
+        setIsLoading={setIsLoading}
+        setError={setError}
+      />
+    ),
+    [isLoading, error, setIsLoading, setError],
+  )
 
-  return (
-    <Switch>
-      <Route exact path='/coinbase/connect'>
-        <CoinbaseQrBody
-          isLoading={isLoading}
-          error={error}
-          setIsLoading={setIsLoading}
-          setError={setError}
+  const firstClassBodyElements = useMemo(
+    () =>
+      Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
+        <Route
+          key={keyManager}
+          path={`/${keyManager.toLowerCase()}/connect`}
+          // This is already within a useMemo call, lint rule drunk
+          // eslint-disable-next-line react-memo/require-usememo
+          element={
+            <FirstClassBody
+              keyManager={keyManager}
+              isLoading={isLoading}
+              error={error}
+              setIsLoading={setIsLoading}
+              setError={setError}
+            />
+          }
         />
-      </Route>
-      {Object.values(RDNS_TO_FIRST_CLASS_KEYMANAGER).map(keyManager => (
-        <Route key={keyManager} exact path={`/${keyManager.toLowerCase()}/connect`}>
-          <FirstClassBody
-            keyManager={keyManager}
-            isLoading={isLoading}
-            error={error}
-            setIsLoading={setIsLoading}
-            setError={setError}
-          />
-        </Route>
-      ))}
-      <Route exact path='/metamask/connect'>
+      )),
+    [isLoading, error, setIsLoading, setError],
+  )
+
+  const mipdBodyElement = useMemo(
+    () =>
+      modalType ? (
         <MipdBody
           rdns={modalType}
           isLoading={isLoading}
@@ -51,13 +65,22 @@ export const MipdRoutes = ({
           setIsLoading={setIsLoading}
           setError={setError}
         />
-      </Route>
-      <Route path='/metamask/snap/install'>
-        <SnapInstall />
-      </Route>
-      <Route path='/metamask/snap/update'>
-        <SnapUpdate />
-      </Route>
-    </Switch>
+      ) : null,
+    [isLoading, error, setIsLoading, setError, modalType],
+  )
+
+  const snapInstallElement = useMemo(() => <SnapInstall />, [])
+  const snapUpdateElement = useMemo(() => <SnapUpdate />, [])
+
+  if (!modalType) return null
+
+  return (
+    <Routes>
+      <Route path='/coinbase/connect' element={coinbaseQrBodyElement} />
+      {firstClassBodyElements}
+      <Route path='/metamask/connect' element={mipdBodyElement} />
+      <Route path='/metamask/snap/install' element={snapInstallElement} />
+      <Route path='/metamask/snap/update' element={snapUpdateElement} />
+    </Routes>
   )
 }

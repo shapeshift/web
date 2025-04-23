@@ -1,4 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -21,7 +21,6 @@ import { isSome } from '@/lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import type { ReduxState } from '@/state/reducer'
 import { foxEthLpAssetIds } from '@/state/slices/opportunitiesSlice/constants'
-import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
 import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 
 const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
@@ -143,7 +142,7 @@ export const portalsApi = createApi({
                 key: tokenData.key,
                 price: Number(tokenData.price || 0),
                 network: tokenData.network as SupportedPortalsNetwork,
-                appId: DefiProvider.UniV2,
+                appId: 'Uniswap V2',
                 tokens: (tokenData.tokens || []).map(tokenAddress => ({
                   type: 'base-token',
                   address: tokenAddress,

@@ -2270,6 +2270,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Connect All Accounts",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",
@@ -2872,5 +2873,8 @@
       "getUtxos": "Failed to get utxos.",
       "getValidator": "Failed to get validator."
     }
+  },
+  "notificationCenter": {
+    "title": "Notifications"
   }
 }

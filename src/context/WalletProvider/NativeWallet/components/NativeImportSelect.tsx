@@ -2,21 +2,22 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, HStack, ModalBody, ModalHeader, Stack, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { FaFile, FaKey } from 'react-icons/fa'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-export const NativeImportSelect = ({ history }: RouteComponentProps) => {
+export const NativeImportSelect = () => {
+  const navigate = useNavigate()
   const handleImportKeystoreClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportKeystore),
-    [history],
+    () => navigate(NativeWalletRoutes.ImportKeystore),
+    [navigate],
   )
   const handleImportSeedClick = useCallback(
-    () => history.push(NativeWalletRoutes.ImportSeed),
-    [history],
+    () => navigate(NativeWalletRoutes.ImportSeed),
+    [navigate],
   )
 
   return (

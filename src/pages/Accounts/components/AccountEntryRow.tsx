@@ -3,20 +3,20 @@ import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
-import {
-  selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-} from '@/state/slices/portfolioSlice/selectors'
+import { selectPortfolioUserCurrencyBalanceByFilter } from '@/state/slices/portfolioSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId, selectAssetById } from '@/state/slices/selectors'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type AccountEntryRowProps = {
@@ -35,15 +35,19 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   showNetworkIcon,
   ...buttonProps
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
-  const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesIncludingStaking)
-  const fiatBalances = useSelector(selectPortfolioAccountsUserCurrencyBalancesIncludingStaking)
-  const cryptoBalance = cryptoBalances?.[accountId]?.[assetId] ?? '0'
-  const fiatBalance = fiatBalances?.[accountId]?.[assetId] ?? '0'
+  const cryptoBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, cryptoBalanceFilter),
+  )
+  const userCurrencyBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
+  const userCurrencyBalance = useAppSelector(state =>
+    selectPortfolioUserCurrencyBalanceByFilter(state, userCurrencyBalanceFilter),
+  )
   const { icon, name, symbol } = asset ?? {}
 
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
@@ -73,8 +77,8 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   )
 
   const onClick = useCallback(
-    () => history.push(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
-    [history, filter],
+    () => navigate(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
+    [navigate, filter],
   )
 
   return (
@@ -102,7 +106,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
         <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
-          <Amount.Fiat value={fiatBalance} />
+          <Amount.Fiat value={userCurrencyBalance} />
           <Amount.Crypto
             value={cryptoBalance}
             symbol={symbol ?? ''}

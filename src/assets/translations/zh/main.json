@@ -2842,12 +2842,7 @@
       "claim": "领取",
       "claimed": "已领取",
       "discountText": "*%{percent}% 交易费折扣",
-      "noClaims": "暂无可领取的奖励",
-      "banner": {
-        "title": "给它戴上帽子。",
-        "description": "您持有的 FOX 或 FWH 越多，您在每笔兑换中获得的代币就越多。",
-        "cta": "了解更多"
-      }
+      "noClaims": "暂无可领取的奖励"
     },
     "governance": {
       "title": "治理",

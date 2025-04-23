@@ -5,7 +5,6 @@ import type { FormEvent, JSX } from 'react'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedWidth } from '../TradeInput/hooks/useSharedWidth'
 
-import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { breakpoints } from '@/theme/theme'
 
@@ -58,7 +57,6 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
     >
       <Center width='inherit'>
         <Box width={isSmallerThanXl || isStandalone ? '100%' : 'initial'} maxWidth='100%'>
-          <FoxWifHatBanner maxWidth={inputWidth ?? 500} />
           <Box width='full' maxWidth='1000px' display='flex'>
             <Card
               flex={1}

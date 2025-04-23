@@ -78,6 +78,7 @@ interface ImportMetaEnv {
   readonly VITE_ALCHEMY_POLYGON_URL: string
   readonly VITE_TOKEMAK_STATS_URL: string
   readonly VITE_COINGECKO_API_KEY: string
+  readonly VITE_COINCAP_API_KEY: string
   readonly VITE_EXCHANGERATEHOST_BASE_URL: string
   readonly VITE_EXCHANGERATEHOST_API_KEY: string
   readonly VITE_ALCHEMY_API_KEY: string

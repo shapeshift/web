@@ -237,7 +237,7 @@ export const routes: Route[] = [
     icon: <TCYIcon />,
     main: TCY,
     category: RouteCategory.Thorchain,
-    disable: !getConfig().VITE_FEATURE_TCY,
+    disable: !getConfig().VITE_FEATURE_THORCHAIN_TCY,
   },
   {
     path: '/pools/*',

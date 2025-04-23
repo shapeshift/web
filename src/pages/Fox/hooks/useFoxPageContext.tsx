@@ -24,7 +24,10 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children })
   const accountIds = useAppSelector(
     state => selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
     // We lost a lot of time trying to find why accountIds wasn't triggering the useEffect
-    () => false,
+    {
+      equalityFn: () => false,
+      devModeChecks: { stabilityCheck: 'never' },
+    },
   )
 
   const filter = useMemo(

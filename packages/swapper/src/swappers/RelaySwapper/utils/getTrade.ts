@@ -1,10 +1,12 @@
 import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
+  DAO_TREASURY_BASE,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -160,6 +162,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return input.sendAddress
   })()
 
+  // For bitcoin, we need a btc address, for other chains we need the BASE treasury address
+  // as all fees should be claimed on BASE (see https://docs.relay.link/how-it-works/fees)
+  const affiliateTreasuryAddress = (() => {
+    switch (sellAsset.chainId) {
+      case KnownChainIds.BitcoinMainnet:
+        return getTreasuryAddressFromChainId(sellAsset.chainId)
+      default:
+        return DAO_TREASURY_BASE
+    }
+  })()
+
   const maybeQuote = await fetchRelayTrade(
     {
       originChainId: sellRelayChainId,
@@ -175,7 +188,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       refundOnOrigin: true,
       appFees: [
         {
-          recipient: getTreasuryAddressFromChainId(sellAsset.chainId),
+          recipient: affiliateTreasuryAddress,
           fee: affiliateBps,
         },
       ],

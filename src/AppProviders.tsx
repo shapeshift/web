@@ -14,7 +14,6 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
 import { ScrollToTop } from './Routes/ScrollToTop'
-import { defaultSuspenseFallback } from './utils/makeSuspenseful'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { AppProvider } from '@/context/AppProvider/AppContext'

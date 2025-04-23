@@ -149,6 +149,7 @@ export const mockStore: ReduxState = {
       ThorchainPoolsInstabilityWarning: false,
       RelaySwapper: false,
       NotificationCenter: false,
+      ThorchainTcy: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

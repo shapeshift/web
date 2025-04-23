@@ -37,7 +37,6 @@ export const StandaloneMultiHopTrade = memo(
     defaultBuyAssetId,
     defaultSellAssetId,
     isCompact,
-    isRewritingUrl,
     onChangeTab,
     isStandalone,
   }: StandaloneTradeCardProps) => {
@@ -70,30 +69,17 @@ export const StandaloneMultiHopTrade = memo(
 
       dispatch(tradeInput.actions.clear())
 
-      if (isRewritingUrl) {
-        navigate(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/0`)
-      }
-
       setIsInitialMount(false)
-    }, [
-      dispatch,
-      isStandalone,
-      isInitialMount,
-      isRewritingUrl,
-      navigate,
-      buyAsset.assetId,
-      sellAsset.assetId,
-    ])
+    }, [dispatch, isStandalone, isInitialMount, navigate, buyAsset.assetId, sellAsset.assetId])
 
     useEffect(() => {
-      if (!isRewritingUrl || isStandalone || isInitialMount) return
+      if (isStandalone || isInitialMount) return
 
       const sellAmountBaseUnit =
         sellInputAmountCryptoBaseUnit ?? paramsSellAmountCryptoBaseUnit ?? ''
       navigate(`/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellAmountBaseUnit ?? ''}`)
     }, [
       isInitialMount,
-      isRewritingUrl,
       isStandalone,
       buyAsset,
       sellAsset,

@@ -46,6 +46,7 @@ import {
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
+  selectInputSellAmountCryptoBaseUnit,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
@@ -134,6 +135,7 @@ export const TradeInput = ({
   const selectedSellAssetChainId = useAppSelector(selectSelectedSellAssetChainId)
   const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
   const activeQuote = useAppSelector(selectActiveQuote)
+  const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -228,6 +230,26 @@ export const TradeInput = ({
   const headerRightContent = useMemo(() => {
     return <TradeSettingsMenu isLoading={isLoading} isCompact={isCompact} />
   }, [isCompact, isLoading])
+
+  // Master effect syncing URL with state - note this is only done at trade input time
+  // That's the only place we want things to be in sync, other routes should be a redirect
+  useEffect(() => {
+    if (isStandalone) return
+
+    if (!(sellAsset.assetId && buyAsset.assetId)) return
+
+    navigate(
+      `/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellInputAmountCryptoBaseUnit ?? '0'}`,
+      { replace: true }, // replace so we don't spew the history stack and make the back button actually work
+    )
+  }, [
+    sellAsset.assetId,
+    buyAsset.assetId,
+    sellInputAmountCryptoBaseUnit,
+    navigate,
+    isStandalone,
+    hasUserEnteredAmount,
+  ])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),

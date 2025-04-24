@@ -1,5 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  cosmosAssetId,
+  fromAssetId,
+  mayachainAssetId,
+  thorchainAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 
 import type { Message } from '../types'
 import type { TxMetadata } from './types'
@@ -7,6 +13,7 @@ import type { TxMetadata } from './types'
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
   ['rune', thorchainAssetId],
+  ['cacao', mayachainAssetId],
 ])
 
 export const getAssetIdByDenom = (denom: string, assetId: string): AssetId | undefined => {

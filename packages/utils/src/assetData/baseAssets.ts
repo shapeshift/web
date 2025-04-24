@@ -127,7 +127,7 @@ export const mayachain: Readonly<Asset> = Object.freeze({
   name: 'MAYAchain',
   networkName: 'MAYAChain',
   symbol: 'CACAO',
-  precision: 8,
+  precision: 10,
   color: '#63FDD9',
   icon: 'https://gitlab.com/mayachain/frontend/mayachain-explorer-v2/-/raw/main/assets/images/cacao.png',
   explorer: 'https://www.explorer.mayachain.info/',

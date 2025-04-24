@@ -26,7 +26,8 @@ import { CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
 import type { MayachainMsgDeposit, MayachainMsgSend } from '../types'
 import { MayachainMessageType } from '../types'
 
-const OUTBOUND_FEE = '2000000'
+// static automatic outbound fee as defined by: https://daemon.mayachain.shapeshift.com/lcd/thorchain/constants
+const OUTBOUND_FEE = '2000000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.MayachainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.MayachainMainnet

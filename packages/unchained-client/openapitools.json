@@ -227,7 +227,7 @@
         }
       },
       "mayachain": {
-        "inputSpec": "http://api.mayachain.localhost/swagger",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/mayachain/go/coinstacks/mayachain/api/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/mayachain",
         "enablePostProcessFile": true,

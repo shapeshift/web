@@ -16,6 +16,8 @@ import { Text } from '@/components/Text'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
+const buttonProps = { variant: 'solid', width: 'full' }
+
 export const RFOXHeader = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -63,9 +65,7 @@ export const RFOXHeader = () => {
             defaultAccountId={selectedAssetAccountId}
             assetId={stakingAssetId}
             onChange={handleChange}
-            // dis already memoized
-            // eslint-disable-next-line react-memo/require-usememo
-            buttonProps={{ variant: 'solid', width: 'full' }}
+            buttonProps={buttonProps}
           />
         </InlineCopyButton>
       </Flex>

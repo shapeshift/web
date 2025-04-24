@@ -1,4 +1,5 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, UtxoChainId } from '@shapeshiftoss/types'
+import type { UtxoChainAdapter } from 'packages/chain-adapters/src/utxo/UtxoBaseAdapter'
 
 export type RelayTradeBaseParams = {
   buyAsset: Asset
@@ -14,6 +15,7 @@ export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBasePa
   sendAddress: T extends 'rate' ? undefined : string
   accountNumber: T extends 'rate' ? undefined : number
   slippageTolerancePercentageDecimal?: string
+  xpub: string | undefined
 }
 
 export type RelayTransactionMetadata = {
@@ -123,14 +125,16 @@ export type RelayQuoteItem = {
   data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
 }
 
+export type RelayQuoteStep = {
+  id: string
+  requestId: string
+  items?: RelayQuoteItem[]
+}
+
 export type RelayQuote = {
   fees: RelayFees
   details: QuoteDetails
-  steps: {
-    id: string
-    requestId: string
-    items?: RelayQuoteItem[]
-  }[]
+  steps: RelayQuoteStep[]
 }
 
 export const isRelayQuoteUtxoItemData = (
@@ -159,4 +163,13 @@ export type RelaySolanaInstruction = {
   }[]
   data: string
   programId: string
+}
+
+export type GetRelayUnsignedUtxoTransactionArgs = {
+  xpub: string
+  to: string
+  opReturnData: string
+  sellAssetChainId: UtxoChainId
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  assertGetUtxoChainAdapter: (chainId: UtxoChainId) => UtxoChainAdapter
 }

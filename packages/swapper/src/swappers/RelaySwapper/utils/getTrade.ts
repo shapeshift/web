@@ -1,5 +1,6 @@
 import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -37,6 +38,7 @@ import {
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
+import { getRelayUtxoTransactionFees } from './getRelayUtxoTransactionFees'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -68,6 +70,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     affiliateBps,
     potentialAffiliateBps,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
+    xpub,
   } = input
 
   const slippageToleranceBps = _slippageTolerancePercentageDecimal
@@ -347,6 +350,45 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return '0'
   })()
 
+  const networkFeeCryptoBaseUnit = await (async () => {
+    if (sellAsset.chainId === btcChainId) {
+      const firstStep = swapSteps[0]
+
+      if (!firstStep) throw new Error('Relay quote step contains no items')
+
+      const selectedItem = firstStep.items?.[0]
+
+      if (!selectedItem) throw new Error('Relay quote step contains no items')
+
+      if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+
+      if (!isRelayQuoteUtxoItemData(selectedItem.data))
+        throw new Error('Relay BTC quote step contains no psbt')
+
+      if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+
+      const relayer = getRelayPsbtRelayer(
+        selectedItem.data.psbt,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      )
+
+      if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
+
+      const fees = await getRelayUtxoTransactionFees({
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        xpub: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
+        to: relayer,
+        opReturnData: firstStep.requestId,
+        sellAssetChainId: sellAsset.chainId as UtxoChainId,
+        assertGetUtxoChainAdapter: deps.assertGetUtxoChainAdapter,
+      })
+
+      return fees
+    }
+
+    return quote.fees.gas.amount
+  })()
+
   const steps = swapSteps.map((quoteStep): TradeQuoteStep | TradeRateStep => {
     const selectedItem = quoteStep.items?.[0]
 
@@ -419,7 +461,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       sellAsset,
       accountNumber,
       feeData: {
-        networkFeeCryptoBaseUnit: quote.fees.gas.amount,
+        networkFeeCryptoBaseUnit,
         protocolFees: {
           [protocolAssetId]: {
             amountCryptoBaseUnit: quote.fees.relayer.amount,

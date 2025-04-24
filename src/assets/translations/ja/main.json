@@ -2842,12 +2842,7 @@
       "claim": "請求",
       "claimed": "クレーム済",
       "discountText": "*取引手数料が%{percent}%オフ",
-      "noClaims": "請求できません",
-      "banner": {
-        "title": "特典を付与する。",
-        "description": "保有する FOX または FWH が多いほど、スワップごとに取得するトークンが多くなります。",
-        "cta": "もっと詳しく知る"
-      }
+      "noClaims": "請求できません"
     },
     "governance": {
       "title": "ガバナンス",

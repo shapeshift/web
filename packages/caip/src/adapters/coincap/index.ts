@@ -3,7 +3,9 @@ import toLower from 'lodash/toLower'
 
 import * as adapters from './generated'
 
-export const coincapUrl = 'https://api.coincap.io/v2/assets?limit=2000'
+export const baseUrl = 'https://rest.coincap.io/v3'
+const apiKey = process.env.COINCAP_API_KEY || ''
+export const coincapAssetUrl = `${baseUrl}/assets?limit=2000&apiKey=${apiKey}`
 
 const generatedAssetIdToCoinCapMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,

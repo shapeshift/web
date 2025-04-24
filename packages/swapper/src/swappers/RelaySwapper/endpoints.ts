@@ -31,7 +31,6 @@ import {
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
-import { getRelayUtxoTransactionFees } from './utils/getRelayUtxoTransactionFees'
 import { relayService } from './utils/relayService'
 import type { RelayStatus } from './utils/types'
 
@@ -209,17 +208,21 @@ export const relayApi: SwapperApi = {
     if (!to) throw new Error('Missing transaction destination')
     if (!opReturnData) throw new Error('Missing opReturnData')
 
-    const fees = await getRelayUtxoTransactionFees({
-      xpub,
-      assertGetUtxoChainAdapter,
-      sellAssetChainId: sellAssetChainId as UtxoChainId,
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
       to,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit:
-        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      opReturnData,
-    })
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub,
+        opReturnData,
+      },
+      sendMax: false,
+    }
 
-    return fees
+    const adapter = assertGetUtxoChainAdapter(sellAssetChainId)
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
   },
   getSolanaTransactionFees,
   getUnsignedSolanaTransaction,

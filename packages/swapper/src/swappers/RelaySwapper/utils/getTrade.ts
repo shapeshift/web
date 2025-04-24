@@ -1,4 +1,5 @@
 import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
@@ -38,7 +39,6 @@ import {
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
-import { getRelayUtxoTransactionFees } from './getRelayUtxoTransactionFees'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -374,16 +374,21 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
       if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
 
-      const fees = await getRelayUtxoTransactionFees({
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        xpub: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
+      const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to: relayer,
-        opReturnData: firstStep.requestId,
-        sellAssetChainId: sellAsset.chainId as UtxoChainId,
-        assertGetUtxoChainAdapter: deps.assertGetUtxoChainAdapter,
-      })
+        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        chainSpecific: {
+          pubkey: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
+          opReturnData: firstStep.requestId,
+        },
+        sendMax: false,
+      }
 
-      return fees
+      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+
+      const feeData = await adapter.getFeeData(getFeeDataInput)
+
+      return feeData.fast.txFee
     }
 
     return quote.fees.gas.amount

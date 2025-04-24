@@ -27,6 +27,7 @@ export type RelayTransactionMetadata = {
 
 export type RelayStatus = {
   status: 'success' | 'failed' | 'pending' | 'refund' | 'delayed' | 'waiting'
+  details: string
   inTxHashes: string[]
   txHashes: string[]
   time: number

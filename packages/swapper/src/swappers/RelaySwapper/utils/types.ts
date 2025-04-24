@@ -1,5 +1,4 @@
-import type { Asset, UtxoChainId } from '@shapeshiftoss/types'
-import type { UtxoChainAdapter } from 'packages/chain-adapters/src/utxo/UtxoBaseAdapter'
+import type { Asset } from '@shapeshiftoss/types'
 
 export type RelayTradeBaseParams = {
   buyAsset: Asset

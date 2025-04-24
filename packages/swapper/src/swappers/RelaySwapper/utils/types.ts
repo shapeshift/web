@@ -164,12 +164,3 @@ export type RelaySolanaInstruction = {
   data: string
   programId: string
 }
-
-export type GetRelayUnsignedUtxoTransactionArgs = {
-  xpub: string
-  to: string
-  opReturnData: string
-  sellAssetChainId: UtxoChainId
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  assertGetUtxoChainAdapter: (chainId: UtxoChainId) => UtxoChainAdapter
-}

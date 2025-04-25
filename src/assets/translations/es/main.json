@@ -2842,12 +2842,7 @@
       "claim": "Reclamar",
       "claimed": "Reclamado",
       "discountText": "*%{percent}% descuento en tarifas de intercambio",
-      "noClaims": "No hay reclamaciones disponibles",
-      "banner": {
-        "title": "Ponle un sombrero.",
-        "description": "Cuanto más FOX o FWH tengas, más tokens obtendrás por intercambio.",
-        "cta": "Más información"
-      }
+      "noClaims": "No hay reclamaciones disponibles"
     },
     "governance": {
       "title": "Gobernancia",

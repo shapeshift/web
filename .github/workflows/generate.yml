@@ -30,6 +30,7 @@ jobs:
       - name: Generate all assets
         env:
           ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
+          COINCAP_API_KEY: ${{ secrets.COINCAP_API_KEY }}
         run: yarn run generate:all
 
       - name: Create new feature branch

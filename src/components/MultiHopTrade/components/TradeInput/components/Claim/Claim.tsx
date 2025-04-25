@@ -10,7 +10,6 @@ import { ClaimStatus } from './ClaimStatus'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
-import { FoxWifHatBanner } from '@/components/FoxWifHatBanner'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
@@ -53,7 +52,6 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
 
   return (
     <Stack spacing={0} width='full' maxWidth='500px'>
-      <FoxWifHatBanner />
       <Card flex={1}>
         <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
         <Routes>

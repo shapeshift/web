@@ -17,13 +17,22 @@ import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinCapMarketCap } from './coincap-types'
 
+import { getConfig } from '@/config'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
 
-const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
+const apiKey = getConfig().VITE_COINCAP_API_KEY
+const axios = setupCache(
+  Axios.create({
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  }),
+  { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false },
+)
 
 export class CoinCapMarketService implements MarketService {
-  baseUrl = 'https://api.coincap.io/v2'
+  baseUrl = 'https://rest.coincap.io/v3'
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 2500,

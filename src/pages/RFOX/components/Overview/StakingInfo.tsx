@@ -11,7 +11,7 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
@@ -106,7 +106,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   const handleGetAssetClick = useCallback(
     (assetId: AssetId) => () => {
-      navigate(`/trade/${assetId}`)
+      navigate(`/trade/${assetId}/${arbitrumAssetId}/0`)
     },
     [navigate],
   )

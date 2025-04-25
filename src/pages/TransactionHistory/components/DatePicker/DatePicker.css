@@ -126,8 +126,8 @@
   color: var(--text)
 }
 
-.react-datepicker__day:hover {
-  background: var(--gray200);
+.react-datepicker__day:not([aria-disabled=true]):hover {
+  background: var(--gray300);
 }
 
 .react-datepicker__day-name {
@@ -152,6 +152,10 @@
 
 .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected:hover {
   background: var(--blue500);
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: var(--gray400)
 }
 
 .react-datepicker__close-icon::after {

@@ -99,7 +99,7 @@ export const useTradeExecution = (
   // This is ugly, but we need to use refs to get around the fact that the
   // poll fn effectively creates a closure and will hold stale variables forever
   // Unless we use refs or another way to get around the closure (e.g hijacking `this`, we are doomed)
-  const cancelPollingRef = useRef<() => void | undefined>()
+  const cancelPollingRef = useRef<() => void | undefined>(undefined)
 
   // cancel on component unmount so polling doesn't cause chaos after the component has unmounted
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

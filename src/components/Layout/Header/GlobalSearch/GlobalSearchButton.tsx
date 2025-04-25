@@ -20,7 +20,7 @@ export const GlobalSeachButton = memo(() => {
   const translate = useTranslate()
   const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
-  useEventListener('keydown', event => {
+  useEventListener(document, 'keydown', event => {
     const hotkey = isMac ? 'metaKey' : 'ctrlKey'
     if (event?.key?.toLowerCase() === 'k' && event[hotkey]) {
       event.preventDefault()

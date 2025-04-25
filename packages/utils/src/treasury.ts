@@ -37,6 +37,4 @@ export const DAO_TREASURY_BASE = '0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502'
 export const DAO_TREASURY_COSMOS = 'cosmos1qgmqsmytnwm6mhyxwjeur966lv9jacfexgfzxs'
 export const DAO_TREASURY_THORCHAIN = 'thor1xmaggkcln5m5fnha2780xrdrulmplvfrz6wj3l'
 export const DAO_TREASURY_SOLANA = 'C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N'
-
-// @TODO: change this to the new multisig (not received yet)
 export const DAO_TREASURY_BITCOIN = 'bc1qr2whxtd0gvqnctcxlynwejp6fvntv0mtxkv0dlv02vyale8h69ysm6l32n'

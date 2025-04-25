@@ -187,10 +187,10 @@ export enum RelayErrorCode {
 }
 
 export type RelayError = {
-  code: RelayErrorCode
+  errorCode: RelayErrorCode
   message: string
 }
 
 export const isRelayError = (error: unknown): error is RelayError => {
-  return typeof error === 'object' && error !== null && 'code' in error && 'message' in error
+  return typeof error === 'object' && error !== null && 'errorCode' in error && 'message' in error
 }

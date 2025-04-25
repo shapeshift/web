@@ -185,7 +185,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (maybeQuote.isErr()) {
     const error = maybeQuote.unwrapErr()
 
-    if (!axios.isAxiosError(error)) {
+    if (!axios.isAxiosError(error.cause)) {
       return Err(
         makeSwapErrorRight({
           message: 'Unknown error',
@@ -194,7 +194,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       )
     }
 
-    const relayError = error.response?.data
+    const relayError = error.cause?.response?.data
 
     if (!isRelayError(relayError)) {
       return Err(
@@ -205,7 +205,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       )
     }
 
-    const tradeQuoteErrorCode = relayErrorCodeToTradeQuoteError[relayError.code]
+    const tradeQuoteErrorCode = relayErrorCodeToTradeQuoteError[relayError.errorCode]
 
     if (tradeQuoteErrorCode) {
       return Err(

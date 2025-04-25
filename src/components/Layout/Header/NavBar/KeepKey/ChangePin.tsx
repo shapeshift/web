@@ -1,4 +1,5 @@
 import { Box, Button, Flex, useColorModeValue, useToast } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

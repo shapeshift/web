@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { foxWifHatAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import React, { useMemo } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'

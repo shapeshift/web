@@ -13,6 +13,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
+import type { JSX } from 'react'
 import { isValidElement, useCallback, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 

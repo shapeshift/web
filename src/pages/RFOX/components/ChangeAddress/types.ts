@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { JSX } from 'react'
 
 import type { AddressSelectionValues } from '@/pages/RFOX/types'
 

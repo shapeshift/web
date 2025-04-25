@@ -1,6 +1,7 @@
 import { CardBody, Skeleton } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 
 import { ClaimRow } from '../Claim/ClaimRow'

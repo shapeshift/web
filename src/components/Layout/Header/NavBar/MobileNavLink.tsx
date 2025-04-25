@@ -4,16 +4,14 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-type MobileNavLinkProps = {
-  label: string
-  shortLabel?: string
-  path: string
-  icon?: JSX.Element
-  order?: number
-} & ButtonProps
+import type { Route } from '@/Routes/helpers'
 
+type MobileNavLinkProps = ButtonProps &
+  Route & {
+    order?: number
+  }
 export const MobileNavLink = memo((props: MobileNavLinkProps) => {
-  const { label, shortLabel, path, icon, order, ...rest } = props
+  const { label, shortLabel, path, icon, order, disable: _disable, ...rest } = props
   const translate = useTranslate()
   const location = useLocation()
   const navigate = useNavigate()

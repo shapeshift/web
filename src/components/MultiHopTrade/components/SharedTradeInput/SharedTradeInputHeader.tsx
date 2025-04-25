@@ -1,4 +1,5 @@
 import { CardHeader, Flex, Heading } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

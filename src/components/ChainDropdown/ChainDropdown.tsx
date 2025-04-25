@@ -8,6 +8,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Portal,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/utils'
@@ -83,22 +84,24 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
       <MenuButton width={width} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
-      <MenuList zIndex='banner'>
-        <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>
-          {showAll && (
-            <MenuItemOption value=''>
-              <Flex alignItems='center' gap={4}>
-                <IconCircle boxSize='24px'>
-                  <GridIcon />
-                </IconCircle>
-                {translate('common.allChains')}
-                <Amount.Fiat ml='auto' value={totalSupportedMarketsBalance} />
-              </Flex>
-            </MenuItemOption>
-          )}
-          {renderChains}
-        </MenuOptionGroup>
-      </MenuList>
+      <Portal>
+        <MenuList zIndex='banner'>
+          <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>
+            {showAll && (
+              <MenuItemOption value=''>
+                <Flex alignItems='center' gap={4}>
+                  <IconCircle boxSize='24px'>
+                    <GridIcon />
+                  </IconCircle>
+                  {translate('common.allChains')}
+                  <Amount.Fiat ml='auto' value={totalSupportedMarketsBalance} />
+                </Flex>
+              </MenuItemOption>
+            )}
+            {renderChains}
+          </MenuOptionGroup>
+        </MenuList>
+      </Portal>
     </Menu>
   )
 }

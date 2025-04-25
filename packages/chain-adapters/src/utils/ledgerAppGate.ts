@@ -74,7 +74,7 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:
-      return 'Cacao'
+      return 'Mayachain'
     case KnownChainIds.CosmosMainnet:
       return 'Atom'
     case KnownChainIds.SolanaMainnet:

@@ -57,10 +57,10 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
       switch (chainReference) {
         case CHAIN_REFERENCE.CosmosHubMainnet:
           return 'cosmos'
-        case CHAIN_REFERENCE.MayachainMainnet:
-          return 'mayachain'
         case CHAIN_REFERENCE.ThorchainMainnet:
           return 'thorchain'
+        case CHAIN_REFERENCE.MayachainMainnet:
+          return 'mayachain'
         default:
           throw new Error(
             `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`,

@@ -26,8 +26,8 @@ import { CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
 import type { MayachainMsgDeposit, MayachainMsgSend } from '../types'
 import { MayachainMessageType } from '../types'
 
-// static automatic outbound fee as defined by: https://daemon.mayachain.shapeshift.com/lcd/thorchain/constants
-const OUTBOUND_FEE = '2000000000'
+// static automatic native fee as defined by: https://daemon.mayachain.shapeshift.com/lcd/mayachain/constants
+const NATIVE_FEE = '2000000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.MayachainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.MayachainMainnet
@@ -135,13 +135,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
     input: BuildSendApiTxInput<KnownChainIds.MayachainMainnet>,
   ): Promise<{ txToSign: MayachainSignTx }> {
     try {
-      const { sendMax, to, value, from, chainSpecific } = input
-      const { fee } = chainSpecific
-
-      if (!fee) throw new Error('fee is required')
+      const { sendMax, to, value, from } = input
 
       const account = await this.getAccount(from)
-      const amount = this.getAmount({ account, value, fee, sendMax })
+      const amount = this.getAmount({ account, value, fee: NATIVE_FEE, sendMax })
 
       const msg: MayachainMsgSend = {
         type: MayachainMessageType.MsgSend,
@@ -187,10 +184,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
     input: BuildDepositTxInput<KnownChainIds.MayachainMainnet>,
   ): Promise<{ txToSign: MayachainSignTx }> {
     try {
-      const { from, value, memo, chainSpecific } = input
-      const { fee } = chainSpecific
-
-      if (!fee) throw new Error('fee is required')
+      const { from, value, memo } = input
 
       const account = await this.getAccount(from)
 
@@ -222,9 +216,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
     _: Partial<GetFeeDataInput<KnownChainIds.MayachainMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.MayachainMainnet>> {
     return {
-      fast: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '200000' } },
-      average: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '200000' } },
-      slow: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '200000' } },
+      fast: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '200000' } },
+      average: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '200000' } },
+      slow: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '200000' } },
     }
   }
 

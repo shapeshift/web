@@ -10,6 +10,7 @@ import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
 import litecoin from '@/plugins/litecoin'
+import mayachain from '@/plugins/mayachain'
 import mobile from '@/plugins/mobile'
 import optimism from '@/plugins/optimism'
 import polygon from '@/plugins/polygon'
@@ -18,22 +19,23 @@ import thorchain from '@/plugins/thorchain'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
 
 export const activePlugins = [
-  bitcoin,
-  bitcoincash,
-  cosmos,
-  dogecoin,
-  litecoin,
-  ethereum,
-  polygon,
-  gnosis,
-  avalanche,
-  walletConnectToDapps,
-  thorchain,
-  mobile,
-  optimism,
-  bnbsmartchain,
   arbitrum,
   arbitrumNova,
+  avalanche,
   base,
+  bitcoin,
+  bitcoincash,
+  bnbsmartchain,
+  cosmos,
+  dogecoin,
+  ethereum,
+  gnosis,
+  litecoin,
+  mayachain,
+  mobile,
+  optimism,
+  polygon,
   solana,
+  thorchain,
+  walletConnectToDapps,
 ]

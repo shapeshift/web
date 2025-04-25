@@ -36,7 +36,7 @@ export default function register(): Plugins {
                 return new thorchain.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Thorchain',
-                  midgardUrl: getConfig().VITE_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                   httpV1,
                 })
               },

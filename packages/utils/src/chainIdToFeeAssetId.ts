@@ -12,6 +12,7 @@ import {
   ethAssetId,
   gnosisAssetId,
   ltcAssetId,
+  mayachainAssetId,
   optimismAssetId,
   polygonAssetId,
   solAssetId,
@@ -54,6 +55,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return polygonAssetId
     case KnownChainIds.ThorchainMainnet:
       return thorchainAssetId
+    case KnownChainIds.MayachainMainnet:
+      return mayachainAssetId
     case KnownChainIds.SolanaMainnet:
       return solAssetId
     default:

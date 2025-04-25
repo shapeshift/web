@@ -10,6 +10,7 @@ import {
   ethAssetId,
   gnosisAssetId,
   ltcAssetId,
+  mayachainAssetId,
   polygonAssetId,
   solAssetId,
   thorchainAssetId,
@@ -22,6 +23,7 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   litecoin: ltcAssetId,
   [adapters.CoingeckoAssetPlatform.Ethereum]: ethAssetId,
   [adapters.CoingeckoAssetPlatform.Thorchain]: thorchainAssetId,
+  [adapters.CoingeckoAssetPlatform.Mayachain]: mayachainAssetId,
   [adapters.CoingeckoAssetPlatform.Gnosis]: gnosisAssetId,
   [adapters.CoingeckoAssetPlatform.Cosmos]: cosmosAssetId,
   // This isn't a mistake - the network and id are different in the case of MATIC/POS

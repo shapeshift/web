@@ -6,6 +6,7 @@ import {
   baseChainId,
   bscChainId,
   gnosisChainId,
+  mayachainChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -42,6 +43,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_ARBITRUM_NOVA && asset.chainId === arbitrumNovaChainId) return false
       if (!config.VITE_FEATURE_BASE && asset.chainId === baseChainId) return false
       if (!config.VITE_FEATURE_SOLANA && asset.chainId === solanaChainId) return false
+      if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       return true
     })
 

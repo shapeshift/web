@@ -5,3 +5,4 @@ export * as cosmossdk from './types'
 
 export * as cosmos from './cosmos'
 export * as thorchain from './thorchain'
+export * as mayachain from './mayachain'

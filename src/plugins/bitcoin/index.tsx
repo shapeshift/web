@@ -30,7 +30,7 @@ export default function register(): Plugins {
                 return new bitcoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Bitcoin',
-                  midgardUrl: getConfig().VITE_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                 })
               },
             ],

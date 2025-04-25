@@ -30,6 +30,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'COSM'
     case KnownChainIds.ThorchainMainnet:
       return 'THOR'
+    case KnownChainIds.MayachainMainnet:
+      return 'MAYA'
     case KnownChainIds.DogecoinMainnet:
       return 'DOGE'
     case KnownChainIds.LitecoinMainnet:

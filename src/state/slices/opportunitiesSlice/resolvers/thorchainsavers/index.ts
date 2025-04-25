@@ -185,7 +185,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   if (getConfig().VITE_FEATURE_RUNEPOOL && asset) {
     const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
-      `${getConfig().VITE_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
+      `${
+        getConfig().VITE_THORCHAIN_MIDGARD_URL
+      }/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
     )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(
@@ -364,14 +366,14 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         try {
           if (stakingOpportunityId === thorchainAssetId) {
             const { data } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
-              `${getConfig().VITE_MIDGARD_URL}/runepool/${asset_address}`,
+              `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/runepool/${asset_address}`,
             )
 
             return bnOrZero(data[0].dateLastAdded).plus(runePoolDepositMaturityTime).toNumber()
           }
 
           const { data } = await axios.get<MidgardSaverResponse>(
-            `${getConfig().VITE_MIDGARD_URL}/saver/${asset_address}`,
+            `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/saver/${asset_address}`,
           )
 
           const dateLastAdded = data.pools.find(({ pool }) => pool === accountPosition.asset)

@@ -22,6 +22,7 @@ export type FeatureFlags = {
   ArbitrumNova: boolean
   Solana: boolean
   Base: boolean
+  Mayachain: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   WalletConnectToDapps: boolean
@@ -123,6 +124,7 @@ const initialState: Preferences = {
     ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
     Base: getConfig().VITE_FEATURE_BASE,
+    Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

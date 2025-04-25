@@ -21,6 +21,7 @@ import {
   encodeAssetData,
   encodeRelatedAssetIndex,
   litecoin,
+  mayachain,
   thorchain,
   unfreeze,
 } from '@shapeshiftoss/utils'
@@ -65,6 +66,7 @@ const generateAssetData = async () => {
     unfreeze(litecoin),
     unfreeze(atom),
     unfreeze(thorchain),
+    unfreeze(mayachain),
     ...ethAssets,
     ...cosmosAssets,
     ...avalancheAssets,

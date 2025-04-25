@@ -4,9 +4,9 @@ import type {
   CosmosSignTx,
   ETHSignTx,
   HDWallet,
+  MayachainSignTx,
   SolanaSignTx,
   ThorchainSignTx,
-  MayachainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
   ChainSpecific,

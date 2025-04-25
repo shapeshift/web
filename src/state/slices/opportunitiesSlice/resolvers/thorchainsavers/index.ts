@@ -185,7 +185,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   if (getConfig().VITE_FEATURE_RUNEPOOL && asset) {
     const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
-      `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
+      `${
+        getConfig().VITE_THORCHAIN_MIDGARD_URL
+      }/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
     )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(

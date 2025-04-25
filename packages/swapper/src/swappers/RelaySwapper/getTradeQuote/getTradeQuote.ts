@@ -1,7 +1,13 @@
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type {
+  CommonTradeQuoteInput,
+  GetUtxoTradeQuoteInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+} from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getTrade } from '../utils/getTrade'
@@ -38,6 +44,7 @@ export const getTradeQuote = async (
     accountNumber: input.accountNumber,
     affiliateBps: input.affiliateBps,
     potentialAffiliateBps: input.potentialAffiliateBps,
+    xpub: 'xpub' in input ? (input as GetUtxoTradeQuoteInput).xpub : undefined,
   }
 
   const quotesResult = await getTrade({ input: args, deps, relayChainMap })

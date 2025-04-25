@@ -10,8 +10,7 @@ export const getLatestRelayStatusMessage = (status: RelayStatus): string => {
     case statusValue === 'pending' && details?.includes('Could not fill request'):
     case statusValue === 'delayed':
       return RelayStatusMessage.Retrying
-    case statusValue === 'pending' &&
-      (details?.includes('Generating solution') || details?.includes('Filling solution')):
+    case statusValue === 'pending':
       return RelayStatusMessage.DepositDetected
     case statusValue === 'success':
       return RelayStatusMessage.SwapComplete

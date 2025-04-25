@@ -56,7 +56,7 @@ export const chainIdToRelayChainId = {
 
 export enum RelayStatusMessage {
   WaitingForDeposit = 'Waiting for deposit...',
-  DepositDetected = 'Deposit detected, processing request...',
+  DepositDetected = 'Deposit detected, processing swap...',
   Retrying = 'Taking a bit longer than usual to find a route, hang tight...',
   SwapComplete = 'Swap complete',
   SwapFailed = 'Swap failed',

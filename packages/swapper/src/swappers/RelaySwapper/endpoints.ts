@@ -31,6 +31,7 @@ import {
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
+import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { relayService } from './utils/relayService'
 import type { RelayStatus } from './utils/types'
 
@@ -293,7 +294,7 @@ export const relayApi: SwapperApi = {
     return {
       status,
       buyTxHash,
-      message: undefined,
+      message: getLatestRelayStatusMessage(statusResponse),
     }
   },
 }

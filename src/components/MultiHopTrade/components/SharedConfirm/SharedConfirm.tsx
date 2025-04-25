@@ -1,4 +1,5 @@
 import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
+import type { JSX } from 'react'
 
 import { WithBackButton } from '../WithBackButton'
 

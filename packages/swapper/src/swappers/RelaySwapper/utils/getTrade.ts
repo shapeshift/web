@@ -370,7 +370,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     // If fee is in a different asset, convert to buy asset
     const feeAmountUsd = quote.fees.relayer.amountUsd
     const buyAssetUsd = currencyOut.amountUsd
-    const buyAssetAmountBaseUnit = currencyOut.minimumAmount
+    const buyAssetAmountBaseUnit = currencyOut.amount
 
     if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
       // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
@@ -435,7 +435,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
-    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
+    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
       .plus(relayerFeesBuyAssetCryptoBaseUnit)
       .plus(appFeesBaseUnit)
       .toFixed()
@@ -494,7 +494,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
+      buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,

@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import type { FC } from 'react'
+import type { FC, JSX } from 'react'
 import { memo } from 'react'
 
 import type { RowProps } from '@/components/Row/Row'

@@ -1,4 +1,5 @@
 import { Box, CardBody } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { RecentTransactionsBody } from '@/pages/Dashboard/RecentTransactions'

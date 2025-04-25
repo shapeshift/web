@@ -193,6 +193,8 @@ export const useAccountsFetchQuery = () => {
       await Promise.allSettled(accountNumberAccountIdsPromises)
       chainIds = chainIdsWithActivity
     }
+
+    return null
   }, [dispatch, isSnapInstalled, supportedChains, wallet])
 
   const query = useQuery({

@@ -54,6 +54,14 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
 }
 
+export enum RelayStatusMessage {
+  WaitingForDeposit = 'Waiting for deposit...',
+  DepositDetected = 'Deposit detected, processing swap...',
+  Retrying = 'Taking a bit longer than usual to find a route, hang tight...',
+  SwapComplete = 'Swap complete',
+  SwapFailed = 'Swap failed',
+}
+
 export const relayChainIdToChainId = invert(chainIdToRelayChainId)
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress

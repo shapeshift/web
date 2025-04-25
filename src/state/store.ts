@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { persistStore } from 'redux-persist'
+import { setGlobalDevModeChecks } from 'reselect'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -23,6 +24,10 @@ import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 import { getConfig } from '@/config'
+// reselect pls stfu
+// We should probably revisit this at some point and re-enable, but for the time being, this silences things
+// https://github.com/reduxjs/reselect/discussions/662#discussioncomment-7870416
+setGlobalDevModeChecks({ identityFunctionCheck: 'never' })
 
 const apiMiddleware = [
   portfolioApi.middleware,

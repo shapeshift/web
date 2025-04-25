@@ -2,6 +2,7 @@ import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@cha
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 

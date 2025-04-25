@@ -9,7 +9,7 @@ on:
 jobs:
   install-and-cache:
     name: Install and Cache
-    runs-on: size-bertha
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3

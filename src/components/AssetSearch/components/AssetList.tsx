@@ -3,7 +3,7 @@ import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { Size } from 'react-virtualized-auto-sizer'
+import type { VerticalSize } from 'react-virtualized-auto-sizer'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
@@ -67,7 +67,7 @@ export const AssetList: FC<AssetListProps> = ({
   )
 
   const renderContent = useCallback(
-    ({ height }: Size) => {
+    ({ height }: VerticalSize) => {
       if (assets?.length === 0) {
         return (
           <Center>

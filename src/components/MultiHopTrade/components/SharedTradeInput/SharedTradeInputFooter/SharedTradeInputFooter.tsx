@@ -2,6 +2,7 @@ import { CardFooter } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { ReceiveSummary } from './components/ReceiveSummary'

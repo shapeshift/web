@@ -141,10 +141,12 @@ export const useGetTradeQuotes = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeTrade = useAppSelector(selectActiveQuote)
   const activeTradeId = activeTrade?.id
-  const activeRateRef = useRef<TradeQuote | TradeRate | undefined>()
-  const activeTradeIdRef = useRef<string | undefined>()
+  const activeRateRef = useRef<TradeQuote | TradeRate | undefined>(undefined)
+  const activeTradeIdRef = useRef<string | undefined>(undefined)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
-  const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()
+  const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>(
+    undefined,
+  )
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
 
   useEffect(

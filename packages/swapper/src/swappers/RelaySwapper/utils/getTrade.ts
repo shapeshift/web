@@ -12,6 +12,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
+import axios from 'axios'
 import { zeroAddress } from 'viem'
 
 import type {
@@ -26,12 +27,13 @@ import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
-import { MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
+import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelaySolanaInstruction, RelayTradeInputParams } from '../utils/types'
 import {
+  isRelayError,
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
   isRelayQuoteUtxoItemData,
@@ -180,8 +182,40 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     deps.config,
   )
 
-  // @TODO: handle errors properly and bubble them up to view layer so we can display the error to users
-  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+  if (maybeQuote.isErr()) {
+    const error = maybeQuote.unwrapErr()
+
+    if (!axios.isAxiosError(error.cause)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
+    }
+
+    const relayError = error.cause?.response?.data
+
+    if (!isRelayError(relayError)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
+    }
+
+    const tradeQuoteErrorCode = relayErrorCodeToTradeQuoteError[relayError.errorCode]
+
+    if (tradeQuoteErrorCode) {
+      return Err(
+        makeSwapErrorRight({
+          message: relayError.message,
+          code: tradeQuoteErrorCode,
+        }),
+      )
+    }
+  }
 
   const { data: quote } = maybeQuote.unwrap()
 
@@ -336,7 +370,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     // If fee is in a different asset, convert to buy asset
     const feeAmountUsd = quote.fees.relayer.amountUsd
     const buyAssetUsd = currencyOut.amountUsd
-    const buyAssetAmountBaseUnit = currencyOut.minimumAmount
+    const buyAssetAmountBaseUnit = currencyOut.amount
 
     if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
       // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
@@ -401,7 +435,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
-    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
+    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
       .plus(relayerFeesBuyAssetCryptoBaseUnit)
       .plus(appFeesBaseUnit)
       .toFixed()
@@ -460,7 +494,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
+      buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,

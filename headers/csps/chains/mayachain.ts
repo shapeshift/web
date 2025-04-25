@@ -10,5 +10,6 @@ export const csp: Csp = {
     env.VITE_UNCHAINED_MAYACHAIN_HTTP_URL,
     env.VITE_UNCHAINED_MAYACHAIN_WS_URL,
     env.VITE_MAYACHAIN_NODE_URL,
+    String(env.VITE_MAYACHAIN_MIDGARD_URL).slice(0, -3),
   ],
 }

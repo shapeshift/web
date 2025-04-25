@@ -34,6 +34,7 @@ import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
+import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -1458,13 +1459,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           variant='ghost'
           icon={backIcon}
           aria-label='go back'
-          disabled={!confirmedQuote}
         />
         {translate('pools.addLiquidity')}
         <SlippagePopover isDisabled tooltipTranslation='pools.customSlippageDisabled' />
       </CardHeader>
     )
-  }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
+  }, [backIcon, handleBackClick, headerComponent, translate])
 
   const hasUserEnteredValue = useMemo(() => {
     return Boolean(

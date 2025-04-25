@@ -1,7 +1,13 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type {
+  GetTradeRateInput,
+  GetUtxoTradeRateInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeRate,
+} from '../../../types'
 import { getTrade } from '../utils/getTrade'
 
 export const getTradeRate = async (
@@ -20,6 +26,7 @@ export const getTradeRate = async (
     accountNumber: input.accountNumber,
     affiliateBps: input.affiliateBps,
     potentialAffiliateBps: input.potentialAffiliateBps,
+    xpub: 'xpub' in input ? (input as GetUtxoTradeRateInput).xpub : undefined,
   }
 
   const ratesResult = await getTrade({ input: args, deps, relayChainMap })

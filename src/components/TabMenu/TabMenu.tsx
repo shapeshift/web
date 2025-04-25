@@ -1,6 +1,7 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Container, Flex } from '@chakra-ui/react'
 import type { Property } from 'csstype'
+import type { JSX } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 

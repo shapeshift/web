@@ -6,7 +6,8 @@ import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamas
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import type { JSX } from 'react'
+import React, { Suspense, useCallback, useEffect, useMemo, useReducer } from 'react'
 
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
@@ -41,6 +42,7 @@ import {
 } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { store } from '@/state/store'
+import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
 export type WalletInfo = {
   name: string
@@ -900,7 +902,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   return (
     <WalletContext.Provider value={value}>
       {children}
-      <WalletViewsRouter />
+      <Suspense fallback={defaultSuspenseFallback}>
+        <WalletViewsRouter />
+      </Suspense>
     </WalletContext.Provider>
   )
 }

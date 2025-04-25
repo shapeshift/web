@@ -1,4 +1,4 @@
-import type { ToastId } from '@chakra-ui/react'
+import type { ResponsiveValue, ToastId } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -8,7 +8,6 @@ import {
   usePrevious,
   useToast,
 } from '@chakra-ui/react'
-import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import { useEffect, useRef, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -29,7 +28,7 @@ export const useBridgeClaimNotification = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
-  const toastIdRef = useRef<ToastId | undefined>()
+  const toastIdRef = useRef<ToastId | undefined>(undefined)
 
   const {
     state: { deviceId: walletDeviceId },

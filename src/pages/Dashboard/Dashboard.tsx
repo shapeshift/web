@@ -136,7 +136,7 @@ export const Dashboard = memo(() => {
         content = (
           <>
             <Route path='' element={walletDashboard} />
-            <Route path='accounts' element={accounts} />
+            <Route path='accounts/*' element={accounts} />
           </>
         )
         break

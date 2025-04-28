@@ -1,9 +1,9 @@
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, TxTransfer, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { isUtxoChainId, makeAsset } from '@shapeshiftoss/utils'
+import { makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -207,23 +207,12 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
     accountId,
   })
 
-  const { data, error } = useQuery({
-    queryKey: ['txDetails', txHash],
+  const { data } = useQuery({
+    queryKey: ['txDetails', txId],
     queryFn:
       txHash && adapter
         ? async () => {
             // Casted for the sake of simplicity
-            if (isUtxoChainId(chainId)) {
-              // @ts-expect-error
-              const tx = await (adapter as UtxoChainAdapter).providers.http.getTransaction({
-                txid: txHash,
-              })
-
-              console.log({ tx, account: fromAccountId(accountId).account })
-
-              return adapter.parseTx(tx, fromAccountId(accountId).account)
-            }
-
             const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
               txid: txHash,
             })
@@ -237,14 +226,6 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
     if (!data) return
     return getTransfers(data, assets, dispatch)
   }, [data, assets, dispatch])
-
-  console.log({
-    txHash,
-    data,
-    chainId,
-    adapter,
-    error,
-  })
 
   const fee = useMemo(() => {
     if (!data?.fee) return

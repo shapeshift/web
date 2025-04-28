@@ -24,14 +24,14 @@ export const Overview = () => {
           {translate('TCY.myPosition')}
         </Heading>
         <SimpleGrid spacing={6} columns={gridColumns}>
-          <Flex flexDir='column'>
+          <Flex flexDir='column' alignItems='flex-start'>
             <HelperTooltip label={translate('TCY.myStakedBalanceHelper', { symbol: 'TCY' })}>
               <RawText color='text.subtle'>{translate('TCY.myStakedBalance')}</RawText>
             </HelperTooltip>
             <Amount.Crypto value='0' symbol='TCY' fontSize='2xl' />
             <Amount.Fiat value={0} fontSize='sm' color='text.subtle' />
           </Flex>
-          <Flex flexDir='column'>
+          <Flex flexDir='column' alignItems='flex-start'>
             <HelperTooltip label={translate('TCY.timeStakedHelper', { symbol: 'TCY' })}>
               <RawText color='text.subtle'>{translate('TCY.timeStaked')}</RawText>
             </HelperTooltip>

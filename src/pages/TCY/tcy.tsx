@@ -19,12 +19,10 @@ export const TCY = () => {
     <Main pb={mainPaddingBottom} headerComponent={tcyHeader} px={4} isSubPage>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
-          {/* overview */}
           <Overview />
           <Activity />
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
-          {/* widget */}
           <Widget />
         </Stack>
       </Stack>

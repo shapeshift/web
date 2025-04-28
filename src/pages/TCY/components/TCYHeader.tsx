@@ -1,5 +1,5 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import { arbitrumChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -12,6 +12,11 @@ import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
+
+const buttonProps = {
+  variant: 'solid',
+  width: 'full',
+}
 
 export const TCYHeader = () => {
   const translate = useTranslate()
@@ -36,16 +41,14 @@ export const TCYHeader = () => {
 
         <InlineCopyButton value={''} />
         <AccountDropdown
-          defaultAccountId={''}
-          assetId={''}
+          defaultAccountId={accountIds[0]}
+          assetId={ethAssetId}
           onChange={handleChange}
-          // dis already memoized
-          // eslint-disable-next-line react-memo/require-usememo
-          buttonProps={{ variant: 'solid', width: 'full' }}
+          buttonProps={buttonProps}
         />
       </Flex>
     )
-  }, [accountIds.length, handleChange])
+  }, [accountIds, handleChange])
 
   return (
     <>

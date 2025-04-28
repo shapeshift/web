@@ -1,8 +1,8 @@
 export enum TCYTabIndex {
-  Stake = 0,
-  Unstake = 1,
-  Claim = 2,
-  ChangeAddress = 3,
+  Stake,
+  Unstake,
+  Claim,
+  ChangeAddress,
 }
 
 export enum TransactionRowType {

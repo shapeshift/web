@@ -642,6 +642,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   async parseTx(tx: unchained.utxo.types.Tx, pubkey: string): Promise<Transaction> {
+    if (!this.accountAddresses[pubkey]) {
+      await this.getAccount(pubkey)
+    }
+
     const {
       ownedAddresses,
       ownedSendAddresses,
@@ -709,5 +713,17 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
 
     return Object.assign(transaction, { transfers: Object.values(transfers).flat() })
+  }
+
+  get httpProvider():
+    | unchained.utxo.bitcoin.V1Api
+    | unchained.utxo.bitcoincash.V1Api
+    | unchained.utxo.dogecoin.V1Api
+    | unchained.utxo.litecoin.V1Api {
+    return this.providers.http
+  }
+
+  get wsProvider(): unchained.ws.Client<unchained.utxo.types.Tx> {
+    return this.providers.ws
   }
 }

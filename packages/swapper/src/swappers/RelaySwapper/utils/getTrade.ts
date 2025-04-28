@@ -2,11 +2,13 @@ import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
+  DAO_TREASURY_BASE,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -25,7 +27,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
@@ -165,6 +167,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return input.sendAddress
   })()
 
+  // For bitcoin, we need a btc address, for other chains we need the BASE treasury address
+  // as all fees should be claimed on BASE (see https://docs.relay.link/how-it-works/fees)
+  const affiliateTreasuryAddress = (() => {
+    switch (sellAsset.chainId) {
+      case KnownChainIds.BitcoinMainnet:
+        return getTreasuryAddressFromChainId(sellAsset.chainId)
+      default:
+        return DAO_TREASURY_BASE
+    }
+  })()
+
   const maybeQuote = await fetchRelayTrade(
     {
       originChainId: sellRelayChainId,
@@ -178,6 +191,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       refundTo,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
+      appFees: [
+        {
+          recipient: affiliateTreasuryAddress,
+          fee: affiliateBps,
+        },
+      ],
     },
     deps.config,
   )
@@ -307,28 +326,28 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return relayTokenToAsset(quote.fees.app.currency, deps.assetsById)
   })()
 
+  const isNativeCurrencyInput = (() => {
+    if (maybeAppFeesAsset.isErr()) return false
+    const appFeesAsset = maybeAppFeesAsset.unwrap()
+
+    if (!appFeesAsset) return false
+
+    if (isEvmChainId(sellAsset.chainId)) {
+      return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
+    }
+
+    if (sellAsset.chainId === btcChainId) {
+      return sellAsset.assetId === appFeesAsset.assetId
+    }
+
+    if (sellAsset.chainId === solanaChainId) {
+      return sellAsset.assetId === appFeesAsset.assetId
+    }
+
+    return false
+  })()
+
   const appFeesBaseUnit = (() => {
-    const isNativeCurrencyInput = (() => {
-      if (maybeAppFeesAsset.isErr()) return false
-      const appFeesAsset = maybeAppFeesAsset.unwrap()
-
-      if (!appFeesAsset) return false
-
-      if (isEvmChainId(sellAsset.chainId)) {
-        return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
-      }
-
-      if (sellAsset.chainId === btcChainId) {
-        return sellAsset.assetId === appFeesAsset.assetId
-      }
-
-      if (sellAsset.chainId === solanaChainId) {
-        return sellAsset.assetId === appFeesAsset.assetId
-      }
-
-      return false
-    })()
-
     // For cross-chain: always add back app fees
     // For same-chain: only add back if input is native currency
     if (isCrossChain || isNativeCurrencyInput) {
@@ -337,6 +356,24 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     // cross-chain or same-chain with native currency as input are not applicable
     return '0'
+  })()
+
+  // If same chain and not sellAsset as native currency, convert to protocol fee as native value is sent as well as erc20 tokens
+  // This is a edge case we never encountered before and it's more convenient to consider it as protocol fee as quickwin
+  const appFeesAsProtocolFee = (() => {
+    if (maybeAppFeesAsset.isErr()) return {}
+
+    const appFeesAsset = maybeAppFeesAsset.unwrap()
+
+    if (!appFeesAsset || isNativeCurrencyInput) return {}
+
+    return {
+      [appFeesAsset.assetId]: {
+        amountCryptoBaseUnit: quote.fees.app.amount,
+        asset: appFeesAsset,
+        requiresBalance: true,
+      },
+    }
   })()
 
   const relayerFeeRelayToken = quote.fees.relayer.currency
@@ -507,6 +544,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             asset: protocolAsset,
             requiresBalance: false,
           },
+          ...appFeesAsProtocolFee,
         },
       },
       source: SwapperName.Relay,

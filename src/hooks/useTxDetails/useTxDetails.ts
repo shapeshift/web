@@ -1,9 +1,9 @@
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, TxTransfer, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { isUtxoChainId, makeAsset } from '@shapeshiftoss/utils'
+import { makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -207,7 +207,7 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
     accountId,
   })
 
-  const { data, error } = useQuery({
+  const { data } = useQuery({
     queryKey: ['txDetails', txHash],
     queryFn:
       txHash && adapter

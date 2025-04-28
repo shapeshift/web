@@ -12,7 +12,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -38,6 +38,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
+import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
 const sectionsWidth = { base: 'full', md: '300px' }
 const containerWidth = {
@@ -332,18 +333,20 @@ export const NewWalletViewsSwitch = () => {
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
             <Flex minH='800px' w={containerWidth}>
-              <Routes>
-                {/* Always display sections for the root route, no matter the viewport */}
-                <Route path='/' element={sections} />
-                {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                <Route path='*' element={!isMobile ? sections : null} />
-              </Routes>
-              <Routes>
-                {/* Only display side panel after a wallet has been selected on mobile */}
-                <Route path='/' element={isMobile ? null : <Body />} />
-                {/* And for all non-root routes, no matter the viewport */}
-                <Route path='*' element={body} />
-              </Routes>
+              <Suspense fallback={defaultSuspenseFallback}>
+                <Routes>
+                  {/* Always display sections for the root route, no matter the viewport */}
+                  <Route path='/' element={sections} />
+                  {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
+                  <Route path='*' element={!isMobile ? sections : null} />
+                </Routes>
+                <Routes>
+                  {/* Only display side panel after a wallet has been selected on mobile */}
+                  <Route path='/' element={isMobile ? null : <Body />} />
+                  {/* And for all non-root routes, no matter the viewport */}
+                  <Route path='*' element={body} />
+                </Routes>
+              </Suspense>
             </Flex>
           </Box>
         </ModalContent>

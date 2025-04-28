@@ -125,7 +125,7 @@ export const GlobalSearchModal = memo(
       if (!searchQuery) setActiveIndex(0)
     }, [searchQuery])
 
-    useEventListener('keydown', event => {
+    useEventListener(document, 'keydown', event => {
       const hotkey = isMac ? 'metaKey' : 'ctrlKey'
       if (event?.key?.toLowerCase() === 'k' && event[hotkey]) {
         event.preventDefault()

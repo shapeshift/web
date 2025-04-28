@@ -17,7 +17,7 @@ import type {
 import { AsymSide } from '@/lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 
-const midgardUrl = getConfig().VITE_MIDGARD_URL
+const midgardUrl = getConfig().VITE_THORCHAIN_MIDGARD_URL
 
 const liquidityMember = (address: string) => ({
   queryKey: ['thorchainLiquidityMember', { address }] as [string, { address: string }],

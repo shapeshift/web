@@ -1,5 +1,7 @@
 import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -10,6 +12,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
+import axios from 'axios'
 import { zeroAddress } from 'viem'
 
 import type {
@@ -24,12 +27,13 @@ import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
-import { MAXIMUM_SUPPORTED_RELAY_STEPS } from '../constant'
+import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelaySolanaInstruction, RelayTradeInputParams } from '../utils/types'
 import {
+  isRelayError,
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
   isRelayQuoteUtxoItemData,
@@ -68,6 +72,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     affiliateBps,
     potentialAffiliateBps,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
+    xpub,
   } = input
 
   const slippageToleranceBps = _slippageTolerancePercentageDecimal
@@ -177,8 +182,40 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     deps.config,
   )
 
-  // @TODO: handle errors properly and bubble them up to view layer so we can display the error to users
-  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+  if (maybeQuote.isErr()) {
+    const error = maybeQuote.unwrapErr()
+
+    if (!axios.isAxiosError(error.cause)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
+    }
+
+    const relayError = error.cause?.response?.data
+
+    if (!isRelayError(relayError)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
+    }
+
+    const tradeQuoteErrorCode = relayErrorCodeToTradeQuoteError[relayError.errorCode]
+
+    if (tradeQuoteErrorCode) {
+      return Err(
+        makeSwapErrorRight({
+          message: relayError.message,
+          code: tradeQuoteErrorCode,
+        }),
+      )
+    }
+  }
 
   const { data: quote } = maybeQuote.unwrap()
 
@@ -333,7 +370,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     // If fee is in a different asset, convert to buy asset
     const feeAmountUsd = quote.fees.relayer.amountUsd
     const buyAssetUsd = currencyOut.amountUsd
-    const buyAssetAmountBaseUnit = currencyOut.minimumAmount
+    const buyAssetAmountBaseUnit = currencyOut.amount
 
     if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
       // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
@@ -347,6 +384,50 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return '0'
   })()
 
+  const networkFeeCryptoBaseUnit = await (async () => {
+    if (sellAsset.chainId === btcChainId) {
+      const firstStep = swapSteps[0]
+
+      if (!firstStep) throw new Error('Relay quote step contains no items')
+
+      const selectedItem = firstStep.items?.[0]
+
+      if (!selectedItem) throw new Error('Relay quote step contains no items')
+
+      if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+
+      if (!isRelayQuoteUtxoItemData(selectedItem.data))
+        throw new Error('Relay BTC quote step contains no psbt')
+
+      if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+
+      const relayer = getRelayPsbtRelayer(
+        selectedItem.data.psbt,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      )
+
+      if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
+
+      const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+        to: relayer,
+        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        chainSpecific: {
+          pubkey: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
+          opReturnData: firstStep.requestId,
+        },
+        sendMax: false,
+      }
+
+      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+
+      const feeData = await adapter.getFeeData(getFeeDataInput)
+
+      return feeData.fast.txFee
+    }
+
+    return quote.fees.gas.amount
+  })()
+
   const steps = swapSteps.map((quoteStep): TradeQuoteStep | TradeRateStep => {
     const selectedItem = quoteStep.items?.[0]
 
@@ -354,7 +435,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     // Add back relayer service and gas fees (relayer is including both) since they are downsides
     // And add appFees
-    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.minimumAmount)
+    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
       .plus(relayerFeesBuyAssetCryptoBaseUnit)
       .plus(appFeesBaseUnit)
       .toFixed()
@@ -413,13 +494,13 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: currencyOut.minimumAmount,
+      buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,
       accountNumber,
       feeData: {
-        networkFeeCryptoBaseUnit: quote.fees.gas.amount,
+        networkFeeCryptoBaseUnit,
         protocolFees: {
           [protocolAssetId]: {
             amountCryptoBaseUnit: quote.fees.relayer.amount,

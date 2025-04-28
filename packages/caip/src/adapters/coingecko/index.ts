@@ -15,6 +15,7 @@ import {
   cosmosChainId,
   ethChainId,
   gnosisChainId,
+  mayachainChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -32,6 +33,7 @@ export enum CoingeckoAssetPlatform {
   Gnosis = 'xdai',
   Avalanche = 'avalanche',
   Thorchain = 'thorchain',
+  Mayachain = 'cacao',
   Optimism = 'optimistic-ethereum',
   BnbSmartChain = 'binance-smart-chain',
   Arbitrum = 'arbitrum-one',
@@ -97,6 +99,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Cosmos
         case CHAIN_REFERENCE.ThorchainMainnet:
           return CoingeckoAssetPlatform.Thorchain
+        case CHAIN_REFERENCE.MayachainMainnet:
+          return CoingeckoAssetPlatform.Mayachain
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -144,6 +148,8 @@ export const coingeckoAssetPlatformToChainId = (
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:
       return thorchainChainId
+    case CoingeckoAssetPlatform.Mayachain:
+      return mayachainChainId
     case CoingeckoAssetPlatform.Solana:
       return solanaChainId
     default:

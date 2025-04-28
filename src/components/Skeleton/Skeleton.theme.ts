@@ -1,6 +1,6 @@
-import { keyframes } from '@chakra-ui/system'
 import type { SystemStyleFunction } from '@chakra-ui/theme-tools'
 import { getColor } from '@chakra-ui/theme-tools'
+import { keyframes } from '@emotion/react'
 
 const fade = (startColor: string, endColor: string) =>
   keyframes({

@@ -1,5 +1,4 @@
-import { Box, Checkbox, Link } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { Box, Checkbox, Link, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 

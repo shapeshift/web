@@ -4,6 +4,7 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -30,6 +31,7 @@ import {
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
+import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { relayService } from './utils/relayService'
 import type { RelayStatus } from './utils/types'
 
@@ -198,7 +200,9 @@ export const relayApi: SwapperApi = {
 
     if (!firstStep.relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
 
-    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+    const sellAssetChainId = firstStep.sellAsset.chainId
+
+    if (!isUtxoChainId(sellAssetChainId)) throw new Error('Invalid chain id')
 
     const { to, opReturnData } = firstStep.relayTransactionMetadata
 
@@ -214,6 +218,8 @@ export const relayApi: SwapperApi = {
       },
       sendMax: false,
     }
+
+    const adapter = assertGetUtxoChainAdapter(sellAssetChainId)
 
     const feeData = await adapter.getFeeData(getFeeDataInput)
 
@@ -288,7 +294,7 @@ export const relayApi: SwapperApi = {
     return {
       status,
       buyTxHash,
-      message: undefined,
+      message: getLatestRelayStatusMessage(statusResponse),
     }
   },
 }

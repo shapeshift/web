@@ -62,7 +62,7 @@ export const useKeepKeyVersions = ({ wallet }: { wallet: HDWallet | null }) => {
   const isKeepKey = !!wallet && isKeepKeyHDWallet(wallet)
 
   const featuresQuery = useQuery({
-    queryKey: ['keepKeyFeatures', wallet?.getDeviceID()],
+    queryKey: ['keepKeyFeatures', isKeepKey ? wallet?.getDeviceID() : undefined],
     queryFn: async () => {
       if (!wallet) throw new Error('Wallet not available')
       return await wallet.getFeatures()
@@ -73,7 +73,7 @@ export const useKeepKeyVersions = ({ wallet }: { wallet: HDWallet | null }) => {
   })
 
   const deviceFirmwareQuery = useQuery({
-    queryKey: ['keepKeyFirmware', wallet?.getDeviceID()],
+    queryKey: ['keepKeyFirmware', isKeepKey ? wallet?.getDeviceID() : undefined],
     queryFn: async () => {
       if (!wallet) throw new Error('Wallet not available')
       return await wallet.getFirmwareVersion()

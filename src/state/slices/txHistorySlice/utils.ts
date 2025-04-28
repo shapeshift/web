@@ -46,8 +46,8 @@ export const serializeTxIndex = (
   pubkey: TxDescriptor['pubkey'],
   data?: TxDescriptor['data'],
 ): TxIndex => {
-  // special case for thorchain transactions sent back in multiple parts
-  if (data && data.parser === 'thorchain' && pubkey.toLowerCase().startsWith('thor')) {
+  // special case for thorchain/mayachain transactions sent back in multiple parts
+  if (data && data.parser === 'thorchain' && /^(thor|maya)/i.test(pubkey)) {
     return [accountId, txid, pubkey.toLowerCase(), data.memo].join(UNIQUE_TX_ID_DELIMITER)
   }
 

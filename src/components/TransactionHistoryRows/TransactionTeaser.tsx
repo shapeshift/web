@@ -1,6 +1,7 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import type { JSX } from 'react'
 import { useMemo, useRef } from 'react'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'

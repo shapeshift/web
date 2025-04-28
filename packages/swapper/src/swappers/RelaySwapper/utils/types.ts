@@ -14,6 +14,7 @@ export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBasePa
   sendAddress: T extends 'rate' ? undefined : string
   accountNumber: T extends 'rate' ? undefined : number
   slippageTolerancePercentageDecimal?: string
+  xpub: string | undefined
 }
 
 export type RelayTransactionMetadata = {
@@ -27,6 +28,7 @@ export type RelayTransactionMetadata = {
 
 export type RelayStatus = {
   status: 'success' | 'failed' | 'pending' | 'refund' | 'delayed' | 'waiting'
+  details?: string
   inTxHashes: string[]
   txHashes: string[]
   time: number
@@ -123,14 +125,16 @@ export type RelayQuoteItem = {
   data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
 }
 
+export type RelayQuoteStep = {
+  id: string
+  requestId: string
+  items?: RelayQuoteItem[]
+}
+
 export type RelayQuote = {
   fees: RelayFees
   details: QuoteDetails
-  steps: {
-    id: string
-    requestId: string
-    items?: RelayQuoteItem[]
-  }[]
+  steps: RelayQuoteStep[]
 }
 
 export const isRelayQuoteUtxoItemData = (
@@ -159,4 +163,35 @@ export type RelaySolanaInstruction = {
   }[]
   data: string
   programId: string
+}
+
+export enum RelayErrorCode {
+  AmountTooLow = 'AMOUNT_TOO_LOW',
+  Erc20RouterAddressNotFound = 'ERC20_ROUTER_ADDRESS_NOT_FOUND',
+  ExtraTransactionsNotSupported = 'EXTRA_TXS_NOT_SUPPORTED',
+  InsufficientFunds = 'INSUFFICIENT_FUNDS',
+  InsufficientLiquidity = 'INSUFFICIENT_LIQUIDITY',
+  InvalidAddress = 'INVALID_ADDRESS',
+  InvalidExtraTransactions = 'INVALID_EXTRA_TXS',
+  NoQuotes = 'NO_QUOTES',
+  NoSwapRoutesFound = 'NO_SWAP_ROUTES_FOUND',
+  PermitFailed = 'PERMIT_FAILED',
+  SwapImpactTooHigh = 'SWAP_IMPACT_TOO_HIGH',
+  SwapQuoteFailed = 'SWAP_QUOTE_FAILED',
+  Unauthorized = 'UNAUTHORIZED',
+  UnknownError = 'UNKNOWN_ERROR',
+  UnsupportedChain = 'UNSUPPORTED_CHAIN',
+  UnsupportedCurrency = 'UNSUPPORTED_CURRENCY',
+  UnsupportedExecutionType = 'UNSUPPORTED_EXECUTION_TYPE',
+  UnsupportedRoute = 'UNSUPPORTED_ROUTE',
+  UserRecipientMismatch = 'USER_RECIPIENT_MISMATCH',
+}
+
+export type RelayError = {
+  errorCode: RelayErrorCode
+  message: string
+}
+
+export const isRelayError = (error: unknown): error is RelayError => {
+  return typeof error === 'object' && error !== null && 'errorCode' in error && 'message' in error
 }

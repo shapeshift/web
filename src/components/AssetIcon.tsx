@@ -3,6 +3,7 @@ import { Center, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type { JSX } from 'react'
 import { memo, useMemo } from 'react'
 
 import { FoxIcon } from './Icons/FoxIcon'

@@ -1,6 +1,4 @@
-import { useColorModeValue } from '@chakra-ui/color-mode'
-import { Stack as CStack } from '@chakra-ui/react'
-import { useToken } from '@chakra-ui/system'
+import { Stack as CStack, useColorModeValue, useToken } from '@chakra-ui/react'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { scaleLinear } from '@visx/scale'
 import type { AxisScale } from '@visx/xychart'

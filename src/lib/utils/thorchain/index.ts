@@ -69,7 +69,7 @@ const getThorchainTransactionStatus = async ({
   if (thorTxData.stages.swap_status?.pending) return TxStatus.Pending
 
   // Introspect midgard to detect failures/success states when enforcing outbound checks
-  const midgardUrl = getConfig().VITE_MIDGARD_URL
+  const midgardUrl = getConfig().VITE_THORCHAIN_MIDGARD_URL
   const maybeResult = await thorService.get<MidgardActionsResponse>(
     `${midgardUrl}/actions?txid=${thorTxHash}`,
   )

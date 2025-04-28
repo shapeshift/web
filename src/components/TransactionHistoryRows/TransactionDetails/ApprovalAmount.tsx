@@ -1,4 +1,4 @@
-import { Tag } from '@chakra-ui/tag'
+import { Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'

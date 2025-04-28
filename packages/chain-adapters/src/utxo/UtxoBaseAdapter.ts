@@ -643,7 +643,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async parseTx(tx: unchained.utxo.types.Tx, pubkey: string): Promise<Transaction> {
     if (!this.accountAddresses[pubkey]) {
-      await this.getAccount(pubkey)
+      const data = await this.providers.http.getAccount({ pubkey })
+
+      // cache addresses for getTxHistory to use without needing to make extra requests
+      this.accountAddresses[data.pubkey] = data.addresses?.map(address => address.pubkey) ?? [
+        data.pubkey,
+      ]
     }
 
     const {

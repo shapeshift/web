@@ -41,6 +41,8 @@ export class Client<T> {
   }
 
   private async initialize(): Promise<void> {
+    this.cleanup()
+
     const ws = new WebSocket(this.url)
 
     this.connections.txs = { ws }
@@ -54,6 +56,25 @@ export class Client<T> {
       ws.onerror = event => this.onError(event)
       ws.onmessage = event => this.onMessage(event)
     })
+  }
+
+  private cleanup(): void {
+    if (!this.connections.txs) return
+
+    if (this.connections.txs.ws) {
+      switch (this.connections.txs.ws.readyState) {
+        case WebSocket.OPEN:
+        case WebSocket.CONNECTING:
+          this.connections.txs.ws.close(NORMAL_CLOSURE_CODE)
+          break
+        default:
+      }
+    }
+
+    clearTimeout(this.connections.txs.pingTimeout)
+    clearInterval(this.connections.txs.interval)
+
+    delete this.connections.txs
   }
 
   private onOpen(
@@ -95,8 +116,7 @@ export class Client<T> {
     resolve: (value: boolean) => void,
     reject: (reason?: unknown) => void,
   ): void {
-    this.connections.txs?.pingTimeout && clearTimeout(this.connections.txs.pingTimeout)
-    this.connections.txs?.interval && clearInterval(this.connections.txs.interval)
+    this.cleanup()
 
     // attempt reconnect logic on non standard exit codes
     if (event.code !== NORMAL_CLOSURE_CODE) {
@@ -252,7 +272,7 @@ export class Client<T> {
   close(topic?: Topics): void {
     const closeTxs = () => {
       this.unsubscribeTxs()
-      this.connections.txs?.ws?.close(NORMAL_CLOSURE_CODE)
+      this.cleanup()
     }
 
     // close all connections if no topic is provided

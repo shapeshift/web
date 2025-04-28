@@ -140,10 +140,10 @@ export const useTransactionsSubscriber = () => {
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
-    // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
+    // we've disconnected/switched a wallet, unsubscribe transactions and close websockets
     if (!isSubscribed) return
-    // this is heavy handed but will ensure we're unsubscribed from everything
-    supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
+    // this is heavy handed but will ensure we're unsubscribed from everything and clean up websocket connections
+    supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.closeTxs())
     setIsSubscribed(false)
     // isSubscribed causes spurious unsubscriptions - this will react correctly when portfolioAccountMetadata changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

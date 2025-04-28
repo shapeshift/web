@@ -12,7 +12,7 @@ import type {
 type Period = 'all'
 export type Interval = '5min' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
 
-const midgardUrl = getConfig().VITE_MIDGARD_URL
+const midgardUrl = getConfig().VITE_THORCHAIN_MIDGARD_URL
 
 // Feature-agnostic, abstracts away midgard endpoints
 export const midgard = createQueryKeys('midgard', {

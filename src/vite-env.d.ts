@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_ARBITRUM_NOVA: string
   readonly VITE_FEATURE_SOLANA: string
   readonly VITE_FEATURE_BASE: string
+  readonly VITE_FEATURE_MAYACHAIN: string
   readonly VITE_FEATURE_OPTIMISM: string
   readonly VITE_FEATURE_MIXPANEL: string
   readonly VITE_FEATURE_SAVERS_VAULTS: string
@@ -147,6 +148,8 @@ interface ImportMetaEnv {
   readonly VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
   readonly VITE_UNCHAINED_THORCHAIN_WS_URL: string
   readonly VITE_UNCHAINED_THORCHAIN_V1_HTTP_URL: string
+  readonly VITE_UNCHAINED_MAYACHAIN_HTTP_URL: string
+  readonly VITE_UNCHAINED_MAYACHAIN_WS_URL: string
   readonly VITE_UNCHAINED_SOLANA_HTTP_URL: string
   readonly VITE_UNCHAINED_SOLANA_WS_URL: string
   readonly VITE_ETHEREUM_NODE_URL: string
@@ -159,8 +162,10 @@ interface ImportMetaEnv {
   readonly VITE_ARBITRUM_NOVA_NODE_URL: string
   readonly VITE_BASE_NODE_URL: string
   readonly VITE_THORCHAIN_NODE_URL: string
+  readonly VITE_MAYACHAIN_NODE_URL: string
   readonly VITE_SOLANA_NODE_URL: string
-  readonly VITE_MIDGARD_URL: string
+  readonly VITE_THORCHAIN_MIDGARD_URL: string
+  readonly VITE_MAYACHAIN_MIDGARD_URL: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

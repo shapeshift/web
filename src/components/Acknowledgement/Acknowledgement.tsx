@@ -9,6 +9,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'

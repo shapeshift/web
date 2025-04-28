@@ -18,6 +18,7 @@ import {
   gnosisChainId,
   isNft,
   ltcChainId,
+  mayachainChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -38,6 +39,7 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsMayachain,
   supportsOptimism,
   supportsPolygon,
   supportsSolana,
@@ -81,6 +83,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumNovaChainId:
     case baseChainId:
     case thorchainChainId:
+    case mayachainChainId:
     case cosmosChainId:
     case solanaChainId:
       return firstFourLastFour(pubkey)
@@ -324,6 +327,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsCosmos(wallet)
     case thorchainChainId:
       return supportsThorchain(wallet)
+    case mayachainChainId:
+      return supportsMayachain(wallet)
     case solanaChainId:
       return supportsSolana(wallet)
     default:

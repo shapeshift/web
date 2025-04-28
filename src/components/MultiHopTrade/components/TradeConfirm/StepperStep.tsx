@@ -11,6 +11,7 @@ import {
   Tag,
   useStyleConfig,
 } from '@chakra-ui/react'
+import type { JSX } from 'react'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'

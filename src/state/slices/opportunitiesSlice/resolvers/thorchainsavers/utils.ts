@@ -251,7 +251,7 @@ export const getMidgardPools = async (
 ): Promise<MidgardPoolResponse[]> => {
   const maybePeriodQueryParameter: MidgardPoolRequest = period ? { period } : {}
   const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-    `${getConfig().VITE_MIDGARD_URL}/pools`,
+    `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/pools`,
     { params: maybePeriodQueryParameter },
   )
 

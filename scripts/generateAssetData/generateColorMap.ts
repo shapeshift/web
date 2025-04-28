@@ -8,6 +8,7 @@ import {
   bitcoincash,
   dogecoin,
   litecoin,
+  mayachain,
   thorchain,
   unfreeze,
 } from '@shapeshiftoss/utils'
@@ -49,6 +50,7 @@ const generateColorMap = async () => {
     unfreeze(litecoin),
     unfreeze(atom),
     unfreeze(thorchain),
+    unfreeze(mayachain),
     ...ethAssets,
     ...cosmosAssets,
     ...avalancheAssets,

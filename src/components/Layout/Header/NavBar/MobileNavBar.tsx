@@ -11,6 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { union } from 'lodash'
+import type { JSX } from 'react'
 import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

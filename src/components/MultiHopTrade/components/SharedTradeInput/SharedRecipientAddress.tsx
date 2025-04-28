@@ -260,62 +260,60 @@ export const SharedRecipientAddress = ({
   // The manual receive address input form
   if (isRecipientAddressEditing || shouldForceDisplayManualAddressEntry) {
     return (
-      <form>
-        <FormControl>
-          {shouldForceDisplayManualAddressEntry && (
-            <ManualRecipientAddressLabels
-              buyAsset={buyAsset}
-              manualAddressEntryDescription={manualAddressEntryDescription}
+      <FormControl>
+        {shouldForceDisplayManualAddressEntry && (
+          <ManualRecipientAddressLabels
+            buyAsset={buyAsset}
+            manualAddressEntryDescription={manualAddressEntryDescription}
+          />
+        )}
+        <InputGroup>
+          <AddressInput
+            rules={rules}
+            placeholder={translate('trade.enterCustomRecipientAddress')}
+            pe={20}
+          />
+          <InputRightElement
+            width='full'
+            height='full'
+            display='flex'
+            gap={2}
+            pr={2}
+            alignItems='center'
+            justifyContent='flex-end'
+            pointerEvents='none'
+          >
+            <IconButton
+              pointerEvents='auto'
+              color='green.500'
+              aria-label='Save'
+              isDisabled={!isValid || isValidating || !value?.length}
+              size='xs'
+              onClick={handleFormSubmit}
+              icon={checkIcon}
+              isLoading={isValidating}
+              borderRadius='full'
+              bg='gray.700'
+              _hover={iconButtonHoverSx}
             />
-          )}
-          <InputGroup>
-            <AddressInput
-              rules={rules}
-              placeholder={translate('trade.enterCustomRecipientAddress')}
-              pe={20}
+            <IconButton
+              pointerEvents='auto'
+              color='red.500'
+              icon={closeIcon}
+              aria-label='Cancel'
+              size='xs'
+              onClick={handleCancelClick}
+              isDisabled={isValidating}
+              borderRadius='full'
+              bg='gray.700'
+              _hover={iconButtonHoverSx}
             />
-            <InputRightElement
-              width='full'
-              height='full'
-              display='flex'
-              gap={2}
-              pr={2}
-              alignItems='center'
-              justifyContent='flex-end'
-              pointerEvents='none'
-            >
-              <IconButton
-                pointerEvents='auto'
-                color='green.500'
-                aria-label='Save'
-                isDisabled={!isValid || isValidating || !value?.length}
-                size='xs'
-                onClick={handleFormSubmit}
-                icon={checkIcon}
-                isLoading={isValidating}
-                borderRadius='full'
-                bg='gray.700'
-                _hover={iconButtonHoverSx}
-              />
-              <IconButton
-                pointerEvents='auto'
-                color='red.500'
-                icon={closeIcon}
-                aria-label='Cancel'
-                size='xs'
-                onClick={handleCancelClick}
-                isDisabled={isValidating}
-                borderRadius='full'
-                bg='gray.700'
-                _hover={iconButtonHoverSx}
-              />
-            </InputRightElement>
-          </InputGroup>
-          {Boolean(value?.length && !isValid) && (
-            <Text translation='common.invalidAddress' color='yellow.200' mt={2} />
-          )}
-        </FormControl>
-      </form>
+          </InputRightElement>
+        </InputGroup>
+        {Boolean(value?.length && !isValid) && (
+          <Text translation='common.invalidAddress' color='yellow.200' mt={2} />
+        )}
+      </FormControl>
     )
   }
 

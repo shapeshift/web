@@ -29,6 +29,7 @@ export enum KnownChainIds {
   LitecoinMainnet = 'bip122:12a765e31ffd4059bada1e25190f6e98',
   CosmosMainnet = 'cosmos:cosmoshub-4',
   ThorchainMainnet = 'cosmos:thorchain-1',
+  MayachainMainnet = 'cosmos:mayachain-mainnet-v1',
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
 }
 
@@ -43,7 +44,10 @@ export type EvmChainId =
   | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
 
-export type CosmosSdkChainId = KnownChainIds.CosmosMainnet | KnownChainIds.ThorchainMainnet
+export type CosmosSdkChainId =
+  | KnownChainIds.CosmosMainnet
+  | KnownChainIds.ThorchainMainnet
+  | KnownChainIds.MayachainMainnet
 
 export type UtxoChainId =
   | KnownChainIds.BitcoinMainnet

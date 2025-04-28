@@ -33,7 +33,7 @@ export default function register(): Plugins {
                 return new bnbsmartchain.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().VITE_BNBSMARTCHAIN_NODE_URL,
-                  midgardUrl: getConfig().VITE_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                 })
               },
             ],

@@ -4,6 +4,7 @@ import type {
   CosmosSignTx,
   ETHSignTx,
   HDWallet,
+  MayachainSignTx,
   SolanaSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
@@ -43,6 +44,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmossdk.Account
     [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
+    [KnownChainIds.MayachainMainnet]: cosmossdk.Account
     [KnownChainIds.SolanaMainnet]: solana.Account
   }
 >
@@ -84,6 +86,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
     [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
+    [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
     [KnownChainIds.SolanaMainnet]: solana.FeeData
   }
 >
@@ -158,6 +161,7 @@ export type ChainSignTx = {
   [KnownChainIds.LitecoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
+  [KnownChainIds.MayachainMainnet]: MayachainSignTx
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
 }
 
@@ -201,6 +205,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
+    [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
   }
 >
@@ -342,6 +347,7 @@ export type ZrxGasApiResponse = {
 
 export enum ChainAdapterDisplayName {
   Thorchain = 'THORChain',
+  Mayachain = 'MAYAChain',
   Ethereum = 'Ethereum',
   Avalanche = 'Avalanche C-Chain',
   Optimism = 'Optimism',

@@ -25,6 +25,8 @@ import {
 } from 'viem/chains'
 
 import type { SupportedChainIds } from '../../types'
+import { TradeQuoteError } from '../../types'
+import { RelayErrorCode } from './utils/types'
 
 export const relaySupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -54,6 +56,14 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
 }
 
+export enum RelayStatusMessage {
+  WaitingForDeposit = 'Waiting for deposit...',
+  DepositDetected = 'Deposit detected, processing swap...',
+  Retrying = 'Taking a bit longer than usual to find a route, hang tight...',
+  SwapComplete = 'Swap complete',
+  SwapFailed = 'Swap failed',
+}
+
 export const relayChainIdToChainId = invert(chainIdToRelayChainId)
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
@@ -70,3 +80,25 @@ export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
 }
 
 export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
+
+export const relayErrorCodeToTradeQuoteError: Record<RelayErrorCode, TradeQuoteError> = {
+  [RelayErrorCode.AmountTooLow]: TradeQuoteError.SellAmountBelowMinimum,
+  [RelayErrorCode.Erc20RouterAddressNotFound]: TradeQuoteError.UnsupportedTradePair,
+  [RelayErrorCode.ExtraTransactionsNotSupported]: TradeQuoteError.UnsupportedTradePair,
+  [RelayErrorCode.InsufficientFunds]: TradeQuoteError.SellAmountBelowTradeFee,
+  [RelayErrorCode.InsufficientLiquidity]: TradeQuoteError.SellAmountBelowTradeFee,
+  [RelayErrorCode.InvalidAddress]: TradeQuoteError.UnsupportedTradePair,
+  [RelayErrorCode.InvalidExtraTransactions]: TradeQuoteError.UnsupportedTradePair,
+  [RelayErrorCode.NoQuotes]: TradeQuoteError.NoRouteFound,
+  [RelayErrorCode.NoSwapRoutesFound]: TradeQuoteError.NoRouteFound,
+  [RelayErrorCode.UnsupportedRoute]: TradeQuoteError.UnsupportedTradePair,
+  [RelayErrorCode.UnsupportedExecutionType]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.UserRecipientMismatch]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.PermitFailed]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.SwapImpactTooHigh]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.SwapQuoteFailed]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.Unauthorized]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.UnknownError]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.UnsupportedChain]: TradeQuoteError.UnknownError,
+  [RelayErrorCode.UnsupportedCurrency]: TradeQuoteError.UnknownError,
+}

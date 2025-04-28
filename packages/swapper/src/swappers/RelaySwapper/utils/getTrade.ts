@@ -71,7 +71,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
     accountNumber,
-    affiliateBps: _affiliateBps,
+    affiliateBps,
     potentialAffiliateBps,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
     xpub,
@@ -177,11 +177,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         return DAO_TREASURY_BASE
     }
   })()
-
-  // @TODO: remove this once we have a way to claim affiliate fees for BTC
-  // because relay doesn't currently alow to claim btc affiliate fees
-  // and we are not assured we will be able to claim them in the future for now
-  const affiliateBps = sellAsset.chainId === btcChainId ? '0' : _affiliateBps
 
   const maybeQuote = await fetchRelayTrade(
     {

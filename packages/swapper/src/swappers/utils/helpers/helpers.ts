@@ -11,17 +11,19 @@ import {
   polygonAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { EvmTreasuryChainId } from '@shapeshiftoss/utils'
+import type { TreasuryChainId } from '@shapeshiftoss/utils'
 import {
   DAO_TREASURY_ARBITRUM,
   DAO_TREASURY_AVALANCHE,
   DAO_TREASURY_BASE,
+  DAO_TREASURY_BITCOIN,
   DAO_TREASURY_BSC,
   DAO_TREASURY_ETHEREUM_MAINNET,
   DAO_TREASURY_GNOSIS,
   DAO_TREASURY_OPTIMISM,
   DAO_TREASURY_POLYGON,
-  isEvmTreasuryChainId,
+  DAO_TREASURY_SOLANA,
+  isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
@@ -48,7 +50,7 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
   }
 }
 
-const DAO_TREASURY_BY_CHAIN_ID: Record<EvmTreasuryChainId, string> = {
+const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.EthereumMainnet]: DAO_TREASURY_ETHEREUM_MAINNET,
   [KnownChainIds.OptimismMainnet]: DAO_TREASURY_OPTIMISM,
   [KnownChainIds.AvalancheMainnet]: DAO_TREASURY_AVALANCHE,
@@ -57,11 +59,15 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<EvmTreasuryChainId, string> = {
   [KnownChainIds.BnbSmartChainMainnet]: DAO_TREASURY_BSC,
   [KnownChainIds.ArbitrumMainnet]: DAO_TREASURY_ARBITRUM,
   [KnownChainIds.BaseMainnet]: DAO_TREASURY_BASE,
+  [KnownChainIds.SolanaMainnet]: DAO_TREASURY_SOLANA,
+  [KnownChainIds.BitcoinMainnet]: DAO_TREASURY_BITCOIN,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {
-  const maybeEvmChainId = isEvmTreasuryChainId(chainId) ? chainId : undefined
-  const treasuryAddress = maybeEvmChainId ? DAO_TREASURY_BY_CHAIN_ID[maybeEvmChainId] : undefined
+  const maybeTreasuryChainId = isTreasuryChainId(chainId) ? chainId : undefined
+  const treasuryAddress = maybeTreasuryChainId
+    ? DAO_TREASURY_BY_CHAIN_ID[maybeTreasuryChainId]
+    : undefined
   if (!treasuryAddress)
     throw new Error(`[getTreasuryAddressFromChainId] - Unsupported chainId: ${chainId}`)
   return treasuryAddress

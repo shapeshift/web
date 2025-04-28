@@ -208,7 +208,7 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
   })
 
   const { data } = useQuery({
-    queryKey: ['txDetails', txId],
+    queryKey: ['txDetails', txHash],
     queryFn:
       txHash && adapter
         ? async () => {

@@ -10,9 +10,17 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { memo, useCallback, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+
+import { ClaimDetails } from './components/Details/ClaimDetails'
+import { GenericDetails } from './components/Details/GenericDetails'
+import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
+import { SwapDetails } from './components/Details/SwapDetails'
+import { NotificationCard } from './components/NotificationCard'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -70,7 +78,44 @@ export const NotificationCenter = memo(() => {
               height='calc(100vh - 70px - env(safe-area-inset-top))'
               className='scroll-container'
             >
-              Cards go here
+              <NotificationCard
+                type='Limit Order'
+                assetId={btcAssetId}
+                status={TxStatus.Confirmed}
+                date={new Date('2025-04-29').getTime() / 1000}
+                title='Limit Order Placed for 1 ETH to USDC'
+              >
+                <LimitOrderDetails />
+              </NotificationCard>
+              <NotificationCard
+                type='Swap'
+                assetId={btcAssetId}
+                status={TxStatus.Confirmed}
+                date={new Date('2025-04-29').getTime() / 1000}
+                title='Swap 0.00 SOL to 0.00 USDC'
+              >
+                <SwapDetails isStreaming />
+              </NotificationCard>
+              <NotificationCard
+                type='Deposit'
+                assetId={ethAssetId}
+                status={TxStatus.Pending}
+                date={new Date('2025-04-29').getTime() / 1000}
+                title='Your deposit of 0.00 WETH/FOX to 0x1234 is being processed'
+              >
+                <GenericDetails />
+              </NotificationCard>
+              <NotificationCard
+                type='Claim'
+                assetId={ethAssetId}
+                isCollapsable={false}
+                defaultIsOpen
+                status={TxStatus.Confirmed}
+                date={new Date('2025-04-29').getTime() / 1000}
+                title='Your unstake of 0.00 FOX is ready to claim'
+              >
+                <ClaimDetails />
+              </NotificationCard>
             </Box>
           </Box>
         </DrawerContent>

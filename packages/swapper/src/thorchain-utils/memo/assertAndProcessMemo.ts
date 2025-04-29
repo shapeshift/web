@@ -225,6 +225,33 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       return `${_action}:${basisPoints}:${THORCHAIN_AFFILIATE_NAME}:0`
     }
+    case 'tcy': {
+      // TCY:CLAIMADDR
+      const [_action, destAddr] = memo.split(':')
+
+      assertMemoHasDestAddr(destAddr, memo)
+
+      // Ensures we strip any additional bits which may not be supported for claim Txs
+      return `${_action}:${destAddr}`
+    }
+    case 'tcy+': {
+      // TCY+:STAKEADDR
+      const [_action, destAddr] = memo.split(':')
+
+      assertMemoHasDestAddr(destAddr, memo)
+
+      // Ensures we strip any additional bits which may not be supported for stake Txs
+      return `${_action}:${destAddr}`
+    }
+    case 'tcy-': {
+      // TCY-:UNSTAKEADDR
+      const [_action, destAddr] = memo.split(':')
+
+      assertMemoHasDestAddr(destAddr, memo)
+
+      // Ensures we strip any additional bits which may not be supported for unstake Txs
+      return `${_action}:${destAddr}`
+    }
     default:
       throw new Error(`unsupported memo: ${memo}`)
   }

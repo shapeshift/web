@@ -33,12 +33,7 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
           break
         case NativeEvents.READY:
           if (modal) {
-            dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: false } })
             dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-            dispatch({
-              type: WalletActions.SET_IS_CONNECTED,
-              payload: true,
-            })
           }
           break
         default:

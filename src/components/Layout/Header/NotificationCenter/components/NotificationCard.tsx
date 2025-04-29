@@ -1,18 +1,18 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Collapse, Flex, HStack, Icon, Stack, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { PropsWithChildren } from 'react'
 import { useCallback } from 'react'
 
+import type { NotificationStatus, NotificationType } from '../types'
 import { NotificationDetailsWrapper } from './NotificationDetailsWrapper'
+import { NotificationStatusIcon } from './NotificationStatusIcon'
 import { NotificationStatusTag } from './NotificationStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
-import { TransactionTypeIcon } from '@/components/TransactionHistory/TransactionTypeIcon'
 
 dayjs.extend(relativeTime)
 
@@ -24,9 +24,10 @@ const hoverProps = {
 }
 
 type NotificationCardProps = {
-  type: string
+  type: NotificationType
   assetId: AssetId
-  status: TxStatus
+  secondaryAssetId?: AssetId
+  status: NotificationStatus
   date: number
   title: string
   isCollapsable?: boolean
@@ -36,6 +37,7 @@ type NotificationCardProps = {
 export const NotificationCard = ({
   type,
   assetId,
+  secondaryAssetId,
   status,
   date,
   title,
@@ -66,39 +68,41 @@ export const NotificationCard = ({
   return (
     <Stack
       spacing={4}
-      px={4}
-      py={4}
       mx={2}
       borderRadius='lg'
       transitionProperty='common'
       transitionDuration='fast'
       _hover={isCollapsable ? hoverProps : undefined}
     >
-      <Flex gap={2} alignItems='flex-start' onClick={handleClick}>
-        <AssetIconWithBadge assetId={assetId} size='md'>
-          <TransactionTypeIcon type={type} status={status} />
+      <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={handleClick}>
+        <AssetIconWithBadge assetId={assetId} secondaryAssetId={secondaryAssetId} size='md'>
+          <NotificationStatusIcon status={status} />
         </AssetIconWithBadge>
-        <Stack spacing={1}>
-          <RawText fontSize='sm'>{title}</RawText>
-          <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
-            <NotificationStatusTag status={status} />
-            <RawText>{formattedDate}</RawText>
-            <RawText>{type}</RawText>
+        <Stack spacing={0} width='full'>
+          <HStack>
+            <Stack spacing={1} width='full'>
+              <RawText fontSize='sm'>{title}</RawText>
+              <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
+                <NotificationStatusTag status={status} />
+                <RawText>{formattedDate}</RawText>
+                <RawText>{type}</RawText>
+              </HStack>
+            </Stack>
+            {isCollapsable && (
+              <Icon
+                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+                ml='auto'
+                my='auto'
+                fontSize='xl'
+                color='text.subtle'
+              />
+            )}
           </HStack>
+          <Collapse in={isOpen}>
+            <NotificationDetailsWrapper>{children}</NotificationDetailsWrapper>
+          </Collapse>
         </Stack>
-        {isCollapsable && (
-          <Icon
-            as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-            ml='auto'
-            my='auto'
-            fontSize='xl'
-            color='text.subtle'
-          />
-        )}
       </Flex>
-      <Collapse in={isOpen}>
-        <NotificationDetailsWrapper>{children}</NotificationDetailsWrapper>
-      </Collapse>
     </Stack>
   )
 }

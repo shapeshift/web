@@ -10,8 +10,7 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react'
-import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -21,6 +20,7 @@ import { GenericDetails } from './components/Details/GenericDetails'
 import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
 import { SwapDetails } from './components/Details/SwapDetails'
 import { NotificationCard } from './components/NotificationCard'
+import { NotificationStatus, NotificationType } from './types'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -79,38 +79,49 @@ export const NotificationCenter = memo(() => {
               className='scroll-container'
             >
               <NotificationCard
-                type='Limit Order'
-                assetId={btcAssetId}
-                status={TxStatus.Confirmed}
+                type={NotificationType.Limit}
+                assetId={usdcAssetId}
+                secondaryAssetId={ethAssetId}
+                status={NotificationStatus.Expired}
                 date={new Date('2025-04-29').getTime() / 1000}
                 title='Limit Order Placed for 1 ETH to USDC'
               >
                 <LimitOrderDetails />
               </NotificationCard>
               <NotificationCard
-                type='Swap'
-                assetId={btcAssetId}
-                status={TxStatus.Confirmed}
+                type={NotificationType.Swap}
+                assetId={usdcAssetId}
+                secondaryAssetId={ethAssetId}
+                status={NotificationStatus.Complete}
                 date={new Date('2025-04-29').getTime() / 1000}
-                title='Swap 0.00 SOL to 0.00 USDC'
+                title='Swap 0.00 USDC to 0.00 ETH'
               >
                 <SwapDetails isStreaming />
               </NotificationCard>
               <NotificationCard
-                type='Deposit'
+                type={NotificationType.Deposit}
                 assetId={ethAssetId}
-                status={TxStatus.Pending}
+                secondaryAssetId={foxAssetId}
+                status={NotificationStatus.Pending}
                 date={new Date('2025-04-29').getTime() / 1000}
                 title='Your deposit of 0.00 WETH/FOX to 0x1234 is being processed'
               >
                 <GenericDetails />
               </NotificationCard>
               <NotificationCard
-                type='Claim'
+                type={NotificationType.Deposit}
                 assetId={ethAssetId}
-                isCollapsable={false}
-                defaultIsOpen
-                status={TxStatus.Confirmed}
+                secondaryAssetId={foxAssetId}
+                status={NotificationStatus.Failed}
+                date={new Date('2025-04-29').getTime() / 1000}
+                title='Your deposit of 0.00 WETH/FOX to 0x1234 has failed'
+              >
+                <GenericDetails />
+              </NotificationCard>
+              <NotificationCard
+                type={NotificationType.Claim}
+                assetId={foxAssetId}
+                status={NotificationStatus.ClaimAvailable}
                 date={new Date('2025-04-29').getTime() / 1000}
                 title='Your unstake of 0.00 FOX is ready to claim'
               >

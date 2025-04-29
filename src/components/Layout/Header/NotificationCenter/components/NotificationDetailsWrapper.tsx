@@ -5,7 +5,7 @@ type NotificationDetailsWrapperProps = PropsWithChildren
 
 export const NotificationDetailsWrapper = ({ children }: NotificationDetailsWrapperProps) => {
   return (
-    <Card bg='transparent'>
+    <Card bg='transparent' mt={4}>
       <CardBody px={0} py={0}>
         {children}
       </CardBody>

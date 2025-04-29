@@ -37,7 +37,7 @@ export const LimitOrderDetails = () => {
           <RawText>50%</RawText>
         </Row.Value>
       </Row>
-      <ButtonGroup width='full'>
+      <ButtonGroup width='full' size='sm'>
         <Button width='full'>View Order</Button>
         <Button width='full'>Cancel Order</Button>
       </ButtonGroup>

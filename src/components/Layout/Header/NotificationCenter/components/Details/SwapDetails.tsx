@@ -33,7 +33,7 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ isStreaming }) => {
           </Row.Value>
         </Row>
       )}
-      <ButtonGroup width='full'>
+      <ButtonGroup width='full' size='sm'>
         <Button width='full'>View Transaction</Button>
       </ButtonGroup>
     </Stack>

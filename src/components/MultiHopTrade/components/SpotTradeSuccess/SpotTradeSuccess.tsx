@@ -13,7 +13,7 @@ import {
   Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
-import { foxAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -34,6 +34,7 @@ import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetai
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectLastHopBuyAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
@@ -82,6 +83,8 @@ export const SpotTradeSuccess = ({
   const tradeExecution = useAppSelector(selectConfirmedTradeExecution)
   const isMultiHop = useAppSelector(selectIsActiveQuoteMultiHop)
 
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+
   const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
 
   const affiliateFeeUserCurrency = useAppSelector(
@@ -94,7 +97,7 @@ export const SpotTradeSuccess = ({
   // Get the actual received amount from the buy transaction *if* we can
   // i.e if this isn't a swap to a manual receive addy
   const buyTxId = useMemo(() => {
-    if (!tradeExecution || !buyAsset || !receiveAddress) return
+    if (!tradeExecution || !receiveAddress || !buyAccountId) return
 
     const txHash = isMultiHop
       ? tradeExecution.secondHop?.swap?.buyTxHash
@@ -102,15 +105,8 @@ export const SpotTradeSuccess = ({
 
     if (!txHash) return
 
-    const { chainId } = fromAssetId(buyAsset.assetId)
-
-    const accountId = toAccountId({
-      chainId,
-      account: receiveAddress,
-    })
-
-    return serializeTxIndex(accountId, txHash, receiveAddress)
-  }, [tradeExecution, isMultiHop, buyAsset, receiveAddress])
+    return serializeTxIndex(buyAccountId, txHash, receiveAddress)
+  }, [tradeExecution, isMultiHop, receiveAddress, buyAccountId])
 
   const txTransfers = useTxDetails(buyTxId ?? '')?.transfers
   const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers

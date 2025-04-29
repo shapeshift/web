@@ -254,7 +254,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     try {
       // TODO memo validation
       const { from, value, memo, chainSpecific } = input
-      const { fee } = chainSpecific
+      const { fee, coin = 'THOR.RUNE' } = chainSpecific
+
+      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY') throw new Error('unsupported coin type')
 
       if (!fee) throw new Error('fee is required')
 
@@ -264,7 +266,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const msg: ThorchainMsgDeposit = {
         type: ThorchainMessageType.MsgDeposit,
         value: {
-          coins: [{ asset: 'THOR.RUNE', amount: bnOrZero(value).toString() }],
+          coins: [{ asset: coin, amount: bnOrZero(value).toString() }],
           memo,
           signer: from,
         },

@@ -348,10 +348,44 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   })()
 
   const appFeesBaseUnit = (() => {
+    if (maybeAppFeesAsset.isErr()) return '0'
+    const appFeesAsset = maybeAppFeesAsset.unwrap()
+
+    if (!appFeesAsset) return '0'
+
     // For cross-chain: always add back app fees
     // For same-chain: only add back if input is native currency
     if (isCrossChain || isNativeCurrencyInput) {
-      return quote.fees.app.amount
+      if (buyAsset.assetId === appFeesAsset.assetId) {
+        return quote.fees.app.amount
+      }
+
+      // if fee is in sell asset, convert to buy asset
+      if (appFeesAsset.assetId === sellAsset.assetId) {
+        return convertPrecision({
+          value: quote.fees.app.amount,
+          inputExponent: appFeesAsset.precision,
+          outputExponent: buyAsset.precision,
+        })
+          .times(rate)
+          .toFixed(0)
+      }
+
+      // If fee is in a different asset, convert to buy asset
+      const feeAmountUsd = quote.fees.app.amountUsd
+      const buyAssetUsd = currencyOut.amountUsd
+      const buyAssetAmountBaseUnit = currencyOut.amount
+
+      if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
+        // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
+        // Then multiply by feeAmountUsd to get the equivalent buy asset amount
+        const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmountBaseUnit).div(buyAssetUsd)
+        const appFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(buyAssetCryptoBaseUnitPerUsd)
+
+        return appFeesCryptoBaseUnit.toFixed(0)
+      }
+
+      return '0'
     }
 
     // cross-chain or same-chain with native currency as input are not applicable

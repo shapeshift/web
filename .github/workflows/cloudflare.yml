@@ -75,4 +75,4 @@ jobs:
       # deploy main branch to fleek.xyz alpha environment
       - name: Deploy to Fleek
         if: contains(fromJSON('["main"]'), github.event_name == 'pull_request' && github.head_ref || github.ref_name)
-        run: npm i -g @fleekxyz/cli && fleek sites deploy
+        run: npm i -g @fleek-platform/cli && fleek sites deploy

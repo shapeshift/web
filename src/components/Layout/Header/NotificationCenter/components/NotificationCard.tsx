@@ -5,6 +5,7 @@ import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { PropsWithChildren } from 'react'
+import { useCallback } from 'react'
 
 import { NotificationDetailsWrapper } from './NotificationDetailsWrapper'
 import { NotificationStatusTag } from './NotificationStatusTag'
@@ -56,6 +57,12 @@ export const NotificationCard = ({
     }
   })()
 
+  const handleClick = useCallback(() => {
+    if (isCollapsable) {
+      onToggle()
+    }
+  }, [isCollapsable, onToggle])
+
   return (
     <Stack
       spacing={4}
@@ -67,7 +74,7 @@ export const NotificationCard = ({
       transitionDuration='fast'
       _hover={isCollapsable ? hoverProps : undefined}
     >
-      <Flex gap={2} alignItems='flex-start' onClick={isCollapsable ? onToggle : undefined}>
+      <Flex gap={2} alignItems='flex-start' onClick={handleClick}>
         <AssetIconWithBadge assetId={assetId} size='md'>
           <TransactionTypeIcon type={type} status={status} />
         </AssetIconWithBadge>

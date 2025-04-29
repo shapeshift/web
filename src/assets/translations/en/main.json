@@ -606,6 +606,7 @@
     "lending": "Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
     "actionMenu": {
@@ -665,6 +666,13 @@
         "executeTransaction": "Claim"
       },
       "rfox": {
+        "stake": "Stake",
+        "withdraw": "Withdraw",
+        "unstakeRequest": "Unstake Request",
+        "setRuneAddress": "Set RUNE Address",
+        "reward": "Reward Distribution"
+      },
+      "tcy": {
         "stake": "Stake",
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
@@ -2651,6 +2659,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Stake FOX earn RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Stake TCY earn RUNE."
     }
   },
   "RFOX": {
@@ -2771,6 +2783,22 @@
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address"
+  },
+  "TCY": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "claim": "Claim",
+    "staking": "TCY Staking",
+    "myPosition": "My Position",
+    "myStakedBalance": "My Staked Balance",
+    "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
+    "pendingRewardsBalance": "Pending Rewards Balance",
+    "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
+    "lifetimeRewards": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
+    "timeStaked": "Time Staked",
+    "timeStakedHelper": "The amount of time you have staked your %{symbol}",
+    "stakingReward": "Staking Reward"
   },
   "markets": {
     "recommended": "Recommended",

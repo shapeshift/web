@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetRowLoading } from '../AssetRowLoading'
@@ -121,28 +121,6 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       },
       [isAssetChainIdConnected, isAssetChainIdSupported, onlyConnectedChains],
     )
-
-    // If the currently selected assetId becomes disabled (by switching assets or disconnecting a
-    // chain), switch to the first enabled related assetId
-    useEffect(() => {
-      const isCurrentAssetIdDisabled = assetId ? isAssetChainIdDisabled(assetId) : false
-
-      if (isCurrentAssetIdDisabled) {
-        const firstEnabledAssetId = filteredRelatedAssetIds.find(
-          assetId => !isAssetChainIdDisabled(assetId),
-        )
-        if (firstEnabledAssetId) {
-          onChangeAsset(firstEnabledAssetId)
-        }
-      }
-    }, [
-      filteredRelatedAssetIds,
-      isAssetChainIdConnected,
-      assetId,
-      onChangeAsset,
-      isAssetChainIdSupported,
-      isAssetChainIdDisabled,
-    ])
 
     const renderedChains = useMemo(() => {
       if (!assetId) return null

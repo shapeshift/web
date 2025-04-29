@@ -60,6 +60,9 @@ type Action =
   | 'depositRunepool'
   | 'withdrawSavers'
   | 'withdrawRunepool'
+  | 'claimTcy'
+  | 'stakeTcy'
+  | 'unstakeTcy'
 
 type UseSendThorTxProps = {
   accountId: AccountId | null
@@ -72,6 +75,8 @@ type UseSendThorTxProps = {
   memo: string | null
   dustAmountCryptoBaseUnit?: string
 }
+
+const actionsWithDustAmount: Action[] = ['withdrawLiquidity', 'withdrawSavers', 'claimTcy']
 
 export const useSendThorTx = ({
   accountId,
@@ -102,9 +107,7 @@ export const useSendThorTx = ({
   }, [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, accountNumberFilter))
 
-  const shouldUseDustAmount = useMemo(() => {
-    return ['withdrawLiquidity', 'withdrawSavers'].includes(action)
-  }, [action])
+  const shouldUseDustAmount = useMemo(() => actionsWithDustAmount.includes(action), [action])
 
   // Either a fall through of the passed dustAmountCryptoBaseUnit, or the default dust amount for that feeAsset
   // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs

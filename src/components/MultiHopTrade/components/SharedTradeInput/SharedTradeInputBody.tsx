@@ -9,22 +9,15 @@ import {
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { JSX } from 'react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { LuArrowUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
 import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isToken } from '@/lib/utils'
-import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectHighestMarketCapFeeAsset,
-  selectWalletConnectedChainIds,
-} from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 const arrowUpDownIcon = <LuArrowUpDown />
 
@@ -70,13 +63,6 @@ export const SharedTradeInputBody = ({
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
 
-  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
-  const isAccountMetadataLoadingByAccountId = useAppSelector(
-    portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
-  )
-
   const sellAssetSearch = useModal('sellTradeAssetSearch')
 
   const percentOptions = useMemo(() => {
@@ -86,34 +72,9 @@ export const SharedTradeInputBody = ({
     return [1]
   }, [sellAsset.assetId])
 
-  const hasJustSwitchedAssetsRef = useRef(false)
   const handleSwitchAssets = useCallback(() => {
-    // Note we never set this back to false. This is intentional, as from the moment the user switches assets, we don't want any default pair logic to kick in anymore.
-    hasJustSwitchedAssetsRef.current = true
     onSwitchAssets()
   }, [onSwitchAssets])
-
-  // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
-  useEffect(() => {
-    if (hasJustSwitchedAssetsRef.current) return
-
-    // Don't do any default asset business as some accounts meta is still loading, or a wrong default asset may be set,
-    // which takes over the "default default" sellAsset - double default intended:
-    // https://github.com/shapeshift/web/blob/ba43c41527156f8c7e0f1170472ff362e091b450/src/state/slices/tradeInputSlice/tradeInputSlice.ts#L27
-    if (Object.values(isAccountMetadataLoadingByAccountId).some(Boolean)) return
-    if (!defaultSellAsset) return
-
-    if (walletConnectedChainIds.includes(sellAsset.chainId)) return
-
-    setSellAsset(defaultSellAsset)
-  }, [
-    defaultSellAsset,
-    isAccountMetadataLoadingByAccountId,
-    isAccountsMetadataLoading,
-    sellAsset,
-    setSellAsset,
-    walletConnectedChainIds,
-  ])
 
   const handleSellAssetClick = useCallback(() => {
     sellAssetSearch.open({

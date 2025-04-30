@@ -2847,6 +2847,27 @@
       "viewTransaction": "View Transaction",
       "successSubtitle": "You have successfully staked %{amount} TCY",
       "goBack": "Go Back"
+    },
+    "unstakeInput": {
+      "amount": "Amount",
+      "networkFee": "Network Fee",
+      "networkFeeTooltip": "Network Fee",
+      "unstake": "Unstake",
+      "amountPlaceholder": "Enter amount"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirm Unstake",
+      "confirmAndUnstake": "Confirm & Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake is pending",
+      "pendingSubtitle": "We are processing your unstake for %{amount} TCY",
+      "successTitle": "Unstake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your unstake has failed. Please try again.",
+      "viewTransaction": "View Transaction",
+      "successSubtitle": "You have successfully unstaked %{amount} TCY",
+      "goBack": "Go Back"
     }
   },
   "markets": {

@@ -1,6 +1,5 @@
 import { Button, HStack, Stack } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { useTranslate } from 'react-polyglot'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -9,11 +8,22 @@ import { RawText } from '@/components/Text'
 type AssetClaimButtonProps = {
   onClick?: () => void
   isDisabled?: boolean
+  assetId: AssetId
+  assetName: string
+  assetSymbol: string
+  assetAmount: string
+  claimAction: string
 }
 
-export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, isDisabled }) => {
-  const translate = useTranslate()
-
+export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({
+  onClick,
+  isDisabled,
+  assetId,
+  assetName,
+  assetSymbol,
+  assetAmount,
+  claimAction,
+}) => {
   return (
     <Button
       height='auto'
@@ -30,20 +40,20 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, isD
       isDisabled={isDisabled}
     >
       <HStack gap={4}>
-        <AssetIcon assetId={ethAssetId} />
+        <AssetIcon assetId={assetId} />
         <Stack alignItems='flex-start'>
           <RawText fontWeight='bold' color='text.base' fontSize='lg'>
-            Bitcoin
+            {assetName}
           </RawText>
           <RawText fontSize='sm' color='text.subtle'>
-            BTC
+            {assetSymbol}
           </RawText>
         </Stack>
       </HStack>
       <Stack alignItems='flex-end'>
-        <Amount.Crypto color='text.base' fontSize='lg' value='100' symbol='TCY' />
-        <RawText fontSize='sm' color='green.500'>
-          {translate('TCY.assetClaimButton.claimAction')}
+        <Amount.Crypto color='text.base' fontSize='lg' value={assetAmount} symbol={assetSymbol} />
+        <RawText fontSize='sm' color={isDisabled ? 'text.subtle' : 'green.500'}>
+          {claimAction}
         </RawText>
       </Stack>
     </Button>

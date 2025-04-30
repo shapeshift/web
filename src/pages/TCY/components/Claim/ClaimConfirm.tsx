@@ -39,7 +39,7 @@ export const ClaimConfirm = () => {
           </DialogHeader.Middle>
         </DialogHeader>
         <Card mx={4}>
-          <CardBody textAlign='center' py={12}>
+          <CardBody textAlign='center' py={8}>
             <AssetIcon assetId={ethAssetId} />
             <Amount.Crypto
               fontWeight='bold'

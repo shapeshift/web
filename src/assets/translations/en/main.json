@@ -2800,7 +2800,8 @@
     "timeStakedHelper": "The amount of time you have staked your %{symbol}",
     "stakingReward": "Staking Reward",
     "claimSelect": {
-      "unavailableClaims": "Unavailable Claims"
+      "unavailableClaims": "Unavailable Claims",
+      "notEligible": "Not Eligible"
     },
     "claimStatus": {
       "pendingTitle": "Claim is pending",

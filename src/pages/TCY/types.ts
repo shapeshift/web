@@ -1,7 +1,8 @@
+import type { JSX } from 'react'
+
 export enum TCYTabIndex {
   Stake,
   Unstake,
-  Claim,
   ChangeAddress,
 }
 
@@ -24,4 +25,14 @@ export type TransactionRow = {
   txHash: string
   status: TransactionStatus
   timestamp: number
+}
+
+export type TCYRouteProps = {
+  headerComponent?: JSX.Element
+}
+
+export enum TCYClaimRoute {
+  Select = '/claim',
+  Confirm = '/claim/confirm',
+  Status = '/claim/status',
 }

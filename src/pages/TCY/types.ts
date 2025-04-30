@@ -1,7 +1,6 @@
 import type { JSX } from 'react'
 
 export enum TCYTabIndex {
-  Claim,
   Stake,
   Unstake,
   ChangeAddress,

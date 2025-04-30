@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, Stack } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, ModalCloseButton, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,7 +9,6 @@ import { ClaimAddressInput } from './components/ClaimAddressInput'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -19,10 +18,6 @@ export const ClaimConfirm = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleBack = useCallback(() => {
-    navigate(TCYClaimRoute.Select)
-  }, [navigate])
-
   const handleConfirm = useCallback(() => {
     navigate(TCYClaimRoute.Status)
   }, [navigate])
@@ -31,12 +26,12 @@ export const ClaimConfirm = () => {
     <SlideTransition>
       <Stack>
         <DialogHeader>
-          <DialogHeader.Left>
-            <DialogBackButton onClick={handleBack} />
-          </DialogHeader.Left>
           <DialogHeader.Middle>
             <RawText>{translate('TCY.claimConfirm.confirmTitle')}</RawText>
           </DialogHeader.Middle>
+          <DialogHeader.Right>
+            <ModalCloseButton />
+          </DialogHeader.Right>
         </DialogHeader>
         <Card mx={4}>
           <CardBody textAlign='center' py={8}>

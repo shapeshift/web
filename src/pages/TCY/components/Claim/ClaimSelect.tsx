@@ -1,23 +1,22 @@
-import { Stack } from '@chakra-ui/react'
+import { Stack, useDisclosure } from '@chakra-ui/react'
 import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router'
 
 import type { TCYRouteProps } from '../../types'
-import { TCYClaimRoute } from '../../types'
+import { ClaimModal } from './ClaimRoutes'
 import { AssetClaimButton } from './components/AssetClaimButton'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 
 export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
-  const navigate = useNavigate()
   const translate = useTranslate()
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const handleClick = useCallback(() => {
-    navigate(TCYClaimRoute.Confirm)
-  }, [navigate])
+    onOpen()
+  }, [onOpen])
 
   return (
     <SlideTransition>
@@ -47,6 +46,7 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
           />
         </Stack>
       </Stack>
+      <ClaimModal isOpen={isOpen} onClose={onClose} />
     </SlideTransition>
   )
 }

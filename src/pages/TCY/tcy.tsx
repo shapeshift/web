@@ -2,6 +2,7 @@ import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
 
 import { Activity } from './components/Activity/Activity'
+import { Claim } from './components/Claim/Claim'
 import { Overview } from './components/Overview'
 import { TCYHeader } from './components/TCYHeader'
 import { Widget } from './components/Widget'
@@ -20,6 +21,7 @@ export const TCY = () => {
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview />
+          <Claim />
           <Activity />
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>

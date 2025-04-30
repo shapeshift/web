@@ -2,19 +2,17 @@ import { Card, CardBody, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 
 import { TCYTabIndex } from '../types'
-import { Claim } from './Claim/Claim'
 import { Stake } from './Stake/Stake'
 
 import { FormHeader } from '@/components/FormHeader'
 
 const FormHeaderItems = [
-  { label: 'TCY.claim', index: TCYTabIndex.Claim },
   { label: 'TCY.stake', index: TCYTabIndex.Stake },
   { label: 'TCY.unstake', index: TCYTabIndex.Unstake },
 ]
 
 export const Widget = () => {
-  const [stepIndex, setStepIndex] = useState(TCYTabIndex.Claim)
+  const [stepIndex, setStepIndex] = useState(TCYTabIndex.Stake)
 
   const TabHeader = useMemo(() => {
     return (
@@ -27,9 +25,6 @@ export const Widget = () => {
       <CardBody px={0} py={0}>
         <Tabs index={stepIndex}>
           <TabPanels>
-            <TabPanel p={0}>
-              <Claim headerComponent={TabHeader} />
-            </TabPanel>
             <TabPanel>
               <Stake headerComponent={TabHeader} />
             </TabPanel>

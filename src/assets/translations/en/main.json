@@ -2798,7 +2798,35 @@
     "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
     "timeStaked": "Time Staked",
     "timeStakedHelper": "The amount of time you have staked your %{symbol}",
-    "stakingReward": "Staking Reward"
+    "stakingReward": "Staking Reward",
+    "claimSelect": {
+      "unavailableClaims": "Unavailable Claims"
+    },
+    "claimStatus": {
+      "pendingTitle": "Claim is pending",
+      "back": "Back",
+      "viewTransaction": "View Transaction",
+      "successTitle": "Claim is successful",
+      "successSubtitle": "You have successfully claimed {claimedAmount} TCY",
+      "goBack": "Go Back",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your claim has failed. Please try again."
+    },
+    "claimConfirm": {
+      "confirmTitle": "Confirm",
+      "networkFee": "Network Fee",
+      "confirmAndClaim": "Confirm & Claim"
+    },
+    "assetClaimButton": {
+      "assetName": "Bitcoin",
+      "claimAction": "Claim"
+    },
+    "claimAddressInput": {
+      "label": "Claim Address",
+      "useWalletAddress": "Use wallet address",
+      "useCustomAddress": "Use custom address",
+      "helperText": "This is where your TCY will be sent."
+    }
   },
   "markets": {
     "recommended": "Recommended",

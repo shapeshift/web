@@ -1,5 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import type { TCYRouteProps } from '../../types'
@@ -11,6 +12,7 @@ import { RawText } from '@/components/Text'
 
 export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
   const navigate = useNavigate()
+  const translate = useTranslate()
 
   const handleClick = useCallback(() => {
     navigate(TCYClaimRoute.Confirm)
@@ -25,7 +27,7 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
         </Stack>
         <Stack px={2} pb={2} spacing={2}>
           <RawText px={4} color='text.subtle'>
-            Unavailable Claims
+            {translate('TCY.claimSelect.unavailableClaims')}
           </RawText>
           <AssetClaimButton isDisabled />
         </Stack>

@@ -1,6 +1,7 @@
 import { Button, Card, CardBody, CardFooter, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import { TCYClaimRoute } from '../../types'
@@ -16,6 +17,7 @@ import { RawText } from '@/components/Text'
 
 export const ClaimConfirm = () => {
   const navigate = useNavigate()
+  const translate = useTranslate()
 
   const handleBack = useCallback(() => {
     navigate(TCYClaimRoute.Select)
@@ -33,7 +35,7 @@ export const ClaimConfirm = () => {
             <DialogBackButton onClick={handleBack} />
           </DialogHeader.Left>
           <DialogHeader.Middle>
-            <RawText>Confirm</RawText>
+            <RawText>{translate('TCY.claimConfirm.confirmTitle')}</RawText>
           </DialogHeader.Middle>
         </DialogHeader>
         <Card mx={4}>
@@ -61,13 +63,13 @@ export const ClaimConfirm = () => {
           borderBottomRadius='lg'
         >
           <Row fontSize='sm'>
-            <Row.Label>Network Fee</Row.Label>
+            <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
             <Row.Value>
               <Amount.Fiat value='0.000000000000000000' />
             </Row.Value>
           </Row>
           <Button size='lg' colorScheme='blue' onClick={handleConfirm}>
-            Confirm & Claim
+            {translate('TCY.claimConfirm.confirmAndClaim')}
           </Button>
         </CardFooter>
       </Stack>

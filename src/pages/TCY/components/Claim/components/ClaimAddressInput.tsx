@@ -1,10 +1,10 @@
 import { Button, FormControl, FormHelperText, FormLabel, HStack, Input } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
-
 const boxProps = {
   width: 'full',
   p: 0,
@@ -18,6 +18,7 @@ const buttonProps = {
 }
 
 export const ClaimAddressInput = () => {
+  const translate = useTranslate()
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [isCustomAddress, setIsCustomAddress] = useState(false)
 
@@ -53,13 +54,15 @@ export const ClaimAddressInput = () => {
   return (
     <FormControl>
       <HStack justifyContent='space-between' mb={4}>
-        <FormLabel mb={0}>Claim Address</FormLabel>
+        <FormLabel mb={0}>{translate('TCY.claimAddressInput.label')}</FormLabel>
         <Button variant='link' color='text.link' onClick={handleToggleCustomAddress}>
-          {isCustomAddress ? 'Use wallet address' : 'Use custom address'}
+          {isCustomAddress
+            ? translate('TCY.claimAddressInput.useWalletAddress')
+            : translate('TCY.claimAddressInput.useCustomAddress')}
         </Button>
       </HStack>
       {renderInputSelection}
-      <FormHelperText>This is where your TCY will be sent.</FormHelperText>
+      <FormHelperText>{translate('TCY.claimAddressInput.helperText')}</FormHelperText>
     </FormControl>
   )
 }

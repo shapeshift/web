@@ -1,5 +1,6 @@
 import { Button, HStack, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
+import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -11,6 +12,8 @@ type AssetClaimButtonProps = {
 }
 
 export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, isDisabled }) => {
+  const translate = useTranslate()
+
   return (
     <Button
       height='auto'
@@ -40,7 +43,7 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, isD
       <Stack alignItems='flex-end'>
         <Amount.Crypto color='text.base' fontSize='lg' value='100' symbol='TCY' />
         <RawText fontSize='sm' color='green.500'>
-          Claim
+          {translate('TCY.assetClaimButton.claimAction')}
         </RawText>
       </Stack>
     </Button>

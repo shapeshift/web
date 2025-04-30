@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, ModalCloseButton, Stack } from '@chakra-ui/react'
+import { ModalCloseButton } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -7,12 +7,9 @@ import { useNavigate } from 'react-router'
 import { TCYClaimRoute } from '../../types'
 import { ClaimAddressInput } from './components/ClaimAddressInput'
 
-import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
-import { Row } from '@/components/Row/Row'
-import { SlideTransition } from '@/components/SlideTransition'
-import { RawText } from '@/components/Text'
+import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+
+const headerRightComponent = <ModalCloseButton />
 
 export const ClaimConfirm = () => {
   const navigate = useNavigate()
@@ -22,52 +19,24 @@ export const ClaimConfirm = () => {
     navigate(TCYClaimRoute.Status)
   }, [navigate])
 
+  // TODO: Replace hardcoded values with actual data fetching/state management
+  const cryptoAmount = '100'
+  const fiatAmount = '100' // Assuming 1 TCY = 1 USD for now
+  const feeAmountFiat = '0.00' // Placeholder, fetch actual fee
+
   return (
-    <SlideTransition>
-      <Stack>
-        <DialogHeader>
-          <DialogHeader.Middle>
-            <RawText>{translate('TCY.claimConfirm.confirmTitle')}</RawText>
-          </DialogHeader.Middle>
-          <DialogHeader.Right>
-            <ModalCloseButton />
-          </DialogHeader.Right>
-        </DialogHeader>
-        <Card mx={4}>
-          <CardBody textAlign='center' py={8}>
-            <AssetIcon assetId={ethAssetId} />
-            <Amount.Crypto
-              fontWeight='bold'
-              value='100'
-              mt={4}
-              symbol='TCY'
-              color='text.base'
-              fontSize='lg'
-            />
-            <Amount.Fiat fontSize='sm' value='100' color='text.subtle' />
-          </CardBody>
-        </Card>
-        <CardBody>
-          <ClaimAddressInput />
-        </CardBody>
-        <CardFooter
-          flexDir='column'
-          gap={4}
-          pb={6}
-          bg='background.surface.raised.accent'
-          borderBottomRadius='lg'
-        >
-          <Row fontSize='sm'>
-            <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
-            <Row.Value>
-              <Amount.Fiat value='0.000000000000000000' />
-            </Row.Value>
-          </Row>
-          <Button size='lg' colorScheme='blue' onClick={handleConfirm}>
-            {translate('TCY.claimConfirm.confirmAndClaim')}
-          </Button>
-        </CardFooter>
-      </Stack>
-    </SlideTransition>
+    <ReusableConfirm
+      assetId={ethAssetId} // Assuming TCY is on Ethereum, adjust if needed
+      headerText={translate('TCY.claimConfirm.confirmTitle')}
+      cryptoAmount={cryptoAmount}
+      cryptoSymbol='TCY'
+      fiatAmount={fiatAmount}
+      feeAmountFiat={feeAmountFiat}
+      confirmText={translate('TCY.claimConfirm.confirmAndClaim')}
+      onConfirm={handleConfirm}
+      headerRightComponent={headerRightComponent}
+    >
+      <ClaimAddressInput />
+    </ReusableConfirm>
   )
 }

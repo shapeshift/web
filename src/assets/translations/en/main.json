@@ -2826,6 +2826,27 @@
       "useWalletAddress": "Use wallet address",
       "useCustomAddress": "Use custom address",
       "helperText": "This is where your TCY will be sent."
+    },
+    "stakeInput": {
+      "amount": "Amount",
+      "networkFee": "Network Fee",
+      "networkFeeTooltip": "Network Fee",
+      "stake": "Stake",
+      "amountPlaceholder": "Enter amount"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Confirm Stake",
+      "confirmAndStake": "Confirm & Stake"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Stake is pending",
+      "pendingSubtitle": "We are processing your stake for %{amount} TCY",
+      "successTitle": "Stake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your stake has failed. Please try again.",
+      "viewTransaction": "View Transaction",
+      "successSubtitle": "You have successfully staked %{amount} TCY",
+      "goBack": "Go Back"
     }
   },
   "markets": {

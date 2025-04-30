@@ -25,7 +25,7 @@ export const Widget = () => {
       <CardBody px={0} py={0}>
         <Tabs index={stepIndex}>
           <TabPanels>
-            <TabPanel>
+            <TabPanel p={0}>
               <Stake headerComponent={TabHeader} />
             </TabPanel>
             <TabPanel>

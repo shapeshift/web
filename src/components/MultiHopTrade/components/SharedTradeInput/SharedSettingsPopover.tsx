@@ -131,7 +131,6 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
       () => slippageAmount && bnOrZero(slippageAmount).lt(0.05),
       [slippageAmount],
     )
-    console.log({ slippageAmount })
 
     if (!isAdvancedSlippageEnabled) return null
 

@@ -2819,7 +2819,6 @@
       "confirmAndClaim": "Confirm & Claim"
     },
     "assetClaimButton": {
-      "assetName": "Bitcoin",
       "claimAction": "Claim"
     },
     "claimAddressInput": {

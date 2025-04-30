@@ -1,5 +1,5 @@
 import { Stack, useDisclosure } from '@chakra-ui/react'
-import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -8,7 +8,6 @@ import { ClaimModal } from './ClaimRoutes'
 import { AssetClaimButton } from './components/AssetClaimButton'
 
 import { SlideTransition } from '@/components/SlideTransition'
-import { RawText } from '@/components/Text'
 
 export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
   const translate = useTranslate()
@@ -30,19 +29,6 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
             assetAmount='100'
             claimAction={translate('TCY.claim')}
             onClick={handleClick}
-          />
-        </Stack>
-        <Stack px={2} pb={2} spacing={2}>
-          <RawText px={4} color='text.subtle'>
-            {translate('TCY.claimSelect.unavailableClaims')}
-          </RawText>
-          <AssetClaimButton
-            isDisabled
-            assetId={ethAssetId}
-            assetName='Ethereum'
-            assetSymbol='TCY'
-            assetAmount='0'
-            claimAction={translate('TCY.claimSelect.notEligible')}
           />
         </Stack>
       </Stack>

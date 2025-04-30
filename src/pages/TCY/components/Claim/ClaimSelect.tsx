@@ -26,7 +26,7 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
           <AssetClaimButton
             assetId={btcAssetId}
             assetName='Bitcoin'
-            assetSymbol='BTC'
+            assetSymbol='TCY'
             assetAmount='100'
             claimAction={translate('TCY.claim')}
             onClick={handleClick}
@@ -40,8 +40,8 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
             isDisabled
             assetId={ethAssetId}
             assetName='Ethereum'
-            assetSymbol='ETH'
-            assetAmount='100'
+            assetSymbol='TCY'
+            assetAmount='0'
             claimAction={translate('TCY.claimSelect.notEligible')}
           />
         </Stack>

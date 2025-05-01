@@ -17,12 +17,12 @@ const IconWrapper: React.FC<CenterProps> = props => (
 export const TransactionTypeIcon = ({ type, status }: { type?: string; status?: TxStatus }) => {
   if (status === TxStatus.Pending) {
     return (
-      <IconWrapper bg='border.base'>
+      <IconWrapper bg='blue.500'>
         <CircularProgress
           size='0.85em'
           thickness='1.25em'
-          trackColor='border.base'
-          color='blue.500'
+          trackColor='whiteAlpha.400'
+          color='white'
           isIndeterminate
         />
       </IconWrapper>

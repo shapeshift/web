@@ -1,4 +1,5 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
@@ -53,14 +54,17 @@ const ClaimRoutes = ({
   setClaimTxid: (txId: string) => void
 }) => {
   const location = useLocation()
+  const queryClient = useQueryClient()
+  
   const renderClaimConfirm = useCallback(() => {
     return <ClaimConfirm claim={claim} setClaimTxid={setClaimTxid} />
   }, [claim, setClaimTxid])
 
-  const handleTxConfirmed = useCallback(() => {
-    console.log("TODO: implement me and invalidate TCY positions, once that's actually implemented")
-    return Promise.resolve()
-  }, [])
+  const handleTxConfirmed = useCallback(async () => {
+    if (claim?.accountId) {
+      await queryClient.invalidateQueries({ queryKey: ['tcy-claims', claim.accountId] })
+    }
+  }, [claim?.accountId, queryClient])
 
   const renderClaimStatus = useCallback(() => {
     return (

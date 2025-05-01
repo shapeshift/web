@@ -122,7 +122,7 @@ export const thorchain: Readonly<Asset> = Object.freeze({
 })
 
 export const tcy: Readonly<Asset> = Object.freeze({
-  assetId: caip.thorchainAssetId,
+  assetId: caip.tcyAssetId,
   chainId: caip.thorchainChainId,
   name: 'TCY',
   networkName: 'THORChain',

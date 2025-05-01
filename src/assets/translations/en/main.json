@@ -2931,6 +2931,29 @@
     }
   },
   "notificationCenter": {
-    "title": "Notifications"
+    "title": "Notifications",
+    "viewTransaction": "View Transaction",
+    "viewOrder": "View Order",
+    "cancelOrder": "Cancel Order",
+    "pair": "Pair",
+    "limitPrice": "Limit Price",
+    "expires": "Expires",
+    "filled": "Filled",
+    "swap": "Swap",
+    "claim": "Claim",
+    "protocol": "Protocol",
+    "streamingStatus": "Streaming Status",
+    "executionPrice": "Execution Price",
+    "status": {
+      "title": "Status",
+      "open": "Open",
+      "expired": "Expired",
+      "cancelled": "Cancelled",
+      "confirmed": "Confirmed",
+      "failed": "Failed",
+      "pending": "Pending",
+      "claimAvailable": "Claim Available",
+      "unknown": "Unknown"
+    }
   }
 }

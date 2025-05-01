@@ -379,6 +379,7 @@ export const TradeInput = ({
     (assetId: AssetId) => {
       const { chainId } = fromAssetId(assetId)
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+      if (chainId === KnownChainIds.MayachainMainnet) return false
 
       return true
     },
@@ -388,6 +389,7 @@ export const TradeInput = ({
   const chainIdFilterPredicate = useCallback(
     (chainId: ChainId) => {
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+      if (chainId === KnownChainIds.MayachainMainnet) return false
 
       return true
     },

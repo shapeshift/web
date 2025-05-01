@@ -821,7 +821,7 @@
     "slippage": {
       "maxSlippage": "Maximaler Slippage",
       "auto": "Automatisch",
-      "custom": "Benutzerdefiniert",
+      "custom": "frei def.",
       "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
       "lowSlippage": "Eine gesetzte Marktabweichung unter 0,05 % kann zu einer fehlgeschlagenen Transaktion führen."
     },
@@ -2842,12 +2842,7 @@
       "claim": "Beanspruchen",
       "claimed": "Beansprucht",
       "discountText": "*%{percent} % Rabatt auf Handelsgebühren",
-      "noClaims": "Keine Ansprüche vorhanden",
-      "banner": {
-        "title": "Setzen Sie einen Hut darauf.",
-        "description": "Je mehr FOX oder FWH Sie besitzen, desto mehr Token erhalten Sie pro Tausch.",
-        "cta": "Mehr erfahren"
-      }
+      "noClaims": "Keine Ansprüche vorhanden"
     },
     "governance": {
       "title": "Verwaltung",
@@ -2878,5 +2873,8 @@
       "getUtxos": "Utxos konnten nicht abgerufen werden.",
       "getValidator": "Der Validierer konnte nicht abgerufen werden."
     }
+  },
+  "notificationCenter": {
+    "title": "Benachrichtigungen"
   }
 }

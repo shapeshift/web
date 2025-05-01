@@ -1,4 +1,5 @@
 import { Button, HStack, Stack } from '@chakra-ui/react'
+import { tcyAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,12 +22,13 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
   const translate = useTranslate()
 
   const asset = useAppSelector(state => selectAssetById(state, claim.assetId))
+  const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
 
   const handleClick = useCallback(() => {
     onClick?.(claim)
   }, [onClick, claim])
 
-  if (!asset) return
+  if (!tcyAsset || !asset) return
 
   return (
     <Button
@@ -58,7 +60,7 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
           color='text.base'
           fontSize='lg'
           value={fromBaseUnit(claim.amountThorBaseUnit, THOR_PRECISION)}
-          symbol={asset.symbol}
+          symbol={tcyAsset.symbol}
         />
         <RawText fontSize='sm' color={'green.500'}>
           {translate('common.claim')}

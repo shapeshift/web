@@ -7,7 +7,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -26,7 +26,11 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   claim: Claim | undefined
@@ -40,16 +44,26 @@ type AddressFormValues = {
 // There is no market-data for this asset just yet, so we hardcode it to the starting 0.1$ price
 // See https://gitlab.com/thorchain/thornode/-/blob/f62daad263a3690f50c75a24298320f7a9514d6e/docs/concepts/tcy.md?plain=0#user-interaction
 
-const tcyMarketData = {
-  price: '0.1',
-}
-
 export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const { state: walletState } = useWallet()
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
+
+  const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
+  const tcyMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
+  )
+
+  const amountCryptoPrecision = useMemo(
+    () => fromBaseUnit(claim?.amountThorBaseUnit ?? '0', THOR_PRECISION),
+    [claim?.amountThorBaseUnit],
+  )
+
+  const amountUserCurrency = useMemo(() => {
+    return bn(amountCryptoPrecision).times(tcyMarketData.price).toFixed(2)
+  }, [tcyMarketData.price, amountCryptoPrecision])
 
   const fromAddress = useMemo(
     () => (claim?.accountId ? fromAccountId(claim.accountId).account : null),
@@ -87,7 +101,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     await handleClaim()
   }, [handleClaim])
 
-  if (!claim) return null
+  if (!claim || !tcyAsset) return null
 
   return (
     <FormProvider {...methods}>
@@ -106,17 +120,13 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
               <AssetIcon assetId={thorchainAssetId} />
               <Amount.Crypto
                 fontWeight='bold'
-                value={claim.amountThorBaseUnit}
+                value={amountCryptoPrecision}
+                symbol={tcyAsset.symbol}
                 mt={4}
-                symbol='TCY'
                 color='text.base'
                 fontSize='lg'
               />
-              <Amount.Fiat
-                fontSize='sm'
-                value={bn(claim.amountThorBaseUnit).times(tcyMarketData.price).toFixed(2)}
-                color='text.subtle'
-              />
+              <Amount.Fiat fontSize='sm' value={amountUserCurrency} color='text.subtle' />
             </CardBody>
           </Card>
           <CardBody>

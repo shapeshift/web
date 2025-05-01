@@ -82,12 +82,12 @@ export const NotificationCard = ({
       transitionDuration='fast'
       _hover={isCollapsable ? hoverProps : undefined}
     >
-      <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={handleClick}>
+      <Flex gap={4} alignItems='flex-start' px={4} py={4}>
         <AssetIconWithBadge assetId={assetId} secondaryAssetId={secondaryAssetId} size='md'>
           <NotificationStatusIcon status={status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>
-          <HStack>
+          <HStack onClick={handleClick}>
             <Stack spacing={1} width='full'>
               <RawText fontSize='sm'>{title}</RawText>
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>

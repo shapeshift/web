@@ -1,74 +1,193 @@
-import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { ModalCloseButton, Stack } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
-import { TransactionStatus } from '../../types'
+import { TCYClaimRoute } from '../../types'
+import type { Claim } from './types'
 
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
-import { TransactionStatusDisplay } from '@/components/TransactionStatusDisplay/TransactionStatusDisplay'
-interface ClaimStatusProps {
-  status: TransactionStatus
+import { RawText } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+type BodyContent = {
+  key: TxStatus
+  title: string | [string, InterpolationOptions]
+  body: TextPropTypes['translation']
+  element: JSX.Element
 }
 
-export const ClaimStatus = ({ status }: ClaimStatusProps) => {
+type ClaimStatusProps = {
+  claim: Claim | undefined
+  txId: string
+  setClaimTxid: (txId: string) => void
+  onTxConfirmed: () => Promise<void>
+}
+
+export const ClaimStatus: React.FC<ClaimStatusProps> = ({
+  claim,
+  txId,
+  setClaimTxid,
+  onTxConfirmed: handleTxConfirmed,
+}) => {
+  const navigate = useNavigate()
   const translate = useTranslate()
+  const txStatus = useTxStatus({
+    accountId: claim?.accountId ?? null,
+    txHash: txId,
+    onTxStatusConfirmed: handleTxConfirmed,
+  })
 
-  // TODO: Get transaction hash for View Transaction link
-  const handleViewTransaction = useCallback(() => {
-    console.log('Navigate to transaction view')
-    // Example: navigate(`/tx/${txHash}`)
-  }, [])
+  const handleGoBack = useCallback(() => {
+    navigate(TCYClaimRoute.Select)
+  }, [navigate])
 
-  const renderStatus = () => {
-    switch (status) {
-      case TransactionStatus.Pending:
-        return (
-          <TransactionStatusDisplay
-            isLoading
-            title={translate('TCY.claimStatus.pendingTitle')}
-            primaryButtonText={translate('TCY.claimStatus.viewTransaction')}
-            onPrimaryClick={handleViewTransaction}
-          />
-        )
-      case TransactionStatus.Success:
-        // TODO: Get claimed amount
-        const claimedAmount = '0.00' // Placeholder
-        return (
-          <TransactionStatusDisplay
-            icon={CheckCircleIcon}
-            iconColor='green.500'
-            title={translate('TCY.claimStatus.successTitle')}
-            subtitle={`You have successfully claimed ${claimedAmount} TCY`}
-            primaryButtonText={translate('TCY.claimStatus.viewTransaction')}
-            onPrimaryClick={handleViewTransaction}
-          />
-        )
-      case TransactionStatus.Failed:
-        return (
-          <TransactionStatusDisplay
-            icon={WarningTwoIcon}
-            iconColor='red.500'
-            title={translate('TCY.claimStatus.failedTitle')}
-            subtitle={translate('TCY.claimStatus.failedSubtitle')}
-            primaryButtonText={translate('TCY.claimStatus.viewTransaction')}
-            onPrimaryClick={handleViewTransaction}
-          />
-        )
-      default:
-        return null // Or some default state
+  const asset = useAppSelector(state => selectAssetById(state, claim?.assetId ?? ''))
+  const amountCryptoPrecision = useMemo(
+    () => fromBaseUnit(claim?.amountThorBaseUnit ?? '0', asset?.precision ?? 0),
+    [claim?.amountThorBaseUnit, asset?.precision],
+  )
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId: claim?.accountId,
+  })
+
+  const bodyContent: BodyContent | null = useMemo(() => {
+    if (!asset) return null
+
+    if (maybeSafeTx?.isQueuedSafeTx) {
+      return {
+        key: TxStatus.Pending,
+        title: [
+          'common.safeProposalQueued',
+          {
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+          },
+        ],
+        body: [
+          'TCY.claimPending',
+          {
+            amount: bnOrZero(amountCryptoPrecision).toFixed(8),
+            symbol: asset.symbol,
+          },
+        ],
+        element: <CircularProgress size='75px' />,
+      }
     }
-  }
+
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
+      setClaimTxid(maybeSafeTx.transaction.transactionHash)
+    }
+
+    switch (txStatus) {
+      case undefined:
+      case TxStatus.Pending:
+        return {
+          key: TxStatus.Pending,
+          title: 'pools.waitingForConfirmation',
+          body: [
+            'TCY.claimPending',
+            {
+              amount: bnOrZero(amountCryptoPrecision).toFixed(8),
+              symbol: asset.symbol,
+            },
+          ],
+          element: <CircularProgress size='75px' />,
+        }
+      case TxStatus.Confirmed:
+        return {
+          key: TxStatus.Confirmed,
+          title: 'common.success',
+          body: [
+            'TCY.claimSuccess',
+            {
+              amount: bnOrZero(amountCryptoPrecision).toFixed(8),
+              symbol: asset.symbol,
+            },
+          ],
+          element: <CheckCircleIcon color='text.success' boxSize='75px' />,
+        }
+      case TxStatus.Failed:
+        return {
+          key: TxStatus.Failed,
+          title: 'common.somethingWentWrong',
+          body: 'common.somethingWentWrongBody',
+          element: <WarningIcon color='text.error' boxSize='75px' />,
+        }
+      default:
+        return null
+    }
+  }, [
+    asset,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.transaction?.transactionHash,
+    txStatus,
+    amountCryptoPrecision,
+    setClaimTxid,
+  ])
+
+  const txLink = useMemo(
+    () =>
+      getTxLink({
+        txId,
+        defaultExplorerBaseUrl: asset?.explorerTxLink ?? '',
+        accountId: claim?.accountId,
+        maybeSafeTx,
+      }),
+    [claim?.accountId, maybeSafeTx, asset?.explorerTxLink, txId],
+  )
+
+  const title = useMemo(() => {
+    if (!bodyContent?.title) return ''
+    if (typeof bodyContent.title === 'string') return bodyContent.title
+    return translate(bodyContent.title[0], bodyContent.title[1])
+  }, [bodyContent?.title, translate])
+
+  const body = useMemo(() => {
+    if (!bodyContent?.body) return ''
+    if (typeof bodyContent.body === 'string') return bodyContent.body
+    return translate(bodyContent.body[0], bodyContent.body[1])
+  }, [bodyContent?.body, translate])
 
   return (
     <SlideTransition>
-      <DialogHeader>
-        <DialogHeader.Right>
-          <ModalCloseButton />
-        </DialogHeader.Right>
-      </DialogHeader>
-      <Stack>{renderStatus()}</Stack>
+      <Stack>
+        <DialogHeader>
+          <DialogHeader.Middle>
+            <RawText>{title}</RawText>
+          </DialogHeader.Middle>
+          <DialogHeader.Right>
+            <ModalCloseButton onClick={handleGoBack} />
+          </DialogHeader.Right>
+        </DialogHeader>
+        <Stack spacing={4} alignItems='center' py={8}>
+          {bodyContent?.element}
+          <RawText>{body}</RawText>
+          {txLink && (
+            <a href={txLink} target='_blank' rel='noopener noreferrer'>
+              {translate('trade.viewTransaction')}
+            </a>
+          )}
+        </Stack>
+      </Stack>
     </SlideTransition>
   )
 }

@@ -19,11 +19,12 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
   const translate = useTranslate()
 
   const asset = useAppSelector(state => selectAssetById(state, claim.assetId))
-  if (!asset) return
 
   const handleClick = useCallback(() => {
     onClick?.(claim)
-  }, [onClick])
+  }, [onClick, claim])
+
+  if (!asset) return
 
   return (
     <Button

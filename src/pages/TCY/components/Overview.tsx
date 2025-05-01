@@ -52,7 +52,7 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
       <CardHeader>
         <HStack>
           <AssetIcon assetId={tcyAssetId} />
-          <Amount.Crypto value='0' symbol='TCY' fontSize='2xl' />
+          <Amount.Crypto value='0' symbol={tcyAsset.symbol} fontSize='2xl' />
         </HStack>
       </CardHeader>
       <CardBody pb={6}>
@@ -61,14 +61,16 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
         </Heading>
         <SimpleGrid spacing={6} columns={gridColumns}>
           <Flex flexDir='column' alignItems='flex-start'>
-            <HelperTooltip label={translate('TCY.myStakedBalanceHelper', { symbol: 'TCY' })}>
+            <HelperTooltip
+              label={translate('TCY.myStakedBalanceHelper', { symbol: tcyAsset.symbol })}
+            >
               <RawText color='text.subtle'>{translate('TCY.myStakedBalance')}</RawText>
             </HelperTooltip>
             <Amount.Crypto value={cryptoBalance} symbol={tcyAsset.symbol} fontSize='2xl' />
             <Amount.Fiat value={userCurrencyBalance} fontSize='sm' color='text.subtle' />
           </Flex>
           <Flex flexDir='column' alignItems='flex-start'>
-            <HelperTooltip label={translate('TCY.timeStakedHelper', { symbol: 'TCY' })}>
+            <HelperTooltip label={translate('TCY.timeStakedHelper', { symbol: tcyAsset.symbol })}>
               <RawText color='text.subtle'>{translate('TCY.timeStaked')}</RawText>
             </HelperTooltip>
             <RawText fontSize='2xl'>0 days</RawText>

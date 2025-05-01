@@ -41,9 +41,6 @@ type AddressFormValues = {
   manualRuneAddress: string
 }
 
-// There is no market-data for this asset just yet, so we hardcode it to the starting 0.1$ price
-// See https://gitlab.com/thorchain/thornode/-/blob/f62daad263a3690f50c75a24298320f7a9514d6e/docs/concepts/tcy.md?plain=0#user-interaction
-
 export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()

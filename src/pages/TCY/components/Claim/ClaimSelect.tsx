@@ -64,9 +64,7 @@ const useTCYClaims = (accountIds: AccountId[]) => {
         if (!activeAddress) return []
 
         const response = await axios.get(
-          `${
-            getConfig().VITE_THORCHAIN_NODE_URL
-          }/lcd/thorchain/amountThorBaseUniterl/${activeAddress}`,
+          `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tcy_claimer/${activeAddress}`,
         )
         return response.data
       },

@@ -69,7 +69,8 @@ export const thornode = createQueryKeys('thornode', {
             )
           ).andThen(({ data: inboundAddresses }) => {
             // Exclude halted
-            const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
+            // TODO(gomes): revert me, shit's halted
+            const activeInboundAddresses = inboundAddresses
             return Ok(activeInboundAddresses)
           })
         )

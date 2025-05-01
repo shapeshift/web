@@ -127,8 +127,6 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
     .filter(isSome)
     .flat()
 
-  console.log({ accountIdsUniqueAddresses, claims })
-
   const handleClick = useCallback(
     (claim: Claim) => {
       setActiveClaim(claim)

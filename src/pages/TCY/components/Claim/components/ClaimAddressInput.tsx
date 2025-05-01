@@ -27,14 +27,14 @@ const buttonProps = {
 
 type ClaimAddressInputProps = {
   onActiveAddressChange: (address: string | undefined) => void
-  value?: string
+  address?: string
 }
 
 type AddressFormValues = {
   manualRuneAddress: string
 }
 
-export const ClaimAddressInput = ({ onActiveAddressChange, value }: ClaimAddressInputProps) => {
+export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddressInputProps) => {
   const translate = useTranslate()
   const { wallet } = useWallet().state
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -145,19 +145,19 @@ export const ClaimAddressInput = ({ onActiveAddressChange, value }: ClaimAddress
     }
 
     return (
-      <InlineCopyButton value={value ?? ''}>
+      <InlineCopyButton value={address ?? ''}>
         <AccountDropdown
           assetId={thorchainAssetId}
           onChange={handleRuneAccountIdChange}
           boxProps={boxProps}
           buttonProps={buttonProps}
-          defaultAccountId={value}
+          defaultAccountId={address}
         />
       </InlineCopyButton>
     )
   }, [
     isCustomAddress,
-    value,
+    address,
     handleRuneAccountIdChange,
     register,
     translate,

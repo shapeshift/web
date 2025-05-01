@@ -81,10 +81,6 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       setClaimTxid(txid)
       navigate(TCYClaimRoute.Status)
     },
-    onError: error => {
-      console.error('Failed to broadcast claim transaction:', error)
-      // TODO: Handle error state
-    },
   })
 
   const handleConfirm = useCallback(async () => {
@@ -124,7 +120,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
             </CardBody>
           </Card>
           <CardBody>
-            <ClaimAddressInput onActiveAddressChange={setRuneAddress} value={runeAddress} />
+            <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
           </CardBody>
           <CardFooter
             flexDir='column'

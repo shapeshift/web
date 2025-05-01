@@ -140,7 +140,7 @@ export const useTransactionsSubscriber = () => {
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
-    // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
+    // we've disconnected/switched a wallet, unsubscribe transactions
     if (!isSubscribed) return
     // this is heavy handed but will ensure we're unsubscribed from everything
     supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
@@ -154,62 +154,63 @@ export const useTransactionsSubscriber = () => {
    */
   useEffect(() => {
     if (isSubscribed) return
-    if (!wallet) return
+    if (!wallet || !isConnected) return
+
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
-    ;(() => {
-      accountIds.forEach(accountId => {
-        const { chainId } = fromAccountId(accountId)
-        const adapter = getChainAdapterManager().get(chainId)
 
-        const accountMetadata = portfolioAccountMetadata[accountId]
-        if (!accountMetadata) throw new Error('subscribe txs no accountMetadata?')
-        const { accountType, bip44Params } = accountMetadata
-        const { accountNumber } = bip44Params
+    accountIds.forEach(accountId => {
+      const { chainId } = fromAccountId(accountId)
+      const adapter = getChainAdapterManager().get(chainId)
 
-        // subscribe to new transactions for all supported accounts
-        try {
-          return adapter?.subscribeTxs(
-            {
-              wallet,
-              accountType,
-              accountNumber,
-              pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
-            },
-            msg => {
-              const { getAccount } = portfolioApi.endpoints
-              const { onMessage } = txHistory.actions
+      const accountMetadata = portfolioAccountMetadata[accountId]
+      if (!accountMetadata) throw new Error('subscribe txs no accountMetadata?')
+      const { accountType, bip44Params } = accountMetadata
+      const { accountNumber } = bip44Params
 
-              // refetch account on new tx
-              dispatch(
-                getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
-              )
+      // subscribe to new transactions for all supported accounts
+      try {
+        return adapter?.subscribeTxs(
+          {
+            wallet,
+            accountType,
+            accountNumber,
+            pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+          },
+          msg => {
+            const { getAccount } = portfolioApi.endpoints
+            const { onMessage } = txHistory.actions
 
-              maybeRefetchVotingPower(msg, chainId)
-              maybeRefetchOpportunities(msg, accountId)
+            // refetch account on new tx
+            dispatch(
+              getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
+            )
 
-              // upsert any new nft assets if detected
-              dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
+            maybeRefetchVotingPower(msg, chainId)
+            maybeRefetchOpportunities(msg, accountId)
 
-              // deal with incoming message
-              dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
-            },
-            err => console.error(err),
-          )
-        } catch (e) {
-          console.error(e)
-        }
-      })
+            // upsert any new nft assets if detected
+            dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
 
-      setIsSubscribed(true)
-    })()
+            // deal with incoming message
+            dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
+          },
+          err => console.error(err),
+        )
+      } catch (e) {
+        console.error(e)
+      }
+    })
+
+    setIsSubscribed(true)
   }, [
     dispatch,
+    isConnected,
     isSubscribed,
-    portfolioLoadingStatus,
-    portfolioAccountMetadata,
-    wallet,
     maybeRefetchOpportunities,
     maybeRefetchVotingPower,
+    portfolioAccountMetadata,
+    portfolioLoadingStatus,
+    wallet,
   ])
 }

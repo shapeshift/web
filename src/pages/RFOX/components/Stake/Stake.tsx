@@ -1,7 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import React, { lazy, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -10,6 +9,7 @@ import { BridgeRoutePaths } from './Bridge/types'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
+import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
@@ -19,8 +19,6 @@ import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanc
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
-
-const suspenseFallback = <div>Loading...</div>
 
 const defaultBoxSpinnerStyle = {
   height: '500px',
@@ -193,16 +191,14 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   }, [maybeBridgeQuote, headerComponent])
 
   return (
-    <AnimatePresence mode='wait' initial={false}>
-      <Suspense fallback={suspenseFallback}>
-        <Switch location={location.pathname}>
-          <Route path={StakeRoutePaths.Input}>{renderStakeInput()}</Route>
-          <Route path={StakeRoutePaths.Confirm}>{renderStakeConfirm()}</Route>
-          <Route path={StakeRoutePaths.Status}>{renderStakeStatus()}</Route>
-          <Route path={BridgeRoutePaths.Confirm}>{renderBridgeConfirm()}</Route>
-          <Route path={BridgeRoutePaths.Status}>{renderBridgeStatus()}</Route>
-        </Switch>
-      </Suspense>
-    </AnimatePresence>
+    <AnimatedSwitch>
+      <Switch location={location.pathname}>
+        <Route path={StakeRoutePaths.Input}>{renderStakeInput()}</Route>
+        <Route path={StakeRoutePaths.Confirm}>{renderStakeConfirm()}</Route>
+        <Route path={StakeRoutePaths.Status}>{renderStakeStatus()}</Route>
+        <Route path={BridgeRoutePaths.Confirm}>{renderBridgeConfirm()}</Route>
+        <Route path={BridgeRoutePaths.Status}>{renderBridgeStatus()}</Route>
+      </Switch>
+    </AnimatedSwitch>
   )
 }

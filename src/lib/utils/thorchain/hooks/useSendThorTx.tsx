@@ -133,7 +133,7 @@ export const useSendThorTx = ({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
     select: data => selectInboundAddressData(data, assetId),
-    enabled: Boolean(assetId && assetId !== thorchainAssetId),
+    enabled: Boolean((assetId && assetId !== thorchainAssetId) || (memo ?? '').includes('tcy')),
   })
 
   const inboundAddress = useMemo(() => {

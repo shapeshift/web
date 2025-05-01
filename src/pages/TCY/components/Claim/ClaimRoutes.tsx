@@ -1,9 +1,9 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { lazy, useCallback } from 'react'
+import { lazy, useCallback, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
-import { TCYClaimRoute, TransactionStatus } from '../../types'
+import { TCYClaimRoute } from '../../types'
 import type { Claim } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
@@ -34,22 +34,39 @@ const ClaimStatus = makeSuspenseful(
 const initialEntries = [TCYClaimRoute.Confirm, TCYClaimRoute.Status]
 
 const ClaimContent = ({ claim }: { claim: Claim | undefined }) => {
+  const [txId, setTxId] = useState<string>('')
+
   return (
     <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
-      <ClaimRoutes claim={claim} />
+      <ClaimRoutes claim={claim} txId={txId} setClaimTxid={setTxId} />
     </MemoryRouter>
   )
 }
 
-const ClaimRoutes = ({ claim }: { claim: Claim | undefined }) => {
+const ClaimRoutes = ({
+  claim,
+  txId,
+  setClaimTxid,
+}: {
+  claim: Claim | undefined
+  txId: string
+  setClaimTxid: (txId: string) => void
+}) => {
   const location = useLocation()
   const renderClaimConfirm = useCallback(() => {
-    return <ClaimConfirm claim={claim} />
-  }, [claim])
+    return <ClaimConfirm claim={claim} setClaimTxid={setClaimTxid} />
+  }, [claim, setClaimTxid])
 
   const renderClaimStatus = useCallback(() => {
-    return <ClaimStatus status={TransactionStatus.Pending} />
-  }, [])
+    return (
+      <ClaimStatus
+        claim={claim}
+        txId={txId}
+        setClaimTxid={setClaimTxid}
+        onTxConfirmed={async () => {}}
+      />
+    )
+  }, [claim, txId, setClaimTxid])
 
   return (
     <AnimatedSwitch>

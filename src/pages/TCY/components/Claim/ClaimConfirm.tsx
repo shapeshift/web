@@ -1,5 +1,13 @@
-import { Button, Card, CardBody, CardFooter, ModalCloseButton, Stack } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  ModalCloseButton,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -17,6 +25,7 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bn } from '@/lib/bignumber/bignumber'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 
 type ClaimConfirmProps = {
@@ -26,6 +35,13 @@ type ClaimConfirmProps = {
 
 type AddressFormValues = {
   manualRuneAddress: string
+}
+
+// There is no market-data for this asset just yet, so we hardcode it to the starting 0.1$ price
+// See https://gitlab.com/thorchain/thornode/-/blob/f62daad263a3690f50c75a24298320f7a9514d6e/docs/concepts/tcy.md?plain=0#user-interaction
+
+const tcyMarketData = {
+  price: '0.1',
 }
 
 export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
@@ -47,6 +63,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     assetId: claim?.assetId,
     fromAddress,
     memo: `tcy:${runeAddress}`,
+    enableEstimateFees: Boolean(runeAddress && claim?.accountId),
   })
 
   const { mutateAsync: handleClaim, isPending: isClaimMutationPending } = useMutation({
@@ -90,7 +107,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           </DialogHeader>
           <Card mx={4}>
             <CardBody textAlign='center' py={8}>
-              <AssetIcon assetId={claim.assetId} />
+              <AssetIcon assetId={thorchainAssetId} />
               <Amount.Crypto
                 fontWeight='bold'
                 value={claim.amountThorBaseUnit}
@@ -99,7 +116,11 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
                 color='text.base'
                 fontSize='lg'
               />
-              <Amount.Fiat fontSize='sm' value={claim.amountThorBaseUnit} color='text.subtle' />
+              <Amount.Fiat
+                fontSize='sm'
+                value={bn(claim.amountThorBaseUnit).times(tcyMarketData.price).toFixed(2)}
+                color='text.subtle'
+              />
             </CardBody>
           </Card>
           <CardBody>
@@ -115,7 +136,11 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
             <Row fontSize='sm'>
               <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                <Skeleton isLoaded={!!estimatedFeesData}>
+                  <Row.Value>
+                    <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0.00'} />
+                  </Row.Value>
+                </Skeleton>
               </Row.Value>
             </Row>
             <Button

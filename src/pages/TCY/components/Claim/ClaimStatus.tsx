@@ -1,5 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { ModalCloseButton, Stack } from '@chakra-ui/react'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
@@ -99,9 +100,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       case TxStatus.Pending:
         return {
           key: TxStatus.Pending,
-          title: 'pools.waitingForConfirmation',
+          title: translate('pools.waitingForConfirmation'),
           body: [
-            'TCY.claimPending',
+            translate('TCY.claimStatus.pendingTitle'),
             {
               amount: bnOrZero(amountCryptoPrecision).toFixed(8),
               symbol: asset.symbol,
@@ -112,9 +113,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       case TxStatus.Confirmed:
         return {
           key: TxStatus.Confirmed,
-          title: 'common.success',
+          title: translate('common.success'),
           body: [
-            'TCY.claimSuccess',
+            'TCY.claimStatus.successTitle',
             {
               amount: bnOrZero(amountCryptoPrecision).toFixed(8),
               symbol: asset.symbol,
@@ -142,6 +143,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
     txStatus,
     amountCryptoPrecision,
     setClaimTxid,
+    translate,
   ])
 
   const txLink = useMemo(
@@ -151,6 +153,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
         defaultExplorerBaseUrl: asset?.explorerTxLink ?? '',
         accountId: claim?.accountId,
         maybeSafeTx,
+        stepSource: SwapperName.Thorchain,
       }),
     [claim?.accountId, maybeSafeTx, asset?.explorerTxLink, txId],
   )

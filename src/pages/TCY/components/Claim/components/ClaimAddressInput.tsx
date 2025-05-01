@@ -46,6 +46,7 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   // Local controller in case consumers don't have a form context
   const _methods = useForm<AddressFormValues>({

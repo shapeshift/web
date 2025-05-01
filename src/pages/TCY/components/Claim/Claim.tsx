@@ -4,14 +4,18 @@ import { useTranslate } from 'react-polyglot'
 import type { TCYRouteProps } from '../../types'
 import { ClaimSelect } from './ClaimSelect'
 
-export const Claim: React.FC<TCYRouteProps> = () => {
+interface ClaimProps extends TCYRouteProps {
+  activeAccountNumber: number
+}
+
+export const Claim: React.FC<ClaimProps> = ({ headerComponent, activeAccountNumber }) => {
   const translate = useTranslate()
   return (
     <Card>
       <CardHeader>
         <Heading size='sm'>{translate('common.claim')}</Heading>
       </CardHeader>
-      <ClaimSelect />
+      <ClaimSelect headerComponent={headerComponent} activeAccountNumber={activeAccountNumber} />
     </Card>
   )
 }

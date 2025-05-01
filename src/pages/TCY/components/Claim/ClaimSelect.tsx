@@ -1,6 +1,6 @@
 import { Stack, useDisclosure } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { avalancheChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isSome, isUtxoChainId } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
@@ -30,7 +30,7 @@ const useTCYClaims = (accountIds: AccountId[]) => {
           {
             asset: 'avax.avax',
             l1_address: '0x00112c24ebee9c96d177a3aa2ff55dcb93a53c80',
-            amountThorBaseUnit: '335869573367',
+            amountThorBaseUnit: '1234',
             assetId: poolAssetIdToAssetId('avax.avax'.toUpperCase()) ?? '',
             accountId,
           },
@@ -71,20 +71,20 @@ const useTCYClaims = (accountIds: AccountId[]) => {
   })
 }
 
-export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
+export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+  headerComponent,
+  activeAccountNumber,
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [activeClaim, setActiveClaim] = useState<Claim | undefined>()
-
-  // TODO: implement me
-  const accountNumber = 0
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
 
   const accountIds = useMemo(
-    () => Object.values(accountIdsByAccountNumberAndChainId[accountNumber] || {}),
-    [accountNumber, accountIdsByAccountNumberAndChainId],
+    () => Object.values(accountIdsByAccountNumberAndChainId[activeAccountNumber] || {}),
+    [activeAccountNumber, accountIdsByAccountNumberAndChainId],
   )
 
   const accountIdsUniqueAddresses = useMemo(
@@ -93,6 +93,14 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
         .flat()
         .reduce<{ accountId: AccountId; address: string }[]>((acc, accountId) => {
           if (!accountId) return acc
+
+          // TODO: DEBUG ONLY - remove when TCY is live
+          // This ensures status works and we serialize Tx proper when introspecting
+          // Uncomment me with the account's chain you want to broadcast from so status work - made it avalanche, but you can do so with any other chain
+          // preferably EVM with MM without snap/MM impersonator to ensure you have a single account
+          //
+          // Alternatively, remove this just hardcode the accountId you intend to broadcast from on the mock claim data above
+          if (fromAccountId(accountId).chainId !== avalancheChainId) return acc
 
           const address = fromAccountId(accountId).account
           if (acc.find(x => x.address === address)) return acc
@@ -110,6 +118,8 @@ export const ClaimSelect: React.FC<TCYRouteProps> = ({ headerComponent }) => {
     .map(query => query.data)
     .filter(isSome)
     .flat()
+
+  console.log({ accountIdsUniqueAddresses, claims })
 
   const handleClick = useCallback(
     (claim: Claim) => {

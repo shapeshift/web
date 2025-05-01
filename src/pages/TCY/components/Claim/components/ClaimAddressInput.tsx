@@ -6,7 +6,16 @@ import { useTranslate } from 'react-polyglot'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { validateAddress } from '@/lib/address/address'
+import {
+  selectAccountIdsByAssetId,
+  selectAccountIdsByChainId,
+  selectAssetById,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const boxProps = {
   width: 'full',
@@ -31,6 +40,12 @@ type AddressFormValues = {
 
 export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) => {
   const translate = useTranslate()
+  const { wallet } = useWallet().state
+  const { isSnapInstalled } = useIsSnapInstalled()
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const runeAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
 
   // Local controller in case consumers don't have a form context
   const _methods = useForm<AddressFormValues>({
@@ -47,6 +62,25 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
 
   const [isCustomAddress, setIsCustomAddress] = useState(false)
 
+  const walletSupportsRune = useMemo(() => {
+    const chainId = thorchainChainId
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
+    return walletSupport && runeAccountIds.length > 0
+  }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
+
+  // Auto-switch to manual input if no RUNE account is available
+  useEffect(() => {
+    if (!walletSupportsRune) {
+      setIsCustomAddress(true)
+    }
+  }, [walletSupportsRune])
+
   const handleRuneAddressChange = useCallback(
     (accountId?: string) => {
       onChange(accountId)
@@ -55,9 +89,12 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
   )
 
   const handleToggleCustomAddress = useCallback(() => {
+    // Only allow toggling if RUNE is supported
+    if (!walletSupportsRune) return
+
     onChange(undefined)
     setIsCustomAddress(!isCustomAddress)
-  }, [isCustomAddress, onChange])
+  }, [isCustomAddress, onChange, walletSupportsRune])
 
   const validateRuneAddress = useCallback(
     async (address: string) => {
@@ -116,17 +153,28 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
         />
       </InlineCopyButton>
     )
-  }, [isCustomAddress, value, handleRuneAddressChange, register, translate, setValue, trigger, validateRuneAddress])
+  }, [
+    isCustomAddress,
+    value,
+    handleRuneAddressChange,
+    register,
+    translate,
+    setValue,
+    trigger,
+    validateRuneAddress,
+  ])
 
   return (
     <FormControl isInvalid={Boolean(errors.manualRuneAddress)}>
       <HStack justifyContent='space-between' mb={4}>
         <FormLabel mb={0}>{translate('TCY.claimAddressInput.label')}</FormLabel>
-        <Button variant='link' color='text.link' onClick={handleToggleCustomAddress}>
-          {isCustomAddress
-            ? translate('TCY.claimAddressInput.useWalletAddress')
-            : translate('TCY.claimAddressInput.useCustomAddress')}
-        </Button>
+        {walletSupportsRune && (
+          <Button variant='link' color='text.link' onClick={handleToggleCustomAddress}>
+            {isCustomAddress
+              ? translate('TCY.claimAddressInput.useWalletAddress')
+              : translate('TCY.claimAddressInput.useCustomAddress')}
+          </Button>
+        )}
       </HStack>
       {renderInputSelection}
       {errors.manualRuneAddress ? (

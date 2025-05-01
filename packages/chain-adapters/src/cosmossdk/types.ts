@@ -34,7 +34,7 @@ export enum CosmosSdkMessageType {
 
 type MsgDeposit<
   T = ThorchainMessageType.MsgDeposit | MayachainMessageType.MsgDeposit,
-  U = 'THOR.RUNE' | 'MAYA.CACAO',
+  U = 'THOR.RUNE' | 'THOR.TCY' | 'MAYA.CACAO',
 > = {
   type: T
   value: {
@@ -53,7 +53,10 @@ type MsgSend<T = ThorchainMessageType.MsgSend | MayachainMessageType.MsgSend> = 
   }
 }
 
-export type ThorchainMsgDeposit = MsgDeposit<ThorchainMessageType.MsgDeposit, 'THOR.RUNE'>
+export type ThorchainMsgDeposit = MsgDeposit<
+  ThorchainMessageType.MsgDeposit,
+  'THOR.RUNE' | 'THOR.TCY'
+>
 export type ThorchainMsgSend = MsgSend<ThorchainMessageType.MsgSend>
 
 export type MayachainMsgDeposit = MsgDeposit<MayachainMessageType.MsgDeposit, 'MAYA.CACAO'>
@@ -127,7 +130,7 @@ export type BuildTransactionInput<T extends CosmosSdkChainId> = {
   memo?: string
 } & types.ChainSpecificBuildTxData<T>
 
-export type BuildTxInput = { gas: string; fee: string; denom?: string }
+export type BuildTxInput = { gas: string; fee: string; denom?: string; coin?: string }
 
 export type Info = {
   totalSupply: string

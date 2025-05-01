@@ -1,5 +1,5 @@
 import { Button, FormControl, FormHelperText, FormLabel, HStack, Input } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -42,7 +42,7 @@ export const ClaimAddressInput = () => {
     return (
       <InlineCopyButton value={runeAddress ?? ''}>
         <AccountDropdown
-          assetId={ethAssetId}
+          assetId={thorchainAssetId}
           onChange={handleRuneAddressChange}
           boxProps={boxProps}
           buttonProps={buttonProps}

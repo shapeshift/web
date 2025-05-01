@@ -95,7 +95,7 @@ export const getAllThorchainSaversPositions = async (
     queryKey: ['thorchainSaversPositions', poolId],
     queryFn: () =>
       axios.get<ThorchainSaverPositionResponse[]>(
-        `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
+        `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolId}/savers`,
       ),
     staleTime: 60_000,
   })
@@ -119,7 +119,7 @@ export const getThorchainSaversPosition = async ({
     if (assetId === thorchainAssetId) {
       const { data: runepoolInformation } =
         await axios.get<ThorchainRunepoolProviderResponseSuccess>(
-          `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
+          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/rune_provider/${address}`,
         )
 
       const runepoolOpportunity: ThorchainSaverPositionResponse = {
@@ -141,9 +141,7 @@ export const getThorchainSaversPosition = async ({
     if (!isUtxoChainId(fromAssetId(assetId).chainId))
       return (
         await axios.get<ThorchainSaverPositionResponse>(
-          `${
-            getConfig().VITE_THORCHAIN_NODE_URL
-          }/lcd/thorchain/pool/${poolAssetId}/saver/${address}`,
+          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/saver/${address}`,
         )
       ).data
 
@@ -196,7 +194,7 @@ export const getMaybeThorchainSaversDepositQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().VITE_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${THORCHAIN_AFFILIATE_NAME}&affiliate_bps=${AFFILIATE_BPS}`,
+    }/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${THORCHAIN_AFFILIATE_NAME}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
   if (!quoteData || 'error' in quoteData)
@@ -237,7 +235,7 @@ export const getThorchainSaversWithdrawQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
     `${
       getConfig().VITE_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
+    }/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
   )
 
   if (!quoteData || 'error' in quoteData)

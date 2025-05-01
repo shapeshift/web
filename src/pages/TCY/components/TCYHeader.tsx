@@ -21,7 +21,7 @@ const buttonProps = {
   width: 'full',
 }
 
-interface TCYHeaderProps {
+type TCYHeaderProps = {
   onAccountNumberChange: (accountNumber: number) => void
 }
 

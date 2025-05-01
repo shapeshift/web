@@ -126,7 +126,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       case TxStatus.Failed:
         return {
           key: TxStatus.Failed,
-          title: 'common.somethingWentWrong',
+          title: translate('common.somethingWentWrong'),
           body: 'common.somethingWentWrongBody',
           element: <WarningIcon color='text.error' boxSize='75px' />,
         }

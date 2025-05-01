@@ -16,7 +16,7 @@ import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { ClaimDetails } from './components/Details/ClaimDetails'
-import { GenericDetails } from './components/Details/GenericDetails'
+import { GenericTransactionDetails } from './components/Details/GenericTransactionDetails'
 import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
 import { SwapDetails } from './components/Details/SwapDetails'
 import { NotificationCard } from './components/NotificationCard'
@@ -106,7 +106,7 @@ export const NotificationCenter = memo(() => {
                 date={new Date('2025-04-29').getTime() / 1000}
                 title='Your deposit of 0.00 WETH/FOX to 0x1234 is being processed'
               >
-                <GenericDetails />
+                <GenericTransactionDetails />
               </NotificationCard>
               <NotificationCard
                 type={NotificationType.Deposit}
@@ -116,7 +116,7 @@ export const NotificationCenter = memo(() => {
                 date={new Date('2025-04-29').getTime() / 1000}
                 title='Your deposit of 0.00 WETH/FOX to 0x1234 has failed'
               >
-                <GenericDetails />
+                <GenericTransactionDetails />
               </NotificationCard>
               <NotificationCard
                 type={NotificationType.Claim}

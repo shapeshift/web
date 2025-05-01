@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-export const GenericDetails = () => {
+export const GenericTransactionDetails = () => {
   const translate = useTranslate()
   return (
     <Stack gap={4}>

@@ -1,13 +1,21 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Collapse, Flex, HStack, Icon, Stack, useDisclosure } from '@chakra-ui/react'
+import {
+  Card,
+  CardBody,
+  Collapse,
+  Flex,
+  HStack,
+  Icon,
+  Stack,
+  useDisclosure,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { PropsWithChildren } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { NotificationStatus, NotificationType } from '../types'
-import { NotificationDetailsWrapper } from './NotificationDetailsWrapper'
 import { NotificationStatusIcon } from './NotificationStatusIcon'
 import { NotificationStatusTag } from './NotificationStatusTag'
 
@@ -47,7 +55,7 @@ export const NotificationCard = ({
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
 
-  const formattedDate = (() => {
+  const formattedDate = useMemo(() => {
     const now = dayjs()
     const notificationDate = dayjs.unix(date)
     const sevenDaysAgo = now.subtract(7, 'day')
@@ -57,7 +65,7 @@ export const NotificationCard = ({
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  })()
+  }, [date])
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {
@@ -99,7 +107,11 @@ export const NotificationCard = ({
             )}
           </HStack>
           <Collapse in={isOpen}>
-            <NotificationDetailsWrapper>{children}</NotificationDetailsWrapper>
+            <Card bg='transparent' mt={4}>
+              <CardBody px={0} py={0}>
+                {children}
+              </CardBody>
+            </Card>
           </Collapse>
         </Stack>
       </Flex>

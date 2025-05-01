@@ -15,7 +15,10 @@ import type { Claim } from './types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  getThorchainSaversPosition,
+  isSupportedThorchainSaversAssetId,
+} from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -94,13 +97,18 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
         .reduce<{ accountId: AccountId; address: string }[]>((acc, accountId) => {
           if (!accountId) return acc
 
+          const chainId = fromAccountId(accountId).chainId
+
           // TODO: DEBUG ONLY - remove when TCY is live
           // This ensures status works and we serialize Tx proper when introspecting
           // Uncomment me with the account's chain you want to broadcast from so status work - made it avalanche, but you can do so with any other chain
           // preferably EVM with MM without snap/MM impersonator to ensure you have a single account
           //
           // Alternatively, remove this just hardcode the accountId you intend to broadcast from on the mock claim data above
-          if (fromAccountId(accountId).chainId !== avalancheChainId) return acc
+          if (chainId !== avalancheChainId) return acc
+
+          const nativeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+          if (!isSupportedThorchainSaversAssetId(nativeAssetId ?? '')) return acc
 
           const address = fromAccountId(accountId).account
           if (acc.find(x => x.address === address)) return acc

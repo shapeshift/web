@@ -1,5 +1,5 @@
 import { Button, FormControl, FormHelperText, FormLabel, HStack, Input } from '@chakra-ui/react'
-import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -10,11 +10,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { validateAddress } from '@/lib/address/address'
-import {
-  selectAccountIdsByAssetId,
-  selectAccountIdsByChainId,
-  selectAssetById,
-} from '@/state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAccountIdsByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const boxProps = {
@@ -30,7 +26,7 @@ const buttonProps = {
 }
 
 type ClaimAddressInputProps = {
-  onChange: (address: string | undefined) => void
+  onActiveAddressChange: (address: string | undefined) => void
   value?: string
 }
 
@@ -38,7 +34,7 @@ type AddressFormValues = {
   manualRuneAddress: string
 }
 
-export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) => {
+export const ClaimAddressInput = ({ onActiveAddressChange, value }: ClaimAddressInputProps) => {
   const translate = useTranslate()
   const { wallet } = useWallet().state
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -46,7 +42,6 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   // Local controller in case consumers don't have a form context
   const _methods = useForm<AddressFormValues>({
@@ -82,25 +77,26 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
     }
   }, [walletSupportsRune])
 
-  const handleRuneAddressChange = useCallback(
-    (accountId?: string) => {
-      onChange(accountId)
+  const handleRuneAccountIdChange = useCallback(
+    (accountId: string) => {
+      const address = fromAccountId(accountId).account
+      onActiveAddressChange(address)
     },
-    [onChange],
+    [onActiveAddressChange],
   )
 
   const handleToggleCustomAddress = useCallback(() => {
     // Only allow toggling if RUNE is supported
     if (!walletSupportsRune) return
 
-    onChange(undefined)
+    onActiveAddressChange(undefined)
     setIsCustomAddress(!isCustomAddress)
-  }, [isCustomAddress, onChange, walletSupportsRune])
+  }, [isCustomAddress, onActiveAddressChange, walletSupportsRune])
 
   const validateRuneAddress = useCallback(
     async (address: string) => {
       if (!address) {
-        onChange(undefined)
+        onActiveAddressChange(undefined)
         return true
       }
 
@@ -110,14 +106,23 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
       })
 
       if (!isValid) {
-        onChange(undefined)
+        onActiveAddressChange(undefined)
         return translate('common.invalidAddress')
       }
 
-      onChange(address)
+      onActiveAddressChange(address)
       return true
     },
-    [onChange, translate],
+    [onActiveAddressChange, translate],
+  )
+
+  const handleCustomAddressInputChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value
+      setValue('manualRuneAddress', newValue, { shouldValidate: true })
+      await trigger('manualRuneAddress')
+    },
+    [setValue, trigger],
   )
 
   const renderInputSelection = useMemo(() => {
@@ -134,11 +139,7 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
           autoFocus
           defaultValue=''
           autoComplete='off'
-          onChange={async e => {
-            const newValue = e.target.value
-            setValue('manualRuneAddress', newValue, { shouldValidate: true })
-            await trigger('manualRuneAddress')
-          }}
+          onChange={handleCustomAddressInputChange}
         />
       )
     }
@@ -147,7 +148,7 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
       <InlineCopyButton value={value ?? ''}>
         <AccountDropdown
           assetId={thorchainAssetId}
-          onChange={handleRuneAddressChange}
+          onChange={handleRuneAccountIdChange}
           boxProps={boxProps}
           buttonProps={buttonProps}
           defaultAccountId={value}
@@ -157,12 +158,11 @@ export const ClaimAddressInput = ({ onChange, value }: ClaimAddressInputProps) =
   }, [
     isCustomAddress,
     value,
-    handleRuneAddressChange,
+    handleRuneAccountIdChange,
     register,
     translate,
-    setValue,
-    trigger,
     validateRuneAddress,
+    handleCustomAddressInputChange,
   ])
 
   return (

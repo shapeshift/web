@@ -57,16 +57,21 @@ const ClaimRoutes = ({
     return <ClaimConfirm claim={claim} setClaimTxid={setClaimTxid} />
   }, [claim, setClaimTxid])
 
+  const handleTxConfirmed = useCallback(() => {
+    console.log("TODO: implement me and invalidate TCY positions, once that's actually implemented")
+    return Promise.resolve()
+  }, [])
+
   const renderClaimStatus = useCallback(() => {
     return (
       <ClaimStatus
         claim={claim}
         txId={txId}
         setClaimTxid={setClaimTxid}
-        onTxConfirmed={async () => {}}
+        onTxConfirmed={handleTxConfirmed}
       />
     )
-  }, [claim, txId, setClaimTxid])
+  }, [claim, txId, setClaimTxid, handleTxConfirmed])
 
   return (
     <AnimatedSwitch>

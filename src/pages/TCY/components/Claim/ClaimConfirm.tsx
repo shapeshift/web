@@ -62,7 +62,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     amountCryptoBaseUnit: '0',
     assetId: claim?.assetId,
     fromAddress,
-    memo: `tcy:${runeAddress}`,
+    memo: runeAddress ? `tcy:${runeAddress}` : '',
     enableEstimateFees: Boolean(runeAddress && claim?.accountId),
   })
 
@@ -124,7 +124,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
             </CardBody>
           </Card>
           <CardBody>
-            <ClaimAddressInput onChange={setRuneAddress} value={runeAddress} />
+            <ClaimAddressInput onActiveAddressChange={setRuneAddress} value={runeAddress} />
           </CardBody>
           <CardFooter
             flexDir='column'

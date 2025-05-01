@@ -39,7 +39,7 @@ export const getThorTradeQuote = async (
 
   const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/lcd/thorchain/pools`,
+    `${daemonUrl}/thorchain/pools`,
   )
 
   if (maybePoolsResponse.isErr()) return Err(maybePoolsResponse.unwrapErr())

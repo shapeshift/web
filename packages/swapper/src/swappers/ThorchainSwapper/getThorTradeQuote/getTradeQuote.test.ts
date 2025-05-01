@@ -153,11 +153,11 @@ describe('getTradeQuote', () => {
   it('should get a thorchain quote for a thorchain trade', async () => {
     mockedThorService.get.mockImplementation((url: string) => {
       switch (url) {
-        case '/lcd/thorchain/pools':
+        case '/thorchain/pools':
           return Promise.resolve(
             Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse>),
           )
-        case '/lcd/thorchain/inbound_addresses':
+        case '/thorchain/inbound_addresses':
           return Promise.resolve(
             Ok({ data: mockInboundAddresses } as unknown as AxiosResponse<
               InboundAddressResponse[]

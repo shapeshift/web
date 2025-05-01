@@ -9,7 +9,7 @@ export const Claim: React.FC<TCYRouteProps> = () => {
   return (
     <Card>
       <CardHeader>
-        <Heading size='sm'>{translate('TCY.claim')}</Heading>
+        <Heading size='sm'>{translate('common.claim')}</Heading>
       </CardHeader>
       <ClaimSelect />
     </Card>

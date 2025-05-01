@@ -2787,7 +2787,6 @@
   "TCY": {
     "stake": "Stake",
     "unstake": "Unstake",
-    "claim": "Claim",
     "staking": "TCY Staking",
     "myPosition": "My Position",
     "myStakedBalance": "My Staked Balance",

@@ -4,6 +4,7 @@ import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
 import { TCYClaimRoute, TransactionStatus } from '../../types'
+import type { Claim } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -32,19 +33,19 @@ const ClaimStatus = makeSuspenseful(
 
 const initialEntries = [TCYClaimRoute.Confirm, TCYClaimRoute.Status]
 
-const ClaimContent = () => {
+const ClaimContent = ({ claim }: { claim: Claim | undefined }) => {
   return (
     <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
-      <ClaimRoutes />
+      <ClaimRoutes claim={claim} />
     </MemoryRouter>
   )
 }
 
-const ClaimRoutes = () => {
+const ClaimRoutes = ({ claim }: { claim: Claim | undefined }) => {
   const location = useLocation()
   const renderClaimConfirm = useCallback(() => {
-    return <ClaimConfirm />
-  }, [])
+    return <ClaimConfirm claim={claim} />
+  }, [claim])
 
   const renderClaimStatus = useCallback(() => {
     return <ClaimStatus status={TransactionStatus.Pending} />
@@ -63,14 +64,15 @@ const ClaimRoutes = () => {
 type ClaimModalProps = {
   isOpen: boolean
   onClose: () => void
+  claim: Claim | undefined
 }
 
-export const ClaimModal = ({ isOpen, onClose }: ClaimModalProps) => {
+export const ClaimModal = ({ isOpen, onClose, claim }: ClaimModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ClaimContent />
+        <ClaimContent claim={claim} />
       </ModalContent>
     </Modal>
   )

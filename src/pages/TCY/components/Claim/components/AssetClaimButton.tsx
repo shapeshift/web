@@ -1,29 +1,30 @@
 import { Button, HStack, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import type { Claim } from '../types'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type AssetClaimButtonProps = {
-  onClick?: () => void
-  isDisabled?: boolean
-  assetId: AssetId
-  assetName: string
-  assetSymbol: string
-  assetAmount: string
-  claimAction: string
+  onClick?: (claim: Claim) => void
+  claim: Claim
 }
 
-export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({
-  onClick,
-  isDisabled,
-  assetId,
-  assetName,
-  assetSymbol,
-  assetAmount,
-  claimAction,
-}) => {
+export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, claim }) => {
+  const translate = useTranslate()
+
+  const asset = useAppSelector(state => selectAssetById(state, claim.assetId))
+  if (!asset) return
+
+  const handleClick = useCallback(() => {
+    onClick?.(claim)
+  }, [onClick])
+
   return (
     <Button
       height='auto'
@@ -36,24 +37,28 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({
       alignItems='center'
       justifyContent='space-between'
       gap={4}
-      onClick={onClick}
-      isDisabled={isDisabled}
+      onClick={handleClick}
     >
       <HStack gap={4}>
-        <AssetIcon assetId={assetId} />
+        <AssetIcon assetId={claim.assetId} />
         <Stack alignItems='flex-start'>
           <RawText fontWeight='bold' color='text.base' fontSize='lg'>
-            {assetName}
+            {asset.name}
           </RawText>
           <RawText fontSize='sm' color='text.subtle'>
-            {assetSymbol}
+            {asset.symbol}
           </RawText>
         </Stack>
       </HStack>
       <Stack alignItems='flex-end'>
-        <Amount.Crypto color='text.base' fontSize='lg' value={assetAmount} symbol={assetSymbol} />
-        <RawText fontSize='sm' color={isDisabled ? 'text.subtle' : 'green.500'}>
-          {claimAction}
+        <Amount.Crypto
+          color='text.base'
+          fontSize='lg'
+          value={claim.amountThorBaseUnit}
+          symbol={asset.symbol}
+        />
+        <RawText fontSize='sm' color={'green.500'}>
+          {translate('common.claim')}
         </RawText>
       </Stack>
     </Button>

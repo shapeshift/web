@@ -115,6 +115,8 @@ export const getThorchainSaversPosition = async ({
   const address = fromAccountId(accountId).account
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
+  if (!poolAssetId) return null
+
   const accountPosition = await (async () => {
     if (assetId === thorchainAssetId) {
       const { data: runepoolInformation } =

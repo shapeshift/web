@@ -1,11 +1,11 @@
 import { Button, Card, CardBody, CardFooter, ModalCloseButton, Stack } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import { TCYClaimRoute } from '../../types'
 import { ClaimAddressInput } from './components/ClaimAddressInput'
+import type { Claim } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -14,13 +14,19 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 
-export const ClaimConfirm = () => {
+type ClaimConfirmProps = {
+  claim: Claim | undefined
+}
+
+export const ClaimConfirm = ({ claim }: ClaimConfirmProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleConfirm = useCallback(() => {
     navigate(TCYClaimRoute.Status)
   }, [navigate])
+
+  if (!claim) return null
 
   return (
     <SlideTransition>
@@ -35,16 +41,16 @@ export const ClaimConfirm = () => {
         </DialogHeader>
         <Card mx={4}>
           <CardBody textAlign='center' py={8}>
-            <AssetIcon assetId={ethAssetId} />
+            <AssetIcon assetId={claim.assetId} />
             <Amount.Crypto
               fontWeight='bold'
-              value='100'
+              value={claim.amountThorBaseUnit}
               mt={4}
               symbol='TCY'
               color='text.base'
               fontSize='lg'
             />
-            <Amount.Fiat fontSize='sm' value='100' color='text.subtle' />
+            <Amount.Fiat fontSize='sm' value={claim.amountThorBaseUnit} color='text.subtle' />
           </CardBody>
         </Card>
         <CardBody>

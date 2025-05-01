@@ -75,7 +75,7 @@ export class MarketServiceManager {
         price: '1',
         marketCap: '0',
         volume: '0',
-        changePercent24Hr: '0',
+        changePercent24Hr: 0,
       }
     }
 

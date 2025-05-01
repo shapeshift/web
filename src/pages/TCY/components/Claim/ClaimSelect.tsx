@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react'
 import type { TCYRouteProps } from '../../types'
 import { ClaimModal } from './ClaimRoutes'
 import { AssetClaimButton } from './components/AssetClaimButton'
-import type { Claim } from './types'
+import type { Claim, TcyClaimer } from './types'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { getConfig } from '@/config'
@@ -27,18 +27,6 @@ const useTCYClaims = (accountIds: AccountId[]) => {
     queries: accountIds.map(accountId => ({
       queryKey: ['tcy-claims', fromAccountId(accountId).account],
       queryFn: async (): Promise<Claim[]> => {
-        // Mock data for dev only - the endpoints are not live yet
-        // see https://gitlab.com/thorchain/thornode/-/merge_requests/4004/diffs#a8d2456698d55d9f33312808ecbfd863ea9966b3_0_96 for ref
-        return [
-          {
-            asset: 'avax.avax',
-            l1_address: '0x00112c24ebee9c96d177a3aa2ff55dcb93a53c80',
-            amountThorBaseUnit: '1234',
-            assetId: poolAssetIdToAssetId('avax.avax'.toUpperCase()) ?? '',
-            accountId,
-          },
-        ]
-
         const activeAddress = await (async () => {
           // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
           if (!isUtxoChainId(fromAccountId(accountId).chainId))
@@ -63,10 +51,16 @@ const useTCYClaims = (accountIds: AccountId[]) => {
 
         if (!activeAddress) return []
 
-        const response = await axios.get(
-          `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tcy_claimer/${activeAddress}`,
+        const { data } = await axios.get<{ tcy_claimer: TcyClaimer[] }>(
+          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${activeAddress}`,
         )
-        return response.data
+        return data.tcy_claimer.map(claimer => ({
+          ...claimer,
+          // TODO(gomes): this is incorrect - we need to reconstruct AssetId back
+          accountId,
+          amountThorBaseUnit: claimer.amount,
+          assetId: poolAssetIdToAssetId(claimer.asset) ?? '',
+        }))
       },
     })),
   })
@@ -122,8 +116,8 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
 
   const claims = claimsQueries
     .map(query => query.data)
-    .filter(isSome)
     .flat()
+    .filter(isSome)
 
   const handleClick = useCallback(
     (claim: Claim) => {

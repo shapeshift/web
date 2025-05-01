@@ -2873,5 +2873,8 @@
       "getUtxos": "Utxos alınamadı.",
       "getValidator": "Doğrulayıcı alınamadı."
     }
+  },
+  "notificationCenter": {
+    "title": "Bildirimler"
   }
 }

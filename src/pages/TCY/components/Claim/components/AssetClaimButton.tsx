@@ -1,4 +1,5 @@
 import { Button, HStack, Stack } from '@chakra-ui/react'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -7,6 +8,7 @@ import type { Claim } from '../types'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -55,7 +57,7 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
         <Amount.Crypto
           color='text.base'
           fontSize='lg'
-          value={claim.amountThorBaseUnit}
+          value={fromBaseUnit(claim.amountThorBaseUnit, THOR_PRECISION)}
           symbol={asset.symbol}
         />
         <RawText fontSize='sm' color={'green.500'}>

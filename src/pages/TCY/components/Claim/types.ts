@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 
 export type TcyClaimer = {
   l1_address: string
-  amonut: string
+  amount: string
   asset: string
 }
 

@@ -821,7 +821,7 @@
     "slippage": {
       "maxSlippage": "Maximaler Slippage",
       "auto": "Automatisch",
-      "custom": "frei def.",
+      "custom": "Benutzerdefiniert",
       "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
       "lowSlippage": "Eine gesetzte Marktabweichung unter 0,05 % kann zu einer fehlgeschlagenen Transaktion führen."
     },

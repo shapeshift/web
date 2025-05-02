@@ -1,9 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 
-import generatedTradableThorAssetMap from '../../generated/generatedTradableThorAssetMap.json'
+import generatedTradableAssetMap from '../../generated/generatedTradableAssetMap.json'
 
-export const thorPoolIdAssetIdSymbolMap = generatedTradableThorAssetMap as Record<string, AssetId>
+export const thorPoolIdAssetIdSymbolMap = generatedTradableAssetMap as Record<string, AssetId>
 
 const assetIdToPoolAssetIdMap = invert(thorPoolIdAssetIdSymbolMap)
 

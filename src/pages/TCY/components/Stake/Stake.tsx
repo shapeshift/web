@@ -52,8 +52,10 @@ export type StakeFormValues = {
   accountId: string
 }
 
-export const Stake: React.FC<TCYRouteProps> = ({ headerComponent }) => {
-  const [activeAccountNumber] = useState(0)
+export const Stake: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+  headerComponent,
+  activeAccountNumber,
+}) => {
   const accountId = useAppSelector(state => {
     const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
     const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]

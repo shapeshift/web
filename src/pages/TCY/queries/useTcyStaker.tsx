@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import axios from 'axios'

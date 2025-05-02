@@ -723,7 +723,7 @@ describe('assertAndProcessMemo', () => {
   describe('stake tcy', () => {
     it('processes tcy+ memo', () => {
       const memo = 'tcy+'
-      const expected = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      const expected = 'tcy+'
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 

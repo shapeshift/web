@@ -1,26 +1,84 @@
-import { Card, CardBody, CardHeader, Flex, Heading, HStack, SimpleGrid } from '@chakra-ui/react'
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Flex,
+  Heading,
+  HStack,
+  SimpleGrid,
+  Skeleton,
+} from '@chakra-ui/react'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { Suspense } from 'react'
 import { useTranslate } from 'react-polyglot'
+
+import { useTcyStaker } from '../queries/useTcyStaker'
+import type { TCYRouteProps } from '../types'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const gridColumns = { base: 1, md: 2 }
-
-type OverviewProps = {
+type OverviewProps = TCYRouteProps & {
   activeAccountNumber: number
 }
+
+const gridColumns = { base: 1, md: 2 }
+
+const StakedBalance = ({ accountId }: { accountId: string | undefined }) => {
+  const translate = useTranslate()
+  const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
+  const tcyMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
+  )
+
+  const { data: staker } = useTcyStaker(accountId)
+
+  const amountCryptoPrecision = fromBaseUnit(staker?.amount ?? '0', THOR_PRECISION)
+  const amountUserCurrency = bnOrZero(amountCryptoPrecision).times(tcyMarketData.price).toFixed(2)
+
+  if (!tcyAsset) return null
+
+  return (
+    <Flex flexDir='column' alignItems='flex-start'>
+      <HelperTooltip label={translate('TCY.myStakedBalanceHelper', { symbol: tcyAsset.symbol })}>
+        <RawText color='text.subtle'>{translate('TCY.myStakedBalance')}</RawText>
+      </HelperTooltip>
+      <Amount.Crypto value={amountCryptoPrecision} symbol={tcyAsset.symbol} fontSize='2xl' />
+      <Amount.Fiat value={amountUserCurrency} fontSize='sm' color='text.subtle' />
+    </Flex>
+  )
+}
+
+const StakedBalanceSkeleton = () => {
+  const translate = useTranslate()
+  const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
+
+  if (!tcyAsset) return null
+
+  return (
+    <Flex flexDir='column' alignItems='flex-start'>
+      <HelperTooltip label={translate('TCY.myStakedBalanceHelper', { symbol: tcyAsset.symbol })}>
+        <RawText color='text.subtle'>{translate('TCY.myStakedBalance')}</RawText>
+      </HelperTooltip>
+      <Skeleton height='24px' width='120px' mb={1} />
+      <Skeleton height='16px' width='80px' />
+    </Flex>
+  )
+}
+
+const stakedBalanceSkeleton = <StakedBalanceSkeleton />
+
 export const Overview = ({ activeAccountNumber }: OverviewProps) => {
   const translate = useTranslate()
 
@@ -31,19 +89,6 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
 
   const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
   const accountId = accountNumberAccounts?.[thorchainChainId]
-
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, { accountId, assetId: tcyAssetId }),
-  )
-
-  const tcyMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
-  )
-
-  const userCurrencyBalance = useMemo(
-    () => bnOrZero(cryptoBalance).times(tcyMarketData.price).toFixed(2),
-    [cryptoBalance, tcyMarketData.price],
-  )
 
   if (!tcyAsset) return null
 
@@ -60,21 +105,9 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
           {translate('TCY.myPosition')}
         </Heading>
         <SimpleGrid spacing={6} columns={gridColumns}>
-          <Flex flexDir='column' alignItems='flex-start'>
-            <HelperTooltip
-              label={translate('TCY.myStakedBalanceHelper', { symbol: tcyAsset.symbol })}
-            >
-              <RawText color='text.subtle'>{translate('TCY.myStakedBalance')}</RawText>
-            </HelperTooltip>
-            <Amount.Crypto value={cryptoBalance} symbol={tcyAsset.symbol} fontSize='2xl' />
-            <Amount.Fiat value={userCurrencyBalance} fontSize='sm' color='text.subtle' />
-          </Flex>
-          <Flex flexDir='column' alignItems='flex-start'>
-            <HelperTooltip label={translate('TCY.timeStakedHelper', { symbol: tcyAsset.symbol })}>
-              <RawText color='text.subtle'>{translate('TCY.timeStaked')}</RawText>
-            </HelperTooltip>
-            <RawText fontSize='2xl'>0 days</RawText>
-          </Flex>
+          <Suspense fallback={stakedBalanceSkeleton}>
+            <StakedBalance accountId={accountId} />
+          </Suspense>
         </SimpleGrid>
       </CardBody>
     </Card>

@@ -1,11 +1,12 @@
 import { thorchainChainId } from '@shapeshiftoss/caip'
-import { lazy, useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
 import type { TCYRouteProps } from '../../types'
-import { TCYStakeRoute, TransactionStatus } from '../../types'
+import { TCYStakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
@@ -50,15 +51,13 @@ export type StakeFormValues = {
   accountId: string
 }
 
-export const Stake: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
-  headerComponent,
-  activeAccountNumber,
-}) => {
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-  const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-  const accountId = accountNumberAccounts?.[thorchainChainId] ?? ''
+export const Stake: React.FC<TCYRouteProps> = ({ headerComponent }) => {
+  const [activeAccountNumber] = useState(0)
+  const accountId = useAppSelector(state => {
+    const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
+    const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
+    return accountNumberAccounts?.[thorchainChainId] ?? ''
+  })
 
   const methods = useForm<StakeFormValues>({
     mode: 'onChange',
@@ -82,6 +81,12 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   activeAccountNumber,
 }) => {
   const location = useLocation()
+  const [stakeTxid, setStakeTxid] = useState<string>()
+  const queryClient = useQueryClient()
+
+  const handleTxConfirmed = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
+  }, [queryClient])
 
   const renderStakeInput = useCallback(() => {
     return (
@@ -90,12 +95,15 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   }, [headerComponent, activeAccountNumber])
 
   const renderStakeConfirm = useCallback(() => {
-    return <StakeConfirm />
-  }, [activeAccountNumber])
-
-  const renderStakeStatus = useCallback(() => {
-    return <StakeStatus status={TransactionStatus.Pending} />
+    return <StakeConfirm setStakeTxid={setStakeTxid} />
   }, [])
+
+  const renderStakeStatus = () => {
+    if (!stakeTxid) return null
+    return (
+      <StakeStatus txId={stakeTxid} setStakeTxid={setStakeTxid} onTxConfirmed={handleTxConfirmed} />
+    )
+  }
 
   return (
     <AnimatedSwitch>

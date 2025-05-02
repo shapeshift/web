@@ -1,55 +1,129 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { useCallback } from 'react'
+import { tcyAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useCallback, useMemo } from 'react'
+import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
-import { TCYStakeRoute, TransactionStatus } from '../../types'
+import { TCYStakeRoute } from '../../types'
+import type { StakeFormValues } from './Stake'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { TransactionStatusDisplay } from '@/components/TransactionStatusDisplay/TransactionStatusDisplay'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
-export const StakeStatus: React.FC<{ status: TransactionStatus }> = ({ status }) => {
+type StakeStatusProps = {
+  txId: string
+  setStakeTxid: (txId: string) => void
+  onTxConfirmed: () => Promise<void>
+}
+
+export const StakeStatus: React.FC<StakeStatusProps> = ({
+  txId,
+  setStakeTxid,
+  onTxConfirmed: handleTxConfirmed,
+}) => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
 
-  // TODO: Get claimed amount
-  const claimedAmount = '0.00' // Placeholder
+  const { amount, accountId } = useWatch<StakeFormValues>()
+
+  const txStatus = useTxStatus({
+    accountId: accountId ?? '',
+    txHash: txId,
+    onTxStatusConfirmed: handleTxConfirmed,
+  })
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId,
+  })
+
+  const txLink = useMemo(
+    () =>
+      getTxLink({
+        txId,
+        defaultExplorerBaseUrl: tcyAsset?.explorerTxLink ?? '',
+        accountId,
+        maybeSafeTx,
+        stepSource: SwapperName.Thorchain,
+      }),
+    [accountId, maybeSafeTx, tcyAsset?.explorerTxLink, txId],
+  )
 
   const handleViewTransaction = useCallback(() => {
-    console.log('Navigate to transaction view')
-    // Example: navigate(`/tx/${txHash}`)
-  }, [])
+    if (txLink) window.open(txLink, '_blank')
+  }, [txLink])
 
   const handleGoBack = useCallback(() => {
     navigate(TCYStakeRoute.Input)
   }, [navigate])
 
   const renderStatus = () => {
-    switch (status) {
-      case TransactionStatus.Pending:
+    if (!tcyAsset) return null
+
+    if (maybeSafeTx?.isQueuedSafeTx) {
+      return (
+        <TransactionStatusDisplay
+          isLoading
+          title={translate('common.safeProposalQueued', {
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+          })}
+          subtitle={translate('TCY.stakePending', {
+            amount: bnOrZero(amount).toFixed(8),
+            symbol: tcyAsset.symbol,
+          })}
+          primaryButtonText={translate('trade.viewTransaction')}
+          onPrimaryClick={handleViewTransaction}
+        />
+      )
+    }
+
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
+      setStakeTxid(maybeSafeTx.transaction.transactionHash)
+    }
+
+    switch (txStatus) {
+      case undefined:
+      case TxStatus.Pending:
         return (
           <TransactionStatusDisplay
             isLoading
-            title={translate('TCY.stakeStatus.pendingTitle')}
-            subtitle={translate('TCY.stakeStatus.pendingSubtitle', { amount: claimedAmount })}
+            title={translate('pools.waitingForConfirmation')}
+            subtitle={translate('TCY.stakeStatus.pendingSubtitle', {
+              amount: bnOrZero(amount).toFixed(8),
+              symbol: tcyAsset.symbol,
+            })}
             primaryButtonText={translate('TCY.stakeStatus.viewTransaction')}
             onPrimaryClick={handleViewTransaction}
           />
         )
-      case TransactionStatus.Success:
+      case TxStatus.Confirmed:
         return (
           <TransactionStatusDisplay
             icon={CheckCircleIcon}
             iconColor='green.500'
             title={translate('TCY.stakeStatus.successTitle')}
-            subtitle={translate('TCY.stakeStatus.successSubtitle', { amount: claimedAmount })}
+            subtitle={translate('TCY.stakeStatus.successSubtitle', {
+              amount: bnOrZero(amount).toFixed(8),
+              symbol: tcyAsset.symbol,
+            })}
             secondaryButtonText={translate('TCY.stakeStatus.viewTransaction')}
             onSecondaryClick={handleViewTransaction}
             primaryButtonText={translate('TCY.stakeStatus.goBack')}
             onPrimaryClick={handleGoBack}
           />
         )
-      case TransactionStatus.Failed:
+      case TxStatus.Failed:
         return (
           <TransactionStatusDisplay
             icon={WarningTwoIcon}
@@ -61,7 +135,7 @@ export const StakeStatus: React.FC<{ status: TransactionStatus }> = ({ status })
           />
         )
       default:
-        return null // Or some default state
+        return null
     }
   }
   return <SlideTransition>{renderStatus()}</SlideTransition>

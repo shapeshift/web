@@ -1,7 +1,8 @@
-import { Button, Card, CardFooter, FormControl, HStack, Stack } from '@chakra-ui/react'
+import { Button, Card, CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
+import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -16,6 +17,9 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
+import { toBaseUnit } from '@/lib/math'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
@@ -79,6 +83,20 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     selectPortfolioCryptoPrecisionBalanceByFilter(state, balanceFilter),
   )
 
+  const amountCryptoBaseUnit = useMemo(() => toBaseUnit(amount, THOR_PRECISION), [amount])
+
+  const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
+    {
+      accountId: accountId ?? '',
+      action: 'stakeTcy',
+      amountCryptoBaseUnit,
+      assetId: tcyAssetId,
+      memo: 'tcy+',
+      fromAddress: null,
+      enableEstimateFees: Boolean(accountId && bnOrZero(amount).gt(0)),
+    },
+  )
+
   const handleAmountChange = useCallback(
     (value: string, isFiat?: boolean) => {
       const amountCryptoPrecision = isFiat
@@ -109,12 +127,12 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     },
   })
 
-  const isDisabled = !isValid || bnOrZero(amount).isZero()
+  const isDisabled = !isValid || bnOrZero(amount).isZero() || isEstimatedFeesDataError
 
   const confirmCopy = useMemo(() => {
     if (errors.amount) return errors.amount.message
     return translate('TCY.stakeInput.stake')
-  }, [amount, errors.amount, assetUserCurrencyRate, translate])
+  }, [errors.amount, assetUserCurrencyRate, translate])
 
   useEffect(() => {
     setValue('accountId', accountId ?? '')
@@ -128,7 +146,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           assetId={selectedStakingAsset?.assetId ?? ''}
           assetSymbol={selectedStakingAsset?.symbol ?? ''}
           assetIcon={selectedStakingAsset?.icon ?? ''}
-          onAccountIdChange={() => {}}
+          onAccountIdChange={noop}
           label={translate('TCY.stakeInput.amount')}
           isAccountSelectionDisabled
           placeholder={translate('TCY.stakeInput.amountPlaceholder')}
@@ -152,7 +170,9 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           <Row fontSize='sm' Tooltipbody={tooltipBody}>
             <Row.Label>{translate('TCY.stakeInput.networkFee')}</Row.Label>
             <Row.Value>
-              <Amount.Fiat value={0} />
+              <Skeleton isLoaded={!!estimatedFeesData}>
+                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
+              </Skeleton>
             </Row.Value>
           </Row>
           <Button
@@ -161,6 +181,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
             width='full'
             onClick={handleStake}
             isDisabled={isDisabled}
+            isLoading={isEstimatedFeesDataLoading}
           >
             {confirmCopy}
           </Button>

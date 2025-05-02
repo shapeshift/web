@@ -1,7 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { tcyAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
@@ -18,7 +19,11 @@ import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const StakeConfirm: React.FC<TCYRouteProps> = ({}) => {
+type StakeConfirmProps = TCYRouteProps & {
+  setStakeTxid: (txId: string) => void
+}
+
+export const StakeConfirm: React.FC<StakeConfirmProps> = ({ setStakeTxid }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { watch } = useFormContext<{ amount: string; accountId: AccountId }>()
@@ -42,7 +47,6 @@ export const StakeConfirm: React.FC<TCYRouteProps> = ({}) => {
     executeTransaction,
     estimatedFeesData,
     isEstimatedFeesDataLoading,
-    txId,
     isEstimatedFeesDataError,
   } = useSendThorTx({
     accountId,
@@ -53,15 +57,22 @@ export const StakeConfirm: React.FC<TCYRouteProps> = ({}) => {
     fromAddress: null,
   })
 
-  useEffect(() => {
-    if (txId) {
+  const { mutateAsync: handleStake, isPending: isStakeMutationPending } = useMutation({
+    mutationFn: async () => {
+      const txid = await executeTransaction()
+      if (!txid) throw new Error('Failed to broadcast transaction')
+      return txid
+    },
+    onSuccess: (txid: string | undefined) => {
+      if (!txid) return
+      setStakeTxid(txid)
       navigate(TCYStakeRoute.Status)
-    }
-  }, [txId, navigate])
+    },
+  })
 
   const handleConfirm = useCallback(async () => {
-    await executeTransaction()
-  }, [executeTransaction])
+    await handleStake()
+  }, [handleStake])
 
   const handleCancel = useCallback(() => {
     navigate(TCYStakeRoute.Input)
@@ -85,8 +96,8 @@ export const StakeConfirm: React.FC<TCYRouteProps> = ({}) => {
       confirmText={translate('TCY.stakeConfirm.confirmAndStake')}
       onConfirm={handleConfirm}
       headerLeftComponent={headerLeftComponent}
-      isDisabled={isEstimatedFeesDataLoading || isEstimatedFeesDataError}
-      isLoading={isEstimatedFeesDataLoading}
+      isDisabled={isStakeMutationPending || isEstimatedFeesDataLoading || isEstimatedFeesDataError}
+      isLoading={isStakeMutationPending || isEstimatedFeesDataLoading}
     />
   )
 }

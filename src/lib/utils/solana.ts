@@ -1,5 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { solanaChainId } from '@shapeshiftoss/caip'
 import type { solana } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -22,8 +22,4 @@ export const assertGetSolanaChainAdapter = (
   }
 
   return adapter
-}
-
-export const isSplToken = (assetId: AssetId): boolean => {
-  return fromAssetId(assetId).assetNamespace === ASSET_NAMESPACE.splToken
 }

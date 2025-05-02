@@ -1,11 +1,11 @@
-import { fromChainId } from '@shapeshiftoss/caip'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 
 import type {
   CommonTradeQuoteInput,
-  EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
   GetTradeRateInput,
@@ -16,7 +16,7 @@ import type {
   TradeQuote,
   TradeRate,
 } from '../../types'
-import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
+import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
 
@@ -31,9 +31,7 @@ export const portalsApi: SwapperApi = {
       config,
     )
 
-    return tradeQuoteResult.map(tradeQuote => {
-      return [tradeQuote]
-    })
+    return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
   getTradeRate: async (
     input: GetTradeRateInput,
@@ -45,79 +43,61 @@ export const portalsApi: SwapperApi = {
       config,
     )
 
-    return tradeRateResult.map(tradeQuote => {
-      return [tradeQuote]
-    })
+    return tradeRateResult.map(tradeRate => [tradeRate])
   },
   getEvmTransactionFees: async ({
-    chainId,
     from,
+    stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { steps } = tradeQuote
-    const { portalsTransactionMetadata } = steps[0]
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
+    const { portalsTransactionMetadata, sellAsset } = step
     if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
 
     const { value, to, data } = portalsTransactionMetadata
 
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    return networkFeeCryptoBaseUnit
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    return feeData.networkFeeCryptoBaseUnit
   },
   getUnsignedEvmTransaction: async ({
-    chainId,
     from,
+    stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { steps } = tradeQuote
-    const { portalsTransactionMetadata } = steps[0]
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
+    const { accountNumber, portalsTransactionMetadata, sellAsset } = step
     if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
 
-    const {
-      value,
-      to,
-      data,
-      // Portals has a 15% buffer on gas estimations, which may or may not turn out to be more reliable than our "pure" simulations
-      gasLimit: estimatedGas,
-    } = portalsTransactionMetadata
+    // Portals has a 15% buffer on gas estimations, which may or may not turn out to be more reliable than our "pure" simulations
+    const { value, to, data, gasLimit: estimatedGas } = portalsTransactionMetadata
 
-    const { gasLimit, ...feeData } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    return {
-      to,
-      from,
-      value,
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    return adapter.buildCustomApiTx({
+      accountNumber,
       data,
-      chainId: Number(fromChainId(chainId).chainReference),
-      // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for
-      // total gas used.
-      gasLimit: BigNumber.max(gasLimit, estimatedGas).toFixed(),
+      from,
+      to,
+      value,
       ...feeData,
-    }
+      // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for total gas used.
+      gasLimit: BigNumber.max(feeData.gasLimit, estimatedGas).toFixed(),
+    })
   },
 
   checkTradeStatus: checkEvmSwapStatus,

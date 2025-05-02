@@ -1,8 +1,9 @@
 import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
 import { getStepTransaction } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
@@ -11,7 +12,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
   CommonTradeQuoteInput,
-  EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
   GetTradeRateInput,
@@ -26,6 +26,7 @@ import { TradeQuoteError } from '../../types'
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,
+  getExecutableTradeStep,
   isExecutableTradeQuote,
   makeSwapErrorRight,
 } from '../../utils'
@@ -99,9 +100,9 @@ export const lifiApi: SwapperApi = {
 
     const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps, lifiChainMap)
 
-    return tradeRateResult.map(quote =>
-      quote.map(tradeQuote => {
-        const { selectedLifiRoute } = tradeQuote
+    return tradeRateResult.map(rate =>
+      rate.map(tradeRate => {
+        const { selectedLifiRoute } = tradeRate
 
         // TODO: quotes below the minimum aren't valid and should not be processed as such
         // selectedLifiRoute will be missing for quotes below the minimum
@@ -109,35 +110,35 @@ export const lifiApi: SwapperApi = {
 
         const id = selectedLifiRoute.id
 
-        // store the lifi quote metadata for transaction building later
+        // store the lifi rate metadata for transaction building later
         tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-        return tradeQuote
+        return tradeRate
       }),
     )
   },
   getUnsignedEvmTransaction: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
     configureLiFi()
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, sellAsset } = step
 
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
-
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
     const lifiStep = lifiRoute.steps[stepIndex]
 
     const { transactionRequest } = await getStepTransaction(lifiStep)
-
-    if (!transactionRequest) {
-      throw Error('undefined transactionRequest')
-    }
+    if (!transactionRequest) throw Error('undefined transactionRequest')
 
     const { to, value, data, gasLimit } = transactionRequest
 
@@ -154,8 +155,10 @@ export const lifiApi: SwapperApi = {
       })
     }
 
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
     const feeData = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
+      adapter,
       data: data.toString(),
       to,
       // This looks odd but we need this, else unchained estimate calls will fail with:
@@ -165,17 +168,16 @@ export const lifiApi: SwapperApi = {
       supportsEIP1559,
     })
 
-    return {
-      to,
-      from,
-      value: value.toString(),
+    return adapter.buildCustomApiTx({
+      accountNumber,
       data: data.toString(),
-      chainId: Number(fromChainId(chainId).chainReference),
+      from,
+      to,
+      value: value.toString(),
       ...{ ...feeData, gasLimit: gasLimit.toString() },
-    }
+    })
   },
   getEvmTransactionFees: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
@@ -183,19 +185,20 @@ export const lifiApi: SwapperApi = {
     assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<string> => {
     configureLiFi()
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { sellAsset } = step
 
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
-
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
     const lifiStep = lifiRoute.steps[stepIndex]
 
     const { transactionRequest } = await getStepTransaction(lifiStep)
-
-    if (!transactionRequest) {
-      throw Error('undefined transactionRequest')
-    }
+    if (!transactionRequest) throw Error('undefined transactionRequest')
 
     const { to, value, data, gasLimit } = transactionRequest
 
@@ -213,7 +216,7 @@ export const lifiApi: SwapperApi = {
     }
 
     const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
+      adapter: assertGetEvmChainAdapter(sellAsset.chainId),
       data: data.toString(),
       to,
       // This looks odd but we need this, else unchained estimate calls will fail with:

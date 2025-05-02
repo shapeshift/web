@@ -1,14 +1,14 @@
 import type { QuoteResponse } from '@jup-ag/api'
-import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
+  SignTx,
   solana,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -21,7 +21,7 @@ import type {
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
-import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
@@ -38,6 +38,7 @@ export type SwapperConfig = {
   VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
+  VITE_MAYACHAIN_NODE_URL: string
   VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
@@ -238,10 +239,15 @@ export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }
-export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
+
+export type UtxoSwapperDeps = {
+  assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter
+}
+
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
+
 export type SolanaSwapperDeps = {
   assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
 }
@@ -379,7 +385,7 @@ export type GetUnsignedTxArgs = {
 } & FromOrXpub
 
 export type EvmTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: EvmTransactionRequest) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SignTx<EvmChainId>) => Promise<string>
 }
 
 export type EvmMessageExecutionProps = {
@@ -387,15 +393,15 @@ export type EvmMessageExecutionProps = {
 }
 
 export type UtxoTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: BTCSignTx) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
 }
 
 export type CosmosSdkTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SignTx<CosmosSdkChainId>) => Promise<string>
 }
 
 export type SolanaTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: SolanaSignTx) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
 }
 
 type EvmAccountMetadata = { from: string }
@@ -468,15 +474,6 @@ export type CheckTradeStatusInput = {
 export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
-export type EvmTransactionRequest = {
-  gasLimit: string
-  to: string
-  from: string
-  value: string
-  data: string
-  chainId: number
-} & evm.types.Fees
-
 // TODO: one day this might be a union to support various implementations or generic 💀
 export type EvmMessageToSign = CowMessageToSign
 
@@ -486,7 +483,7 @@ export type Swapper = {
   executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 
   executeEvmTransaction?: (
-    txToSign: EvmTransactionRequest,
+    txToSign: SignTx<EvmChainId>,
     callbacks: EvmTransactionExecutionProps,
   ) => Promise<string>
   executeEvmMessage?: (
@@ -495,11 +492,11 @@ export type Swapper = {
     config: SwapperConfig,
   ) => Promise<string>
   executeUtxoTransaction?: (
-    txToSign: BTCSignTx,
+    txToSign: SignTx<UtxoChainId>,
     callbacks: UtxoTransactionExecutionProps,
   ) => Promise<string>
   executeCosmosSdkTransaction?: (
-    txToSign: StdSignDoc,
+    txToSign: SignTx<CosmosSdkChainId>,
     callbacks: CosmosSdkTransactionExecutionProps,
   ) => Promise<string>
   executeSolanaTransaction?: (
@@ -518,15 +515,16 @@ export type SwapperApi = {
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
-  getUnsignedEvmTransaction?: (
-    input: GetUnsignedEvmTransactionArgs,
-  ) => Promise<EvmTransactionRequest>
+  getUnsignedEvmTransaction?: (input: GetUnsignedEvmTransactionArgs) => Promise<SignTx<EvmChainId>>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>
-  getUnsignedUtxoTransaction?: (input: GetUnsignedUtxoTransactionArgs) => Promise<BTCSignTx>
+  getUnsignedUtxoTransaction?: (
+    input: GetUnsignedUtxoTransactionArgs,
+  ) => Promise<SignTx<UtxoChainId>>
   getUnsignedCosmosSdkTransaction?: (
     input: GetUnsignedCosmosSdkTransactionArgs,
-  ) => Promise<StdSignDoc>
+  ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>

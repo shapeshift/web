@@ -25,7 +25,12 @@ import type {
   TradeRate,
 } from '../../types'
 import { SwapperName } from '../../types'
-import { checkSafeTransactionStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  getExecutableTradeStep,
+  getHopByIndex,
+  isExecutableTradeQuote,
+} from '../../utils'
 import { CowStatusMessage } from './constants'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
@@ -68,20 +73,19 @@ export const cowApi: SwapperApi = {
   getUnsignedEvmMessage: async ({
     tradeQuote,
     stepIndex,
-    chainId,
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
-    const hop = getHopByIndex(tradeQuote, stepIndex)
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    if (!hop) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset } = hop
+    const { cowswapQuoteResponse, sellAsset } = step
+    if (!cowswapQuoteResponse) throw new Error('CowSwap quote data is required')
+
     const {
       slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.CowSwap,
       ),
     } = tradeQuote
-
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     // Check the chainId is supported for paranoia
     assertGetCowNetwork(sellAsset.chainId)
@@ -95,10 +99,6 @@ export const cowApi: SwapperApi = {
       affiliateAppDataFragment,
       'market',
     )
-
-    const { cowswapQuoteResponse } = hop
-
-    if (!cowswapQuoteResponse) throw new Error('CowSwap quote data is required')
 
     const { id, quote } = cowswapQuoteResponse
     // Note: While CowSwap returns us a quote, and we have slippageBips in the appData, this isn't enough.
@@ -138,7 +138,7 @@ export const cowApi: SwapperApi = {
       signingScheme: SigningScheme.EIP712,
     }
 
-    return { chainId, orderToSign }
+    return { chainId: sellAsset.chainId, orderToSign }
   },
   getEvmTransactionFees: (_args: GetUnsignedEvmMessageArgs): Promise<string> => {
     // No transaction fees for CoW

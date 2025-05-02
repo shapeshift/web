@@ -1,7 +1,7 @@
-import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 
 import type {
@@ -56,14 +56,14 @@ export const thorchainSwapper: Swapper = {
   executeEvmTransaction,
 
   executeCosmosSdkTransaction: async (
-    txToSign: StdSignDoc,
+    txToSign: SignTx<CosmosSdkChainId>,
     { signAndBroadcastTransaction }: CosmosSdkTransactionExecutionProps,
   ): Promise<string> => {
     return await signAndBroadcastTransaction(txToSign)
   },
 
   executeUtxoTransaction: async (
-    txToSign: BTCSignTx,
+    txToSign: SignTx<UtxoChainId>,
     { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
   ): Promise<string> => {
     return await signAndBroadcastTransaction(txToSign)

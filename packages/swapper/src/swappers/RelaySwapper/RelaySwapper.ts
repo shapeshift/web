@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { Asset } from '@shapeshiftoss/types'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
+import type { Asset, UtxoChainId } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput, Swapper, UtxoTransactionExecutionProps } from '../../types'
 import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
@@ -10,7 +10,7 @@ export const relaySwapper: Swapper = {
   executeEvmTransaction,
   executeSolanaTransaction,
   executeUtxoTransaction: (
-    txToSign: BTCSignTx,
+    txToSign: SignTx<UtxoChainId>,
     { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
   ): Promise<string> => {
     return signAndBroadcastTransaction(txToSign)

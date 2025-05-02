@@ -32,16 +32,16 @@ import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
 import { ThorchainMessageType } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
-// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
-const OUTBOUND_FEE = '2000000'
+// static automatic native fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
+export const NATIVE_FEE = '2000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.ThorchainMainnet
 
 const calculateFee = (fee: string): string => {
-  // 0.02 RUNE is automatically charged on outbound transactions
-  // the returned is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
-  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+  // 0.02 RUNE is automatically charged on transactions
+  // the returned amount is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
+  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(NATIVE_FEE)
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
@@ -252,7 +252,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     input: BuildDepositTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
-      // TODO memo validation
       const { from, value, memo, chainSpecific } = input
       const { fee, coin = 'THOR.RUNE' } = chainSpecific
 
@@ -291,9 +290,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     _: Partial<GetFeeDataInput<KnownChainIds.ThorchainMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.ThorchainMainnet>> {
     return {
-      fast: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
-      average: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
-      slow: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
+      fast: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '500000000' } },
+      average: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '500000000' } },
+      slow: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '500000000' } },
     }
   }
 

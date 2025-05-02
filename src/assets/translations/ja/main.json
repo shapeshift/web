@@ -2873,5 +2873,8 @@
       "getUtxos": "utxos を取得できませんでした。",
       "getValidator": "バリデータを取得できませんでした。"
     }
+  },
+  "notificationCenter": {
+    "title": "通知"
   }
 }

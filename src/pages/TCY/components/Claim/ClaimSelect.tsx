@@ -12,6 +12,8 @@ import type { Claim } from './types'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SlideTransition } from '@/components/SlideTransition'
 
+const faGift = <FaGift />
+
 const ClaimsListSkeleton = () => {
   return (
     <Stack px={2} pb={2} spacing={2}>
@@ -66,7 +68,7 @@ const ClaimsList = ({
   if (claims.length === 0) {
     return (
       <ResultsEmpty
-        icon={<FaGift />}
+        icon={faGift}
         title='TCY.claimsEmpty.emptyTitle'
         body='TCY.claimsEmpty.emptyBody'
       />

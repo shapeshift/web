@@ -1,13 +1,15 @@
-import { Button, CardFooter, HStack, Stack } from '@chakra-ui/react'
+import { Button, Card, CardFooter, FormControl, HStack, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { tcyAssetId } from '@shapeshiftoss/caip'
+import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
+import type { StakeFormValues } from './Stake'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -15,7 +17,9 @@ import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAsse
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
+import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const percentOptions = [1]
@@ -43,18 +47,36 @@ export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
   )
 }
 
-export const StakeInput: React.FC<TCYRouteProps> = ({ headerComponent }) => {
+export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+  headerComponent,
+  activeAccountNumber,
+}) => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const selectedStakingAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
-  const [isFiat, setIsFiat] = useState(false)
-  const [cryptoAmount, setCryptoAmount] = useState<string>('')
-  const [fiatAmount, setFiatAmount] = useState<string>('')
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+  } = useFormContext<StakeFormValues>()
 
-  const noop = useCallback(() => {}, [])
+  const amount = watch('amount')
 
   const { price: assetUserCurrencyRate } = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: selectedStakingAsset?.assetId }),
+  )
+
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdByAccountNumberAndChainId,
+  )
+  const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
+  const accountId = accountNumberAccounts?.[thorchainChainId]
+
+  const balanceFilter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
+
+  const balanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, balanceFilter),
   )
 
   const handleAmountChange = useCallback(
@@ -62,13 +84,9 @@ export const StakeInput: React.FC<TCYRouteProps> = ({ headerComponent }) => {
       const amountCryptoPrecision = isFiat
         ? bnOrZero(value).div(assetUserCurrencyRate).toFixed()
         : value
-      const amountUserCurrency = !isFiat
-        ? bnOrZero(value).times(assetUserCurrencyRate).toFixed()
-        : value
-      setCryptoAmount(amountCryptoPrecision)
-      setFiatAmount(amountUserCurrency)
+      setValue('amount', amountCryptoPrecision, { shouldValidate: true })
     },
-    [assetUserCurrencyRate],
+    [assetUserCurrencyRate, setValue],
   )
 
   const tooltipBody = useCallback(
@@ -80,42 +98,74 @@ export const StakeInput: React.FC<TCYRouteProps> = ({ headerComponent }) => {
     navigate(TCYStakeRoute.Confirm)
   }, [navigate])
 
+  register('amount', {
+    validate: (value: string) => {
+      // TODO(gomes): dev only, this works but we obviously don't want this until we can hold TCY
+      return true
+      if (bnOrZero(value).gt(bnOrZero(balanceCryptoPrecision))) {
+        return translate('common.insufficientFunds')
+      }
+      return true
+    },
+  })
+
+  const isDisabled = !isValid || bnOrZero(amount).isZero()
+
+  const confirmCopy = useMemo(() => {
+    if (errors.amount) return errors.amount.message
+    return translate('TCY.stakeInput.stake')
+  }, [amount, errors.amount, assetUserCurrencyRate, translate])
+
+  useEffect(() => {
+    setValue('accountId', accountId ?? '')
+  }, [accountId, setValue])
+
   return (
     <Stack>
       {headerComponent}
-      <TradeAssetInput
-        assetId={selectedStakingAsset?.assetId ?? ''}
-        assetSymbol={selectedStakingAsset?.symbol ?? ''}
-        assetIcon={selectedStakingAsset?.icon ?? ''}
-        onAccountIdChange={noop}
-        label={translate('TCY.stakeInput.amount')}
-        isAccountSelectionDisabled
-        placeholder={translate('TCY.stakeInput.amountPlaceholder')}
-        onToggleIsFiat={setIsFiat}
-        onChange={handleAmountChange}
-        isFiat={isFiat}
-        cryptoAmount={cryptoAmount}
-        fiatAmount={fiatAmount}
-        percentOptions={percentOptions}
-        formControlProps={formControlProps}
-        rightComponent={ReadOnlyAsset}
-      />
-      <CardFooter
-        flexDirection='column'
-        gap={4}
-        bg='background.surface.raised.base'
-        borderBottomRadius='xl'
-      >
-        <Row fontSize='sm' Tooltipbody={tooltipBody}>
-          <Row.Label>{translate('TCY.stakeInput.networkFee')}</Row.Label>
-          <Row.Value>
-            <Amount.Fiat value={0} />
-          </Row.Value>
-        </Row>
-        <Button colorScheme='blue' size='lg' width='full' onClick={handleStake}>
-          {translate('TCY.stakeInput.stake')}
-        </Button>
-      </CardFooter>
+      <FormControl isInvalid={Boolean(errors.amount)}>
+        <TradeAssetInput
+          assetId={selectedStakingAsset?.assetId ?? ''}
+          assetSymbol={selectedStakingAsset?.symbol ?? ''}
+          assetIcon={selectedStakingAsset?.icon ?? ''}
+          onAccountIdChange={() => {}}
+          label={translate('TCY.stakeInput.amount')}
+          isAccountSelectionDisabled
+          placeholder={translate('TCY.stakeInput.amountPlaceholder')}
+          onToggleIsFiat={() => {}}
+          onChange={handleAmountChange}
+          isFiat={false}
+          cryptoAmount={amount}
+          fiatAmount={bnOrZero(amount).times(assetUserCurrencyRate).toFixed()}
+          percentOptions={percentOptions}
+          formControlProps={formControlProps}
+          rightComponent={ReadOnlyAsset}
+        />
+      </FormControl>
+      <Card>
+        <CardFooter
+          flexDirection='column'
+          gap={4}
+          bg='background.surface.raised.base'
+          borderBottomRadius='xl'
+        >
+          <Row fontSize='sm' Tooltipbody={tooltipBody}>
+            <Row.Label>{translate('TCY.stakeInput.networkFee')}</Row.Label>
+            <Row.Value>
+              <Amount.Fiat value={0} />
+            </Row.Value>
+          </Row>
+          <Button
+            colorScheme={isValid ? 'blue' : 'red'}
+            size='lg'
+            width='full'
+            onClick={handleStake}
+            isDisabled={isDisabled}
+          >
+            {confirmCopy}
+          </Button>
+        </CardFooter>
+      </Card>
     </Stack>
   )
 }

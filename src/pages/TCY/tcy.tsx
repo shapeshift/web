@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Activity } from './components/Activity/Activity'
 import { Claim } from './components/Claim/Claim'
 import { Overview } from './components/Overview'
+import { Stake } from './components/Stake/Stake'
 import { TCYHeader } from './components/TCYHeader'
 import { Widget } from './components/Widget'
 
@@ -41,10 +42,11 @@ export const TCY = () => {
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview activeAccountNumber={activeAccountNumber} />
           <Claim activeAccountNumber={activeAccountNumber} />
+          <Stake headerComponent={tcyHeader} activeAccountNumber={activeAccountNumber} />
           {isTcyActivityEnabled && <Activity />}
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
-          {isTcyWidgetEnabled && <Widget />}
+          {isTcyWidgetEnabled && <Widget activeAccountNumber={activeAccountNumber} />}
         </Stack>
       </Stack>
     </Main>

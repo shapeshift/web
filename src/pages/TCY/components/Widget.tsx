@@ -11,7 +11,7 @@ const FormHeaderItems = [
   { label: 'TCY.unstake', index: TCYTabIndex.Unstake },
 ]
 
-export const Widget = () => {
+export const Widget = ({ activeAccountNumber }: { activeAccountNumber: number }) => {
   const [stepIndex, setStepIndex] = useState(TCYTabIndex.Stake)
 
   const TabHeader = useMemo(() => {
@@ -26,7 +26,7 @@ export const Widget = () => {
         <Tabs index={stepIndex}>
           <TabPanels>
             <TabPanel p={0}>
-              <Stake headerComponent={TabHeader} />
+              <Stake headerComponent={TabHeader} activeAccountNumber={activeAccountNumber} />
             </TabPanel>
             <TabPanel>
               <p>Unstake</p>

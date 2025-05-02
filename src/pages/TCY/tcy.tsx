@@ -9,6 +9,7 @@ import { TCYHeader } from './components/TCYHeader'
 import { Widget } from './components/Widget'
 
 import { Main } from '@/components/Layout/Main'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: '100%', md: '450px' }
@@ -21,16 +22,19 @@ export const TCY = () => {
     [setActiveAccountNumber],
   )
 
+  const isTcyWidgetEnabled = useFeatureFlag('ThorchainTcyWidget')
+  const isTcyActivityEnabled = useFeatureFlag('ThorchainTcyActivity')
+
   return (
     <Main pb={mainPaddingBottom} headerComponent={tcyHeader} px={4} isSubPage>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview activeAccountNumber={activeAccountNumber} />
           <Claim activeAccountNumber={activeAccountNumber} />
-          <Activity />
+          {isTcyActivityEnabled && <Activity />}
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
-          <Widget />
+          {isTcyWidgetEnabled && <Widget />}
         </Stack>
       </Stack>
     </Main>

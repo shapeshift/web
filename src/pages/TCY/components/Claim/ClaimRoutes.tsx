@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
-import { MemoryRouter, useLocation } from 'react-router'
+import { MemoryRouter, useLocation, useNavigate } from 'react-router'
 import { Route, Switch } from 'wouter'
 
 import { TCYClaimRoute } from '../../types'
@@ -32,7 +32,16 @@ const ClaimStatus = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const initialEntries = [TCYClaimRoute.Confirm, TCYClaimRoute.Status]
+const ClaimSweep = makeSuspenseful(
+  lazy(() =>
+    import('./ClaimSweep').then(({ ClaimSweep }) => ({
+      default: ClaimSweep,
+    })),
+  ),
+  defaultBoxSpinnerStyle,
+)
+
+const initialEntries = [TCYClaimRoute.Confirm, TCYClaimRoute.Status, TCYClaimRoute.Sweep]
 
 const ClaimContent = ({ claim }: { claim: Claim | undefined }) => {
   const [txId, setTxId] = useState<string>('')
@@ -54,6 +63,7 @@ const ClaimRoutes = ({
   setClaimTxid: (txId: string) => void
 }) => {
   const location = useLocation()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const renderClaimConfirm = useCallback(() => {
@@ -79,11 +89,26 @@ const ClaimRoutes = ({
     )
   }, [claim, txId, setClaimTxid, handleTxConfirmed])
 
+  const handleSweepSeen = useCallback(() => {
+    navigate(TCYClaimRoute.Confirm)
+  }, [navigate])
+
+  const handleSweepBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
+  const renderClaimSweep = useCallback(() => {
+    if (!claim) return null
+
+    return <ClaimSweep claim={claim} onBack={handleSweepBack} onSweepSeen={handleSweepSeen} />
+  }, [claim, handleSweepBack, handleSweepSeen])
+
   return (
     <AnimatedSwitch>
       <Switch location={location.pathname}>
         <Route path={TCYClaimRoute.Confirm}>{renderClaimConfirm()}</Route>
         <Route path={TCYClaimRoute.Status}>{renderClaimStatus()}</Route>
+        <Route path={TCYClaimRoute.Sweep}>{renderClaimSweep()}</Route>
       </Switch>
     </AnimatedSwitch>
   )

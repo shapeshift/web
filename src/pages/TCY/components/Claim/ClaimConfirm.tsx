@@ -1,5 +1,5 @@
 import { ModalCloseButton } from '@chakra-ui/react'
-import { tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -13,10 +13,12 @@ import type { Claim } from './types'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { isUtxoChainId } from '@/lib/utils/utxo'
+import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
@@ -45,6 +47,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 
+  const claimAsset = useAppSelector(state => selectAssetById(state, claim.assetId))
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const tcyMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
@@ -79,7 +82,12 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         : skipToken,
   })
 
-  const { estimatedFeesData, executeTransaction } = useSendThorTx({
+  const {
+    dustAmountCryptoBaseUnit,
+    isEstimatedFeesDataLoading,
+    estimatedFeesData,
+    executeTransaction,
+  } = useSendThorTx({
     accountId: claim.accountId,
     action: 'claimTcy',
     amountCryptoBaseUnit: '0',
@@ -88,6 +96,35 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     memo: runeAddress ? `tcy:${runeAddress}` : '',
     enableEstimateFees: Boolean(runeAddress && claim.accountId),
   })
+
+  const isSweepNeededArgs = useMemo(
+    () => ({
+      assetId: claim.assetId,
+      address: fromAddress ?? '',
+      amountCryptoBaseUnit: dustAmountCryptoBaseUnit,
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
+      enabled: Boolean(
+        isUtxoChainId(fromAssetId(claim.assetId).chainId) &&
+          fromAddress &&
+          estimatedFeesData &&
+          runeAddress,
+      ),
+    }),
+    [
+      claim.assetId,
+      fromAddress,
+      amountCryptoPrecision,
+      tcyAsset?.precision,
+      tcyAsset?.chainId,
+      estimatedFeesData,
+      runeAddress,
+    ],
+  )
+
+  const { data: isSweepNeeded, isFetching: isSweepNeededFeching } =
+    useIsSweepNeededQuery(isSweepNeededArgs)
+
+  console.log({ isSweepNeeded })
 
   const { mutateAsync: handleClaim, isPending: isClaimMutationPending } = useMutation({
     mutationFn: async () => {
@@ -107,16 +144,19 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   })
 
   const handleConfirm = useCallback(async () => {
+    if (isSweepNeeded) {
+      return navigate(TCYClaimRoute.Sweep)
+    }
     await handleClaim()
-  }, [handleClaim])
+  }, [handleClaim, isSweepNeeded, navigate])
 
   if (!tcyAsset) return null
 
   return (
     <FormProvider {...methods}>
       <ReusableConfirm
-        isDisabled={!isConnected || !runeAddress}
-        isLoading={isClaimMutationPending}
+        isDisabled={!isConnected || !runeAddress || isSweepNeededFeching || !estimatedFeesData}
+        isLoading={isClaimMutationPending || isSweepNeededFeching || isEstimatedFeesDataLoading}
         assetId={thorchainAssetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}
         cryptoAmount={amountCryptoPrecision}

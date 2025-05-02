@@ -48,8 +48,6 @@ const formControlProps = {
   paddingTop: 0,
 }
 
-const percentOptions = []
-
 export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   return (
@@ -219,7 +217,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           isReadOnly
           formControlProps={formControlProps}
           rightComponent={ReadOnlyAsset}
-          percentOptions={percentOptions}
+          // eslint-disable-next-line react-memo/require-usememo
+          percentOptions={[]}
         >
           <Stack spacing={4} px={6} pb={4}>
             <Slider value={unstakePercent} onChange={handleUnstakePercentChange}>

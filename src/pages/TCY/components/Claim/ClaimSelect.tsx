@@ -45,6 +45,8 @@ const ClaimsListSkeleton = () => {
   )
 }
 
+const suspenseFallback = <ClaimsListSkeleton />
+
 const ClaimsList = ({
   onClaimClick,
   activeAccountNumber,
@@ -92,7 +94,7 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
     <SlideTransition>
       {headerComponent}
       <Stack spacing={2}>
-        <Suspense fallback={<ClaimsListSkeleton />}>
+        <Suspense fallback={suspenseFallback}>
           <ClaimsList onClaimClick={handleClick} activeAccountNumber={activeAccountNumber} />
         </Suspense>
       </Stack>

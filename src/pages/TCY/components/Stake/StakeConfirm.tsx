@@ -1,4 +1,4 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { tcyAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
@@ -27,7 +27,7 @@ export const StakeConfirm = () => {
 
   return (
     <ReusableConfirm
-      assetId={ethAssetId}
+      assetId={tcyAssetId}
       headerText={translate('TCY.stakeConfirm.confirmTitle')}
       cryptoAmount='100'
       cryptoSymbol='TCY'

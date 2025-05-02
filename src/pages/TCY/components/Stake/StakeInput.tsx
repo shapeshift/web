@@ -1,6 +1,6 @@
 import { Button, CardFooter, HStack, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { tcyAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -46,7 +46,7 @@ export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
 export const StakeInput: React.FC<TCYRouteProps> = ({ headerComponent }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const selectedStakingAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const selectedStakingAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const [isFiat, setIsFiat] = useState(false)
   const [cryptoAmount, setCryptoAmount] = useState<string>('')
   const [fiatAmount, setFiatAmount] = useState<string>('')

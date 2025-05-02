@@ -13,7 +13,7 @@ import type { Claim } from './types'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { fromBaseUnit } from '@/lib/math'
 import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -47,7 +47,6 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, claim.assetId))
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const tcyMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
@@ -110,21 +109,11 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           runeAddress,
       ),
     }),
-    [
-      claim.assetId,
-      fromAddress,
-      amountCryptoPrecision,
-      tcyAsset?.precision,
-      tcyAsset?.chainId,
-      estimatedFeesData,
-      runeAddress,
-    ],
+    [claim.assetId, fromAddress, estimatedFeesData, runeAddress, dustAmountCryptoBaseUnit],
   )
 
   const { data: isSweepNeeded, isFetching: isSweepNeededFeching } =
     useIsSweepNeededQuery(isSweepNeededArgs)
-
-  console.log({ isSweepNeeded })
 
   const { mutateAsync: handleClaim, isPending: isClaimMutationPending } = useMutation({
     mutationFn: async () => {

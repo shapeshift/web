@@ -57,6 +57,8 @@ const ClaimRoutes = ({
   const queryClient = useQueryClient()
 
   const renderClaimConfirm = useCallback(() => {
+    if (!claim) return null
+
     return <ClaimConfirm claim={claim} setClaimTxid={setClaimTxid} />
   }, [claim, setClaimTxid])
 

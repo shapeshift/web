@@ -1,6 +1,6 @@
 import { ModalCloseButton } from '@chakra-ui/react'
-import { fromAccountId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { useMutation } from '@tanstack/react-query'
+import { tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -14,13 +14,19 @@ import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
-  claim: Claim | undefined
+  claim: Claim
   setClaimTxid: (txId: string) => void
 }
 
@@ -33,7 +39,9 @@ const headerRightComponent = <ModalCloseButton />
 export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()
-  const { state: walletState } = useWallet()
+  const {
+    state: { wallet, isConnected },
+  } = useWallet()
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 
@@ -43,7 +51,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   )
 
   const amountCryptoPrecision = useMemo(
-    () => fromBaseUnit(claim?.amountThorBaseUnit ?? '0', THOR_PRECISION),
+    () => fromBaseUnit(claim.amountThorBaseUnit ?? '0', THOR_PRECISION),
     [claim?.amountThorBaseUnit],
   )
 
@@ -51,24 +59,39 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     return bn(amountCryptoPrecision).times(tcyMarketData.price).toFixed(2)
   }, [tcyMarketData.price, amountCryptoPrecision])
 
-  const fromAddress = useMemo(
-    () => (claim?.accountId ? fromAccountId(claim.accountId).account : null),
-    [claim?.accountId],
+  const accountFilter = useMemo(() => ({ accountId: claim.accountId }), [claim.accountId])
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
 
+  const { data: fromAddress } = useQuery({
+    queryKey: ['thorchainFromAddress', claim.accountId, claim.assetId],
+    queryFn:
+      wallet && accountMetadata
+        ? () =>
+            getThorchainFromAddress({
+              accountId: claim.accountId,
+              assetId: claim.assetId,
+              getPosition: getThorchainSaversPosition,
+              accountMetadata,
+              wallet,
+            })
+        : skipToken,
+  })
+
   const { estimatedFeesData, executeTransaction } = useSendThorTx({
-    accountId: claim?.accountId ?? null,
+    accountId: claim.accountId,
     action: 'claimTcy',
     amountCryptoBaseUnit: '0',
-    assetId: claim?.assetId,
-    fromAddress,
+    assetId: claim.assetId,
+    fromAddress: fromAddress ?? null,
     memo: runeAddress ? `tcy:${runeAddress}` : '',
-    enableEstimateFees: Boolean(runeAddress && claim?.accountId),
+    enableEstimateFees: Boolean(runeAddress && claim.accountId),
   })
 
   const { mutateAsync: handleClaim, isPending: isClaimMutationPending } = useMutation({
     mutationFn: async () => {
-      if (!claim || !runeAddress) return
+      if (!runeAddress) return
 
       const txid = await executeTransaction()
       if (!txid) throw new Error('Failed to broadcast transaction')
@@ -87,12 +110,12 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     await handleClaim()
   }, [handleClaim])
 
-  if (!claim || !tcyAsset) return null
+  if (!tcyAsset) return null
 
   return (
     <FormProvider {...methods}>
       <ReusableConfirm
-        isDisabled={!walletState.isConnected || !runeAddress}
+        isDisabled={!isConnected || !runeAddress}
         isLoading={isClaimMutationPending}
         assetId={thorchainAssetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}

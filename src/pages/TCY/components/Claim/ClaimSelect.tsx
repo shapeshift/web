@@ -1,6 +1,7 @@
 import { Button, HStack, Skeleton, SkeletonCircle, Stack, useDisclosure } from '@chakra-ui/react'
 import { isSome } from '@shapeshiftoss/utils'
 import { Suspense, useCallback, useState } from 'react'
+import { FaGift } from 'react-icons/fa'
 
 import { useTCYClaims } from '../../queries/useTcyClaims'
 import type { TCYRouteProps } from '../../types'
@@ -8,6 +9,7 @@ import { ClaimModal } from './ClaimRoutes'
 import { AssetClaimButton } from './components/AssetClaimButton'
 import type { Claim } from './types'
 
+import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SlideTransition } from '@/components/SlideTransition'
 
 const ClaimsListSkeleton = () => {
@@ -60,6 +62,16 @@ const ClaimsList = ({
     .map(query => query.data)
     .flat()
     .filter(isSome)
+
+  if (claims.length === 0) {
+    return (
+      <ResultsEmpty
+        icon={<FaGift />}
+        title='TCY.claimsEmpty.emptyTitle'
+        body='TCY.claimsEmpty.emptyBody'
+      />
+    )
+  }
 
   return (
     <Stack px={2} pb={2} spacing={2}>

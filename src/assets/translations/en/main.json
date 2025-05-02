@@ -2798,6 +2798,10 @@
     "timeStaked": "Time Staked",
     "timeStakedHelper": "The amount of time you have staked your %{symbol}",
     "stakingReward": "Staking Reward",
+    "claimsEmpty": {
+      "emptyTitle": "No claims available",
+      "emptyBody": "It appears you have no TCY claims available. Try with another wallet?"
+    },
     "claimSelect": {
       "unavailableClaims": "Unavailable Claims",
       "notEligible": "Not Eligible"

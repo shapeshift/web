@@ -59,26 +59,31 @@ export const useTCYClaims = (accountNumber: number) => {
 
         if (!activeAddress) return []
 
-        const { data } = await axios.get<{ tcy_claimer: TcyClaimer[] }>(
-          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${activeAddress}`,
-        )
-        return data.tcy_claimer
-          .filter(claimer => {
-            const assetId = poolAssetIdToAssetId(claimer.asset)
-            if (!assetId) return false
+        try {
+          const { data } = await axios.get<{ tcy_claimer: TcyClaimer[] }>(
+            `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${activeAddress}`,
+          )
+          return data.tcy_claimer
+            .filter(claimer => {
+              const assetId = poolAssetIdToAssetId(claimer.asset)
+              if (!assetId) return false
 
-            const chainId = fromAssetId(assetId).chainId
+              const chainId = fromAssetId(assetId).chainId
 
-            if (chainId !== fromAccountId(accountId).chainId) return false
+              if (chainId !== fromAccountId(accountId).chainId) return false
 
-            return true
-          })
-          .map(claimer => ({
-            ...claimer,
-            accountId,
-            amountThorBaseUnit: claimer.amount,
-            assetId: poolAssetIdToAssetId(claimer.asset) ?? '',
-          }))
+              return true
+            })
+            .map(claimer => ({
+              ...claimer,
+              accountId,
+              amountThorBaseUnit: claimer.amount,
+              assetId: poolAssetIdToAssetId(claimer.asset) ?? '',
+            }))
+        } catch (e) {
+          console.error('Error fetching TCY claims', e)
+          return []
+        }
       },
       staleTime: 60_000,
     })),

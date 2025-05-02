@@ -48,6 +48,7 @@ const StakeEntries = [TCYStakeRoute.Input, TCYStakeRoute.Confirm, TCYStakeRoute.
 
 export type StakeFormValues = {
   amountCryptoPrecision: string
+  fiatAmount: string
   accountId: string
 }
 
@@ -63,6 +64,7 @@ export const Stake: React.FC<TCYRouteProps> = ({ headerComponent }) => {
     mode: 'onChange',
     defaultValues: {
       amountCryptoPrecision: '',
+      fiatAmount: '',
       accountId,
     },
   })

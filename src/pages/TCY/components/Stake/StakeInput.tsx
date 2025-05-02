@@ -3,8 +3,8 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
-import { useCallback, useEffect, useMemo } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -51,6 +51,8 @@ export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
   )
 }
 
+type AmountFieldName = 'amountCryptoPrecision' | 'fiatAmount'
+
 export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
   headerComponent,
   activeAccountNumber,
@@ -61,11 +63,16 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   const {
     register,
     setValue,
-    watch,
     formState: { errors, isValid },
   } = useFormContext<StakeFormValues>()
+  const [fieldName, setFieldName] = useState<AmountFieldName>('amountCryptoPrecision')
 
-  const amountCryptoPrecision = watch('amountCryptoPrecision')
+  const amountCryptoPrecision = useWatch<StakeFormValues, 'amountCryptoPrecision'>({
+    name: 'amountCryptoPrecision',
+  })
+  const fiatAmount = useWatch<StakeFormValues, 'fiatAmount'>({
+    name: 'fiatAmount',
+  })
 
   const { price: assetUserCurrencyRate } = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: selectedStakingAsset?.assetId }),
@@ -101,14 +108,26 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   )
 
   const handleAmountChange = useCallback(
-    (value: string, isFiat?: boolean) => {
-      const amountCryptoPrecision = isFiat
-        ? bnOrZero(value).div(assetUserCurrencyRate).toFixed()
-        : value
-      setValue('amountCryptoPrecision', amountCryptoPrecision, { shouldValidate: true })
+    (inputValue: string) => {
+      if (inputValue === '') {
+        setValue('amountCryptoPrecision', '')
+        setValue('fiatAmount', '')
+        return
+      }
+
+      const price = assetUserCurrencyRate ?? 0
+      const cryptoAmount = fieldName === 'fiatAmount' ? bnOrZero(inputValue).div(price) : inputValue
+      const fiatAmount = fieldName === 'fiatAmount' ? inputValue : bnOrZero(inputValue).times(price)
+
+      setValue('amountCryptoPrecision', cryptoAmount.toString())
+      setValue('fiatAmount', fiatAmount.toString())
     },
-    [assetUserCurrencyRate, setValue],
+    [fieldName, setValue, assetUserCurrencyRate],
   )
+
+  const toggleIsFiat = useCallback(() => {
+    setFieldName(fieldName === 'fiatAmount' ? 'amountCryptoPrecision' : 'fiatAmount')
+  }, [fieldName])
 
   const tooltipBody = useCallback(
     () => <RawText>{translate('TCY.stakeInput.networkFeeTooltip')}</RawText>,
@@ -131,7 +150,11 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   })
 
   const isDisabled =
-    !isValid || bnOrZero(amountCryptoPrecision).isZero() || isEstimatedFeesDataError
+    !isValid ||
+    bnOrZero(amountCryptoPrecision).isZero() ||
+    isEstimatedFeesDataError ||
+    !amountCryptoPrecision ||
+    !fiatAmount
 
   const confirmCopy = useMemo(() => {
     if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
@@ -154,11 +177,11 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           label={translate('TCY.stakeInput.amount')}
           isAccountSelectionDisabled
           placeholder={translate('TCY.stakeInput.amountPlaceholder')}
-          onToggleIsFiat={() => {}}
+          onToggleIsFiat={toggleIsFiat}
           onChange={handleAmountChange}
-          isFiat={false}
+          isFiat={fieldName === 'fiatAmount'}
           cryptoAmount={amountCryptoPrecision}
-          fiatAmount={bnOrZero(amountCryptoPrecision).times(assetUserCurrencyRate).toFixed()}
+          fiatAmount={fiatAmount}
           percentOptions={percentOptions}
           formControlProps={formControlProps}
           rightComponent={ReadOnlyAsset}

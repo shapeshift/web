@@ -50,7 +50,7 @@ export const TransactionStatusDisplay = ({
             {secondaryButtonText}
           </Button>
         )}
-        <Button size='lg' width='full' onClick={onPrimaryClick}>
+        <Button size='lg' width='full' colorScheme='blue' onClick={onPrimaryClick}>
           {primaryButtonText}
         </Button>
       </Stack>

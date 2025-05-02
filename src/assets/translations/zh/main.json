@@ -2873,5 +2873,8 @@
       "getUtxos": "无法获取 utxos。",
       "getValidator": "无法获取验证器。"
     }
+  },
+  "notificationCenter": {
+    "title": "通知"
   }
 }

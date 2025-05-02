@@ -1,4 +1,3 @@
-import type { AccountId } from '@shapeshiftoss/caip'
 import { tcyAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
@@ -9,6 +8,7 @@ import { useNavigate } from 'react-router'
 
 import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
+import type { StakeFormValues } from './Stake'
 
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
@@ -26,8 +26,8 @@ type StakeConfirmProps = TCYRouteProps & {
 export const StakeConfirm: React.FC<StakeConfirmProps> = ({ setStakeTxid }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const { watch } = useFormContext<{ amount: string; accountId: AccountId }>()
-  const amount = watch('amount')
+  const { watch } = useFormContext<StakeFormValues>()
+  const amountCryptoPrecision = watch('amountCryptoPrecision')
   const accountId = watch('accountId')
   const tcyMarketData = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: tcyAssetId }),
@@ -35,13 +35,16 @@ export const StakeConfirm: React.FC<StakeConfirmProps> = ({ setStakeTxid }) => {
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const fiatAmount = useMemo(
     () =>
-      bnOrZero(amount)
+      bnOrZero(amountCryptoPrecision)
         .times(tcyMarketData?.price ?? 0)
         .toFixed(2),
-    [amount, tcyMarketData],
+    [amountCryptoPrecision, tcyMarketData],
   )
 
-  const amountCryptoBaseUnit = useMemo(() => toBaseUnit(amount, THOR_PRECISION), [amount])
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
+    [amountCryptoPrecision],
+  )
 
   const {
     executeTransaction,
@@ -89,7 +92,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps> = ({ setStakeTxid }) => {
     <ReusableConfirm
       assetId={tcyAssetId}
       headerText={translate('TCY.stakeConfirm.confirmTitle')}
-      cryptoAmount={amount}
+      cryptoAmount={amountCryptoPrecision}
       cryptoSymbol={tcyAsset.symbol}
       fiatAmount={fiatAmount}
       feeAmountFiat={estimatedFeesData?.txFeeFiat}

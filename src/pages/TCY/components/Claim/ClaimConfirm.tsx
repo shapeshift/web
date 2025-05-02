@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  ModalCloseButton,
-  Skeleton,
-  Stack,
-} from '@chakra-ui/react'
+import { ModalCloseButton } from '@chakra-ui/react'
 import { fromAccountId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
@@ -18,12 +10,7 @@ import { TCYClaimRoute } from '../../types'
 import { ClaimAddressInput } from './components/ClaimAddressInput'
 import type { Claim } from './types'
 
-import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
-import { Row } from '@/components/Row/Row'
-import { SlideTransition } from '@/components/SlideTransition'
-import { RawText } from '@/components/Text'
+import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -40,6 +27,8 @@ type ClaimConfirmProps = {
 type AddressFormValues = {
   manualRuneAddress: string
 }
+
+const headerRightComponent = <ModalCloseButton />
 
 export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const navigate = useNavigate()
@@ -102,62 +91,21 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
 
   return (
     <FormProvider {...methods}>
-      <SlideTransition>
-        <Stack>
-          <DialogHeader>
-            <DialogHeader.Middle>
-              <RawText>{translate('TCY.claimConfirm.confirmTitle')}</RawText>
-            </DialogHeader.Middle>
-            <DialogHeader.Right>
-              <ModalCloseButton />
-            </DialogHeader.Right>
-          </DialogHeader>
-          <Card mx={4}>
-            <CardBody textAlign='center' py={8}>
-              <AssetIcon assetId={thorchainAssetId} />
-              <Amount.Crypto
-                fontWeight='bold'
-                value={amountCryptoPrecision}
-                symbol={tcyAsset.symbol}
-                mt={4}
-                color='text.base'
-                fontSize='lg'
-              />
-              <Amount.Fiat fontSize='sm' value={amountUserCurrency} color='text.subtle' />
-            </CardBody>
-          </Card>
-          <CardBody>
-            <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
-          </CardBody>
-          <CardFooter
-            flexDir='column'
-            gap={4}
-            pb={6}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='lg'
-          >
-            <Row fontSize='sm'>
-              <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
-              <Row.Value>
-                <Skeleton isLoaded={!!estimatedFeesData}>
-                  <Row.Value>
-                    <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0.00'} />
-                  </Row.Value>
-                </Skeleton>
-              </Row.Value>
-            </Row>
-            <Button
-              size='lg'
-              colorScheme='blue'
-              onClick={handleConfirm}
-              isDisabled={!walletState.isConnected || !runeAddress}
-              isLoading={isClaimMutationPending}
-            >
-              {translate('TCY.claimConfirm.confirmAndClaim')}
-            </Button>
-          </CardFooter>
-        </Stack>
-      </SlideTransition>
+      <ReusableConfirm
+        isDisabled={!walletState.isConnected || !runeAddress}
+        isLoading={isClaimMutationPending}
+        assetId={thorchainAssetId}
+        headerText={translate('TCY.claimConfirm.confirmTitle')}
+        cryptoAmount={amountCryptoPrecision}
+        cryptoSymbol={tcyAsset.symbol}
+        fiatAmount={amountUserCurrency}
+        feeAmountFiat={estimatedFeesData?.txFeeFiat}
+        confirmText={translate('TCY.claimConfirm.confirmAndClaim')}
+        onConfirm={handleConfirm}
+        headerRightComponent={headerRightComponent}
+      >
+        <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
+      </ReusableConfirm>
     </FormProvider>
   )
 }

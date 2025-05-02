@@ -34,7 +34,7 @@ export const StakeStatus: React.FC<StakeStatusProps> = ({
   const navigate = useNavigate()
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
 
-  const { amount, accountId } = useWatch<StakeFormValues>()
+  const { amountCryptoPrecision, accountId } = useWatch<StakeFormValues>()
 
   const txStatus = useTxStatus({
     accountId: accountId ?? '',
@@ -79,7 +79,7 @@ export const StakeStatus: React.FC<StakeStatusProps> = ({
             confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
           })}
           subtitle={translate('TCY.stakePending', {
-            amount: bnOrZero(amount).toFixed(8),
+            amount: bnOrZero(amountCryptoPrecision).toFixed(8),
             symbol: tcyAsset.symbol,
           })}
           primaryButtonText={translate('trade.viewTransaction')}
@@ -100,7 +100,7 @@ export const StakeStatus: React.FC<StakeStatusProps> = ({
             isLoading
             title={translate('pools.waitingForConfirmation')}
             subtitle={translate('TCY.stakeStatus.pendingSubtitle', {
-              amount: bnOrZero(amount).toFixed(8),
+              amount: bnOrZero(amountCryptoPrecision).toFixed(8),
               symbol: tcyAsset.symbol,
             })}
             primaryButtonText={translate('TCY.stakeStatus.viewTransaction')}
@@ -114,7 +114,7 @@ export const StakeStatus: React.FC<StakeStatusProps> = ({
             iconColor='green.500'
             title={translate('TCY.stakeStatus.successTitle')}
             subtitle={translate('TCY.stakeStatus.successSubtitle', {
-              amount: bnOrZero(amount).toFixed(8),
+              amount: bnOrZero(amountCryptoPrecision).toFixed(8),
               symbol: tcyAsset.symbol,
             })}
             secondaryButtonText={translate('TCY.stakeStatus.viewTransaction')}

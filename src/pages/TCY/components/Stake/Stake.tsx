@@ -47,7 +47,7 @@ const StakeStatus = makeSuspenseful(
 const StakeEntries = [TCYStakeRoute.Input, TCYStakeRoute.Confirm, TCYStakeRoute.Status]
 
 export type StakeFormValues = {
-  amount: string
+  amountCryptoPrecision: string
   accountId: string
 }
 
@@ -62,7 +62,7 @@ export const Stake: React.FC<TCYRouteProps> = ({ headerComponent }) => {
   const methods = useForm<StakeFormValues>({
     mode: 'onChange',
     defaultValues: {
-      amount: '',
+      amountCryptoPrecision: '',
       accountId,
     },
   })

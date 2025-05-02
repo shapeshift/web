@@ -65,7 +65,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     formState: { errors, isValid },
   } = useFormContext<StakeFormValues>()
 
-  const amount = watch('amount')
+  const amountCryptoPrecision = watch('amountCryptoPrecision')
 
   const { price: assetUserCurrencyRate } = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: selectedStakingAsset?.assetId }),
@@ -83,7 +83,10 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     selectPortfolioCryptoPrecisionBalanceByFilter(state, balanceFilter),
   )
 
-  const amountCryptoBaseUnit = useMemo(() => toBaseUnit(amount, THOR_PRECISION), [amount])
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
+    [amountCryptoPrecision],
+  )
 
   const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
     {
@@ -93,7 +96,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
       assetId: tcyAssetId,
       memo: 'tcy+',
       fromAddress: null,
-      enableEstimateFees: Boolean(accountId && bnOrZero(amount).gt(0)),
+      enableEstimateFees: Boolean(accountId && bnOrZero(amountCryptoPrecision).gt(0)),
     },
   )
 
@@ -102,7 +105,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
       const amountCryptoPrecision = isFiat
         ? bnOrZero(value).div(assetUserCurrencyRate).toFixed()
         : value
-      setValue('amount', amountCryptoPrecision, { shouldValidate: true })
+      setValue('amountCryptoPrecision', amountCryptoPrecision, { shouldValidate: true })
     },
     [assetUserCurrencyRate, setValue],
   )
@@ -116,7 +119,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     navigate(TCYStakeRoute.Confirm)
   }, [navigate])
 
-  register('amount', {
+  register('amountCryptoPrecision', {
     validate: (value: string) => {
       // TODO(gomes): dev only, this works but we obviously don't want this until we can hold TCY
       return true
@@ -127,12 +130,13 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     },
   })
 
-  const isDisabled = !isValid || bnOrZero(amount).isZero() || isEstimatedFeesDataError
+  const isDisabled =
+    !isValid || bnOrZero(amountCryptoPrecision).isZero() || isEstimatedFeesDataError
 
   const confirmCopy = useMemo(() => {
-    if (errors.amount) return errors.amount.message
+    if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
     return translate('TCY.stakeInput.stake')
-  }, [errors.amount, assetUserCurrencyRate, translate])
+  }, [errors.amountCryptoPrecision, translate])
 
   useEffect(() => {
     setValue('accountId', accountId ?? '')
@@ -141,7 +145,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   return (
     <Stack>
       {headerComponent}
-      <FormControl isInvalid={Boolean(errors.amount)}>
+      <FormControl isInvalid={Boolean(errors.amountCryptoPrecision)}>
         <TradeAssetInput
           assetId={selectedStakingAsset?.assetId ?? ''}
           assetSymbol={selectedStakingAsset?.symbol ?? ''}
@@ -153,8 +157,8 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           onToggleIsFiat={() => {}}
           onChange={handleAmountChange}
           isFiat={false}
-          cryptoAmount={amount}
-          fiatAmount={bnOrZero(amount).times(assetUserCurrencyRate).toFixed()}
+          cryptoAmount={amountCryptoPrecision}
+          fiatAmount={bnOrZero(amountCryptoPrecision).times(assetUserCurrencyRate).toFixed()}
           percentOptions={percentOptions}
           formControlProps={formControlProps}
           rightComponent={ReadOnlyAsset}

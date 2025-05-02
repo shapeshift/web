@@ -1,7 +1,7 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
-import { useQueries } from '@tanstack/react-query'
+import { useSuspenseQueries } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
 
@@ -30,7 +30,7 @@ export const useTCYClaims = (accountNumber: number) => {
     [accountNumber, accountIdsByAccountNumberAndChainId],
   )
 
-  return useQueries({
+  return useSuspenseQueries({
     queries: accountIds.map(accountId => ({
       queryKey: ['tcy-claims', accountId],
       queryFn: async (): Promise<Claim[]> => {
@@ -80,6 +80,7 @@ export const useTCYClaims = (accountNumber: number) => {
             assetId: poolAssetIdToAssetId(claimer.asset) ?? '',
           }))
       },
+      staleTime: 60_000,
     })),
   })
 }

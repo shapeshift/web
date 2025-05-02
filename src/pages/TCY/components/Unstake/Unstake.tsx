@@ -74,7 +74,10 @@ export const Unstake: React.FC<TCYRouteProps & { activeAccountNumber: number }> 
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={UnstakeEntries} initialIndex={0}>
-        <UnstakeRoutes headerComponent={headerComponent} activeAccountNumber={activeAccountNumber} />
+        <UnstakeRoutes
+          headerComponent={headerComponent}
+          activeAccountNumber={activeAccountNumber}
+        />
       </MemoryRouter>
     </FormProvider>
   )
@@ -105,7 +108,11 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   const renderUnstakeStatus = () => {
     if (!unstakeTxid) return null
     return (
-      <UnstakeStatus txId={unstakeTxid} setUnstakeTxid={setUnstakeTxid} onTxConfirmed={handleTxConfirmed} />
+      <UnstakeStatus
+        txId={unstakeTxid}
+        setUnstakeTxid={setUnstakeTxid}
+        onTxConfirmed={handleTxConfirmed}
+      />
     )
   }
 

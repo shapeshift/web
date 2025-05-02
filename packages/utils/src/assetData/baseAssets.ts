@@ -121,6 +121,21 @@ export const thorchain: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const tcy: Readonly<Asset> = Object.freeze({
+  assetId: caip.tcyAssetId,
+  chainId: caip.thorchainChainId,
+  name: 'TCY',
+  networkName: 'THORChain',
+  symbol: 'TCY',
+  precision: 8,
+  color: '#33FF99',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_tcy_claims/scripts/generateAssetData/thorchain/icons/tcy-icon.png',
+  explorer: 'https://viewblock.io/thorchain',
+  explorerAddressLink: 'https://viewblock.io/thorchain/address/',
+  explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  relatedAssetKey: null,
+})
+
 export const mayachain: Readonly<Asset> = Object.freeze({
   assetId: caip.mayachainAssetId,
   chainId: caip.mayachainChainId,

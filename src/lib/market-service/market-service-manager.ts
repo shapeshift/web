@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
+import { isNft, tcyAssetId } from '@shapeshiftoss/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -68,6 +68,17 @@ export class MarketServiceManager {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs) {
+    // Monkey-patch TCY market data to $0.1 as of launch
+    // TODO(gomes): once there *is* market-data for TCY, make this a proper TcyMarketService
+    if (assetId === tcyAssetId) {
+      return {
+        price: '0.1',
+        marketCap: '0',
+        volume: '0',
+        changePercent24Hr: 0,
+      }
+    }
+
     const assets = this.assetService.assetsById
 
     if (isNft(assetId)) {

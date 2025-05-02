@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, Stack } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { PropsWithChildren, ReactNode } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,8 +16,10 @@ type ReusableConfirmProps = {
   cryptoAmount: string
   cryptoSymbol: string
   fiatAmount: string
-  feeAmountFiat: string
   confirmText: string
+  feeAmountFiat: string | undefined
+  isDisabled: boolean
+  isLoading: boolean
   headerLeftComponent?: ReactNode
   headerRightComponent?: ReactNode
   onConfirm: () => void
@@ -31,6 +33,8 @@ export const ReusableConfirm = ({
   fiatAmount,
   feeAmountFiat,
   confirmText,
+  isDisabled,
+  isLoading,
   headerLeftComponent,
   headerRightComponent,
   onConfirm,
@@ -73,10 +77,18 @@ export const ReusableConfirm = ({
           <Row fontSize='sm'>
             <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
             <Row.Value>
-              <Amount.Fiat value={feeAmountFiat} />
+              <Skeleton isLoaded={!!feeAmountFiat}>
+                <Amount.Fiat value={feeAmountFiat} />
+              </Skeleton>
             </Row.Value>
           </Row>
-          <Button size='lg' colorScheme='blue' onClick={onConfirm}>
+          <Button
+            size='lg'
+            colorScheme='blue'
+            onClick={onConfirm}
+            isDisabled={isDisabled}
+            isLoading={isLoading}
+          >
             {confirmText}
           </Button>
         </CardFooter>

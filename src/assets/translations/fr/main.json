@@ -2873,5 +2873,8 @@
       "getUtxos": "Échec de l'obtention des UTXO.",
       "getValidator": "Échec de l'obtention du validateur."
     }
+  },
+  "notificationCenter": {
+    "title": "Notifications"
   }
 }

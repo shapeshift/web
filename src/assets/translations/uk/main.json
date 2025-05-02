@@ -2873,5 +2873,8 @@
       "getUtxos": "Не вдалося дістати utxos.",
       "getValidator": "Не вдалося отримати валідатора."
     }
+  },
+  "notificationCenter": {
+    "title": "Сповіщення"
   }
 }

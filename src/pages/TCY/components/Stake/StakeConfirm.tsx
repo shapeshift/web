@@ -36,6 +36,8 @@ export const StakeConfirm = () => {
       confirmText={translate('TCY.stakeConfirm.confirmAndStake')}
       onConfirm={handleConfirm}
       headerLeftComponent={headerLeftComponent}
+      isDisabled={false}
+      isLoading={false}
     />
   )
 }

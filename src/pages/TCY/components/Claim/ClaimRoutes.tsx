@@ -75,6 +75,7 @@ const ClaimRoutes = ({
   const handleTxConfirmed = useCallback(async () => {
     if (claim?.accountId) {
       await queryClient.invalidateQueries({ queryKey: ['tcy-claims', claim.accountId] })
+      await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
     }
   }, [claim?.accountId, queryClient])
 

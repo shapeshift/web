@@ -43,3 +43,9 @@ export enum TCYStakeRoute {
   Confirm = '/stake/confirm',
   Status = '/stake/status',
 }
+
+export enum TCYUnstakeRoute {
+  Input = '/unstake',
+  Confirm = '/unstake/confirm',
+  Status = '/unstake/status',
+}

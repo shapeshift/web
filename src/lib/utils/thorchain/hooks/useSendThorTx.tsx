@@ -295,7 +295,9 @@ export const useSendThorTx = ({
     if (
       action !== 'withdrawRunepool' &&
       !shouldUseDustAmount &&
-      !bn(amountOrDustCryptoBaseUnit).gt(0)
+      !bn(amountOrDustCryptoBaseUnit).gt(0) &&
+      // TODO(gomes): remove me before launch
+      !memo.includes('tcy-')
     )
       throw new Error('invalid amount specified')
 

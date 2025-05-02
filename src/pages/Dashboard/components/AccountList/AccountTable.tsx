@@ -10,7 +10,6 @@ import {
 import type { Property } from 'csstype'
 import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'

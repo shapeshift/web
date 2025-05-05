@@ -50,7 +50,7 @@ export class TcyMarketService implements MarketService {
     }
   }
 
-  async findPriceHistoryByAssetId() {
+  findPriceHistoryByAssetId() {
     return Promise.resolve([])
   }
 }

@@ -44,17 +44,17 @@ export const UnstakeConfirm: React.FC<UnstakeConfirmProps> = ({ setUnstakeTxid }
 
   const { data: tcyStaker } = useTcyStaker(accountId)
 
-  const amountCryptoBaseUnit = useMemo(
+  const amountThorBaseUnit = useMemo(
     () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
     [amountCryptoPrecision],
   )
 
   const withdrawBps = useMemo(() => {
-    if (!tcyStaker?.amount || !amountCryptoBaseUnit) return '0'
-    const stakedAmountCryptoBaseUnit = toBaseUnit(tcyStaker.amount, THOR_PRECISION)
-    const withdrawRatio = bnOrZero(amountCryptoBaseUnit).div(stakedAmountCryptoBaseUnit)
+    if (!tcyStaker?.amount || !amountThorBaseUnit) return '0'
+    const stakedAmountThorBaseUnit = tcyStaker.amount
+    const withdrawRatio = bnOrZero(amountThorBaseUnit).div(stakedAmountThorBaseUnit)
     return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
-  }, [tcyStaker?.amount, amountCryptoBaseUnit])
+  }, [tcyStaker?.amount, amountThorBaseUnit])
 
   const {
     executeTransaction,

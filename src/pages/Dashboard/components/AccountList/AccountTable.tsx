@@ -10,7 +10,6 @@ import {
 import type { Property } from 'csstype'
 import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
@@ -78,7 +77,7 @@ export const AccountTable = memo(() => {
               data-test={`account-row-asset-crypto-${row.original.symbol}`}
               value={row.original.cryptoAmount}
               symbol={truncate(row.original.symbol, { length: 6 })}
-              truncateLargeNumbers={isMobile ? true : false}
+              truncateLargeNumbers={true}
             />
           </Stack>
         ),

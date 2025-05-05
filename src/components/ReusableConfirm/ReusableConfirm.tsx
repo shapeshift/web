@@ -70,11 +70,12 @@ export const ReusableConfirm = ({
         <CardFooter
           flexDir='column'
           gap={4}
-          pb={6}
+          pb={4}
+          px={4}
           bg='background.surface.raised.accent'
           borderBottomRadius='lg'
         >
-          <Row fontSize='sm'>
+          <Row px={2} fontSize='sm'>
             <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
             <Row.Value>
               <Skeleton isLoaded={!!feeAmountFiat}>

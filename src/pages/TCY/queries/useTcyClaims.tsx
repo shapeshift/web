@@ -45,11 +45,6 @@ export const useTCYClaims = (accountNumber: number) => {
           if (!assetId) return
           if (!isSupportedThorchainSaversAssetId(assetId)) return
 
-          // TODO(gomes): this may or may not become an issue depending on how TCY aggregates things across THORFi
-          // We may have to introspect all THORFi bits and get positions across all of them, which *may* have different addresses for UTXOs (account-based)
-          // That should be super edge-case, as most users should have their position account_index 0, but there may be a selected few unlucky which do not
-          // (got into savers before we defaulted to 0th account_index addy)
-          // Wait and see when this goes live
           const position = await getThorchainSaversPosition({ accountId, assetId })
 
           if (!position) return

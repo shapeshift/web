@@ -10,7 +10,9 @@ import { AssetClaimButton } from './components/AssetClaimButton'
 import type { Claim } from './types'
 
 import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { SlideTransition } from '@/components/SlideTransition'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const faGift = <FaGift />
 
@@ -58,7 +60,20 @@ const ClaimsList = ({
   onClaimClick: (claim: Claim) => void
   activeAccountNumber: number
 }) => {
+  const {
+    state: { isConnected },
+  } = useWallet()
   const claimsQueries = useTCYClaims(activeAccountNumber)
+
+  if (!isConnected) {
+    return (
+      <ResultsEmptyNoWallet
+        icon={faGift}
+        title='common.connectWallet'
+        body='TCY.claimsEmpty.connectWalletBody'
+      />
+    )
+  }
 
   const claims = claimsQueries
     .map(query => query.data)

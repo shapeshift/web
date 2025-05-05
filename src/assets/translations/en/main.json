@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
     "free": "Free",
@@ -2840,6 +2841,19 @@
     "stakeConfirm": {
       "confirmTitle": "Confirm Stake",
       "confirmAndStake": "Confirm & Stake"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirm Unstake",
+      "confirmAndUnstake": "Confirm & Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake is pending",
+      "pendingSubtitle": "We are processing your unstake for %{amount} TCY",
+      "successTitle": "Unstake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your unstake has failed. Please try again.",
+      "successSubtitle": "You have successfully unstaked %{amount} TCY",
+      "goBack": "Go Back"
     },
     "stakeStatus": {
       "pendingTitle": "Stake is pending",

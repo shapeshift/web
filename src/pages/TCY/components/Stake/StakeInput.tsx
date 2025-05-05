@@ -14,9 +14,12 @@ import type { StakeFormValues } from './Stake'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -165,6 +168,12 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     setValue('accountId', accountId ?? '')
   }, [accountId, setValue])
 
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const isChainSupportedByWallet = useWalletSupportsChain(thorchainChainId, wallet)
+
   return (
     <Stack>
       {headerComponent}
@@ -202,7 +211,8 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
               </Skeleton>
             </Row.Value>
           </Row>
-          <Button
+          <ButtonWalletPredicate 
+            isValidWallet={Boolean(isChainSupportedByWallet)}
             colorScheme={isValid ? 'blue' : 'red'}
             size='lg'
             width='full'
@@ -211,7 +221,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
             isLoading={isEstimatedFeesDataLoading}
           >
             {confirmCopy}
-          </Button>
+          </ButtonWalletPredicate>
         </CardFooter>
       </Card>
     </Stack>

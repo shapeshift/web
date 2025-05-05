@@ -29,9 +29,12 @@ import type { UnstakeFormValues } from './Unstake'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -99,6 +102,12 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
   const accountId = accountNumberAccounts?.[thorchainChainId]
 
   const { data: tcyStaker } = useTcyStaker(accountId)
+
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const isChainSupportedByWallet = useWalletSupportsChain(thorchainChainId, wallet)
 
   const withdrawBps = useMemo(() => {
     if (!tcyStaker?.amount) return '0'
@@ -253,7 +262,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
               </Skeleton>
             </Row.Value>
           </Row>
-          <Button
+          <ButtonWalletPredicate 
+            isValidWallet={Boolean(isChainSupportedByWallet)}
             colorScheme={isValid ? 'blue' : 'red'}
             size='lg'
             width='full'
@@ -262,7 +272,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
             isLoading={isEstimatedFeesDataLoading}
           >
             {confirmCopy}
-          </Button>
+          </ButtonWalletPredicate>
         </CardFooter>
       </Card>
     </Stack>

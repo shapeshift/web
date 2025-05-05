@@ -11,6 +11,7 @@ import {
 } from './coingecko/coingeckoMockData'
 import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
 import { MarketServiceManager } from './market-service-manager'
+import { mockTcyMarketData, mockTcyPriceHistoryData } from './tcy/tcyMockData'
 
 const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
@@ -88,6 +89,20 @@ vi.mock('./foxy/foxy', () => ({
   }),
 }))
 
+const mockTcyFindAll = vi.fn().mockImplementation(() => mockTcyMarketData)
+const mockTcyFindByAssetId = vi.fn().mockImplementation(() => mockTcyMarketData)
+const mockTcyFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockTcyPriceHistoryData)
+
+vi.mock('./tcy/tcy', () => ({
+  TcyMarketService: vi.fn().mockImplementation(() => {
+    return {
+      findAll: mockTcyFindAll,
+      findByAssetId: mockTcyFindByAssetId,
+      findPriceHistoryByAssetId: mockTcyFindPriceHistoryByAssetId,
+    }
+  }),
+}))
+
 describe('market service', () => {
   const marketServiceManagerArgs = {
     coinGeckoAPIKey: 'dummyCoingeckoApiKey',
@@ -125,6 +140,7 @@ describe('market service', () => {
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockTcyFindAll.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
       await expect(marketServiceManager.findAll({ count: Number() })).rejects.toEqual(
         new Error('Cannot find market service provider for market data.'),
@@ -173,6 +189,7 @@ describe('market service', () => {
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockTcyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(btcArgs)
@@ -211,6 +228,7 @@ describe('market service', () => {
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockTcyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(

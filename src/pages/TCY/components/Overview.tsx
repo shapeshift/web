@@ -9,7 +9,7 @@ import {
   Skeleton,
 } from '@chakra-ui/react'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { Suspense } from 'react'
+import { Suspense, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useTcyStaker } from '../queries/useTcyStaker'
@@ -25,6 +25,7 @@ import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
+  selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -90,6 +91,10 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
   const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
   const accountId = accountNumberAccounts?.[thorchainChainId]
 
+  const filter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
+
+  const tcyCryptoHumanBalance = useAppSelector(s => selectCryptoHumanBalanceFilter(s, filter))
+
   if (!tcyAsset) return null
 
   return (
@@ -97,7 +102,7 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
       <CardHeader>
         <HStack>
           <AssetIcon assetId={tcyAssetId} />
-          <Amount.Crypto value='0' symbol={tcyAsset.symbol} fontSize='2xl' />
+          <Amount.Crypto value={tcyCryptoHumanBalance} symbol={tcyAsset.symbol} fontSize='2xl' />
         </HStack>
       </CardHeader>
       <CardBody pb={6}>

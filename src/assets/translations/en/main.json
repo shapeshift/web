@@ -2801,7 +2801,8 @@
     "stakingReward": "Staking Reward",
     "claimsEmpty": {
       "emptyTitle": "No claims available",
-      "emptyBody": "It appears you have no TCY claims available. Try with another wallet?"
+      "emptyBody": "It appears you have no TCY claims available. Try with another wallet?",
+      "connectWalletBody": "Connect your wallet to see your TCY claims."
     },
     "claimSelect": {
       "unavailableClaims": "Unavailable Claims",
@@ -2818,9 +2819,10 @@
       "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
-      "confirmTitle": "Confirm",
+      "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
-      "confirmAndClaim": "Confirm & Claim"
+      "confirmAndClaim": "Claim & Stake",
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked—unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -2864,7 +2866,17 @@
       "viewTransaction": "View Transaction",
       "successSubtitle": "You have successfully staked %{amount} TCY",
       "goBack": "Go Back"
+    },
+    "claimStatus": {
+      "pendingTitle": "Claim is pending",
+      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
+      "successTitle": "Claim is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your claim has failed. Please try again.",
+      "successSubtitle": "You have successfully claimed %{amount} TCY",
+      "goBack": "Go Back"
     }
+
   },
   "markets": {
     "recommended": "Recommended",

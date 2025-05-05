@@ -1,6 +1,4 @@
 import {
-  Button,
-  Card,
   CardFooter,
   Flex,
   FormControl,
@@ -29,6 +27,7 @@ import type { UnstakeFormValues } from './Unstake'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
@@ -182,8 +181,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
 
   const isDisabled =
     !isValid ||
-    // TODO(gomes): revert me after tcy launch
-    // bnOrZero(amountCryptoPrecision).isZero() ||
+    bnOrZero(amountCryptoPrecision).isZero() ||
     isEstimatedFeesDataError ||
     !amountCryptoPrecision ||
     !fiatAmount
@@ -238,33 +236,32 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           </Stack>
         </TradeAssetInput>
       </FormControl>
-      <Card>
-        <CardFooter
-          flexDirection='column'
-          gap={4}
-          bg='background.surface.raised.base'
-          borderBottomRadius='xl'
+      <CardFooter
+        flexDirection='column'
+        gap={4}
+        bg='background.surface.raised.base'
+        borderBottomRadius='xl'
+      >
+        <Row px={2} fontSize='sm' Tooltipbody={tooltipBody}>
+          <Row.Label>{translate('trade.networkFee')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!!estimatedFeesData}>
+              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
+            </Skeleton>
+          </Row.Value>
+        </Row>
+        <ButtonWalletPredicate
+          isValidWallet={true}
+          colorScheme={isValid ? 'blue' : 'red'}
+          size='lg'
+          width='full'
+          onClick={handleUnstake}
+          isDisabled={isDisabled}
+          isLoading={isEstimatedFeesDataLoading}
         >
-          <Row fontSize='sm' Tooltipbody={tooltipBody}>
-            <Row.Label>{translate('trade.networkFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!!estimatedFeesData}>
-                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Button
-            colorScheme={isValid ? 'blue' : 'red'}
-            size='lg'
-            width='full'
-            onClick={handleUnstake}
-            isDisabled={isDisabled}
-            isLoading={isEstimatedFeesDataLoading}
-          >
-            {confirmCopy}
-          </Button>
-        </CardFooter>
-      </Card>
+          {confirmCopy}
+        </ButtonWalletPredicate>
+      </CardFooter>
     </Stack>
   )
 }

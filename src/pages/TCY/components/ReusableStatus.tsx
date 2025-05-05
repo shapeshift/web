@@ -6,7 +6,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
-import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
@@ -113,7 +112,9 @@ export const ReusableStatus = ({
               symbol: tcyAsset.symbol,
             })}
             primaryButtonText={translate('trade.viewTransaction')}
+            secondaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
             onPrimaryClick={handleViewTransaction}
+            onSecondaryClick={handleGoBack}
           />
         )
       case TxStatus.Confirmed:
@@ -126,10 +127,10 @@ export const ReusableStatus = ({
               amount: bnOrZero(amountCryptoPrecision).toFixed(8),
               symbol: tcyAsset.symbol,
             })}
-            secondaryButtonText={translate('trade.viewTransaction')}
-            onSecondaryClick={handleViewTransaction}
-            primaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
-            onPrimaryClick={handleGoBack}
+            primaryButtonText={translate('trade.viewTransaction')}
+            secondaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
+            onPrimaryClick={handleViewTransaction}
+            onSecondaryClick={handleGoBack}
           />
         )
       case TxStatus.Failed:
@@ -139,8 +140,10 @@ export const ReusableStatus = ({
             iconColor='red.500'
             title={translate(`TCY.${translationPrefix}Status.failedTitle`)}
             subtitle={translate(`TCY.${translationPrefix}Status.failedSubtitle`)}
-            primaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
-            onPrimaryClick={handleGoBack}
+            primaryButtonText={translate('trade.viewTransaction')}
+            secondaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
+            onPrimaryClick={handleViewTransaction}
+            onSecondaryClick={handleGoBack}
           />
         )
       default:
@@ -158,18 +161,11 @@ export const ReusableStatus = ({
     translate,
   ])
 
-  const handleBack = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
-
-  const headerLeftComponent = useMemo(() => <DialogBackButton onClick={handleBack} />, [handleBack])
-
   if (!isDialog) return <SlideTransition>{statusContent}</SlideTransition>
 
   return (
     <SlideTransition>
       <DialogHeader>
-        {headerLeftComponent && <DialogHeader.Left>{headerLeftComponent}</DialogHeader.Left>}
         <DialogHeader.Middle>
           <RawText>{headerText}</RawText>
         </DialogHeader.Middle>

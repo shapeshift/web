@@ -1,4 +1,4 @@
-import {  Card, CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
+import { Card, CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -110,7 +110,6 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   )
 
   const handleAmountChange = useCallback(
-<<<<<<< HEAD
     async (inputValue: string) => {
       if (inputValue === '') {
         setValue('amountCryptoPrecision', '')

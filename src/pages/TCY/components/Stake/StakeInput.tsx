@@ -187,33 +187,35 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           rightComponent={ReadOnlyAsset}
         />
       </FormControl>
-      <Card>
-        <CardFooter
-          flexDirection='column'
-          gap={4}
-          bg='background.surface.raised.base'
-          borderBottomRadius='xl'
+      <CardFooter
+        borderTopWidth={1}
+        bg='background.surface.raised.accent'
+        borderColor='border.subtle'
+        flexDir='column'
+        borderBottomRadius='xl'
+        gap={4}
+        px={4}
+        py={4}
+      >
+        <Row px={2} fontSize='sm' Tooltipbody={tooltipBody}>
+          <Row.Label>{translate('TCY.stakeInput.networkFee')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!!estimatedFeesData}>
+              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
+            </Skeleton>
+          </Row.Value>
+        </Row>
+        <Button
+          colorScheme={isValid ? 'blue' : 'red'}
+          size='lg'
+          width='full'
+          onClick={handleStake}
+          isDisabled={isDisabled}
+          isLoading={isEstimatedFeesDataLoading}
         >
-          <Row fontSize='sm' Tooltipbody={tooltipBody}>
-            <Row.Label>{translate('TCY.stakeInput.networkFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!!estimatedFeesData}>
-                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Button
-            colorScheme={isValid ? 'blue' : 'red'}
-            size='lg'
-            width='full'
-            onClick={handleStake}
-            isDisabled={isDisabled}
-            isLoading={isEstimatedFeesDataLoading}
-          >
-            {confirmCopy}
-          </Button>
-        </CardFooter>
-      </Card>
+          {confirmCopy}
+        </Button>
+      </CardFooter>
     </Stack>
   )
 }

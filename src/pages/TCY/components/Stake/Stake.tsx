@@ -73,7 +73,7 @@ export const Stake: React.FC<TCYRouteProps & { activeAccountNumber: number }> = 
 
   return (
     <FormProvider {...methods}>
-      <MemoryRouter initialEntries={StakeEntries} initialIndex={0}>
+      <MemoryRouter initialEntries={StakeEntries} initialIndex={1}>
         <StakeRoutes headerComponent={headerComponent} activeAccountNumber={activeAccountNumber} />
       </MemoryRouter>
     </FormProvider>

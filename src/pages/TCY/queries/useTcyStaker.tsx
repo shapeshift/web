@@ -19,10 +19,10 @@ export const useTcyStaker = (accountId: AccountId | undefined) => {
       const address = fromAccountId(accountId).account
 
       try {
-        const { data } = await axios.get<{ tcy_staker: TcyStaker }>(
+        const { data } = await axios.get<TcyStaker>(
           `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_staker/${address}`,
         )
-        return data.tcy_staker
+        return data
       } catch (e) {
         console.error('Error fetching TCY staker', e)
         return null

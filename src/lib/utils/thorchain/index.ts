@@ -29,7 +29,7 @@ import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
-const getThorchainTransactionStatus = async ({
+export const getThorchainTransactionStatus = async ({
   txHash,
   skipOutbound,
   expectedCompletionTime,

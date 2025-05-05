@@ -2,7 +2,8 @@ import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { tcyAssetId } from '@shapeshiftoss/caip'
 import { SwapperName, THOR_PRECISION } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -11,9 +12,9 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { TransactionStatusDisplay } from '@/components/TransactionStatusDisplay/TransactionStatusDisplay'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
-import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
+import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -46,11 +47,17 @@ export const ReusableStatus = ({
   const navigate = useNavigate()
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
 
-  const txStatus = useTxStatus({
-    accountId: accountId ?? '',
-    txHash: txId,
-    onTxStatusConfirmed: handleTxConfirmed,
+  const { data: thorTxStatus } = useQuery({
+    queryKey: ['getThorchainTransactionStatus', txId],
+    queryFn: () => getThorchainTransactionStatus({ txHash: txId, skipOutbound: true }),
+    refetchInterval: 10_000,
   })
+
+  useEffect(() => {
+    if (thorTxStatus !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [thorTxStatus, handleTxConfirmed])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
@@ -104,7 +111,7 @@ export const ReusableStatus = ({
       setTxId(maybeSafeTx.transaction.transactionHash)
     }
 
-    switch (txStatus) {
+    switch (thorTxStatus) {
       case undefined:
       case TxStatus.Pending:
         return (
@@ -161,7 +168,7 @@ export const ReusableStatus = ({
     }
   }, [
     tcyAsset,
-    txStatus,
+    thorTxStatus,
     maybeSafeTx,
     amountCryptoPrecision,
     handleViewTransaction,

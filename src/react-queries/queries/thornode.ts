@@ -19,7 +19,7 @@ export const thornode = createQueryKeys('thornode', {
 
       const poolAssetId = assetIdToPoolAssetId({ assetId })
       const { data } = await axios.get<ThornodePoolResponse>(
-        `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+        `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
       )
 
       return data
@@ -29,7 +29,7 @@ export const thornode = createQueryKeys('thornode', {
     queryKey: ['thornodePoolsData'],
     queryFn: async () => {
       const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-        `${thornodeUrl}/lcd/thorchain/pools`,
+        `${thornodeUrl}/thorchain/pools`,
       )
 
       if (poolResponse.isOk()) {
@@ -43,7 +43,7 @@ export const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainMimir'],
       queryFn: async () => {
-        const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/lcd/thorchain/mimir`)
+        const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/thorchain/mimir`)
         return data
       },
     }
@@ -52,7 +52,7 @@ export const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainBlockHeight'],
       queryFn: async () => {
-        const { data } = await axios.get<ThorchainBlock>(`${thornodeUrl}/lcd/thorchain/block`)
+        const { data } = await axios.get<ThorchainBlock>(`${thornodeUrl}/thorchain/block`)
         return data
       },
     }
@@ -65,7 +65,7 @@ export const thornode = createQueryKeys('thornode', {
           // Get all inbound addresses
           (
             await thorService.get<InboundAddressResponse[]>(
-              `${thornodeUrl}/lcd/thorchain/inbound_addresses`,
+              `${thornodeUrl}/thorchain/inbound_addresses`,
             )
           ).andThen(({ data: inboundAddresses }) => {
             // Exclude halted

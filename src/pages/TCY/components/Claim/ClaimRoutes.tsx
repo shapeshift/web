@@ -1,9 +1,11 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { lazy, useCallback } from 'react'
-import { MemoryRouter, useLocation } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
+import { lazy, useCallback, useState } from 'react'
+import { MemoryRouter, useLocation, useNavigate } from 'react-router'
 import { Route, Switch } from 'wouter'
 
-import { TCYClaimRoute, TransactionStatus } from '../../types'
+import { TCYClaimRoute } from '../../types'
+import type { Claim } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -30,31 +32,83 @@ const ClaimStatus = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const initialEntries = [TCYClaimRoute.Confirm, TCYClaimRoute.Status]
+const ClaimSweep = makeSuspenseful(
+  lazy(() =>
+    import('./ClaimSweep').then(({ ClaimSweep }) => ({
+      default: ClaimSweep,
+    })),
+  ),
+  defaultBoxSpinnerStyle,
+)
 
-const ClaimContent = () => {
+const initialEntries = [TCYClaimRoute.Confirm, TCYClaimRoute.Status, TCYClaimRoute.Sweep]
+
+const ClaimContent = ({ claim }: { claim: Claim | undefined }) => {
+  const [txId, setTxId] = useState<string>('')
+
   return (
     <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
-      <ClaimRoutes />
+      <ClaimRoutes claim={claim} txId={txId} setClaimTxid={setTxId} />
     </MemoryRouter>
   )
 }
 
-const ClaimRoutes = () => {
+const ClaimRoutes = ({
+  claim,
+  txId,
+  setClaimTxid,
+}: {
+  claim: Claim | undefined
+  txId: string
+  setClaimTxid: (txId: string) => void
+}) => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+
   const renderClaimConfirm = useCallback(() => {
-    return <ClaimConfirm />
-  }, [])
+    if (!claim) return null
+
+    return <ClaimConfirm claim={claim} setClaimTxid={setClaimTxid} />
+  }, [claim, setClaimTxid])
+
+  const handleTxConfirmed = useCallback(async () => {
+    if (claim?.accountId) {
+      await queryClient.invalidateQueries({ queryKey: ['tcy-claims', claim.accountId] })
+    }
+  }, [claim?.accountId, queryClient])
 
   const renderClaimStatus = useCallback(() => {
-    return <ClaimStatus status={TransactionStatus.Pending} />
-  }, [])
+    return (
+      <ClaimStatus
+        claim={claim}
+        txId={txId}
+        setClaimTxid={setClaimTxid}
+        onTxConfirmed={handleTxConfirmed}
+      />
+    )
+  }, [claim, txId, setClaimTxid, handleTxConfirmed])
+
+  const handleSweepSeen = useCallback(() => {
+    navigate(TCYClaimRoute.Confirm)
+  }, [navigate])
+
+  const handleSweepBack = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
+
+  const renderClaimSweep = useCallback(() => {
+    if (!claim) return null
+
+    return <ClaimSweep claim={claim} onBack={handleSweepBack} onSweepSeen={handleSweepSeen} />
+  }, [claim, handleSweepBack, handleSweepSeen])
 
   return (
     <AnimatedSwitch>
       <Switch location={location.pathname}>
         <Route path={TCYClaimRoute.Confirm}>{renderClaimConfirm()}</Route>
         <Route path={TCYClaimRoute.Status}>{renderClaimStatus()}</Route>
+        <Route path={TCYClaimRoute.Sweep}>{renderClaimSweep()}</Route>
       </Switch>
     </AnimatedSwitch>
   )
@@ -63,14 +117,15 @@ const ClaimRoutes = () => {
 type ClaimModalProps = {
   isOpen: boolean
   onClose: () => void
+  claim: Claim | undefined
 }
 
-export const ClaimModal = ({ isOpen, onClose }: ClaimModalProps) => {
+export const ClaimModal = ({ isOpen, onClose, claim }: ClaimModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ClaimContent />
+        <ClaimContent claim={claim} />
       </ModalContent>
     </Modal>
   )

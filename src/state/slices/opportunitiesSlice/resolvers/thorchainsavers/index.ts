@@ -191,7 +191,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(
-        `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+        `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/runepool`,
       )
 
     const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
@@ -319,7 +319,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   try {
     const { data: mimir } = await axios.get<ThorchainMimir>(
-      `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
+      `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/mimir`,
     )
 
     const liquidityLockupTime = selectLiquidityLockupTime(mimir)

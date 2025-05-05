@@ -7,7 +7,12 @@ import type { Result } from '@sniptt/monads/build'
 import axios from 'axios'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import { getInboundAddressDataForChain } from '../../thorchain-utils'
+import type {
+  ThornodeStatusResponse,
+  ThornodeTxResponse,
+  ThorTradeQuote,
+} from '../../thorchain-utils'
+import { getEvmData, getInboundAddressDataForChain, utxo } from '../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   CosmosSdkFeeData,
@@ -28,13 +33,10 @@ import {
   isExecutableTradeQuote,
 } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { getEvmData } from './evm/utils/getEvmData'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
-import type { ThornodeStatusResponse, ThornodeTxResponse, ThorTradeQuote } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
-import { getThorTxInfo as getUtxoThorTxInfo } from './utxo/utils/getThorTxData'
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: (
@@ -124,7 +126,7 @@ export const thorchainApi: SwapperApi = {
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
       step
 
-    const { vault, opReturnData } = await getUtxoThorTxInfo({
+    const { vault, opReturnData } = await utxo.getThorTxInfo({
       sellAsset,
       xpub,
       memo,
@@ -163,7 +165,7 @@ export const thorchainApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    const { vault, opReturnData } = await getUtxoThorTxInfo({
+    const { vault, opReturnData } = await utxo.getThorTxInfo({
       sellAsset,
       xpub,
       memo,

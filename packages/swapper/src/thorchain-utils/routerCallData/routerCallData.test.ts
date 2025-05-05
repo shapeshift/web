@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { depositWithExpiry } from '../../../thorchain-utils'
+import { depositWithExpiry } from '..'
 
 const VAULT = '0x78E4E10dCAcB0A8261eB3D5e57fFb98AE8D4dFF1'
 

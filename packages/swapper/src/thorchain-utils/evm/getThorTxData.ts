@@ -3,9 +3,10 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
 
-import { depositWithExpiry, getInboundAddressDataForChain } from '../../../../thorchain-utils'
-import type { SwapperConfig } from '../../../../types'
-import { isNativeEvmAsset } from '../../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
+import type { SwapperConfig } from '../../types'
+import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
+import { depositWithExpiry } from '../routerCallData/routerCalldata'
 
 type GetEvmThorTxInfoArgs = {
   sellAsset: Asset

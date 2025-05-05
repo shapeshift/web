@@ -1,4 +1,4 @@
-import { ModalCloseButton } from '@chakra-ui/react'
+import { Alert, AlertIcon, ModalCloseButton } from '@chakra-ui/react'
 import { fromAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
@@ -11,6 +11,7 @@ import { ClaimAddressInput } from './components/ClaimAddressInput'
 import type { Claim } from './types'
 
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -157,6 +158,12 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         headerRightComponent={headerRightComponent}
       >
         <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
+        <Alert status='info' variant='subtle' mt={2}>
+          <AlertIcon />
+          <RawText fontSize='sm'>
+            {translate('TCY.claimConfirm.notice', { amount: amountCryptoPrecision })}
+          </RawText>
+        </Alert>
       </ReusableConfirm>
     </FormProvider>
   )

@@ -1,4 +1,4 @@
-import { Button, CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
+import { Card, CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -14,6 +14,7 @@ import type { StakeFormValues } from './Stake'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
@@ -63,6 +64,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   const {
     register,
     setValue,
+    trigger,
     formState: { errors, isValid },
   } = useFormContext<StakeFormValues>()
   const [fieldName, setFieldName] = useState<AmountFieldName>('amountCryptoPrecision')
@@ -108,10 +110,11 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   )
 
   const handleAmountChange = useCallback(
-    (inputValue: string) => {
+    async (inputValue: string) => {
       if (inputValue === '') {
         setValue('amountCryptoPrecision', '')
         setValue('fiatAmount', '')
+        await trigger('amountCryptoPrecision')
         return
       }
 
@@ -121,8 +124,9 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
 
       setValue('amountCryptoPrecision', cryptoAmount.toString())
       setValue('fiatAmount', fiatAmount.toString())
+      await trigger('amountCryptoPrecision')
     },
-    [fieldName, setValue, assetUserCurrencyRate],
+    [fieldName, setValue, assetUserCurrencyRate, trigger],
   )
 
   const toggleIsFiat = useCallback(() => {
@@ -140,8 +144,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
 
   register('amountCryptoPrecision', {
     validate: (value: string) => {
-      // TODO(gomes): dev only, this works but we obviously don't want this until we can hold TCY
-      return true
+      if (!value) return true
       if (bnOrZero(value).gt(bnOrZero(balanceCryptoPrecision))) {
         return translate('common.insufficientFunds')
       }
@@ -205,7 +208,8 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
             </Skeleton>
           </Row.Value>
         </Row>
-        <Button
+        <ButtonWalletPredicate
+          isValidWallet={true}
           colorScheme={isValid ? 'blue' : 'red'}
           size='lg'
           width='full'
@@ -214,7 +218,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           isLoading={isEstimatedFeesDataLoading}
         >
           {confirmCopy}
-        </Button>
+        </ButtonWalletPredicate>
       </CardFooter>
     </Stack>
   )

@@ -1,5 +1,5 @@
 import {
-  Button,
+  Card,
   CardFooter,
   Flex,
   FormControl,
@@ -28,6 +28,7 @@ import type { UnstakeFormValues } from './Unstake'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
@@ -181,8 +182,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
 
   const isDisabled =
     !isValid ||
-    // TODO(gomes): revert me after tcy launch
-    // bnOrZero(amountCryptoPrecision).isZero() ||
+    bnOrZero(amountCryptoPrecision).isZero() ||
     isEstimatedFeesDataError ||
     !amountCryptoPrecision ||
     !fiatAmount
@@ -238,14 +238,10 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
         </TradeAssetInput>
       </FormControl>
       <CardFooter
-        borderTopWidth={1}
-        bg='background.surface.raised.accent'
-        borderColor='border.subtle'
-        flexDir='column'
-        borderBottomRadius='xl'
+        flexDirection='column'
         gap={4}
-        px={4}
-        py={4}
+        bg='background.surface.raised.base'
+        borderBottomRadius='xl'
       >
         <Row px={2} fontSize='sm' Tooltipbody={tooltipBody}>
           <Row.Label>{translate('trade.networkFee')}</Row.Label>
@@ -255,7 +251,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
             </Skeleton>
           </Row.Value>
         </Row>
-        <Button
+        <ButtonWalletPredicate
+          isValidWallet={true}
           colorScheme={isValid ? 'blue' : 'red'}
           size='lg'
           width='full'
@@ -264,7 +261,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           isLoading={isEstimatedFeesDataLoading}
         >
           {confirmCopy}
-        </Button>
+        </ButtonWalletPredicate>
       </CardFooter>
     </Stack>
   )

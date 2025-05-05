@@ -81,6 +81,8 @@ export type FeatureFlags = {
   RelaySwapper: boolean
   NotificationCenter: boolean
   ThorchainTcy: boolean
+  ThorchainTcyWidget: boolean
+  ThorchainTcyActivity: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -184,6 +186,8 @@ const initialState: Preferences = {
     RelaySwapper: getConfig().VITE_FEATURE_SWAPPER_RELAY,
     NotificationCenter: getConfig().VITE_FEATURE_NOTIFICATION_CENTER,
     ThorchainTcy: getConfig().VITE_FEATURE_THORCHAIN_TCY,
+    ThorchainTcyWidget: getConfig().VITE_FEATURE_THORCHAIN_TCY_WIDGET,
+    ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

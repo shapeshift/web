@@ -7,7 +7,6 @@ import { ReusableStatus } from '../ReusableStatus'
 import type { Claim } from './types'
 
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
-import { SlideTransition } from '@/components/SlideTransition'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 

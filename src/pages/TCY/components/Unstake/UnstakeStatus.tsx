@@ -1,13 +1,9 @@
-import { useCallback, useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router'
 
 import { TCYUnstakeRoute } from '../../types'
 import { ReusableStatus } from '../ReusableStatus'
 import type { UnstakeFormValues } from './Unstake'
-
-import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 
 type UnstakeStatusProps = {
   txId: string
@@ -21,7 +17,6 @@ export const UnstakeStatus: React.FC<UnstakeStatusProps> = ({
   onTxConfirmed: handleTxConfirmed,
 }) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
   const formValues = useWatch<UnstakeFormValues>()
 
   if (!formValues.amountCryptoPrecision || !formValues.accountId) {

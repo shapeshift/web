@@ -721,21 +721,16 @@ describe('assertAndProcessMemo', () => {
   })
 
   describe('stake tcy', () => {
-    it('processes with affiliate name', () => {
-      const memo = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4:ss'
-      const expected = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+    it('processes tcy+ memo', () => {
+      const memo = 'tcy+'
+      const expected = 'tcy+'
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
-    it('processes with no affiliate name', () => {
-      const memo = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
-      const expected = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+    it('strips additional parts', () => {
+      const memo = 'tcy+:foo:bar:baz'
+      const expected = 'tcy+'
       expect(assertAndProcessMemo(memo)).toBe(expected)
-    })
-
-    it('should throw on missing address', () => {
-      const memo = 'tcy+:'
-      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 

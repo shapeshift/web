@@ -317,6 +317,7 @@ export const useSendThorTx = ({
             chainSpecific: {
               gas: fast.chainSpecific.gasLimit,
               fee: fast.txFee,
+              coin: memo.includes('tcy+') ? 'THOR.TCY' : undefined,
             },
           })
 

@@ -41,11 +41,11 @@ export class MarketServiceManager {
     this.marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.
-      new TcyMarketService(),
       new CoinGeckoMarketService(),
       new CoinCapMarketService(),
       new PortalsMarketService(),
       new FoxyMarketService({ providerUrls, provider }),
+      new TcyMarketService(),
       new ZerionMarketService(),
       // TODO: Debank market provider
     ]

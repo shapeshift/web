@@ -2,7 +2,8 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { ModalCloseButton, Stack } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -13,10 +14,10 @@ import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import { TransactionStatusDisplay } from '@/components/TransactionStatusDisplay/TransactionStatusDisplay'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
-import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
+import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,10 +36,11 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
 }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
-  const txStatus = useTxStatus({
-    accountId: claim?.accountId ?? null,
-    txHash: txId,
-    onTxStatusConfirmed: handleTxConfirmed,
+
+  const { data: thorTxStatus } = useQuery({
+    queryKey: ['getThorchainTransactionStatus', txId],
+    queryFn: () => getThorchainTransactionStatus({ txHash: txId, skipOutbound: true }),
+    refetchInterval: 10_000,
   })
 
   const handleGoBack = useCallback(() => {
@@ -55,6 +57,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
     maybeSafeTxHash: txId ?? undefined,
     accountId: claim?.accountId,
   })
+
+  useEffect(() => {
+    if (thorTxStatus !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [thorTxStatus, handleTxConfirmed])
 
   const txLink = useMemo(
     () =>
@@ -97,7 +105,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       setClaimTxid(maybeSafeTx.transaction.transactionHash)
     }
 
-    switch (txStatus) {
+    switch (thorTxStatus) {
       case undefined:
       case TxStatus.Pending:
         return (

@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { ResultsEmptyProps } from './ResultsEmpty'
 import { ResultsEmpty } from './ResultsEmpty'
@@ -20,11 +20,14 @@ export const ResultsEmptyNoWallet: React.FC<ResultsEmptyProps> = ({
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
-  const buttonProps: ButtonProps = {
-    colorScheme: 'blue',
-    onClick: handleConnect,
-    rightIcon: <ArrowForwardIcon />,
-  }
+  const buttonProps: ButtonProps = useMemo(
+    () => ({
+      colorScheme: 'blue',
+      onClick: handleConnect,
+      rightIcon: <ArrowForwardIcon />,
+    }),
+    [handleConnect],
+  )
 
   return (
     <ResultsEmpty

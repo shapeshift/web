@@ -51,6 +51,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
 
   return (
     <Flex
+      className='scroll-container'
       width='full'
       height='auto'
       flex={1}

@@ -283,9 +283,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     const originSlippageTolerancePercentageDecimal = bnOrZero(slippageTolerance.origin.percent)
 
-    if (originSlippageTolerancePercentageDecimal.gt(0)) {
-      return convertBasisPointsToPercentage(originSlippageTolerancePercentageDecimal).toFixed()
-    }
+    return convertBasisPointsToPercentage(originSlippageTolerancePercentageDecimal).toFixed()
   })()
 
   const protocolAssetId = relayTokenToAssetId(relayToken)

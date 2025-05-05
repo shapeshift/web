@@ -129,7 +129,7 @@ export const tcy: Readonly<Asset> = Object.freeze({
   symbol: 'TCY',
   precision: 8,
   color: '#33FF99',
-  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_tcy_claims/scripts/generateAssetData/thorchain/icons/tcy-icon.png',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/scripts/generateAssetData/thorchain/icons/tcy-icon.png',
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',

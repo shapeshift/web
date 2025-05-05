@@ -1,4 +1,4 @@
-import { Card, CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
+import { CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'

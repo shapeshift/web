@@ -37,3 +37,9 @@ export enum TCYClaimRoute {
   Status = '/claim/status',
   Sweep = '/claim/sweep',
 }
+
+export enum TCYStakeRoute {
+  Input = '/stake',
+  Confirm = '/stake/confirm',
+  Status = '/stake/status',
+}

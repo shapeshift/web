@@ -16,8 +16,8 @@ type ReusableConfirmProps = {
   cryptoAmount: string
   cryptoSymbol: string
   fiatAmount: string
-  feeAmountFiat: string | undefined
   confirmText: string
+  feeAmountFiat: string | undefined
   isDisabled: boolean
   isLoading: boolean
   headerLeftComponent?: ReactNode

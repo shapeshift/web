@@ -2,11 +2,11 @@ import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils
 import assert from 'assert'
 import type { Address } from 'viem'
 
-import type { SwapperConfig, TradeQuote, TradeQuoteStep } from '../../../../types'
-import type { ThorEvmTradeQuote } from '../../types'
-import { getCallDataFromQuote } from '../../utils/getCallDataFromQuote'
-import { TradeType } from '../../utils/longTailHelpers'
-import { getThorTxInfo as getEvmThorTxInfo } from './getThorTxData'
+import type { SwapperConfig, TradeQuote, TradeQuoteStep } from '../../types'
+import { getCallDataFromQuote } from '../getCallDataFromQuote'
+import type { ThorEvmTradeQuote } from '../types'
+import { TradeType } from '../types'
+import { getThorTxInfo } from './getThorTxData'
 
 export const getEvmData = async ({
   config,
@@ -98,7 +98,7 @@ export const getEvmData = async ({
         'expected expectedAmountOut to be a positive amount',
       )
 
-      const { router: updatedRouter } = await getEvmThorTxInfo({
+      const { router: updatedRouter } = await getThorTxInfo({
         sellAsset,
         sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         memo: tcMemo,

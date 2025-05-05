@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/types'
 
-import { getInboundAddressDataForChain } from '../../../../thorchain-utils'
-import type { SwapperConfig } from '../../../../types'
+import type { SwapperConfig } from '../../types'
+import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 
 type GetThorTxInfoArgs = {
   sellAsset: Asset
@@ -9,6 +9,7 @@ type GetThorTxInfoArgs = {
   memo: string
   config: SwapperConfig
 }
+
 type GetThorTxInfoReturn = Promise<{
   opReturnData: string
   vault: string

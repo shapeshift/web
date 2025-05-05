@@ -4,7 +4,12 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 
-import { getInboundAddressDataForChain } from '../../thorchain-utils'
+import type {
+  ThornodeStatusResponse,
+  ThornodeTxResponse,
+  ThorTradeQuote,
+} from '../../thorchain-utils'
+import { getEvmData, getInboundAddressDataForChain, utxo } from '../../thorchain-utils'
 import type { CosmosSdkFeeData, SwapperApi, UtxoFeeData } from '../../types'
 import {
   checkSafeTransactionStatus,
@@ -12,13 +17,10 @@ import {
   isExecutableTradeQuote,
 } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { getEvmData } from './evm/utils/getEvmData'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
-import type { ThornodeStatusResponse, ThornodeTxResponse, ThorTradeQuote } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
-import { getThorTxInfo as getUtxoThorTxInfo } from './utxo/utils/getThorTxData'
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: (input, deps) => {
@@ -101,7 +103,7 @@ export const thorchainApi: SwapperApi = {
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
       step
 
-    const { vault, opReturnData } = await getUtxoThorTxInfo({
+    const { vault, opReturnData } = await utxo.getThorTxInfo({
       sellAsset,
       xpub,
       memo,
@@ -140,7 +142,7 @@ export const thorchainApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    const { vault, opReturnData } = await getUtxoThorTxInfo({
+    const { vault, opReturnData } = await utxo.getThorTxInfo({
       sellAsset,
       xpub,
       memo,

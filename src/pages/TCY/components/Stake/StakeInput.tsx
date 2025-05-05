@@ -173,6 +173,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
       {headerComponent}
       <FormControl isInvalid={Boolean(errors.amountCryptoPrecision)}>
         <TradeAssetInput
+          accountId={accountId}
           assetId={selectedStakingAsset?.assetId ?? ''}
           assetSymbol={selectedStakingAsset?.symbol ?? ''}
           assetIcon={selectedStakingAsset?.icon ?? ''}

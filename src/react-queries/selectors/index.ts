@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId, isRune, SwapperName } from '@shapeshiftoss/swapper'
+import { assetIdToPoolAssetId, isRune, isTcy, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -39,13 +39,22 @@ export const selectIsTradingActive = ({
     case SwapperName.Thorchain: {
       if (!assetId) return false
 
-      const sellAssetIsRune = isRune(assetId)
+      const assetIsRune = isRune(assetId)
+      const assetIsTcy = isTcy(assetId)
 
-      if (sellAssetIsRune) {
-        // The sell asset is RUNE, there is no inbound address data to check against
+      if (assetIsRune) {
+        // The asset is RUNE, there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
         return Boolean(
           mimir && Object.entries(mimir).some(([k, v]) => k === 'HALTTHORCHAIN' && v === 0),
+        )
+      }
+
+      if (assetIsTcy) {
+        // The asset is TCY, there is no inbound address data to check against
+        // Check the HALTTCYTRADING flag on the mimir endpoint instead
+        return Boolean(
+          mimir && Object.entries(mimir).some(([k, v]) => k === 'HALTTCYTRADING' && v === 0),
         )
       }
 

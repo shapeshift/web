@@ -236,21 +236,19 @@ export const assertAndProcessMemo = (memo: string): string => {
     }
     case 'tcy+': {
       // TCY+:STAKEADDR
-      const [_action, destAddr] = memo.split(':')
+      const [_action] = memo.split(':')
 
-      assertMemoHasDestAddr(destAddr, memo)
-
-      // Ensures we strip any additional bits which may not be supported for stake Txs
-      return `${_action}:${destAddr}`
+      // Ensures we strip any additional bits - a tcy+ Tx only contains tcy+, nothing else
+      return _action
     }
     case 'tcy-': {
       // TCY-:UNSTAKEADDR
-      const [_action, destAddr] = memo.split(':')
+      const [_action, basisPoints] = memo.split(':')
 
-      assertMemoHasDestAddr(destAddr, memo)
+      assertIsValidBasisPoints(basisPoints, memo)
 
       // Ensures we strip any additional bits which may not be supported for unstake Txs
-      return `${_action}:${destAddr}`
+      return `${_action}:${basisPoints}`
     }
     default:
       throw new Error(`unsupported memo: ${memo}`)

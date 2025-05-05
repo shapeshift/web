@@ -45,7 +45,7 @@ const getThorchainTransactionStatus = async ({
 
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
-    `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+    `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tx/status/${thorTxHash}`,
     // We don't want to throw on 404s, we're parsing these ourselves
     { validateStatus: () => true },
   )

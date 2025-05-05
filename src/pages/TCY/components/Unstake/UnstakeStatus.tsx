@@ -28,11 +28,12 @@ export const UnstakeStatus: React.FC<UnstakeStatusProps> = ({
       txId={txId}
       setTxId={setUnstakeTxid}
       onTxConfirmed={handleTxConfirmed}
-      initialRoute={TCYUnstakeRoute.Input}
       translationPrefix='unstake'
       accountId={formValues.accountId}
       amountCryptoPrecision={formValues.amountCryptoPrecision}
       headerText={translate('TCY.unstakeConfirm.confirmTitle')}
+      initialRoute={TCYUnstakeRoute.Input}
+      displayGoBack
       isDialog
     />
   )

@@ -21,24 +21,26 @@ type TransactionStatusProps = {
   txId: string
   setTxId: (txId: string) => void
   onTxConfirmed: () => Promise<void>
-  initialRoute: string
   translationPrefix: 'stake' | 'unstake' | 'claim'
   accountId: string
   amountCryptoPrecision: string
   isDialog: boolean
   headerText?: string
+  displayGoBack: boolean
+  initialRoute?: string
 }
 
 export const ReusableStatus = ({
   txId,
   setTxId,
   onTxConfirmed: handleTxConfirmed,
-  initialRoute,
   translationPrefix,
   accountId,
   amountCryptoPrecision,
   isDialog,
   headerText,
+  displayGoBack,
+  initialRoute,
 }: TransactionStatusProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -72,6 +74,8 @@ export const ReusableStatus = ({
   }, [txLink])
 
   const handleGoBack = useCallback(() => {
+    if (!initialRoute) return
+
     navigate(initialRoute)
   }, [navigate, initialRoute])
 
@@ -112,9 +116,11 @@ export const ReusableStatus = ({
               symbol: tcyAsset.symbol,
             })}
             primaryButtonText={translate('trade.viewTransaction')}
-            secondaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
             onPrimaryClick={handleViewTransaction}
-            onSecondaryClick={handleGoBack}
+            secondaryButtonText={
+              displayGoBack ? translate(`TCY.${translationPrefix}Status.goBack`) : undefined
+            }
+            onSecondaryClick={displayGoBack ? handleGoBack : undefined}
           />
         )
       case TxStatus.Confirmed:
@@ -128,9 +134,11 @@ export const ReusableStatus = ({
               symbol: tcyAsset.symbol,
             })}
             primaryButtonText={translate('trade.viewTransaction')}
-            secondaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
             onPrimaryClick={handleViewTransaction}
-            onSecondaryClick={handleGoBack}
+            secondaryButtonText={
+              displayGoBack ? translate(`TCY.${translationPrefix}Status.goBack`) : undefined
+            }
+            onSecondaryClick={displayGoBack ? handleGoBack : undefined}
           />
         )
       case TxStatus.Failed:
@@ -141,9 +149,11 @@ export const ReusableStatus = ({
             title={translate(`TCY.${translationPrefix}Status.failedTitle`)}
             subtitle={translate(`TCY.${translationPrefix}Status.failedSubtitle`)}
             primaryButtonText={translate('trade.viewTransaction')}
-            secondaryButtonText={translate(`TCY.${translationPrefix}Status.goBack`)}
             onPrimaryClick={handleViewTransaction}
-            onSecondaryClick={handleGoBack}
+            secondaryButtonText={
+              displayGoBack ? translate(`TCY.${translationPrefix}Status.goBack`) : undefined
+            }
+            onSecondaryClick={displayGoBack ? handleGoBack : undefined}
           />
         )
       default:
@@ -159,6 +169,7 @@ export const ReusableStatus = ({
     setTxId,
     translationPrefix,
     translate,
+    displayGoBack,
   ])
 
   if (!isDialog) return <SlideTransition>{statusContent}</SlideTransition>

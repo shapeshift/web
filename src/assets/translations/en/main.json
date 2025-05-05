@@ -2818,7 +2818,7 @@
       "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
-      "confirmTitle": "Confirm",
+      "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Confirm & Claim"
     },

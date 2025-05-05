@@ -28,12 +28,13 @@ export const StakeStatus: React.FC<StakeStatusProps> = ({
       txId={txId}
       setTxId={setStakeTxid}
       onTxConfirmed={handleTxConfirmed}
-      initialRoute={TCYStakeRoute.Input}
       translationPrefix='stake'
       accountId={formValues.accountId}
       amountCryptoPrecision={formValues.amountCryptoPrecision}
       isDialog
       headerText={translate('TCY.stakeConfirm.confirmTitle')}
+      initialRoute={TCYStakeRoute.Input}
+      displayGoBack
     />
   )
 }

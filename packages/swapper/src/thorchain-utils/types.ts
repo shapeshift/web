@@ -1,7 +1,6 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { TradeQuote, TradeRate } from '../../types'
-import type { TradeType } from './utils/longTailHelpers'
+import type { TradeQuote, TradeRate } from '../types'
 
 export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
 
@@ -256,6 +255,13 @@ export type ThorEvmTradeQuote = TradeQuote &
 
 export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
 export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
+
+export enum TradeType {
+  LongTailToLongTail = 'LongTailToLongTail',
+  LongTailToL1 = 'LongTailToL1',
+  L1ToLongTail = 'L1ToLongTail',
+  L1ToL1 = 'L1ToL1',
+}
 
 type ThorTradeQuoteSpecificMetadata = {
   isStreaming: boolean

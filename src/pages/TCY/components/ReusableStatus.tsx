@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { tcyAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, THOR_PRECISION } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -88,7 +88,7 @@ export const ReusableStatus = ({
             confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
           })}
           subtitle={translate(`TCY.${translationPrefix}Pending`, {
-            amount: bnOrZero(amountCryptoPrecision).toFixed(8),
+            amount: bnOrZero(amountCryptoPrecision).toFixed(THOR_PRECISION),
             symbol: tcyAsset.symbol,
           })}
           primaryButtonText={translate('trade.viewTransaction')}

@@ -51,6 +51,6 @@ export class TcyMarketService implements MarketService {
   }
 
   async findPriceHistoryByAssetId() {
-    return []
+    return Promise.resolve([])
   }
 }

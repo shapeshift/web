@@ -1,7 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
@@ -267,8 +267,9 @@ export const relayApi: SwapperApi = {
     }
 
     if (!txIndexingMap.has(quoteId) && txByQuoteIdMap.has(quoteId) && isEvmChainId(chainId)) {
+      const got = txByQuoteIdMap.get(quoteId)
       const relayTxParam = {
-        ...(txByQuoteIdMap.get(quoteId) as EvmTransactionRequest | SolanaSignTx),
+        ...got,
         txHash,
       }
       // We don't need to handle the response here, we just want to notify the relay indexer

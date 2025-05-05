@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { mayachainAssetId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 
 import type { ThornodePoolResponse } from '../../thorchain-utils'
@@ -14,13 +14,14 @@ const getSupportedAssets = async (
   supportedSellAssetIds: AssetId[]
   supportedBuyAssetIds: AssetId[]
 }> => {
-  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
-  const thorchainSwapLongtailEnabled = config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
+  const daemonUrl = config.VITE_MAYACHAIN_NODE_URL
 
-  const supportedSellAssetIds = [thorchainAssetId]
-  const supportedBuyAssetIds = [thorchainAssetId]
+  const supportedSellAssetIds = [mayachainAssetId]
+  const supportedBuyAssetIds = [mayachainAssetId]
 
-  const poolResponse = await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/thorchain/pools`)
+  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
+    `${daemonUrl}/lcd/mayachain/pools`,
+  )
 
   if (!poolResponse.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }
 
@@ -36,25 +37,10 @@ const getSupportedAssets = async (
     supportedBuyAssetIds.push(assetId)
   })
 
-  if (thorchainSwapLongtailEnabled) {
-    const longtailAssetIds: AssetId[] = (
-      await import('./generated/generatedThorLongtailTokens.json')
-    ).default
-
-    const chainIds = new Set(assetIds.map(assetId => fromAssetId(assetId).chainId))
-
-    longtailAssetIds.forEach(assetId => {
-      if (chainIds.has(fromAssetId(assetId).chainId)) {
-        supportedSellAssetIds.push(assetId)
-        supportedBuyAssetIds.push(assetId)
-      }
-    })
-  }
-
   return { supportedSellAssetIds, supportedBuyAssetIds }
 }
 
-export const thorchainSwapper: Swapper = {
+export const mayachainSwapper: Swapper = {
   executeEvmTransaction,
 
   executeCosmosSdkTransaction: (txToSign, { signAndBroadcastTransaction }) => {

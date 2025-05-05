@@ -2818,7 +2818,7 @@
       "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
-      "confirmTitle": "Confirm",
+      "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Confirm & Claim"
     },
@@ -2864,7 +2864,17 @@
       "viewTransaction": "View Transaction",
       "successSubtitle": "You have successfully staked %{amount} TCY",
       "goBack": "Go Back"
+    },
+    "claimStatus": {
+      "pendingTitle": "Claim is pending",
+      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
+      "successTitle": "Claim is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your claim has failed. Please try again.",
+      "successSubtitle": "You have successfully claimed %{amount} TCY",
+      "goBack": "Go Back"
     }
+
   },
   "markets": {
     "recommended": "Recommended",

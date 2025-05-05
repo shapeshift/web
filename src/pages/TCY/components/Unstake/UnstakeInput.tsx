@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardFooter,
   Flex,
@@ -33,8 +32,6 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -102,12 +99,6 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
   const accountId = accountNumberAccounts?.[thorchainChainId]
 
   const { data: tcyStaker } = useTcyStaker(accountId)
-
-  const {
-    state: { wallet },
-  } = useWallet()
-
-  const isChainSupportedByWallet = useWalletSupportsChain(thorchainChainId, wallet)
 
   const withdrawBps = useMemo(() => {
     if (!tcyStaker?.amount) return '0'
@@ -191,8 +182,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
 
   const isDisabled =
     !isValid ||
-    // TODO(gomes): revert me after tcy launch
-    // bnOrZero(amountCryptoPrecision).isZero() ||
+    bnOrZero(amountCryptoPrecision).isZero() ||
     isEstimatedFeesDataError ||
     !amountCryptoPrecision ||
     !fiatAmount
@@ -262,8 +252,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
               </Skeleton>
             </Row.Value>
           </Row>
-          <ButtonWalletPredicate 
-            isValidWallet={Boolean(isChainSupportedByWallet)}
+          <ButtonWalletPredicate
+            isValidWallet={true}
             colorScheme={isValid ? 'blue' : 'red'}
             size='lg'
             width='full'

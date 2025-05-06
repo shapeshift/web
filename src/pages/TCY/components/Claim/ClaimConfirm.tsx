@@ -21,6 +21,7 @@ import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import {
   selectAssetById,
+  selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
@@ -118,13 +119,14 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     await handleClaim()
   }, [handleClaim, isSweepNeeded, navigate])
 
-  const balanceFilter = useMemo(
-    () => ({ assetId: claim.assetId, accountId: claim.accountId }),
-    [claim.assetId, claim.accountId],
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, claim.assetId))
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: claim.accountId }),
+    [feeAsset?.assetId, claim.accountId],
   )
 
-  const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForDustAndFees = useMemo(() => {
@@ -132,8 +134,8 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
       estimatedFeesData.txFeeCryptoBaseUnit,
     )
-    return bnOrZero(balanceCryptoBaseUnit).gte(requiredAmountCryptoBaseUnit)
-  }, [balanceCryptoBaseUnit, dustAmountCryptoBaseUnit, estimatedFeesData?.txFeeCryptoBaseUnit])
+    return bnOrZero(feeAssetBalance).gte(requiredAmountCryptoBaseUnit)
+  }, [feeAssetBalance, dustAmountCryptoBaseUnit, estimatedFeesData?.txFeeCryptoBaseUnit])
 
   const isError = useMemo(() => {
     return estimatedFeesData && !hasEnoughBalanceForDustAndFees

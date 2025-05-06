@@ -155,27 +155,3 @@ export const getThorchainLpPosition = async ({
     opportunityId,
   }
 }
-
-export const getThorchainLpUtxoFromAddresses = async ({
-  accountId,
-  assetId: poolAssetId,
-}: {
-  accountId: AccountId
-  assetId: AssetId
-}) => {
-  const { chainId } = fromAssetId(poolAssetId)
-
-  if (!isUtxoChainId(chainId)) throw new Error(`Not a UTXO chain: ${chainId}`)
-
-  const lpPositions = await queryClient.fetchQuery({
-    ...thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
-    // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
-    staleTime: 0,
-  })
-
-  if (!lpPositions) return []
-
-  return lpPositions.map(position => position.assetAddress).filter(isSome)
-}

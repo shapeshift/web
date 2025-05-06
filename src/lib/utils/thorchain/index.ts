@@ -206,7 +206,7 @@ export const getThorchainFromAddress = async ({
   }
 }
 
-// Gets all the unique UTXO positions for a given position across all THORFi
+// Gets all unique UTXO addresses for a given accountId across all THORFi
 export const getThorfiUtxoFromAddresses = async ({
   accountId,
   assetId,

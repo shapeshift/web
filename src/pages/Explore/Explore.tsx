@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
+import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -43,6 +44,7 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
 const rfoxIcon = <RFOXIcon />
+const tcyIcon = <TCYIcon />
 
 const pageProps = { paddingTop: 4 }
 
@@ -60,6 +62,10 @@ export const Explore = memo(() => {
 
   const handleRFOXClick = useCallback(() => {
     navigate('/rfox')
+  }, [navigate])
+
+  const handleTCYClick = useCallback(() => {
+    navigate('/tcy')
   }, [navigate])
 
   return (
@@ -101,6 +107,13 @@ export const Explore = memo(() => {
           icon={lendingIcon}
           bg='linear-gradient(161deg, #D69E2E 6.22%, #935F22 87.07%)'
           onClick={handleLendingClick}
+        />
+        <ExploreCard
+          title='explore.tcy.title'
+          body='explore.tcy.body'
+          icon={tcyIcon}
+          bg='linear-gradient(159deg, #319795 2.01%, #215063 86%);'
+          onClick={handleTCYClick}
         />
       </Main>
     </>

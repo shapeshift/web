@@ -44,8 +44,12 @@ export const TradeQuoteContent = ({
   tradeQuote,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
-  const { isModeratePriceImpact, isHighPriceImpact, priceImpactPercentage } =
-    usePriceImpact(tradeQuote)
+  const {
+    isModeratePriceImpact,
+    isHighPriceImpact,
+    priceImpactPercentageAbsolute,
+    isPositivePriceImpact,
+  } = usePriceImpact(tradeQuote)
 
   const {
     number: { toPercent },
@@ -76,21 +80,23 @@ export const TradeQuoteContent = ({
         return 'text.error'
       case isModeratePriceImpact:
         return 'text.warning'
+      case isPositivePriceImpact:
+        return 'text.success'
       default:
         return undefined
     }
-  }, [isHighPriceImpact, isModeratePriceImpact])
+  }, [isHighPriceImpact, isModeratePriceImpact, isPositivePriceImpact])
 
   const priceImpactDecimalPercentage = useMemo(
-    () => priceImpactPercentage?.div(100),
-    [priceImpactPercentage],
+    () => priceImpactPercentageAbsolute?.div(100),
+    [priceImpactPercentageAbsolute],
   )
 
   const priceImpactTooltipText = useMemo(() => {
-    if (!priceImpactPercentage) return
+    if (!priceImpactPercentageAbsolute) return
 
     const defaultText = translate('trade.tooltip.priceImpactLabel', {
-      priceImpactPercentage: priceImpactPercentage.toFixed(2),
+      priceImpactPercentage: priceImpactPercentageAbsolute.toFixed(2),
     })
     switch (true) {
       case isHighPriceImpact:
@@ -99,7 +105,7 @@ export const TradeQuoteContent = ({
       default:
         return defaultText
     }
-  }, [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentage, translate])
+  }, [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentageAbsolute, translate])
 
   const eta = useMemo(() => {
     if (totalEstimatedExecutionTimeMs === undefined) return null

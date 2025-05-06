@@ -20,6 +20,7 @@ export const btcThornodePool: ThornodePoolResponse = {
   loan_collateral_remaining: '8376774621',
   loan_cr: '30776',
   derived_depth_bps: '9484',
+  asset_tor_price: '424242',
 }
 
 export const ethThornodePool: ThornodePoolResponse = {
@@ -41,6 +42,7 @@ export const ethThornodePool: ThornodePoolResponse = {
   loan_collateral_remaining: '84066273113',
   loan_cr: '31595',
   derived_depth_bps: '9491',
+  asset_tor_price: '424242',
 }
 
 export const foxThornodePool: ThornodePoolResponse = {
@@ -62,6 +64,7 @@ export const foxThornodePool: ThornodePoolResponse = {
   loan_collateral_remaining: '0',
   loan_cr: '20000',
   derived_depth_bps: '0',
+  asset_tor_price: '424242',
 }
 
 export const usdcThornodePool: ThornodePoolResponse = {
@@ -83,6 +86,7 @@ export const usdcThornodePool: ThornodePoolResponse = {
   loan_collateral_remaining: '0',
   loan_cr: '20000',
   derived_depth_bps: '0',
+  asset_tor_price: '424242',
 }
 
 export const thornodePools: ThornodePoolResponse[] = [

@@ -11,7 +11,7 @@ import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
-import { getThorfiFromAddresses } from '@/lib/utils/thorchain'
+import { getThorfiUtxoFromAddresses } from '@/lib/utils/thorchain'
 import { isSupportedThorchainSaversAssetId } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountIdsByAccountNumberAndChainId,
@@ -63,7 +63,7 @@ export const useTCYClaims = (accountNumber: number) => {
             // Defaults to 0 if none found
             // We do not duplicate this for LP and Lending, as those users should all be on a 0th account_index, only savers is the exception
             // as some users may have historical non-zero account_index active address
-            return getThorfiFromAddresses({
+            return getThorfiUtxoFromAddresses({
               accountId,
               assetId,
               accountMetadata,

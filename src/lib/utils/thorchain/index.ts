@@ -206,48 +206,8 @@ export const getThorchainFromAddress = async ({
   }
 }
 
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
-  if (isUtxoAccountId(accountId)) {
-    const { chainId, account: pubkey } = fromAccountId(accountId)
-    const adapter = assertGetUtxoChainAdapter(chainId)
-
-    const {
-      chainSpecific: { addresses },
-    } = await adapter.getAccount(pubkey)
-
-    if (!addresses) return []
-
-    return addresses.map(({ pubkey }) => {
-      const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
-      return address
-    })
-  }
-
-  return [fromAccountId(accountId).account]
-})
-
-// A THOR Tx can either be:
-// - a RUNE MsgDeposit message type
-// - an EVM custom Tx, i.e., a Tx with calldata
-// - a regular send with a memo (for ATOM and UTXOs)
-export const getThorchainTransactionType = (chainId: ChainId) => {
-  const isRuneTx = chainId === thorchainChainId
-  if (isRuneTx) return 'MsgDeposit'
-
-  const supportedEvmChainIds = getSupportedEvmChainIds()
-  if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
-    return 'EvmCustomTx'
-  }
-  if (isUtxoChainId(chainId) || chainId === cosmosChainId) {
-    return 'Send'
-  }
-
-  throw new Error(`Unsupported ChainId ${chainId}`)
-}
-
-export const getThorfiFromAddresses = async ({
+// Gets all the unique UTXO positions for a given position across all THORFi
+export const getThorfiUtxoFromAddresses = async ({
   accountId,
   assetId,
   wallet,
@@ -259,6 +219,8 @@ export const getThorfiFromAddresses = async ({
   accountMetadata: AccountMetadataById[AccountId]
 }): Promise<string[]> => {
   const { chainId } = fromAccountId(accountId)
+
+  if (!isUtxoChainId(chainId)) throw new Error(`ChainId ${chainId} is not a UTXO chain`)
 
   try {
     const [saverPosition, lendingPosition, lpUtxoFromAddresses] = await Promise.all([
@@ -304,4 +266,45 @@ export const getThorfiFromAddresses = async ({
 
     return [firstReceiveAddress]
   }
+}
+
+// Memoized on accountId, see lodash docs:
+// "By default, the first argument provided to the memoized function is used as the map cache key."
+export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
+  if (isUtxoAccountId(accountId)) {
+    const { chainId, account: pubkey } = fromAccountId(accountId)
+    const adapter = assertGetUtxoChainAdapter(chainId)
+
+    const {
+      chainSpecific: { addresses },
+    } = await adapter.getAccount(pubkey)
+
+    if (!addresses) return []
+
+    return addresses.map(({ pubkey }) => {
+      const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
+      return address
+    })
+  }
+
+  return [fromAccountId(accountId).account]
+})
+
+// A THOR Tx can either be:
+// - a RUNE MsgDeposit message type
+// - an EVM custom Tx, i.e., a Tx with calldata
+// - a regular send with a memo (for ATOM and UTXOs)
+export const getThorchainTransactionType = (chainId: ChainId) => {
+  const isRuneTx = chainId === thorchainChainId
+  if (isRuneTx) return 'MsgDeposit'
+
+  const supportedEvmChainIds = getSupportedEvmChainIds()
+  if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
+    return 'EvmCustomTx'
+  }
+  if (isUtxoChainId(chainId) || chainId === cosmosChainId) {
+    return 'Send'
+  }
+
+  throw new Error(`Unsupported ChainId ${chainId}`)
 }

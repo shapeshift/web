@@ -20,6 +20,7 @@ type ReusableConfirmProps = {
   feeAmountFiat: string | undefined
   isDisabled: boolean
   isLoading: boolean
+  isError?: boolean
   headerLeftComponent?: ReactNode
   headerRightComponent?: ReactNode
   onConfirm: () => void
@@ -35,6 +36,7 @@ export const ReusableConfirm = ({
   confirmText,
   isDisabled,
   isLoading,
+  isError,
   headerLeftComponent,
   headerRightComponent,
   onConfirm,
@@ -85,7 +87,7 @@ export const ReusableConfirm = ({
           </Row>
           <Button
             size='lg'
-            colorScheme='blue'
+            colorScheme={isError ? 'red' : 'blue'}
             onClick={onConfirm}
             isDisabled={isDisabled}
             isLoading={isLoading}

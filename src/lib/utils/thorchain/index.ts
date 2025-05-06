@@ -32,7 +32,6 @@ import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
-import { getThorchainLpUtxoFromAddresses } from '@/pages/ThorChainLP/queries/queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 export const getThorchainTransactionStatus = async ({
@@ -155,7 +154,6 @@ export const getThorchainFromAddress = async ({
   accountId: AccountId
   assetId: AssetId
   opportunityId?: string
-  // TODO(gomes): getThorchainLp maybe, or maybe not?
   getPosition:
     | typeof getThorchainLendingPosition
     | typeof getThorchainSaversPosition
@@ -223,13 +221,12 @@ export const getThorfiUtxoFromAddresses = async ({
   if (!isUtxoChainId(chainId)) throw new Error(`ChainId ${chainId} is not a UTXO chain`)
 
   try {
-    const [saverPosition, lendingPosition, lpUtxoFromAddresses] = await Promise.all([
+    const [saverPosition, lendingPosition] = await Promise.all([
       getThorchainSaversPosition({ accountId, assetId }),
       getThorchainLendingPosition({ accountId, assetId }),
-      getThorchainLpUtxoFromAddresses({ accountId, assetId }),
     ])
 
-    if (!saverPosition && !lendingPosition && !lpUtxoFromAddresses.length)
+    if (!saverPosition && !lendingPosition)
       throw new Error(`No position found for assetId: ${assetId}, defaulting to 0 account_index`)
 
     // Unique addies set, to avoid view-layer dupes since addies are most likely the same over savers and lending
@@ -242,10 +239,6 @@ export const getThorfiUtxoFromAddresses = async ({
     if (lendingPosition?.owner) {
       addresses.add(lendingPosition.owner)
     }
-
-    lpUtxoFromAddresses.forEach(address => {
-      addresses.add(address)
-    })
 
     return Array.from(addresses)
   } catch {

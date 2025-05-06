@@ -47,10 +47,10 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
       <HStack gap={4}>
         <AssetIcon assetId={claim.assetId} />
         <Stack alignItems='flex-start'>
-          <RawText fontWeight='bold' color='text.base' fontSize='lg'>
+          <RawText fontWeight='bold' color='text.base' fontSize='lg' lineHeight={1}>
             {asset.name}
           </RawText>
-          <RawText fontSize='sm' color='text.subtle'>
+          <RawText fontSize='sm' color='text.subtle' lineHeight={1}>
             {asset.symbol}
           </RawText>
         </Stack>
@@ -59,10 +59,11 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
         <Amount.Crypto
           color='text.base'
           fontSize='lg'
+          lineHeight={1}
           value={fromBaseUnit(claim.amountThorBaseUnit, THOR_PRECISION)}
           symbol={tcyAsset.symbol}
         />
-        <RawText fontSize='sm' color={'green.500'}>
+        <RawText fontSize='sm' color={'green.500'} lineHeight={1}>
           {translate('common.claim')}
         </RawText>
       </Stack>

@@ -2813,6 +2813,7 @@
     "claimStatus": {
       "pendingTitle": "Claim is pending",
       "back": "Back",
+      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
       "viewTransaction": "View Transaction",
       "successTitle": "Claim is successful",
       "successSubtitle": "You have successfully claimed {claimedAmount} TCY",
@@ -2869,16 +2870,11 @@
       "successSubtitle": "You have successfully staked %{amount} TCY",
       "goBack": "Go Back"
     },
-    "claimStatus": {
-      "pendingTitle": "Claim is pending",
-      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
-      "successTitle": "Claim is successful",
-      "failedTitle": "Something went wrong",
-      "failedSubtitle": "Your claim has failed. Please try again.",
-      "successSubtitle": "You have successfully claimed %{amount} TCY",
-      "goBack": "Go Back"
-    }
 
+    "cta": {
+      "title": "You have TCY claims available!",
+      "button": "Check Claims"
+    }
   },
   "markets": {
     "recommended": "Recommended",

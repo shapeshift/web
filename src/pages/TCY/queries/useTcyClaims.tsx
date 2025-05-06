@@ -15,11 +15,12 @@ import { getThorfiUtxoFromAddresses } from '@/lib/utils/thorchain'
 import { isSupportedThorchainSaversAssetId } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountIdsByAccountNumberAndChainId,
+  selectEnabledWalletAccountIds,
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
-export const useTCYClaims = (accountNumber: number) => {
+export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -27,12 +28,16 @@ export const useTCYClaims = (accountNumber: number) => {
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
+
+  const allAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const accountIds = useMemo(
     () =>
-      Object.values(accountIdsByAccountNumberAndChainId[accountNumber] || {})
-        .flat()
-        .filter(isSome),
-    [accountNumber, accountIdsByAccountNumberAndChainId],
+      accountNumber === 'all'
+        ? allAccountIds
+        : Object.values(accountIdsByAccountNumberAndChainId[accountNumber] || {})
+            .flat()
+            .filter(isSome),
+    [accountNumber, allAccountIds, accountIdsByAccountNumberAndChainId],
   )
 
   return useSuspenseQueries({

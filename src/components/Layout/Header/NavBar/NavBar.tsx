@@ -91,6 +91,7 @@ export const NavBar = (props: NavBarProps) => {
               label={translate(item.label)}
               aria-label={translate(item.label)}
               data-test={`navigation-${item.label.split('.')[1]}-button`}
+              menuRightComponent={item.menuRightComponent}
               isActive={
                 !!matchPath(
                   {

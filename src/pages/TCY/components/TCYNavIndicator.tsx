@@ -3,11 +3,16 @@ import { Box, Center } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { motion } from 'framer-motion'
 
+import { useTCYClaims } from '../queries/useTcyClaims'
+
 const position: ResponsiveValue<Property.Position> = { base: 'absolute', '2xl': 'relative' }
 const right = { base: -1, '2xl': 'auto' }
 const top = { base: -1, '2xl': 'auto' }
 export const TCYNavIndicator = () => {
+  const claimsQuery = useTCYClaims('all')
   // Need to add logic to show this if the user has claims
+
+  if (claimsQuery.length === 0) return null
   return (
     <Box
       ml='auto'

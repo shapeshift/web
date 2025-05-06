@@ -1,6 +1,6 @@
-import { ModalCloseButton } from '@chakra-ui/react'
+import { Alert, AlertIcon, ModalCloseButton } from '@chakra-ui/react'
 import { fromAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -11,19 +11,19 @@ import { ClaimAddressInput } from './components/ClaimAddressInput'
 import type { Claim } from './types'
 
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
-import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
+  selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -42,7 +42,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const {
-    state: { wallet, isConnected },
+    state: { isConnected },
   } = useWallet()
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
@@ -61,26 +61,6 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     return bn(amountCryptoPrecision).times(tcyMarketData.price).toFixed(2)
   }, [tcyMarketData.price, amountCryptoPrecision])
 
-  const accountFilter = useMemo(() => ({ accountId: claim.accountId }), [claim.accountId])
-  const accountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
-  )
-
-  const { data: fromAddress } = useQuery({
-    queryKey: ['thorchainFromAddress', claim.accountId, claim.assetId],
-    queryFn:
-      wallet && accountMetadata
-        ? () =>
-            getThorchainFromAddress({
-              accountId: claim.accountId,
-              assetId: claim.assetId,
-              getPosition: getThorchainSaversPosition,
-              accountMetadata,
-              wallet,
-            })
-        : skipToken,
-  })
-
   const {
     dustAmountCryptoBaseUnit,
     isEstimatedFeesDataLoading,
@@ -91,7 +71,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     action: 'claimTcy',
     amountCryptoBaseUnit: '0',
     assetId: claim.assetId,
-    fromAddress: fromAddress ?? null,
+    fromAddress: claim.l1_address,
     memo: runeAddress ? `tcy:${runeAddress}` : '',
     enableEstimateFees: Boolean(runeAddress && claim.accountId),
   })
@@ -99,17 +79,17 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: claim.assetId,
-      address: fromAddress ?? '',
+      address: claim.l1_address ?? '',
       amountCryptoBaseUnit: dustAmountCryptoBaseUnit,
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       enabled: Boolean(
         isUtxoChainId(fromAssetId(claim.assetId).chainId) &&
-          fromAddress &&
+          claim.l1_address &&
           estimatedFeesData &&
           runeAddress,
       ),
     }),
-    [claim.assetId, fromAddress, estimatedFeesData, runeAddress, dustAmountCryptoBaseUnit],
+    [claim.assetId, claim.l1_address, estimatedFeesData, runeAddress, dustAmountCryptoBaseUnit],
   )
 
   const { data: isSweepNeeded, isFetching: isSweepNeededFeching } =
@@ -139,24 +119,64 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     await handleClaim()
   }, [handleClaim, isSweepNeeded, navigate])
 
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, claim.assetId))
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: claim.accountId }),
+    [feeAsset?.assetId, claim.accountId],
+  )
+
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
+
+  const hasEnoughBalanceForDustAndFees = useMemo(() => {
+    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit) return false
+    const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
+      estimatedFeesData.txFeeCryptoBaseUnit,
+    )
+    return bnOrZero(feeAssetBalance).gte(requiredAmountCryptoBaseUnit)
+  }, [feeAssetBalance, dustAmountCryptoBaseUnit, estimatedFeesData?.txFeeCryptoBaseUnit])
+
+  const isError = useMemo(() => {
+    return estimatedFeesData && !hasEnoughBalanceForDustAndFees
+  }, [hasEnoughBalanceForDustAndFees, estimatedFeesData])
+
+  const confirmCopy = useMemo(() => {
+    if (isError) return translate('common.insufficientFunds')
+    return translate('TCY.claimConfirm.confirmAndClaim')
+  }, [isError, translate])
+
   if (!tcyAsset) return null
 
   return (
     <FormProvider {...methods}>
       <ReusableConfirm
-        isDisabled={!isConnected || !runeAddress || isSweepNeededFeching || !estimatedFeesData}
+        isDisabled={
+          !isConnected ||
+          !runeAddress ||
+          isSweepNeededFeching ||
+          !estimatedFeesData ||
+          !hasEnoughBalanceForDustAndFees
+        }
         isLoading={isClaimMutationPending || isSweepNeededFeching || isEstimatedFeesDataLoading}
+        isError={isError}
         assetId={thorchainAssetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}
         cryptoAmount={amountCryptoPrecision}
         cryptoSymbol={tcyAsset.symbol}
         fiatAmount={amountUserCurrency}
         feeAmountFiat={estimatedFeesData?.txFeeFiat}
-        confirmText={translate('TCY.claimConfirm.confirmAndClaim')}
+        confirmText={confirmCopy}
         onConfirm={handleConfirm}
         headerRightComponent={headerRightComponent}
       >
         <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
+        <Alert status='info' variant='subtle' mt={2}>
+          <AlertIcon />
+          <RawText fontSize='sm'>
+            {translate('TCY.claimConfirm.notice', { amount: amountCryptoPrecision })}
+          </RawText>
+        </Alert>
       </ReusableConfirm>
     </FormProvider>
   )

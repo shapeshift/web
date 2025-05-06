@@ -20,6 +20,7 @@ type ReusableConfirmProps = {
   feeAmountFiat: string | undefined
   isDisabled: boolean
   isLoading: boolean
+  isError?: boolean
   headerLeftComponent?: ReactNode
   headerRightComponent?: ReactNode
   onConfirm: () => void
@@ -35,6 +36,7 @@ export const ReusableConfirm = ({
   confirmText,
   isDisabled,
   isLoading,
+  isError,
   headerLeftComponent,
   headerRightComponent,
   onConfirm,
@@ -70,11 +72,12 @@ export const ReusableConfirm = ({
         <CardFooter
           flexDir='column'
           gap={4}
-          pb={6}
+          pb={4}
+          px={4}
           bg='background.surface.raised.accent'
           borderBottomRadius='lg'
         >
-          <Row fontSize='sm'>
+          <Row px={2} fontSize='sm'>
             <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
             <Row.Value>
               <Skeleton isLoaded={!!feeAmountFiat}>
@@ -84,7 +87,7 @@ export const ReusableConfirm = ({
           </Row>
           <Button
             size='lg'
-            colorScheme='blue'
+            colorScheme={isError ? 'red' : 'blue'}
             onClick={onConfirm}
             isDisabled={isDisabled}
             isLoading={isLoading}

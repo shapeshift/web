@@ -105,7 +105,7 @@ export const ConfirmSummary = ({
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
 
-  const { priceImpactPercentage } = usePriceImpact(activeQuote)
+  const { priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
@@ -330,14 +330,16 @@ export const ConfirmSummary = ({
           intermediaryTransactionOutputs={intermediaryTransactionOutputs}
         />
 
-        {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
+        {priceImpactPercentageAbsolute && (
+          <PriceImpact priceImpactPercentage={priceImpactPercentageAbsolute} />
+        )}
       </>
     )
   }, [
     buyAmountAfterFeesCryptoPrecision,
     buyAsset.symbol,
     isLoading,
-    priceImpactPercentage,
+    priceImpactPercentageAbsolute,
     slippagePercentageDecimal,
     tradeQuoteStep?.intermediaryTransactionOutputs,
     tradeQuoteStep?.source,

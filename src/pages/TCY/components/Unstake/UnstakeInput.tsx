@@ -1,5 +1,4 @@
 import {
-  Card,
   CardFooter,
   Flex,
   FormControl,
@@ -201,6 +200,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
       {headerComponent}
       <FormControl isInvalid={Boolean(errors.amountCryptoPrecision)}>
         <TradeAssetInput
+          accountId={accountId}
           assetId={selectedStakingAsset?.assetId ?? ''}
           assetSymbol={selectedStakingAsset?.symbol ?? ''}
           assetIcon={selectedStakingAsset?.icon ?? ''}
@@ -237,34 +237,32 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           </Stack>
         </TradeAssetInput>
       </FormControl>
-      <Card>
-        <CardFooter
-          flexDirection='column'
-          gap={4}
-          bg='background.surface.raised.base'
-          borderBottomRadius='xl'
+      <CardFooter
+        flexDirection='column'
+        gap={4}
+        bg='background.surface.raised.base'
+        borderBottomRadius='xl'
+      >
+        <Row px={2} fontSize='sm' Tooltipbody={tooltipBody}>
+          <Row.Label>{translate('trade.networkFee')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!!estimatedFeesData}>
+              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
+            </Skeleton>
+          </Row.Value>
+        </Row>
+        <ButtonWalletPredicate
+          isValidWallet={true}
+          colorScheme={isValid ? 'blue' : 'red'}
+          size='lg'
+          width='full'
+          onClick={handleUnstake}
+          isDisabled={isDisabled}
+          isLoading={isEstimatedFeesDataLoading}
         >
-          <Row fontSize='sm' Tooltipbody={tooltipBody}>
-            <Row.Label>{translate('trade.networkFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!!estimatedFeesData}>
-                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <ButtonWalletPredicate
-            isValidWallet={true}
-            colorScheme={isValid ? 'blue' : 'red'}
-            size='lg'
-            width='full'
-            onClick={handleUnstake}
-            isDisabled={isDisabled}
-            isLoading={isEstimatedFeesDataLoading}
-          >
-            {confirmCopy}
-          </ButtonWalletPredicate>
-        </CardFooter>
-      </Card>
+          {confirmCopy}
+        </ButtonWalletPredicate>
+      </CardFooter>
     </Stack>
   )
 }

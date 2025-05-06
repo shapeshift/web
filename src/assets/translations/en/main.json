@@ -2823,7 +2823,8 @@
     "claimConfirm": {
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
-      "confirmAndClaim": "Confirm & Claim"
+      "confirmAndClaim": "Claim & Stake",
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked—unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"

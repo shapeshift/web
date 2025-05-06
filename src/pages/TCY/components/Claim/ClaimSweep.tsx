@@ -1,18 +1,11 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { CardBody, CardHeader, Flex, IconButton } from '@chakra-ui/react'
-import { skipToken, useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import type { Claim } from './types'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Sweep } from '@/components/Sweep'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { getThorchainFromAddress } from '@/lib/utils/thorchain'
-import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 type ClaimSweepProps = {
   claim: Claim
@@ -28,29 +21,7 @@ export const ClaimSweep: React.FC<ClaimSweepProps> = ({
   onSweepSeen: handleSweepSeen,
 }) => {
   const translate = useTranslate()
-  const {
-    state: { wallet },
-  } = useWallet()
 
-  const accountFilter = useMemo(() => ({ accountId: claim.accountId }), [claim.accountId])
-  const accountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
-  )
-
-  const { data: fromAddress } = useQuery({
-    queryKey: ['thorchainFromAddress', claim.accountId, claim.assetId],
-    queryFn:
-      wallet && accountMetadata
-        ? () =>
-            getThorchainFromAddress({
-              accountId: claim.accountId,
-              assetId: claim.assetId,
-              getPosition: getThorchainSaversPosition,
-              accountMetadata,
-              wallet,
-            })
-        : skipToken,
-  })
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
@@ -63,7 +34,7 @@ export const ClaimSweep: React.FC<ClaimSweepProps> = ({
       <CardBody pt={0}>
         <Sweep
           assetId={claim.assetId}
-          fromAddress={fromAddress ?? null}
+          fromAddress={claim.l1_address ?? null}
           accountId={claim.accountId}
           onBack={handleBack}
           onSweepSeen={handleSweepSeen}

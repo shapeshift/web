@@ -772,7 +772,7 @@ describe('parseTx', () => {
       ],
       data: {
         parser: 'thorchain',
-        method: 'tcyStake',
+        method: 'stake',
         memo: 'tcy+',
       },
     }
@@ -819,7 +819,7 @@ describe('parseTx', () => {
       ],
       data: {
         parser: 'thorchain',
-        method: 'tcyUnstake',
+        method: 'unstake',
         memo: 'tcy-:1000',
       },
     }

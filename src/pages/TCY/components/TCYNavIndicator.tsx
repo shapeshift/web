@@ -12,7 +12,8 @@ export const TCYNavIndicator = () => {
   const claimsQuery = useTCYClaims('all')
   // Need to add logic to show this if the user has claims
 
-  if (claimsQuery.length === 0) return null
+ const hasClaims = useMemo(() => claimsQuery.some(query => query.data.length), [claimsQuery])
+ if (!hasClaims) return null
   return (
     <Box
       ml='auto'

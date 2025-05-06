@@ -2870,11 +2870,9 @@
     },
 
     "cta": {
-      "title": "THORChain TCY",
-      "body": "Have any THORChain savers or lending positions?",
+      "title": "You have TCY claims available!",
       "button": "Check Claims"
     }
-
   },
   "markets": {
     "recommended": "Recommended",

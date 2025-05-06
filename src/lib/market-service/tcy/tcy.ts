@@ -6,6 +6,8 @@ import axios from 'axios'
 import type { MarketService } from '../api'
 
 import { getConfig } from '@/config'
+import { fromBaseUnit } from '@/lib/math'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 
 export class TcyMarketService implements MarketService {
   baseUrl = getConfig().VITE_THORCHAIN_NODE_URL
@@ -34,7 +36,7 @@ export class TcyMarketService implements MarketService {
       const data = response.data
 
       return {
-        price: data.asset_tor_price,
+        price: fromBaseUnit(data.asset_tor_price, THOR_PRECISION),
         marketCap: '0',
         volume: '0',
         changePercent24Hr: 0,

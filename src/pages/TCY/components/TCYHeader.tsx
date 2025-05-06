@@ -1,6 +1,7 @@
 import { Flex, Heading } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -37,8 +38,11 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
     selectAccountIdsByChainIdFilter(state, { chainId: thorchainChainId }),
   )
 
+  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountIds[0])
+
   const handleChange = useCallback(
     (accountId: string) => {
+      setDefaultAccountId(accountId)
       const accountNumber = selectAccountNumberByAccountId(store.getState(), { accountId })
       if (accountNumber === undefined) throw new Error('Account number not found')
       onAccountNumberChange(accountNumber)
@@ -55,14 +59,14 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
 
         <InlineCopyButton value={''} />
         <AccountDropdown
-          defaultAccountId={accountIds[0]}
+          defaultAccountId={defaultAccountId}
           assetId={thorchainAssetId}
           onChange={handleChange}
           buttonProps={buttonProps}
         />
       </Flex>
     )
-  }, [accountIds, handleChange])
+  }, [accountIds, handleChange, defaultAccountId])
 
   return (
     <>

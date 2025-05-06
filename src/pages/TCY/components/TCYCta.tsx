@@ -12,9 +12,11 @@ const margin = { base: 4, md: 0 }
 export const TCYCta = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
+
   const handleClick = useCallback(() => {
     navigate('/tcy')
   }, [navigate])
+
   return (
     <Alert status='info' m={margin} width='auto'>
       <AssetIcon assetId={tcyAssetId} />

@@ -13,13 +13,17 @@ import type { Claim } from './types'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
@@ -114,20 +118,53 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     await handleClaim()
   }, [handleClaim, isSweepNeeded, navigate])
 
+  const balanceFilter = useMemo(
+    () => ({ assetId: claim.assetId, accountId: claim.accountId }),
+    [claim.assetId, claim.accountId],
+  )
+
+  const balanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  )
+
+  const hasEnoughBalanceForDustAndFees = useMemo(() => {
+    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit) return false
+    const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
+      estimatedFeesData.txFeeCryptoBaseUnit,
+    )
+    return bnOrZero(balanceCryptoBaseUnit).gte(requiredAmountCryptoBaseUnit)
+  }, [balanceCryptoBaseUnit, dustAmountCryptoBaseUnit, estimatedFeesData?.txFeeCryptoBaseUnit])
+
+  const isError = useMemo(() => {
+    return estimatedFeesData && !hasEnoughBalanceForDustAndFees
+  }, [hasEnoughBalanceForDustAndFees, estimatedFeesData])
+
+  const confirmCopy = useMemo(() => {
+    if (isError) return translate('common.insufficientFunds')
+    return translate('TCY.claimConfirm.confirmAndClaim')
+  }, [isError, translate])
+
   if (!tcyAsset) return null
 
   return (
     <FormProvider {...methods}>
       <ReusableConfirm
-        isDisabled={!isConnected || !runeAddress || isSweepNeededFeching || !estimatedFeesData}
+        isDisabled={
+          !isConnected ||
+          !runeAddress ||
+          isSweepNeededFeching ||
+          !estimatedFeesData ||
+          !hasEnoughBalanceForDustAndFees
+        }
         isLoading={isClaimMutationPending || isSweepNeededFeching || isEstimatedFeesDataLoading}
+        isError={isError}
         assetId={thorchainAssetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}
         cryptoAmount={amountCryptoPrecision}
         cryptoSymbol={tcyAsset.symbol}
         fiatAmount={amountUserCurrency}
         feeAmountFiat={estimatedFeesData?.txFeeFiat}
-        confirmText={translate('TCY.claimConfirm.confirmAndClaim')}
+        confirmText={confirmCopy}
         onConfirm={handleConfirm}
         headerRightComponent={headerRightComponent}
       >

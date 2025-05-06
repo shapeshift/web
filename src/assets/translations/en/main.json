@@ -720,9 +720,11 @@
         "loanRepaymentRefundNative": "Loan Repayment + Refund",
         "out": "Outbound Received",
         "refund": "Refund",
+        "stake": "Stake",
         "swapOut": "Swap Received",
         "swap": "Trade",
         "swapRefund": "Swap Refund",
+        "unstake": "Unstake",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"

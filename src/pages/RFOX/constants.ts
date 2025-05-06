@@ -11,9 +11,9 @@ export const stakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Stake' })
 export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 export const withdrawEvent = getAbiItem({ abi: RFOX_ABI, name: 'Withdraw' })
 
-export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
+export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'Qmaq4mamfUxwVyzPRsGYdirYcqnfrFxfTkWTLdNofhs1eB'
+export const CURRENT_EPOCH_IPFS_HASH = 'QmSSgDoyc3RubRbwh4CUfvAyyJK8mHdiZHMKy6dGWePxep'
 export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
 
 const client = viemClientByNetworkId[arbitrum.id]

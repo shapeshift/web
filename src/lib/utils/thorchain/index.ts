@@ -10,7 +10,12 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { MidgardActionsResponse, ThornodeStatusResponse } from '@shapeshiftoss/swapper'
 import { thorService } from '@shapeshiftoss/swapper'
-import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type {
+  AccountMetadata,
+  AccountMetadataById,
+  Asset,
+  KnownChainIds,
+} from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -19,7 +24,7 @@ import memoize from 'lodash/memoize'
 import { getSupportedEvmChainIds } from '../evm'
 import { assertGetUtxoChainAdapter, isUtxoAccountId, isUtxoChainId } from '../utxo'
 import { THOR_PRECISION } from './constants'
-import type { getThorchainLendingPosition } from './lending'
+import { getThorchainLendingPosition } from './lending'
 
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -27,7 +32,8 @@ import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainLpUtxoFromAddresses } from '@/pages/ThorChainLP/queries/queries'
+import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 export const getThorchainTransactionStatus = async ({
   txHash,
@@ -197,6 +203,68 @@ export const getThorchainFromAddress = async ({
       pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
     })
     return firstReceiveAddress
+  }
+}
+
+// Gets all unique UTXO addresses for a given accountId across all THORFi
+export const getThorfiUtxoFromAddresses = async ({
+  accountId,
+  assetId,
+  wallet,
+  accountMetadata,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+  wallet: HDWallet
+  accountMetadata: AccountMetadataById[AccountId]
+}): Promise<string[]> => {
+  const { chainId } = fromAccountId(accountId)
+
+  if (!isUtxoChainId(chainId)) throw new Error(`ChainId ${chainId} is not a UTXO chain`)
+
+  try {
+    const [saverPosition, lendingPosition, lpUtxoFromAddresses] = await Promise.all([
+      getThorchainSaversPosition({ accountId, assetId }),
+      getThorchainLendingPosition({ accountId, assetId }),
+      getThorchainLpUtxoFromAddresses({ accountId, assetId }),
+    ])
+
+    if (!saverPosition && !lendingPosition && !lpUtxoFromAddresses.length)
+      throw new Error(`No position found for assetId: ${assetId}, defaulting to 0 account_index`)
+
+    // Unique addies set, to avoid view-layer dupes since addies are most likely the same over savers and lending
+    const addresses = new Set<string>()
+
+    if (saverPosition?.asset_address) {
+      addresses.add(saverPosition.asset_address)
+    }
+
+    if (lendingPosition?.owner) {
+      addresses.add(lendingPosition.owner)
+    }
+
+    lpUtxoFromAddresses.forEach(address => {
+      addresses.add(address)
+    })
+
+    return Array.from(addresses)
+  } catch {
+    const chainAdapter = getChainAdapterManager().get(chainId)
+
+    if (!accountMetadata) throw new Error('No account metadata found')
+    if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
+
+    const { accountType, bip44Params } = accountMetadata
+
+    const firstReceiveAddress = await chainAdapter.getAddress({
+      wallet,
+      accountNumber: bip44Params.accountNumber,
+      accountType,
+      addressIndex: 0,
+      pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+    })
+
+    return [firstReceiveAddress]
   }
 }
 

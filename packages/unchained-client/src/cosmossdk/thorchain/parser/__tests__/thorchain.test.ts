@@ -1,4 +1,4 @@
-import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -23,6 +23,8 @@ import thorchainStreamingSwapRefund from './mockData/thorchainStreamingSwapRefun
 import thorchainSwap from './mockData/thorchainSwap'
 import thorchainSwapOutbound from './mockData/thorchainSwapOutbound'
 import thorchainSwapRefund from './mockData/thorchainSwapRefund'
+import thorchainTcyStake from './mockData/thorchainTcyStake'
+import thorchainTcyUnstake from './mockData/thorchainTcyUnstake'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -733,6 +735,92 @@ describe('parseTx', () => {
         liquidity: {
           type: 'RUNEPool',
         },
+      },
+    }
+
+    const actual = await txParser.parse(tx, address)
+
+    expect(actual).toEqual(expected)
+  })
+
+  it('should be able to parse a tcy stake', async () => {
+    const { tx } = thorchainTcyStake
+    const address = 'thor1s7naj6kzxpudy64zka8h5w7uffnzmhzluwtz83'
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: thorchainChainId,
+      fee: {
+        assetId: thorchainAssetId,
+        value: '2000000',
+      },
+      transfers: [
+        {
+          type: TransferType.Send,
+          from: address,
+          to: 'thor128a8hqnkaxyqv7qwajpggmfyudh64jl3c32vyv',
+          assetId: tcyAssetId,
+          totalValue: '271800000000',
+          components: [{ value: '271800000000' }],
+        },
+      ],
+      data: {
+        parser: 'thorchain',
+        method: 'tcyStake',
+        memo: 'tcy+',
+      },
+    }
+
+    const actual = await txParser.parse(tx, address)
+
+    expect(actual).toEqual(expected)
+  })
+
+  it('should be able to parse a tcy unstake', async () => {
+    const { tx } = thorchainTcyUnstake
+    const address = 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup'
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: thorchainChainId,
+      fee: {
+        assetId: thorchainAssetId,
+        value: '2000000',
+      },
+      transfers: [
+        {
+          type: TransferType.Send,
+          from: address,
+          to: address,
+          assetId: thorchainAssetId,
+          totalValue: '0',
+          components: [{ value: '0' }],
+        },
+        {
+          type: TransferType.Receive,
+          from: 'thor128a8hqnkaxyqv7qwajpggmfyudh64jl3c32vyv',
+          to: address,
+          assetId: tcyAssetId,
+          totalValue: '1207741513',
+          components: [{ value: '1207741513' }],
+        },
+      ],
+      data: {
+        parser: 'thorchain',
+        method: 'tcyUnstake',
+        memo: 'tcy-:1000',
       },
     }
 

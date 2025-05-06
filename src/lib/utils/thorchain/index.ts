@@ -229,7 +229,7 @@ export const getThorfiUtxoFromAddresses = async ({
       getThorchainLpUtxoFromAddresses({ accountId, assetId }),
     ])
 
-    if (!saverPosition && !lendingPosition)
+    if (!saverPosition && !lendingPosition && !lpUtxoFromAddresses.length)
       throw new Error(`No position found for assetId: ${assetId}, defaulting to 0 account_index`)
 
     // Unique addies set, to avoid view-layer dupes since addies are most likely the same over savers and lending

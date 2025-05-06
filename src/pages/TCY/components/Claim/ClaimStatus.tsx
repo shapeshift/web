@@ -1,74 +1,63 @@
-import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { ModalCloseButton, Stack } from '@chakra-ui/react'
-import { useCallback } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router'
 
-import { TransactionStatus } from '../../types'
+import { TCYClaimRoute } from '../../types'
+import { ReusableStatus } from '../ReusableStatus'
+import type { Claim } from './types'
 
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
-import { SlideTransition } from '@/components/SlideTransition'
-import { TransactionStatusDisplay } from '@/components/TransactionStatusDisplay/TransactionStatusDisplay'
-interface ClaimStatusProps {
-  status: TransactionStatus
+import { Text } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+
+type ClaimStatusProps = {
+  claim: Claim | undefined
+  txId: string
+  setClaimTxid: (txId: string) => void
+  onTxConfirmed: () => Promise<void>
 }
 
-export const ClaimStatus = ({ status }: ClaimStatusProps) => {
-  const translate = useTranslate()
+export const ClaimStatus: React.FC<ClaimStatusProps> = ({
+  claim,
+  txId,
+  setClaimTxid,
+  onTxConfirmed: handleTxConfirmed,
+}) => {
+  const navigate = useNavigate()
+  const amountCryptoPrecision = useMemo(
+    () => fromBaseUnit(claim?.amountThorBaseUnit ?? '0', THOR_PRECISION),
+    [claim?.amountThorBaseUnit],
+  )
 
-  // TODO: Get transaction hash for View Transaction link
-  const handleViewTransaction = useCallback(() => {
-    console.log('Navigate to transaction view')
-    // Example: navigate(`/tx/${txHash}`)
-  }, [])
+  const handleGoBack = useCallback(() => {
+    navigate(TCYClaimRoute.Select)
+  }, [navigate])
 
-  const renderStatus = () => {
-    switch (status) {
-      case TransactionStatus.Pending:
-        return (
-          <TransactionStatusDisplay
-            isLoading
-            title={translate('TCY.claimStatus.pendingTitle')}
-            primaryButtonText={translate('TCY.claimStatus.viewTransaction')}
-            onPrimaryClick={handleViewTransaction}
-          />
-        )
-      case TransactionStatus.Success:
-        // TODO: Get claimed amount
-        const claimedAmount = '0.00' // Placeholder
-        return (
-          <TransactionStatusDisplay
-            icon={CheckCircleIcon}
-            iconColor='green.500'
-            title={translate('TCY.claimStatus.successTitle')}
-            subtitle={`You have successfully claimed ${claimedAmount} TCY`}
-            primaryButtonText={translate('TCY.claimStatus.viewTransaction')}
-            onPrimaryClick={handleViewTransaction}
-          />
-        )
-      case TransactionStatus.Failed:
-        return (
-          <TransactionStatusDisplay
-            icon={WarningTwoIcon}
-            iconColor='red.500'
-            title={translate('TCY.claimStatus.failedTitle')}
-            subtitle={translate('TCY.claimStatus.failedSubtitle')}
-            primaryButtonText={translate('TCY.claimStatus.viewTransaction')}
-            onPrimaryClick={handleViewTransaction}
-          />
-        )
-      default:
-        return null // Or some default state
-    }
-  }
+  if (!claim) return null
 
   return (
-    <SlideTransition>
+    <>
       <DialogHeader>
         <DialogHeader.Right>
-          <ModalCloseButton />
+          <ModalCloseButton onClick={handleGoBack} />
         </DialogHeader.Right>
+        <DialogHeader.Middle>
+          <Text translation='TCY.claimConfirm.confirmTitle' />
+        </DialogHeader.Middle>
       </DialogHeader>
-      <Stack>{renderStatus()}</Stack>
-    </SlideTransition>
+      <Stack>
+        <ReusableStatus
+          txId={txId}
+          setTxId={setClaimTxid}
+          onTxConfirmed={handleTxConfirmed}
+          translationPrefix='claim'
+          accountId={claim.accountId}
+          amountCryptoPrecision={amountCryptoPrecision}
+          isDialog={false}
+          displayGoBack={false}
+        />
+      </Stack>
+    </>
   )
 }

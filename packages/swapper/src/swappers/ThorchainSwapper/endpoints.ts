@@ -1,6 +1,6 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromChainId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -534,6 +534,34 @@ export const thorchainApi: SwapperApi = {
 
           return { fee, msg, account }
         }
+        case tcyAssetId: {
+          // Another day in Cosmos SDK land, yes TCY is a native asset, but TCY is the fee asset so we *do* need both
+          const fee: StdFee = {
+            amount: [{ amount: deductOutboundRuneFee(networkFee), denom: 'rune' }],
+            gas,
+          }
+
+          // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
+          const msg: cosmossdkChainAdapter.ThorchainMsgDeposit = {
+            type: cosmossdkChainAdapter.ThorchainMessageType.MsgDeposit,
+            value: {
+              coins: [{ asset: 'THOR.TCY', amount: sellAmountIncludingProtocolFeesCryptoBaseUnit }],
+              memo,
+              signer: from,
+            },
+          }
+
+          const api = new cosmossdk.thorchain.V1Api(
+            new cosmossdk.thorchain.Configuration({
+              basePath: config.VITE_UNCHAINED_THORCHAIN_HTTP_URL,
+            }),
+          )
+
+          const account = await api.getAccount({ pubkey: from })
+
+          return { fee, msg, account }
+        }
+
         case cosmosAssetId: {
           const fee: StdFee = {
             amount: [{ amount: networkFee, denom: 'uatom' }],
@@ -629,10 +657,10 @@ export const thorchainApi: SwapperApi = {
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
       const [{ data: txData }, { data: txStatusData }] = await Promise.all([
         axios.get<ThornodeTxResponse>(
-          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/thorchain/tx/${thorTxHash}`,
         ),
         axios.get<ThornodeStatusResponse>(
-          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/thorchain/tx/status/${thorTxHash}`,
         ),
       ])
 

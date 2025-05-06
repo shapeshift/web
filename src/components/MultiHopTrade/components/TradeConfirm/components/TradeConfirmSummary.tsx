@@ -56,7 +56,7 @@ export const TradeConfirmSummary = () => {
   const secondHopNetworkFeeCryptoBaseUnit = useAppSelector(selectSecondHopNetworkFeeCryptoBaseUnit)
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const translate = useTranslate()
-  const { priceImpactPercentage } = usePriceImpact(activeQuote)
+  const { priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const receiveAddress = activeQuote?.receiveAddress
   const rate = tradeQuoteFirstHop?.rate
@@ -157,7 +157,9 @@ export const TradeConfirmSummary = () => {
           hasIntermediaryTransactionOutputs={hasIntermediaryTransactionOutputs}
           intermediaryTransactionOutputs={intermediaryTransactionOutputs}
         />
-        {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
+        {priceImpactPercentageAbsolute && (
+          <PriceImpact priceImpactPercentage={priceImpactPercentageAbsolute} />
+        )}
         <Divider />
         <RecipientAddressRow
           explorerAddressLink={sellAsset.explorerAddressLink}

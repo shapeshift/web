@@ -2842,7 +2842,7 @@
     },
     "assetAddressInput": {
       "label": "%{symbol} Address",
-      "helperText": "This is the address that will be used to send your claim transaction"
+      "helperText": "This is the address that will be used to send your claim transaction."
     },
 
     "stakeInput": {

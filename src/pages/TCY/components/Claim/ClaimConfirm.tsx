@@ -236,6 +236,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       <Box mt={2}>
         <FormControl>
           <HStack justifyContent='space-between' mb={4}>
+            {/* eslint-disable-next-line react-memo/require-usememo */}
             <FormLabel mb={0}>{<Text translation={label} />}</FormLabel>
           </HStack>
           <InlineCopyButton value={claim.l1_address}>
@@ -252,7 +253,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         </FormControl>
       </Box>
     )
-  }, [claim.accountId, claim.assetId, claim.l1_address, translate])
+  }, [claim.accountId, claim.assetId, claim.l1_address, translate, feeAsset])
 
   if (!tcyAsset) return null
 

@@ -172,30 +172,28 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
+  const requiredAmountCryptoBaseUnit = useMemo(
+    () => bnOrZero(dustAmountCryptoBaseUnit).plus(estimatedFeesData?.txFeeCryptoBaseUnit ?? '0'),
+    [dustAmountCryptoBaseUnit, estimatedFeesData?.txFeeCryptoBaseUnit],
+  )
+
+  const requiredAmountCryptoPrecision = useMemo(() => {
+    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit || !feeAsset)
+      return '0'
+
+    return fromBaseUnit(requiredAmountCryptoBaseUnit, feeAsset.precision)
+  }, [estimatedFeesData, dustAmountCryptoBaseUnit, feeAsset, requiredAmountCryptoBaseUnit])
+
   const hasEnoughBalanceForDustAndFees = useMemo(() => {
-    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit) return false
-    const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
-      estimatedFeesData.txFeeCryptoBaseUnit,
-    )
+    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit) return true
+
     return bnOrZero(feeAssetBalanceCryptoBaseUnit).gte(requiredAmountCryptoBaseUnit)
   }, [
     feeAssetBalanceCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
     estimatedFeesData?.txFeeCryptoBaseUnit,
+    requiredAmountCryptoBaseUnit,
   ])
-
-  const missingBalanceForDustAndFeesCryptoPrecision = useMemo(() => {
-    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit || !feeAsset)
-      return '0'
-
-    const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
-      estimatedFeesData.txFeeCryptoBaseUnit,
-    )
-    const missingBalanceCryptoBaseUnit = requiredAmountCryptoBaseUnit.minus(
-      feeAssetBalanceCryptoBaseUnit,
-    )
-    return fromBaseUnit(missingBalanceCryptoBaseUnit, feeAsset.precision)
-  }, [estimatedFeesData, dustAmountCryptoBaseUnit, feeAssetBalanceCryptoBaseUnit, feeAsset])
 
   const isError = useMemo(() => {
     return estimatedFeesData && !hasEnoughBalanceForDustAndFees
@@ -216,17 +214,12 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         <RawText fontSize='sm'>
           {translate('TCY.claimConfirm.missingFundsForGasAlert', {
             symbol: feeAsset.symbol,
-            amount: missingBalanceForDustAndFeesCryptoPrecision,
+            amount: requiredAmountCryptoPrecision,
           })}
         </RawText>
       </Alert>
     )
-  }, [
-    feeAsset,
-    hasEnoughBalanceForDustAndFees,
-    missingBalanceForDustAndFeesCryptoPrecision,
-    translate,
-  ])
+  }, [feeAsset, hasEnoughBalanceForDustAndFees, requiredAmountCryptoPrecision, translate])
 
   const assetAccountHelper = useMemo(() => {
     if (!feeAsset) return null

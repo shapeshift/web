@@ -2825,7 +2825,7 @@
     "claimConfirm": {
       "dustAmountTooltip": "A tiny amount of %{symbol} is required to identify your address on the THOR network",
       "networkFeeTooltip": "This is the %{symbol} fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift",
-      "missingFundsForGasAlert": "Not enough %{symbol}, you need %{amount} %{symbol} more to complete transaction",
+      "missingFundsForGasAlert": "Not enough %{symbol}, you need at least %{amount} %{symbol} to complete transaction. We recommend sending a bit more to cover for fluctuating network fees.",
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",

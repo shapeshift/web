@@ -2823,6 +2823,9 @@
       "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
+      "dustAmountTooltip": "A tiny amount of %{symbol} is required to identify your address on the THOR network",
+      "networkFeeTooltip": "This is the %{symbol} fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift",
+      "missingFundsForGasAlert": "Not enough %{symbol}, you need %{amount} %{symbol} more to complete transaction",
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",

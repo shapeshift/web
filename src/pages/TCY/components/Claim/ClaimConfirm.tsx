@@ -138,7 +138,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     return bn(dustAmountCryptoPrecision).times(feeAssetMarketData.price).toString()
   }, [dustAmountCryptoBaseUnit, feeAssetMarketData.price, feeAsset])
 
-  const feeAssetBalance = useAppSelector(state =>
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
@@ -147,8 +147,25 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
       estimatedFeesData.txFeeCryptoBaseUnit,
     )
-    return bnOrZero(feeAssetBalance).gte(requiredAmountCryptoBaseUnit)
-  }, [feeAssetBalance, dustAmountCryptoBaseUnit, estimatedFeesData?.txFeeCryptoBaseUnit])
+    return bnOrZero(feeAssetBalanceCryptoBaseUnit).gte(requiredAmountCryptoBaseUnit)
+  }, [
+    feeAssetBalanceCryptoBaseUnit,
+    dustAmountCryptoBaseUnit,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+  ])
+
+  const missingBalanceForDustAndFeesCryptoPrecision = useMemo(() => {
+    if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit || !feeAsset)
+      return '0'
+
+    const requiredAmountCryptoBaseUnit = bnOrZero(dustAmountCryptoBaseUnit).plus(
+      estimatedFeesData.txFeeCryptoBaseUnit,
+    )
+    const missingBalanceCryptoBaseUnit = requiredAmountCryptoBaseUnit.minus(
+      feeAssetBalanceCryptoBaseUnit,
+    )
+    return fromBaseUnit(missingBalanceCryptoBaseUnit, feeAsset.precision)
+  }, [estimatedFeesData, dustAmountCryptoBaseUnit, feeAssetBalanceCryptoBaseUnit, feeAsset])
 
   const isError = useMemo(() => {
     return estimatedFeesData && !hasEnoughBalanceForDustAndFees
@@ -158,6 +175,23 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (isError) return translate('common.insufficientFunds')
     return translate('TCY.claimConfirm.confirmAndClaim')
   }, [isError, translate])
+
+  const confirmAlert = useMemo(() => {
+    if (hasEnoughBalanceForDustAndFees) return null
+    if (!feeAsset) return null
+
+    return (
+      <Alert status='error' variant='subtle' mt={2}>
+        <AlertIcon />
+        <RawText fontSize='sm'>
+          {translate('TCY.claimConfirm.missingFundsForGasAlert', {
+            symbol: feeAsset.symbol,
+            amount: missingBalanceForDustAndFeesCryptoPrecision,
+          })}
+        </RawText>
+      </Alert>
+    )
+  }, [feeAsset, hasEnoughBalanceForDustAndFees, missingBalanceForDustAndFeesCryptoPrecision])
 
   if (!tcyAsset) return null
 
@@ -184,6 +218,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         confirmText={confirmCopy}
         onConfirm={handleConfirm}
         headerRightComponent={headerRightComponent}
+        confirmAlert={confirmAlert}
       >
         <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
         <Alert status='info' variant='subtle' mt={2}>

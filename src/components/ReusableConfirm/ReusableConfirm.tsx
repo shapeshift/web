@@ -1,6 +1,8 @@
 import { Button, Card, CardBody, CardFooter, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { PropsWithChildren, ReactNode } from 'react'
+import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX, PropsWithChildren, ReactNode } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -8,7 +10,9 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
-import { RawText } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ReusableConfirmProps = {
   feeAssetId?: AssetId
@@ -26,6 +30,7 @@ type ReusableConfirmProps = {
   headerLeftComponent?: ReactNode
   headerRightComponent?: ReactNode
   onConfirm: () => void
+  confirmAlert?: JSX.Element | null
 } & PropsWithChildren
 
 export const ReusableConfirm = ({
@@ -44,9 +49,30 @@ export const ReusableConfirm = ({
   headerLeftComponent,
   headerRightComponent,
   onConfirm,
+  confirmAlert,
   children,
 }: ReusableConfirmProps) => {
   const translate = useTranslate()
+
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+
+  const dustAmountTooltipTranslation: [string, InterpolationOptions] = useMemo(() => {
+    return ['TCY.claimConfirm.dustAmountTooltip', { symbol: feeAsset?.symbol ?? '' }]
+  }, [feeAsset?.symbol])
+
+  const dustAmountTooltipBody = useCallback(
+    () => <Text translation={dustAmountTooltipTranslation} />,
+    [dustAmountTooltipTranslation],
+  )
+
+  const networkFeeTooltipTranslation: [string, InterpolationOptions] = useMemo(() => {
+    return ['TCY.claimConfirm.networkFeeTooltip', { symbol: feeAsset?.symbol ?? '' }]
+  }, [feeAsset?.symbol])
+
+  const networkFeeTooltipBody = useCallback(
+    () => <Text translation={networkFeeTooltipTranslation} />,
+    [networkFeeTooltipTranslation],
+  )
 
   return (
     <SlideTransition>
@@ -81,7 +107,7 @@ export const ReusableConfirm = ({
           bg='background.surface.raised.accent'
           borderBottomRadius='lg'
         >
-          <Row px={2} fontSize='sm'>
+          <Row px={2} fontSize='sm' Tooltipbody={networkFeeTooltipBody}>
             <Row.Label>{translate('TCY.claimConfirm.networkFee')}</Row.Label>
             <Row.Value>
               <Skeleton isLoaded={!!feeAmountFiat}>
@@ -89,14 +115,15 @@ export const ReusableConfirm = ({
               </Skeleton>
             </Row.Value>
           </Row>
-          <Row px={2} fontSize='sm'>
-            <Row.Label>{translate('common.dustAmount')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!!dustAmountUserCurrency}>
+          {dustAmountUserCurrency && (
+            <Row px={2} fontSize='sm' Tooltipbody={dustAmountTooltipBody}>
+              <Row.Label>{translate('common.dustAmount')}</Row.Label>
+              <Row.Value>
                 <Amount.Fiat value={dustAmountUserCurrency} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
+              </Row.Value>
+            </Row>
+          )}
+          {confirmAlert ? confirmAlert : null}
           <Button
             size='lg'
             colorScheme={isError ? 'red' : 'blue'}

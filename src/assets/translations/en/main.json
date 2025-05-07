@@ -2794,6 +2794,8 @@
     "myPosition": "My Position",
     "myStakedBalance": "My Staked Balance",
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
+    "myRewardsBalance": "My RUNE Rewards Balance",
+    "myRewardsBalanceHelper": "The amount of RUNE staking rewards. Automatically distributed to your wallet daily.",
     "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
     "lifetimeRewards": "Lifetime Rewards",

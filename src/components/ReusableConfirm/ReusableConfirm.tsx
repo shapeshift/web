@@ -1,6 +1,8 @@
 import { Button, Card, CardBody, CardFooter, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import type { PropsWithChildren, ReactNode } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -9,6 +11,9 @@ import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { bn } from '@/lib/bignumber/bignumber'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type ReusableConfirmProps = {
   assetId: AssetId
@@ -18,6 +23,7 @@ type ReusableConfirmProps = {
   fiatAmount: string
   confirmText: string
   feeAmountFiat: string | undefined
+  dustAmountCryptoBaseUnit?: string
   isDisabled: boolean
   isLoading: boolean
   isError?: boolean
@@ -33,6 +39,7 @@ export const ReusableConfirm = ({
   cryptoSymbol,
   fiatAmount,
   feeAmountFiat,
+  dustAmountCryptoBaseUnit,
   confirmText,
   isDisabled,
   isLoading,
@@ -43,6 +50,22 @@ export const ReusableConfirm = ({
   children,
 }: ReusableConfirmProps) => {
   const translate = useTranslate()
+
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+
+  const dustAmountUserCurrency = useMemo(() => {
+    if (!dustAmountCryptoBaseUnit) return
+    if (!feeAsset) return
+
+    return bn(fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision))
+      .times(feeAssetMarketData.price)
+      .toFixed(2)
+  }, [dustAmountCryptoBaseUnit, feeAssetMarketData.price, feeAsset])
+
+  console.log({ dustAmountCryptoBaseUnit, dustAmountUserCurrency })
 
   return (
     <SlideTransition>
@@ -82,6 +105,14 @@ export const ReusableConfirm = ({
             <Row.Value>
               <Skeleton isLoaded={!!feeAmountFiat}>
                 <Amount.Fiat value={feeAmountFiat} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row px={2} fontSize='sm'>
+            <Row.Label>{translate('common.dustAmount')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!!dustAmountUserCurrency}>
+                <Amount.Fiat value={dustAmountUserCurrency} />
               </Skeleton>
             </Row.Value>
           </Row>

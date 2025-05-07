@@ -76,6 +76,8 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     enableEstimateFees: Boolean(runeAddress && claim.accountId),
   })
 
+  console.log({ dustAmountCryptoBaseUnit, estimatedFeesData })
+
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: claim.assetId,
@@ -159,6 +161,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           !hasEnoughBalanceForDustAndFees
         }
         isLoading={isClaimMutationPending || isSweepNeededFeching || isEstimatedFeesDataLoading}
+        dustAmountCryptoBaseUnit={dustAmountCryptoBaseUnit}
         isError={isError}
         assetId={thorchainAssetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}

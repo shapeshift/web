@@ -76,8 +76,6 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     enableEstimateFees: Boolean(runeAddress && claim.accountId),
   })
 
-  console.log({ dustAmountCryptoBaseUnit, estimatedFeesData })
-
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: claim.assetId,
@@ -122,10 +120,23 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   }, [handleClaim, isSweepNeeded, navigate])
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, claim.assetId))
+
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId ?? '', accountId: claim.accountId }),
     [feeAsset?.assetId, claim.accountId],
   )
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+
+  const dustAmountUserCurrency = useMemo(() => {
+    if (!dustAmountCryptoBaseUnit) return
+    if (!feeAsset) return
+
+    const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
+
+    return bn(dustAmountCryptoPrecision).times(feeAssetMarketData.price).toString()
+  }, [dustAmountCryptoBaseUnit, feeAssetMarketData.price, feeAsset])
 
   const feeAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
@@ -161,7 +172,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           !hasEnoughBalanceForDustAndFees
         }
         isLoading={isClaimMutationPending || isSweepNeededFeching || isEstimatedFeesDataLoading}
-        dustAmountCryptoBaseUnit={dustAmountCryptoBaseUnit}
+        dustAmountUserCurrency={dustAmountUserCurrency}
         isError={isError}
         assetId={thorchainAssetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}

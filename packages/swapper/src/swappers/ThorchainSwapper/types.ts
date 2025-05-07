@@ -32,6 +32,7 @@ export type ThornodePoolResponse = {
   asset: string
   balance_asset: string
   balance_rune: string
+  asset_tor_price: string
   pending_inbound_asset: string
   pending_inbound_rune: string
   pool_units: string

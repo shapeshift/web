@@ -24,6 +24,7 @@ export type Route = {
   isNew?: boolean
   isViewOnly?: boolean
   category?: RouteCategory
+  menuRightComponent?: React.ReactNode
 } & (
   | {
       mobileNav: boolean

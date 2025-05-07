@@ -3,7 +3,6 @@ import {
   AlertIcon,
   Box,
   FormControl,
-  FormHelperText,
   FormLabel,
   HStack,
   ModalCloseButton,
@@ -22,6 +21,7 @@ import { ClaimAddressInput } from './components/ClaimAddressInput'
 import type { Claim } from './types'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { RawText, Text } from '@/components/Text'
@@ -60,6 +60,10 @@ const buttonProps = {
   variant: 'solid',
   height: '40px',
   px: 4,
+}
+
+const inlineCopyFlexProps = {
+  flex: 1,
 }
 
 const headerRightComponent = <ModalCloseButton />
@@ -233,13 +237,17 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     ]
 
     return (
-      <Box mt={2}>
+      <Box mb={6}>
         <FormControl>
-          <HStack justifyContent='space-between' mb={4}>
-            {/* eslint-disable-next-line react-memo/require-usememo */}
-            <FormLabel mb={0}>{<Text translation={label} />}</FormLabel>
+          <HStack gap={4} mb={4} justifyContent='space-between'>
+            <HelperTooltip label={translate('TCY.assetAddressInput.helperText')}>
+              <FormLabel m={0} fontSize='sm'>
+                {/* eslint-disable-next-line react-memo/require-usememo */}
+                <Text translation={label} />
+              </FormLabel>
+            </HelperTooltip>
           </HStack>
-          <InlineCopyButton value={claim.l1_address}>
+          <InlineCopyButton value={claim.l1_address} flexProps={inlineCopyFlexProps}>
             <AccountDropdown
               assetId={claim.assetId}
               onChange={noop}
@@ -249,12 +257,29 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
               defaultAccountId={claim.accountId}
             />
           </InlineCopyButton>
-          <FormHelperText>{translate('TCY.assetAddressInput.helperText')}</FormHelperText>
         </FormControl>
       </Box>
     )
   }, [claim.accountId, claim.assetId, claim.l1_address, translate, feeAsset])
 
+  const amountFooterComponent = useMemo(() => {
+    return (
+      <Alert
+        status='info'
+        variant='subtle'
+        bg='background.surface.raised.base'
+        borderTopRadius={0}
+        mt={-2}
+        borderTopWidth={1}
+        borderColor='border.subtle'
+      >
+        <AlertIcon boxSize='14px' />
+        <RawText fontSize='sm'>
+          {translate('TCY.claimConfirm.notice', { amount: amountCryptoPrecision })}
+        </RawText>
+      </Alert>
+    )
+  }, [amountCryptoPrecision, translate])
   if (!tcyAsset) return null
 
   return (
@@ -281,15 +306,10 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         onConfirm={handleConfirm}
         headerRightComponent={headerRightComponent}
         confirmAlert={confirmAlert}
+        amountFooterComponent={amountFooterComponent}
       >
-        <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
         {assetAccountHelper}
-        <Alert status='info' variant='subtle' mt={2}>
-          <AlertIcon />
-          <RawText fontSize='sm'>
-            {translate('TCY.claimConfirm.notice', { amount: amountCryptoPrecision })}
-          </RawText>
-        </Alert>
+        <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
       </ReusableConfirm>
     </FormProvider>
   )

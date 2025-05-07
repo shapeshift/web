@@ -29,6 +29,7 @@ type ReusableConfirmProps = {
   isError?: boolean
   headerLeftComponent?: ReactNode
   headerRightComponent?: ReactNode
+  amountFooterComponent?: ReactNode
   onConfirm: () => void
   confirmAlert?: JSX.Element | null
 } & PropsWithChildren
@@ -48,6 +49,7 @@ export const ReusableConfirm = ({
   isError,
   headerLeftComponent,
   headerRightComponent,
+  amountFooterComponent,
   onConfirm,
   confirmAlert,
   children,
@@ -83,7 +85,7 @@ export const ReusableConfirm = ({
         </DialogHeader.Middle>
         {headerRightComponent && <DialogHeader.Right>{headerRightComponent}</DialogHeader.Right>}
       </DialogHeader>
-      <Stack spacing={6}>
+      <Stack spacing={4}>
         <Card mx={4}>
           <CardBody textAlign='center' py={8}>
             <AssetIcon assetId={assetId} />
@@ -97,6 +99,7 @@ export const ReusableConfirm = ({
             />
             <Amount.Fiat fontSize='sm' value={fiatAmount} color='text.subtle' />
           </CardBody>
+          {amountFooterComponent}
         </Card>
         {children && <CardBody>{children}</CardBody>}
         <CardFooter

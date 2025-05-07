@@ -106,7 +106,10 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               accountId,
               amountThorBaseUnit: claimer.amount,
               assetId: poolAssetIdToAssetId(claimer.asset) ?? '',
-              l1_address: claimer.asset === 'BCH.BCH' ? `bitcoincash:${claimer.l1_address}` : claimer.l1_address,
+              l1_address:
+                claimer.asset === 'BCH.BCH'
+                  ? `bitcoincash:${claimer.l1_address}`
+                  : claimer.l1_address,
             }))
         } catch (e) {
           console.error('Error fetching TCY claims', e)

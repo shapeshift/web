@@ -11,6 +11,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 
 type ReusableConfirmProps = {
+  feeAssetId?: AssetId
   assetId: AssetId
   headerText: string
   cryptoAmount: string
@@ -28,6 +29,7 @@ type ReusableConfirmProps = {
 } & PropsWithChildren
 
 export const ReusableConfirm = ({
+  feeAssetId,
   assetId,
   headerText,
   cryptoAmount,

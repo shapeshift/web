@@ -175,6 +175,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         dustAmountUserCurrency={dustAmountUserCurrency}
         isError={isError}
         assetId={thorchainAssetId}
+        feeAssetId={claim.assetId}
         headerText={translate('TCY.claimConfirm.confirmTitle')}
         cryptoAmount={amountCryptoPrecision}
         cryptoSymbol={tcyAsset.symbol}

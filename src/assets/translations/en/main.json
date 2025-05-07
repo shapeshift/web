@@ -2829,7 +2829,7 @@
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",
-      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked—unstake anytime after to receive it in your wallet."
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -2840,6 +2840,11 @@
       "useCustomAddress": "Use custom address",
       "helperText": "This is where your TCY will be sent."
     },
+    "assetAddressInput": {
+      "label": "%{symbol} Address",
+      "helperText": "This is the address that will be used to send your claim transaction"
+    },
+
     "stakeInput": {
       "amount": "Amount",
       "networkFee": "Network Fee",

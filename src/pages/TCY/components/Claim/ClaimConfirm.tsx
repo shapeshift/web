@@ -1,6 +1,17 @@
-import { Alert, AlertIcon, ModalCloseButton } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  ModalCloseButton,
+} from '@chakra-ui/react'
 import { fromAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
+import noop from 'lodash/noop'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -10,8 +21,10 @@ import { TCYClaimRoute } from '../../types'
 import { ClaimAddressInput } from './components/ClaimAddressInput'
 import type { Claim } from './types'
 
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
-import { RawText } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -34,6 +47,19 @@ type ClaimConfirmProps = {
 
 type AddressFormValues = {
   manualRuneAddress: string
+}
+
+const boxProps = {
+  width: 'full',
+  p: 0,
+  m: 0,
+}
+
+const buttonProps = {
+  width: 'full',
+  variant: 'solid',
+  height: '40px',
+  px: 4,
 }
 
 const headerRightComponent = <ModalCloseButton />
@@ -191,7 +217,42 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         </RawText>
       </Alert>
     )
-  }, [feeAsset, hasEnoughBalanceForDustAndFees, missingBalanceForDustAndFeesCryptoPrecision])
+  }, [
+    feeAsset,
+    hasEnoughBalanceForDustAndFees,
+    missingBalanceForDustAndFeesCryptoPrecision,
+    translate,
+  ])
+
+  const assetAccountHelper = useMemo(() => {
+    if (!feeAsset) return null
+
+    const label: [string, InterpolationOptions] = [
+      'TCY.assetAddressInput.label',
+      { symbol: feeAsset.symbol },
+    ]
+
+    return (
+      <Box mt={2}>
+        <FormControl>
+          <HStack justifyContent='space-between' mb={4}>
+            <FormLabel mb={0}>{<Text translation={label} />}</FormLabel>
+          </HStack>
+          <InlineCopyButton value={claim.l1_address}>
+            <AccountDropdown
+              assetId={claim.assetId}
+              onChange={noop}
+              disabled
+              boxProps={boxProps}
+              buttonProps={buttonProps}
+              defaultAccountId={claim.accountId}
+            />
+          </InlineCopyButton>
+          <FormHelperText>{translate('TCY.assetAddressInput.helperText')}</FormHelperText>
+        </FormControl>
+      </Box>
+    )
+  }, [claim.accountId, claim.assetId, claim.l1_address, translate])
 
   if (!tcyAsset) return null
 
@@ -221,6 +282,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         confirmAlert={confirmAlert}
       >
         <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
+        {assetAccountHelper}
         <Alert status='info' variant='subtle' mt={2}>
           <AlertIcon />
           <RawText fontSize='sm'>

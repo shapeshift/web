@@ -138,7 +138,6 @@ export const ReusableStatus = ({
             title={translate(`TCY.${translationPrefix}Status.successTitle`)}
             subtitle={translate(`TCY.${translationPrefix}Status.successSubtitle`, {
               amount: bnOrZero(amountCryptoPrecision).toFixed(8),
-              symbol: tcyAsset.symbol,
             })}
             primaryButtonText={translate('trade.viewTransaction')}
             onPrimaryClick={handleViewTransaction}

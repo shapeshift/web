@@ -2817,7 +2817,7 @@
       "pendingSubtitle": "We are processing your claim for %{amount} TCY",
       "viewTransaction": "View Transaction",
       "successTitle": "Claim is successful",
-      "successSubtitle": "You have successfully claimed {claimedAmount} TCY",
+      "successSubtitle": "You have successfully claimed {amount} TCY",
       "goBack": "Go Back",
       "failedTitle": "Something went wrong",
       "failedSubtitle": "Your claim has failed. Please try again."
@@ -2844,7 +2844,6 @@
       "label": "%{symbol} Address",
       "helperText": "This is the address that will be used to send your claim transaction."
     },
-
     "stakeInput": {
       "amount": "Amount",
       "networkFee": "Network Fee",
@@ -2879,7 +2878,6 @@
       "successSubtitle": "You have successfully staked %{amount} TCY",
       "goBack": "Go Back"
     },
-
     "cta": {
       "title": "You have TCY claims available!",
       "button": "Check Claims"

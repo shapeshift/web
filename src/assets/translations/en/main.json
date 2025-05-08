@@ -2817,7 +2817,7 @@
       "pendingSubtitle": "We are processing your claim for %{amount} TCY",
       "viewTransaction": "View Transaction",
       "successTitle": "Claim is successful",
-      "successSubtitle": "You have successfully claimed {amount} TCY",
+      "successSubtitle": "You have successfully claimed %{amount} TCY",
       "goBack": "Go Back",
       "failedTitle": "Something went wrong",
       "failedSubtitle": "Your claim has failed. Please try again."

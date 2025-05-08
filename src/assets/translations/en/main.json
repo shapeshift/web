@@ -195,7 +195,8 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "dustAmount": "Dust Amount"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -2822,10 +2823,13 @@
       "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
+      "dustAmountTooltip": "A tiny amount of %{symbol} is required to identify your address on the THOR network",
+      "networkFeeTooltip": "This is the %{symbol} fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift",
+      "missingFundsForGasAlert": "Not enough %{symbol}, you need at least %{amount} %{symbol} to complete transaction. We recommend sending a bit more covering for fluctuating network fees.",
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",
-      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked—unstake anytime after to receive it in your wallet."
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -2836,6 +2840,11 @@
       "useCustomAddress": "Use custom address",
       "helperText": "This is where your TCY will be sent."
     },
+    "assetAddressInput": {
+      "label": "%{symbol} Address",
+      "helperText": "This is the address that will be used to send your claim transaction."
+    },
+
     "stakeInput": {
       "amount": "Amount",
       "networkFee": "Network Fee",

@@ -168,9 +168,16 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
   return (
     <FormControl isInvalid={Boolean(errors.manualRuneAddress)}>
       <HStack justifyContent='space-between' mb={4}>
-        <FormLabel mb={0}>{translate('TCY.claimAddressInput.label')}</FormLabel>
+        <FormLabel fontSize='sm' mb={0}>
+          {translate('TCY.claimAddressInput.label')}
+        </FormLabel>
         {walletSupportsRune && (
-          <Button variant='link' color='text.link' onClick={handleToggleCustomAddress}>
+          <Button
+            fontSize='sm'
+            variant='link'
+            color='text.link'
+            onClick={handleToggleCustomAddress}
+          >
             {isCustomAddress
               ? translate('TCY.claimAddressInput.useWalletAddress')
               : translate('TCY.claimAddressInput.useCustomAddress')}

@@ -15,15 +15,9 @@ const CtaSkeleton = () => {
     <Alert status='info' m={margin} width='auto'>
       <SkeletonCircle size='32px' />
       <Stack spacing={0} ml={4}>
-        <Skeleton width='100px'>
-          <AlertTitle>Loading...</AlertTitle>
-        </Skeleton>
+        <Skeleton width='100px' height='24px' />
       </Stack>
-      <Skeleton ml='auto' flexShrink={0} borderRadius='xl'>
-        <Button ml='auto' flexShrink={0}>
-          Check Claims
-        </Button>
-      </Skeleton>
+      <Skeleton ml='auto' flexShrink={0} borderRadius='xl' width='100px' height='40px' />
     </Alert>
   )
 }

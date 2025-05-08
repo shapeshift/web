@@ -1,13 +1,15 @@
-import { Box, Card, Flex } from '@chakra-ui/react'
+import { Card, Flex, HStack, Icon } from '@chakra-ui/react'
+import { keyframes } from '@emotion/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Options } from 'canvas-confetti'
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
+import { TbBolt } from 'react-icons/tb'
 
 import { Amount } from '@/components/Amount/Amount'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const confettiStyle: CSSProperties = {
@@ -18,6 +20,12 @@ const confettiStyle: CSSProperties = {
   top: 0,
   left: 0,
 }
+
+const animatedGradient = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`
 
 type YouSavedProps = {
   totalUpsideCryptoPrecision: string
@@ -89,31 +97,37 @@ export const YouSaved = ({
     [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
   )
 
+  const cardSx = useMemo(
+    () => ({
+      background: `linear-gradient(-45deg, var(--chakra-colors-blue-500), var(--chakra-colors-pink-500), var(--chakra-colors-blue-500), var(--chakra-colors-pink-500))`,
+      backgroundSize: '400% 400%',
+      animation: `${animatedGradient} 15s ease infinite`,
+    }),
+    [],
+  )
+
   return (
     <>
-      <Card
-        ref={cardRef}
-        width='full'
-        bg='background.surface.overlay.base'
-        borderRadius='xl'
-        p={4}
-        borderColor='border.base'
-        borderWidth={2}
-      >
+      <Card ref={cardRef} width='full' borderRadius='xl' p={4} pl={3} sx={cardSx}>
         <Flex justifyContent='space-between' alignItems='center'>
-          <Text
-            translation='trade.foxSavings.youGotMore'
-            components={youGotMoreTranslationComponents}
-            fontSize='md'
-            fontWeight='medium'
-          />
+          <HStack maxWidth='65%'>
+            <Icon as={TbBolt} boxSize={8} color='white' />
+            <Text
+              translation='trade.foxSavings.youGotMore'
+              textAlign='left'
+              color='white'
+              components={youGotMoreTranslationComponents}
+              fontSize='md'
+              fontWeight='medium'
+            />
+          </HStack>
           <Flex direction='column' alignItems='flex-end'>
-            <Box color='white' fontSize='2xl' fontWeight='bold'>
+            <RawText color='white' fontSize='2xl' fontWeight='medium'>
               {formattedPercentage}
-            </Box>
-            <Box color='blue.400' fontSize='lg' fontWeight='medium'>
+            </RawText>
+            <RawText color='whiteAlpha.700' fontWeight='medium' fontSize='sm'>
               {pair}
-            </Box>
+            </RawText>
           </Flex>
         </Flex>
       </Card>

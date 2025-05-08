@@ -27,6 +27,12 @@ const animatedGradient = keyframes`
   100% { background-position: 0% 50%; }
 `
 
+const cardSx = {
+  background: `linear-gradient(-45deg, var(--chakra-colors-blue-500), var(--chakra-colors-pink-500), var(--chakra-colors-blue-500), var(--chakra-colors-pink-500))`,
+  backgroundSize: '400% 400%',
+  animation: `${animatedGradient} 15s ease infinite`,
+}
+
 type YouSavedProps = {
   totalUpsideCryptoPrecision: string
   totalUpsidePercentage: string
@@ -95,15 +101,6 @@ export const YouSaved = ({
       ),
     }),
     [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
-  )
-
-  const cardSx = useMemo(
-    () => ({
-      background: `linear-gradient(-45deg, var(--chakra-colors-blue-500), var(--chakra-colors-pink-500), var(--chakra-colors-blue-500), var(--chakra-colors-pink-500))`,
-      backgroundSize: '400% 400%',
-      animation: `${animatedGradient} 15s ease infinite`,
-    }),
-    [],
   )
 
   return (

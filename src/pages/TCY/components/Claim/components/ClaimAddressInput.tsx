@@ -151,7 +151,6 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
           onChange={handleRuneAccountIdChange}
           boxProps={boxProps}
           buttonProps={buttonProps}
-          defaultAccountId={address}
         />
       </InlineCopyButton>
     )

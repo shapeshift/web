@@ -30,7 +30,7 @@ const CtaSkeleton = () => {
 
 const suspenseFallback = <CtaSkeleton />
 
-export const TCYCta = () => {
+export const TCYCtaContent = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const claimsQuery = useTCYClaims('all')
@@ -53,6 +53,14 @@ export const TCYCta = () => {
           {translate('TCY.cta.button')}
         </Button>
       </Alert>
+    </Suspense>
+  )
+}
+
+export const TCYCta = () => {
+  return (
+    <Suspense fallback={suspenseFallback}>
+      <TCYCtaContent />
     </Suspense>
   )
 }

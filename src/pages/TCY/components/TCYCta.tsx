@@ -29,7 +29,7 @@ export const TCYCta = () => {
   const loading = useSelector(selectIsPortfolioLoading)
   const translate = useTranslate()
   const claimsQuery = useTCYClaims('all')
-  const hasClaims = useMemo(() => !claimsQuery.some(query => query.data.length), [claimsQuery])
+  const hasClaims = useMemo(() => claimsQuery.some(query => query.data.length), [claimsQuery])
 
   const handleClick = useCallback(() => {
     navigate('/tcy')

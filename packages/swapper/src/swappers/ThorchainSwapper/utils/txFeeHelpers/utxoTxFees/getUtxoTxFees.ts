@@ -4,14 +4,13 @@ import type { UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 
-import type { ThorUtxoSupportedChainId } from '../../../../../thorchain-utils'
 import type { ProtocolFee, QuoteFeeData } from '../../../../../types'
 
 type GetUtxoTxFeesInput = {
   opReturnData: string
   vault: string
   sellAmountCryptoBaseUnit: string
-  sellAdapter: UtxoBaseAdapter<ThorUtxoSupportedChainId>
+  sellAdapter: UtxoBaseAdapter<UtxoChainId>
   pubkey: string
   protocolFees: Record<AssetId, ProtocolFee>
 }

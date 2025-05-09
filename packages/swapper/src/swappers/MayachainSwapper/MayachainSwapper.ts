@@ -17,7 +17,7 @@ const getSupportedAssets = async (
   const supportedSellAssetIds = [mayachainAssetId]
   const supportedBuyAssetIds = [mayachainAssetId]
 
-  const url = `${config.VITE_MAYACHAIN_NODE_URL}/lcd/mayachain/pools`
+  const url = `${config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`
 
   const poolResponse = await service.get<ThornodePoolResponse[]>(url)
   if (!poolResponse.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }

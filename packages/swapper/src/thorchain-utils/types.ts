@@ -1,5 +1,3 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
-
 import type { TradeQuote, TradeRate } from '../types'
 
 export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
@@ -109,7 +107,7 @@ export type MidgardActionsResponse = {
 }
 
 export type InboundAddressResponse = {
-  chain: ThorchainChain
+  chain: string
   pub_key: string
   address: string
   halted: boolean
@@ -124,12 +122,6 @@ export type InboundAddressResponse = {
   outbound_fee: string
 }
 
-export type ThorUtxoSupportedChainId =
-  | KnownChainIds.BitcoinMainnet
-  | KnownChainIds.DogecoinMainnet
-  | KnownChainIds.LitecoinMainnet
-  | KnownChainIds.BitcoinCashMainnet
-
 type ThorNodeCoinSchema = {
   asset: string
   amount: string
@@ -138,7 +130,7 @@ type ThorNodeCoinSchema = {
 
 export type ThorNodeTxSchema = {
   id: string
-  chain: ThorchainChain
+  chain: string
   from_address: string
   to_address: string
   coins: ThorNodeCoinSchema[]
@@ -147,7 +139,7 @@ export type ThorNodeTxSchema = {
 }
 
 export type ThorNodePlannedTxSchema = {
-  chain: ThorchainChain
+  chain: string
   to_address: string
   coin: ThorNodeCoinSchema
   refund: boolean
@@ -157,7 +149,7 @@ export type ThorNodeStatusResponseSuccess = {
   tx?: {
     id: string
     memo: string
-    chain: ThorchainChain
+    chain: string
     from_address: string
     to_address: string
   }
@@ -171,7 +163,7 @@ export type ThorNodeStatusResponseSuccess = {
     inbound_confirmation_counted?: {
       completed: boolean
       counting_start_height?: number
-      chain?: ThorchainChain
+      chain?: string
       external_observed_height?: number
       external_confirmation_delay_height?: number
       remaining_confirmation_seconds?: number
@@ -227,21 +219,6 @@ export type ThorNodeTxResponseSuccess = {
 
 export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeResponseError
 export type ThornodeTxResponse = ThorNodeTxResponseSuccess | ThornodeResponseError
-
-// When this is updated, also update the instance in generateTradableThorAssetMap
-export enum ThorchainChain {
-  BTC = 'BTC',
-  DOGE = 'DOGE',
-  LTC = 'LTC',
-  BCH = 'BCH',
-  ETH = 'ETH',
-  AVAX = 'AVAX',
-  BNB = 'BNB',
-  GAIA = 'GAIA',
-  THOR = 'THOR',
-  BSC = 'BSC',
-  BASE = 'BASE',
-}
 
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {

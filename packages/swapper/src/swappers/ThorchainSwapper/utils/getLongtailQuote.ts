@@ -15,6 +15,7 @@ import type {
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -27,6 +28,7 @@ export const getLongtailToL1Quote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
@@ -85,6 +87,7 @@ export const getLongtailToL1Quote = async (
     deps,
     streamingInterval,
     TradeType.LongTailToL1,
+    swapperName,
   )
 
   return thorchainQuotes.andThen(quotes => {

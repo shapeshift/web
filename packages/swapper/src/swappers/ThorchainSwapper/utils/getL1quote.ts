@@ -30,8 +30,9 @@ import type {
   ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
+import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import {
   THOR_PRECISION,
@@ -49,6 +50,7 @@ export const getL1Quote = async (
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -73,7 +75,7 @@ export const getL1Quote = async (
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain)
+    getDefaultSlippageDecimalPercentageForSwapper(swapperName)
 
   const inputSlippageBps = convertDecimalPercentageToBasisPoints(slippageTolerancePercentageDecimal)
 
@@ -136,7 +138,7 @@ export const getL1Quote = async (
         )
       )
         return THORCHAIN_LONGTAIL_SWAP_SOURCE
-      return SwapperName.Thorchain
+      return swapperName
     })()
 
     return {
@@ -254,6 +256,7 @@ export const getL1Quote = async (
               memo,
               expiry: quote.expiry,
               config: deps.config,
+              swapperName,
             })
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
@@ -280,7 +283,7 @@ export const getL1Quote = async (
               vault,
               expiry: quote.expiry,
               tradeType: tradeType ?? TradeType.L1ToL1,
-              swapperName: SwapperName.Thorchain,
+              swapperName,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -360,6 +363,7 @@ export const getL1Quote = async (
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
               memo,
               config: deps.config,
+              swapperName,
             })
 
             const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
@@ -393,7 +397,7 @@ export const getL1Quote = async (
                 ? undefined
                 : slippageTolerancePercentageDecimal,
               rate,
-              swapperName: SwapperName.Thorchain,
+              swapperName,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -489,7 +493,7 @@ export const getL1Quote = async (
                 : slippageTolerancePercentageDecimal,
               rate,
               tradeType: tradeType ?? TradeType.L1ToL1,
-              swapperName: SwapperName.Thorchain,
+              swapperName,
               steps: [
                 {
                   estimatedExecutionTimeMs,

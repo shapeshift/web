@@ -9,11 +9,11 @@ import {
   ModalContent,
   ModalOverlay,
   useColorModeValue,
+  useMediaQuery,
   useToast,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -38,6 +38,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
+import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
 const sectionsWidth = { base: 'full', md: '300px' }
@@ -92,6 +93,7 @@ export const NewWalletViewsSwitch = () => {
   // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:
   // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -263,7 +265,7 @@ export const NewWalletViewsSwitch = () => {
 
     return (
       <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
-        {!isRootRoute || isMobile ? (
+        {!isRootRoute || !isLargerThanMd ? (
           <Box
             position='absolute'
             left={3}
@@ -306,6 +308,7 @@ export const NewWalletViewsSwitch = () => {
     isLoading,
     location.pathname,
     translate,
+    isLargerThanMd,
   ])
 
   const body = useMemo(() => <Body />, [Body])
@@ -320,7 +323,13 @@ export const NewWalletViewsSwitch = () => {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent justifyContent='center' overflow='hidden' borderRadius='xl' maxW='900px'>
+        <ModalContent
+          justifyContent='center'
+          overflow='hidden'
+          borderRadius='xl'
+          maxW='900px'
+          mx='4'
+        >
           <Box position='relative'>
             <Box
               position='absolute'
@@ -338,11 +347,11 @@ export const NewWalletViewsSwitch = () => {
                   {/* Always display sections for the root route, no matter the viewport */}
                   <Route path='/' element={sections} />
                   {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                  <Route path='*' element={!isMobile ? sections : null} />
+                  <Route path='*' element={isLargerThanMd ? sections : null} />
                 </Routes>
                 <Routes>
                   {/* Only display side panel after a wallet has been selected on mobile */}
-                  <Route path='/' element={isMobile ? null : <Body />} />
+                  <Route path='/' element={!isLargerThanMd ? null : <Body />} />
                   {/* And for all non-root routes, no matter the viewport */}
                   <Route path='*' element={body} />
                 </Routes>

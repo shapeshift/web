@@ -233,7 +233,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
     return searchQuery ? (
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
-      <ResultsEmpty ctaText='defi.startEarning' icon={emptyIcon} />
+      <ResultsEmpty icon={emptyIcon} />
     )
   }, [searchQuery])
 

@@ -531,6 +531,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             isFiat={isFiat}
             formControlProps={formControlProps}
             layout='stacked'
+            placeholder={'0'}
             label={translate('transactionRow.amount')}
             labelPostFix={assetSelectComponent}
             isSendMaxDisabled={false}

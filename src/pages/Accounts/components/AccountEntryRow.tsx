@@ -23,6 +23,7 @@ type AccountEntryRowProps = {
   accountId: AccountId
   assetId: AssetId
   showNetworkIcon?: boolean
+  maximumFractionDigits?: number
 } & ButtonProps
 
 const fontSizeProps = { base: 'sm', md: 'md' }
@@ -33,6 +34,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   accountId,
   assetId,
   showNetworkIcon,
+  maximumFractionDigits,
   ...buttonProps
 }) => {
   const navigate = useNavigate()
@@ -95,8 +97,16 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         onClick={onClick}
         {...buttonProps}
       >
-        <Stack alignItems='flex-start' spacing={0} flex={1}>
-          <RawText color='var(--chakra-colors-chakra-body-text)'>{title}</RawText>
+        <Stack alignItems='flex-start' spacing={0} flex={1} minW={0}>
+          <RawText
+            color='var(--chakra-colors-chakra-body-text)'
+            textOverflow='ellipsis'
+            overflow='hidden'
+            whiteSpace='nowrap'
+            width='100%'
+          >
+            {title}
+          </RawText>
           <RawText fontSize='sm' color='text.subtle'>
             {subtitle}
           </RawText>
@@ -105,13 +115,20 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
           {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
-        <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
+        <Flex
+          className='account-entry-row__amounts'
+          flex={1}
+          justifyContent='flex-end'
+          alignItems='flex-end'
+          direction='column'
+        >
           <Amount.Fiat value={userCurrencyBalance} />
           <Amount.Crypto
             value={cryptoBalance}
             symbol={symbol ?? ''}
             fontSize='sm'
             display={cryptoDisplayProps}
+            maximumFractionDigits={maximumFractionDigits}
           />
         </Flex>
       </Button>

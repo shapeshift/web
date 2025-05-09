@@ -49,6 +49,11 @@ export type FeeSlidersProps = {
   feeModel: ParameterModel
 }
 
+const inputContainerWidth = {
+  base: '50%',
+  md: '35%',
+}
+
 export const FeeSliders: React.FC<FeeSlidersProps> = ({
   tradeSizeUSD,
   setTradeSizeUSD,
@@ -106,7 +111,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
       <Stack spacing={4} width='full'>
         <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxDiscounts.foxPower' />
-          <Skeleton isLoaded={!isLoading || hasUserAdjustedFoxHolding} width='35%'>
+          <Skeleton isLoaded={!isLoading || hasUserAdjustedFoxHolding} width={inputContainerWidth}>
             <Box sx={inputStyle}>
               <NumberFormat
                 decimalScale={2}
@@ -164,7 +169,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
       <Stack width='full' spacing={4}>
         <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation={featureSizeTranslation} />
-          <Box sx={inputStyle} width='35%'>
+          <Box sx={inputStyle} width={inputContainerWidth}>
             <NumberFormat
               decimalScale={2}
               customInput={Input}

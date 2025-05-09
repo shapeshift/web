@@ -269,6 +269,16 @@ type FeeOutputProps = {
   feeModel: ParameterModel
 }
 
+const feeAmountFontSize = {
+  base: '2xl',
+  md: '3xl',
+}
+
+const feeAmountContainerFlexDir = {
+  base: 'column',
+  md: 'row',
+} as const
+
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, feeModel }) => {
   const translate = useTranslate()
   const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
@@ -339,7 +349,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
   return (
     <Flex fontWeight='medium' pb={0}>
       <Stack width='full'>
-        <Flex gap={4}>
+        <Flex gap={4} flexDir={feeAmountContainerFlexDir}>
           <Box flex={1} textAlign='center'>
             <Text color='text.subtle' translation='foxDiscounts.totalFee' />
             {isFree ? (
@@ -348,12 +358,12 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
               <Flex gap={2} align='center' justifyContent='center'>
                 <Amount.Fiat
                   fiatType='USD'
-                  fontSize='3xl'
+                  fontSize={feeAmountFontSize}
                   value={feeUsd.toString()}
                   color={'green.500'}
                 />
                 <Amount
-                  fontSize='m'
+                  fontSize='md'
                   value={feeBps.toFixed(0)}
                   color={'green.500'}
                   prefix='('
@@ -365,7 +375,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
           <Box flex={1} textAlign='center'>
             <Text color='text.subtle' translation={discountLabelTranslation} />
             <Amount.Percent
-              fontSize='3xl'
+              fontSize={feeAmountFontSize}
               value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
               color={'green.500'}
             />

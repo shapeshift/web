@@ -22,6 +22,10 @@ const hstackProps: StackProps = {
   },
 }
 
+const accountRowButtonProps = {
+  justifyContent: 'space-between',
+} as const
+
 const ALL_FILTER_KEY = 'All'
 
 export const FoxTokenBalances = () => {
@@ -98,6 +102,8 @@ export const FoxTokenBalances = () => {
           accountId={filteredAssetAccountIds[assetAccountNumber]}
           assetId={filteredAssetId}
           showNetworkIcon={true}
+          maximumFractionDigits={2}
+          {...accountRowButtonProps}
         />,
       )
 

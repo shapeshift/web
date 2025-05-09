@@ -60,7 +60,7 @@ export const CreateBackupConfirm = () => {
 
   const randomWordIndices = useMemo(() => {
     const indices = Array.from({ length: words.length }, (_, i) => i)
-    return indices.sort(() => Math.random() - 0.5).slice(0, 3)
+    return indices.sort(() => Math.random() - 0.5).slice(0, 12)
   }, [words.length])
 
   const generateTestWords = useCallback((targetWord: string) => {
@@ -68,7 +68,7 @@ export const CreateBackupConfirm = () => {
     const otherWords = randomWords
       .filter(word => word !== targetWord)
       .sort(() => Math.random() - 0.5)
-      .slice(0, 14)
+      .slice(0, 3)
 
     const allWords = [...otherWords, targetWord] as string[]
     return allWords.sort(() => Math.random() - 0.5)

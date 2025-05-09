@@ -22,7 +22,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { TwirlyToggle } from '../TwirlyToggle'
 import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
-import { YouSavedOrExtra } from './components/YouSaved'
+import { YouSavedOrExtra } from './components/YouSavedOrExtra'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AnimatedCheck } from '@/components/AnimatedCheck'

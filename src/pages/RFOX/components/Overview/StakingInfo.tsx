@@ -9,6 +9,7 @@ import {
   Skeleton,
   Tag,
   Text as CText,
+  type FlexProps,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
@@ -53,6 +54,16 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
+
+  const flexProps = useMemo<FlexProps>(
+    () => ({
+      flexDir: { base: 'column', md: 'row' },
+      gap: 4,
+      alignItems: { base: 'flex-start', md: 'center' },
+      justifyContent: { base: 'flex-start', md: 'space-between' },
+    }),
+    [],
+  )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -113,7 +124,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   return (
     <Box>
-      <Flex alignItems='center' justifyContent='space-between' mb={6}>
+      <Flex alignItems='center' justifyContent='space-between' mb={6} gap={4}>
         <Flex alignItems='center' gap={2}>
           <AssetIcon
             size='sm'
@@ -153,36 +164,48 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
           </Flex>
         </Flex>
 
-        <Card width='100%' maxWidth='400px'>
+        <Card width='100%'>
           <CardBody py={4} px={4}>
-            <Flex alignItems='center' justifyContent='space-between'>
-              <Box width='100%'>
-                <HelperTooltip label={translate('RFOX.pendingRewardsBalanceHelper')}>
-                  <Text
-                    fontSize='sm'
-                    color='text.subtle'
-                    translation='RFOX.pendingRewardsBalance'
-                  />
-                </HelperTooltip>
-                <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitQuery.isLoading}>
-                  <Amount.Crypto
-                    value={fromBaseUnit(
-                      currentEpochRewardsCryptoBaseUnitQuery.data?.toString() ?? '0',
-                      runeAsset?.precision ?? 0,
-                    )}
-                    symbol={runeAsset?.symbol ?? ''}
-                    fontSize='xl'
-                    fontWeight='medium'
-                  />
-                  <Amount.Fiat
-                    fontSize='xs'
-                    value={currentEpochRewardsUserCurrency}
-                    color='text.subtle'
-                  />
-                </Skeleton>
+            <Flex {...flexProps}>
+              <Box>
+                <Flex flexDir='column' gap={2}>
+                  <HelperTooltip label={translate('RFOX.pendingRewardsBalanceHelper')}>
+                    <Text
+                      fontSize='sm'
+                      color='text.subtle'
+                      translation='RFOX.pendingRewardsBalance'
+                    />
+                  </HelperTooltip>
+
+                  <Box>
+                    <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitQuery.isLoading}>
+                      <Amount.Crypto
+                        value={fromBaseUnit(
+                          currentEpochRewardsCryptoBaseUnitQuery.data?.toString() ?? '0',
+                          runeAsset?.precision ?? 0,
+                        )}
+                        symbol={runeAsset?.symbol ?? ''}
+                        fontSize='xl'
+                        fontWeight='medium'
+                      />
+                      <Amount.Fiat
+                        fontSize='xs'
+                        value={currentEpochRewardsUserCurrency}
+                        color='text.subtle'
+                      />
+                    </Skeleton>
+                  </Box>
+                </Flex>
               </Box>
-              <Skeleton isLoaded={!currentApyQuery.isLoading} ml={2}>
-                <Tag colorScheme='green' verticalAlign='middle'>
+              <Skeleton isLoaded={!currentApyQuery.isLoading}>
+                <Tag
+                  colorScheme='green'
+                  verticalAlign='middle'
+                  width='auto'
+                  minWidth='100px'
+                  justifyContent='center'
+                  fontSize='sm'
+                >
                   <Amount.Percent
                     width='max-content'
                     prefix='~'

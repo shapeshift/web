@@ -5,7 +5,7 @@ import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 
 import type { SwapperConfig } from '../types'
-import { getThorTxInfo } from './evm'
+import { getThorTxData } from './evm'
 import type { ThorEvmTradeQuote } from './types'
 import { TradeType } from './types'
 
@@ -70,7 +70,7 @@ export const getCallDataFromQuote = async ({
       return swapInData
     }
     case TradeType.L1ToLongTail: {
-      const { data: dataWithAmountOut } = await getThorTxInfo({
+      const { data: dataWithAmountOut } = await getThorTxData({
         sellAsset,
         sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         memo: tcMemo,

@@ -15,6 +15,13 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import type {
+  ThorEvmTradeQuote,
+  ThornodeQuoteResponseSuccess,
+  ThorTradeQuote,
+  ThorTradeUtxoOrCosmosQuote,
+} from '../../../thorchain-utils'
+import { evm, TradeType, utxo } from '../../../thorchain-utils'
 import { addLimitToMemo } from '../../../thorchain-utils/memo/addLimitToMemo'
 import type {
   CommonTradeQuoteInput,
@@ -32,18 +39,8 @@ import {
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '../constants'
-import { getThorTxInfo as getEvmThorTxInfo } from '../evm/utils/getThorTxData'
-import type {
-  ThorEvmTradeQuote,
-  ThornodeQuoteResponseSuccess,
-  ThorTradeQuote,
-  ThorTradeUtxoOrCosmosQuote,
-} from '../types'
-import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
-import { THORCHAIN_FIXED_PRECISION } from './constants'
-import { getLimitWithManualSlippage } from './getLimitWithManualSlippage'
+import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote/getQuote'
-import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
@@ -117,7 +114,7 @@ export const getL1Quote = async (
   const recommendedMinimumCryptoBaseUnit = swapQuote.recommended_min_amount_in
     ? convertPrecision({
         value: swapQuote.recommended_min_amount_in,
-        inputExponent: THORCHAIN_FIXED_PRECISION,
+        inputExponent: THOR_PRECISION,
         outputExponent: sellAsset.precision,
       }).toFixed()
     : '0'
@@ -176,7 +173,7 @@ export const getL1Quote = async (
       quote.fees.total,
     )
     return toBaseUnit(
-      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, THORCHAIN_FIXED_PRECISION),
+      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, THOR_PRECISION),
       buyAsset.precision,
     )
   }
@@ -192,7 +189,7 @@ export const getL1Quote = async (
     )
     const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
       value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-      inputExponent: THORCHAIN_FIXED_PRECISION,
+      inputExponent: THOR_PRECISION,
       outputExponent: buyAsset.precision,
     })
 
@@ -251,7 +248,7 @@ export const getL1Quote = async (
               })
             })()
 
-            const { data, router, vault } = await getEvmThorTxInfo({
+            const { data, router, vault } = await evm.getThorTxData({
               sellAsset,
               sellAmountCryptoBaseUnit,
               memo,
@@ -261,7 +258,7 @@ export const getL1Quote = async (
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
-              inputExponent: THORCHAIN_FIXED_PRECISION,
+              inputExponent: THOR_PRECISION,
               outputExponent: buyAsset.precision,
             }).toFixed()
 
@@ -358,7 +355,7 @@ export const getL1Quote = async (
               })
             })()
 
-            const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
+            const { vault, opReturnData, pubkey } = await utxo.getThorTxData({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
               memo,
@@ -377,7 +374,7 @@ export const getL1Quote = async (
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
-              inputExponent: THORCHAIN_FIXED_PRECISION,
+              inputExponent: THOR_PRECISION,
               outputExponent: buyAsset.precision,
             }).toFixed()
 
@@ -456,7 +453,7 @@ export const getL1Quote = async (
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
-              inputExponent: THORCHAIN_FIXED_PRECISION,
+              inputExponent: THOR_PRECISION,
               outputExponent: buyAsset.precision,
             }).toFixed()
 

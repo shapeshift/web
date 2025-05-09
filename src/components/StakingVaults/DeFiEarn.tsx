@@ -1,5 +1,5 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import type { JSX } from 'react'
@@ -22,8 +22,9 @@ type DefiEarnProps = {
 } & FlexProps
 
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const flexPaddingX = { base: 4, xl: 0 }
+const flexPaddingX = { base: 2, xl: 0 }
 const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
+const tablePx = { base: 2, md: 0 }
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({ positionTableProps, header, ...rest }) => {
   const { isConnected } = useWallet().state
@@ -59,7 +60,9 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({ positionTableProps, header, 
           </Flex>
         </Flex>
       </Flex>
-      <PositionTable chainId={selectedChainId} searchQuery={searchQuery} />
+      <Box px={tablePx}>
+        <PositionTable chainId={selectedChainId} searchQuery={searchQuery} />
+      </Box>
     </Flex>
   )
 }

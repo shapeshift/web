@@ -92,8 +92,6 @@ const rfoxIconStyles = {
   },
 }
 
-const headingFlexWrap = { base: 'wrap', md: 'nowrap' } as const
-
 export const RFOXSection = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -242,18 +240,11 @@ export const RFOXSection = () => {
       <Box py={4} px={containerPaddingX}>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
-            <Heading
-              as='h2'
-              fontSize='2xl'
-              display='flex'
-              alignItems='center'
-              flexWrap={headingFlexWrap}
-              gap={2}
-            >
+            <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
               <RFOXIcon me={2} boxSize='32px' sx={rfoxIconStyles} />
               {translate('RFOX.staking')}
-              <Skeleton isLoaded={!currentApyQuery.isFetching}>
-                <Tag colorScheme='green' verticalAlign='middle' whiteSpace='nowrap'>
+              <Skeleton isLoaded={!currentApyQuery.isFetching} ml={2}>
+                <Tag colorScheme='green' verticalAlign='middle'>
                   <Amount.Percent value={currentApyQuery.data ?? 0} suffix='APY' />
                 </Tag>
               </Skeleton>

@@ -22,7 +22,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { TwirlyToggle } from '../TwirlyToggle'
 import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
-import { YouSaved } from './components/YouSaved'
+import { YouSavedOrExtra } from './components/YouSaved'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AnimatedCheck } from '@/components/AnimatedCheck'
@@ -257,9 +257,9 @@ export const SpotTradeSuccess = ({
     if (bnOrZero(surplusPercentage).lt(0.3)) return null
 
     return (
-      <YouSaved
-        totalUpsidePercentage={surplusPercentage}
-        totalUpsideCryptoPrecision={maybeExtraDeltaCryptoPrecision}
+      <YouSavedOrExtra
+        totalPercentage={surplusPercentage}
+        totalCryptoPrecision={maybeExtraDeltaCryptoPrecision}
         sellAsset={sellAsset}
         buyAsset={buyAsset}
         isExtra
@@ -310,9 +310,9 @@ export const SpotTradeSuccess = ({
               hasFeeSaving &&
               bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
                 <Box px={8}>
-                  <YouSaved
-                    totalUpsidePercentage={feesOrTotalUpsidePercentage}
-                    totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
+                  <YouSavedOrExtra
+                    totalPercentage={feesOrTotalUpsidePercentage}
+                    totalCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
                     sellAsset={sellAsset}
                     buyAsset={buyAsset}
                   />

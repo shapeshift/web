@@ -18,6 +18,38 @@ import { useAppSelector } from '@/state/store'
 
 const buttonProps = { variant: 'solid', width: 'full' }
 
+const activeAccountFlexProps = {
+  flexDir: {
+    base: 'column',
+    md: 'row',
+  },
+  alignItems: {
+    base: 'flex-start',
+    md: 'center',
+  },
+  justifyContent: {
+    base: 'flex-start',
+    md: 'space-between',
+  },
+  px: {
+    base: 2,
+    md: 0,
+  },
+  gap: {
+    base: 0,
+    md: 2,
+  },
+  py: {
+    base: 4,
+    md: 0,
+  },
+} as const
+
+const activeAccountLabelPx = {
+  base: 3,
+  md: 0,
+} as const
+
 export const RFOXHeader = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -54,8 +86,8 @@ export const RFOXHeader = () => {
     if (accountIds.length <= 1) return null
 
     return (
-      <Flex alignItems='center' gap={2}>
-        <Text translation='common.activeAccount' fontWeight='medium' />
+      <Flex {...activeAccountFlexProps}>
+        <Text translation='common.activeAccount' fontWeight='medium' px={activeAccountLabelPx} />
 
         <InlineCopyButton
           isDisabled={!stakingAssetAccountId}

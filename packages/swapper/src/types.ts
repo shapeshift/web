@@ -451,12 +451,6 @@ export type ExecuteTradeArgs = {
   chainId: ChainId
 }
 
-export type ExecuteTradeArgs2 = {
-  txToSign: UnsignedTx
-  wallet: HDWallet
-  chainId: ChainId
-}
-
 export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string

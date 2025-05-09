@@ -4,33 +4,31 @@ import type { AxiosResponse } from 'axios'
 import { omit } from 'lodash'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
-import { SwapperName } from '../../../types'
-import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { getThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
   InboundAddressResponse,
   ThorEvmTradeQuote,
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
-} from '../types'
-import { TradeType } from '../utils/longTailHelpers'
+} from '../../../thorchain-utils'
+import { evm, service, TradeType } from '../../../thorchain-utils'
+import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
+import { SwapperName } from '../../../types'
+import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
-import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
-const mockedGetThorTxInfo = vi.mocked(getThorTxInfo)
-const mockedThorService = vi.mocked(thorService)
+const mockedGetThorTxInfo = vi.mocked(evm.getThorTxData)
+const mockedThorService = vi.mocked(service)
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
 }))
 
-vi.mock('../evm/utils/getThorTxData')
-vi.mock('../utils/thorService', () => {
+vi.mock('../../../thorchain-utils/evm/getThorTxData')
+vi.mock('../../../thorchain-utils/service', () => {
   const mockAxios = {
     default: {
       create: vi.fn(() => ({

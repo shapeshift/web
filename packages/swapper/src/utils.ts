@@ -97,7 +97,10 @@ interface ProxyConstructor {
 }
 declare var Proxy: ProxyConstructor
 
-export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperName: SwapperName) =>
+export const makeSwapperAxiosServiceMonadic = (
+  service: AxiosInstance,
+  _swapperName?: SwapperName,
+) =>
   new Proxy<
     AxiosInstance,
     {

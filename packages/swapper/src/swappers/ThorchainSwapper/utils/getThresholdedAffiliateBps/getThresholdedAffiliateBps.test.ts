@@ -4,17 +4,17 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { MidgardPoolResponse } from '../../../../thorchain-utils'
+import { service } from '../../../../thorchain-utils'
 import type { SwapperConfig } from '../../../../types'
 import { ETH } from '../../../utils/test-data/assets'
-import type { MidgardPoolResponse } from '../../types'
-import { thorService } from '../thorService'
 import {
   getExpectedAffiliateFeeSellAssetThorUnit,
   getOutboundFeeInSellAssetThorBaseUnit,
   getThresholdedAffiliateBps,
 } from './getThresholdedAffiliateBps'
 
-const mockedThorService = vi.mocked(thorService)
+const mockedThorService = vi.mocked(service)
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),

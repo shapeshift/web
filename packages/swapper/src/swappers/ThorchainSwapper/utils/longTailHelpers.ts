@@ -7,8 +7,8 @@ import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, getContract } from 'viem'
 
+import type { ThornodePoolResponse } from '../../../thorchain-utils'
 import { TradeType } from '../../../thorchain-utils'
-import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
 export const getWrappedToken = (nativeAsset: Asset): Token => {

@@ -1,8 +1,8 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 
-import { ThorchainStatusMessage } from '../constants'
-import type { ThorNodeStatusResponseSuccess } from '../types'
+import { ThorchainStatusMessage } from './constants'
+import type { ThorNodeStatusResponseSuccess } from './types'
 
 export const getLatestThorTxStatusMessage = (
   response: ThorNodeStatusResponseSuccess,
@@ -51,8 +51,7 @@ export const getLatestThorTxStatusMessage = (
           : ThorchainStatusMessage.SwapCompleteAwaitingDestination
       }
       case 'swap_finalised': {
-        // from thornode api docs, "to be deprecated in favor of swap_status"
-        // see https://thornode.ninerealms.com/thorchain/doc/
+        // "to be deprecated in favor of swap_status"
         continue
       }
       case 'outbound_delay': {

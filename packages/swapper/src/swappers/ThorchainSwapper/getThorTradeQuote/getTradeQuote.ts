@@ -2,20 +2,17 @@ import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type { ThornodePoolResponse, ThorTradeQuote } from '../../../thorchain-utils'
+import { service, TradeType } from '../../../thorchain-utils'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from '../constants'
-import type { ThornodePoolResponse, ThorTradeQuote } from '../types'
+import { THORCHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
 import { getL1Quote } from '../utils/getL1quote'
 import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
-import { getTradeType, TradeType } from '../utils/longTailHelpers'
+import { getTradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '../utils/thorService'
-
-export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
-  !!quote && 'tradeType' in quote && 'vault' in quote
 
 export const getThorTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -26,8 +23,8 @@ export const getThorTradeQuote = async (
   const { sellAsset, buyAsset } = input
 
   if (
-    !thorchainSellSupportedChainIds[sellAsset.chainId] ||
-    !thorchainBuySupportedChainIds[buyAsset.chainId]
+    !THORCHAIN_SUPPORTED_CHAIN_IDS.sell.includes(sellAsset.chainId) ||
+    !THORCHAIN_SUPPORTED_CHAIN_IDS.buy.includes(buyAsset.chainId)
   ) {
     return Err(
       makeSwapErrorRight({
@@ -38,7 +35,7 @@ export const getThorTradeQuote = async (
   }
 
   const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
-  const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
+  const maybePoolsResponse = await service.get<ThornodePoolResponse[]>(
     `${daemonUrl}/thorchain/pools`,
   )
 

@@ -1,7 +1,7 @@
 import { btcChainId, dogeChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
-import { getMaxBytesLengthByChainId } from '../constants'
+import { getMaxBytesLengthByChainId } from '../../../../thorchain-utils'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 
 const AGGREGATOR_ADDRESS = '0xd31f7e39afECEc4855fecc51b693F9A0Cec49fd2'

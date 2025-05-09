@@ -6,14 +6,18 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
 
+import type {
+  ThornodeQuoteResponse,
+  ThornodeQuoteResponseSuccess,
+} from '../../../../thorchain-utils'
+import { service } from '../../../../thorchain-utils'
 import type { SwapErrorRight, SwapperDeps } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../../utils'
-import type { ThornodeQuoteResponse, ThornodeQuoteResponseSuccess } from '../../types'
-import { THORCHAIN_AFFILIATE_NAME, THORCHAIN_FIXED_PRECISION } from '../constants'
+import { THOR_PRECISION } from '../../constants'
+import { THORCHAIN_AFFILIATE_NAME } from '../constants'
 import { getThresholdedAffiliateBps } from '../getThresholdedAffiliateBps/getThresholdedAffiliateBps'
 import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '../thorService'
 
 type GetQuoteArgs = {
   sellAsset: Asset
@@ -50,9 +54,7 @@ const _getQuote = async (
 
   const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
   // All THORChain pool amounts are base 8 regardless of token precision
-  const sellAmountCryptoThorBaseUnit = bn(
-    toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),
-  )
+  const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 
   // The THORChain swap endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
   const parsedReceiveAddress =
@@ -72,7 +74,7 @@ const _getQuote = async (
     ...(streaming && { streaming_interval: streamingInterval }),
   })
   const maybeData = (
-    await thorService.get<ThornodeQuoteResponse>(`${daemonUrl}/thorchain/quote/swap?${queryString}`)
+    await service.get<ThornodeQuoteResponse>(`${daemonUrl}/thorchain/quote/swap?${queryString}`)
   ).andThen(({ data }) => Ok(data))
 
   if (maybeData.isErr()) return Err(maybeData.unwrapErr())

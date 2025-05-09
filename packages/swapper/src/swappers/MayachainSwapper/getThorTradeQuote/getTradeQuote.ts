@@ -1,18 +1,13 @@
-import { assertUnreachable, bn } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
+import type { ThornodePoolResponse, ThorTradeQuote } from '../../../thorchain-utils'
+import { service, TradeType } from '../../../thorchain-utils'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from '../constants'
-import type { ThornodePoolResponse, ThorTradeQuote } from '../types'
-import { getL1Quote } from '../utils/getL1quote'
-import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
-import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
-import { getTradeType, TradeType } from '../utils/longTailHelpers'
+import { getL1Quote } from '../../ThorchainSwapper/utils/getL1quote'
+import { assertValidTrade } from '../utils'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '../utils/thorService'
 
 export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
   !!quote && 'tradeType' in quote && 'vault' in quote
@@ -21,30 +16,17 @@ export const getThorTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
-  const thorchainSwapLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
-  const thorchainSwapL1ToLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
-  if (
-    !thorchainSellSupportedChainIds[sellAsset.chainId] ||
-    !thorchainBuySupportedChainIds[buyAsset.chainId]
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Unsupported chain',
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  const assertion = assertValidTrade({ buyAsset, sellAsset })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
-  const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/lcd/thorchain/pools`,
-  )
+  const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/lcd/mayachain/pools`
 
-  if (maybePoolsResponse.isErr()) return Err(maybePoolsResponse.unwrapErr())
+  const res = await service.get<ThornodePoolResponse[]>(url)
+  if (res.isErr()) return Err(res.unwrapErr())
 
-  const { data: poolsResponse } = maybePoolsResponse.unwrap()
+  const { data: poolsResponse } = res.unwrap()
 
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
@@ -52,30 +34,6 @@ export const getThorTradeQuote = async (
   // If one or both of these are undefined it means we are tradeing one or more long-tail ERC20 tokens
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
-
-  const tradeType = thorchainSwapLongtailEnabled
-    ? getTradeType(sellAssetPool, buyAssetPool, sellPoolId, buyPoolId)
-    : TradeType.L1ToL1
-  if (tradeType === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Unknown trade type',
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  if (
-    (!buyPoolId && tradeType !== TradeType.L1ToLongTail) ||
-    (!sellPoolId && tradeType !== TradeType.LongTailToL1)
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Unsupported trade pair',
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
 
   const streamingInterval =
     sellAssetPool && buyAssetPool
@@ -93,19 +51,5 @@ export const getThorTradeQuote = async (
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10
 
-  switch (tradeType) {
-    case TradeType.L1ToL1:
-      return getL1Quote(input, deps, streamingInterval, tradeType)
-    case TradeType.LongTailToL1:
-      return getLongtailToL1Quote(input, deps, streamingInterval)
-    case TradeType.L1ToLongTail:
-      if (!thorchainSwapL1ToLongtailEnabled)
-        return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
-
-      return getL1ToLongtailQuote(input, deps, streamingInterval)
-    case TradeType.LongTailToLongTail:
-      return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
-    default:
-      return assertUnreachable(tradeType)
-  }
+  return getL1Quote(input, deps, streamingInterval, TradeType.L1ToL1)
 }

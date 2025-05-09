@@ -5,15 +5,17 @@ import assert from 'assert'
 import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
 
-import { assertAndProcessMemo } from '../../../thorchain-utils'
-import { addAggregatorAddressToMemo } from '../../../thorchain-utils/memo/addAggregatorAddressToMemo'
-import { addFinalAssetAddressToMemo } from '../../../thorchain-utils/memo/addFinalAssetAddressToMemo'
-import { addFinalAssetLimitToMemo } from '../../../thorchain-utils/memo/addFinalAssetLimitToMemo'
-import { getMaxBytesLengthByChainId } from '../constants'
-import { MEMO_PART_DELIMITER } from './constants'
-import { getShortenedFinalAssetLimit } from './getShortenedFinalAssetLimit'
-import { getUniqueAddressSubstring } from './getUniqueAddressSubstring'
-import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
+import {
+  addAggregatorAddressToMemo,
+  addFinalAssetAddressToMemo,
+  addFinalAssetLimitToMemo,
+  assertAndProcessMemo,
+  getMaxBytesLengthByChainId,
+  MEMO_PART_DELIMITER,
+} from '../../../../thorchain-utils'
+import { getShortenedFinalAssetLimit } from '../getShortenedFinalAssetLimit/getShortenedFinalAssetLimit'
+import { getUniqueAddressSubstring } from '../getUniqueAddressSubstring/getUniqueAddressSubstring'
+import { shortenedNativeAssetNameByNativeAssetName } from '../longTailHelpers'
 
 export const addL1ToLongtailPartsToMemo = ({
   sellAssetChainId,

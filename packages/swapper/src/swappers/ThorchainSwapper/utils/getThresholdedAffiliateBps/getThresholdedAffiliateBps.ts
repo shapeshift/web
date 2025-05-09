@@ -2,12 +2,12 @@ import { thorchain } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, convertBasisPointsToDecimalPercentage, convertPrecision } from '@shapeshiftoss/utils'
 
+import type { MidgardPoolResponse } from '../../../../thorchain-utils'
+import { service } from '../../../../thorchain-utils'
 import type { SwapperConfig } from '../../../../types'
-import type { MidgardPoolResponse } from '../../types'
-import { THORCHAIN_FIXED_PRECISION } from '../constants'
-import { isRune } from '../isRune/isRune'
+import { isRune } from '../../../ThorchainSwapper'
+import { THOR_PRECISION } from '../../constants'
 import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '../thorService'
 
 export const getOutboundFeeInSellAssetThorBaseUnit = (runePerAsset: string) => {
   return bn(thorchain.NATIVE_FEE).dividedBy(runePerAsset)
@@ -21,7 +21,7 @@ export const getExpectedAffiliateFeeSellAssetThorUnit = (
   const sellAmountThorUnit = convertPrecision({
     value: sellAmountCryptoBaseUnit,
     inputExponent: sellAsset.precision,
-    outputExponent: THORCHAIN_FIXED_PRECISION,
+    outputExponent: THOR_PRECISION,
   })
 
   const affiliatePercent = convertBasisPointsToDecimalPercentage(affiliateBps)
@@ -48,10 +48,9 @@ export const getThresholdedAffiliateBps = async ({
     const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
     // get pool data for the sell asset
-    const poolResult = await thorService.get<MidgardPoolResponse>(
-      `${midgardUrl}/pool/${sellPoolId}`,
-    )
+    const poolResult = await service.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
     if (poolResult.isErr()) throw poolResult.unwrapErr()
+
     const pool = poolResult.unwrap().data
 
     // calculate the rune outbound fee denominated in the sell asset, in thor units

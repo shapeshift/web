@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { addFinalAssetLimitToMemo } from '../../../thorchain-utils/memo/addFinalAssetLimitToMemo'
+import { addFinalAssetLimitToMemo } from '../../../../thorchain-utils'
 import { getShortenedFinalAssetLimit } from './getShortenedFinalAssetLimit'
 
 const RECEIVE_ADDRESS = '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6'

@@ -6,7 +6,7 @@ import type { SwapperConfig, TradeQuote, TradeQuoteStep } from '../../types'
 import { getCallDataFromQuote } from '../getCallDataFromQuote'
 import type { ThorEvmTradeQuote } from '../types'
 import { TradeType } from '../types'
-import { getThorTxInfo } from './getThorTxData'
+import { getThorTxData } from './getThorTxData'
 
 export const getEvmData = async ({
   config,
@@ -98,7 +98,7 @@ export const getEvmData = async ({
         'expected expectedAmountOut to be a positive amount',
       )
 
-      const { router: updatedRouter } = await getThorTxInfo({
+      const { router: updatedRouter } = await getThorTxData({
         sellAsset,
         sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         memo: tcMemo,

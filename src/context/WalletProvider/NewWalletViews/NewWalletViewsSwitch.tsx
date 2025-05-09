@@ -93,7 +93,7 @@ export const NewWalletViewsSwitch = () => {
   // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:
   // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
-  const [isLargerThanMd] = useMediaQuery(`(min-width: 768px)`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const navigate = useNavigate()
   const location = useLocation()

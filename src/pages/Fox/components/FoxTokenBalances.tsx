@@ -24,6 +24,11 @@ const hstackProps: StackProps = {
 
 const accountRowButtonProps = {
   justifyContent: 'space-between',
+  sx: {
+    '.account-entry-row__amounts': {
+      pl: 2,
+    },
+  },
 } as const
 
 const ALL_FILTER_KEY = 'All'

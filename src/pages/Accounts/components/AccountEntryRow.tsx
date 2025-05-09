@@ -115,7 +115,13 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
           {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
-        <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
+        <Flex
+          className='account-entry-row__amounts'
+          flex={1}
+          justifyContent='flex-end'
+          alignItems='flex-end'
+          direction='column'
+        >
           <Amount.Fiat value={userCurrencyBalance} />
           <Amount.Crypto
             value={cryptoBalance}

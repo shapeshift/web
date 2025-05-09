@@ -7,6 +7,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Tag,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import type { FC } from 'react'
@@ -21,6 +22,7 @@ import { OnboardingRoutes } from './config'
 import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const selfCustodyRedirect = <Navigate to='/self-custody' replace />
 
@@ -29,6 +31,8 @@ export type NativeOnboardingModalProps = { browserNavigate: NavigateFunction }
 export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNavigate }) => {
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => {
       const element = <route.component browserNavigate={browserNavigate} />
@@ -43,7 +47,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   }, [closeModal])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
+    <Modal isOpen={isOpen} onClose={handleClose} size={isLargerThanMd ? undefined : 'full'}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader display='flex' alignItems='center' justifyContent='space-between'>

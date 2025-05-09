@@ -52,6 +52,10 @@ const INITIAL_WALLET_MODAL_ROUTE = '/'
 
 type RightPanelProps = Omit<RightPanelContentProps, 'location'>
 
+const modalSize = {
+  base: 'full',
+}
+
 const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPanelProps) => {
   const location = useLocation()
   const {
@@ -253,7 +257,7 @@ export const NewWalletViewsSwitch = () => {
     [handleWalletSelect, isLoading, selectedWalletId],
   )
 
-  const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const Body = useCallback(() => {
@@ -264,12 +268,12 @@ export const NewWalletViewsSwitch = () => {
       /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
     return (
-      <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
+      <Box flex={1} bg={bodyBgColor} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
         {!isRootRoute || !isLargerThanMd ? (
           <Box
             position='absolute'
             left={3}
-            top={3}
+            top={2}
             zIndex={1}
             bg={buttonContainerBgColor}
             borderRadius='2xl'
@@ -321,20 +325,21 @@ export const NewWalletViewsSwitch = () => {
         isCentered
         trapFocus={false}
         closeOnOverlayClick={false}
+        size={!isLargerThanMd ? modalSize : undefined}
       >
         <ModalOverlay />
         <ModalContent
           justifyContent='center'
           overflow='hidden'
-          borderRadius='xl'
+          borderRadius={!isLargerThanMd ? 'none' : 'xl'}
           maxW='900px'
-          mx='4'
+          bg={!isLargerThanMd ? bodyBgColor : undefined}
         >
-          <Box position='relative'>
+          <Box position={isLargerThanMd ? 'relative' : 'initial'}>
             <Box
               position='absolute'
-              right={3}
-              top={3}
+              right={!isLargerThanMd ? 3 : 3}
+              top={!isLargerThanMd ? 3 : 3}
               zIndex={1}
               bg={buttonContainerBgColor}
               borderRadius='full'

@@ -40,7 +40,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
-const sectionsWidth = { base: 'full', md: '300px' }
+const sectionsWidth = { base: '250px', md: '300px' }
 const containerWidth = {
   base: 'full',
 }
@@ -320,7 +320,13 @@ export const NewWalletViewsSwitch = () => {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent justifyContent='center' overflow='hidden' borderRadius='xl' maxW='900px'>
+        <ModalContent
+          justifyContent='center'
+          overflow='hidden'
+          borderRadius='xl'
+          maxW='900px'
+          mx='4'
+        >
           <Box position='relative'>
             <Box
               position='absolute'

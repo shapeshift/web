@@ -79,7 +79,7 @@ export const NativeTestPhrase = () => {
 
       const targetWordIndex = shuffledNumbers[testCount.current]
       const targetWord = words[targetWordIndex]
-      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 3)
       randomWords.push(targetWord)
       randomWords = shuffle(randomWords)
       const correctAnswerIndex = randomWords.indexOf(targetWord)
@@ -140,7 +140,7 @@ export const NativeTestPhrase = () => {
           mb={12}
         />
         <VStack spacing={6} alignItems='stretch'>
-          <Box borderRadius='xl' p={6} position='relative' pb={20}>
+          <Box borderRadius='xl' p={6} position='relative' pb={4}>
             <CText
               textAlign='center'
               position='absolute'
@@ -200,7 +200,7 @@ export const NativeTestPhrase = () => {
           </Box>
         </VStack>
 
-        <Flex justifyContent='center' mt={6}>
+        <Flex justifyContent='center' mt={2}>
           <Flex gap={2} justify='center'>
             {Array.from({ length: TEST_COUNT_REQUIRED }).map((_, index) => (
               <Box

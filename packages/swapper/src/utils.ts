@@ -10,7 +10,6 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
@@ -23,6 +22,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
+  TradeStatus,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -196,14 +196,7 @@ export const checkSafeTransactionStatus = async ({
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
-}): Promise<
-  | {
-      status: TxStatus
-      buyTxHash: string | undefined
-      message: string | [string, InterpolationOptions] | undefined
-    }
-  | undefined
-> => {
+}): Promise<TradeStatus | undefined> => {
   const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
     accountId,
     fetchIsSmartContractAddressQuery,
@@ -253,11 +246,7 @@ export const checkEvmSwapStatus = async ({
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
-}): Promise<{
-  status: TxStatus
-  buyTxHash: string | undefined
-  message: string | [string, InterpolationOptions] | undefined
-}> => {
+}): Promise<TradeStatus> => {
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       accountId,
@@ -325,11 +314,7 @@ export const checkSolanaSwapStatus = async ({
   txHash: string
   accountId: AccountId | undefined
   assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
-}): Promise<{
-  status: TxStatus
-  buyTxHash: string | undefined
-  message: string | [string, InterpolationOptions] | undefined
-}> => {
+}): Promise<TradeStatus> => {
   try {
     if (!accountId) throw new Error('Missing accountId')
 

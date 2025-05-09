@@ -2,8 +2,6 @@ import type { EvmChainId, OrderCreation } from '@shapeshiftoss/types'
 import { BuyTokenDestination, SellTokenSource, SigningScheme } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
-import type { Result } from '@sniptt/monads/build'
-import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
@@ -12,18 +10,7 @@ import {
   getAffiliateAppDataFragmentByChainId,
   getFullAppData,
 } from '../../cowswap-utils'
-import type {
-  CommonTradeQuoteInput,
-  EvmMessageToSign,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmMessageArgs,
-  SwapErrorRight,
-  SwapperApi,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { SwapperName } from '../../types'
 import {
   checkSafeTransactionStatus,
@@ -41,10 +28,7 @@ import { deductAffiliateFeesFromAmount, deductSlippageFromAmount } from './utils
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
 export const cowApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    { config },
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, { config }) => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInputBase, config)
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -55,10 +39,7 @@ export const cowApi: SwapperApi = {
       return [tradeQuote]
     })
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    { config },
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, { config }) => {
     const tradeRateResult = await getCowSwapTradeRate(input as GetEvmTradeRateInput, config)
 
     return tradeRateResult.map(tradeRate => {
@@ -69,11 +50,7 @@ export const cowApi: SwapperApi = {
       return [tradeRate]
     })
   },
-
-  getUnsignedEvmMessage: async ({
-    tradeQuote,
-    stepIndex,
-  }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
+  getUnsignedEvmMessage: async ({ tradeQuote, stepIndex }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -140,11 +117,10 @@ export const cowApi: SwapperApi = {
 
     return { chainId: sellAsset.chainId, orderToSign }
   },
-  getEvmTransactionFees: (_args: GetUnsignedEvmMessageArgs): Promise<string> => {
+  getEvmTransactionFees: _args => {
     // No transaction fees for CoW
     return Promise.resolve('0')
   },
-
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID
     chainId,
@@ -152,11 +128,7 @@ export const cowApi: SwapperApi = {
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
     config,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       txHash,
       chainId,

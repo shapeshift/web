@@ -58,6 +58,10 @@ export const useIsSweepNeededQuery = ({ enabled = true, ...input }: UseIsSweepNe
   const isSweepNeededQuery = useQuery({
     queryKey: isSweepNeededQueryKey,
     queryFn: enabled && isGetSweepNeededInput(input) ? () => getIsSweepNeeded(input) : skipToken,
+    // Ensure we go stale immediately and have no garbage collection, so it's always re-fetched
+    // Useful after a sweep, where we come back to the same component as before which checks for isSweepNeeded again
+    staleTime: 0,
+    gcTime: 0,
   })
 
   return isSweepNeededQuery

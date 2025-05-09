@@ -1,27 +1,11 @@
-import { cosmosAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import type { SignTx, thorchain } from '@shapeshiftoss/chain-adapters'
+import { cosmosAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { thorchain } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
 import axios from 'axios'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
-import type {
-  CommonTradeQuoteInput,
-  CosmosSdkFeeData,
-  GetTradeRateInput,
-  GetUnsignedCosmosSdkTransactionArgs,
-  GetUnsignedEvmTransactionArgs,
-  GetUnsignedUtxoTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-  UtxoFeeData,
-} from '../../types'
+import type { CosmosSdkFeeData, SwapperApi, UtxoFeeData } from '../../types'
 import {
   checkSafeTransactionStatus,
   getExecutableTradeStep,
@@ -37,18 +21,12 @@ import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
 import { getThorTxInfo as getUtxoThorTxInfo } from './utxo/utils/getThorTxData'
 
 export const thorchainApi: SwapperApi = {
-  getTradeQuote: (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: (input, deps) => {
     const { affiliateBps } = input
 
     return getThorTradeQuote({ ...input, affiliateBps }, deps)
   },
-  getTradeRate: (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: (input, deps) => {
     const { affiliateBps } = input
 
     return getThorTradeRate({ ...input, affiliateBps }, deps)
@@ -60,7 +38,7 @@ export const thorchainApi: SwapperApi = {
     supportsEIP1559,
     assertGetEvmChainAdapter,
     config,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -86,7 +64,7 @@ export const thorchainApi: SwapperApi = {
     supportsEIP1559,
     assertGetEvmChainAdapter,
     config,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -105,7 +83,6 @@ export const thorchainApi: SwapperApi = {
 
     return feeData.networkFeeCryptoBaseUnit
   },
-
   getUnsignedUtxoTransaction: async ({
     tradeQuote,
     stepIndex,
@@ -113,7 +90,7 @@ export const thorchainApi: SwapperApi = {
     accountType,
     assertGetUtxoChainAdapter,
     config,
-  }: GetUnsignedUtxoTransactionArgs): Promise<SignTx<UtxoChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { memo } = tradeQuote as ThorTradeQuote
@@ -151,7 +128,7 @@ export const thorchainApi: SwapperApi = {
     xpub,
     assertGetUtxoChainAdapter,
     config,
-  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { memo } = tradeQuote as ThorTradeQuote
@@ -179,14 +156,13 @@ export const thorchainApi: SwapperApi = {
 
     return fast.txFee
   },
-
   getUnsignedCosmosSdkTransaction: async ({
     tradeQuote,
     stepIndex,
     from,
     config,
     assertGetCosmosSdkChainAdapter,
-  }: GetUnsignedCosmosSdkTransactionArgs): Promise<SignTx<CosmosSdkChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { memo } = tradeQuote as ThorTradeQuote
@@ -200,8 +176,9 @@ export const thorchainApi: SwapperApi = {
     const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit
     const fee = feeData.networkFeeCryptoBaseUnit ?? '0'
 
-    switch (sellAsset.chainId) {
-      case thorchainChainId: {
+    switch (sellAsset.assetId) {
+      case thorchainAssetId:
+      case tcyAssetId: {
         const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId) as thorchain.ChainAdapter
 
         const { txToSign } = await adapter.buildDepositTransaction({
@@ -209,7 +186,7 @@ export const thorchainApi: SwapperApi = {
           from,
           value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           memo,
-          chainSpecific: { gas, fee },
+          chainSpecific: { gas, fee, coin: tcyAssetId ? 'THOR.TCY' : 'THOR.RUNE' },
         })
 
         return txToSign
@@ -244,7 +221,7 @@ export const thorchainApi: SwapperApi = {
     stepIndex,
     tradeQuote,
     assertGetCosmosSdkChainAdapter,
-  }): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -257,7 +234,6 @@ export const thorchainApi: SwapperApi = {
 
     return fast.txFee
   },
-
   checkTradeStatus: async ({
     txHash,
     chainId,
@@ -265,11 +241,7 @@ export const thorchainApi: SwapperApi = {
     fetchIsSmartContractAddressQuery,
     config,
     assertGetEvmChainAdapter,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     try {
       const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
         txHash,
@@ -293,10 +265,10 @@ export const thorchainApi: SwapperApi = {
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
       const [{ data: txData }, { data: txStatusData }] = await Promise.all([
         axios.get<ThornodeTxResponse>(
-          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/thorchain/tx/${thorTxHash}`,
         ),
         axios.get<ThornodeStatusResponse>(
-          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/thorchain/tx/status/${thorTxHash}`,
         ),
       ])
 

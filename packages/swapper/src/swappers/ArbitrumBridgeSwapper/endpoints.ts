@@ -2,28 +2,14 @@ import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } fr
 import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
 import type { ethers as ethersv5 } from 'ethers5'
-import type { InterpolationOptions } from 'node-polyglot'
 
-import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import {
   checkEvmSwapStatus,
   getExecutableTradeStep,
@@ -92,10 +78,7 @@ export const getParentToChildMessageDataFromParentTxHash = async ({
 }
 
 export const arbitrumBridgeApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, deps) => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -112,10 +95,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       return [tradeQuote]
     })
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, deps) => {
     const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps)
 
     return tradeRateResult.map(tradeRate => {
@@ -133,14 +113,13 @@ export const arbitrumBridgeApi: SwapperApi = {
       return [tradeRate]
     })
   },
-
   getUnsignedEvmTransaction: async ({
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { receiveAddress } = tradeQuote
@@ -198,7 +177,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { receiveAddress } = tradeQuote
@@ -240,18 +219,13 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     return networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: async ({
     txHash,
     chainId,
     assertGetEvmChainAdapter,
     accountId,
     fetchIsSmartContractAddressQuery,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const swapTxStatus = await checkEvmSwapStatus({
       txHash,
       chainId,

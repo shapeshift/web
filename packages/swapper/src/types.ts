@@ -469,6 +469,12 @@ export type CheckTradeStatusInput = {
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps
 
+export type TradeStatus = {
+  status: TxStatus
+  buyTxHash: string | undefined
+  message: string | [string, InterpolationOptions] | undefined
+}
+
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
 export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
@@ -506,11 +512,8 @@ export type Swapper = {
 }
 
 export type SwapperApi = {
-  checkTradeStatus: (input: CheckTradeStatusInput) => Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }>
+  checkTradeStatus: (input: CheckTradeStatusInput) => Promise<TradeStatus>
+
   getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
@@ -575,11 +578,8 @@ export enum TradeExecutionEvent {
 }
 
 export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
-export type StatusArgs = {
+export type StatusArgs = TradeStatus & {
   stepIndex: number
-  status: TxStatus
-  message?: string | [string, InterpolationOptions]
-  buyTxHash?: string
 }
 
 export type TradeExecutionEventMap = {

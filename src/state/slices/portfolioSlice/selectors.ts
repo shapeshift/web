@@ -869,6 +869,32 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
   },
 )
 
+export const selectAccountIdsByAccountNumberAndChainId = createSelector(
+  selectEnabledWalletAccountIds,
+  selectPortfolioAccountMetadata,
+  (
+    walletAccountIds,
+    accountMetadata,
+  ): PartialRecord<number, PartialRecord<ChainId, AccountId[]>> => {
+    const result: PartialRecord<number, PartialRecord<ChainId, AccountId[]>> = {}
+
+    for (const accountId of walletAccountIds) {
+      const { chainId } = fromAccountId(accountId)
+      const { accountNumber } = accountMetadata[accountId].bip44Params
+
+      const entry = result[accountNumber]
+
+      if (entry === undefined) {
+        result[accountNumber] = { [chainId]: [accountId] }
+      } else {
+        entry[chainId] = [...(entry[chainId] ?? []), accountId]
+      }
+    }
+
+    return result
+  },
+)
+
 export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,

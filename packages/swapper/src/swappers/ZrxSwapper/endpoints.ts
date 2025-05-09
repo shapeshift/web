@@ -1,32 +1,15 @@
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
-import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getZrxTradeRate } from './getZrxTradeRate/getZrxTradeRate'
 
 export const zrxApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
@@ -36,10 +19,7 @@ export const zrxApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    { assetsById, config }: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, { assetsById, config }) => {
     const tradeRateResult = await getZrxTradeRate(
       input as GetEvmTradeRateInput,
       assetsById,
@@ -55,7 +35,7 @@ export const zrxApi: SwapperApi = {
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -100,7 +80,7 @@ export const zrxApi: SwapperApi = {
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -129,6 +109,5 @@ export const zrxApi: SwapperApi = {
 
     return feeData.networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: checkEvmSwapStatus,
 }

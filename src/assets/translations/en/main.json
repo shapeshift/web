@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
     "free": "Free",
@@ -194,7 +195,8 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "dustAmount": "Dust Amount"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -719,9 +721,11 @@
         "loanRepaymentRefundNative": "Loan Repayment + Refund",
         "out": "Outbound Received",
         "refund": "Refund",
+        "stake": "Stake",
         "swapOut": "Swap Received",
         "swap": "Trade",
         "swapRefund": "Swap Refund",
+        "unstake": "Unstake",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"
@@ -2787,7 +2791,6 @@
   "TCY": {
     "stake": "Stake",
     "unstake": "Unstake",
-    "claim": "Claim",
     "staking": "TCY Staking",
     "myPosition": "My Position",
     "myStakedBalance": "My Staked Balance",
@@ -2799,6 +2802,11 @@
     "timeStaked": "Time Staked",
     "timeStakedHelper": "The amount of time you have staked your %{symbol}",
     "stakingReward": "Staking Reward",
+    "claimsEmpty": {
+      "emptyTitle": "No claims available",
+      "emptyBody": "It appears you have no TCY claims available. Try with another wallet?",
+      "connectWalletBody": "Connect your wallet to see your TCY claims."
+    },
     "claimSelect": {
       "unavailableClaims": "Unavailable Claims",
       "notEligible": "Not Eligible"
@@ -2806,17 +2814,22 @@
     "claimStatus": {
       "pendingTitle": "Claim is pending",
       "back": "Back",
+      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
       "viewTransaction": "View Transaction",
       "successTitle": "Claim is successful",
-      "successSubtitle": "You have successfully claimed {claimedAmount} TCY",
+      "successSubtitle": "You have successfully claimed %{amount} TCY",
       "goBack": "Go Back",
       "failedTitle": "Something went wrong",
       "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
-      "confirmTitle": "Confirm",
+      "dustAmountTooltip": "A tiny amount of %{symbol} is required to identify your address on the THOR network",
+      "networkFeeTooltip": "This is the %{symbol} fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift",
+      "missingFundsForGasAlert": "Not enough %{symbol}, you need at least %{amount} %{symbol} to complete transaction. We recommend sending a bit more covering for fluctuating network fees.",
+      "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
-      "confirmAndClaim": "Confirm & Claim"
+      "confirmAndClaim": "Claim & Stake",
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -2826,6 +2839,48 @@
       "useWalletAddress": "Use wallet address",
       "useCustomAddress": "Use custom address",
       "helperText": "This is where your TCY will be sent."
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} Address",
+      "helperText": "This is the address that will be used to send your claim transaction."
+    },
+    "stakeInput": {
+      "amount": "Amount",
+      "networkFee": "Network Fee",
+      "networkFeeTooltip": "Network Fee",
+      "stake": "Stake",
+      "amountPlaceholder": "Enter amount"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Confirm Stake",
+      "confirmAndStake": "Confirm & Stake"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirm Unstake",
+      "confirmAndUnstake": "Confirm & Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake is pending",
+      "pendingSubtitle": "We are processing your unstake for %{amount} TCY",
+      "successTitle": "Unstake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your unstake has failed. Please try again.",
+      "successSubtitle": "You have successfully unstaked %{amount} TCY",
+      "goBack": "Go Back"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Stake is pending",
+      "pendingSubtitle": "We are processing your stake for %{amount} TCY",
+      "successTitle": "Stake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your stake has failed. Please try again.",
+      "viewTransaction": "View Transaction",
+      "successSubtitle": "You have successfully staked %{amount} TCY",
+      "goBack": "Go Back"
+    },
+    "cta": {
+      "title": "You have TCY claims available!",
+      "button": "Check Claims"
     }
   },
   "markets": {

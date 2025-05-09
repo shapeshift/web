@@ -1,18 +1,8 @@
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import type { InterpolationOptions } from 'node-polyglot'
 
-import type {
-  GetUnsignedEvmTransactionArgs,
-  GetUnsignedSolanaTransactionArgs,
-  GetUnsignedUtxoTransactionArgs,
-  SwapperApi,
-  UtxoFeeData,
-} from '../../types'
+import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { ChainflipStatusMessage } from './constants'
@@ -35,7 +25,7 @@ export const chainflipApi: SwapperApi = {
     tradeQuote,
     assertGetEvmChainAdapter,
     supportsEIP1559,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -80,7 +70,7 @@ export const chainflipApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -110,14 +100,13 @@ export const chainflipApi: SwapperApi = {
 
     return networkFeeCryptoBaseUnit
   },
-
   getUnsignedUtxoTransaction: ({
     stepIndex,
     tradeQuote,
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
-  }: GetUnsignedUtxoTransactionArgs): Promise<SignTx<UtxoChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -146,12 +135,7 @@ export const chainflipApi: SwapperApi = {
       },
     })
   },
-  getUtxoTransactionFees: async ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    assertGetUtxoChainAdapter,
-  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -172,13 +156,12 @@ export const chainflipApi: SwapperApi = {
 
     return fast.txFee
   },
-
   getUnsignedSolanaTransaction: async ({
     stepIndex,
     tradeQuote,
     from,
     assertGetSolanaChainAdapter,
-  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -222,7 +205,7 @@ export const chainflipApi: SwapperApi = {
     tradeQuote,
     from,
     assertGetSolanaChainAdapter,
-  }: GetUnsignedSolanaTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -250,15 +233,7 @@ export const chainflipApi: SwapperApi = {
 
     return fast.txFee
   },
-
-  checkTradeStatus: async ({
-    config,
-    quoteId,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  checkTradeStatus: async ({ config, quoteId }) => {
     const swap = tradeQuoteMetadata.get(quoteId)
     if (!swap) throw Error(`Missing trade quote metadata for quoteId ${quoteId}`)
     // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap

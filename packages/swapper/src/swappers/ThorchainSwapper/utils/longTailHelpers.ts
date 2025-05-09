@@ -45,10 +45,10 @@ export function getTradeType(
 ): TradeType | undefined {
   switch (true) {
     case !!sellAssetPool && !!buyAssetPool:
-    case !!buyAssetPool && !sellAssetPool && sellPoolId === 'THOR.RUNE':
-    case !!sellAssetPool && !buyAssetPool && buyPoolId === 'THOR.RUNE':
+    case !!buyAssetPool && !sellAssetPool && ['THOR.RUNE', 'THOR.TCY'].includes(sellPoolId ?? ''):
+    case !!sellAssetPool && !buyAssetPool && ['THOR.RUNE', 'THOR.TCY'].includes(buyPoolId ?? ''):
       return TradeType.L1ToL1
-    case sellPoolId === 'THOR.RUNE' && !buyAssetPool:
+    case ['THOR.RUNE', 'THOR.TCY'].includes(sellPoolId ?? '') && !buyAssetPool:
       return TradeType.L1ToLongTail
     case !!sellAssetPool && !buyAssetPool:
       return TradeType.L1ToLongTail

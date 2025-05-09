@@ -14,6 +14,7 @@ import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
 import { PortalsMarketService } from './portals/portals'
+import { TcyMarketService } from './tcy/tcy'
 import { ZerionMarketService } from './zerion/zerion'
 
 import type { AssetService } from '@/lib/asset-service'
@@ -44,6 +45,7 @@ export class MarketServiceManager {
       new CoinCapMarketService(),
       new PortalsMarketService(),
       new FoxyMarketService({ providerUrls, provider }),
+      new TcyMarketService(),
       new ZerionMarketService(),
       // TODO: Debank market provider
     ]

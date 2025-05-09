@@ -1,27 +1,12 @@
 import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
 import { getStepTransaction } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
-import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import type { InterpolationOptions } from 'node-polyglot'
 
-import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { TradeQuoteError } from '../../types'
 import {
   checkSafeTransactionStatus,
@@ -41,10 +26,7 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, deps) => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -81,10 +63,7 @@ export const lifiApi: SwapperApi = {
       }),
     )
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, deps) => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -123,7 +102,7 @@ export const lifiApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     configureLiFi()
 
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
@@ -183,7 +162,7 @@ export const lifiApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     configureLiFi()
 
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
@@ -228,7 +207,6 @@ export const lifiApi: SwapperApi = {
 
     return networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: async ({
     quoteId,
     txHash,
@@ -237,11 +215,7 @@ export const lifiApi: SwapperApi = {
     accountId,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
 

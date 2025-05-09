@@ -162,7 +162,20 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
           this.providers.http instanceof unchained.mayachain.V1Api
         ) {
           const data = await this.providers.http.getAccount({ pubkey })
-          return { ...data, delegations: [], redelegations: [], undelegations: [], rewards: [] }
+
+          const assets = data.assets.map<CosmosSDKToken>(asset => ({
+            amount: asset.amount,
+            assetId: generateAssetIdFromCosmosSdkDenom(asset.denom, this.getFeeAssetId()),
+          }))
+
+          return {
+            ...data,
+            assets,
+            delegations: [],
+            redelegations: [],
+            undelegations: [],
+            rewards: [],
+          }
         }
 
         const data = await this.providers.http.getAccount({ pubkey })

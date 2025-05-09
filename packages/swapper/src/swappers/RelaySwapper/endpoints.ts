@@ -1,24 +1,12 @@
 import type { SignTx } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
-import type {
-  CommonTradeQuoteInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  GetUnsignedUtxoTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { SwapperApi } from '../../types'
 import {
   checkSafeTransactionStatus,
   getExecutableTradeStep,
@@ -28,29 +16,24 @@ import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
+import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { relayService } from './utils/relayService'
 import type { RelayStatus } from './utils/types'
 
+// Keep track of the trades we already notified the relay indexer about
+const txIndexingMap: Map<string, boolean> = new Map()
+const txByQuoteIdMap: Map<string, SignTx<EvmChainId>> = new Map()
+
 export const relayApi: SwapperApi = {
-  getTradeQuote: (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    return getTradeQuote(input, deps, chainIdToRelayChainId)
-  },
-  getTradeRate: (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    return getTradeRate(input, deps, chainIdToRelayChainId)
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input, deps, chainIdToRelayChainId),
+  getTradeRate: (input, deps) => getTradeRate(input, deps, chainIdToRelayChainId),
   getEvmTransactionFees: async ({
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -72,8 +55,6 @@ export const relayApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    console.log({ data })
-
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
     return feeData.networkFeeCryptoBaseUnit
@@ -84,7 +65,7 @@ export const relayApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -108,7 +89,7 @@ export const relayApi: SwapperApi = {
 
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
-    return adapter.buildCustomApiTx({
+    const unsignedTx = await adapter.buildCustomApiTx({
       accountNumber,
       data,
       from,
@@ -118,6 +99,10 @@ export const relayApi: SwapperApi = {
       // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for total gas used.
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
     })
+
+    txByQuoteIdMap.set(tradeQuote.id, unsignedTx)
+
+    return unsignedTx
   },
   getUnsignedUtxoTransaction: async ({
     stepIndex,
@@ -125,7 +110,7 @@ export const relayApi: SwapperApi = {
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
-  }: GetUnsignedUtxoTransactionArgs): Promise<SignTx<UtxoChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -159,12 +144,7 @@ export const relayApi: SwapperApi = {
       },
     })
   },
-  getUtxoTransactionFees: async ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    assertGetUtxoChainAdapter,
-  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -198,11 +178,7 @@ export const relayApi: SwapperApi = {
     config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       txHash,
       chainId,
@@ -218,6 +194,25 @@ export const relayApi: SwapperApi = {
       // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
       // Mutate txHash and continue with regular status check flow.
       txHash = maybeSafeTransactionStatus.buyTxHash
+    }
+
+    if (!txIndexingMap.has(quoteId) && txByQuoteIdMap.has(quoteId) && isEvmChainId(chainId)) {
+      const got = txByQuoteIdMap.get(quoteId)
+      const relayTxParam = {
+        ...got,
+        txHash,
+      }
+      // We don't need to handle the response here, we just want to notify the relay indexer
+      await notifyTransactionIndexing(
+        {
+          requestId: quoteId,
+          chainId: chainIdToRelayChainId[chainId].toString(),
+          tx: JSON.stringify(relayTxParam),
+        },
+        config,
+      )
+
+      txIndexingMap.set(quoteId, true)
     }
 
     const maybeStatusResponse = await relayService.get<RelayStatus>(

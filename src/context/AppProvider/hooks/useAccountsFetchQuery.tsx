@@ -37,20 +37,26 @@ export const useAccountsFetchQuery = () => {
     return enabledWalletAccountIds.length > 0
   }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
 
+  // reset portfolio and tx history api states to ensure refetch on wallet switch
+  useEffect(() => {
+    if (!wallet) return
+
+    dispatch(portfolioApi.util.resetApiState())
+    dispatch(txHistoryApi.util.resetApiState())
+  }, [dispatch, wallet])
+
   // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
   // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
   useEffect(() => {
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    // Note no force refetch here - only fetch Tx history once per account
     enabledWalletAccountIds.forEach(accountId => {
       dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     })
 
-    // Note no force refetch here - only fetch Tx history once per account
-    enabledWalletAccountIds.map(requestedAccountId =>
-      dispatch(getAllTxHistory.initiate(requestedAccountId)),
-    )
+    enabledWalletAccountIds.forEach(requestedAccountId => {
+      dispatch(getAllTxHistory.initiate(requestedAccountId))
+    })
   }, [dispatch, enabledWalletAccountIds])
 
   const queryFn = useCallback(async () => {

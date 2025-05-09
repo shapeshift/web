@@ -1,30 +1,13 @@
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 
-import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
 
 export const portalsApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    { config, assertGetEvmChainAdapter }: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, { config, assertGetEvmChainAdapter }) => {
     const tradeQuoteResult = await getPortalsTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
@@ -33,10 +16,7 @@ export const portalsApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    { config, assertGetEvmChainAdapter }: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, { config, assertGetEvmChainAdapter }) => {
     const tradeRateResult = await getPortalsTradeRate(
       input as GetEvmTradeRateInput,
       assertGetEvmChainAdapter,
@@ -51,7 +31,7 @@ export const portalsApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -73,7 +53,7 @@ export const portalsApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -99,6 +79,5 @@ export const portalsApi: SwapperApi = {
       gasLimit: BigNumber.max(feeData.gasLimit, estimatedGas).toFixed(),
     })
   },
-
   checkTradeStatus: checkEvmSwapStatus,
 }

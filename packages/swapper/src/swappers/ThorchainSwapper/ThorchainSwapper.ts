@@ -3,10 +3,10 @@ import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 
 import type { ThornodePoolResponse } from '../../thorchain-utils'
+import { service } from '../../thorchain-utils'
 import type { Swapper, SwapperConfig } from '../../types'
 import { executeEvmTransaction } from '../../utils'
 import { poolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from './utils/thorService'
 
 const getSupportedAssets = async (
   config: SwapperConfig,
@@ -14,17 +14,17 @@ const getSupportedAssets = async (
   supportedSellAssetIds: AssetId[]
   supportedBuyAssetIds: AssetId[]
 }> => {
-  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const thorchainSwapLongtailEnabled = config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
 
   const supportedSellAssetIds = [thorchainAssetId]
   const supportedBuyAssetIds = [thorchainAssetId]
 
-  const poolResponse = await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/thorchain/pools`)
+  const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain/pools`
 
-  if (!poolResponse.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }
+  const res = await service.get<ThornodePoolResponse[]>(url)
+  if (!res.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }
 
-  const pools = poolResponse.unwrap().data
+  const { data: pools } = res.unwrap()
 
   const assetIds = pools
     .filter(pool => pool.status === 'Available')

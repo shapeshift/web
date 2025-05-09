@@ -2,13 +2,14 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { ThornodePoolResponse, ThorTradeRate } from '../../../thorchain-utils'
-import { service, TradeType } from '../../../thorchain-utils'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../../types'
-import { getL1Rate } from '../../ThorchainSwapper/utils/getL1Rate'
-import { assertValidTrade, assetIdToPoolAssetId } from '../utils'
+import type { ThornodePoolResponse, ThorTradeRate } from '../../thorchain-utils'
+import { service, TradeType } from '../../thorchain-utils'
+import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../types'
+import { SwapperName } from '../../types'
+import { getL1Rate } from '../ThorchainSwapper/utils/getL1Rate'
+import { assertValidTrade, assetIdToPoolAssetId } from './utils'
 
-export const getThorTradeRate = async (
+export const getTradeRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
@@ -17,7 +18,7 @@ export const getThorTradeRate = async (
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/lcd/mayachain/pools`
+  const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`
 
   const res = await service.get<ThornodePoolResponse[]>(url)
   if (res.isErr()) return Err(res.unwrapErr())
@@ -50,5 +51,5 @@ export const getThorTradeRate = async (
     return 10
   })()
 
-  return getL1Rate(input, deps, streamingInterval, TradeType.L1ToL1)
+  return getL1Rate(input, deps, streamingInterval, TradeType.L1ToL1, SwapperName.Mayachain)
 }

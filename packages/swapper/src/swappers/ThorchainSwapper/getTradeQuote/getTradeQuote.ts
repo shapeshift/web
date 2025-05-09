@@ -2,22 +2,22 @@ import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { ThornodePoolResponse, ThorTradeRate } from '../../../thorchain-utils'
+import type { ThornodePoolResponse, ThorTradeQuote } from '../../../thorchain-utils'
 import { service, TradeType } from '../../../thorchain-utils'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../../types'
-import { TradeQuoteError } from '../../../types'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
-import { getL1Rate } from '../utils/getL1Rate'
-import { getL1ToLongtailRate } from '../utils/getL1ToLongtailRate'
-import { getLongtailToL1Rate } from '../utils/getLongtailRate'
+import { getL1Quote } from '../utils/getL1quote'
+import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
+import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 
-export const getThorTradeRate = async (
-  input: GetTradeRateInput,
+export const getTradeQuote = async (
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
   const thorchainSwapL1ToLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
@@ -92,14 +92,15 @@ export const getThorTradeRate = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1Rate(input, deps, streamingInterval, tradeType)
+      return getL1Quote(input, deps, streamingInterval, tradeType, SwapperName.Thorchain)
     case TradeType.LongTailToL1:
-      return getLongtailToL1Rate(input, deps, streamingInterval)
+      return getLongtailToL1Quote(input, deps, streamingInterval, SwapperName.Thorchain)
     case TradeType.L1ToLongTail:
-      if (!thorchainSwapL1ToLongtailEnabled)
+      if (!thorchainSwapL1ToLongtailEnabled) {
         return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
+      }
 
-      return getL1ToLongtailRate(input, deps, streamingInterval)
+      return getL1ToLongtailQuote(input, deps, streamingInterval, SwapperName.Thorchain)
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:

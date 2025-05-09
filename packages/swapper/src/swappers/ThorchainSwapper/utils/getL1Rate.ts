@@ -49,6 +49,7 @@ export const getL1Rate = async (
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -72,7 +73,7 @@ export const getL1Rate = async (
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain)
+    getDefaultSlippageDecimalPercentageForSwapper(swapperName)
 
   const inputSlippageBps = convertDecimalPercentageToBasisPoints(slippageTolerancePercentageDecimal)
 
@@ -239,6 +240,7 @@ export const getL1Rate = async (
               memo,
               expiry: quote.expiry,
               config: deps.config,
+              swapperName,
             })
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
@@ -264,7 +266,7 @@ export const getL1Rate = async (
               vault,
               expiry: quote.expiry,
               tradeType: tradeType ?? TradeType.L1ToL1,
-              swapperName: SwapperName.Thorchain,
+              swapperName,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -340,6 +342,7 @@ export const getL1Rate = async (
                 xpub: (input as unknown as GetUtxoTradeQuoteInput).xpub,
                 memo,
                 config: deps.config,
+                swapperName,
               })
 
               const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
@@ -373,7 +376,7 @@ export const getL1Rate = async (
                 ? undefined
                 : slippageTolerancePercentageDecimal,
               rate,
-              swapperName: SwapperName.Thorchain,
+              swapperName,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -453,7 +456,7 @@ export const getL1Rate = async (
                 : slippageTolerancePercentageDecimal,
               rate,
               tradeType: tradeType ?? TradeType.L1ToL1,
-              swapperName: SwapperName.Thorchain,
+              swapperName,
               steps: [
                 {
                   estimatedExecutionTimeMs,

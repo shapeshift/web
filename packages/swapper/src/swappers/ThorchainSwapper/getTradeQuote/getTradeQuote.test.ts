@@ -17,7 +17,7 @@ import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
-import { getThorTradeQuote } from './getTradeQuote'
+import { getTradeQuote } from './getTradeQuote'
 
 const mockedGetThorTxInfo = vi.mocked(evm.getThorTxData)
 const mockedThorService = vi.mocked(service)
@@ -219,7 +219,7 @@ describe('getTradeQuote', () => {
       throw Error('not implemented')
     }
 
-    const maybeTradeQuote = await getThorTradeQuote(input, {
+    const maybeTradeQuote = await getTradeQuote(input, {
       assertGetEvmChainAdapter,
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,

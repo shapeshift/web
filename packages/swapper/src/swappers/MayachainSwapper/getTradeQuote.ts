@@ -2,17 +2,14 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { ThornodePoolResponse, ThorTradeQuote } from '../../../thorchain-utils'
-import { service, TradeType } from '../../../thorchain-utils'
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
-import { getL1Quote } from '../../ThorchainSwapper/utils/getL1quote'
-import { assertValidTrade } from '../utils'
-import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
+import type { ThornodePoolResponse, ThorTradeQuote } from '../../thorchain-utils'
+import { service, TradeType } from '../../thorchain-utils'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../types'
+import { SwapperName } from '../../types'
+import { getL1Quote } from '../ThorchainSwapper/utils/getL1quote'
+import { assertValidTrade, assetIdToPoolAssetId } from './utils'
 
-export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
-  !!quote && 'tradeType' in quote && 'vault' in quote
-
-export const getThorTradeQuote = async (
+export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -21,7 +18,7 @@ export const getThorTradeQuote = async (
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/lcd/mayachain/pools`
+  const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`
 
   const res = await service.get<ThornodePoolResponse[]>(url)
   if (res.isErr()) return Err(res.unwrapErr())
@@ -51,5 +48,5 @@ export const getThorTradeQuote = async (
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10
 
-  return getL1Quote(input, deps, streamingInterval, TradeType.L1ToL1)
+  return getL1Quote(input, deps, streamingInterval, TradeType.L1ToL1, SwapperName.Mayachain)
 }

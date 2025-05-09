@@ -113,7 +113,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   return (
     <Box>
-      <Flex alignItems='center' justifyContent='space-between' mb={6}>
+      <Flex flexDir='column' gap={4} mb={6}>
         <Flex alignItems='center' gap={2}>
           <AssetIcon
             size='sm'
@@ -153,17 +153,38 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
           </Flex>
         </Flex>
 
-        <Card width='100%' maxWidth='400px'>
+        <Card width='100%'>
           <CardBody py={4} px={4}>
-            <Flex alignItems='center' justifyContent='space-between'>
-              <Box width='100%'>
-                <HelperTooltip label={translate('RFOX.pendingRewardsBalanceHelper')}>
-                  <Text
-                    fontSize='sm'
-                    color='text.subtle'
-                    translation='RFOX.pendingRewardsBalance'
-                  />
-                </HelperTooltip>
+            <Flex flexDir='column' gap={4}>
+              <Box>
+                <Flex flexDir='column' gap={2}>
+                  <HelperTooltip label={translate('RFOX.pendingRewardsBalanceHelper')}>
+                    <Text
+                      fontSize='sm'
+                      color='text.subtle'
+                      translation='RFOX.pendingRewardsBalance'
+                    />
+                  </HelperTooltip>
+                  <Skeleton isLoaded={!currentApyQuery.isLoading}>
+                    <Tag
+                      colorScheme='green'
+                      verticalAlign='middle'
+                      width='auto'
+                      minWidth='100px'
+                      justifyContent='center'
+                      fontSize='sm'
+                    >
+                      <Amount.Percent
+                        width='max-content'
+                        prefix='~'
+                        value={currentApyQuery.data ?? 0}
+                        suffix='APY'
+                      />
+                    </Tag>
+                  </Skeleton>
+                </Flex>
+              </Box>
+              <Box>
                 <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitQuery.isLoading}>
                   <Amount.Crypto
                     value={fromBaseUnit(
@@ -181,16 +202,6 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
                   />
                 </Skeleton>
               </Box>
-              <Skeleton isLoaded={!currentApyQuery.isLoading} ml={2}>
-                <Tag colorScheme='green' verticalAlign='middle'>
-                  <Amount.Percent
-                    width='max-content'
-                    prefix='~'
-                    value={currentApyQuery.data ?? 0}
-                    suffix='APY'
-                  />
-                </Tag>
-              </Skeleton>
             </Flex>
           </CardBody>
         </Card>

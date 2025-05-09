@@ -60,7 +60,7 @@ export const CreateBackupConfirm = () => {
 
   const randomWordIndices = useMemo(() => {
     const indices = Array.from({ length: words.length }, (_, i) => i)
-    return indices.sort(() => Math.random() - 0.5).slice(0, 12)
+    return indices.sort(() => Math.random() - 0.5).slice(0, 3)
   }, [words.length])
 
   const generateTestWords = useCallback((targetWord: string) => {
@@ -144,7 +144,7 @@ export const CreateBackupConfirm = () => {
             </CText>
           </Box>
 
-          <Box borderRadius='xl' p={6} position='relative' pb={20}>
+          <Box borderRadius='xl' p={6} position='relative' pb={4}>
             <CText
               textAlign='center'
               position='absolute'

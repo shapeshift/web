@@ -103,6 +103,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       headers,
+      host: '0.0.0.0',
     },
     preview: {
       port: 3000,

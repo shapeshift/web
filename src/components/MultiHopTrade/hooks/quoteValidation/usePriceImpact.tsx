@@ -39,11 +39,11 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
     return bn(sellAmountIncludingProtocolFeesCryptoPrecision).times(sellAssetUsdRate).toFixed()
   }, [sellAsset, sellAssetUsdRate, tradeQuote])
 
-  const priceImpactPercentage = useMemo(() => {
+  const priceImpactPercentageSigned = useMemo(() => {
     if (!tradeQuote || !buyAsset || !buyAssetUsdRate || !sellAmountBeforeFeesUsd) return
 
     if (tradeQuote.priceImpactPercentageDecimal) {
-      return bnOrZero(tradeQuote.priceImpactPercentageDecimal).times(100).abs()
+      return bnOrZero(tradeQuote.priceImpactPercentageDecimal).times(100)
     }
 
     // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
@@ -65,24 +65,35 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
 
     const tradeDifference = bn(sellAmountBeforeFeesUsd).minus(buyAmountBeforeFeesUsd)
 
-    return tradeDifference.div(sellAmountBeforeFeesUsd).times(100).abs()
+    return tradeDifference.div(sellAmountBeforeFeesUsd).times(100)
   }, [buyAsset, buyAssetUsdRate, numSteps, sellAmountBeforeFeesUsd, tradeQuote])
 
   const isModeratePriceImpact = useMemo(() => {
-    if (!priceImpactPercentage) return false
+    if (!priceImpactPercentageSigned) return false
 
-    return bn(priceImpactPercentage).gt(5)
-  }, [priceImpactPercentage])
+    return bn(priceImpactPercentageSigned).gt(5)
+  }, [priceImpactPercentageSigned])
 
   const isHighPriceImpact = useMemo(() => {
-    if (!priceImpactPercentage) return false
+    if (!priceImpactPercentageSigned) return false
 
-    return priceImpactPercentage.gt(10)
-  }, [priceImpactPercentage])
+    return priceImpactPercentageSigned.gt(10)
+  }, [priceImpactPercentageSigned])
+
+  const isPositivePriceImpact = useMemo(() => {
+    if (!priceImpactPercentageSigned) return false
+
+    return priceImpactPercentageSigned.lt(0)
+  }, [priceImpactPercentageSigned])
 
   const result = useMemo(
-    () => ({ isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact }),
-    [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentage],
+    () => ({
+      isModeratePriceImpact,
+      priceImpactPercentageAbsolute: priceImpactPercentageSigned?.abs(),
+      isHighPriceImpact,
+      isPositivePriceImpact,
+    }),
+    [isHighPriceImpact, isModeratePriceImpact, isPositivePriceImpact, priceImpactPercentageSigned],
   )
 
   return result

@@ -22,7 +22,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
           </Heading>
         </WithBackButton>
       </CardHeader>
-      <CardBody px={0} overflowY='auto' flex='1 1 auto'>
+      <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>
         <TradeQuotes isLoading={isLoading} onBack={onBack} />
       </CardBody>
     </Card>

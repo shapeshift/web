@@ -29,14 +29,16 @@ export const TransactionStatusDisplay = ({
 }: TransactionStatusDisplayProps) => {
   return (
     <CardBody display='flex' flexDir='column' minHeight='350px' pb={6}>
-      <Stack justifyContent='center' alignItems='center' gap={4} my='auto' flex={1}>
+      <Stack justifyContent='center' alignItems='center' spacing={6} my='auto' flex={1}>
         {isLoading ? (
           <CircularProgress size='64px' />
         ) : (
           icon && <Icon as={icon} color={iconColor} boxSize='64px' />
         )}
-        <Heading size='sm'>{title}</Heading>
-        {subtitle && <RawText color='text.subtle'>{subtitle}</RawText>}
+        <Stack textAlign='center' spacing={0}>
+          <Heading size='sm'>{title}</Heading>
+          {subtitle && <RawText color='text.subtle'>{subtitle}</RawText>}
+        </Stack>
       </Stack>
       <Stack width='full' gap={2} mt='auto'>
         {secondaryButtonText && onSecondaryClick && (
@@ -50,7 +52,7 @@ export const TransactionStatusDisplay = ({
             {secondaryButtonText}
           </Button>
         )}
-        <Button size='lg' width='full' onClick={onPrimaryClick}>
+        <Button size='lg' width='full' colorScheme='blue' onClick={onPrimaryClick}>
           {primaryButtonText}
         </Button>
       </Stack>

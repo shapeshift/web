@@ -21,6 +21,7 @@ import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { RFOX } from '@/pages/RFOX/RFOX'
+import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
 import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
@@ -238,6 +239,7 @@ export const routes: Route[] = [
     main: TCY,
     category: RouteCategory.Thorchain,
     disable: !getConfig().VITE_FEATURE_THORCHAIN_TCY,
+    menuRightComponent: <TCYNavIndicator />,
   },
   {
     path: '/pools/*',

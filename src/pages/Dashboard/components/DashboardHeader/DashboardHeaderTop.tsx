@@ -3,7 +3,7 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Flex, IconButton, useDisclosure } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback } from 'react'
-import { FiLogOut } from 'react-icons/fi'
+import { FiSettings } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -24,7 +24,7 @@ const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const moreIcon = isMobile ? <FiLogOut /> : <IoEllipsisHorizontal />
+const moreIcon = isMobile ? <FiSettings /> : <IoEllipsisHorizontal />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 

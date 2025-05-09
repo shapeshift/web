@@ -1,4 +1,4 @@
-import { cosmosAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { SignTx, thorchain } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
@@ -201,7 +201,8 @@ export const thorchainApi: SwapperApi = {
     const fee = feeData.networkFeeCryptoBaseUnit ?? '0'
 
     switch (sellAsset.chainId) {
-      case thorchainChainId: {
+      case thorchainChainId:
+      case tcyAssetId: {
         const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId) as thorchain.ChainAdapter
 
         const { txToSign } = await adapter.buildDepositTransaction({
@@ -209,7 +210,7 @@ export const thorchainApi: SwapperApi = {
           from,
           value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           memo,
-          chainSpecific: { gas, fee },
+          chainSpecific: { gas, fee, coin: tcyAssetId ? 'THOR.TCY' : 'THOR.RUNE' },
         })
 
         return txToSign
@@ -293,10 +294,10 @@ export const thorchainApi: SwapperApi = {
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
       const [{ data: txData }, { data: txStatusData }] = await Promise.all([
         axios.get<ThornodeTxResponse>(
-          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/thorchain/tx/${thorTxHash}`,
         ),
         axios.get<ThornodeStatusResponse>(
-          `${config.VITE_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+          `${config.VITE_THORCHAIN_NODE_URL}/thorchain/tx/status/${thorTxHash}`,
         ),
       ])
 

@@ -167,6 +167,12 @@ export class Parser {
       case '$-':
       case 'loan-':
         return { data: { parser: 'thorchain', memo, method: 'loanRepayment' } }
+      case 'tcy':
+        return { data: { parser: 'thorchain', memo, method: 'claim' } }
+      case 'tcy+':
+        return { data: { parser: 'thorchain', memo, method: 'stake' } }
+      case 'tcy-':
+        return { data: { parser: 'thorchain', memo, method: 'unstake' } }
       case 'out': {
         const extraMetadata = await this.getExtraMetadata(memo)
         if (!extraMetadata) return

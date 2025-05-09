@@ -47,6 +47,7 @@ export const foxWifHatAssetId: AssetId =
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'
+export const tcyAssetId: AssetId = 'cosmos:thorchain-1/slip44:tcy'
 export const mayachainAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:931'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
 

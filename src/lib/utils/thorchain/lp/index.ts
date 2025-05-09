@@ -114,7 +114,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const poolResult = await thorService.get<ThornodePoolResponse>(
-    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+    `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
   )
 
   if (poolResult.isErr()) throw poolResult.unwrapErr()
@@ -157,7 +157,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const poolResult = await thorService.get<ThornodePoolResponse>(
-    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+    `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
   )
 
   if (poolResult.isErr()) throw poolResult.unwrapErr()

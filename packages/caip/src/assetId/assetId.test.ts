@@ -19,6 +19,7 @@ describe('assetId', () => {
         ['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
         ['bip122:000000000019d6689c085ae165831e93/slip44:0'],
         ['cosmos:cosmoshub-4/slip44:118'],
+        ['cosmos:thorchain-1/slip44:tcy'],
       ])('returns an AssetId from the result of fromAssetId for %s', assetId => {
         const result = fromAssetId(assetId)
         expect(toAssetId(omit(result, 'chainId'))).toBe(assetId)

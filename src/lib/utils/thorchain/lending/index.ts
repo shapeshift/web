@@ -59,7 +59,7 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   const parsedReceiveAddress = receiveAssetAddress.replace('bitcoincash:', '')
 
   const url =
-    `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
+    `${VITE_THORCHAIN_NODE_URL}/thorchain/quote/loan/open` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
@@ -104,7 +104,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   const parsedCollateralAssetAddress = collateralAssetAddress.replace('bitcoincash:', '')
 
   const url =
-    `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
+    `${VITE_THORCHAIN_NODE_URL}/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
     `&repay_bps=${repayBps.toString()}` +
     `&to_asset=${to_asset}` +
@@ -128,7 +128,7 @@ export const getAllThorchainLendingPositions = async (
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
   const { data } = await axios.get<BorrowersResponse>(
-    `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}/borrowers`,
+    `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/borrowers`,
   )
 
   if (!data || 'error' in data) return []
@@ -154,7 +154,7 @@ export const getThorchainLendingPosition = async ({
         await axios.get<Borrower>(
           `${
             getConfig().VITE_THORCHAIN_NODE_URL
-          }/lcd/thorchain/pool/${poolAssetId}/borrower/${address}`,
+          }/thorchain/pool/${poolAssetId}/borrower/${address}`,
         )
       ).data
 
@@ -184,7 +184,7 @@ export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePo
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
   const { data } = await axios.get<ThornodePoolResponse>(
-    `${VITE_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+    `${VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}`,
   )
 
   if (!data) {

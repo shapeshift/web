@@ -17,6 +17,7 @@ type SidebarLinkProps = {
   isNew?: boolean
   isViewOnly?: boolean
   isActive?: boolean
+  menuRightComponent?: React.ReactNode
 } & ButtonProps
 
 const styleProp = { width: '0.5em', height: '0.5em', color: 'var(--chakra-colors-pink-200)' }
@@ -28,9 +29,36 @@ const activeProp = {
 }
 
 export const MainNavLink = memo((props: SidebarLinkProps) => {
-  const { isCompact, onClick, isNew, isViewOnly, label, isActive, buttonProps } = useMemo(() => {
-    const { isCompact, onClick, isNew, isViewOnly, label, isActive, ...buttonProps } = props
-    return { isCompact, onClick, isNew, isViewOnly, label, isActive, buttonProps }
+  const {
+    isCompact,
+    onClick,
+    isNew,
+    isViewOnly,
+    label,
+    isActive,
+    buttonProps,
+    menuRightComponent,
+  } = useMemo(() => {
+    const {
+      isCompact,
+      onClick,
+      isNew,
+      isViewOnly,
+      label,
+      isActive,
+      menuRightComponent,
+      ...buttonProps
+    } = props
+    return {
+      isCompact,
+      onClick,
+      isNew,
+      isViewOnly,
+      label,
+      isActive,
+      buttonProps,
+      menuRightComponent,
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
 
@@ -116,6 +144,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
             {translate('common.viewOnly')}
           </Tag>
         )}
+        {menuRightComponent}
       </Button>
     </Tooltip>
   )

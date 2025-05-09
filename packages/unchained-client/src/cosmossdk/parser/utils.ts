@@ -3,6 +3,7 @@ import {
   cosmosAssetId,
   fromAssetId,
   mayachainAssetId,
+  tcyAssetId,
   thorchainAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
@@ -13,6 +14,8 @@ import type { TxMetadata } from './types'
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
   ['rune', thorchainAssetId],
+  ['tcy', tcyAssetId],
+  ['thor.tcy', tcyAssetId],
   ['cacao', mayachainAssetId],
 ])
 

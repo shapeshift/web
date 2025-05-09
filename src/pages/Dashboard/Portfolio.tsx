@@ -1,6 +1,7 @@
 import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import { memo, useEffect, useState, useTransition } from 'react'
 
+import { TCYCta } from '../TCY/components/TCYCta'
 import { AccountTable } from './components/AccountList/AccountTable'
 import { AccountTableSkeleton } from './components/AccountTableSkeleton'
 import { DashboardChart } from './components/DashboardChart'
@@ -35,7 +36,7 @@ export const Portfolio = memo(() => {
   return (
     <Stack spacing={stackSpacing} width='full'>
       {shouldRenderChart ? <DashboardChart /> : <DashboardChartSkeleton />}
-
+      <TCYCta />
       <Card variant='dashboard'>
         <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
           <Heading as='h6'>

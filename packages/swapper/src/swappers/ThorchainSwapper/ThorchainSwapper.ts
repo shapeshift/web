@@ -27,9 +27,7 @@ const getSupportedAssets = async (
   const thorchainSwapLongtailEnabled = config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
   let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
   let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
-  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/lcd/thorchain/pools`,
-  )
+  const poolResponse = await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/thorchain/pools`)
 
   const longtailTokensJson = await import('./generated/generatedThorLongtailTokens.json')
   const longtailTokens: AssetId[] = longtailTokensJson.default

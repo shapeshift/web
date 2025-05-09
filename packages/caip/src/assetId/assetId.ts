@@ -44,6 +44,8 @@ export type ToAssetIdArgs = ToAssetIdWithChainId | ToAssetIdWithChainIdParts
  * @param {string} value - possible slip44 value
  */
 const isValidSlip44 = (value: string) => {
+  // TCY is a weird AssetId, its asset ref part is not a number
+  if (value === 'tcy') return true
   const n = Number(value)
   // slip44 has a max value of an unsigned 32-bit integer
   return !isNaN(n) && n >= 0 && n < 4294967296

@@ -9,6 +9,7 @@ import {
   Skeleton,
   Tag,
   Text as CText,
+  type FlexProps,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
@@ -53,6 +54,16 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
+
+  const flexProps = useMemo<FlexProps>(
+    () => ({
+      flexDir: { base: 'column', md: 'row' },
+      gap: 4,
+      alignItems: { base: 'flex-start', md: 'center' },
+      justifyContent: { base: 'flex-start', md: 'space-between' },
+    }),
+    [],
+  )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -113,7 +124,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   return (
     <Box>
-      <Flex flexDir='column' gap={4} mb={6}>
+      <Flex alignItems='center' justifyContent='space-between' mb={6} gap={4}>
         <Flex alignItems='center' gap={2}>
           <AssetIcon
             size='sm'
@@ -155,7 +166,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
         <Card width='100%'>
           <CardBody py={4} px={4}>
-            <Flex flexDir='column' gap={4}>
+            <Flex {...flexProps}>
               <Box>
                 <Flex flexDir='column' gap={2}>
                   <HelperTooltip label={translate('RFOX.pendingRewardsBalanceHelper')}>
@@ -165,43 +176,44 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
                       translation='RFOX.pendingRewardsBalance'
                     />
                   </HelperTooltip>
-                  <Skeleton isLoaded={!currentApyQuery.isLoading}>
-                    <Tag
-                      colorScheme='green'
-                      verticalAlign='middle'
-                      width='auto'
-                      minWidth='100px'
-                      justifyContent='center'
-                      fontSize='sm'
-                    >
-                      <Amount.Percent
-                        width='max-content'
-                        prefix='~'
-                        value={currentApyQuery.data ?? 0}
-                        suffix='APY'
+
+                  <Box>
+                    <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitQuery.isLoading}>
+                      <Amount.Crypto
+                        value={fromBaseUnit(
+                          currentEpochRewardsCryptoBaseUnitQuery.data?.toString() ?? '0',
+                          runeAsset?.precision ?? 0,
+                        )}
+                        symbol={runeAsset?.symbol ?? ''}
+                        fontSize='xl'
+                        fontWeight='medium'
                       />
-                    </Tag>
-                  </Skeleton>
+                      <Amount.Fiat
+                        fontSize='xs'
+                        value={currentEpochRewardsUserCurrency}
+                        color='text.subtle'
+                      />
+                    </Skeleton>
+                  </Box>
                 </Flex>
               </Box>
-              <Box>
-                <Skeleton isLoaded={!currentEpochRewardsCryptoBaseUnitQuery.isLoading}>
-                  <Amount.Crypto
-                    value={fromBaseUnit(
-                      currentEpochRewardsCryptoBaseUnitQuery.data?.toString() ?? '0',
-                      runeAsset?.precision ?? 0,
-                    )}
-                    symbol={runeAsset?.symbol ?? ''}
-                    fontSize='xl'
-                    fontWeight='medium'
+              <Skeleton isLoaded={!currentApyQuery.isLoading}>
+                <Tag
+                  colorScheme='green'
+                  verticalAlign='middle'
+                  width='auto'
+                  minWidth='100px'
+                  justifyContent='center'
+                  fontSize='sm'
+                >
+                  <Amount.Percent
+                    width='max-content'
+                    prefix='~'
+                    value={currentApyQuery.data ?? 0}
+                    suffix='APY'
                   />
-                  <Amount.Fiat
-                    fontSize='xs'
-                    value={currentEpochRewardsUserCurrency}
-                    color='text.subtle'
-                  />
-                </Skeleton>
-              </Box>
+                </Tag>
+              </Skeleton>
             </Flex>
           </CardBody>
         </Card>

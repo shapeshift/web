@@ -1,7 +1,7 @@
 import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 
-import type { GetUnsignedUtxoTransactionArgs, UtxoFeeData } from '../../types'
+import type { GetUnsignedUtxoTransactionArgs, SwapperName, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
 import { getThorTxData } from './getThorTxData'
@@ -13,7 +13,8 @@ export const getUnsignedUtxoTransaction = async ({
   accountType,
   assertGetUtxoChainAdapter,
   config,
-}: GetUnsignedUtxoTransactionArgs): Promise<SignTx<UtxoChainId>> => {
+  swapperName,
+}: GetUnsignedUtxoTransactionArgs & { swapperName: SwapperName }): Promise<SignTx<UtxoChainId>> => {
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
   const { memo } = tradeQuote as ThorTradeQuote
@@ -28,6 +29,7 @@ export const getUnsignedUtxoTransaction = async ({
     xpub,
     memo,
     config,
+    swapperName,
   })
 
   return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({

@@ -4,7 +4,7 @@ import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 
-import type { SwapperConfig } from '../types'
+import type { SwapperConfig, SwapperName } from '../types'
 import { getThorTxData } from './evm'
 import type { ThorEvmTradeQuote } from './types'
 import { TradeType } from './types'
@@ -21,6 +21,7 @@ export const getCallDataFromQuote = async ({
   slippageTolerancePercentageDecimal,
   router,
   vault,
+  swapperName,
 }: Pick<
   ThorEvmTradeQuote,
   | 'router'
@@ -36,6 +37,7 @@ export const getCallDataFromQuote = async ({
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   config: SwapperConfig
   sellAsset: Asset
+  swapperName: SwapperName
 }): Promise<string> => {
   switch (tradeType) {
     case TradeType.L1ToL1: {
@@ -76,6 +78,7 @@ export const getCallDataFromQuote = async ({
         memo: tcMemo,
         expiry,
         config,
+        swapperName,
       })
 
       return dataWithAmountOut

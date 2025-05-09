@@ -10,17 +10,20 @@ import {
   utxo,
 } from '../../thorchain-utils'
 import type { CosmosSdkFeeData, SwapperApi } from '../../types'
+import { SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
-import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeRate } from './getTradeRate/getTradeRate'
+
+const swapperName = SwapperName.Thorchain
 
 export const thorchainApi: SwapperApi = {
-  getTradeRate: getThorTradeRate,
-  getTradeQuote: getThorTradeQuote,
-  getUnsignedEvmTransaction: evm.getUnsignedEvmTransaction,
-  getEvmTransactionFees: evm.getEvmTransactionFees,
-  getUnsignedUtxoTransaction: utxo.getUnsignedUtxoTransaction,
-  getUtxoTransactionFees: utxo.getUtxoTransactionFees,
+  getTradeRate,
+  getTradeQuote,
+  getUnsignedEvmTransaction: input => evm.getUnsignedEvmTransaction({ ...input, swapperName }),
+  getEvmTransactionFees: input => evm.getEvmTransactionFees({ ...input, swapperName }),
+  getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction({ ...input, swapperName }),
+  getUtxoTransactionFees: input => utxo.getUtxoTransactionFees({ ...input, swapperName }),
   getUnsignedCosmosSdkTransaction: async ({
     tradeQuote,
     stepIndex,
@@ -59,9 +62,9 @@ export const thorchainApi: SwapperApi = {
       case cosmosAssetId: {
         const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
 
-        const daemonUrl = config.VITE_THORCHAIN_NODE_URL
+        const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
 
-        const data = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
+        const data = await getInboundAddressDataForChain(url, cosmosAssetId, true, swapperName)
         if (data.isErr()) throw data.unwrapErr()
 
         const { address: vault } = data.unwrap()

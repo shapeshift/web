@@ -2,7 +2,7 @@ import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils
 import assert from 'assert'
 import type { Address } from 'viem'
 
-import type { SwapperConfig, TradeQuote, TradeQuoteStep } from '../../types'
+import type { SwapperConfig, SwapperName, TradeQuote, TradeQuoteStep } from '../../types'
 import { getCallDataFromQuote } from '../getCallDataFromQuote'
 import type { ThorEvmTradeQuote } from '../types'
 import { TradeType } from '../types'
@@ -12,10 +12,12 @@ export const getEvmData = async ({
   config,
   step,
   tradeQuote,
+  swapperName,
 }: {
   config: SwapperConfig
   step: TradeQuoteStep
   tradeQuote: TradeQuote
+  swapperName: SwapperName
 }) => {
   const {
     router,
@@ -47,6 +49,7 @@ export const getEvmData = async ({
         slippageTolerancePercentageDecimal,
         router,
         vault,
+        swapperName,
       })
 
       return { data, to: router }
@@ -85,6 +88,7 @@ export const getEvmData = async ({
         slippageTolerancePercentageDecimal,
         router: aggregator,
         vault: tcVault,
+        swapperName,
       })
 
       return { data, to: aggregator }
@@ -104,6 +108,7 @@ export const getEvmData = async ({
         memo: tcMemo,
         expiry,
         config,
+        swapperName,
       })
 
       assert(router, 'router required for l1 to thorchain longtail swaps')
@@ -120,6 +125,7 @@ export const getEvmData = async ({
         slippageTolerancePercentageDecimal,
         router,
         vault,
+        swapperName,
       })
 
       return { data, to: updatedRouter }

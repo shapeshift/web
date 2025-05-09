@@ -11,17 +11,20 @@ import {
   utxo,
 } from '../../thorchain-utils'
 import type { CosmosSdkFeeData, GetUnsignedCosmosSdkTransactionArgs, SwapperApi } from '../../types'
+import { SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
-import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
+import { getTradeQuote } from './getTradeQuote'
+import { getTradeRate } from './getTradeRate'
+
+const swapperName = SwapperName.Mayachain
 
 export const mayachainApi: SwapperApi = {
-  getTradeRate: getThorTradeRate,
-  getTradeQuote: getThorTradeQuote,
-  getUnsignedEvmTransaction: evm.getUnsignedEvmTransaction,
-  getEvmTransactionFees: evm.getEvmTransactionFees,
-  getUnsignedUtxoTransaction: utxo.getUnsignedUtxoTransaction,
-  getUtxoTransactionFees: utxo.getUtxoTransactionFees,
+  getTradeRate,
+  getTradeQuote,
+  getUnsignedEvmTransaction: input => evm.getUnsignedEvmTransaction({ ...input, swapperName }),
+  getEvmTransactionFees: input => evm.getEvmTransactionFees({ ...input, swapperName }),
+  getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction({ ...input, swapperName }),
+  getUtxoTransactionFees: input => utxo.getUtxoTransactionFees({ ...input, swapperName }),
   getUnsignedCosmosSdkTransaction: async ({
     tradeQuote,
     stepIndex,
@@ -59,9 +62,9 @@ export const mayachainApi: SwapperApi = {
       case thorchainAssetId: {
         const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
 
-        const daemonUrl = config.VITE_MAYACHAIN_NODE_URL
+        const url = `${config.VITE_MAYACHAIN_NODE_URL}/mayachain`
 
-        const data = await getInboundAddressDataForChain(daemonUrl, thorchainAssetId)
+        const data = await getInboundAddressDataForChain(url, thorchainAssetId, true, swapperName)
         if (data.isErr()) throw data.unwrapErr()
 
         const { address: vault } = data.unwrap()
@@ -85,7 +88,7 @@ export const mayachainApi: SwapperApi = {
   getCosmosSdkTransactionFees: cosmossdk.getCosmosSdkTransactionFees,
   checkTradeStatus: input => {
     const { config } = input
-    const url = `${config.VITE_MAYACHAIN_NODE_URL}/lcd/mayachain`
+    const url = `${config.VITE_MAYACHAIN_NODE_URL}/mayachain`
     return checkTradeStatus({ ...input, url, nativeChain: 'MAYA' })
   },
 }

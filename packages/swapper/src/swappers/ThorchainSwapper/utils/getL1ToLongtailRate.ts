@@ -12,6 +12,7 @@ import type {
   MultiHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
@@ -24,6 +25,7 @@ export const getL1ToLongtailRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
   streamingInterval: number,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
   const {
     buyAsset,
@@ -98,6 +100,7 @@ export const getL1ToLongtailRate = async (
     deps,
     streamingInterval,
     TradeType.L1ToLongTail,
+    swapperName,
   )
 
   if (maybeThorchainRates.isErr()) return Err(maybeThorchainRates.unwrapErr())

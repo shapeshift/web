@@ -1,5 +1,4 @@
 import type { InboundAddressResponse, ThornodePoolResponse } from '../../../../thorchain-utils'
-import { ThorchainChain } from '../../../../thorchain-utils'
 
 export const btcThornodePool: ThornodePoolResponse = {
   LP_units: '536055974608843',
@@ -98,7 +97,7 @@ export const thornodePools: ThornodePoolResponse[] = [
 
 export const mockInboundAddresses: InboundAddressResponse[] = [
   {
-    chain: ThorchainChain.BCH,
+    chain: 'BCH',
     pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
     address: 'qp5a6rn8zmamgmsyspqsl0p6ktk4hrheggdjdvntv0',
     halted: false,
@@ -111,7 +110,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
     outbound_tx_size: '1500',
   },
   {
-    chain: ThorchainChain.BNB,
+    chain: 'BNB',
     pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
     address: 'bnb1d8wsuecklw6xupyqgy8mcw4ja4dca72z7nvqzw',
     halted: false,
@@ -124,7 +123,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
     outbound_tx_size: '1',
   },
   {
-    chain: ThorchainChain.BTC,
+    chain: 'BTC',
     pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
     address: 'bc1qd8wsuecklw6xupyqgy8mcw4ja4dca72z2dd88d',
     halted: false,
@@ -137,7 +136,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
     outbound_tx_size: '1000',
   },
   {
-    chain: ThorchainChain.DOGE,
+    chain: 'DOGE',
     pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
     address: 'DEnrJfAjC4KMsLsGtoTGSmYaFZLPunWw9q',
     halted: false,
@@ -150,7 +149,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
     outbound_tx_size: '1000',
   },
   {
-    chain: ThorchainChain.ETH,
+    chain: 'ETH',
     pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
     address: '0x78e4e10dcacb0a8261eb3d5e57ffb98ae8d4dff1',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -164,7 +163,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
     outbound_tx_size: '80000',
   },
   {
-    chain: ThorchainChain.LTC,
+    chain: 'LTC',
     pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
     address: 'ltc1qd8wsuecklw6xupyqgy8mcw4ja4dca72zw3hrla',
     halted: false,
@@ -178,7 +177,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
   },
   {
     address: 'cosmos1euskj33zyqcysvn252qvwkkurkd72gvnv30h4d',
-    chain: ThorchainChain.GAIA,
+    chain: 'GAIA',
     chain_lp_actions_paused: false,
     chain_trading_paused: false,
     gas_rate: '450000',
@@ -191,7 +190,7 @@ export const mockInboundAddresses: InboundAddressResponse[] = [
   },
   {
     address: '0x8d6ed3bcdafc38214af914b08bc47ce36802c87c',
-    chain: ThorchainChain.AVAX,
+    chain: 'AVAX',
     chain_lp_actions_paused: false,
     chain_trading_paused: false,
     gas_rate: '150',

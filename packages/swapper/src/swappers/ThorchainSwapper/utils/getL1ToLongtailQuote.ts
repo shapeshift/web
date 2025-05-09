@@ -32,6 +32,7 @@ export const getL1ToLongtailQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     buyAsset,
@@ -107,6 +108,7 @@ export const getL1ToLongtailQuote = async (
     deps,
     streamingInterval,
     TradeType.L1ToLongTail,
+    swapperName,
   )
 
   if (maybeThorchainQuotes.isErr()) return Err(maybeThorchainQuotes.unwrapErr())

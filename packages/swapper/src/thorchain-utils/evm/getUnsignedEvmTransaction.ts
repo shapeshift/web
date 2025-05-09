@@ -3,9 +3,9 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 
 import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
-import type { GetUnsignedEvmTransactionArgs } from '../../types'
+import type { GetUnsignedEvmTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
-import { getEvmData } from '.'
+import { getEvmData } from './getEvmData'
 
 export const getUnsignedEvmTransaction = async ({
   from,
@@ -14,7 +14,8 @@ export const getUnsignedEvmTransaction = async ({
   supportsEIP1559,
   assertGetEvmChainAdapter,
   config,
-}: GetUnsignedEvmTransactionArgs): Promise<SignTx<EvmChainId>> => {
+  swapperName,
+}: GetUnsignedEvmTransactionArgs & { swapperName: SwapperName }): Promise<SignTx<EvmChainId>> => {
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -25,7 +26,7 @@ export const getUnsignedEvmTransaction = async ({
     ? sellAmountIncludingProtocolFeesCryptoBaseUnit
     : '0'
 
-  const { data, to } = await getEvmData({ config, step, tradeQuote })
+  const { data, to } = await getEvmData({ config, step, tradeQuote, swapperName })
 
   const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

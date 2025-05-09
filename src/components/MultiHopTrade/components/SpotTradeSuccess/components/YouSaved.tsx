@@ -38,6 +38,7 @@ type YouSavedProps = {
   totalUpsidePercentage: string
   sellAsset: Asset
   buyAsset: Asset
+  isExtra?: boolean
 }
 
 export const YouSaved = ({
@@ -45,6 +46,7 @@ export const YouSaved = ({
   totalUpsidePercentage,
   sellAsset,
   buyAsset,
+  isExtra = false,
 }: YouSavedProps) => {
   const cardRef = useRef<HTMLDivElement>(null)
 
@@ -103,6 +105,19 @@ export const YouSaved = ({
     [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
   )
 
+  const youGotExtraTranslationComponents = useMemo(
+    () => ({
+      extraPercent: (
+        <Amount.Crypto
+          as='span'
+          value={bnOrZero(totalUpsideCryptoPrecision).toFixed(buyAsset.precision)}
+          symbol={buyAsset.symbol}
+        />
+      ),
+    }),
+    [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
+  )
+
   return (
     <>
       <Card ref={cardRef} width='full' borderRadius='xl' p={4} pl={3} sx={cardSx}>
@@ -110,10 +125,12 @@ export const YouSaved = ({
           <HStack maxWidth='65%'>
             <Icon as={TbBolt} boxSize={8} color='white' />
             <Text
-              translation='trade.foxSavings.youGotMore'
+              translation={isExtra ? 'trade.tradeCompleteSurplus' : 'trade.foxSavings.youGotMore'}
               textAlign='left'
               color='white'
-              components={youGotMoreTranslationComponents}
+              components={
+                isExtra ? youGotExtraTranslationComponents : youGotMoreTranslationComponents
+              }
               fontSize='md'
               fontWeight='medium'
             />

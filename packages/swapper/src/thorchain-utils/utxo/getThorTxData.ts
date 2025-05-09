@@ -3,25 +3,25 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { SwapperConfig } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 
-type GetThorTxInfoArgs = {
+type GetThorTxDataArgs = {
   sellAsset: Asset
   xpub: string
   memo: string
   config: SwapperConfig
 }
 
-type GetThorTxInfoReturn = Promise<{
+type GetThorTxDataReturn = Promise<{
   opReturnData: string
   vault: string
   pubkey: string
 }>
 
-export const getThorTxInfo = async ({
+export const getThorTxData = async ({
   sellAsset,
   xpub,
   memo,
   config,
-}: GetThorTxInfoArgs): GetThorTxInfoReturn => {
+}: GetThorTxDataArgs): GetThorTxDataReturn => {
   const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const maybeInboundAddress = await getInboundAddressDataForChain(
     daemonUrl,

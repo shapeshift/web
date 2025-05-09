@@ -8,7 +8,7 @@ import type { SwapperConfig } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 import { depositWithExpiry } from '../routerCallData/routerCalldata'
 
-type GetEvmThorTxInfoArgs = {
+type GetThorTxDataArgs = {
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string
   memo: string
@@ -16,19 +16,19 @@ type GetEvmThorTxInfoArgs = {
   config: SwapperConfig
 }
 
-type GetEvmThorTxInfoReturn = Promise<{
+type GetThorTxDataReturn = Promise<{
   data: string
   router: Address
   vault: Address
 }>
 
-export const getThorTxInfo = async ({
+export const getThorTxData = async ({
   sellAsset,
   sellAmountCryptoBaseUnit,
   memo,
   expiry,
   config,
-}: GetEvmThorTxInfoArgs): GetEvmThorTxInfoReturn => {
+}: GetThorTxDataArgs): GetThorTxDataReturn => {
   const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const { assetReference } = fromAssetId(sellAsset.assetId)
 

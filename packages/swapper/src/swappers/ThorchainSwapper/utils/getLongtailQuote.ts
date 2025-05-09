@@ -8,6 +8,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
+import type { ThorTradeQuote } from '../../../thorchain-utils'
+import { TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -16,10 +18,9 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote } from '../types'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1Quote } from './getL1quote'
-import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
+import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (

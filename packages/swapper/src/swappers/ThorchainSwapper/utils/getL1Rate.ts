@@ -15,7 +15,14 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import type {
+  ThorEvmTradeRate,
+  ThornodeQuoteResponseSuccess,
+  ThorTradeRate,
+  ThorTradeUtxoOrCosmosRate,
+} from '../../../thorchain-utils'
+import { evm, TradeType, utxo } from '../../../thorchain-utils'
 import type {
   GetEvmTradeRateInput,
   GetTradeRateInput,
@@ -33,17 +40,7 @@ import {
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '../constants'
-import { getThorTxInfo as getEvmThorTxInfo } from '../evm/utils/getThorTxData'
-import type {
-  ThorEvmTradeRate,
-  ThornodeQuoteResponseSuccess,
-  ThorTradeRate,
-  ThorTradeUtxoOrCosmosRate,
-} from '../types'
-import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
-import { THORCHAIN_FIXED_PRECISION } from './constants'
 import { getQuote } from './getQuote/getQuote'
-import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
@@ -116,7 +113,7 @@ export const getL1Rate = async (
   const recommendedMinimumCryptoBaseUnit = swapQuote.recommended_min_amount_in
     ? convertPrecision({
         value: swapQuote.recommended_min_amount_in,
-        inputExponent: THORCHAIN_FIXED_PRECISION,
+        inputExponent: THOR_PRECISION,
         outputExponent: sellAsset.precision,
       }).toFixed()
     : '0'
@@ -178,7 +175,7 @@ export const getL1Rate = async (
       quote.fees.total,
     )
     return toBaseUnit(
-      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, THORCHAIN_FIXED_PRECISION),
+      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, THOR_PRECISION),
       buyAsset.precision,
     )
   }
@@ -194,7 +191,7 @@ export const getL1Rate = async (
     )
     const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
       value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-      inputExponent: THORCHAIN_FIXED_PRECISION,
+      inputExponent: THOR_PRECISION,
       outputExponent: buyAsset.precision,
     })
 
@@ -236,7 +233,7 @@ export const getL1Rate = async (
             // No memo returned for rates
             const memo = ''
 
-            const { data, router, vault } = await getEvmThorTxInfo({
+            const { data, router, vault } = await evm.getThorTxData({
               sellAsset,
               sellAmountCryptoBaseUnit,
               memo,
@@ -246,7 +243,7 @@ export const getL1Rate = async (
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
-              inputExponent: THORCHAIN_FIXED_PRECISION,
+              inputExponent: THOR_PRECISION,
               outputExponent: buyAsset.precision,
             }).toFixed()
 
@@ -338,7 +335,7 @@ export const getL1Rate = async (
               // If that becomes an issue we should be able to get a very rough estimation (not taking users' UTXOs into account) without an address
               // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.
 
-              const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
+              const { vault, opReturnData, pubkey } = await utxo.getThorTxData({
                 sellAsset,
                 xpub: (input as unknown as GetUtxoTradeQuoteInput).xpub,
                 memo,
@@ -358,7 +355,7 @@ export const getL1Rate = async (
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
-              inputExponent: THORCHAIN_FIXED_PRECISION,
+              inputExponent: THOR_PRECISION,
               outputExponent: buyAsset.precision,
             }).toFixed()
 
@@ -435,7 +432,7 @@ export const getL1Rate = async (
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
-              inputExponent: THORCHAIN_FIXED_PRECISION,
+              inputExponent: THOR_PRECISION,
               outputExponent: buyAsset.precision,
             }).toFixed()
 

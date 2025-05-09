@@ -2,12 +2,12 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { InboundAddressResponse } from '../swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '../swappers/ThorchainSwapper/utils/thorService'
 import type { SwapErrorRight } from '../types'
 import { TradeQuoteError } from '../types'
 import { makeSwapErrorRight } from '../utils'
+import { service } from './service'
+import type { InboundAddressResponse } from './types'
 
 export const getInboundAddressDataForChain = async (
   daemonUrl: string,
@@ -24,9 +24,7 @@ export const getInboundAddressDataForChain = async (
   const assetPoolId = assetIdToPoolAssetId({ assetId })
   const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
 
-  return (
-    await thorService.get<InboundAddressResponse[]>(`${daemonUrl}/thorchain/inbound_addresses`)
-  )
+  return (await service.get<InboundAddressResponse[]>(`${daemonUrl}/thorchain/inbound_addresses`))
     .andThen(({ data: inboundAddresses }) => {
       const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
 

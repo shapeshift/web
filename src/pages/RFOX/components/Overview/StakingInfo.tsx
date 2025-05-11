@@ -124,7 +124,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   return (
     <Box>
-      <Flex alignItems='center' justifyContent='space-between' mb={6} gap={4}>
+      <Flex alignItems='center' justifyContent='space-between' mb={6} gap={4} flexWrap='wrap'>
         <Flex alignItems='center' gap={2}>
           <AssetIcon
             size='sm'
@@ -164,7 +164,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
           </Flex>
         </Flex>
 
-        <Card width='100%'>
+        <Card width='100%' maxWidth='400px'>
           <CardBody py={4} px={4}>
             <Flex {...flexProps}>
               <Box>

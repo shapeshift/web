@@ -163,6 +163,7 @@
     "disabled": "Disabled",
     "staged": "Staged",
     "poolHalted": "Pool Halted",
+    "chainHalted": "Chain Halted",
     "poolDisabled": "Pool Disabled",
     "prices": "Prices",
     "symmetric": "Symmetric",

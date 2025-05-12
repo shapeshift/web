@@ -52,7 +52,7 @@ export const useRepaymentLockData = ({
     select: mimirData => {
       if (!mimirData || !blockHeight) return null
 
-      const repaymentMaturity = mimirData.LOANREPAYMENTMATURITY as number
+      const repaymentMaturity = mimirData.LOANREPAYMENTMATURITY
 
       // If position is not available, return the repayment maturity as specified by the network, currently about 30 days
       if (!position) {

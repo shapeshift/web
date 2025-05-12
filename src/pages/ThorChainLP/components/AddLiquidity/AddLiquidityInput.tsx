@@ -1402,7 +1402,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
-    if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
+    if (!isThorchainLpDepositEnabled || isThorchainLpDepositEnabledForPool === false)
+      return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)
       return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
@@ -1434,6 +1435,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeAsset,
     translate,
     walletSupportsOpportunity,
+    isThorchainLpDepositEnabledForPool,
   ])
 
   const confirmCopy = useMemo(() => {
@@ -1619,6 +1621,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             disabledSymDepositAfterRune ||
               isTradingActive === false ||
               !isThorchainLpDepositEnabled ||
+              isThorchainLpDepositEnabledForPool === false ||
               !confirmedQuote ||
               isVotingPowerLoading ||
               !hasEnoughAssetBalance ||

@@ -74,7 +74,7 @@ export const MobileCreateTest = () => {
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex] ?? ''
-      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 4)
       randomWords.push(targetWord)
       randomWords = shuffle(randomWords)
       const correctAnswerIndex = randomWords.indexOf(targetWord)

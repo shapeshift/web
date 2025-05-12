@@ -1,3 +1,4 @@
+import type { FlexProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -9,7 +10,6 @@ import {
   Skeleton,
   Tag,
   Text as CText,
-  type FlexProps,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumAssetId, thorchainAssetId } from '@shapeshiftoss/caip'

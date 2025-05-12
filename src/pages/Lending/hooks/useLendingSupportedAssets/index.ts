@@ -12,7 +12,6 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isSome } from '@/lib/utils'
-import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
 import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import { reactQueries } from '@/react-queries'
 import {

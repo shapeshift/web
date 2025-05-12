@@ -74,7 +74,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     assetReference,
   })
   const assets = useAppSelector(selectAssets)
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -99,7 +99,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
   const isTokenDeposit = isToken(assetId)
 
   const feeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId),
   )
 
   const { data: thorchainSaversDepositQuote } = useGetThorchainSaversDepositQuoteQuery({

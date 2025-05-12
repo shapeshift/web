@@ -87,16 +87,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const isRunePool = assetId === thorchainAssetId
 
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
-  const marketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
-  )
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const feeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId),
   )
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
@@ -113,8 +111,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId }),
-    [accountId, feeAsset?.assetId],
+    () => ({ assetId: feeAsset.assetId, accountId }),
+    [accountId, feeAsset.assetId],
   )
 
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(s =>

@@ -181,7 +181,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: poolAsset?.assetId,
+    assetId,
     swapperName: SwapperName.Thorchain,
   })
 

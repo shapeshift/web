@@ -59,7 +59,7 @@ export const AvailablePools = () => {
           const pool = row.original
 
           const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-            assetId: pool?.assetId,
+            assetId: pool.assetId,
             swapperName: SwapperName.Thorchain,
           })
 

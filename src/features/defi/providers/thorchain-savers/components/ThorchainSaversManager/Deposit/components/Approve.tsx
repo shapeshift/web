@@ -3,7 +3,6 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
@@ -74,7 +73,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     assetReference,
   })
   const assets = useAppSelector(selectAssets)
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)

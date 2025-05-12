@@ -40,7 +40,11 @@ export const useIsTradingActive = ({
       selectInboundAddressData(data, assetId),
   })
 
-  const { data: mimir, isLoading: isMimirLoading, refetch: refetchMimir } = useThorchainMimir({})
+  const {
+    data: mimir,
+    isLoading: isMimirLoading,
+    refetch: refetchMimir,
+  } = useThorchainMimir({ enabled })
 
   const isTradingActive = useMemo(() => {
     return selectIsTradingActive({

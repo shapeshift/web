@@ -287,7 +287,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           isSweepNeededFeching ||
           !estimatedFeesData ||
           !hasEnoughBalanceForDustAndFees ||
-          isChainHalted === true
+          Boolean(isChainHalted)
         }
         isLoading={
           isClaimMutationPending ||

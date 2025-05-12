@@ -183,7 +183,10 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
 
 // The same as above, but fetches from the network, allowing for *both* serialized Txids present in the store, and those that aren't to yield a similar shape,
 // so long as you pass as a serialized TxId in.
-export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefined => {
+export const useTxDetailsQuery = (
+  txId: string | undefined,
+  manualReceiveAddress?: string,
+): TxDetails | undefined => {
   const dispatch = useAppDispatch()
 
   const assets = useAppSelector(selectAssets)
@@ -208,6 +211,9 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
   })
 
   const { data } = useQuery({
+    staleTime: 0,
+    gcTime: 0,
+    refetchInterval: 10000,
     queryKey: ['txDetails', txHash],
     queryFn:
       txHash && adapter
@@ -217,7 +223,9 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
               txid: txHash,
             })
 
-            return adapter.parseTx(tx, fromAccountId(accountId).account)
+            debugger
+
+            return adapter.parseTx(tx, manualReceiveAddress, [manualReceiveAddress])
           }
         : skipToken,
   })

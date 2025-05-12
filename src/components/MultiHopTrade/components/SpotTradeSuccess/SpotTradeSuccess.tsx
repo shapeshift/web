@@ -109,7 +109,7 @@ export const SpotTradeSuccess = ({
   }, [tradeExecution, isMultiHop, receiveAddress, buyAccountId])
 
   const txTransfers = useTxDetails(buyTxId ?? '')?.transfers
-  const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '')?.transfers
+  const manualReceiveAddressTransfers = useTxDetailsQuery(buyTxId ?? '', receiveAddress)?.transfers
   const transfers = txTransfers || manualReceiveAddressTransfers
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {

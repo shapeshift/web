@@ -641,7 +641,11 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async parseTx(tx: unchained.utxo.types.Tx, pubkey: string): Promise<Transaction> {
+  async parseTx(
+    tx: unchained.utxo.types.Tx,
+    pubkey: string,
+    paramOwnedAddresses?: string[],
+  ): Promise<Transaction> {
     if (!this.accountAddresses[pubkey]) {
       const data = await this.providers.http.getAccount({ pubkey })
 
@@ -652,13 +656,17 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
 
     const {
-      ownedAddresses,
+      ownedAddresses: _ownedAddresses,
       ownedSendAddresses,
       unownedReceiveAddresses,
       receiveAddresses,
       sendAddresses,
       ownedReceiveAddresses,
     } = getAddresses(tx, this.accountAddresses[pubkey])
+
+    // If this ever gets called with an address instead of the xpub, this allows parsing to work
+    //
+    const ownedAddresses = paramOwnedAddresses?.length ? paramOwnedAddresses : _ownedAddresses
 
     // a send transaction where all outputs are sent to owned addresses
     const isSelfSend =

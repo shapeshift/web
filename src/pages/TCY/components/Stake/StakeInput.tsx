@@ -163,7 +163,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     isChainHalted
 
   const confirmCopy = useMemo(() => {
-    if (isChainHalted) return translate('common.poolHalted')
+    if (isChainHalted) return translate('common.chainHalted')
     if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
     return translate('TCY.stakeInput.stake')
   }, [errors.amountCryptoPrecision, translate, isChainHalted])

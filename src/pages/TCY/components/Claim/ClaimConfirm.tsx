@@ -202,7 +202,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   }, [hasEnoughBalanceForDustAndFees, estimatedFeesData])
 
   const confirmCopy = useMemo(() => {
-    if (isChainHalted) return translate('common.poolHalted')
+    if (isChainHalted) return translate('common.chainHalted')
     if (isError) return translate('common.insufficientFunds')
     return translate('TCY.claimConfirm.confirmAndClaim')
   }, [isError, translate, isChainHalted])

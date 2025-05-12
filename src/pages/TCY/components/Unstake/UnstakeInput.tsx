@@ -190,7 +190,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
     isChainHalted
 
   const confirmCopy = useMemo(() => {
-    if (isChainHalted) return translate('common.poolHalted')
+    if (isChainHalted) return translate('common.chainHalted')
     if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
     return translate('defi.unstake')
   }, [errors.amountCryptoPrecision, translate, isChainHalted])

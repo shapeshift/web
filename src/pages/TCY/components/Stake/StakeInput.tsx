@@ -20,6 +20,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/common-selectors'
@@ -61,6 +62,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
   const translate = useTranslate()
   const navigate = useNavigate()
   const selectedStakingAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
   const {
     register,
     setValue,
@@ -157,12 +159,14 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     bnOrZero(amountCryptoPrecision).isZero() ||
     isEstimatedFeesDataError ||
     !amountCryptoPrecision ||
-    !fiatAmount
+    !fiatAmount ||
+    isChainHalted
 
   const confirmCopy = useMemo(() => {
+    if (isChainHalted) return translate('common.poolHalted')
     if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
     return translate('TCY.stakeInput.stake')
-  }, [errors.amountCryptoPrecision, translate])
+  }, [errors.amountCryptoPrecision, translate, isChainHalted])
 
   useEffect(() => {
     setValue('accountId', accountId ?? '')
@@ -216,7 +220,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
           width='full'
           onClick={handleStake}
           isDisabled={isDisabled}
-          isLoading={isEstimatedFeesDataLoading}
+          isLoading={isChainHaltedFetching || isEstimatedFeesDataLoading}
         >
           {confirmCopy}
         </ButtonWalletPredicate>

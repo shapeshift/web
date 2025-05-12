@@ -33,6 +33,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
@@ -71,6 +72,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
   const selectedStakingAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const {
     register,
@@ -184,7 +186,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
     bnOrZero(amountCryptoPrecision).isZero() ||
     isEstimatedFeesDataError ||
     !amountCryptoPrecision ||
-    !fiatAmount
+    !fiatAmount ||
+    isChainHalted
 
   const confirmCopy = useMemo(() => {
     if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
@@ -258,7 +261,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           width='full'
           onClick={handleUnstake}
           isDisabled={isDisabled}
-          isLoading={isEstimatedFeesDataLoading}
+          isLoading={isChainHaltedFetching || isEstimatedFeesDataLoading}
         >
           {confirmCopy}
         </ButtonWalletPredicate>

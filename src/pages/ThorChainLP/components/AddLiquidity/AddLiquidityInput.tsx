@@ -82,6 +82,7 @@ import {
   isToken,
 } from '@/lib/utils'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
@@ -619,6 +620,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     assetId: poolAsset?.assetId,
     swapperName: SwapperName.Thorchain,
   })
+
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(poolAsset?.chainId)
 
   const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
@@ -1392,14 +1395,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // Wallet not connected is *not* an error
     if (!isConnected) return
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
-    // 1. pool halted/disabled
-    // 2. Asset unsupported by wallet
-    // 3. smart contract deposits disabled
-    // 4. pool asset balance
-    // 5. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 6. RUNE balance
-    // 7. RUNE fee balance
+    // 1. chain halted
+    // 2. pool halted/disabled
+    // 3. Asset unsupported by wallet
+    // 4. smart contract deposits disabled
+    // 5. pool asset balance
+    // 6. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 7. RUNE balance
+    // 8. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
+    if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled || isThorchainLpDepositEnabledForPool === false)
@@ -1426,6 +1431,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
     isTradingActive,
+    isChainHalted,
     notEnoughFeeAssetError,
     notEnoughPoolAssetError,
     notEnoughRuneError,
@@ -1620,6 +1626,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isDisabled={Boolean(
             disabledSymDepositAfterRune ||
               isTradingActive === false ||
+              isChainHalted ||
               !isThorchainLpDepositEnabled ||
               isThorchainLpDepositEnabledForPool === false ||
               !confirmedQuote ||
@@ -1642,6 +1649,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
             isVotingPowerLoading ||
             isTradingActiveLoading ||
+            isChainHaltedFetching ||
             isSmartContractAccountAddressLoading ||
             isApprovalRequirementsLoading ||
             isApprovalTxPending ||

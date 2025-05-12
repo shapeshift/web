@@ -13,6 +13,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isSome } from '@/lib/utils'
 import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import { reactQueries } from '@/react-queries'
 import {
   selectAccountIdsByChainId,
@@ -48,10 +49,7 @@ export const useLendingSupportedAssets = ({
         : undefined,
   })
 
-  const { data: mimir } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
+  const { data: mimir } = useThorchainMimir({})
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const walletSupportChains = useMemo(

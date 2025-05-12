@@ -102,15 +102,19 @@ export const Pool = () => {
   const params = useParams<MatchParams>()
   const translate = useTranslate()
 
-  const assetId = useMemo(() => {
-    return poolAssetIdToAssetId(params.poolAssetId ?? '')
-  }, [params.poolAssetId])
-
   const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+
+  if (!poolAssetId) throw new Error('poolAssetId is required')
+
+  const assetId = useMemo(() => {
+    return poolAssetIdToAssetId(poolAssetId)
+  }, [poolAssetId])
+
+  if (!assetId) throw new Error(`assetId not found for poolAssetId ${poolAssetId}`)
 
   const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(assetId)
 
-  const { data: pool } = usePool(params.poolAssetId ?? '')
+  const { data: pool } = usePool(poolAssetId)
 
   const runeTvlCryptoPrecision = useMemo(() => {
     if (!pool?.runeDepth) return
@@ -133,7 +137,7 @@ export const Pool = () => {
   }, [assetId])
 
   const handleAddLiquidityClick = useCallback(() => {
-    navigate(generatePath('/pools/add/:poolAssetId', { poolAssetId: poolAssetId ?? '' }))
+    navigate(generatePath('/pools/add/:poolAssetId', { poolAssetId }))
   }, [poolAssetId, navigate])
 
   const handleTradeClick = useCallback(() => {

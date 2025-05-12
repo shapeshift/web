@@ -35,8 +35,8 @@ import { Display } from '@/components/Display'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
+import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 type MatchParams = {
@@ -101,13 +101,14 @@ export const Pool = () => {
   const navigate = useNavigate()
   const params = useParams<MatchParams>()
   const translate = useTranslate()
-  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
 
   const assetId = useMemo(() => {
     return poolAssetIdToAssetId(params.poolAssetId ?? '')
   }, [params.poolAssetId])
 
   const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+
+  const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(assetId)
 
   const { data: pool } = usePool(params.poolAssetId ?? '')
 
@@ -152,10 +153,10 @@ export const Pool = () => {
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
-      {isThorchainPoolsInstable ? (
+      {isThorchainLpDepositEnabledForPool === false ? (
         <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
-          <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
+          <AlertDescription>{translate('pools.depositsDisabled')}</AlertDescription>
         </Alert>
       ) : null}
       <Flex gap={4} flexDir={flexDirPool}>

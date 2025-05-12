@@ -176,7 +176,6 @@ const validators = {
   VITE_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
-  VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: bool({ default: false }),
   VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
   VITE_FEATURE_NOTIFICATION_CENTER: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_TCY: bool({ default: false }),

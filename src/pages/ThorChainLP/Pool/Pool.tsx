@@ -108,7 +108,7 @@ export const Pool = () => {
 
   const assetId = useMemo(() => {
     return poolAssetIdToAssetId(poolAssetId)
-  }, [params.poolAssetId])
+  }, [poolAssetId])
 
   if (!assetId) throw new Error(`assetId not found for poolAssetId ${poolAssetId}`)
 

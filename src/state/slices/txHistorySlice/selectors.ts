@@ -11,6 +11,7 @@ import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
+import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
@@ -27,6 +28,7 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectMemoParamFromFilter,
   selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
@@ -143,7 +145,8 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectAssetIdParamFromFilter,
   selectTxStatusParamFromFilter,
   selectParserParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser): TxId[] => {
+  selectMemoParamFromFilter,
+  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser, memo): TxId[] => {
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
           return accountId === accountIdFilter
@@ -153,13 +156,19 @@ export const selectTxIdsByFilter = createCachedSelector(
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const maybeFilteredByRfox = parser
+    const maybeFilteredByParser = parser
       ? uniqueIds.filter(txId => txs[txId].data?.parser === parser)
       : uniqueIds
 
+    const maybeFilteredByMemo = memo
+      ? maybeFilteredByParser.filter(
+          txId => (txs[txId].data as ThorTxMetadata | undefined)?.memo?.startsWith(memo),
+        )
+      : maybeFilteredByParser
+
     const maybeUniqueIdsByStatus = txStatusFilter
-      ? maybeFilteredByRfox.filter(txId => txs[txId].status === txStatusFilter)
-      : maybeFilteredByRfox
+      ? maybeFilteredByMemo.filter(txId => txs[txId].status === txStatusFilter)
+      : maybeFilteredByMemo
     const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },

@@ -7,7 +7,7 @@ import {
   HStack,
   ModalCloseButton,
 } from '@chakra-ui/react'
-import { fromAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -29,6 +29,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
@@ -74,6 +75,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const {
     state: { isConnected },
   } = useWallet()
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 
@@ -200,9 +202,10 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   }, [hasEnoughBalanceForDustAndFees, estimatedFeesData])
 
   const confirmCopy = useMemo(() => {
+    if (isChainHalted) return translate('common.chainHalted')
     if (isError) return translate('common.insufficientFunds')
     return translate('TCY.claimConfirm.confirmAndClaim')
-  }, [isError, translate])
+  }, [isError, translate, isChainHalted])
 
   const confirmAlert = useMemo(() => {
     if (hasEnoughBalanceForDustAndFees) return null
@@ -283,9 +286,15 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           !runeAddress ||
           isSweepNeededFeching ||
           !estimatedFeesData ||
-          !hasEnoughBalanceForDustAndFees
+          !hasEnoughBalanceForDustAndFees ||
+          Boolean(isChainHalted)
         }
-        isLoading={isClaimMutationPending || isSweepNeededFeching || isEstimatedFeesDataLoading}
+        isLoading={
+          isClaimMutationPending ||
+          isSweepNeededFeching ||
+          isEstimatedFeesDataLoading ||
+          isChainHaltedFetching
+        }
         dustAmountUserCurrency={dustAmountUserCurrency}
         isError={isError}
         assetId={thorchainAssetId}

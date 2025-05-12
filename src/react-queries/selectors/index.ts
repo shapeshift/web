@@ -9,6 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 
 export const selectInboundAddressData = (
   data: Result<InboundAddressResponse[], SwapErrorRight>,
@@ -32,7 +33,7 @@ export const selectIsTradingActive = ({
 }: {
   assetId: AssetId | undefined
   swapperName: SwapperName
-  mimir: Record<string, unknown> | undefined
+  mimir: ThorchainMimir | undefined
   inboundAddressResponse: InboundAddressResponse | undefined
 }): boolean => {
   switch (swapperName) {
@@ -45,17 +46,13 @@ export const selectIsTradingActive = ({
       if (assetIsRune) {
         // The asset is RUNE, there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
-        return Boolean(
-          mimir && Object.entries(mimir).some(([k, v]) => k === 'HALTTHORCHAIN' && v === 0),
-        )
+        return Boolean(mimir && mimir.HALTTHORCHAIN === 0)
       }
 
       if (assetIsTcy) {
         // The asset is TCY, there is no inbound address data to check against
         // Check the HALTTCYTRADING flag on the mimir endpoint instead
-        return Boolean(
-          mimir && Object.entries(mimir).some(([k, v]) => k === 'HALTTCYTRADING' && v === 0),
-        )
+        return Boolean(mimir && mimir.HALTTCYTRADING === 0)
       }
 
       // We have inboundAddressData for the sell asset, check if it is halted

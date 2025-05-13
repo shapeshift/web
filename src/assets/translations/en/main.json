@@ -2525,7 +2525,6 @@
     "discountLabel": "%{discountType} Discount",
     "basedOnFee": "Based on a fee of: %{fee}",
     "feeSummary": "Fee Summary",
-    "simulateFee": "Simulate FOX Discount",
     "freeUnderThreshold": "%{feature} under %{threshold} are always FREE",
     "breakdownHeader": "Your Discount",
     "breakdownBody": "Below is a breakdown of your %{featureLowerCase} fees and the corresponding Discount applied. Learn how much more you can save on the simulate tab.",

@@ -28,7 +28,7 @@ import type { ActiveQuoteMeta } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import { selectCalculatedFeeUsd } from '@/state/apis/snapshot/selectors'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
@@ -513,8 +513,7 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
 
 export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
   (state: ReduxState) =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER',
+    selectCalculatedFeeUsd(state, {
       inputAmountUsd: selectQuoteSellAmountUsd(state),
     }),
   selectActiveQuoteAffiliateBps,
@@ -522,14 +521,13 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
     if (!affiliateBps) return
     if (affiliateBps === '0') return bn(0)
 
-    return calculatedFees.feeUsd
+    return calculatedFees
   },
 )
 
 export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
   (state: ReduxState) =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER',
+    selectCalculatedFeeUsd(state, {
       inputAmountUsd: selectQuoteSellAmountUsd(state),
     }),
   selectActiveQuoteAffiliateBps,
@@ -537,7 +535,7 @@ export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
     if (!affiliateBps) return
     if (affiliateBps === '0') return bn(0)
 
-    return calculatedFees.foxDiscountUsd
+    return calculatedFees
   },
 )
 

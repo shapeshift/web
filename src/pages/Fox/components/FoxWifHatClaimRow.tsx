@@ -5,14 +5,11 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD } from '../constant'
 import { useFoxWifHatClaimedQueryQuery } from '../hooks/useFoxWifHatClaimedQuery'
 import { useFoxWifHatMerkleTreeQuery } from '../hooks/useFoxWifHatMerkleTreeQuery'
 
 import { Amount } from '@/components/Amount/Amount'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
-import { bn } from '@/lib/bignumber/bignumber'
-import { calculateFees } from '@/lib/fees/model'
 import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import {
@@ -68,16 +65,6 @@ export const FoxWifHatClaimRow = ({
 
   const { data: isClaimed } = useFoxWifHatClaimedQueryQuery({ index: claim?.index })
 
-  const discountPercent = useMemo(() => {
-    return calculateFees({
-      tradeAmountUsd: bn(DUMMY_TRADE_AMOUNT_OVER_TRESHOLD_USD),
-      foxHeld: bn(0),
-      feeModel: 'SWAPPER',
-      foxWifHatHeldCryptoBaseUnit: bn(amountCryptoBaseUnit),
-      isSnapshotApiQueriesRejected: false,
-    }).foxDiscountPercent.toFixed(2)
-  }, [amountCryptoBaseUnit])
-
   return (
     <Stack
       width='full'
@@ -117,12 +104,6 @@ export const FoxWifHatClaimRow = ({
         justifyContent='space-between'
         pl={actionsPaddingLeft}
       >
-        <Text color='green.500' fontSize='sm' fontWeight='bold'>
-          {translate('foxPage.foxWifHat.discountText', {
-            percent: discountPercent,
-          })}
-        </Text>
-
         <Button
           colorScheme={isClaimed ? 'green' : 'gray'}
           size='sm'

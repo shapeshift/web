@@ -36,9 +36,11 @@ import { useActions } from '@/hooks/useActions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { calculateFeeUsd } from '@/lib/fees/model'
+import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
-import { selectCalculatedFees, selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
+import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -142,12 +144,7 @@ export const LimitOrderInput = ({
 
   const priceDirection = useAppSelector(selectLimitPriceDirection)
 
-  const feeParams = useMemo(
-    () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
-    [inputSellAmountUsd],
-  )
-
-  const { feeUsd, feeBps } = useAppSelector(state => selectCalculatedFees(state, feeParams))
+  const { feeUsd } = calculateFeeUsd({ tradeAmountUsd: bnOrZero(inputSellAmountUsd) })
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({
@@ -204,7 +201,7 @@ export const LimitOrderInput = ({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
-      affiliateBps: feeBps.toFixed(0),
+      affiliateBps: DEFAULT_FEE_BPS.toString(),
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,
@@ -214,7 +211,6 @@ export const LimitOrderInput = ({
     sellAsset.assetId,
     sellAsset.chainId,
     buyAsset.assetId,
-    feeBps,
     sellAccountAddress,
     recipientAddress,
   ])
@@ -522,7 +518,7 @@ export const LimitOrderInput = ({
 
     return (
       <SharedTradeInputFooter
-        affiliateBps={feeBps.toFixed(0)}
+        affiliateBps={DEFAULT_FEE_BPS.toString()}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
@@ -554,7 +550,6 @@ export const LimitOrderInput = ({
       </SharedTradeInputFooter>
     )
   }, [
-    feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
     priceDirection,

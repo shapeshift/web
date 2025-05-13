@@ -9,16 +9,13 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
-import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
 import {
   selectActiveQuoteBuyAsset,
   selectActiveQuoteExpirationTimestamp,
   selectActiveQuoteLimitPrice,
-  selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAsset,
 } from '@/state/slices/limitOrderSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const rateGasRowSx = {
@@ -32,26 +29,10 @@ export const LimitOrderDetail = () => {
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
-  const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
-
-  const sellAssetMarketData = useAppSelector(state =>
-    sellAsset ? selectMarketDataByAssetIdUserCurrency(state, sellAsset.assetId) : undefined,
-  )
-
-  const inputAmountUsd = bnOrZero(sellAmountCryptoPrecision)
-    .times(bnOrZero(sellAssetMarketData?.price))
-    .toString()
-
-  const { feeBps } = useAppSelector(state =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER' as ParameterModel,
-      inputAmountUsd,
-    }),
-  )
 
   return (
     <RateGasRow
-      affiliateBps={feeBps?.toFixed(0)}
+      affiliateBps={DEFAULT_FEE_BPS.toString()}
       buyAssetId={buyAsset?.assetId ?? ''}
       sellAssetId={sellAsset?.assetId ?? ''}
       rate={bnOrZero(limitPrice?.buyAssetDenomination).toFixed(buyAsset?.precision ?? 0)}

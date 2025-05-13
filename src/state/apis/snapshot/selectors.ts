@@ -1,5 +1,5 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import { ethChainId, foxWifHatAssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
@@ -7,13 +7,11 @@ import { createSelector } from 'reselect'
 
 import { snapshot } from './snapshot'
 
-import type { CalculateFeeBpsReturn } from '@/lib/fees/model'
-import { calculateFees } from '@/lib/fees/model'
+import { calculateFeeUsd } from '@/lib/fees/model'
 import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { isSome } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import { selectFeeModelParamFromFilter } from '@/state/selectors'
-import { selectPortfolioAssetBalancesBaseUnit } from '@/state/slices/common-selectors'
 import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
@@ -59,46 +57,26 @@ type AffiliateFeesProps = {
   inputAmountUsd: string | undefined
 }
 
-export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
-  createCachedSelector(
-    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
-    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-    selectVotingPower,
-    selectIsSnapshotApiQueriesRejected,
-    selectPortfolioAssetBalancesBaseUnit,
-    (feeModel, inputAmountUsd, votingPower, isSnapshotApiQueriesRejected, assetBalances) => {
-      const foxWifHatHeld = assetBalances[foxWifHatAssetId]
-
-      const fees: CalculateFeeBpsReturn = calculateFees({
-        tradeAmountUsd: bnOrZero(inputAmountUsd),
-        foxHeld: bnOrZero(votingPower),
-        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
-        feeModel,
-        isSnapshotApiQueriesRejected,
-      })
-
-      return fees
-    },
-  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
-
-export const selectAppliedDiscountType = createCachedSelector(
-  (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
+// TODO(gomes): this goes away, no need for this to be a selector
+export const selectCalculatedFeeUsd: Selector<ReduxState, string> = createCachedSelector(
   (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-  selectVotingPower,
-  selectIsSnapshotApiQueriesRejected,
-  selectPortfolioAssetBalancesBaseUnit,
-  (feeModel, inputAmountUsd, votingPower, isSnapshotApiQueriesRejected, assetBalances) => {
-    const foxWifHatHeld = assetBalances[foxWifHatAssetId]
-
-    const fees = calculateFees({
+  inputAmountUsd => {
+    const { feeUsd } = calculateFeeUsd({
       tradeAmountUsd: bnOrZero(inputAmountUsd),
-      foxHeld: bnOrZero(votingPower),
-      foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
-      feeModel,
-      isSnapshotApiQueriesRejected,
     })
 
-    return fees.appliedDiscountType
+    return feeUsd.toFixed()
+  },
+)((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
+
+export const selectAppliedDiscountType = createCachedSelector(
+  (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
+  inputAmountUsd => {
+    const { feeUsd } = calculateFeeUsd({
+      tradeAmountUsd: bnOrZero(inputAmountUsd),
+    })
+
+    return feeUsd.toFixed()
   },
 )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
 

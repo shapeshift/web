@@ -39,16 +39,6 @@ export const FoxToken = () => {
 
         <FoxTokenHeader />
         <FoxTokenBalances />
-        <FeeExplainer
-          inputAmountUsd={DEFAULT_FEE_EXPLAINER_INPUT_AMOUNT}
-          boxShadow='none'
-          feeModel={'SWAPPER'}
-          maxWidth='100%'
-          width='full'
-          borderRadius='0'
-          borderTopWidth='0'
-          stackProps={stackProps}
-        />
       </Box>
     </>
   )

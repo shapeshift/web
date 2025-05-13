@@ -1,11 +1,4 @@
-import { swapperParameters } from './swapper'
-import { thorchainLpParameters } from './thorchainLp'
-import type { FeeCurveParameters, ParameterModel } from './types'
-
-export const FEE_CURVE_PARAMETERS: Record<ParameterModel, FeeCurveParameters> = {
-  SWAPPER: swapperParameters,
-  THORCHAIN_LP: thorchainLpParameters,
-}
+import type { ParameterModel } from './types'
 
 export const FEE_MODEL_TO_FEATURE_NAME: Record<ParameterModel, string> = {
   SWAPPER: 'common.trade',

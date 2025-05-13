@@ -69,7 +69,8 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
-import { calculateFees } from '@/lib/fees/model'
+import { calculateFeeUsd } from '@/lib/fees/model'
+import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
 import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -1029,12 +1030,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .div(userCurrencyToUsdRate)
       .toFixed()
 
-    const { feeBps, feeUsd } = calculateFees({
+    const { feeUsd } = calculateFeeUsd({
       tradeAmountUsd: bn(totalAmountUsd),
-      foxHeld: bnOrZero(votingPower),
-      foxWifHatHeldCryptoBaseUnit: bn(foxWifHatHeld),
-      feeModel: 'THORCHAIN_LP',
-      isSnapshotApiQueriesRejected,
     })
 
     setConfirmedQuote({
@@ -1047,7 +1044,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
       totalAmountUsd,
-      feeBps: feeBps.toFixed(0),
+      feeBps: DEFAULT_FEE_BPS.toString(),
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
       feeAmountUSD: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,

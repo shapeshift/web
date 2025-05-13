@@ -12,9 +12,7 @@ import type { Proposal, Strategy } from './validators'
 import { ProposalSchema, SnapshotSchema } from './validators'
 
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { FEE_CURVE_PARAMETERS } from '@/lib/fees/parameters'
 import type { ParameterModel } from '@/lib/fees/parameters/types'
-import { findClosestFoxDiscountDelayBlockNumber } from '@/lib/fees/utils'
 import type { ReduxState } from '@/state/reducer'
 
 type FoxVotingPowerCryptoBalance = string
@@ -122,16 +120,13 @@ export const snapshotApi = createApi({
               return acc
             }, new Set()),
           )
-          const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber(
-            FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
-          )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
 
           const votingPowerResults = await getVotingPower(
             evmAddresses,
             '1',
             strategies,
-            foxDiscountBlock,
+            'latest',
             SNAPSHOT_SPACE,
             delegation,
           )

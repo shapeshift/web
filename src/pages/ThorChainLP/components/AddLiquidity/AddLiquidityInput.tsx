@@ -623,7 +623,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(poolAsset?.chainId)
 
-  const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
+  const isThorchainLpDepositFlagEnabled = useFeatureFlag('ThorchainLpDeposit')
 
   const serializedApprovalTxIndex = useMemo(() => {
     if (!(approvalTxId && poolAssetAccountAddress && poolAssetAccountId)) return ''
@@ -998,7 +998,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneDepositAmountCryptoPrecision,
     poolAsset,
     runeMarketData,
-    isThorchainLpDepositEnabled,
+    isThorchainLpDepositFlagEnabled,
   ])
 
   useEffect(() => {
@@ -1407,7 +1407,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
-    if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
+    if (!isThorchainLpDepositFlagEnabled) return translate('common.poolDisabled')
     if (isThorchainLpDepositEnabledForPool === false) return translate('pools.depositsDisabled')
     if (isSmartContractAccountAddress === true)
       return translate('trade.errors.smartContractWalletNotSupported')
@@ -1429,7 +1429,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     isConnected,
     isSmartContractAccountAddress,
-    isThorchainLpDepositEnabled,
+    isThorchainLpDepositFlagEnabled,
     isTradingActive,
     isChainHalted,
     notEnoughFeeAssetError,
@@ -1620,7 +1620,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             disabledSymDepositAfterRune ||
               isTradingActive === false ||
               isChainHalted ||
-              !isThorchainLpDepositEnabled ||
+              !isThorchainLpDepositFlagEnabled ||
               isThorchainLpDepositEnabledForPool === false ||
               !confirmedQuote ||
               isVotingPowerLoading ||

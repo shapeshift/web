@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
@@ -27,7 +27,6 @@ import { isSome } from '@/lib/utils'
 import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import {
@@ -129,10 +128,6 @@ export const useGetTradeRates = () => {
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
-  const foxWifHatHeld = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
-  )
-
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const sellAccountMetadataFilter = useMemo(
@@ -182,7 +177,6 @@ export const useGetTradeRates = () => {
         // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data to
         // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
         sellAccountMetadata,
-        foxWifHatHeld,
         receiveAccountMetadata,
         sellAccountId,
         isBuyAssetChainSupported,

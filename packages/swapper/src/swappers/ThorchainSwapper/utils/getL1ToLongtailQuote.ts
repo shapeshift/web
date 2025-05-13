@@ -12,7 +12,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { ThorTradeQuote } from '../../../thorchain-utils'
-import { TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -23,7 +23,6 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo/addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Quote } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
@@ -103,7 +102,7 @@ export const getL1ToLongtailQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const maybeThorchainQuotes = await getL1Quote(
+  const maybeThorchainQuotes = await getL1RateOrQuote<ThorTradeQuote>(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,

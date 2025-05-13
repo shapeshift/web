@@ -1,6 +1,5 @@
 import type { GetFeeDataInput, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
 
 import type { QuoteFeeData } from '../../../types'
 
@@ -36,7 +35,6 @@ export const getUtxoTxFees = async ({
     networkFeeCryptoBaseUnit: feeData.txFee,
     chainSpecific: {
       satsPerByte: feeData.chainSpecific.satoshiPerByte,
-      byteCount: bn(feeData.txFee).dividedBy(feeData.chainSpecific.satoshiPerByte).dp(0).toString(),
     },
   }
 }

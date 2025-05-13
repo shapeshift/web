@@ -23,7 +23,7 @@ export * from './memo'
 export * from './routerCallData/routerCalldata'
 export * from './service'
 export * from './types'
-export * from './getL1Rate'
+export * from './getL1RateOrQuote'
 
 export * as cosmossdk from './cosmossdk'
 export * as evm from './evm'

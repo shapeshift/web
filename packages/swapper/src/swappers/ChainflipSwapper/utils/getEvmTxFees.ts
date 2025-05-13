@@ -1,7 +1,7 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 
-import { THOR_EVM_GAS_LIMIT } from '../../ThorchainSwapper/utils/constants'
+const THOR_EVM_GAS_LIMIT = '100000'
 
 type GetEvmTxFeesArgs = {
   adapter: EvmChainAdapter

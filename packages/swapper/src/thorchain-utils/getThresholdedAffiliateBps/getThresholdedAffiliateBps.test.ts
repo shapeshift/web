@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { ETH } from '../../swappers/utils/test-data'
 import type { SwapperConfig } from '../../types'
+import { SwapperName } from '../../types'
 import { service } from '../service'
 import type { MidgardPoolResponse } from '../types'
 import {
@@ -39,7 +40,9 @@ vi.mock('../thorService', () => {
 describe('getOutboundFeeInSellAssetThorBaseUnit', () => {
   it('should return 0.02 rune denominated in the target asset, in thor units', () => {
     const assetPricePrecision = '4.00000' // 1 token is 4x as valuable as 1 rune
-    expect(getOutboundFeeInSellAssetThorBaseUnit(assetPricePrecision).toNumber()).toEqual(
+    expect(
+      getOutboundFeeInSellAssetThorBaseUnit(assetPricePrecision, SwapperName.Thorchain).toNumber(),
+    ).toEqual(
       Number(thorchain.NATIVE_FEE) / 4, // .005 of the sell asset in THOR base unit
     )
   })
@@ -55,6 +58,7 @@ describe('getExpectedAffiliateFeeSellAssetThorUnit', () => {
       sellAmountCryptoBaseUnit,
       sellAsset,
       affiliateBps,
+      SwapperName.Thorchain,
     )
 
     const expectation = bn('100000000').times('0.0035').toFixed(0)
@@ -71,6 +75,7 @@ describe('getExpectedAffiliateFeeSellAssetThorUnit', () => {
       sellAmountCryptoBaseUnit,
       sellAsset,
       affiliateBps,
+      SwapperName.Thorchain,
     )
 
     const expectation = '0'
@@ -107,6 +112,7 @@ describe('getThresholdedAffiliateBps', () => {
       affiliateBps,
       sellAmountCryptoBaseUnit,
       config: {} as unknown as SwapperConfig,
+      swapperName: SwapperName.Thorchain,
     })
 
     const expectation = '0'
@@ -124,6 +130,7 @@ describe('getThresholdedAffiliateBps', () => {
       affiliateBps,
       sellAmountCryptoBaseUnit,
       config: {} as unknown as SwapperConfig,
+      swapperName: SwapperName.Thorchain,
     })
 
     const expectation = affiliateBps

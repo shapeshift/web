@@ -11,7 +11,6 @@ import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshi
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
 import type { BigNumber } from '@/lib/bignumber/bignumber'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -63,7 +62,7 @@ export const getTradeQuoteOrRateInput = async ({
           buyAsset,
           receiveAddress,
           accountNumber: sellAccountNumber,
-          affiliateBps: bnOrZero(affiliateBps).toFixed(),
+          affiliateBps,
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'quote',
@@ -79,7 +78,7 @@ export const getTradeQuoteOrRateInput = async ({
           receiveAddress,
           originalRate,
           accountNumber: sellAccountNumber,
-          affiliateBps: bnOrZero(affiliateBps).toFixed(),
+          affiliateBps,
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'rate',

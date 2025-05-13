@@ -32,7 +32,7 @@ export const LimitOrderDetail = () => {
 
   return (
     <RateGasRow
-      affiliateBps={DEFAULT_FEE_BPS.toString()}
+      affiliateBps={DEFAULT_FEE_BPS}
       buyAssetId={buyAsset?.assetId ?? ''}
       sellAssetId={sellAsset?.assetId ?? ''}
       rate={bnOrZero(limitPrice?.buyAssetDenomination).toFixed(buyAsset?.precision ?? 0)}

@@ -257,9 +257,6 @@ export const useGetTradeQuotes = () => {
 
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-      const feeBps = DEFAULT_FEE_BPS
-      const affiliateBps = feeBps
-
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
 
@@ -275,7 +272,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps,
+          affiliateBps: DEFAULT_FEE_BPS,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:

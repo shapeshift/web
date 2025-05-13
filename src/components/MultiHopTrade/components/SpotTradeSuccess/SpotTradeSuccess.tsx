@@ -241,6 +241,7 @@ export const SpotTradeSuccess = ({
     [buyAsset?.symbol, maybeExtraDeltaCryptoPrecision, surplusPercentage],
   )
 
+  // TODO(gomes): feels like we want to remove this since that will be a dupe, test me and confirm
   const SurplusLine = useCallback(() => {
     if (!buyAsset) return null
     if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null

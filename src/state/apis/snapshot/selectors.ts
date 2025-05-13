@@ -7,7 +7,6 @@ import { createSelector } from 'reselect'
 
 import { snapshot } from './snapshot'
 
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { calculateFeeUsd } from '@/lib/fees/utils'
 import type { ReduxState } from '@/state/reducer'
 import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
@@ -39,7 +38,6 @@ export const selectVotingPower = createSelector(
 )
 
 type AffiliateFeesProps = {
-  feeModel: ParameterModel
   inputAmountUsd: string | undefined
 }
 
@@ -52,4 +50,4 @@ export const selectCalculatedFeeUsd: Selector<ReduxState, string> = createCached
 
     return feeUsd.toFixed()
   },
-)((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
+)((_state, { inputAmountUsd }) => `${inputAmountUsd}`)

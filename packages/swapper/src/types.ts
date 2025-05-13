@@ -22,6 +22,7 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+import type { BigNumber } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
@@ -153,7 +154,7 @@ type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  affiliateBps: string
+  affiliateBps: BigNumber.Value
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }

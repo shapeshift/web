@@ -257,7 +257,7 @@ export const SpotTradeSuccess = ({
     if (bnOrZero(surplusPercentage).lt(0.3)) return null
 
     return (
-      <Box px={8}>
+      <Box width='full' px={8}>
         <YouSavedOrExtra
           totalPercentage={surplusPercentage}
           totalCryptoPrecision={maybeExtraDeltaCryptoPrecision}

@@ -99,8 +99,6 @@ export const ConfirmSummary = ({
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
-  // TODO(gomes): there is no theoretical calculation, we can probs remove this comment?
-  // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,

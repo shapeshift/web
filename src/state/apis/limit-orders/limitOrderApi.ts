@@ -35,7 +35,6 @@ import {
   SellTokenSource,
   SigningScheme,
 } from '@shapeshiftoss/types'
-import type { BigNumber } from '@shapeshiftoss/utils'
 import { isSome } from '@shapeshiftoss/utils'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
@@ -56,7 +55,7 @@ export type LimitOrderQuoteParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
   chainId: ChainId
-  affiliateBps: BigNumber.Value
+  affiliateBps: string
   sellAccountAddress: Address | undefined
   sellAmountCryptoBaseUnit: string
   recipientAddress: Address | undefined

@@ -10,7 +10,6 @@ import type {
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
-import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -27,7 +26,7 @@ export type GetTradeQuoteOrRateInputArgs = {
   allowMultiHop: boolean
   originalRate?: TradeRate
   lifiAllowedTools?: LifiTradeQuote['lifiTools'] | undefined
-  affiliateBps: BigNumber.Value
+  affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
   quoteOrRate: 'quote' | 'rate'

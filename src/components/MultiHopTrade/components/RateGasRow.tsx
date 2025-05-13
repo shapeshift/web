@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import type { BigNumber } from '@shapeshiftoss/utils'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -35,7 +34,7 @@ import { useAppSelector } from '@/state/store'
 import { clickableLinkSx } from '@/theme/styles'
 
 type RateGasRowProps = {
-  affiliateBps: BigNumber.Value
+  affiliateBps: string
   buyAssetId: AssetId
   isLoading?: boolean
   rate: string | undefined

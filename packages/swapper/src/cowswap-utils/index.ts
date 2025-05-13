@@ -8,7 +8,6 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, TypedDataTypes, UnsignedOrderCreation } from '@shapeshiftoss/types'
 import { CowNetwork, KnownChainIds, TypedDataPrimaryType } from '@shapeshiftoss/types'
-import type { BigNumber } from '@shapeshiftoss/utils'
 import {
   bnOrZero,
   convertDecimalPercentageToBasisPoints,
@@ -182,7 +181,7 @@ export const getAffiliateAppDataFragmentByChainId = ({
   affiliateBps,
   chainId,
 }: {
-  affiliateBps: BigNumber.Value
+  affiliateBps: string
   chainId: ChainId
 }): AffiliateAppDataFragment => {
   const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)

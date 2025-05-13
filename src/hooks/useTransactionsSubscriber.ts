@@ -126,7 +126,7 @@ export const useTransactionsSubscriber = () => {
       if (!isEvmChainId(chainId)) return
       if (status !== TxStatus.Confirmed) return
     },
-    [dispatch, isConnected],
+    [isConnected],
   )
 
   /**

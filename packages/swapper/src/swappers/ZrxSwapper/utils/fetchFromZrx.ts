@@ -1,6 +1,6 @@
 import { viemNetworkIdByChainId } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
-import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import { bn, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -75,7 +75,7 @@ const fetchFromZrx = async <T extends 'rate' | 'quote'>({
       sellToken: assetIdToZrxToken(sellAsset.assetId),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       taker: sellAddress,
-      swapFeeBps: parseInt(affiliateBps),
+      swapFeeBps: bn(affiliateBps).toNumber(),
       swapFeeToken: assetIdToZrxToken(buyAsset.assetId), // must be set to the buy asset to simplify fee calcs
       slippageBps: convertDecimalPercentageToBasisPoints(
         slippageTolerancePercentageDecimal,

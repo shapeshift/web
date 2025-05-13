@@ -1054,7 +1054,7 @@
     "networkFee": "Network Fee",
     "learnMoreAboutFox": "Learn more about FOX Benefits",
     "freeTrade": "This trade is free",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based"
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -2238,11 +2238,6 @@
         "title": "✨ Get FOX rewards + more! ✨",
         "body": "Earn FOX rewards by completing tasks on DappBack",
         "cta": "Launch DappBack"
-      },
-      "bondProtocol": {
-        "title": "Buy FOX at a Discount!",
-        "body": "Buy FOX at a discount with BondProtocol",
-        "cta": "Launch BondProtocol"
       }
     },
     "analytics": {
@@ -2514,27 +2509,6 @@
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
-  },
-  "foxDiscounts": {
-    "currentFoxPower": "Your FOX Power",
-    "foxPower": "FOX Power",
-    "simulateTitle": "Simulate your FOX power discounts",
-    "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your %{feature}. Simply adjust the sliders below to indicate your FOX holder amount and the %{featureLowerCase} size in fiat, and watch your potential savings unfold!",
-    "featureSize": "%{feature} Size",
-    "totalFee": "Total Fee",
-    "discountLabel": "%{discountType} Discount",
-    "basedOnFee": "Based on a fee of: %{fee}",
-    "feeSummary": "Fee Summary",
-    "freeUnderThreshold": "%{feature} under %{threshold} are always FREE",
-    "breakdownHeader": "Your Discount",
-    "breakdownBody": "Below is a breakdown of your %{featureLowerCase} fees and the corresponding Discount applied. Learn how much more you can save on the simulate tab.",
-    "featureFee": "%{feature} Fee",
-    "totalFeatureFee": "Total %{feature} Fee",
-    "underThreshold": "Low Trade",
-    "thorHolder": "THORSwap Holder",
-    "foxHolder": "FOX Holder",
-    "foxWifHatHolder": "FOX Wif Hat Holder",
-    "foxBuy": "FOX Buy"
   },
   "chart": {
     "interval": {
@@ -2932,7 +2906,7 @@
       "whatIs": "What is rFOX Staking?",
       "totalSymbolBurn": "Total %{symbol} Burn",
       "simulateTitle": "rFOX Simulator",
-      "simulateSubtle": "Input number of deposit something",
+      "simulateSubtle": "Simulate your rFOX staking yield",
       "estimatedRewards": "Estimated Rewards",
       "depositAmount": "Deposit Amount",
       "shapeshiftRevenue": "ShapeShift Revenue",

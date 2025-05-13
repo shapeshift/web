@@ -10,7 +10,6 @@ import {
   HStack,
   Icon,
   Stack,
-  Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
@@ -108,73 +107,34 @@ export const SpotTradeSuccess = ({
   }, [transfers, buyAsset])
 
   const maybeExtraDeltaCryptoPrecision = useMemo(() => {
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return undefined
+    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return '0'
 
     return bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).gt(0)
       ? bnOrZero(actualBuyAmountCryptoPrecision).minus(quoteBuyAmountCryptoPrecision).toFixed()
-      : undefined
+      : '0'
   }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
 
-  const { buyAmountAfterFeesCryptoPrecision, buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
-    const { buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } = lastHop ?? {}
+  const { buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
+    const { buyAmountBeforeFeesCryptoBaseUnit } = lastHop ?? {}
 
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesCryptoBaseUnit,
       lastHop?.buyAsset.precision ?? 0,
     )
 
-    const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
-      buyAmountAfterFeesCryptoBaseUnit,
-      lastHop?.buyAsset.precision ?? 0,
-    )
-
     return {
       buyAmountBeforeFeesCryptoPrecision,
-      buyAmountAfterFeesCryptoPrecision,
     }
   }, [lastHop])
 
-  const feesUpsideCryptoPrecision = useMemo(() => {
+  const maybeExtraDeltaPercentage = useMemo(() => {
     if (!lastHop) return '0'
 
-    return bnOrZero(buyAmountBeforeFeesCryptoPrecision).minus(buyAmountAfterFeesCryptoPrecision)
-  }, [lastHop, buyAmountAfterFeesCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
-
-  const totalUpsideCryptoPrecision = useMemo(() => {
-    if (!lastHop) return '0'
-
-    return bnOrZero(feesUpsideCryptoPrecision)
-      .plus(maybeExtraDeltaCryptoPrecision ?? 0)
-      .toFixed()
-  }, [lastHop, maybeExtraDeltaCryptoPrecision, feesUpsideCryptoPrecision])
-
-  const totalUpsidePercentage = useMemo(() => {
-    if (!lastHop) return '0'
-
-    return bnOrZero(totalUpsideCryptoPrecision)
+    return bnOrZero(maybeExtraDeltaCryptoPrecision)
       .dividedBy(buyAmountBeforeFeesCryptoPrecision ?? 0)
       .times(100)
       .toFixed()
-  }, [lastHop, totalUpsideCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
-
-  const feesOrTotalUpsideCryptoPrecision = useMemo(() => {
-    // Total upside should never be negative, if it is, it means that there was a *downside* in terms of delta, but there may still
-    // be a fees "upside" (or lack of downside, rather)
-    if (bnOrZero(totalUpsideCryptoPrecision).lte(0) && bnOrZero(feesUpsideCryptoPrecision).gt(0))
-      return bnOrZero(feesUpsideCryptoPrecision).toFixed()
-
-    return totalUpsideCryptoPrecision
-  }, [totalUpsideCryptoPrecision, feesUpsideCryptoPrecision])
-
-  const feesOrTotalUpsidePercentage = useMemo(() => {
-    if (bnOrZero(totalUpsidePercentage).lte(0) && bnOrZero(feesUpsideCryptoPrecision).gt(0))
-      return bnOrZero(feesUpsideCryptoPrecision)
-        .dividedBy(buyAmountBeforeFeesCryptoPrecision ?? 0)
-        .times(100)
-        .toFixed()
-
-    return totalUpsidePercentage
-  }, [totalUpsidePercentage, feesUpsideCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
+  }, [lastHop, buyAmountBeforeFeesCryptoPrecision, maybeExtraDeltaCryptoPrecision])
 
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -207,63 +167,6 @@ export const SpotTradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
-  const surplusPercentage = useMemo(() => {
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return '0'
-
-    return bnOrZero(actualBuyAmountCryptoPrecision)
-      .minus(quoteBuyAmountCryptoPrecision)
-      .div(quoteBuyAmountCryptoPrecision)
-      .times(100)
-      .toString()
-  }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
-
-  const surplusComponents = useMemo(
-    () => ({
-      extraPercent: (
-        <Box color='green.200' display='inline'>
-          <Amount.Crypto
-            as='span'
-            fontWeight='medium'
-            symbol={buyAsset?.symbol ?? ''}
-            value={maybeExtraDeltaCryptoPrecision}
-          />
-          <CText as='span' color='green.200'>
-            {' '}
-            (
-          </CText>
-          <Amount.Percent as='span' value={bnOrZero(surplusPercentage).div(100).toString()} />
-          <CText as='span' color='green.200'>
-            )
-          </CText>
-        </Box>
-      ),
-    }),
-    [buyAsset?.symbol, maybeExtraDeltaCryptoPrecision, surplusPercentage],
-  )
-
-  // TODO(gomes): feels like we want to remove this since that will be a dupe, test me and confirm
-  const SurplusLine = useCallback(() => {
-    if (!buyAsset) return null
-    if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
-    if (!maybeExtraDeltaCryptoPrecision) return null
-
-    // 0.3% min heuristic before showing surplus
-    if (bnOrZero(surplusPercentage).lt(0.3)) return null
-
-    return (
-      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
-        <Text translation='trade.tradeCompleteSurplus' components={surplusComponents} />
-      </Flex>
-    )
-  }, [
-    buyAsset,
-    quoteBuyAmountCryptoPrecision,
-    actualBuyAmountCryptoPrecision,
-    surplusComponents,
-    maybeExtraDeltaCryptoPrecision,
-    surplusPercentage,
-  ])
-
   if (!(buyAsset && sellAsset)) return null
 
   return (
@@ -276,12 +179,11 @@ export const SpotTradeSuccess = ({
               <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
-            <SurplusLine />
-            {bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
+            {bnOrZero(maybeExtraDeltaCryptoPrecision).gt(0) && (
               <Box px={8}>
                 <YouGotMore
-                  totalUpsidePercentage={feesOrTotalUpsidePercentage}
-                  totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
+                  totalUpsidePercentage={maybeExtraDeltaPercentage}
+                  totalUpsideCryptoPrecision={maybeExtraDeltaCryptoPrecision}
                   sellAsset={sellAsset}
                   buyAsset={buyAsset}
                 />

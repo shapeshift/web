@@ -9,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type { ThorTradeRate } from '../../../thorchain-utils'
-import { getL1Rate, TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
@@ -81,7 +81,7 @@ export const getLongtailToL1Rate = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainRates = await getL1Rate(
+  const thorchainRates = await getL1RateOrQuote<ThorTradeRate>(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,

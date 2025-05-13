@@ -9,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type { ThorTradeQuote } from '../../../thorchain-utils'
-import { TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -20,7 +20,6 @@ import type {
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Quote } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
@@ -82,7 +81,7 @@ export const getLongtailToL1Quote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuotes = await getL1Quote(
+  const thorchainQuotes = await getL1RateOrQuote<ThorTradeQuote>(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,

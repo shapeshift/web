@@ -3,7 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThornodePoolResponse, ThorTradeRate } from '../../thorchain-utils'
-import { getL1Rate, service, TradeType } from '../../thorchain-utils'
+import { getL1RateOrQuote, service, TradeType } from '../../thorchain-utils'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
 import { assertValidTrade, assetIdToPoolAssetId } from './utils'
@@ -50,5 +50,11 @@ export const getTradeRate = async (
     return 10
   })()
 
-  return getL1Rate(input, deps, streamingInterval, TradeType.L1ToL1, SwapperName.Mayachain)
+  return getL1RateOrQuote<ThorTradeRate>(
+    input,
+    deps,
+    streamingInterval,
+    TradeType.L1ToL1,
+    SwapperName.Mayachain,
+  )
 }

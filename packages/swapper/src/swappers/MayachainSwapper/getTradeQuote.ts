@@ -3,10 +3,9 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThornodePoolResponse, ThorTradeQuote } from '../../thorchain-utils'
-import { service, TradeType } from '../../thorchain-utils'
+import { getL1RateOrQuote, service, TradeType } from '../../thorchain-utils'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
-import { getL1Quote } from '../ThorchainSwapper/utils/getL1quote'
 import { assertValidTrade, assetIdToPoolAssetId } from './utils'
 
 export const getTradeQuote = async (
@@ -48,5 +47,11 @@ export const getTradeQuote = async (
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10
 
-  return getL1Quote(input, deps, streamingInterval, TradeType.L1ToL1, SwapperName.Mayachain)
+  return getL1RateOrQuote<ThorTradeQuote>(
+    input,
+    deps,
+    streamingInterval,
+    TradeType.L1ToL1,
+    SwapperName.Mayachain,
+  )
 }

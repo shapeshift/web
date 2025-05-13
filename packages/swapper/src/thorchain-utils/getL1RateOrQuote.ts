@@ -18,6 +18,7 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
 import type {
+  CommonTradeQuoteInput,
   GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUtxoTradeRateInput,
@@ -25,51 +26,58 @@ import type {
   QuoteFeeData,
   SwapErrorRight,
   SwapperDeps,
-  SwapperName,
 } from '../types'
-import { TradeQuoteError } from '../types'
+import { SwapperName, TradeQuoteError } from '../types'
 import { makeSwapErrorRight } from '../utils'
 import * as evm from './evm'
+import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
-import { getNativePrecision, getSwapSource } from './index'
+import { addLimitToMemo, getNativePrecision, getSwapSource } from './index'
 import type {
+  ThorEvmTradeQuote,
   ThorEvmTradeRate,
   ThornodeQuoteResponseSuccess,
+  ThorTradeQuote,
   ThorTradeRate,
   ThorTradeRoute,
+  ThorTradeUtxoOrCosmosQuote,
   ThorTradeUtxoOrCosmosRate,
 } from './types'
 import { TradeType } from './types'
 import * as utxo from './utxo'
 
-const THOR_EVM_GAS_LIMIT = '100000' // for sends of eth / erc20 into thorchain router
+const THOR_EVM_GAS_LIMIT = '100000' // for sends into evm router
 
-type MakeThorTradeRateInputBase = {
+type ThorTradeRateOrQuote = ThorTradeRate | ThorTradeQuote
+type ThorEvmTradeRateOrQuote = ThorEvmTradeRate | ThorEvmTradeQuote
+type ThorUtxoOrCosmosTradeRateOrQuote = ThorTradeUtxoOrCosmosRate | ThorTradeUtxoOrCosmosQuote
+
+type MakeThorTradeInputBase = {
   route: ThorTradeRoute
   memo: string
   allowanceContract: string
   feeData: QuoteFeeData
 }
 
-type MakeThorTradeRateInput<T extends ThorTradeRate> = T extends ThorEvmTradeRate
-  ? MakeThorTradeRateInputBase & {
+type MakeThorTradeInput<T extends ThorTradeRateOrQuote> = T extends ThorEvmTradeRateOrQuote
+  ? MakeThorTradeInputBase & {
       data: string
       router: string
       vault: string
     }
-  : MakeThorTradeRateInputBase & {
+  : MakeThorTradeInputBase & {
       data?: never
       router?: never
       vault?: never
     }
 
-export const getL1Rate = async (
-  input: GetTradeRateInput,
+export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
+  input: T extends ThorTradeRate ? GetTradeRateInput : CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
   swapperName: SwapperName,
-): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
+): Promise<Result<T[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -103,9 +111,10 @@ export const getL1Rate = async (
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
   const swapQuote = maybeSwapQuote.unwrap()
 
-  const maybeStreamingSwapQuote = deps.config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS
-    ? await getQuote({ ...baseQuoteArgs, streaming: true, streamingInterval }, deps)
-    : undefined
+  const maybeStreamingSwapQuote =
+    swapperName === SwapperName.Thorchain && deps.config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS
+      ? await getQuote({ ...baseQuoteArgs, streaming: true, streamingInterval }, deps)
+      : undefined
 
   if (maybeStreamingSwapQuote?.isErr()) return Err(maybeStreamingSwapQuote.unwrapErr())
   const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
@@ -168,7 +177,7 @@ export const getL1Rate = async (
   }
 
   const getProtocolFees = (quote: ThornodeQuoteResponseSuccess) => {
-    // THORChain fees consist of liquidity, outbound, and affiliate fees
+    // Fees consist of liquidity, outbound, and affiliate fees
     // For the purpose of displaying protocol fees to the user, we don't need the latter
     // The reason for that is the affiliate fee is shown as its own "ShapeShift fee" section
     // Including the affiliate fee here would result in the protocol fee being wrong, as affiliate fees would be
@@ -196,7 +205,24 @@ export const getL1Rate = async (
     return protocolFees
   }
 
-  const makeThorTradeRate = <T extends ThorTradeRate>({
+  const getMemo = (route: ThorTradeRoute) => {
+    if (input.quoteOrRate === 'rate') return ''
+
+    if (!route.quote.memo) throw new Error('no memo provided')
+
+    // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+    // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+    if (route.isStreaming) return route.quote.memo
+
+    const limitWithManualSlippage = getLimitWithManualSlippage({
+      expectedAmountOutThorBaseUnit: route.expectedAmountOutThorBaseUnit,
+      slippageBps: route.slippageBps,
+    })
+
+    return addLimitToMemo({ memo: route.quote.memo, limit: limitWithManualSlippage })
+  }
+
+  const makeThorTradeRateOrQuote = <U extends ThorTradeRateOrQuote>({
     route,
     memo,
     allowanceContract,
@@ -204,7 +230,7 @@ export const getL1Rate = async (
     data,
     router,
     vault,
-  }: MakeThorTradeRateInput<T>): T => {
+  }: MakeThorTradeInput<U>): T => {
     const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
       value: route.expectedAmountOutThorBaseUnit,
       inputExponent: nativePrecision,
@@ -217,7 +243,7 @@ export const getL1Rate = async (
 
     return {
       id: uuid(),
-      quoteOrRate: 'rate',
+      quoteOrRate: input.quoteOrRate,
       memo,
       receiveAddress,
       affiliateBps: route.affiliateBps,
@@ -250,9 +276,6 @@ export const getL1Rate = async (
     } as T
   }
 
-  // No memo for trade rates
-  const memo = ''
-
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const { supportsEIP1559 } = input as GetEvmTradeRateInput
@@ -268,7 +291,9 @@ export const getL1Rate = async (
       })
 
       const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map(async (route): Promise<ThorEvmTradeRate> => {
+        perRouteValues.map(async (route): Promise<T> => {
+          const memo = getMemo(route)
+
           const { data, router, vault } = await evm.getThorTxData({
             sellAsset,
             sellAmountCryptoBaseUnit,
@@ -278,7 +303,7 @@ export const getL1Rate = async (
             swapperName,
           })
 
-          return makeThorTradeRate<ThorEvmTradeRate>({
+          return makeThorTradeRateOrQuote<ThorEvmTradeRateOrQuote>({
             route,
             memo,
             allowanceContract: router,
@@ -311,20 +336,22 @@ export const getL1Rate = async (
 
       const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      // This works by leveraging the xpub if it exists. Even though this is a rate, we absolutely can (and will if possible) pass a xpub
-      // However, we run the risk that https://github.com/shapeshift/web/issues/7979 breaks this, since connecting a wallet won't refetch a quote
-      // If that becomes an issue we should be able to get a very rough estimation (not taking users' UTXOs into account) without an address
-      // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.
-      const { vault, opReturnData, pubkey } = await utxo.getThorTxData({
-        sellAsset,
-        xpub,
-        memo,
-        config: deps.config,
-        swapperName,
-      })
-
       const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map(async (route): Promise<ThorTradeUtxoOrCosmosRate> => {
+        perRouteValues.map(async (route): Promise<T> => {
+          const memo = getMemo(route)
+
+          // This works by leveraging the xpub if it exists. Even though this is a rate, we absolutely can (and will if possible) pass a xpub
+          // However, we run the risk that https://github.com/shapeshift/web/issues/7979 breaks this, since connecting a wallet won't refetch a quote
+          // If that becomes an issue we should be able to get a very rough estimation (not taking users' UTXOs into account) without an address
+          // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.
+          const { vault, opReturnData, pubkey } = await utxo.getThorTxData({
+            sellAsset,
+            xpub,
+            memo,
+            config: deps.config,
+            swapperName,
+          })
+
           const feeData = await (async (): Promise<QuoteFeeData> => {
             const protocolFees = getProtocolFees(route.quote)
 
@@ -346,7 +373,7 @@ export const getL1Rate = async (
             }
           })()
 
-          return makeThorTradeRate<ThorTradeUtxoOrCosmosRate>({
+          return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
             route,
             allowanceContract: '0x0', // not applicable to UTXOs
             memo,
@@ -374,10 +401,10 @@ export const getL1Rate = async (
       const { fast } = await cosmosChainAdapter.getFeeData({})
 
       return Ok(
-        perRouteValues.map((route): ThorTradeUtxoOrCosmosRate => {
-          return makeThorTradeRate<ThorTradeUtxoOrCosmosRate>({
+        perRouteValues.map((route): T => {
+          return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
             route,
-            memo,
+            memo: getMemo(route),
             allowanceContract: '0x0', // not applicable to cosmossdk
             feeData: {
               networkFeeCryptoBaseUnit: fast.txFee,

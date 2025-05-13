@@ -1,4 +1,6 @@
-import type { TradeQuote, TradeRate } from '../types'
+import type BigNumber from 'bignumber.js'
+
+import type { SwapSource, TradeQuote, TradeRate } from '../types'
 
 export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
 
@@ -263,3 +265,13 @@ export type ThorEvmTradeRate = TradeRate &
 
 export type ThorTradeUtxoOrCosmosRate = TradeRate & ThorTradeQuoteSpecificMetadata
 export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate
+
+export type ThorTradeRoute = {
+  source: SwapSource
+  quote: ThornodeQuoteResponseSuccess
+  expectedAmountOutThorBaseUnit: string
+  isStreaming: boolean
+  affiliateBps: string
+  slippageBps: BigNumber
+  estimatedExecutionTimeMs: number | undefined
+}

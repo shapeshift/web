@@ -3,10 +3,9 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThornodePoolResponse, ThorTradeRate } from '../../thorchain-utils'
-import { service, TradeType } from '../../thorchain-utils'
+import { getL1Rate, service, TradeType } from '../../thorchain-utils'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
-import { getL1Rate } from '../ThorchainSwapper/utils/getL1Rate'
 import { assertValidTrade, assetIdToPoolAssetId } from './utils'
 
 export const getTradeRate = async (

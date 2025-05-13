@@ -27,7 +27,7 @@ import type { MayachainMsgDeposit, MayachainMsgSend } from '../types'
 import { MayachainMessageType } from '../types'
 
 // static automatic native fee as defined by: https://daemon.mayachain.shapeshift.com/lcd/mayachain/constants
-const NATIVE_FEE = '2000000000'
+export const NATIVE_FEE = '2000000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.MayachainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.MayachainMainnet

@@ -9,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type { ThorTradeRate } from '../../../thorchain-utils'
-import { TradeType } from '../../../thorchain-utils'
+import { getL1Rate, TradeType } from '../../../thorchain-utils'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
@@ -20,7 +20,6 @@ import type {
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Rate } from './getL1Rate'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.

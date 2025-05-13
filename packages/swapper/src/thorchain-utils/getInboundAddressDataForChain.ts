@@ -2,16 +2,15 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import * as mayachain from '../swappers/MayachainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import * as thorchain from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { SwapErrorRight } from '../types'
-import { SwapperName, TradeQuoteError } from '../types'
+import type { SwapErrorRight, SwapperName } from '../types'
+import { TradeQuoteError } from '../types'
 import { makeSwapErrorRight } from '../utils'
+import { getPoolAssetId } from './index'
 import { service } from './service'
 import type { InboundAddressResponse } from './types'
 
 export const getInboundAddressDataForChain = async (
-  url: string,
+  daemonUrl: string,
   assetId: AssetId | undefined,
   excludeHalted: boolean,
   swapperName: SwapperName,
@@ -25,20 +24,10 @@ export const getInboundAddressDataForChain = async (
     )
   }
 
-  const assetPoolId = (() => {
-    switch (swapperName) {
-      case SwapperName.Thorchain:
-        return thorchain.assetIdToPoolAssetId({ assetId })
-      case SwapperName.Mayachain:
-        return mayachain.assetIdToPoolAssetId({ assetId })
-      default:
-        throw new Error(`Invalid swapper: ${swapperName}`)
-    }
-  })()
+  const poolAssetId = getPoolAssetId({ assetId, swapperName })
+  const assetChainSymbol = poolAssetId?.slice(0, poolAssetId.indexOf('.'))
 
-  const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
-
-  return (await service.get<InboundAddressResponse[]>(`${url}/inbound_addresses`))
+  return (await service.get<InboundAddressResponse[]>(`${daemonUrl}/inbound_addresses`))
     .andThen(({ data: inboundAddresses }) => {
       const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
 

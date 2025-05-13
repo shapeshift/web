@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import type { BigNumber } from '@shapeshiftoss/utils'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -34,7 +35,7 @@ import { useAppSelector } from '@/state/store'
 import { clickableLinkSx } from '@/theme/styles'
 
 type RateGasRowProps = {
-  affiliateBps: string | undefined
+  affiliateBps: BigNumber.Value
   buyAssetId: AssetId
   isLoading?: boolean
   rate: string | undefined
@@ -76,7 +77,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
 
     const feeMessage = useMemo(() => {
-      if (!affiliateBps || bnOrZero(affiliateBps).isZero()) return translate('trade.freeTrade')
+      if (bnOrZero(affiliateBps).isZero()) return translate('trade.freeTrade')
 
       const feePercentage = bnOrZero(affiliateBps).div(100).toString()
       return translate('trade.feeExplainer', {

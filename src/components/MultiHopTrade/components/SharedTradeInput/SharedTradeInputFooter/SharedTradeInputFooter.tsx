@@ -11,12 +11,13 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputFooterProps = {
-  affiliateBps: string | undefined
+  affiliateBps: BigNumber.Value
   affiliateFeeAfterDiscountUserCurrency: string | undefined
   buyAsset: Asset
   children?: JSX.Element

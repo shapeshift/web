@@ -504,7 +504,7 @@ export const LimitOrderInput = ({
 
     return (
       <SharedTradeInputFooter
-        affiliateBps={DEFAULT_FEE_BPS.toString()}
+        affiliateBps={DEFAULT_FEE_BPS}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}

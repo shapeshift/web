@@ -529,20 +529,6 @@ export const selectTradeAffiliateFeeUsd = createSelector(
   },
 )
 
-export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
-  (state: ReduxState) =>
-    selectCalculatedFeeUsd(state, {
-      inputAmountUsd: selectQuoteSellAmountUsd(state),
-    }),
-  selectActiveQuoteAffiliateBps,
-  (calculatedFees, affiliateBps) => {
-    if (!affiliateBps) return
-    if (affiliateBps === '0') return bn(0)
-
-    return calculatedFees
-  },
-)
-
 export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelector(
   selectTradeAffiliateFeeUsd,
   selectUserCurrencyToUsdRate,

@@ -9,7 +9,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
+import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 import {
   selectActiveQuoteBuyAsset,
   selectActiveQuoteExpirationTimestamp,

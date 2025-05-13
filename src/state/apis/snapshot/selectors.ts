@@ -7,8 +7,8 @@ import { createSelector } from 'reselect'
 
 import { snapshot } from './snapshot'
 
-import { calculateFeeUsd } from '@/lib/fees/model'
 import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { calculateFeeUsd } from '@/lib/fees/utils'
 import type { ReduxState } from '@/state/reducer'
 import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 

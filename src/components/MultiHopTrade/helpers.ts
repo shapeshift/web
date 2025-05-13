@@ -3,7 +3,7 @@ import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote, isThorTradeQuote, isThorTradeRate } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 
-import { calculateFeeUsd } from '@/lib/fees/model'
+import { calculateFeeUsd } from '@/lib/fees/utils'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'

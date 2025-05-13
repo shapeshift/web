@@ -3,6 +3,7 @@ import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote, isThorTradeQuote, isThorTradeRate } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 
+import { calculateFeeUsd } from '@/lib/fees/model'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
@@ -16,7 +17,6 @@ import {
   selectQuoteSellAmountBeforeFeesCryptoPrecision,
   selectQuoteSellAmountUsd,
   selectQuoteSellAmountUserCurrency,
-  selectTradeQuoteAffiliateFeeAfterDiscountUsd,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { store } from '@/state/store'
@@ -35,8 +35,10 @@ export const getMixpanelEventData = () => {
 
   const assets = selectAssets(state)
   const shapeShiftFeeUserCurrency = selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency(state)
-  const shapeshiftFeeUsd = selectTradeQuoteAffiliateFeeAfterDiscountUsd(state)
-  const sellAmountBeforeFeesUsd = selectQuoteSellAmountUsd(state)
+  const quoteSellAmountUsd = selectQuoteSellAmountUsd(state)
+  const { feeUsd: shapeshiftFeeUsd } = calculateFeeUsd({
+    inputAmountUsd: bnOrZero(quoteSellAmountUsd),
+  })
   const sellAmountBeforeFeesUserCurrency = selectQuoteSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectQuoteSellAmountBeforeFeesCryptoPrecision(state)
@@ -58,7 +60,7 @@ export const getMixpanelEventData = () => {
     sellAsset: compositeSellAsset,
     buyAssetChain: buyAssetFeeAsset?.networkName,
     sellAssetChain: sellAssetFeeAsset?.networkName,
-    amountUsd: sellAmountBeforeFeesUsd,
+    amountUsd: quoteSellAmountUsd,
     amountUserCurrency: sellAmountBeforeFeesUserCurrency,
     swapperName,
     shapeShiftFeeUserCurrency,

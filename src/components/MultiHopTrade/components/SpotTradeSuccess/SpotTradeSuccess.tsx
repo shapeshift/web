@@ -13,7 +13,6 @@ import {
   Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -22,7 +21,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { TwirlyToggle } from '../TwirlyToggle'
-import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
 import { YouSaved } from './components/YouSaved'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -33,19 +31,15 @@ import { Text } from '@/components/Text'
 import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import { selectLastHopBuyAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecution,
-  selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectLastHop,
-  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-  selectTradeQuoteAffiliateFeeDiscountUserCurrency,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 export type SpotTradeSuccessProps = {
   handleBack: () => void
@@ -78,21 +72,11 @@ export const SpotTradeSuccess = ({
     defaultIsOpen: false,
   })
 
-  const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
   const tradeExecution = useAppSelector(selectConfirmedTradeExecution)
   const isMultiHop = useAppSelector(selectIsActiveQuoteMultiHop)
 
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
-
-  const feeSavingUserCurrency = useAppSelector(selectTradeQuoteAffiliateFeeDiscountUserCurrency)
-
-  const affiliateFeeUserCurrency = useAppSelector(
-    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-  )
-
-  const hasFeeSaving = useMemo(() => bnOrZero(feeSavingUserCurrency).gt(0), [feeSavingUserCurrency])
-  const couldHaveReducedFee = !hasFeeSaving && !bnOrZero(affiliateFeeUserCurrency).isZero()
 
   // Get the actual received amount from the buy transaction *if* we can
   // i.e if this isn't a swap to a manual receive addy
@@ -192,19 +176,6 @@ export const SpotTradeSuccess = ({
     return totalUpsidePercentage
   }, [totalUpsidePercentage, feesUpsideCryptoPrecision, buyAmountBeforeFeesCryptoPrecision])
 
-  const relatedAssetIdsFilter = useMemo(
-    () => ({
-      assetId: foxAssetId,
-      onlyConnectedChains: false,
-    }),
-    [],
-  )
-
-  const relatedAssetIds = useSelectorWithArgs(
-    selectRelatedAssetIdsInclusiveSorted,
-    relatedAssetIdsFilter,
-  )
-
   const AmountsLine = useCallback(() => {
     if (!(sellAsset && buyAsset)) return null
     if (!(sellAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
@@ -274,8 +245,6 @@ export const SpotTradeSuccess = ({
     if (!buyAsset) return null
     if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
     if (!maybeExtraDeltaCryptoPrecision) return null
-    // Superseeded by the "You Saved" explainer
-    if (hasFeeSaving) return null
 
     // 0.3% min heuristic before showing surplus
     if (bnOrZero(surplusPercentage).lt(0.3)) return null
@@ -291,27 +260,8 @@ export const SpotTradeSuccess = ({
     actualBuyAmountCryptoPrecision,
     surplusComponents,
     maybeExtraDeltaCryptoPrecision,
-    hasFeeSaving,
     surplusPercentage,
   ])
-
-  // NOTE: This is a temporary solution to enable the Fox discount summary only if the user did NOT
-
-  // trade FOX. If a user trades FOX, the discount calculations will have changed from the correct
-  // values because the amount of FOX held in the wallet will have changed.
-  // See https://github.com/shapeshift/web/issues/8028 for more details.
-  const enableFoxDiscountSummary = useMemo(() => {
-    const didTradeFox = relatedAssetIds.some(assetId => {
-      return (
-        firstHop?.buyAsset.assetId === assetId ||
-        firstHop?.sellAsset.assetId === assetId ||
-        lastHop?.buyAsset.assetId === assetId ||
-        lastHop?.sellAsset.assetId === assetId
-      )
-    })
-
-    return !didTradeFox
-  }, [firstHop, lastHop, relatedAssetIds])
 
   if (!(buyAsset && sellAsset)) return null
 
@@ -326,21 +276,14 @@ export const SpotTradeSuccess = ({
             </Stack>
             <AmountsLine />
             <SurplusLine />
-            {enableFoxDiscountSummary &&
-              hasFeeSaving &&
-              bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
-                <Box px={8}>
-                  <YouSaved
-                    totalUpsidePercentage={feesOrTotalUpsidePercentage}
-                    totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
-                    sellAsset={sellAsset}
-                    buyAsset={buyAsset}
-                  />
-                </Box>
-              )}
-            {couldHaveReducedFee && affiliateFeeUserCurrency && (
+            {bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
               <Box px={8}>
-                <YouCouldHaveSaved affiliateFeeUserCurrency={affiliateFeeUserCurrency} />
+                <YouSaved
+                  totalUpsidePercentage={feesOrTotalUpsidePercentage}
+                  totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
+                  sellAsset={sellAsset}
+                  buyAsset={buyAsset}
+                />
               </Box>
             )}
           </Flex>

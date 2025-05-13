@@ -1053,8 +1053,8 @@
     },
     "networkFee": "Network Fee",
     "learnMoreAboutFox": "Learn more about FOX Benefits",
-    "freeTrade": "This trade is free based on your FOX holdings of %{foxBalance} FOX",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based on your FOX holdings of %{foxBalance} FOX."
+    "freeTrade": "This trade is free",
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based"
   },
   "limitOrder": {
     "heading": "Limit",

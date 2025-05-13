@@ -29,7 +29,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
-import { selectVotingPower } from '@/state/apis/snapshot/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { clickableLinkSx } from '@/theme/styles'
@@ -75,22 +74,15 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const [hasClickedRate, setHasClickedRate] = useState(false)
     const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
     const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
-    const foxBalanceCryptoPrecision = useAppSelector(state =>
-      selectVotingPower(state, { feeModel: 'SWAPPER' }),
-    )
 
     const feeMessage = useMemo(() => {
-      if (!affiliateBps || bnOrZero(affiliateBps).isZero())
-        return translate('trade.freeTrade', {
-          foxBalance: bnOrZero(foxBalanceCryptoPrecision).toFixed(0),
-        })
+      if (!affiliateBps || bnOrZero(affiliateBps).isZero()) return translate('trade.freeTrade')
 
       const feePercentage = bnOrZero(affiliateBps).div(100).toString()
       return translate('trade.feeExplainer', {
         feePercentage,
-        foxBalance: bnOrZero(foxBalanceCryptoPrecision).toFixed(0),
       })
-    }, [affiliateBps, foxBalanceCryptoPrecision, translate])
+    }, [affiliateBps, translate])
 
     const feePopoverContent = useMemo(() => {
       return (

@@ -284,10 +284,7 @@ export const mockStore: ReduxState = {
       version: 0,
       rehydrated: false,
     },
-    votingPowerByModel: {
-      SWAPPER: undefined,
-      THORCHAIN_LP: undefined,
-    },
+    votingPower: undefined,
     strategies: undefined,
     proposals: undefined,
   },

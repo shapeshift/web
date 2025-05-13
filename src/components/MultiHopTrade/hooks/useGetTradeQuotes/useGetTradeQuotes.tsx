@@ -27,11 +27,9 @@ import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { selectVotingPower } from '@/state/apis/snapshot/selectors'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import {
@@ -79,8 +77,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
   version: string // ISO 8601 standard basic format date
   isActionable: boolean // is any quote in the request actionable
 }
-
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
 const getMixPanelDataFromApiQuotes = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
@@ -208,8 +204,6 @@ export const useGetTradeQuotes = () => {
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
@@ -317,7 +311,6 @@ export const useGetTradeQuotes = () => {
         sellAccountMetadata,
         sellAmountCryptoPrecision,
         sellAsset,
-        votingPower,
         receiveAccountMetadata,
         userSlippageTolerancePercentageDecimal,
         sellAssetUsdRate,

@@ -40,7 +40,6 @@ import { calculateFeeUsd } from '@/lib/fees/model'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
-import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -115,7 +114,6 @@ export const LimitOrderInput = ({
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
@@ -144,7 +142,7 @@ export const LimitOrderInput = ({
 
   const priceDirection = useAppSelector(selectLimitPriceDirection)
 
-  const { feeUsd } = calculateFeeUsd({ tradeAmountUsd: bnOrZero(inputSellAmountUsd) })
+  const { feeUsd } = calculateFeeUsd({ inputAmountUsd: bnOrZero(inputSellAmountUsd) })
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({
@@ -365,20 +363,8 @@ export const LimitOrderInput = ({
   }, [buyAssetUsdRate, sellAssetUsdRate, switchAssets])
 
   const isLoading = useMemo(() => {
-    return (
-      isCheckingAllowance ||
-      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
-      // Only consider snapshot API queries as pending if we don't have voting power yet
-      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
-      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading
-    )
-  }, [
-    isCheckingAllowance,
-    isTradeQuoteRequestAborted,
-    isVotingPowerLoading,
-    shouldShowTradeQuoteOrAwaitInput,
-  ])
+    return isCheckingAllowance || (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted)
+  }, [isCheckingAllowance, isTradeQuoteRequestAborted, shouldShowTradeQuoteOrAwaitInput])
 
   const headerRightContent = useMemo(() => {
     if (!(isCompact || isSmallerThanXl)) return <></>

@@ -12,7 +12,6 @@ import type { Proposal, Strategy } from './validators'
 import { ProposalSchema, SnapshotSchema } from './validators'
 
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 import type { ReduxState } from '@/state/reducer'
 
 type FoxVotingPowerCryptoBalance = string
@@ -20,10 +19,7 @@ type FoxVotingPowerCryptoBalance = string
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
 
 export const initialState: SnapshotState = {
-  votingPowerByModel: {
-    SWAPPER: undefined,
-    THORCHAIN_LP: undefined,
-  },
+  votingPower: undefined,
   strategies: undefined,
   proposals: undefined,
 }
@@ -34,7 +30,7 @@ type ProposalsState = {
 }
 
 export type SnapshotState = {
-  votingPowerByModel: Record<ParameterModel, string | undefined>
+  votingPower: string | undefined
   strategies: Strategy[] | undefined
   proposals: ProposalsState | undefined
 }
@@ -43,12 +39,9 @@ export const snapshot = createSlice({
   name: 'snapshot',
   initialState,
   reducers: {
-    setVotingPower: (
-      state,
-      { payload }: { payload: { foxHeld: string; model: ParameterModel } },
-    ) => {
-      const { model, foxHeld } = payload
-      state.votingPowerByModel[model] = foxHeld
+    setVotingPower: (state, { payload }: { payload: { foxHeld: string } }) => {
+      const { foxHeld } = payload
+      state.votingPower = foxHeld
     },
     setStrategies: (state, { payload }: { payload: Strategy[] }) => {
       state.strategies = payload
@@ -59,7 +52,7 @@ export const snapshot = createSlice({
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
   selectors: {
-    selectVotingPowerByModel: state => state.votingPowerByModel,
+    selectVotingPower: state => state.votingPower,
   },
 })
 
@@ -97,8 +90,8 @@ export const snapshotApi = createApi({
         }
       },
     }),
-    getVotingPower: build.query<FoxVotingPowerCryptoBalance, { model: ParameterModel }>({
-      queryFn: async ({ model }, { dispatch, getState }) => {
+    getVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
+      queryFn: async (_, { dispatch, getState }) => {
         try {
           const accountIds: AccountId[] =
             (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
@@ -142,7 +135,7 @@ export const snapshotApi = createApi({
             bnOrZero(0),
           )
 
-          dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
+          dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString() }))
 
           return { data: foxHeld.toString() }
         } catch (e) {

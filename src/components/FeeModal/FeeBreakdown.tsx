@@ -23,7 +23,7 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[feeModel])
   const featureFeeTranslation = translate('foxDiscounts.featureFee', { feature })
   const { feeUsd: affiliateFeeAmountUsd } = calculateFeeUsd({
-    tradeAmountUsd: bnOrZero(inputAmountUsd),
+    inputAmountUsd: bnOrZero(inputAmountUsd),
   })
 
   const totalAmount = useMemo(() => {

@@ -21,15 +21,10 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import {
-  selectIsSnapshotApiQueriesPending,
-  selectIsSnapshotApiQueriesRejected,
-  selectVotingPower,
-} from '@/state/apis/snapshot/selectors'
+import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
@@ -72,8 +67,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
   version: string // ISO 8601 standard basic format date
   isActionable: boolean // is any quote in the request actionable
 }
-
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
 const getMixPanelDataFromApiRates = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
@@ -167,13 +160,6 @@ export const useGetTradeRates = () => {
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
-
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
@@ -193,14 +179,12 @@ export const useGetTradeRates = () => {
         userSlippageTolerancePercentageDecimal,
         sellAssetUsdRate,
         // TODO(gomes): all the below are what's causing trade input to refentially invalidate on wallet connect
-        // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data (e.g voting power etc) to
+        // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data to
         // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
         sellAccountMetadata,
-        votingPower,
         foxWifHatHeld,
         receiveAccountMetadata,
         sellAccountId,
-        isVotingPowerLoading,
         isBuyAssetChainSupported,
         receiveAddress,
         isSnapshotApiQueriesRejected,

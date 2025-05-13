@@ -18,13 +18,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  foxWifHatAssetId,
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   assetIdToPoolAssetId,
@@ -71,7 +65,6 @@ import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSup
 import { bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
 import { calculateFeeUsd } from '@/lib/fees/model'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/parameters/swapper'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -100,12 +93,6 @@ import type { Opportunity } from '@/pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from '@/pages/ThorChainLP/utils'
 import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
-import {
-  selectIsSnapshotApiQueriesRejected,
-  selectIsVotingPowerLoading,
-  selectVotingPower,
-} from '@/state/apis/snapshot/selectors'
-import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountIdsByChainId,
@@ -140,7 +127,6 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORCHAIN_LP' }
 const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
 const shapeshiftFeeTranslation: TextPropTypes['translation'] = [
   'trade.tradeFeeSource',
@@ -178,10 +164,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { isSnapInstalled } = useIsSnapInstalled()
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const [showFeeModal, toggleShowFeeModal] = useState(false)
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
@@ -211,10 +194,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     useState<string | undefined>()
   const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
     useState<string | undefined>()
-
-  const foxWifHatHeld = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
-  )
 
   const [slippageDecimalPercentage, setSlippageDecimalPercentage] = useState<string | undefined>()
 
@@ -1003,16 +982,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
-    if (isConnected) {
-      dispatch(
-        snapshotApi.endpoints.getVotingPower.initiate(
-          { model: 'THORCHAIN_LP' },
-          // Fetch only once on mount to avoid overfetching
-          { forceRefetch: false },
-        ),
-      )
-    }
-
     if (!slippageFiatUserCurrency) return
     if (!activeOpportunityId) return
     if (!actualAssetDepositAmountCryptoPrecision) return
@@ -1020,7 +989,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!actualRuneDepositAmountCryptoPrecision) return
     if (!actualRuneDepositAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
-    if (isVotingPowerLoading) return
 
     const totalAmountFiatUserCurrency = bnOrZero(actualAssetDepositAmountFiatUserCurrency)
       .plus(actualRuneDepositAmountFiatUserCurrency)
@@ -1031,7 +999,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .toFixed()
 
     const { feeUsd } = calculateFeeUsd({
-      tradeAmountUsd: bn(totalAmountUsd),
+      inputAmountUsd: bn(totalAmountUsd),
     })
 
     setConfirmedQuote({
@@ -1062,7 +1030,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     currentAccountIdByChainId,
     dispatch,
     isConnected,
-    isVotingPowerLoading,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,
     position,
@@ -1072,9 +1039,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     slippageFiatUserCurrency,
     totalGasFeeFiatUserCurrency,
     userCurrencyToUsdRate,
-    votingPower,
-    isSnapshotApiQueriesRejected,
-    foxWifHatHeld,
   ])
 
   const percentOptions = useMemo(() => [], [])
@@ -1627,7 +1591,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               !isThorchainLpDepositEnabled ||
               isThorchainLpDepositEnabledForPool === false ||
               !confirmedQuote ||
-              isVotingPowerLoading ||
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||
               isApprovalTxPending ||
@@ -1644,7 +1607,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           )}
           isLoading={
             (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-            isVotingPowerLoading ||
             isTradingActiveLoading ||
             isChainHaltedFetching ||
             isSmartContractAccountAddressLoading ||

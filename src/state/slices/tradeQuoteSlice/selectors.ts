@@ -27,6 +27,7 @@ import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { calculateFeeUsd } from '@/lib/fees/model'
 import { fromBaseUnit } from '@/lib/math'
 import { selectCalculatedFeeUsd } from '@/state/apis/snapshot/selectors'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
@@ -511,17 +512,18 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
     return activeQuote.affiliateBps
   })
 
-export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
-  (state: ReduxState) =>
-    selectCalculatedFeeUsd(state, {
-      inputAmountUsd: selectQuoteSellAmountUsd(state),
-    }),
+export const selectTradeAffiliateFeeUsd = createSelector(
+  selectQuoteSellAmountUsd,
   selectActiveQuoteAffiliateBps,
-  (calculatedFees, affiliateBps) => {
+  (sellAmountUsd, affiliateBps) => {
+    const { feeUsd } = calculateFeeUsd({
+      inputAmountUsd: bnOrZero(sellAmountUsd),
+    })
+
     if (!affiliateBps) return
     if (affiliateBps === '0') return bn(0)
 
-    return calculatedFees
+    return feeUsd
   },
 )
 
@@ -540,20 +542,11 @@ export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
 )
 
 export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelector(
-  selectTradeQuoteAffiliateFeeAfterDiscountUsd,
+  selectTradeAffiliateFeeUsd,
   selectUserCurrencyToUsdRate,
-  (tradeAffiliateFeeAfterDiscountUsd, sellUserCurrencyRate) => {
-    if (!tradeAffiliateFeeAfterDiscountUsd || !sellUserCurrencyRate) return
-    return bn(tradeAffiliateFeeAfterDiscountUsd).times(sellUserCurrencyRate).toFixed()
-  },
-)
-
-export const selectTradeQuoteAffiliateFeeDiscountUserCurrency = createSelector(
-  selectTradeQuoteAffiliateFeeDiscountUsd,
-  selectUserCurrencyToUsdRate,
-  (tradeAffiliateFeeDiscountUsd, sellUserCurrencyRate) => {
-    if (!tradeAffiliateFeeDiscountUsd || !sellUserCurrencyRate) return
-    return bn(tradeAffiliateFeeDiscountUsd).times(sellUserCurrencyRate).toFixed()
+  (tradeAffiliateFeeUsd, sellUserCurrencyRate) => {
+    if (!tradeAffiliateFeeUsd || !sellUserCurrencyRate) return
+    return bn(tradeAffiliateFeeUsd).times(sellUserCurrencyRate).toFixed()
   },
 )
 

@@ -9,9 +9,7 @@ import { snapshot } from './snapshot'
 
 import { calculateFeeUsd } from '@/lib/fees/model'
 import type { ParameterModel } from '@/lib/fees/parameters/types'
-import { isSome } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
-import { selectFeeModelParamFromFilter } from '@/state/selectors'
 import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
@@ -27,29 +25,17 @@ export const selectIsSnapshotApiQueriesRejected = createSelector(
 )
 
 export const selectVotingPower = createSelector(
-  snapshot.selectors.selectVotingPowerByModel,
-  selectFeeModelParamFromFilter,
+  snapshot.selectors.selectVotingPower,
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,
-  (votingPowerByModel, feeModel, accountIdsbyChainId, isSnapshotApiQueriesRejected) => {
-    if (!feeModel) return '0'
+  (votingPower, accountIdsbyChainId, isSnapshotApiQueriesRejected) => {
     if (isSnapshotApiQueriesRejected) return '0'
 
     const ethAccountIds = accountIdsbyChainId[ethChainId]
     if (!ethAccountIds?.length) return '0'
 
-    return votingPowerByModel[feeModel]
+    return votingPower
   },
-)
-
-export const selectThorchainLpVotingPower = createSelector(
-  snapshot.selectors.selectVotingPowerByModel,
-  votingPowerByModel => votingPowerByModel['THORCHAIN_LP'],
-)
-
-export const selectSwapperVotingPower = createSelector(
-  snapshot.selectors.selectVotingPowerByModel,
-  votingPowerByModel => votingPowerByModel['SWAPPER'],
 )
 
 type AffiliateFeesProps = {
@@ -57,23 +43,11 @@ type AffiliateFeesProps = {
   inputAmountUsd: string | undefined
 }
 
-// TODO(gomes): this goes away, no need for this to be a selector
 export const selectCalculatedFeeUsd: Selector<ReduxState, string> = createCachedSelector(
   (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
   inputAmountUsd => {
     const { feeUsd } = calculateFeeUsd({
-      tradeAmountUsd: bnOrZero(inputAmountUsd),
-    })
-
-    return feeUsd.toFixed()
-  },
-)((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
-
-export const selectAppliedDiscountType = createCachedSelector(
-  (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-  inputAmountUsd => {
-    const { feeUsd } = calculateFeeUsd({
-      tradeAmountUsd: bnOrZero(inputAmountUsd),
+      inputAmountUsd: bnOrZero(inputAmountUsd),
     })
 
     return feeUsd.toFixed()
@@ -82,11 +56,8 @@ export const selectAppliedDiscountType = createCachedSelector(
 
 export const selectIsVotingPowerLoading = createSelector(
   selectIsSnapshotApiQueriesPending,
-  selectSwapperVotingPower,
-  selectThorchainLpVotingPower,
-  (isSnapshotApiQueriesPending, swapperVotingPower, thorchainLpVotingPower) => {
-    return (
-      isSnapshotApiQueriesPending && ![swapperVotingPower, thorchainLpVotingPower].every(isSome)
-    )
+  selectVotingPower,
+  (isSnapshotApiQueriesPending, votingPower) => {
+    return isSnapshotApiQueriesPending && votingPower === undefined
   },
 )

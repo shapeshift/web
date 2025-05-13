@@ -3,12 +3,11 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThornodePoolResponse, ThorTradeQuote } from '../../../thorchain-utils'
-import { service, TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote, service, TradeType } from '../../../thorchain-utils'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
-import { getL1Quote } from '../utils/getL1quote'
 import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType } from '../utils/longTailHelpers'
@@ -92,7 +91,13 @@ export const getTradeQuote = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1Quote(input, deps, streamingInterval, tradeType, SwapperName.Thorchain)
+      return getL1RateOrQuote<ThorTradeQuote>(
+        input,
+        deps,
+        streamingInterval,
+        tradeType,
+        SwapperName.Thorchain,
+      )
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, deps, streamingInterval, SwapperName.Thorchain)
     case TradeType.L1ToLongTail:

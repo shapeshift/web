@@ -3,6 +3,7 @@ import type { getInboundAddressDataForChain, InboundAddressResponse } from '@sha
 import { SwapperName, ThorchainChain } from '@shapeshiftoss/swapper'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 import { selectIsTradingActive } from '@/react-queries/selectors'
 
 vi.mock('@/lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
@@ -40,7 +41,8 @@ const mockInboundAddressDataHalted: InboundAddressResponse = {
 
 const mockMimirActive = {
   HALTTHORCHAIN: 0,
-}
+  HALTTCYTRADING: 0,
+} as ThorchainMimir
 
 describe('isTradingActive', () => {
   const isTradingActiveResponse = selectIsTradingActive({

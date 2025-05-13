@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import type { FoxWifHatClaimRouteProps } from './types'
 import { FoxWifHatClaimRoutePaths } from './types'
@@ -45,6 +46,8 @@ export const FoxWifHatClaim: React.FC<FoxWifHatClaimRouteProps> = ({ accountId }
 }
 
 export const FoxWifHatClaimRoutes: React.FC<FoxWifHatClaimRouteProps> = ({ accountId }) => {
+  const location = useLocation()
+  console.log({ location })
   const queryClient = useQueryClient()
   const getFoxWifHatMerkleTreeQuery = useFoxWifHatMerkleTreeQuery()
 
@@ -88,20 +91,12 @@ export const FoxWifHatClaimRoutes: React.FC<FoxWifHatClaimRouteProps> = ({ accou
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Routes>
+      <Switch location={location.pathname}>
         <Suspense fallback={suspenseFallback}>
-          <Route
-            key={FoxWifHatClaimRoutePaths.Confirm}
-            path={FoxWifHatClaimRoutePaths.Confirm}
-            element={renderClaimConfirm()}
-          />
-          <Route
-            key={FoxWifHatClaimRoutePaths.Status}
-            path={FoxWifHatClaimRoutePaths.Status}
-            element={renderClaimStatus()}
-          />
+          <Route path={FoxWifHatClaimRoutePaths.Confirm}>{renderClaimConfirm()}</Route>
+          <Route path={FoxWifHatClaimRoutePaths.Status}>{renderClaimStatus()}</Route>
         </Suspense>
-      </Routes>
+      </Switch>
     </AnimatePresence>
   )
 }

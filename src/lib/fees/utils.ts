@@ -3,7 +3,6 @@ import type BigNumber from 'bignumber.js'
 import { bn, bnOrZero } from '../bignumber/bignumber'
 import { DEFAULT_FEE_BPS } from './constant'
 
-export const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 type CalculateFeeUsdArgs = {
   inputAmountUsd: BigNumber.Value
 }

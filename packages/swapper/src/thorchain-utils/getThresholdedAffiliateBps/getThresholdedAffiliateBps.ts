@@ -1,27 +1,34 @@
-import { thorchain } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, convertBasisPointsToDecimalPercentage, convertPrecision } from '@shapeshiftoss/utils'
 
-import type { MidgardPoolResponse } from '../../../../thorchain-utils'
-import { service } from '../../../../thorchain-utils'
-import type { SwapperConfig } from '../../../../types'
-import { isRune } from '../../../ThorchainSwapper'
-import { THOR_PRECISION } from '../../constants'
-import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'
+import type { SwapperConfig, SwapperName } from '../../types'
+import type { MidgardPoolResponse } from '../index'
+import {
+  getMidgardUrl,
+  getNativeFee,
+  getNativePrecision,
+  getPoolAssetId,
+  isNativeAsset,
+  service,
+} from '../index'
 
-export const getOutboundFeeInSellAssetThorBaseUnit = (runePerAsset: string) => {
-  return bn(thorchain.NATIVE_FEE).dividedBy(runePerAsset)
+export const getOutboundFeeInSellAssetThorBaseUnit = (
+  runePerAsset: string,
+  swapperName: SwapperName,
+) => {
+  return bn(getNativeFee(swapperName)).dividedBy(runePerAsset)
 }
 
 export const getExpectedAffiliateFeeSellAssetThorUnit = (
   sellAmountCryptoBaseUnit: string,
   sellAsset: Asset,
   affiliateBps: string,
+  swapperName: SwapperName,
 ) => {
   const sellAmountThorUnit = convertPrecision({
     value: sellAmountCryptoBaseUnit,
     inputExponent: sellAsset.precision,
-    outputExponent: THOR_PRECISION,
+    outputExponent: getNativePrecision(swapperName),
   })
 
   const affiliatePercent = convertBasisPointsToDecimalPercentage(affiliateBps)
@@ -35,33 +42,37 @@ export const getThresholdedAffiliateBps = async ({
   affiliateBps,
   sellAmountCryptoBaseUnit,
   config,
+  swapperName,
 }: {
   sellAsset: Asset
   affiliateBps: string
   sellAmountCryptoBaseUnit: string
   config: SwapperConfig
+  swapperName: SwapperName
 }) => {
-  const outboundFeeSellAssetThorUnit = await (async () => {
-    if (isRune(sellAsset.assetId)) return thorchain.NATIVE_FEE
+  const midgardUrl = getMidgardUrl(config, swapperName)
 
-    const midgardUrl = config.VITE_THORCHAIN_MIDGARD_URL
-    const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
+  const outboundFeeSellAssetThorUnit = await (async () => {
+    if (isNativeAsset(sellAsset.assetId, swapperName)) return getNativeFee(swapperName)
+
+    const sellPoolId = getPoolAssetId({ assetId: sellAsset.assetId, swapperName })
 
     // get pool data for the sell asset
-    const poolResult = await service.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
-    if (poolResult.isErr()) throw poolResult.unwrapErr()
+    const res = await service.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
+    if (res.isErr()) throw res.unwrapErr()
 
-    const pool = poolResult.unwrap().data
+    const pool = res.unwrap().data
 
-    // calculate the rune outbound fee denominated in the sell asset, in thor units
-    return getOutboundFeeInSellAssetThorBaseUnit(pool.assetPrice)
+    // calculate the rune outbound fee denominated in the sell asset, in native units
+    return getOutboundFeeInSellAssetThorBaseUnit(pool.assetPrice, swapperName)
   })()
 
-  // calculate the expected affiliate fee, in thor units
+  // calculate the expected affiliate fee, in native units
   const expectedAffiliateFeeSellAssetThorUnit = getExpectedAffiliateFeeSellAssetThorUnit(
     sellAmountCryptoBaseUnit,
     sellAsset,
     affiliateBps,
+    swapperName,
   )
 
   const isAffiliateFeeBelowOutboundFee = expectedAffiliateFeeSellAssetThorUnit.lte(

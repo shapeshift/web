@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { ThorTradeRate } from '../../../thorchain-utils'
-import { TradeType } from '../../../thorchain-utils'
+import { getL1Rate, TradeType } from '../../../thorchain-utils'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
@@ -17,7 +17,6 @@ import type {
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Rate } from './getL1Rate'
 import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 

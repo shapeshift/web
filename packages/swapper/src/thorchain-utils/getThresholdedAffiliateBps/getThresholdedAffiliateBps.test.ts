@@ -4,10 +4,10 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { MidgardPoolResponse } from '../../../../thorchain-utils'
-import { service } from '../../../../thorchain-utils'
-import type { SwapperConfig } from '../../../../types'
-import { ETH } from '../../../utils/test-data/assets'
+import { ETH } from '../../swappers/utils/test-data'
+import type { SwapperConfig } from '../../types'
+import { service } from '../service'
+import type { MidgardPoolResponse } from '../types'
 import {
   getExpectedAffiliateFeeSellAssetThorUnit,
   getOutboundFeeInSellAssetThorBaseUnit,

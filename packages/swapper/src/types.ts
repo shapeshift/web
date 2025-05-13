@@ -120,7 +120,6 @@ export enum TradeQuoteError {
 }
 
 export type UtxoFeeData = {
-  byteCount: string
   satsPerByte: string
 }
 

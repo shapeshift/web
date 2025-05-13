@@ -46,7 +46,6 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { FeeModal } from '@/components/FeeModal/FeeModal'
 import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
@@ -127,7 +126,6 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
 const shapeshiftFeeTranslation: TextPropTypes['translation'] = [
   'trade.tradeFeeSource',
   { tradeFeeSource: 'ShapeShift' },
@@ -166,7 +164,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const { isSnapInstalled } = useIsSnapInstalled()
 
-  const [showFeeModal, toggleShowFeeModal] = useState(false)
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
@@ -480,10 +477,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleBackClick = useCallback(() => {
     browserNavigate('/pools')
   }, [browserNavigate])
-
-  const toggleFeeModal = useCallback(() => {
-    toggleShowFeeModal(!showFeeModal)
-  }, [showFeeModal])
 
   const actualAssetDepositAmountCryptoPrecision = useMemo(() => {
     // Symmetrical & Asym Asset: assetAmount = virtual amount (no rebalance, so use values as is)
@@ -1001,6 +994,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeUsd } = calculateFeeUsd({
       inputAmountUsd: bn(totalAmountUsd),
     })
+
+    console.log({ totalAmountUsd, feeUsd: feeUsd.toFixed() })
 
     setConfirmedQuote({
       assetDepositAmountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,
@@ -1542,12 +1537,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
               )}
             </Row.Label>
-            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+            <Row.Value>
               <Flex alignItems='center' gap={2}>
                 {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
                   <>
                     <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
-                    <QuestionIcon />
                   </>
                 ) : (
                   <>
@@ -1621,12 +1615,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {confirmCopy}
         </ButtonWalletPredicate>
       </CardFooter>
-      <FeeModal
-        isOpen={showFeeModal}
-        onClose={toggleFeeModal}
-        inputAmountUsd={confirmedQuote?.totalAmountUsd}
-        feeModel='THORCHAIN_LP'
-      />
     </SlideTransition>
   )
 }

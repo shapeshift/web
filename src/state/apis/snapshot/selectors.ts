@@ -53,11 +53,3 @@ export const selectCalculatedFeeUsd: Selector<ReduxState, string> = createCached
     return feeUsd.toFixed()
   },
 )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
-
-export const selectIsVotingPowerLoading = createSelector(
-  selectIsSnapshotApiQueriesPending,
-  selectVotingPower,
-  (isSnapshotApiQueriesPending, votingPower) => {
-    return isSnapshotApiQueriesPending && votingPower === undefined
-  },
-)

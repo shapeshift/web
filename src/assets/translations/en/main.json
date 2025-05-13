@@ -2920,11 +2920,9 @@
     },
     "foxWifHat": {
       "title": "FOX Wif Hat",
-      "description": "Claim your FOX Wif Hat (FWH). Act fast - discounts decay over time. The more FOX or FWH you hold, the more you save. Stack more FOX tokens for continuous savings plus revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
-      "discount": "*The discount decreases linearly over time, expiring on %{date}. Take advantage of your %{percent}% discount before it decreases further!",
+      "description": "Claim your FOX Wif Hat (FWH). Stack more FOX tokens for revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
       "claim": "Claim",
       "claimed": "Claimed",
-      "discountText": "*%{percent}% off trade fees",
       "noClaims": "No claims available"
     },
     "governance": {

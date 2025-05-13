@@ -224,7 +224,6 @@ export const useGetTradeRates = () => {
       }
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-      const potentialAffiliateBps = DEFAULT_FEE_BPS
       const affiliateBps = DEFAULT_FEE_BPS
 
       const updatedTradeRateInput = (await getTradeQuoteOrRateInput({
@@ -237,8 +236,7 @@ export const useGetTradeRates = () => {
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
-        affiliateBps: affiliateBps.toString(),
-        potentialAffiliateBps: potentialAffiliateBps.toString(),
+        affiliateBps,
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
         pubKey:

@@ -25,7 +25,6 @@ export const getTradeRate = async (
     sendAddress: input.sendAddress,
     accountNumber: input.accountNumber,
     affiliateBps: input.affiliateBps,
-    potentialAffiliateBps: input.potentialAffiliateBps,
     xpub: 'xpub' in input ? (input as GetUtxoTradeRateInput).xpub : undefined,
   }
 

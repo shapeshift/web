@@ -1,5 +1,5 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
-import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
@@ -34,7 +34,6 @@ import { isSome } from '@/lib/utils'
 import { selectVotingPower } from '@/state/apis/snapshot/selectors'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
@@ -58,7 +57,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -211,19 +210,6 @@ export const useGetTradeQuotes = () => {
 
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
 
-  const relatedAssetIdsFilter = useMemo(
-    () => ({
-      assetId: foxAssetId,
-      onlyConnectedChains: false,
-    }),
-    [],
-  )
-
-  const relatedAssetIds = useSelectorWithArgs(
-    selectRelatedAssetIdsInclusiveSorted,
-    relatedAssetIdsFilter,
-  )
-
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
@@ -277,13 +263,8 @@ export const useGetTradeQuotes = () => {
 
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-      // TODO(gomes): bnOrZero across the line
-      const feeBps = DEFAULT_FEE_BPS.toString()
-      // TODO(gomes): can prob remove this notion
-      const potentialAffiliateBps = DEFAULT_FEE_BPS.toString()
+      const feeBps = DEFAULT_FEE_BPS
       const affiliateBps = feeBps
-
-      const isFoxBuyAsset = relatedAssetIds.includes(buyAsset.assetId)
 
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
@@ -300,8 +281,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps: isFoxBuyAsset ? '0' : affiliateBps,
-          potentialAffiliateBps: isFoxBuyAsset ? '0' : potentialAffiliateBps,
+          affiliateBps,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
@@ -325,7 +305,6 @@ export const useGetTradeQuotes = () => {
     sellAsset,
     userSlippageTolerancePercentageDecimal,
     wallet,
-    relatedAssetIds,
   ])
 
   const { data: tradeQuoteInput } = useQuery({

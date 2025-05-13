@@ -143,7 +143,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       chainId,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       allowMultiHop: true,
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,

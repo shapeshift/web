@@ -45,7 +45,6 @@ async function _getCowSwapTradeQuote(
     chainId,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    potentialAffiliateBps,
     affiliateBps,
   } = input
 
@@ -152,7 +151,6 @@ async function _getCowSwapTradeQuote(
     quoteOrRate: 'quote',
     receiveAddress,
     affiliateBps,
-    potentialAffiliateBps,
     rate,
     slippageTolerancePercentageDecimal,
     swapperName: SwapperName.CowSwap,

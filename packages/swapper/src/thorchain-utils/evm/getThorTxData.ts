@@ -4,9 +4,9 @@ import type { Address } from 'viem'
 import { getAddress } from 'viem'
 
 import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
-import type { SwapperConfig } from '../../types'
-import { SwapperName } from '../../types'
+import type { SwapperConfig, SwapperName } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
+import { getDaemonUrl } from '../index'
 import { depositWithExpiry } from '../routerCallData/routerCalldata'
 
 type GetThorTxDataArgs = {
@@ -34,18 +34,9 @@ export const getThorTxData = async ({
 }: GetThorTxDataArgs): GetThorTxDataReturn => {
   const { assetReference } = fromAssetId(sellAsset.assetId)
 
-  const url = (() => {
-    switch (swapperName) {
-      case SwapperName.Thorchain:
-        return `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
-      case SwapperName.Mayachain:
-        return `${config.VITE_MAYACHAIN_NODE_URL}/mayachain`
-      default:
-        throw new Error(`Invalid swapper name: ${swapperName}`)
-    }
-  })()
+  const daemonUrl = getDaemonUrl(config, swapperName)
 
-  const res = await getInboundAddressDataForChain(url, sellAsset.assetId, true, swapperName)
+  const res = await getInboundAddressDataForChain(daemonUrl, sellAsset.assetId, true, swapperName)
   if (res.isErr()) throw res.unwrapErr()
 
   const inboundAddress = res.unwrap()

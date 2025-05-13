@@ -1,8 +1,8 @@
 import type { Asset } from '@shapeshiftoss/types'
 
-import type { SwapperConfig } from '../../types'
-import { SwapperName } from '../../types'
+import type { SwapperConfig, SwapperName } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
+import { getDaemonUrl } from '../index'
 
 type GetThorTxDataArgs = {
   sellAsset: Asset
@@ -25,18 +25,9 @@ export const getThorTxData = async ({
   config,
   swapperName,
 }: GetThorTxDataArgs): GetThorTxDataReturn => {
-  const url = (() => {
-    switch (swapperName) {
-      case SwapperName.Thorchain:
-        return `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
-      case SwapperName.Mayachain:
-        return `${config.VITE_MAYACHAIN_NODE_URL}/mayachain`
-      default:
-        throw new Error(`Invalid swapper name: ${swapperName}`)
-    }
-  })()
+  const daemonUrl = getDaemonUrl(config, swapperName)
 
-  const res = await getInboundAddressDataForChain(url, sellAsset.assetId, false, swapperName)
+  const res = await getInboundAddressDataForChain(daemonUrl, sellAsset.assetId, false, swapperName)
   if (res.isErr()) throw res.unwrapErr()
 
   const { address: vault } = res.unwrap()

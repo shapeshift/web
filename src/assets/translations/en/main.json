@@ -1044,8 +1044,7 @@
     "awaitingApproval": "Awaiting approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "foxSavings": {
-      "youSaved": "You saved %{feeSaving} on your trade with FOX Savings!",
-      "youCouldHaveSaved": "You could have saved %{fee} on your trade with FOX Savings.",
+      "youSaved": "You saved %{feeSaving} on your trade!",
       "buyFox": "Buy FOX",
       "share": "Share",
       "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!",

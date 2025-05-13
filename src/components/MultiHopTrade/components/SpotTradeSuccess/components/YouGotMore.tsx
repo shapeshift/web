@@ -33,19 +33,19 @@ const cardSx = {
   animation: `${animatedGradient} 15s ease infinite`,
 }
 
-type YouSavedProps = {
+type YouGotMoreProps = {
   totalUpsideCryptoPrecision: string
   totalUpsidePercentage: string
   sellAsset: Asset
   buyAsset: Asset
 }
 
-export const YouSaved = ({
+export const YouGotMore = ({
   totalUpsideCryptoPrecision,
   totalUpsidePercentage,
   sellAsset,
   buyAsset,
-}: YouSavedProps) => {
+}: YouGotMoreProps) => {
   const cardRef = useRef<HTMLDivElement>(null)
 
   const refAnimationInstance = useRef<TCanvasConfettiInstance | null>(null)

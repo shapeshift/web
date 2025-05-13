@@ -21,7 +21,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { TwirlyToggle } from '../TwirlyToggle'
-import { YouSaved } from './components/YouSaved'
+import { YouGotMore } from './components/YouGotMore'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AnimatedCheck } from '@/components/AnimatedCheck'
@@ -278,7 +278,7 @@ export const SpotTradeSuccess = ({
             <SurplusLine />
             {bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
               <Box px={8}>
-                <YouSaved
+                <YouGotMore
                   totalUpsidePercentage={feesOrTotalUpsidePercentage}
                   totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
                   sellAsset={sellAsset}

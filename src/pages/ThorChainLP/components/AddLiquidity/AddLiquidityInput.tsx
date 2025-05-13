@@ -992,10 +992,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .toFixed()
 
     const { feeUsd } = calculateFeeUsd({
-      inputAmountUsd: bn(totalAmountUsd),
+      inputAmountUsd: totalAmountUsd,
     })
-
-    console.log({ totalAmountUsd, feeUsd: feeUsd.toFixed() })
 
     setConfirmedQuote({
       assetDepositAmountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,

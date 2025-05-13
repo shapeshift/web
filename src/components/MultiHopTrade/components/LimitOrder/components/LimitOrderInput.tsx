@@ -199,7 +199,7 @@ export const LimitOrderInput = ({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
-      affiliateBps: DEFAULT_FEE_BPS.toString(),
+      affiliateBps: DEFAULT_FEE_BPS,
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,

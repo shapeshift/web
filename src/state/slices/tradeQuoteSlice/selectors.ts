@@ -506,11 +506,13 @@ export const selectQuoteSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, activeQuote => {
-    if (!activeQuote) return
+export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string> = createSelector(
+  selectActiveQuote,
+  activeQuote => {
+    if (!activeQuote) return '0'
     return activeQuote.affiliateBps
-  })
+  },
+)
 
 export const selectTradeAffiliateFeeUsd = createSelector(
   selectQuoteSellAmountUsd,

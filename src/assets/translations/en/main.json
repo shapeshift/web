@@ -2918,13 +2918,6 @@
       "totalStakingValue": "Total Staking Value",
       "nextEpoch": "Next Epoch"
     },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "Claim your FOX Wif Hat (FWH). Stack more FOX tokens for revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
-      "claim": "Claim",
-      "claimed": "Claimed",
-      "noClaims": "No claims available"
-    },
     "governance": {
       "title": "Governance",
       "description": "Join us <link>on the forum</link> and shape the future of the DAO.",

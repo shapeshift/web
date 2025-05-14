@@ -2,13 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 
 import {
+  assetIdToMayaPoolAssetId,
   isCacao,
   MAYA_PRECISION,
   MAYACHAIN_AFFILIATE_NAME,
   MAYACHAIN_STREAM_SWAP_SOURCE,
 } from '../swappers/MayachainSwapper'
-import * as mayachain from '../swappers/MayachainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
+  assetIdToThorPoolAssetId,
   isRune,
   THOR_PRECISION,
   THORCHAIN_AFFILIATE_NAME,
@@ -16,7 +17,6 @@ import {
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '../swappers/ThorchainSwapper'
-import * as thorchain from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { SwapperConfig, SwapSource, TradeQuote, TradeRate } from '../types'
 import { SwapperName } from '../types'
 import type { ThorTradeQuote, ThorTradeRate } from './types'
@@ -116,9 +116,9 @@ export const getPoolAssetId = ({
 }) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
-      return thorchain.assetIdToPoolAssetId({ assetId })
+      return assetIdToThorPoolAssetId({ assetId })
     case SwapperName.Mayachain:
-      return mayachain.assetIdToPoolAssetId({ assetId })
+      return assetIdToMayaPoolAssetId({ assetId })
     default:
       throw new Error(`Invalid swapper: ${swapperName}`)
   }

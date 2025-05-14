@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { mayaPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -53,7 +53,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
     return pools
       .map(pool => {
-        const assetId = poolAssetIdToAssetId(pool.asset)
+        const assetId = mayaPoolAssetIdToAssetId(pool.asset)
 
         if (!assetId) return null
 

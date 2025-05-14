@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId, isRune, isTcy, SwapperName } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId, isRune, isTcy, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -19,7 +19,7 @@ export const selectInboundAddressData = (
     ?.andThen<InboundAddressResponse | undefined>(data => {
       if (!assetId) return Err(`AssetId is required: ${assetId}` as unknown as SwapErrorRight)
 
-      const assetPoolId = assetIdToPoolAssetId({ assetId })
+      const assetPoolId = assetIdToThorPoolAssetId({ assetId })
       const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
       return Ok(data.find(inbound => inbound.chain === assetChainSymbol))
     })

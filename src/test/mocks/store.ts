@@ -144,7 +144,6 @@ export const mockStore: ReduxState = {
       ChainflipDca: false,
       JupiterSwap: false,
       NewWalletFlow: false,
-      FoxPageFoxWifHatSection: false,
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
       RelaySwapper: false,

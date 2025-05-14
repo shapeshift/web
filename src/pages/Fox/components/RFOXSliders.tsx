@@ -40,7 +40,21 @@ const inputStyle = {
   input: {
     fontWeight: 'bold',
     textAlign: 'right',
+    fontSize: {
+      base: 'sm',
+      md: 'md',
+    },
   },
+}
+
+const inputContainerWidth = {
+  base: '50%',
+  md: '35%',
+}
+
+const revenueInputContainerWidth = {
+  base: '45%',
+  md: '35%',
 }
 
 export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
@@ -75,7 +89,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
         <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxPage.rfox.depositAmount' />
 
-          <Box width='35%' sx={inputStyle}>
+          <Box width={inputContainerWidth} sx={inputStyle}>
             <NumberFormat
               decimalScale={2}
               customInput={Input}
@@ -109,7 +123,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
         <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text width='50%' translation='foxPage.rfox.shapeshiftRevenue' />
 
-          <Box width='35%' sx={inputStyle}>
+          <Box width={revenueInputContainerWidth} sx={inputStyle}>
             <NumberFormat
               decimalScale={2}
               customInput={Input}

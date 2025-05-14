@@ -3,7 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThornodePoolResponse, ThorTradeQuote } from '../../thorchain-utils'
-import { getL1RateOrQuote, service, TradeType } from '../../thorchain-utils'
+import { getL1RateOrQuote, thorService, TradeType } from '../../thorchain-utils'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
 import { assertValidTrade, assetIdToPoolAssetId } from './utils'
@@ -19,7 +19,7 @@ export const getTradeQuote = async (
 
   const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`
 
-  const res = await service.get<ThornodePoolResponse[]>(url)
+  const res = await thorService.get<ThornodePoolResponse[]>(url)
   if (res.isErr()) return Err(res.unwrapErr())
 
   const { data: poolsResponse } = res.unwrap()

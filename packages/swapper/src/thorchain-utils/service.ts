@@ -12,4 +12,6 @@ const axiosConfig = {
   },
 }
 
-export const service = makeSwapperAxiosServiceMonadic(createCache(maxAge, cachedUrls, axiosConfig))
+export const thorService = makeSwapperAxiosServiceMonadic(
+  createCache(maxAge, cachedUrls, axiosConfig),
+)

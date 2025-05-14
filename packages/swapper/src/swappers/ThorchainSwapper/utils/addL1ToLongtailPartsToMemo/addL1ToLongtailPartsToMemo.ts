@@ -1,6 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { bchChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
-import { subtractBasisPointAmount } from '@shapeshiftoss/utils'
+import { isUtxoChainId, subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
@@ -10,12 +11,20 @@ import {
   addFinalAssetAddressToMemo,
   addFinalAssetLimitToMemo,
   assertAndProcessMemo,
-  getMaxBytesLengthByChainId,
   MEMO_PART_DELIMITER,
 } from '../../../../thorchain-utils'
 import { getShortenedFinalAssetLimit } from '../getShortenedFinalAssetLimit/getShortenedFinalAssetLimit'
 import { getUniqueAddressSubstring } from '../getUniqueAddressSubstring/getUniqueAddressSubstring'
 import { shortenedNativeAssetNameByNativeAssetName } from '../longTailHelpers'
+
+const BTC_MAXIMUM_BYTES_LENGTH = 80
+const BCH_MAXIMUM_BYTES_LENGTH = 220
+
+export const getMaxBytesLengthByChainId = (chainId: ChainId) => {
+  if (chainId === bchChainId) return BCH_MAXIMUM_BYTES_LENGTH
+  if (isUtxoChainId(chainId)) return BTC_MAXIMUM_BYTES_LENGTH
+  return Infinity
+}
 
 export const addL1ToLongtailPartsToMemo = ({
   sellAssetChainId,

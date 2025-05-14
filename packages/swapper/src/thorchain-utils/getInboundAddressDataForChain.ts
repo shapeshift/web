@@ -6,7 +6,7 @@ import type { SwapErrorRight, SwapperName } from '../types'
 import { TradeQuoteError } from '../types'
 import { makeSwapErrorRight } from '../utils'
 import { getPoolAssetId } from './index'
-import { service } from './service'
+import { thorService } from './service'
 import type { InboundAddressResponse } from './types'
 
 export const getInboundAddressDataForChain = async (
@@ -27,7 +27,7 @@ export const getInboundAddressDataForChain = async (
   const poolAssetId = getPoolAssetId({ assetId, swapperName })
   const assetChainSymbol = poolAssetId?.slice(0, poolAssetId.indexOf('.'))
 
-  return (await service.get<InboundAddressResponse[]>(`${daemonUrl}/inbound_addresses`))
+  return (await thorService.get<InboundAddressResponse[]>(`${daemonUrl}/inbound_addresses`))
     .andThen(({ data: inboundAddresses }) => {
       const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
 

@@ -12,9 +12,9 @@ import {
 } from '../swappers/ThorchainSwapper'
 import { THORCHAIN_AFFILIATE_NAME } from '../swappers/ThorchainSwapper/utils/constants'
 import * as thorchain from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { SwapperConfig, SwapSource, TradeRate } from '../types'
+import type { SwapperConfig, SwapSource, TradeQuote, TradeRate } from '../types'
 import { SwapperName } from '../types'
-import type { ThorTradeRate } from './types'
+import type { ThorTradeQuote, ThorTradeRate } from './types'
 import { TradeType } from './types'
 
 export * from './checkTradeStatus'
@@ -29,9 +29,10 @@ export * as cosmossdk from './cosmossdk'
 export * as evm from './evm'
 export * as utxo from './utxo'
 
-export { getMaxBytesLengthByChainId } from './constants'
-
 export const isThorTradeRate = (quote: TradeRate | undefined): quote is ThorTradeRate =>
+  !!quote && 'tradeType' in quote && 'vault' in quote
+
+export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
   !!quote && 'tradeType' in quote && 'vault' in quote
 
 export const getDaemonUrl = (config: SwapperConfig, swapperName: SwapperName) => {

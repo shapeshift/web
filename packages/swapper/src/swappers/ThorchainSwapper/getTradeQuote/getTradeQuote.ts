@@ -3,7 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThornodePoolResponse, ThorTradeQuote } from '../../../thorchain-utils'
-import { getL1RateOrQuote, service, TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote, thorService, TradeType } from '../../../thorchain-utils'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -34,7 +34,7 @@ export const getTradeQuote = async (
   }
 
   const daemonUrl = deps.config.VITE_THORCHAIN_NODE_URL
-  const maybePoolsResponse = await service.get<ThornodePoolResponse[]>(
+  const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
     `${daemonUrl}/thorchain/pools`,
   )
 

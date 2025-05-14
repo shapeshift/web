@@ -3,10 +3,10 @@ import { mayachainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { SwapErrorRight } from 'packages/swapper/src/types'
-import { TradeQuoteError } from 'packages/swapper/src/types'
-import { makeSwapErrorRight } from 'packages/swapper/src/utils'
 
+import type { SwapErrorRight } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
 import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
 import { assetIdToPoolAssetId } from './poolAssetHelpers/poolAssetHelpers'
 

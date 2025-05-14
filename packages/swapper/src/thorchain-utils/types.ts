@@ -235,6 +235,22 @@ export type ThorEvmTradeQuote = TradeQuote &
 export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
 export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
+export enum ThorchainStatusMessage {
+  InboundObserved = 'Inbound transaction accepted by THOR',
+  InboundObservingPending = 'Inbound transaction pending',
+  InboundConfirmationCounted = 'Inbound transaction confirmed',
+  InboundConfirmationPending = 'Awaiting inbound transaction confirmation',
+  InboundFinalized = 'Inbound transaction finalized',
+  InboundFinalizationPending = 'Awaiting inbound transaction finalization',
+  SwapPending = 'Swap pending',
+  SwapCompleteAwaitingOutbound = 'Swap complete, awaiting outbound transaction',
+  SwapCompleteAwaitingDestination = 'Swap complete, awaiting destination chain',
+  OutboundDelayTimeRemaining = 'Awaiting outbound delay ({timeRemaining} remaining)',
+  OutboundDelayPending = 'Awaiting outbound delay',
+  OutboundSigned = 'Outbound transaction transmitted, waiting on destination chain...',
+  OutboundScheduled = 'Outbound transaction scheduled, waiting on destination chain...',
+}
+
 export enum TradeType {
   LongTailToLongTail = 'LongTailToLongTail',
   LongTailToL1 = 'LongTailToL1',

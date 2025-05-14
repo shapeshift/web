@@ -21,7 +21,7 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
@@ -53,6 +53,7 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable } from '@/lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateRemoveThorchainLiquidityPosition } from '@/lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from '@/lib/utils/thorchain/lp/types'
@@ -181,9 +182,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: poolAsset?.assetId,
+    assetId,
     swapperName: SwapperName.Thorchain,
   })
+
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(
+    fromAssetId(assetId).chainId,
+  )
 
   const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
 
@@ -957,6 +962,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     if (isUnsupportedWithdraw) return translate('common.unsupportedNetwork')
+    if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
     if (position?.remainingLockupTime)
@@ -978,6 +984,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     hasEnoughRuneBalanceForTx,
     isThorchainLpWithdrawEnabled,
     isTradingActive,
+    isChainHalted,
     isUnsupportedWithdraw,
     minimumWithdrawError,
     poolAssetFeeAsset,
@@ -1130,6 +1137,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           }
           isLoading={
             isTradingActiveLoading ||
+            isChainHaltedFetching ||
             (isEstimatedPoolAssetFeesDataLoading && opportunityType === AsymSide.Asset) ||
             (isEstimatedRuneFeesDataLoading && opportunityType !== AsymSide.Asset) ||
             isSweepNeededLoading

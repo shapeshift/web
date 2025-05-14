@@ -309,6 +309,7 @@
     "react-router@^6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
     "react-router@6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "readable-stream": "3.6.0"
   }
 }

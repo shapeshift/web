@@ -6,6 +6,7 @@ import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 
 import type { ReduxState } from './reducer'
@@ -54,6 +55,7 @@ type ParamFilter = Partial<{
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
   parser: TxMetadata['parser']
+  memo: ThorTxMetadata['memo']
   hopIndex: number
   tradeId: TradeQuote['id']
   quoteId: QuoteId
@@ -95,6 +97,7 @@ export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
 export const selectParserParamFromFilter = selectParamFromFilter('parser')
+export const selectMemoParamFromFilter = selectParamFromFilter('memo')
 
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')

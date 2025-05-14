@@ -1,7 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { InboundAddressResponse, ThornodePoolResponse } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId, thorService } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
 import axios from 'axios'
 
@@ -22,7 +22,7 @@ export const thornode = createQueryKeys('thornode', {
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
 
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
+      const poolAssetId = assetIdToThorPoolAssetId({ assetId })
       const { data } = await axios.get<ThornodePoolResponse>(
         `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
       )

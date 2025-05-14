@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { poolAssetIdToAssetId, SwapperName } from '@shapeshiftoss/swapper'
+import { mayaPoolAssetIdToAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
@@ -107,7 +107,7 @@ export const Pool = () => {
   if (!poolAssetId) throw new Error('poolAssetId is required')
 
   const assetId = useMemo(() => {
-    return poolAssetIdToAssetId(poolAssetId)
+    return mayaPoolAssetIdToAssetId(poolAssetId)
   }, [poolAssetId])
 
   if (!assetId) throw new Error(`assetId not found for poolAssetId ${poolAssetId}`)

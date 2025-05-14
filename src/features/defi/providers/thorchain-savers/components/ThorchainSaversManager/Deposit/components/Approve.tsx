@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import { isToken } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -136,7 +136,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
         ? '0'
         : toBaseUnit(state.deposit.cryptoAmount, asset.precision)
 
-      const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
+      const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
 
       if (!poolId) throw new Error(`poolId not found for assetId ${asset.assetId}`)
 

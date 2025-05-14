@@ -1,7 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import { isSome } from '@shapeshiftoss/utils'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
@@ -103,7 +103,7 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
         if (!accountPosition) return null
 
         const positions = accountPosition.pools
-          .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
+          .filter(pool => pool.pool === assetIdToThorPoolAssetId({ assetId }))
           .map(position => ({ ...position, accountId }))
 
         return positions

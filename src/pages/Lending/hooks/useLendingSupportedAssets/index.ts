@@ -1,7 +1,7 @@
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { ThornodePoolResponse, ThornodePoolStatuses } from '@shapeshiftoss/swapper'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { mayaPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -95,7 +95,7 @@ export const useLendingSupportedAssets = ({
 
       const supportedAssets = pools
         .map(pool => {
-          const assetId = poolAssetIdToAssetId(pool.asset)
+          const assetId = mayaPoolAssetIdToAssetId(pool.asset)
           const chainId = assetId ? (fromAssetId(assetId).chainId as KnownChainIds) : undefined
 
           // Wallet feature-capability checks below do not apply if no wallet is connected

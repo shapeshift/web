@@ -9,7 +9,7 @@ import {
   getNativePrecision,
   getPoolAssetId,
   isNativeAsset,
-  service,
+  thorService,
 } from '../index'
 
 export const getOutboundFeeInSellAssetThorBaseUnit = (
@@ -58,7 +58,7 @@ export const getThresholdedAffiliateBps = async ({
     const sellPoolId = getPoolAssetId({ assetId: sellAsset.assetId, swapperName })
 
     // get pool data for the sell asset
-    const res = await service.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
+    const res = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
     if (res.isErr()) throw res.unwrapErr()
 
     const pool = res.unwrap().data

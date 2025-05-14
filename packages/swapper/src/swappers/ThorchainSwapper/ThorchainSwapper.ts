@@ -3,7 +3,7 @@ import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 
 import type { ThornodePoolResponse } from '../../thorchain-utils'
-import { service } from '../../thorchain-utils'
+import { thorService } from '../../thorchain-utils'
 import type { Swapper, SwapperConfig } from '../../types'
 import { executeEvmTransaction } from '../../utils'
 import { poolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
@@ -21,7 +21,7 @@ const getSupportedAssets = async (
 
   const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain/pools`
 
-  const res = await service.get<ThornodePoolResponse[]>(url)
+  const res = await thorService.get<ThornodePoolResponse[]>(url)
   if (!res.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }
 
   const { data: pools } = res.unwrap()

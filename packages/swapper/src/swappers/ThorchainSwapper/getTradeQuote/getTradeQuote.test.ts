@@ -10,7 +10,7 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../../../thorchain-utils'
-import { evm, service, TradeType } from '../../../thorchain-utils'
+import { evm, thorService, TradeType } from '../../../thorchain-utils'
 import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
 import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
@@ -20,7 +20,7 @@ import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { getTradeQuote } from './getTradeQuote'
 
 const mockedGetThorTxInfo = vi.mocked(evm.getThorTxData)
-const mockedThorService = vi.mocked(service)
+const mockedThorService = vi.mocked(thorService)
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),

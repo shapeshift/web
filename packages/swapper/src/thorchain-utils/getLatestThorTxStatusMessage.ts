@@ -1,8 +1,8 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 
-import { ThorchainStatusMessage } from './constants'
 import type { ThorNodeStatusResponseSuccess } from './types'
+import { ThorchainStatusMessage } from './types'
 
 export const getLatestThorTxStatusMessage = (
   response: ThorNodeStatusResponseSuccess,

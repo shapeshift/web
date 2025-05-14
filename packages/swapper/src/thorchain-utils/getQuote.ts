@@ -11,7 +11,7 @@ import { TradeQuoteError } from '../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../utils'
 import { getThresholdedAffiliateBps } from './getThresholdedAffiliateBps/getThresholdedAffiliateBps'
 import { getAffiliate, getDaemonUrl, getNativePrecision, getPoolAssetId } from './index'
-import { service } from './service'
+import { thorService } from './service'
 import type { ThornodeQuoteResponse, ThornodeQuoteResponseSuccess } from './types'
 
 type GetQuoteArgs = {
@@ -84,7 +84,7 @@ export const getQuote = async (
   })
 
   const daemonUrl = getDaemonUrl(deps.config, swapperName)
-  const res = await service.get<ThornodeQuoteResponse>(`${daemonUrl}/quote/swap?${queryString}`)
+  const res = await thorService.get<ThornodeQuoteResponse>(`${daemonUrl}/quote/swap?${queryString}`)
   if (res.isErr()) return Err(res.unwrapErr())
 
   const { data } = res.unwrap()

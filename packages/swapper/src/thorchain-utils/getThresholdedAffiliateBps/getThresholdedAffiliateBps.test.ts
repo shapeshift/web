@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ETH } from '../../swappers/utils/test-data'
 import type { SwapperConfig } from '../../types'
 import { SwapperName } from '../../types'
-import { service } from '../service'
+import { thorService } from '../service'
 import type { MidgardPoolResponse } from '../types'
 import {
   getExpectedAffiliateFeeSellAssetThorUnit,
@@ -15,7 +15,7 @@ import {
   getThresholdedAffiliateBps,
 } from './getThresholdedAffiliateBps'
 
-const mockedThorService = vi.mocked(service)
+const mockedThorService = vi.mocked(thorService)
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),

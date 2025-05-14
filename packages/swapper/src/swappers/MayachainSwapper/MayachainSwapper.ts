@@ -3,7 +3,7 @@ import { mayachainAssetId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 
 import type { ThornodePoolResponse } from '../../thorchain-utils'
-import { service } from '../../thorchain-utils'
+import { thorService } from '../../thorchain-utils'
 import type { Swapper, SwapperConfig } from '../../types'
 import { executeEvmTransaction } from '../../utils'
 import { poolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
@@ -19,7 +19,7 @@ const getSupportedAssets = async (
 
   const url = `${config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`
 
-  const poolResponse = await service.get<ThornodePoolResponse[]>(url)
+  const poolResponse = await thorService.get<ThornodePoolResponse[]>(url)
   if (!poolResponse.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }
 
   const pools = poolResponse.unwrap().data

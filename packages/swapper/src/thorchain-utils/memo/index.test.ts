@@ -1055,40 +1055,36 @@ describe('memo', () => {
     })
 
     describe('stake tcy', () => {
-      it('processes with affiliate name', () => {
-        const memo = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4:ss'
-        const expected = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      it('processes tcy+ memo', () => {
+        const memo = 'tcy+'
+        const expected = 'tcy+'
         expect(assertAndProcessMemo(memo)).toBe(expected)
       })
 
-      it('processes with no affiliate name', () => {
-        const memo = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
-        const expected = 'tcy+:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      it('strips additional parts', () => {
+        const memo = 'tcy+:foo:bar:baz'
+        const expected = 'tcy+'
         expect(assertAndProcessMemo(memo)).toBe(expected)
-      })
-
-      it('should throw on missing address', () => {
-        const memo = 'tcy+:'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
       })
     })
 
     describe('unstake tcy', () => {
-      it('processes with affiliate name', () => {
-        const memo = 'tcy-:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4:ss'
-        const expected = 'tcy-:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      it('processes with 100% bps', () => {
+        const memo = 'tcy-:10000'
+        const expected = 'tcy-:10000'
         expect(assertAndProcessMemo(memo)).toBe(expected)
       })
 
-      it('processes with no affiliate name', () => {
-        const memo = 'tcy-:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
-        const expected = 'tcy-:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      it('processes with 50% bps', () => {
+        const memo = 'tcy-:5000'
+        const expected = 'tcy-:5000'
         expect(assertAndProcessMemo(memo)).toBe(expected)
       })
 
-      it('should throw on missing address', () => {
-        const memo = 'tcy-:'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+      it('strips additional parts', () => {
+        const memo = 'tcy-:5000:foo:bar'
+        const expected = 'tcy-:5000'
+        expect(assertAndProcessMemo(memo)).toBe(expected)
       })
     })
   })

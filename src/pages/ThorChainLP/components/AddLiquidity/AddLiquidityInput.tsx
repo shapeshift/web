@@ -32,6 +32,7 @@ import {
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { isToken } from '@shapeshiftoss/utils'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import type { JSX } from 'react'
@@ -74,13 +75,7 @@ import type { ParameterModel } from '@/lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import {
-  assertUnreachable,
-  chainIdToChainDisplayName,
-  isNonEmptyString,
-  isSome,
-  isToken,
-} from '@/lib/utils'
+import { assertUnreachable, chainIdToChainDisplayName, isNonEmptyString, isSome } from '@/lib/utils'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'

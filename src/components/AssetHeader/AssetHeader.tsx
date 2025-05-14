@@ -3,6 +3,7 @@ import type { ContainerProps } from '@chakra-ui/react'
 import { Flex, Heading, IconButton, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,7 +20,7 @@ import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { isToken, middleEllipsis } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,

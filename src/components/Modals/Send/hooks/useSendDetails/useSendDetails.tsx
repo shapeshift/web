@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { solana } from '@shapeshiftoss/chain-adapters'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -16,7 +17,6 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { contractAddressOrUndefined } from '@/lib/utils'
 import {
   selectAssetById,
   selectFeeAssetById,

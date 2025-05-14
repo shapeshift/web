@@ -181,6 +181,7 @@ const validators = {
   VITE_FEATURE_THORCHAIN_TCY_ACTIVITY: bool({ default: false }),
   VITE_RELAY_API_URL: url(),
   VITE_COINCAP_API_KEY: str(),
+  VITE_FEATURE_MAYACHAIN_SWAPPER: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

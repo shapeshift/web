@@ -76,8 +76,6 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
 
     const feeMessage = useMemo(() => {
-      if (bn(affiliateBps).isZero()) return translate('trade.freeTrade')
-
       const feePercentage = bnOrZero(affiliateBps).div(100).toString()
       return translate('trade.feeExplainer', {
         feePercentage,

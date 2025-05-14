@@ -1051,8 +1051,6 @@
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "learnMoreAboutFox": "Learn more about FOX Benefits",
-    "freeTrade": "This trade is free",
     "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
   },
   "limitOrder": {

@@ -74,7 +74,6 @@ export type FeatureFlags = {
   ChainflipDca: boolean
   JupiterSwap: boolean
   NewWalletFlow: boolean
-  FoxPageFoxWifHatSection: boolean
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
   RelaySwapper: boolean

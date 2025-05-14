@@ -4,7 +4,6 @@ import {
   Box,
   Collapse,
   Flex,
-  Link,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -86,9 +85,6 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
       return (
         <Stack spacing={2}>
           <Text color='text.subtle' translation={feeMessage} />
-          <Link href='/#/fox' isExternal color='blue.500'>
-            <Text translation='trade.learnMoreAboutFox' />
-          </Link>
         </Stack>
       )
     }, [feeMessage])

@@ -133,6 +133,7 @@ async function _getCowSwapTradeQuote(
       sellAsset,
       response: cowswapQuoteResponse,
       affiliateBps,
+      slippageTolerancePercentageDecimal,
     })
 
   const id = cowswapQuoteResponse.id?.toString()

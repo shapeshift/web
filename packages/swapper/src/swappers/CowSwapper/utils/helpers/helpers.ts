@@ -131,6 +131,8 @@ export const getValuesFromQuoteResponse = ({
     affiliateBps,
   })
 
+  // And then remove slippage to get min out- note, order matters here, as the math used by CoW for the minimum
+  // is quoted out - affiliate - slippage
   const buyAmountAfterAffiliateFeesAndSlippage = deductSlippageFromAmount({
     amount: buyAmountAfterAffiliateFeesCryptoBaseUnit,
     slippageTolerancePercentageDecimal,

@@ -81,6 +81,16 @@ export class MarketServiceManager {
       }
     }
 
+    // https://blog.reserve.org/reserve-rights-rsr-contract-update-scheduled-for-01-13-2022-2fd0feb6d45
+    if (assetId === 'eip155:1/erc20:0x8762db106b2c2a0bccb3a80d1ed41273552616e8') {
+      return {
+        price: '0',
+        marketCap: '0',
+        volume: '0',
+        changePercent24Hr: 0,
+      }
+    }
+
     const result = await (async () => {
       const portalsProvider = this.marketProviders.find(
         provider => provider instanceof PortalsMarketService,

@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { solana } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -208,6 +208,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return estimatedFees
       } catch (e: unknown) {
         console.debug(e)
+
+        if (e instanceof ChainAdapterError) {
+          throw new Error(e.metadata.translation)
+        }
+
         throw new Error((e as Error).message)
       }
     },
@@ -244,7 +249,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const {
     isFetching: _isEstimatedFormFeesFetching,
     data: estimatedFees,
-    error,
+    error: estimatedFeesError,
   } = useQuery({
     queryKey,
     queryFn: setEstimatedFormFeesQueryFn,
@@ -328,14 +333,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     // openapi-generator error-handling https://github.com/OpenAPITools/openapi-generator/blob/8357cc313be5a099f994c4ffaf56146f40dba911/samples/client/petstore/typescript-fetch/builds/enum/runtime.ts#L221
     if (
-      error?.message ===
+      estimatedFeesError?.message ===
       'The request failed and the interceptors did not return an alternative response'
     )
       return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
-    if (error?.message) {
-      setValue(SendFormFields.AmountFieldError, error.message)
+    if (estimatedFeesError?.message) {
+      setValue(SendFormFields.AmountFieldError, estimatedFeesError.message)
     }
-  }, [error, hasEnteredPositiveAmount, setValue])
+  }, [estimatedFeesError, hasEnteredPositiveAmount, setValue])
 
   useEffect(() => {
     if (!estimatedFees) return

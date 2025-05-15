@@ -64,13 +64,11 @@ export const FoxGovernance = () => {
 
   const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
-  const votingPower = useAppSelector(state => selectVotingPower(state, { feeModel: 'SWAPPER' }))
+  const votingPower = useAppSelector(selectVotingPower)
   const isVotingPowerQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
 
   useEffect(() => {
-    dispatch(
-      snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
-    )
+    dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
   }, [dispatch, accountIds])
 
   const ActiveProposals = useCallback(() => {

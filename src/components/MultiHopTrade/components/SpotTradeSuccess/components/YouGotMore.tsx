@@ -33,21 +33,19 @@ const cardSx = {
   animation: `${animatedGradient} 15s ease infinite`,
 }
 
-type YouSavedOrExtraProps = {
-  totalCryptoPrecision: string
-  totalPercentage: string
+type YouGotMoreProps = {
+  totalUpsideCryptoPrecision: string
+  totalUpsidePercentage: string
   sellAsset: Asset
   buyAsset: Asset
-  isExtra?: boolean
 }
 
-export const YouSavedOrExtra = ({
-  totalCryptoPrecision,
-  totalPercentage,
+export const YouGotMore = ({
+  totalUpsideCryptoPrecision,
+  totalUpsidePercentage,
   sellAsset,
   buyAsset,
-  isExtra = false,
-}: YouSavedOrExtraProps) => {
+}: YouGotMoreProps) => {
   const cardRef = useRef<HTMLDivElement>(null)
 
   const refAnimationInstance = useRef<TCanvasConfettiInstance | null>(null)
@@ -85,8 +83,8 @@ export const YouSavedOrExtra = ({
   }, [makeShot])
 
   const formattedPercentage = useMemo(() => {
-    return `+${bnOrZero(totalPercentage).toFixed(2)}%`
-  }, [totalPercentage])
+    return `+${bnOrZero(totalUpsidePercentage).toFixed(2)}%`
+  }, [totalUpsidePercentage])
 
   const pair = useMemo(() => {
     return `${sellAsset.symbol}/${buyAsset.symbol}`
@@ -97,25 +95,12 @@ export const YouSavedOrExtra = ({
       cryptoUpside: (
         <Amount.Crypto
           as='span'
-          value={bnOrZero(totalCryptoPrecision).toFixed(buyAsset.precision)}
+          value={bnOrZero(totalUpsideCryptoPrecision).toFixed(buyAsset.precision)}
           symbol={buyAsset.symbol}
         />
       ),
     }),
-    [buyAsset.precision, buyAsset.symbol, totalCryptoPrecision],
-  )
-
-  const youGotExtraTranslationComponents = useMemo(
-    () => ({
-      extraPercent: (
-        <Amount.Crypto
-          as='span'
-          value={bnOrZero(totalCryptoPrecision).toFixed(buyAsset.precision)}
-          symbol={buyAsset.symbol}
-        />
-      ),
-    }),
-    [buyAsset.precision, buyAsset.symbol, totalCryptoPrecision],
+    [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
   )
 
   return (
@@ -125,12 +110,10 @@ export const YouSavedOrExtra = ({
           <HStack maxWidth='65%'>
             <Icon as={TbBolt} boxSize={8} color='white' />
             <Text
-              translation={isExtra ? 'trade.tradeCompleteSurplus' : 'trade.foxSavings.youGotMore'}
+              translation='trade.foxSavings.youGotMore'
               textAlign='left'
               color='white'
-              components={
-                isExtra ? youGotExtraTranslationComponents : youGotMoreTranslationComponents
-              }
+              components={youGotMoreTranslationComponents}
               fontSize='md'
               fontWeight='medium'
             />

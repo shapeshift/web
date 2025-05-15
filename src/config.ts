@@ -173,7 +173,6 @@ const validators = {
   VITE_FEATURE_JUPITER_SWAP: bool({ default: false }),
   VITE_JUPITER_API_URL: url({ default: JUPITER_API_URL }),
   VITE_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
-  VITE_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: bool({ default: false }),
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),

@@ -20,7 +20,6 @@ import type {
 } from './slices/opportunitiesSlice/types'
 
 import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter
@@ -51,7 +50,6 @@ type ParamFilter = Partial<{
   endpointName: string
   searchQuery: string
   txStatus: TxStatus
-  feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
   parser: TxMetadata['parser']
@@ -93,7 +91,6 @@ export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
-export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
 export const selectParserParamFromFilter = selectParamFromFilter('parser')

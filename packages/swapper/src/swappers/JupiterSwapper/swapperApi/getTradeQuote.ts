@@ -235,7 +235,6 @@ export const getTradeQuote = async (
     id: uuid(),
     quoteOrRate: 'quote',
     rate,
-    potentialAffiliateBps: affiliateBps,
     affiliateBps,
     receiveAddress,
     slippageTolerancePercentageDecimal,

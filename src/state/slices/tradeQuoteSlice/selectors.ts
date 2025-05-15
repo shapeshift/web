@@ -27,8 +27,8 @@ import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { calculateFeeUsd } from '@/lib/fees/utils'
 import { fromBaseUnit } from '@/lib/math'
-import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
@@ -505,57 +505,35 @@ export const selectQuoteSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, activeQuote => {
-    if (!activeQuote) return
+export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string> = createSelector(
+  selectActiveQuote,
+  activeQuote => {
+    if (!activeQuote) return '0'
     return activeQuote.affiliateBps
-  })
-
-export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
-  (state: ReduxState) =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER',
-      inputAmountUsd: selectQuoteSellAmountUsd(state),
-    }),
-  selectActiveQuoteAffiliateBps,
-  (calculatedFees, affiliateBps) => {
-    if (!affiliateBps) return
-    if (affiliateBps === '0') return bn(0)
-
-    return calculatedFees.feeUsd
   },
 )
 
-export const selectTradeQuoteAffiliateFeeDiscountUsd = createSelector(
-  (state: ReduxState) =>
-    selectCalculatedFees(state, {
-      feeModel: 'SWAPPER',
-      inputAmountUsd: selectQuoteSellAmountUsd(state),
-    }),
+export const selectTradeAffiliateFeeUsd = createSelector(
+  selectQuoteSellAmountUsd,
   selectActiveQuoteAffiliateBps,
-  (calculatedFees, affiliateBps) => {
+  (sellAmountUsd, affiliateBps) => {
+    const { feeUsd } = calculateFeeUsd({
+      inputAmountUsd: bnOrZero(sellAmountUsd),
+    })
+
     if (!affiliateBps) return
     if (affiliateBps === '0') return bn(0)
 
-    return calculatedFees.foxDiscountUsd
+    return feeUsd
   },
 )
 
 export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelector(
-  selectTradeQuoteAffiliateFeeAfterDiscountUsd,
+  selectTradeAffiliateFeeUsd,
   selectUserCurrencyToUsdRate,
-  (tradeAffiliateFeeAfterDiscountUsd, sellUserCurrencyRate) => {
-    if (!tradeAffiliateFeeAfterDiscountUsd || !sellUserCurrencyRate) return
-    return bn(tradeAffiliateFeeAfterDiscountUsd).times(sellUserCurrencyRate).toFixed()
-  },
-)
-
-export const selectTradeQuoteAffiliateFeeDiscountUserCurrency = createSelector(
-  selectTradeQuoteAffiliateFeeDiscountUsd,
-  selectUserCurrencyToUsdRate,
-  (tradeAffiliateFeeDiscountUsd, sellUserCurrencyRate) => {
-    if (!tradeAffiliateFeeDiscountUsd || !sellUserCurrencyRate) return
-    return bn(tradeAffiliateFeeDiscountUsd).times(sellUserCurrencyRate).toFixed()
+  (tradeAffiliateFeeUsd, sellUserCurrencyRate) => {
+    if (!tradeAffiliateFeeUsd || !sellUserCurrencyRate) return
+    return bn(tradeAffiliateFeeUsd).times(sellUserCurrencyRate).toFixed()
   },
 )
 

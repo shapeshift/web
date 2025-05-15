@@ -6,7 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { assertUnreachable } from '@/lib/utils'
-import { selectCalculatedFees } from '@/state/apis/snapshot/selectors'
+import { selectCalculatedFeeUsd } from '@/state/apis/snapshot/selectors'
 import type { ReduxState } from '@/state/reducer'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -109,9 +109,9 @@ export const getMixpanelLimitOrderEventData = ({
     .times(userCurrencyToUsdRate)
     .toString()
 
-  const feeParams = { feeModel: 'SWAPPER' as const, inputAmountUsd: sellAmountBeforeFeesUsd }
-  const { feeUsd: shapeshiftFeeUsd } = selectCalculatedFees(state, feeParams)
-  const shapeShiftFeeUserCurrency = shapeshiftFeeUsd.times(userCurrencyToUsdRate).toString()
+  const feeParams = { inputAmountUsd: sellAmountBeforeFeesUsd }
+  const feeUsd = selectCalculatedFeeUsd(state, feeParams)
+  const shapeShiftFeeUserCurrency = bn(feeUsd).times(userCurrencyToUsdRate).toString()
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
   const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
@@ -124,7 +124,7 @@ export const getMixpanelLimitOrderEventData = ({
     amountUsd: sellAmountBeforeFeesUsd,
     amountUserCurrency: sellAmountBeforeFeesUserCurrency,
     shapeShiftFeeUserCurrency,
-    shapeshiftFeeUsd: shapeshiftFeeUsd.toString(),
+    shapeshiftFeeUsd: feeUsd.toString(),
     [compositeBuyAsset]: buyAmountCryptoPrecision,
     [compositeSellAsset]: sellAmountCryptoPrecision,
   }

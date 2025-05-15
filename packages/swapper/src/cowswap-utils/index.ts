@@ -189,7 +189,7 @@ export const getAffiliateAppDataFragmentByChainId = ({
 
   return {
     partnerFee: {
-      bps: Number(affiliateBps),
+      bps: bnOrZero(affiliateBps).toNumber(),
       recipient: getTreasuryAddressFromChainId(chainId),
     },
   }

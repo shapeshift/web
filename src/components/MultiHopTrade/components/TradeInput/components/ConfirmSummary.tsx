@@ -99,7 +99,6 @@ export const ConfirmSummary = ({
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
-  // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,

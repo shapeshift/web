@@ -142,7 +142,6 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -189,7 +188,6 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '0.00004995640398295996',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -236,7 +234,6 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '1.0003121775396440882',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -283,7 +280,6 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '0.00028787191526496171',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -330,7 +326,6 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -382,7 +377,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -410,7 +404,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -456,7 +449,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -502,7 +494,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -548,7 +539,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -594,7 +584,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%

@@ -228,6 +228,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       feeAsset.symbol,
       nativeAssetBalance,
       setValue,
+      translate,
     ],
   )
 

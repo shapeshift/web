@@ -5,6 +5,7 @@ import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
@@ -43,6 +44,7 @@ type UseSendDetailsReturnType = {
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
+  const translate = useTranslate()
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.AmountCryptoPrecision)
   const { setValue } = useFormContext<SendInput>()
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({
@@ -210,7 +212,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         console.debug(e)
 
         if (e instanceof ChainAdapterError) {
-          throw new Error(e.metadata.translation)
+          throw new Error(translate(e.metadata.translation, e.metadata.options))
         }
 
         throw new Error((e as Error).message)

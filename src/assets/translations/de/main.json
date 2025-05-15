@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Betrag",
     "ascending": "Aufsteigend",
     "descending": "Absteigend",
     "free": "kostenlos",
@@ -194,7 +195,8 @@
     "tbd": "TBD",
     "installed": "Eingerichtet",
     "others": "Sonstiges",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "dustAmount": "Kleinbetrag"
   },
   "consentBanner": {
     "body": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen %{privateLink} wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere %{privacyPolicyLink} für mehr Details.",
@@ -606,6 +608,7 @@
     "lending": "Verleihen",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "FOX Ökosystem",
     "markets": "Märkte",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "RUNE Adresse festlegen",
         "reward": "Belohnungsverteilung"
       },
+      "tcy": {
+        "stake": "Stake",
+        "withdraw": "Abheben",
+        "unstakeRequest": "Stake beenden Anfrage",
+        "setRuneAddress": "RUNE Adresse festlegen",
+        "reward": "Belohnungsverteilung"
+      },
       "weth": {
         "deposit": "Einzahlung",
         "approve": "Genehmigen",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "Kreditrückzahlung + Rückerstattung",
         "out": "Ausgehend empfangen",
         "refund": "Rückerstattung",
+        "stake": "Stake",
         "swapOut": "Tausch erhalten",
         "swap": "Handel",
         "swapRefund": "Swap Rückerstattung",
+        "unstake": "Stake beenden",
         "withdraw": "Auszahlung beantragt",
         "withdrawNative": "Abheben",
         "withdrawOut": "Auszahlung erhalten"
@@ -2651,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Stake FOX verdiene RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Stake TCY um RUNE zu verdienen."
     }
   },
   "RFOX": {
@@ -2772,6 +2788,101 @@
     "pendingDistribution": "Ausstehende Verteilung",
     "selectRuneAddress": "Wählen Sie eine RUNE Adresse"
   },
+  "TCY": {
+    "stake": "Stake",
+    "unstake": "Stake beenden",
+    "staking": "TCY Staking",
+    "myPosition": "Meine Position",
+    "myStakedBalance": "Mein eingesetztes Guthaben",
+    "myStakedBalanceHelper": "Der Betrag von %{symbol}, den Sie eingesetzt haben",
+    "pendingRewardsBalance": "Ausstehende Belohnung",
+    "pendingRewardsBalanceHelper": "Dies ist lediglich eine Schätzung Ihrer ausstehenden Belohnung basierend auf den Einnahmen der Epoche bis zum aktuellen Datum. Die gesamte Abrechnung erfolgt am Ende der Epoche und kann erst am Monatsende exakt berechnet werden.",
+    "lifetimeRewards": "bisherigen Belohnungen",
+    "lifetimeRewardsHelper": "Die Gesamtbelohnungen, die Sie bisher durch das Staking Ihres %{symbol} erhalten haben",
+    "timeStaked": "Stake Dauer",
+    "timeStakedHelper": "Die Zeitspanne, in der Sie Ihr %{symbol} eingesetzt haben",
+    "stakingReward": "Staking Belohnung",
+    "claimsEmpty": {
+      "emptyTitle": "Keine Ansprüche vorhanden",
+      "emptyBody": "Es scheint, dass Ihnen keine TCY Ansprüche zustehen. Versuchen Sie es mit einer anderen Wallet?",
+      "connectWalletBody": "Verbinden Sie Ihre Wallet, um Ihre TCY Ansprüche einzusehen."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Nicht verfügbare Ansprüche",
+      "notEligible": "Nicht teilnahmeberechtigt"
+    },
+    "claimStatus": {
+      "pendingTitle": "Anspruch bevorstehend",
+      "back": "Zurück",
+      "pendingSubtitle": "Wir bearbeiten Ihren Anspruch über %{amount} TCY",
+      "viewTransaction": "Transaktion anzeigen",
+      "successTitle": "Anspruch erfolgreich",
+      "successSubtitle": "Sie haben %{amount} TCY erfolgreich eingefordert",
+      "goBack": "Geh zurück",
+      "failedTitle": "Da ist etwas schiefgelaufen",
+      "failedSubtitle": "Ihr Antrag ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "Eine kleine Menge %{symbol} ist erforderlich, um Ihre Adresse im THOR-Netzwerk zu identifizieren",
+      "networkFeeTooltip": "Dies ist die %{symbol} Gebühr für die Verarbeitung der Transaktion auf der Blockchain. Dies ist keine von ShapeShift erhobene Gebühr.",
+      "missingFundsForGasAlert": "Nicht genügend %{symbol}, Sie benötigen mindestens %{amount} %{symbol}, um die Transaktion abzuschließen. Wir empfehlen, etwas mehr zu senden, um schwankende Netzwerkgebühren abzudecken.",
+      "confirmTitle": "Anspruch bestätigen",
+      "networkFee": "Netzwerkgebühr",
+      "confirmAndClaim": "Anspruch & Staken",
+      "notice": "Sie beanspruchen %{amount} TCY. Er wird automatisch gestaked. Sie können danach jederzeit etwas abheben, um es in Ihre Wallet zu senden."
+    },
+    "assetClaimButton": {
+      "claimAction": "Anspruch"
+    },
+    "claimAddressInput": {
+      "label": "Anspruchsadresse",
+      "useWalletAddress": "Wallet Adresse verwenden",
+      "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
+      "helperText": "Hierhin werden Ihre TCY gesendet."
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} Adresse",
+      "helperText": "Dies ist die Adresse, die zum Senden Ihrer Anspruchstransaktion verwendet wird."
+    },
+    "stakeInput": {
+      "amount": "Betrag",
+      "networkFee": "Netzwerkgebühr",
+      "networkFeeTooltip": "Netzwerkgebühr",
+      "stake": "Stake",
+      "amountPlaceholder": "Betrag eingeben"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Staking bestätigen",
+      "confirmAndStake": "Bestätigen & Staken"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Bestätige Stake beenden",
+      "confirmAndUnstake": "Bestätigen & Stake beenden"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Stake beenden steht noch aus",
+      "pendingSubtitle": "Wir verarbeiten Ihre Rücknahme für %{amount} TCY",
+      "successTitle": "Stake erfolgreich beendet",
+      "failedTitle": "Da ist etwas schiefgelaufen",
+      "failedSubtitle": "Ihr Auftrag ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "successSubtitle": "Sie haben das Staken von %{amount} TCY erfolgreich beendet",
+      "goBack": "Geh zurück"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Staking noch bevorstehend",
+      "pendingSubtitle": "Wir verarbeiten Ihren Einsatz für %{amount} TCY",
+      "successTitle": "Stake erfolgreich ausgeführt",
+      "failedTitle": "Da ist etwas schiefgelaufen",
+      "failedSubtitle": "Ihr Auftrag ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "viewTransaction": "Transaktion anzeigen",
+      "successSubtitle": "Sie haben erfolgreich %{amount} TCY eingesetzt",
+      "goBack": "Geh zurück"
+    },
+    "cta": {
+      "title": "Ihnen stehen TCY Ansprüche zur Verfügung!",
+      "button": "Ansprüche prüfen"
+    }
+  },
   "markets": {
     "recommended": "Empfohlen",
     "watchlist": "Meine Merkliste",
@@ -2875,6 +2986,29 @@
     }
   },
   "notificationCenter": {
-    "title": "Benachrichtigungen"
+    "title": "Benachrichtigungen",
+    "viewTransaction": "Transaktion anzeigen",
+    "viewOrder": "Order anzeigen",
+    "cancelOrder": "Order stornieren",
+    "pair": "Paar",
+    "limitPrice": "Limitpreis",
+    "expires": "Läuft ab",
+    "filled": "Ausgeführt",
+    "swap": "Swap",
+    "claim": "Anspruch",
+    "protocol": "Protokoll",
+    "streamingStatus": "Streaming Status",
+    "executionPrice": "Ausführungspreis",
+    "status": {
+      "title": "Status",
+      "open": "Offen",
+      "expired": "Abgelaufen",
+      "cancelled": "Abgebrochen",
+      "confirmed": "Bestätigt",
+      "failed": "Fehlgeschlagen",
+      "pending": "Ausstehend",
+      "claimAvailable": "Anspruch verfügbar",
+      "unknown": "Unbekannt"
+    }
   }
 }

@@ -10,6 +10,11 @@ import type { ThorchainBlock, ThorchainMimir } from '@/lib/utils/thorchain/types
 
 const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
+export const fetchThorchainMimir = async () => {
+  const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/thorchain/mimir`)
+  return data
+}
+
 // Feature-agnostic, abstracts away THORNode endpoints
 export const thornode = createQueryKeys('thornode', {
   poolData: (assetId: AssetId | undefined) => ({
@@ -42,10 +47,7 @@ export const thornode = createQueryKeys('thornode', {
   mimir: () => {
     return {
       queryKey: ['thorchainMimir'],
-      queryFn: async () => {
-        const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/thorchain/mimir`)
-        return data
-      },
+      queryFn: fetchThorchainMimir,
     }
   },
   block: () => {

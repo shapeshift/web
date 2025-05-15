@@ -10,7 +10,6 @@ import {
   HStack,
   Icon,
   Stack,
-  Text as CText,
   useDisclosure,
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
@@ -23,7 +22,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { TwirlyToggle } from '../TwirlyToggle'
 import { YouCouldHaveSaved } from './components/YouCouldHaveSaved'
-import { YouSaved } from './components/YouSaved'
+import { YouSavedOrExtra } from './components/YouSavedOrExtra'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AnimatedCheck } from '@/components/AnimatedCheck'
@@ -246,32 +245,9 @@ export const SpotTradeSuccess = ({
       .toString()
   }, [actualBuyAmountCryptoPrecision, quoteBuyAmountCryptoPrecision])
 
-  const surplusComponents = useMemo(
-    () => ({
-      extraPercent: (
-        <Box color='green.200' display='inline'>
-          <Amount.Crypto
-            as='span'
-            fontWeight='medium'
-            symbol={buyAsset?.symbol ?? ''}
-            value={maybeExtraDeltaCryptoPrecision}
-          />
-          <CText as='span' color='green.200'>
-            {' '}
-            (
-          </CText>
-          <Amount.Percent as='span' value={bnOrZero(surplusPercentage).div(100).toString()} />
-          <CText as='span' color='green.200'>
-            )
-          </CText>
-        </Box>
-      ),
-    }),
-    [buyAsset?.symbol, maybeExtraDeltaCryptoPrecision, surplusPercentage],
-  )
-
   const SurplusLine = useCallback(() => {
     if (!buyAsset) return null
+    if (!sellAsset) return null
     if (!(actualBuyAmountCryptoPrecision && quoteBuyAmountCryptoPrecision)) return null
     if (!maybeExtraDeltaCryptoPrecision) return null
     // Superseeded by the "You Saved" explainer
@@ -281,15 +257,21 @@ export const SpotTradeSuccess = ({
     if (bnOrZero(surplusPercentage).lt(0.3)) return null
 
     return (
-      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
-        <Text translation='trade.tradeCompleteSurplus' components={surplusComponents} />
-      </Flex>
+      <Box width='full' px={8}>
+        <YouSavedOrExtra
+          totalPercentage={surplusPercentage}
+          totalCryptoPrecision={maybeExtraDeltaCryptoPrecision}
+          sellAsset={sellAsset}
+          buyAsset={buyAsset}
+          isExtra
+        />
+      </Box>
     )
   }, [
     buyAsset,
-    quoteBuyAmountCryptoPrecision,
+    sellAsset,
     actualBuyAmountCryptoPrecision,
-    surplusComponents,
+    quoteBuyAmountCryptoPrecision,
     maybeExtraDeltaCryptoPrecision,
     hasFeeSaving,
     surplusPercentage,
@@ -330,9 +312,9 @@ export const SpotTradeSuccess = ({
               hasFeeSaving &&
               bnOrZero(feesOrTotalUpsideCryptoPrecision).gt(0) && (
                 <Box px={8}>
-                  <YouSaved
-                    totalUpsidePercentage={feesOrTotalUpsidePercentage}
-                    totalUpsideCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
+                  <YouSavedOrExtra
+                    totalPercentage={feesOrTotalUpsidePercentage}
+                    totalCryptoPrecision={feesOrTotalUpsideCryptoPrecision}
                     sellAsset={sellAsset}
                     buyAsset={buyAsset}
                   />

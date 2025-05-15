@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import type { TCYRouteProps } from '../../types'
 import { ClaimSelect } from './ClaimSelect'
 
-interface ClaimProps extends TCYRouteProps {
+type ClaimProps = TCYRouteProps & {
   activeAccountNumber: number
 }
 

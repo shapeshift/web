@@ -19,6 +19,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
@@ -58,11 +59,11 @@ export const AvailablePools = () => {
           const pool = row.original
 
           const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-            assetId: pool?.assetId,
+            assetId: pool.assetId,
             swapperName: SwapperName.Thorchain,
           })
 
-          const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
+          const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(pool.assetId)
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
@@ -70,7 +71,7 @@ export const AvailablePools = () => {
 
           const statusContent = useMemo(() => {
             switch (true) {
-              case isThorchainPoolsInstable:
+              case isThorchainLpDepositEnabledForPool === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='pools.depositsDisabled' />,
@@ -102,7 +103,7 @@ export const AvailablePools = () => {
                 }
             }
           }, [
-            isThorchainPoolsInstable,
+            isThorchainLpDepositEnabledForPool,
             isThorchainLpInteractionDisabled,
             isTradingActive,
             pool.annualPercentageRate,

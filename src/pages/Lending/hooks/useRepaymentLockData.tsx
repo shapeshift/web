@@ -6,6 +6,7 @@ import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import { reactQueries } from '@/react-queries'
 
 type UseLendingPositionDataProps = {
@@ -47,15 +48,11 @@ export const useRepaymentLockData = ({
     enabled: enabled && !!accountId && !!assetId,
   })
 
-  const repaymentLockData = useQuery({
-    ...reactQueries.thornode.mimir(),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
-    staleTime: thorchainBlockTimeMs,
+  const repaymentLockData = useThorchainMimir({
     select: mimirData => {
       if (!mimirData || !blockHeight) return null
 
-      const repaymentMaturity = mimirData.LOANREPAYMENTMATURITY as number
+      const repaymentMaturity = mimirData.LOANREPAYMENTMATURITY
 
       // If position is not available, return the repayment maturity as specified by the network, currently about 30 days
       if (!position) {

@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Montant",
     "ascending": "Croissant",
     "descending": "Décroissant",
     "free": "Gratuit",
@@ -194,7 +195,8 @@
     "tbd": "À définir",
     "installed": "Installé",
     "others": "Autres",
-    "hardwareWallets": "Porte-monnaie matériels"
+    "hardwareWallets": "Porte-monnaie matériels",
+    "dustAmount": "Montant de poussière"
   },
   "consentBanner": {
     "body": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez %{privateLink} si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre %{privacyPolicyLink} pour plus de détails.",
@@ -412,7 +414,7 @@
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "protocolFee": "Frais de protocole",
         "fee": "Frais",
-        "dustAmount": "Quantité de poussière",
+        "dustAmount": "Montant de poussière",
         "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
         "sendDustBody": "Vous devez envoyer un peu de poussière à cette adresse pour pouvoir effectuer un retrait.",
         "sendDust": "Envoyer de la poussière",
@@ -606,6 +608,7 @@
     "lending": "Prêts",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "Écosystème FOX",
     "markets": "Marchés",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "Définir l'adresse RUNE",
         "reward": "Distribution des récompenses"
       },
+      "tcy": {
+        "stake": "Miser",
+        "withdraw": "Retirer",
+        "unstakeRequest": "Demande de démise",
+        "setRuneAddress": "Définir l'adresse RUNE",
+        "reward": "Distribution des récompenses"
+      },
       "weth": {
         "deposit": "Dépôt",
         "approve": "Autorisation",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "Restitution de prêt + Remboursement",
         "out": "Sortant reçu",
         "refund": "Remboursement",
+        "stake": "Miser",
         "swapOut": "Échange reçu",
         "swap": "Échange",
         "swapRefund": "Remboursement d'échange",
+        "unstake": "Démiser",
         "withdraw": "Retrait demandé",
         "withdrawNative": "Retrait",
         "withdrawOut": "Retrait reçu"
@@ -2311,7 +2323,7 @@
             "gasLimit": {
               "title": "Limite de carburant",
               "placeholder": "Limite de carburant...",
-              "tooltip": "La limite de carburant fait référence à la quantité maximale de carburant qu'un utilisateur peut consommer pour effectuer une transaction."
+              "tooltip": "La limite de carburant fait référence au montant maximal de carburant qu'un utilisateur peut consommer pour effectuer une transaction."
             }
           },
           "estGasCost": "Est. du coût de carburant",
@@ -2651,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Misez des FOX, gagnez des RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Misez des TCY et gagnez des RUNE."
     }
   },
   "RFOX": {
@@ -2772,6 +2788,101 @@
     "pendingDistribution": "Distribution en attente",
     "selectRuneAddress": "Sélectionnez une adresse RUNE"
   },
+  "TCY": {
+    "stake": "Miser",
+    "unstake": "Démiser",
+    "staking": "Mises TCY",
+    "myPosition": "Ma position",
+    "myStakedBalance": "Mon solde misé",
+    "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez misé",
+    "pendingRewardsBalance": "Solde des récompenses en attente",
+    "pendingRewardsBalanceHelper": "Il s'agit seulement d'une estimation de vos récompenses en attente, basée sur vos revenus cumulés à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut être calculée avec précision avant la fin du mois.",
+    "lifetimeRewards": "Récompenses cumulées",
+    "lifetimeRewardsHelper": "Le total des récompenses que vous avez gagnées à ce jour en misant vos %{symbol}",
+    "timeStaked": "Durée de mise",
+    "timeStakedHelper": "Le temps pendant lequel vous avez misé vos %{symbol}",
+    "stakingReward": "Récompense de mise",
+    "claimsEmpty": {
+      "emptyTitle": "Aucune réclamation disponible",
+      "emptyBody": "Il semble que vous n'ayez aucune réclamation TCY disponible. Essayez avec un autre porte-monnaie ?",
+      "connectWalletBody": "Connectez votre porte-monnaie pour voir vos réclamations TCY."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Réclamations indisponibles",
+      "notEligible": "Non éligible"
+    },
+    "claimStatus": {
+      "pendingTitle": "La réclamation est en attente",
+      "back": "Retour",
+      "pendingSubtitle": "Nous traitons votre réclamation de %{amount} TCY",
+      "viewTransaction": "Voir la transaction",
+      "successTitle": "La réclamation est acceptée",
+      "successSubtitle": "Vous avez réclamé %{amount} TCY avec succès",
+      "goBack": "Retour",
+      "failedTitle": "Quelque chose s'est mal déroulé",
+      "failedSubtitle": "Votre réclamation a échoué. Veuillez réessayer."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "Un petit montant en %{symbol} est nécessaire pour identifier votre adresse sur le réseau THOR",
+      "networkFeeTooltip": "Il s'agit des frais en %{symbol} pour traiter la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift",
+      "missingFundsForGasAlert": "Montant en %{symbol} insuffisant, il vous faut au moins %{amount} %{symbol} pour finaliser la transaction. Nous vous recommandons d'envoyer un peu plus afin de couvrir d’éventuelles fluctuations de frais de réseau.",
+      "confirmTitle": "Confirmer la réclamation",
+      "networkFee": "Frais de réseau",
+      "confirmAndClaim": "Réclamer et miser",
+      "notice": "Vous réclamez %{amount} TCY. Ils seront automatiquement misés. Démisez-les à tout moment pour les recevoir dans votre porte-monnaie."
+    },
+    "assetClaimButton": {
+      "claimAction": "Réclamer"
+    },
+    "claimAddressInput": {
+      "label": "Adresse de réclamation",
+      "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
+      "useCustomAddress": "Utiliser une adresse personnalisée",
+      "helperText": "C'est ici que les TCY seront envoyés."
+    },
+    "assetAddressInput": {
+      "label": "Adresse %{symbol}",
+      "helperText": "C'est l'adresse qui sera utilisée pour envoyer votre transaction de réclamation."
+    },
+    "stakeInput": {
+      "amount": "Montant",
+      "networkFee": "Frais de réseau",
+      "networkFeeTooltip": "Frais de réseau",
+      "stake": "Miser",
+      "amountPlaceholder": "Entrez le montant"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Confirmer la mise",
+      "confirmAndStake": "Confirmer et miser"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirmer la démise",
+      "confirmAndUnstake": "Confirmer et démiser"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "La démise est en attente",
+      "pendingSubtitle": "Nous traitons votre démise de %{amount} TCY",
+      "successTitle": "La démise est réussie",
+      "failedTitle": "Quelque chose s'est mal déroulé",
+      "failedSubtitle": "Votre démise a échoué. Veuillez réessayer.",
+      "successSubtitle": "Vous avez démisé %{amount} TCY avec succès",
+      "goBack": "Retour"
+    },
+    "stakeStatus": {
+      "pendingTitle": "La mise est en attente",
+      "pendingSubtitle": "Nous traitons votre mise de %{amount} TCY",
+      "successTitle": "La mise est réussie",
+      "failedTitle": "Quelque chose s'est mal déroulé",
+      "failedSubtitle": "Votre mise a échoué. Veuillez réessayer.",
+      "viewTransaction": "Voir la transaction",
+      "successSubtitle": "Vous avez misé %{amount} TCY avec succès",
+      "goBack": "Retour"
+    },
+    "cta": {
+      "title": "Vous avez des réclamations TCY disponibles !",
+      "button": "Vérifier les réclamations"
+    }
+  },
   "markets": {
     "recommended": "Recommandé",
     "watchlist": "Mes actifs suivis",
@@ -2875,6 +2986,29 @@
     }
   },
   "notificationCenter": {
-    "title": "Notifications"
+    "title": "Notifications",
+    "viewTransaction": "Voir la transaction",
+    "viewOrder": "Voir l'ordre",
+    "cancelOrder": "Annuler l'ordre",
+    "pair": "Paire",
+    "limitPrice": "Prix limite",
+    "expires": "Expire",
+    "filled": "Executé",
+    "swap": "Échange",
+    "claim": "Réclamation",
+    "protocol": "Protocole",
+    "streamingStatus": "Statut du stream",
+    "executionPrice": "Prix d'exécution",
+    "status": {
+      "title": "Statut",
+      "open": "Ouvert",
+      "expired": "Expiré",
+      "cancelled": "Annulé",
+      "confirmed": "Confirmé",
+      "failed": "Échoué",
+      "pending": "En attente",
+      "claimAvailable": "Réclamation disponible",
+      "unknown": "Inconnu"
+    }
   }
 }

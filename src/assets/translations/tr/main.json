@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Miktar",
     "ascending": "Yükselen",
     "descending": "Azalan",
     "free": "Uygun",
@@ -194,7 +195,8 @@
     "tbd": "Belirlenecek",
     "installed": "Kurulu",
     "others": "Diğerleri",
-    "hardwareWallets": "Donanım Cüzdanları"
+    "hardwareWallets": "Donanım Cüzdanları",
+    "dustAmount": "Toz Miktarı"
   },
   "consentBanner": {
     "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
@@ -606,6 +608,7 @@
     "lending": "Borç Verme",
     "pools": "Havuzlar",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "FOX Ekosistem",
     "markets": "Piyasalar",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "RUNE Adresini Ayarla",
         "reward": "Ödül Dağıtımı"
       },
+      "tcy": {
+        "stake": "Stake",
+        "withdraw": "Çekim",
+        "unstakeRequest": "Unstake Talebi",
+        "setRuneAddress": "RUNE Adresini Ayarla",
+        "reward": "Ödül Dağıtımı"
+      },
       "weth": {
         "deposit": "Depozit",
         "approve": "Onayla",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "Kredi Geri Ödemesi + Geri Ödeme",
         "out": "Giden Alınan",
         "refund": "Geri Ödeme",
+        "stake": "Stake",
         "swapOut": "Takas Alındı",
         "swap": "Takas",
         "swapRefund": "Takas İadesi",
+        "unstake": "Unstake",
         "withdraw": "Para Çekme Talep Edildi",
         "withdrawNative": "Çekim",
         "withdrawOut": "Para Çekme Alındı"
@@ -2651,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "FOX stake ederek RUNE kazanın."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "TCY'yi stake et ve RUNE kazan."
     }
   },
   "RFOX": {
@@ -2772,6 +2788,101 @@
     "pendingDistribution": "Bekleyen Dağıtım",
     "selectRuneAddress": "Bir RUNE adresi seçin"
   },
+  "TCY": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "staking": "TCY Stake",
+    "myPosition": "Pozisyonum",
+    "myStakedBalance": "Stake Edilmiş Bakiyem",
+    "myStakedBalanceHelper": "Stake edilen %{symbol} miktarı",
+    "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
+    "pendingRewardsBalanceHelper": "Bu, yalnızca dönem sonu gelirlerine dayalı bekleyen ödüllerinizin bir tahminidir. Tüm muhasebe dönem sonunda yapılır ve ay sonundan önce tam olarak hesaplanamaz",
+    "lifetimeRewards": "Ömür Boyu Ödüller",
+    "lifetimeRewardsHelper": "Bugüne kadar %{symbol}'unuzu stake ederek kazandığınız toplam ödüller",
+    "timeStaked": "Stake Zamanı",
+    "timeStakedHelper": "%{symbol}'unuzu stake ettiğiniz zaman miktarı",
+    "stakingReward": "Staking Ödülü",
+    "claimsEmpty": {
+      "emptyTitle": "Hiçbir hak talebi mevcut değil",
+      "emptyBody": "Görünüşe göre TCY talebiniz yok. Başka bir cüzdanla deneyin?",
+      "connectWalletBody": "TCY taleplerinizi görmek için cüzdanınızı bağlayın."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Mevcut Olmayan Talepler",
+      "notEligible": "Uygun Değil"
+    },
+    "claimStatus": {
+      "pendingTitle": "Talep beklemede",
+      "back": "Geri",
+      "pendingSubtitle": "%{amount} TCY tutarındaki talebinizi işliyoruz",
+      "viewTransaction": "İşlemi Görüntüle",
+      "successTitle": "Talep başarılı oldu",
+      "successSubtitle": "%{amount} TCY'yi başarıyla talep ettiniz",
+      "goBack": "Geri Git",
+      "failedTitle": "Bir şeyler ters gitti",
+      "failedSubtitle": "Talebiniz başarısız oldu. Lütfen tekrar deneyin."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "THOR ağında adresinizi tanımlamak için küçük bir miktarda %{symbol} gereklidir",
+      "networkFeeTooltip": "Bu, blockchain'de işlemi gerçekleştirmek için %{symbol} ücretidir, ShapeShift tarafından tahsil edilen bir ücret değildir",
+      "missingFundsForGasAlert": "Yeterli %{symbol} yok, işlemi tamamlamak için en az %{amount} %{symbol}'e ihtiyacınız var. Dalgalanan ağ ücretleri için biraz daha fazla teminat göndermenizi öneririz.",
+      "confirmTitle": "Talebi Onayla",
+      "networkFee": "Ağ Ücreti",
+      "confirmAndClaim": "Talep Et ve Stake",
+      "notice": "%{amount} TCY talep ediyorsunuz. Otomatik olarak stake edilecek — cüzdanınıza almak için istediğiniz zaman stake'i iptal edin."
+    },
+    "assetClaimButton": {
+      "claimAction": "Topla"
+    },
+    "claimAddressInput": {
+      "label": "Talep adresi",
+      "useWalletAddress": "Cüzdan adresini kullan",
+      "useCustomAddress": "Özel adresi kullan",
+      "helperText": "TCY'niz buraya gönderilecektir."
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} Adresi",
+      "helperText": "Bu, talep işleminizin gönderileceği adrestir."
+    },
+    "stakeInput": {
+      "amount": "Miktar",
+      "networkFee": "Ağ Ücreti",
+      "networkFeeTooltip": "Ağ Ücreti",
+      "stake": "Stake",
+      "amountPlaceholder": "Tutarı girin"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Stake'i Onayla",
+      "confirmAndStake": "Onayla ve Stake Et"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Unstake Onayla",
+      "confirmAndUnstake": "Onayla ve Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake bekleniyor",
+      "pendingSubtitle": "%{amount} TCY tutarındaki payınızı geri çekme işlemini gerçekleştiriyoruz",
+      "successTitle": "Unstake başarılı oldu",
+      "failedTitle": "Bir şeyler ters gitti",
+      "failedSubtitle": "Unstake işleminiz başarısız oldu. Lütfen tekrar deneyin.",
+      "successSubtitle": "%{amount} TCY'yi başarıyla stake ettiniz",
+      "goBack": "Geri Git"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Stake bekleniyor",
+      "pendingSubtitle": "%{amount} TCY tutarındaki stake'ini işliyoruz",
+      "successTitle": "Stake başarılı oldu",
+      "failedTitle": "Bir şeyler ters gitti",
+      "failedSubtitle": "Stake başarısız oldu. Lütfen tekrar deneyin.",
+      "viewTransaction": "İşlemi Görüntüle",
+      "successSubtitle": "%{amount} TCY'yi başarıyla stake ettiniz",
+      "goBack": "Geri Git"
+    },
+    "cta": {
+      "title": "TCY talepleriniz mevcut!",
+      "button": "Talepleri Kontrol Et"
+    }
+  },
   "markets": {
     "recommended": "Önerilen",
     "watchlist": "İzleme Listem",
@@ -2875,6 +2986,29 @@
     }
   },
   "notificationCenter": {
-    "title": "Bildirimler"
+    "title": "Bildirimler",
+    "viewTransaction": "İşlemi Görüntüle",
+    "viewOrder": "Siparişi Görüntüle",
+    "cancelOrder": "Siparişi İptal Et",
+    "pair": "Çift",
+    "limitPrice": "Limit Fiyatı",
+    "expires": "Sona Erme",
+    "filled": "Dolduruldu",
+    "swap": "Takas",
+    "claim": "Talep",
+    "protocol": "Protokol",
+    "streamingStatus": "Akış Durumu",
+    "executionPrice": "Uygulama Fiyatı",
+    "status": {
+      "title": "Durum",
+      "open": "Açık",
+      "expired": "Süresi Dolmuş",
+      "cancelled": "İptal edildi",
+      "confirmed": "Onaylandı",
+      "failed": "Başarısız",
+      "pending": "Bekleniyor",
+      "claimAvailable": "Talep Mevcut",
+      "unknown": "Bilinmeyen"
+    }
   }
 }

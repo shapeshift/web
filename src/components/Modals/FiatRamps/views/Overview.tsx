@@ -295,7 +295,15 @@ export const Overview: React.FC<OverviewProps> = ({
   return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
-      <Flex display='flex' flexDir='column' gap={6} p={6} bg='background.surface.raised.base'>
+      <Flex
+        display='flex'
+        flexDir='column'
+        gap={6}
+        p={6}
+        bg='background.surface.raised.base'
+        flex={1}
+        minH='full'
+      >
         <Stack spacing={4}>
           <Text
             fontWeight='bold'

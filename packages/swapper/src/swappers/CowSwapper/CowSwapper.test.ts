@@ -217,7 +217,6 @@ describe('cowApi', () => {
         quoteOrRate: 'quote',
         receiveAddress: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
         affiliateBps: '0',
-        potentialAffiliateBps: '48',
         rate: '0.00002965519158928897',
         slippageTolerancePercentageDecimal: '0.005',
         steps: [

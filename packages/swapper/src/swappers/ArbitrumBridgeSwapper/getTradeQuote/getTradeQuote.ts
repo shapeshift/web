@@ -89,7 +89,6 @@ export async function getTradeQuote(
       quoteOrRate: 'quote' as const,
       receiveAddress,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       rate,
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.ArbitrumBridge,

@@ -142,7 +142,6 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -162,8 +161,8 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
         networkFeeCryptoBaseUnit: '0',
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366', // 14924 FOX
-      buyAmountAfterFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
+      buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366', // ~14925 FOX
+      buyAmountAfterFeesCryptoBaseUnit: '14633996289802713696747', // ~14634 FOX
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
@@ -189,7 +188,6 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '0.00004995640398295996',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -210,7 +208,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '49956403982959960',
-      buyAmountAfterFeesCryptoBaseUnit: '46868859830863283',
+      buyAmountAfterFeesCryptoBaseUnit: '46634515531708967',
       source: SwapperName.CowSwap,
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
@@ -236,7 +234,6 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '1.0003121775396440882',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -257,7 +254,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
       buyAmountBeforeFeesCryptoBaseUnit: '21006555728332525852',
-      buyAmountAfterFeesCryptoBaseUnit: '21005367357465608755',
+      buyAmountAfterFeesCryptoBaseUnit: '20900340520678280711',
       source: SwapperName.CowSwap,
       buyAsset: XDAI,
       sellAsset: USDC_GNOSIS,
@@ -283,7 +280,6 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '0.00028787191526496171',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -304,7 +300,7 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '500000',
       buyAmountBeforeFeesCryptoBaseUnit: '143935957632481',
-      buyAmountAfterFeesCryptoBaseUnit: '141649103137616',
+      buyAmountAfterFeesCryptoBaseUnit: '140940857621928',
       source: SwapperName.CowSwap,
       buyAsset: ETH_ARBITRUM,
       sellAsset: USDC_ARBITRUM,
@@ -330,7 +326,6 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  potentialAffiliateBps: '0',
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
@@ -350,8 +345,8 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
         networkFeeCryptoBaseUnit: '0',
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '166441655297153832879', // 166 FOX
-      buyAmountAfterFeesCryptoBaseUnit: '145018118182475950905', // 145 FOX
+      buyAmountBeforeFeesCryptoBaseUnit: '166441655297153832879', // ~166 FOX
+      buyAmountAfterFeesCryptoBaseUnit: '144293027591563571150', // ~144 FOX
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
@@ -382,7 +377,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -410,7 +404,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -456,7 +449,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -502,7 +494,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -548,7 +539,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
@@ -594,7 +584,6 @@ describe('getCowSwapTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%

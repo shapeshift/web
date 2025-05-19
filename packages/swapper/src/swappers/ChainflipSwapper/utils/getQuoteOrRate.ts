@@ -324,7 +324,6 @@ export const getQuoteOrRate = async (
         rate: boostRate,
         receiveAddress,
         quoteOrRate,
-        potentialAffiliateBps: commissionBps,
         affiliateBps: commissionBps,
         isStreaming,
         slippageTolerancePercentageDecimal:
@@ -388,7 +387,6 @@ export const getQuoteOrRate = async (
       rate,
       receiveAddress,
       quoteOrRate,
-      potentialAffiliateBps: commissionBps,
       affiliateBps: commissionBps,
       isStreaming,
       slippageTolerancePercentageDecimal:

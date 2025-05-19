@@ -1,5 +1,5 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { Web3WalletTypes } from '@walletconnect/web3wallet'
+import type { WalletKitTypes } from '@reown/walletkit'
 import { useCallback } from 'react'
 
 import type {
@@ -20,7 +20,7 @@ export const useWalletConnectEventsHandler = (
 ) => {
   // Open session proposal modal for confirmation / rejection
   const handleSessionProposal = useCallback(
-    (proposal: Web3WalletTypes.EventArguments['session_proposal']) => {
+    (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
         payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },
@@ -29,7 +29,10 @@ export const useWalletConnectEventsHandler = (
     [dispatch],
   )
 
-  const handleAuthRequest = useCallback((_request: Web3WalletTypes.AuthRequest) => {}, [])
+  const handleAuthRequest = useCallback(
+    (_request: WalletKitTypes.EventArguments['session_authenticate']) => {},
+    [],
+  )
 
   // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(

@@ -1,4 +1,5 @@
 import { Button, FormControl, FormHelperText, FormLabel, HStack, Input } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
@@ -43,6 +44,8 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
 
+  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(runeAccountIds[0])
+
   // Local controller in case consumers don't have a form context
   const _methods = useForm<AddressFormValues>({
     mode: 'onChange',
@@ -80,9 +83,10 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
   const handleRuneAccountIdChange = useCallback(
     (accountId: string) => {
       const address = fromAccountId(accountId).account
+      setDefaultAccountId(accountId)
       onActiveAddressChange(address)
     },
-    [onActiveAddressChange],
+    [onActiveAddressChange, setDefaultAccountId],
   )
 
   const handleToggleCustomAddress = useCallback(() => {
@@ -151,7 +155,7 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
           onChange={handleRuneAccountIdChange}
           boxProps={boxProps}
           buttonProps={buttonProps}
-          defaultAccountId={address}
+          defaultAccountId={defaultAccountId}
         />
       </InlineCopyButton>
     )
@@ -163,14 +167,22 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
     translate,
     validateRuneAddress,
     handleCustomAddressInputChange,
+    defaultAccountId,
   ])
 
   return (
     <FormControl isInvalid={Boolean(errors.manualRuneAddress)}>
       <HStack justifyContent='space-between' mb={4}>
-        <FormLabel mb={0}>{translate('TCY.claimAddressInput.label')}</FormLabel>
+        <FormLabel fontSize='sm' mb={0}>
+          {translate('TCY.claimAddressInput.label')}
+        </FormLabel>
         {walletSupportsRune && (
-          <Button variant='link' color='text.link' onClick={handleToggleCustomAddress}>
+          <Button
+            fontSize='sm'
+            variant='link'
+            color='text.link'
+            onClick={handleToggleCustomAddress}
+          >
             {isCustomAddress
               ? translate('TCY.claimAddressInput.useWalletAddress')
               : translate('TCY.claimAddressInput.useCustomAddress')}

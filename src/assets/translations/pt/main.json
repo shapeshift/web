@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Quantia",
     "ascending": "Ascendente",
     "descending": "Descendente",
     "free": "Gratuito",
@@ -194,7 +195,8 @@
     "tbd": "TBD",
     "installed": "Instalado",
     "others": "Outros",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "dustAmount": "Quantia sobrando"
   },
   "consentBanner": {
     "body": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite %{privateLink} se você não quiser ser rastreado anonimamente. Veja nossa %{privacyPolicyLink} para mais detalhes.",
@@ -606,6 +608,7 @@
     "lending": "Empréstimo",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "Ecossistema FOX",
     "markets": "Mercados",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "Definir endereço da RUNE",
         "reward": "Distribuição de recompensas"
       },
+      "tcy": {
+        "stake": "Stake",
+        "withdraw": "Saque",
+        "unstakeRequest": "Pedido de Saque",
+        "setRuneAddress": "Define um endereço de RUNE",
+        "reward": "Distribuição de Recompensa"
+      },
       "weth": {
         "deposit": "Depósito",
         "approve": "Aprovar",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "Reembolso + Pagamento do Empréstimo",
         "out": "Outbound recebido",
         "refund": "Reembolso",
+        "stake": "Stake",
         "swapOut": "Swap recebido",
         "swap": "Negocie",
         "swapRefund": "Pagamento Swap",
+        "unstake": "Unstake",
         "withdraw": "Saque solicitado",
         "withdrawNative": "Sacar",
         "withdrawOut": "Saque recebido"
@@ -2651,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Faça stake de FOX e ganhe RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Stake TCY, ganhe RUNE."
     }
   },
   "RFOX": {
@@ -2772,6 +2788,101 @@
     "pendingDistribution": "Distribuição pendente",
     "selectRuneAddress": "Selecione um endereço RUNE"
   },
+  "TCY": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "staking": "Staking de TCY",
+    "myPosition": "Minha Posição",
+    "myStakedBalance": "Meu Saldo em Stake",
+    "myStakedBalanceHelper": "Quantidade de %{symbol} que você tem em stake",
+    "pendingRewardsBalance": "Saldo de Recompensas Pendentes",
+    "pendingRewardsBalanceHelper": "Esta é apenas uma estimativa das suas recompensas pendentes com base nas receitas acumuladas até o momento. Toda a contabilização é feita no final do período e não pode ser calculada exatamente antes do final do mês.",
+    "lifetimeRewards": "Recompensas Vitalícias",
+    "lifetimeRewardsHelper": "As recompensas totais que você ganhou ao fazer stake do seu %{symbol} até o momento",
+    "timeStaked": "Tempo em Stake",
+    "timeStakedHelper": "A quantidade de tempo que você fez stake do seu %{symbol}",
+    "stakingReward": "Recompensas de Staking",
+    "claimsEmpty": {
+      "emptyTitle": "Sem resgate disponível",
+      "emptyBody": "Parece que você não tem nenhum resgate de TCY disponível. Tentar com outra carteira?",
+      "connectWalletBody": "Conecte sua carteira para ver seus resgates de TCY."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Resgates Indisponíveis",
+      "notEligible": "Não Elegível"
+    },
+    "claimStatus": {
+      "pendingTitle": "Resgate está pendente",
+      "back": "Voltar",
+      "pendingSubtitle": "Estamos processando sua solicitação de %{amount} TCY",
+      "viewTransaction": "Ver transação",
+      "successTitle": "O resgate foi bem-sucedido",
+      "successSubtitle": "Você resgatou seu %{amount} TCY com sucesso",
+      "goBack": "Volte",
+      "failedTitle": "Algo deu errado",
+      "failedSubtitle": "Seu resgate falhou. Tente novamente."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "Uma pequena quantidade de %{symbol} é necessária para identificar seu endereço na rede THOR",
+      "networkFeeTooltip": "Esta é a taxa %{symbol} para processar a transação no blockchain, esta não é uma taxa cobrada pela ShapeShift",
+      "missingFundsForGasAlert": "Não há %{symbol} suficiente. Você precisa de pelo menos %{amount} %{symbol} para concluir a transação. Recomendamos o envio de um pouco mais para pagar as taxas de rede, que variam.",
+      "confirmTitle": "Confirmar Resgate",
+      "networkFee": "Taxa da Rede",
+      "confirmAndClaim": "Resgate & Stake",
+      "notice": "Você está resgatando %{amount} TCY. O valor será stakado automaticamente — faça o unstake a qualquer momento para recebê-lo na sua carteira."
+    },
+    "assetClaimButton": {
+      "claimAction": "Resgatar"
+    },
+    "claimAddressInput": {
+      "label": "Endereço para Resgate",
+      "useWalletAddress": "Usar endereço de carteira",
+      "useCustomAddress": "Usar endereço personalizado",
+      "helperText": "É para lá que seu TCY será enviado."
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} Endereço",
+      "helperText": "Este é o endereço que será usado para enviar sua transação de resgate."
+    },
+    "stakeInput": {
+      "amount": "Quantia",
+      "networkFee": "Taxa de rede",
+      "networkFeeTooltip": "Taxa de rede",
+      "stake": "Stake",
+      "amountPlaceholder": "Insira o valor"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Confirmar Stake",
+      "confirmAndStake": "Confirme & Stake"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirmar Unstake",
+      "confirmAndUnstake": "Confirme & Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake está pendente",
+      "pendingSubtitle": "Estamos processando seu unstake de %{amount} TCY",
+      "successTitle": "Unstake bem-sucedido",
+      "failedTitle": "Algo deu errado",
+      "failedSubtitle": "Seu unstake falhou. Tente novamente.",
+      "successSubtitle": "Você fez unstake de %{amount} TCY com sucesso",
+      "goBack": "Volte"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Stake está pendente",
+      "pendingSubtitle": "Estamos processando seu stake de %{amount} TCY",
+      "successTitle": "Stake bem-sucedido",
+      "failedTitle": "Algo deu errado",
+      "failedSubtitle": "Seu stake falhou. Tente novamente.",
+      "viewTransaction": "Ver transação",
+      "successSubtitle": "Você fez stake com sucesso de %{amount} TCY",
+      "goBack": "Volte"
+    },
+    "cta": {
+      "title": "Você tem resgates de TCY disponíveis!",
+      "button": "Verificar Resgates"
+    }
+  },
   "markets": {
     "recommended": "Recomendado",
     "watchlist": "Minha Lista",
@@ -2875,6 +2986,29 @@
     }
   },
   "notificationCenter": {
-    "title": "Notificações"
+    "title": "Notificações",
+    "viewTransaction": "Ver Transação",
+    "viewOrder": "Ver Ordem",
+    "cancelOrder": "Cancelar Ordem",
+    "pair": "Par",
+    "limitPrice": "Preço Limite",
+    "expires": "Expira",
+    "filled": "Preenchido",
+    "swap": "Swap",
+    "claim": "Resgate",
+    "protocol": "Protocolo",
+    "streamingStatus": "Status do Streaming",
+    "executionPrice": "Preço de Execução",
+    "status": {
+      "title": "Status",
+      "open": "Abrir",
+      "expired": "Expirado",
+      "cancelled": "Cancelado",
+      "confirmed": "Confirmado",
+      "failed": "Falhou",
+      "pending": "Pendente",
+      "claimAvailable": "Resgate Disponível",
+      "unknown": "Desconhecido"
+    }
   }
 }

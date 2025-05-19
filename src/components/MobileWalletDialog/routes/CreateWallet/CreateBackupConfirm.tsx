@@ -68,7 +68,7 @@ export const CreateBackupConfirm = () => {
     const otherWords = randomWords
       .filter(word => word !== targetWord)
       .sort(() => Math.random() - 0.5)
-      .slice(0, 14)
+      .slice(0, 3)
 
     const allWords = [...otherWords, targetWord] as string[]
     return allWords.sort(() => Math.random() - 0.5)
@@ -144,7 +144,7 @@ export const CreateBackupConfirm = () => {
             </CText>
           </Box>
 
-          <Box borderRadius='xl' p={6} position='relative' pb={20}>
+          <Box borderRadius='xl' p={6} position='relative' pb={4}>
             <CText
               textAlign='center'
               position='absolute'

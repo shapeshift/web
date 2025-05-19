@@ -6,6 +6,7 @@ import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 
 import type { ReduxState } from './reducer'
@@ -19,7 +20,6 @@ import type {
 } from './slices/opportunitiesSlice/types'
 
 import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter
@@ -50,10 +50,10 @@ type ParamFilter = Partial<{
   endpointName: string
   searchQuery: string
   txStatus: TxStatus
-  feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
   parser: TxMetadata['parser']
+  memo: ThorTxMetadata['memo']
   hopIndex: number
   tradeId: TradeQuote['id']
   quoteId: QuoteId
@@ -91,10 +91,10 @@ export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
-export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
 export const selectParserParamFromFilter = selectParamFromFilter('parser')
+export const selectMemoParamFromFilter = selectParamFromFilter('memo')
 
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')

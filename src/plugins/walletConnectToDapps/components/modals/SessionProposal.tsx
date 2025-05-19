@@ -245,7 +245,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       selectedAccountIds,
       toggleAccountId,
       requiredNamespaces,
-      optionalNamespaces,
+      supportedOptionalNamespacesWithAccounts,
       portfolioAccountIds,
     ])
 

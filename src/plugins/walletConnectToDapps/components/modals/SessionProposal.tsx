@@ -218,10 +218,14 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     )
 
     const handleConnectAll = useCallback(() => {
-      const namespacesChainIds = Object.values({
-        ...requiredNamespaces,
-        ...optionalNamespaces,
-      }).flatMap(namespace => namespace.chains ?? [])
+      const requiredNamespacesChainIds = Object.values(requiredNamespaces).flatMap(
+        namespace => namespace.chains ?? [],
+      )
+      const optionalNamespacesChainIds = Object.values(
+        supportedOptionalNamespacesWithAccounts,
+      ).flatMap(namespace => namespace.chains ?? [])
+
+      const namespacesChainIds = [...requiredNamespacesChainIds, ...optionalNamespacesChainIds]
 
       const filteredAccountIds = portfolioAccountIds.filter(accountId => {
         const chainId = fromAccountId(accountId).chainId
@@ -241,7 +245,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       selectedAccountIds,
       toggleAccountId,
       requiredNamespaces,
-      optionalNamespaces,
+      supportedOptionalNamespacesWithAccounts,
       portfolioAccountIds,
     ])
 

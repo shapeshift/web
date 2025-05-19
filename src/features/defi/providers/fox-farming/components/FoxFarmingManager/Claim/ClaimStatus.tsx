@@ -131,9 +131,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     () =>
       bnOrZero(amount)
         .times(bnOrZero(assetMarketData?.price))
-        .times(bnOrZero(feeMarketData?.price))
         .toString(),
-    [amount, assetMarketData?.price, feeMarketData?.price],
+    [amount, assetMarketData?.price],
   )
 
   const serializedTxIndex = useMemo(() => {

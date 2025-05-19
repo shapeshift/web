@@ -111,9 +111,8 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     () =>
       bnOrZero(amount)
         .times(bnOrZero(assetMarketData?.price))
-        .times(bnOrZero(feeMarketData?.price))
         .toString(),
-    [amount, assetMarketData?.price, feeMarketData?.price],
+    [amount, assetMarketData?.price],
   )
 
   const toast = useToast()

@@ -39,24 +39,24 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const navigate = useNavigate()
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const assetAccountFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const marketData = useAppSelector(state =>
-    selectMarketDataNullableByFilter(state, opportunitiesFilter),
+    selectMarketDataNullableByFilter(state, assetAccountFilter),
   )
   // Add back in once we add the performance stuff in
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
   const userCurrencyBalance = useAppSelector(s =>
-    selectUserCurrencyBalanceByFilter(s, opportunitiesFilter),
+    selectUserCurrencyBalanceByFilter(s, assetAccountFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceFilter(s, opportunitiesFilter),
+    selectCryptoHumanBalanceFilter(s, assetAccountFilter),
   )
   const handleClick = useCallback(
     () => navigate(backPath ?? `/wallet/accounts/${accountId}`),
     [navigate, backPath, accountId],
   )
-  const renderTotalFiatBalance = useMemo(() => {
+  const balanceContent = useMemo(() => {
     if (!marketData)
       return (
         <Tooltip label={translate('common.marketDataUnavailable', { asset: asset?.name })}>
@@ -95,7 +95,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
             symbol={asset.symbol}
             lineHeight='shorter'
           />
-          {renderTotalFiatBalance}
+          {balanceContent}
         </Flex>
         <AssetActions assetId={assetId} accountId={accountId} cryptoBalance={cryptoHumanBalance} />
       </CardBody>

@@ -121,8 +121,8 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     [borderColor],
   )
 
-  const renderTotalFiatBalance = useMemo(() => {
-    if (!marketData?.price)
+  const balanceContent = useMemo(() => {
+    if (!marketData)
       return (
         <Flex>
           <Tooltip label={translate('common.marketDataUnavailable', { asset: asset?.name })}>
@@ -148,7 +148,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         <Flex flexDir='column' flex={1}>
           <Heading as='h5'>{translate('common.yourBalance')}</Heading>
           <Flex flexDir='column' gap={1}>
-            <Skeleton isLoaded={!isLoading}>{renderTotalFiatBalance}</Skeleton>
+            <Skeleton isLoaded={!isLoading}>{balanceContent}</Skeleton>
             <Skeleton isLoaded={!isLoading}>
               <Amount.Crypto
                 variant='sub-text'

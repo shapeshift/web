@@ -86,8 +86,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectCryptoHumanBalanceFilter(s, opportunitiesFilter),
   )
 
-  const renderPrice = useMemo(() => {
-    if (!marketData?.price)
+  const priceContent = useMemo(() => {
+    if (!marketData)
       return (
         <Flex>
           <Tooltip label={translate('common.marketDataUnavailable', { asset: asset?.name })}>
@@ -103,7 +103,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         isNumericString={true}
       />
     )
-  }, [asset?.name, assetPrice, marketData?.price, translate])
+  }, [asset?.name, assetPrice, marketData, translate])
 
   return (
     <Card variant='dashboard'>
@@ -119,7 +119,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {asset?.symbol} {translate('assets.assetDetails.assetHeader.price')}
           </RawText>
           <Heading fontSize='4xl' lineHeight={1} mb={2}>
-            <Skeleton isLoaded={isLoaded}>{renderPrice}</Skeleton>
+            <Skeleton isLoaded={isLoaded}>{priceContent}</Skeleton>
           </Heading>
           <Skeleton isLoaded={isLoaded}>
             <Flex

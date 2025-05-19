@@ -15,7 +15,7 @@ import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceFilter,
-  selectMarketDataNullableByFilter,
+  selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -40,9 +40,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetAccountFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const marketData = useAppSelector(state =>
-    selectMarketDataNullableByFilter(state, assetAccountFilter),
-  )
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   // Add back in once we add the performance stuff in
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 

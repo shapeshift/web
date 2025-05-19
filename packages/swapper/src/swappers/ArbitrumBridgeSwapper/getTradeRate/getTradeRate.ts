@@ -65,7 +65,6 @@ export async function getTradeRate(
       accountNumber: undefined,
       receiveAddress,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       rate,
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.ArbitrumBridge,

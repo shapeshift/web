@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "金額",
     "ascending": "上昇",
     "descending": "降順",
     "free": "無料",
@@ -194,7 +195,8 @@
     "tbd": "未定",
     "installed": "インストール済み",
     "others": "その他",
-    "hardwareWallets": "ハードウェアウォレット"
+    "hardwareWallets": "ハードウェアウォレット",
+    "dustAmount": "ダスト量"
   },
   "consentBanner": {
     "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
@@ -606,6 +608,7 @@
     "lending": "貸し出し",
     "pools": "プール",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "FOXエコシステム",
     "markets": "市場",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "RUNEアドレスの設定",
         "reward": "報酬の分配"
       },
+      "tcy": {
+        "stake": "ステーク",
+        "withdraw": "引き出す",
+        "unstakeRequest": "ステーク解除リクエスト",
+        "setRuneAddress": "RUNEアドレスを設定する",
+        "reward": "報酬の分配"
+      },
       "weth": {
         "deposit": "入金する",
         "approve": "承認する",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "ローン返済＋返金",
         "out": "アウトバウンド受信",
         "refund": "返金",
+        "stake": "ステーク",
         "swapOut": "スワップを受け取りました",
         "swap": "交換",
         "swapRefund": "スワップの返金",
+        "unstake": "ステーク解除",
         "withdraw": "出金要求あり",
         "withdrawNative": "撤回する",
         "withdrawOut": "引き出しを受け付けました"
@@ -2651,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "FOXをステークしてRUNEをもらう。"
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "TCYをステークしてRUNEを獲得する。"
     }
   },
   "RFOX": {
@@ -2772,6 +2788,101 @@
     "pendingDistribution": "配布保留中",
     "selectRuneAddress": "RUNEアドレスを選択"
   },
+  "TCY": {
+    "stake": "ステーク",
+    "unstake": "ステーク解除",
+    "staking": "TCYステーキング",
+    "myPosition": "現在のポジション",
+    "myStakedBalance": "ステーク残高",
+    "myStakedBalanceHelper": "あなたが賭けた%{symbol}の量",
+    "pendingRewardsBalance": "保留中の報酬残高",
+    "pendingRewardsBalanceHelper": "これは、エポックの現在の収益に基づく、保留中の報酬の推定値です。すべての計算はエポック終了時に行われ、月末より前には正確に計算できません。",
+    "lifetimeRewards": "生涯にわたる報酬",
+    "lifetimeRewardsHelper": "これまでに%{symbol}をステーキングして獲得した合計報酬",
+    "timeStaked": "ステー9時間",
+    "timeStakedHelper": "%{symbol}を賭けた時間の長さ",
+    "stakingReward": "ステーキング報酬",
+    "claimsEmpty": {
+      "emptyTitle": "請求するものがありません",
+      "emptyBody": "TCYの請求が利用できないようです。別のウォレットでお試しください。",
+      "connectWalletBody": "TCY 請求を確認するにはウォレットを接続してください。"
+    },
+    "claimSelect": {
+      "unavailableClaims": "利用できない請求",
+      "notEligible": "対象外"
+    },
+    "claimStatus": {
+      "pendingTitle": "請求は保留中です",
+      "back": "戻る",
+      "pendingSubtitle": "%{amount} TCYの請求を処理中です",
+      "viewTransaction": "取引を表示",
+      "successTitle": "請求は成功しました",
+      "successSubtitle": "%{amount} TCY を請求しました",
+      "goBack": "戻る",
+      "failedTitle": "問題が発生しました",
+      "failedSubtitle": "申請は失敗しました。もう一度お試しください。"
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "THORネットワーク上であなたのアドレスを識別するには、少量の%{symbol}が必要です",
+      "networkFeeTooltip": "これはブロックチェーン上で取引を処理するための%{symbol}手数料であり、ShapeShiftが請求する手数料ではありません。",
+      "missingFundsForGasAlert": "%{symbol}が不足しています。取引を完了するには少なくとも%{amount} %{symbol}が必要です。ネットワーク手数料の変動を考慮して、多めに送金することをお勧めします。",
+      "confirmTitle": "請求の確認",
+      "networkFee": "ネットワーク料金",
+      "confirmAndClaim": "請求&ステーク",
+      "notice": "%{amount} TCYを請求しています。自動的にステークされます。ステーク後はいつでもステークを解除してウォレットに入金できます。"
+    },
+    "assetClaimButton": {
+      "claimAction": "請求"
+    },
+    "claimAddressInput": {
+      "label": "請求先住所",
+      "useWalletAddress": "ウォレットアドレスを使用する",
+      "useCustomAddress": "カスタムアドレスを使用する",
+      "helperText": "ここが TCY が送信される場所です。"
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} アドレス",
+      "helperText": "これは、請求取引を送信するために使用されるアドレスです。"
+    },
+    "stakeInput": {
+      "amount": "額",
+      "networkFee": "ネットワーク料金",
+      "networkFeeTooltip": "ネットワーク料金",
+      "stake": "ステーク",
+      "amountPlaceholder": "金額を入力"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "ステークを確認",
+      "confirmAndStake": "確認とステーク"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "ステーク解除を確認",
+      "confirmAndUnstake": "確認とステーク解除"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "ステーク解除は保留中です",
+      "pendingSubtitle": "%{amount} TCYのステーク解除を処理中です",
+      "successTitle": "ステーク解除は成功しました",
+      "failedTitle": "問題が発生しました",
+      "failedSubtitle": "ステーク解除に失敗しました。もう一度お試しください。",
+      "successSubtitle": "%{amount} TCYのステーク解除に成功しました",
+      "goBack": "戻る"
+    },
+    "stakeStatus": {
+      "pendingTitle": "ステークは保留中",
+      "pendingSubtitle": "%{amount} TCYのステークを処理しています",
+      "successTitle": "ステークは成功しました",
+      "failedTitle": "問題が発生しました",
+      "failedSubtitle": "ステークに失敗しました。もう一度お試しください。",
+      "viewTransaction": "取引を表示",
+      "successSubtitle": "%{amount} TCYをステークしました",
+      "goBack": "戻る"
+    },
+    "cta": {
+      "title": "TCY 請求が利用可能です。",
+      "button": "請求を確認する"
+    }
+  },
   "markets": {
     "recommended": "推奨",
     "watchlist": "ウォッチリスト",
@@ -2875,6 +2986,29 @@
     }
   },
   "notificationCenter": {
-    "title": "通知"
+    "title": "通知",
+    "viewTransaction": "取引を表示",
+    "viewOrder": "注文を表示",
+    "cancelOrder": "注文をキャンセルする",
+    "pair": "ペア",
+    "limitPrice": "指値価格",
+    "expires": "有効期限",
+    "filled": "一杯です",
+    "swap": "スワップ",
+    "claim": "請求",
+    "protocol": "プロトコル",
+    "streamingStatus": "ストリーミングステータス",
+    "executionPrice": "執行価格",
+    "status": {
+      "title": "状態.",
+      "open": "開ける",
+      "expired": "期限切れ",
+      "cancelled": "キャンセル",
+      "confirmed": "確認済み",
+      "failed": "失敗した",
+      "pending": "保留中",
+      "claimAvailable": "請求可能",
+      "unknown": "未知"
+    }
   }
 }

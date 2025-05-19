@@ -21,11 +21,10 @@ import { renderConsoleArt } from './lib/consoleArt'
 import { reportWebVitals } from './lib/reportWebVitals'
 import { httpClientIntegration } from './utils/sentry/httpclient'
 
-const mode = process.env.MODE ?? process.env.NODE_ENV
-const enableReactScan = mode === 'development' && window.location.hostname === 'localhost'
+const enableReactScan = false
 
 scan({
-  enabled: enableReactScan,
+  enabled: window.location.hostname === 'localhost' && enableReactScan,
 })
 
 // Remove this condition to test sentry locally

@@ -12,7 +12,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import React, { useMemo } from 'react'
@@ -31,6 +31,7 @@ import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -91,9 +92,13 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   }, [baseAsset, poolAsset])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: poolAsset?.assetId,
+    assetId,
     swapperName: SwapperName.Thorchain,
   })
+
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(
+    fromAssetId(assetId).chainId,
+  )
 
   const divider = useMemo(() => {
     if (actionSide !== 'sym') return <></>
@@ -202,6 +207,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
   const confirmCopy = useMemo(() => {
+    if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
 
     const message = (() => {
@@ -212,7 +218,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
       }
     })()
     return message
-  }, [confirmedQuote, isTradingActive, translate])
+  }, [confirmedQuote, isTradingActive, translate, isChainHalted])
 
   if (!(poolAsset && baseAsset)) return null
 
@@ -320,8 +326,8 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
           size='lg'
           colorScheme={isTradingActive === false ? 'red' : 'blue'}
           onClick={handleConfirm}
-          isDisabled={isTradingActive === false}
-          isLoading={isTradingActiveLoading}
+          isDisabled={isTradingActive === false || isChainHalted}
+          isLoading={isTradingActiveLoading || isChainHaltedFetching}
         >
           {confirmCopy}
         </Button>

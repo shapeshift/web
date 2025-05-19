@@ -72,7 +72,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     receiveAddress,
     accountNumber,
     affiliateBps,
-    potentialAffiliateBps,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
     xpub,
   } = input
@@ -591,7 +590,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     rate,
     swapperName: SwapperName.Relay,
     affiliateBps,
-    potentialAffiliateBps,
     slippageTolerancePercentageDecimal,
   }
 

@@ -84,6 +84,7 @@ type GetValuesFromQuoteResponseArgs = {
   sellAsset: Asset
   response: OrderQuoteResponse
   affiliateBps: string
+  slippageTolerancePercentageDecimal: string
 }
 
 export const deductAffiliateFeesFromAmount = ({
@@ -108,7 +109,7 @@ export const deductSlippageFromAmount = ({
   amount: string
   slippageTolerancePercentageDecimal: string
 }) => {
-  return bn(amount).minus(bn(amount).times(slippageTolerancePercentageDecimal))
+  return bn(amount).minus(bn(amount).times(slippageTolerancePercentageDecimal)).toFixed(0)
 }
 
 export const getValuesFromQuoteResponse = ({
@@ -116,6 +117,7 @@ export const getValuesFromQuoteResponse = ({
   sellAsset,
   response,
   affiliateBps,
+  slippageTolerancePercentageDecimal,
 }: GetValuesFromQuoteResponseArgs) => {
   const {
     sellAmount: sellAmountAfterFeesCryptoBaseUnit,
@@ -123,10 +125,17 @@ export const getValuesFromQuoteResponse = ({
     buyAmount,
   } = response.quote
 
-  // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
+  // Remove affiliate fees off the buyAmount to get the amount after affiliate fees
   const buyAmountAfterAffiliateFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
     amount: buyAmount,
     affiliateBps,
+  })
+
+  // And then remove slippage to get min out - note, order matters here, as the math used by CoW for the minimum
+  // is (quoted out - affiliate - slippage)
+  const buyAmountAfterAffiliateFeesAndSlippage = deductSlippageFromAmount({
+    amount: buyAmountAfterAffiliateFeesCryptoBaseUnit,
+    slippageTolerancePercentageDecimal,
   })
 
   const buyAmountAfterAffiliateFeesCryptoPrecision = fromBaseUnit(
@@ -158,6 +167,6 @@ export const getValuesFromQuoteResponse = ({
   return {
     rate,
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeAffiliateAndProtocolFeesCryptoBaseUnit,
-    buyAmountAfterFeesCryptoBaseUnit: buyAmountAfterAffiliateFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit: buyAmountAfterAffiliateFeesAndSlippage,
   }
 }

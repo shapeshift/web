@@ -5,7 +5,6 @@ export type RelayTradeBaseParams = {
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
-  potentialAffiliateBps: string
 }
 
 export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBaseParams & {

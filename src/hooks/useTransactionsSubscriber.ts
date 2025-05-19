@@ -10,7 +10,6 @@ import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from '@/state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
@@ -126,14 +125,8 @@ export const useTransactionsSubscriber = () => {
       // and we should probably do some king of interval refetching instead of relying on Tx history
       if (!isEvmChainId(chainId)) return
       if (status !== TxStatus.Confirmed) return
-
-      // Always refetch voting power (for swapper only) on new Tx. At best, we could detect FOX transfers, but have no way of knowing if any of the other
-      // strategies e.g Hedgeys has updated
-      dispatch(
-        snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
-      )
     },
-    [dispatch, isConnected],
+    [isConnected],
   )
 
   /**

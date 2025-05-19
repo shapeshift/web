@@ -31,6 +31,7 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { sleep } from '@/lib/poll/poll'
 import { getThorchainFromAddress, waitForThorchainUpdate } from '@/lib/utils/thorchain'
 import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
 import type {
@@ -313,6 +314,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     swapperName: SwapperName.Thorchain,
   })
 
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(
+    fromAssetId(assetId).chainId,
+  )
+
   useEffect(() => {
     if (!estimatedFeesData || !feeAsset) return
     if (txId || isSubmitting) return
@@ -382,11 +387,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   ])
 
   const confirmTranslation = useMemo(() => {
+    if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (status === TxStatus.Failed) return translate('common.transactionFailed')
 
     return translate('common.signTransaction')
-  }, [isTradingActive, translate, status])
+  }, [isTradingActive, translate, status, isChainHalted])
 
   const txStatusIndicator = useMemo(() => {
     if (status === TxStatus.Confirmed) {
@@ -461,12 +467,17 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           <Button
             mx={-2}
             size='lg'
-            colorScheme={isTradingActive === false || status === TxStatus.Failed ? 'red' : 'blue'}
+            colorScheme={
+              isTradingActive === false || status === TxStatus.Failed || isChainHalted
+                ? 'red'
+                : 'blue'
+            }
             onClick={handleSignTx}
-            isDisabled={isTradingActive === false || status === TxStatus.Failed}
+            isDisabled={isTradingActive === false || isChainHalted || status === TxStatus.Failed}
             isLoading={
               isInboundAddressLoading ||
               isTradingActiveLoading ||
+              isChainHaltedFetching ||
               !Boolean(txFeeCryptoPrecision) ||
               isSubmitting
             }

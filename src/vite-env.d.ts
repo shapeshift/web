@@ -48,10 +48,8 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_PHANTOM_WALLET: string
   readonly VITE_FEATURE_LIMIT_ORDERS: string
   readonly VITE_FEATURE_NEW_WALLET_FLOW: string
-  readonly VITE_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: string
   readonly VITE_FEATURE_NEW_LIMIT_FLOW: string
   readonly VITE_FEATURE_THORCHAIN_SWAPPER_ACK: string
-  readonly VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: string
   readonly VITE_FEATURE_DYNAMIC_LP_ASSETS: string
   readonly VITE_FEATURE_READ_ONLY_ASSETS: string
   readonly VITE_FEATURE_SWAPPER_SOLANA: string

@@ -1,5 +1,5 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
-import { foxAssetId, foxWifHatAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
@@ -26,22 +26,14 @@ import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGe
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { calculateFees } from '@/lib/fees/model'
-import type { ParameterModel } from '@/lib/fees/parameters/types'
+import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import {
-  selectIsSnapshotApiQueriesRejected,
-  selectVotingPower,
-} from '@/state/apis/snapshot/selectors'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUsdRateByAssetId,
 } from '@/state/slices/selectors'
 import {
@@ -63,7 +55,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -85,8 +77,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
   version: string // ISO 8601 standard basic format date
   isActionable: boolean // is any quote in the request actionable
 }
-
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
 const getMixPanelDataFromApiQuotes = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
@@ -180,7 +170,6 @@ export const useGetTradeQuotes = () => {
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -214,24 +203,6 @@ export const useGetTradeQuotes = () => {
   const mixpanel = getMixPanel()
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
-
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const foxWifHatHeld = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: foxWifHatAssetId }),
-  )
-
-  const relatedAssetIdsFilter = useMemo(
-    () => ({
-      assetId: foxAssetId,
-      onlyConnectedChains: false,
-    }),
-    [],
-  )
-
-  const relatedAssetIds = useSelectorWithArgs(
-    selectRelatedAssetIdsInclusiveSorted,
-    relatedAssetIdsFilter,
-  )
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
@@ -286,21 +257,6 @@ export const useGetTradeQuotes = () => {
 
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-      const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
-
-      const { feeBps, feeBpsBeforeDiscount } = calculateFees({
-        tradeAmountUsd,
-        foxHeld: bnOrZero(votingPower),
-        foxWifHatHeldCryptoBaseUnit: bnOrZero(foxWifHatHeld),
-        feeModel: 'SWAPPER',
-        isSnapshotApiQueriesRejected,
-      })
-
-      const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
-      const affiliateBps = feeBps.toFixed(0)
-
-      const isFoxBuyAsset = relatedAssetIds.includes(buyAsset.assetId)
-
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
 
@@ -316,8 +272,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps: isFoxBuyAsset ? '0' : affiliateBps,
-          potentialAffiliateBps: isFoxBuyAsset ? '0' : potentialAffiliateBps,
+          affiliateBps: DEFAULT_FEE_BPS,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
@@ -333,19 +288,14 @@ export const useGetTradeQuotes = () => {
     buyAsset,
     dispatch,
     isFetchStep,
-    isSnapshotApiQueriesRejected,
     receiveAddress,
     sellAccountId,
     sellAccountMetadata?.accountType,
     sellAccountMetadata?.bip44Params?.accountNumber,
     sellAmountCryptoPrecision,
     sellAsset,
-    sellAssetUsdRate,
-    foxWifHatHeld,
     userSlippageTolerancePercentageDecimal,
-    votingPower,
     wallet,
-    relatedAssetIds,
   ])
 
   const { data: tradeQuoteInput } = useQuery({
@@ -358,7 +308,6 @@ export const useGetTradeQuotes = () => {
         sellAccountMetadata,
         sellAmountCryptoPrecision,
         sellAsset,
-        votingPower,
         receiveAccountMetadata,
         userSlippageTolerancePercentageDecimal,
         sellAssetUsdRate,

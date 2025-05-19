@@ -1,5 +1,14 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Box, Card, CardHeader, Flex, Heading, Skeleton, useMediaQuery } from '@chakra-ui/react'
+import {
+  Box,
+  Card,
+  CardHeader,
+  Flex,
+  Heading,
+  Skeleton,
+  Tooltip,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
@@ -18,7 +27,7 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectCryptoHumanBalanceFilter,
-  selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataNullableByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -55,10 +64,10 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const userChartTimeframe = useAppSelector(preferences.selectors.selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataNullableByFilter(state, { assetId }))
   const assetPrice = useMemo(() => {
     const price = marketData?.price
-    return toFiat(price) ?? 0
+    return toFiat(price ?? 0)
   }, [marketData?.price, toFiat])
 
   const handleTimeframeChange = useCallback(
@@ -77,6 +86,25 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectCryptoHumanBalanceFilter(s, opportunitiesFilter),
   )
 
+  const renderPrice = useMemo(() => {
+    if (!marketData?.price)
+      return (
+        <Flex>
+          <Tooltip label={translate('common.marketDataUnavailable', { asset: asset?.name })}>
+            <RawText lineHeight={1}>N/A</RawText>
+          </Tooltip>
+        </Flex>
+      )
+    return (
+      <NumberFormat
+        value={assetPrice}
+        displayType={'text'}
+        thousandSeparator={true}
+        isNumericString={true}
+      />
+    )
+  }, [asset?.name, assetPrice, marketData?.price, translate])
+
   return (
     <Card variant='dashboard'>
       <CardHeader
@@ -91,14 +119,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {asset?.symbol} {translate('assets.assetDetails.assetHeader.price')}
           </RawText>
           <Heading fontSize='4xl' lineHeight={1} mb={2}>
-            <Skeleton isLoaded={isLoaded}>
-              <NumberFormat
-                value={assetPrice}
-                displayType={'text'}
-                thousandSeparator={true}
-                isNumericString={true}
-              />
-            </Skeleton>
+            <Skeleton isLoaded={isLoaded}>{renderPrice}</Skeleton>
           </Heading>
           <Skeleton isLoaded={isLoaded}>
             <Flex

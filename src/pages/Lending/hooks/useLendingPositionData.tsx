@@ -50,7 +50,6 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
 
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
         .times(bnOrZero(poolAssetMarketData?.price))
-        .times(bnOrZero(poolAssetMarketData?.price))
         .toString()
 
       const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())

@@ -18,7 +18,7 @@ import { useAppSelector } from '@/state/store'
 type LpCardProps = {
   assetId: AssetId
   apy: string
-  volume24H: string
+  volume24H: string | undefined
   onClick: (assetId: AssetId) => void
 }
 
@@ -76,7 +76,7 @@ export const LpGridItem = ({
   index: number
 }) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const volume24H = volume ?? marketData?.volume ?? 0
+  const volume24H = volume ?? marketData?.volume ?? '0'
 
   // TODO(gomes): remove weird branching between THOR and Portals - Portals assets should be upserted as a DeFi Opportunity, so we can select them from the same slice
   const opportunityMetadataFilter = useMemo(() => ({ assetId }), [assetId])
@@ -92,12 +92,7 @@ export const LpGridItem = ({
 
   return (
     <GridItem key={index}>
-      <LpCard
-        assetId={assetId}
-        apy={apy ?? '0'}
-        volume24H={String(volume24H ?? '0')}
-        onClick={onClick}
-      />
+      <LpCard assetId={assetId} apy={apy ?? '0'} volume24H={volume24H} onClick={onClick} />
     </GridItem>
   )
 }

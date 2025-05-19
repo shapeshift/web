@@ -8,6 +8,7 @@ import type {
   ThorEvmTradeQuote,
 } from '@shapeshiftoss/swapper'
 import {
+  getChainIdBySwapper,
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
@@ -168,11 +169,12 @@ export const swapperApi = createApi({
 
               const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
                 [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
-                  // We only need to fetch inbound_address and mimir for THORChain - this avoids overfetching for other swappers
-                  if (swapperName !== SwapperName.Thorchain) return true
+                  // We only need to fetch inbound_address and mimir for THORChain and MAYAChain - this avoids overfetching for other swappers
+                  if (![SwapperName.Thorchain, SwapperName.Mayachain].includes(swapperName))
+                    return true
 
                   const inboundAddresses = await queryClient.fetchQuery({
-                    ...reactQueries.thornode.inboundAddresses(),
+                    ...reactQueries.thornode.inboundAddresses(getChainIdBySwapper(swapperName)),
                     // Go stale instantly
                     staleTime: 0,
                     // Never store queries in cache since we always want fresh data
@@ -182,7 +184,7 @@ export const swapperApi = createApi({
                   const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
 
                   const mimir = await queryClient.fetchQuery({
-                    ...reactQueries.thornode.mimir(),
+                    ...reactQueries.thornode.mimir(getChainIdBySwapper(swapperName)),
                     staleTime: thorchainBlockTimeMs,
                   })
 

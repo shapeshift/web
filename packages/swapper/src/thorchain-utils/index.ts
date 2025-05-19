@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 
 import {
@@ -34,6 +35,17 @@ export * from './getPoolDetails'
 export * as cosmossdk from './cosmossdk'
 export * as evm from './evm'
 export * as utxo from './utxo'
+
+export const getChainIdBySwapper = (swapperName: SwapperName) => {
+  switch (swapperName) {
+    case SwapperName.Thorchain:
+      return thorchainChainId
+    case SwapperName.Mayachain:
+      return mayachainChainId
+    default:
+      throw new Error(`Invalid swapper: ${swapperName}`)
+  }
+}
 
 export const isThorTradeRate = (quote: TradeRate | undefined): quote is ThorTradeRate =>
   !!quote && 'tradeType' in quote && 'vault' in quote

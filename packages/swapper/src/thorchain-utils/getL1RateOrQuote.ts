@@ -136,6 +136,8 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       }).toFixed()
     : '0'
 
+  console.log({ recommendedMinimumCryptoBaseUnit, nativePrecision, swapperName })
+
   const getRouteValues = (
     quote: ThornodeQuoteResponseSuccess,
     isStreaming: boolean,

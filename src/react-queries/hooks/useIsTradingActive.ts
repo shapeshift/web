@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { InboundAddressResponse, SwapErrorRight, SwapperName } from '@shapeshiftoss/swapper'
+import { getChainIdBySwapper } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -23,8 +23,10 @@ export const useIsTradingActive = ({
     isLoading: isInboundAddressesDataLoading,
     refetch: refetchInboundAddresses,
   } = useQuery({
-    queryKey: reactQueries.thornode.inboundAddresses().queryKey,
-    queryFn: assetId ? reactQueries.thornode.inboundAddresses().queryFn : skipToken,
+    queryKey: reactQueries.thornode.inboundAddresses(getChainIdBySwapper(swapperName)).queryKey,
+    queryFn: assetId
+      ? reactQueries.thornode.inboundAddresses(getChainIdBySwapper(swapperName)).queryFn
+      : skipToken,
     // Go stale instantly
     staleTime: 0,
     // Never store queries in cache since we always want fresh data
@@ -44,7 +46,7 @@ export const useIsTradingActive = ({
     data: mimir,
     isLoading: isMimirLoading,
     refetch: refetchMimir,
-  } = useThorchainMimir({ enabled })
+  } = useThorchainMimir({ chainId: getChainIdBySwapper(swapperName), enabled })
 
   const isTradingActive = useMemo(() => {
     return selectIsTradingActive({
@@ -66,12 +68,12 @@ export const useIsTradingActive = ({
     const _isTradingActive = selectIsTradingActive({
       assetId,
       inboundAddressResponse: inboundAddressesResponse,
-      swapperName: SwapperName.Thorchain,
+      swapperName,
       mimir: mimirResponse,
     })
 
     return _isTradingActive
-  }, [assetId, refetchInboundAddresses, refetchMimir])
+  }, [assetId, refetchInboundAddresses, refetchMimir, swapperName])
 
   return {
     isTradingActive,

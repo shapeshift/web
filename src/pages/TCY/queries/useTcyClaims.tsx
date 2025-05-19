@@ -111,8 +111,7 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
                   ? `bitcoincash:${claimer.l1_address}`
                   : claimer.l1_address,
             }))
-        } catch (e) {
-          console.error('Error fetching TCY claims', e)
+        } catch {
           return []
         }
       },

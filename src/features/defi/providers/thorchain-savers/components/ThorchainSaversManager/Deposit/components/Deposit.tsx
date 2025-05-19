@@ -1,6 +1,12 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -172,7 +178,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
-    useThorchainMimirTimes()
+    useThorchainMimirTimes(thorchainChainId)
 
   const {
     data: thorchainSaversDepositQuote,

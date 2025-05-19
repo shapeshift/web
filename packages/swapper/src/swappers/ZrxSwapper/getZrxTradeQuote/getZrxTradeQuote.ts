@@ -41,7 +41,6 @@ export async function getZrxTradeQuote(
     accountNumber,
     receiveAddress,
     affiliateBps,
-    potentialAffiliateBps,
     chainId,
     supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -129,7 +128,6 @@ export async function getZrxTradeQuote(
       id: uuid(),
       quoteOrRate: 'quote' as const,
       receiveAddress,
-      potentialAffiliateBps,
       affiliateBps,
       // Slippage protection is always enabled for 0x api v2 unlike api v1 which was only supported on specific pairs.
       slippageTolerancePercentageDecimal,

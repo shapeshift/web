@@ -43,7 +43,6 @@ export const getTradeQuote = async (
     quoteOrRate: 'quote' as const,
     accountNumber: input.accountNumber,
     affiliateBps: input.affiliateBps,
-    potentialAffiliateBps: input.potentialAffiliateBps,
     xpub: 'xpub' in input ? (input as GetUtxoTradeQuoteInput).xpub : undefined,
   }
 

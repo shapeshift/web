@@ -154,7 +154,6 @@ type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
@@ -316,7 +315,6 @@ type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
-  potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   priceImpactPercentageDecimal?: string

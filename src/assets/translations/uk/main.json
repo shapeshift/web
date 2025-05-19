@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Кількість",
     "ascending": "По зростаючій",
     "descending": "По спадаючій",
     "free": "Безкоштовно",
@@ -194,7 +195,8 @@
     "tbd": "TBD",
     "installed": "Встановлено",
     "others": "Інші\n",
-    "hardwareWallets": "Апаратні гаманці"
+    "hardwareWallets": "Апаратні гаманці",
+    "dustAmount": "Кількість Dust "
   },
   "consentBanner": {
     "body": "Наш dApp використовує анонімне відстеження кліків для аналізу продуктивності та покращення вашого досвіду. Використовуючи app.shapeshift.com, ви погоджуєтеся на наше відстеження. Відвідати %{privateLink} якщо ви не хочете, щоб вас відстежували анонімно. Дивіться нашу %{privacyPolicyLink} для більш детальної інформації.",
@@ -606,6 +608,7 @@
     "lending": "Кредитування",
     "pools": "Пули",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "Екосистема FOX",
     "markets": "Ринки",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "Встановити адресу для RUNE",
         "reward": "Розподіл винагороди"
       },
+      "tcy": {
+        "stake": "Стейкінг",
+        "withdraw": "Зняти",
+        "unstakeRequest": "Відстейкати запит",
+        "setRuneAddress": "Встановити адресу RUN",
+        "reward": "Розподіл винагород"
+      },
       "weth": {
         "deposit": "Вклад",
         "approve": "Схвалити",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "Погашення кредиту + повернення коштів",
         "out": "Отримано вихідних даних",
         "refund": "Повернення коштів",
+        "stake": "Стейкінг",
         "swapOut": "Обмін прийнято",
         "swap": "Обмін",
         "swapRefund": "Відшкодування за обмін",
+        "unstake": "Зняти з стейкінгу",
         "withdraw": "Запит на виведення коштів",
         "withdrawNative": "Вивести",
         "withdrawOut": "Надійшло виведення коштів"
@@ -2651,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Стейкайте FOX заробляйте RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Стейкайте TCY, заробляйте RUNE."
     }
   },
   "RFOX": {
@@ -2772,6 +2788,101 @@
     "pendingDistribution": "Очікує на розподіл",
     "selectRuneAddress": "Виберіть адресу RUN"
   },
+  "TCY": {
+    "stake": "Стейкінг",
+    "unstake": "Зняти з стейкінгу",
+    "staking": "Стейкінг TCY",
+    "myPosition": "Моя позиція",
+    "myStakedBalance": "Мій баланс стейкінгу",
+    "myStakedBalanceHelper": "Сума %{symbol}, яку ви застейкали",
+    "pendingRewardsBalance": "Баланс очікуваних винагород",
+    "pendingRewardsBalanceHelper": "Це лише приблизний розрахунок ваших очікуваних винагород, який базується на доходах епохи на сьогоднішній день. Всі розрахунки проводяться в кінці епохи і не можуть бути точно розраховані до кінця місяця",
+    "lifetimeRewards": "Довічні нагороди",
+    "lifetimeRewardsHelper": "Загальна сума винагород, яку ви заробили, застейкавши свої %{symbol} на сьогоднішній день",
+    "timeStaked": "Час Стейкінгу",
+    "timeStakedHelper": "Кількість часу, на яку ви застейкали %{symbol}",
+    "stakingReward": "Нагороди Стейкінгу",
+    "claimsEmpty": {
+      "emptyTitle": "Немає винагород",
+      "emptyBody": "Здається, у вас немає доступних заяв на отримання TCY. Спробувати з іншого гаманця?",
+      "connectWalletBody": "Підключіть свій гаманець, щоб переглянути свої заяви на TCY."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Недоступні вимоги",
+      "notEligible": "Не відповідає вимогам"
+    },
+    "claimStatus": {
+      "pendingTitle": "Позов перебуває на розгляді",
+      "back": "Назад",
+      "pendingSubtitle": "Ми обробляємо вашу заяву на %{amount} TCY",
+      "viewTransaction": "Переглянути транзакцію",
+      "successTitle": "Претензія успішна",
+      "successSubtitle": "Ви успішно подали заявку на отримання %{amount} TCY",
+      "goBack": "Повернутися",
+      "failedTitle": "Щось пішло не так.",
+      "failedSubtitle": "Ваша заявка не пройшла. Будь ласка, спробуйте ще раз."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "Для ідентифікації вашої адреси в мережі THOR потрібна невелика кількість %{symbol}",
+      "networkFeeTooltip": "Це комісія %{symbol} за обробку транзакції в блокчейні, це не комісія, яку стягує ShapeShift",
+      "missingFundsForGasAlert": "Недостатньо %{symbol}, вам потрібно щонайменше %{amount} %{symbol} для завершення транзакції. Ми рекомендуємо надсилати трохи більше коштів для покриття мінливих мережевих комісій.",
+      "confirmTitle": "Підтвердити претензію",
+      "networkFee": "Комісія мережі",
+      "confirmAndClaim": "Претензія та Стейкінг",
+      "notice": "Ви вимагаєте %{amount} TCY. Вона буде автоматично зарахована - зніміть стейк у будь-який момент, щоб отримати її на свій гаманець."
+    },
+    "assetClaimButton": {
+      "claimAction": "Претензія"
+    },
+    "claimAddressInput": {
+      "label": "Адреса претензії",
+      "useWalletAddress": "Використовуйте адресу гаманця",
+      "useCustomAddress": "Використовуйте власну адресу",
+      "helperText": "Саме сюди буде надіслано ваш TCY."
+    },
+    "assetAddressInput": {
+      "label": "Адресс %{symbol}",
+      "helperText": "Це адреса, на яку буде надіслано вашу транзакцію з претензією."
+    },
+    "stakeInput": {
+      "amount": "Сума",
+      "networkFee": "Мережева плата",
+      "networkFeeTooltip": "Мережева плата",
+      "stake": "Стейкінг",
+      "amountPlaceholder": "Введіть суму"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Підтвердити стейкінг",
+      "confirmAndStake": "Підтвердити та Застейкати"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Підтвердити відмову від стейкінгу",
+      "confirmAndUnstake": "Підтвердити та скасувати стейкінг"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Зняття стейкінгу очікує на розгляд",
+      "pendingSubtitle": "Ми обробляємо вашу заявку на зняття з стейкінгу на %{amount} TCY",
+      "successTitle": "Зняття зі стейкінгу пройшло успішно",
+      "failedTitle": "Щось пішло не так.",
+      "failedSubtitle": "Ви не змогли зробити зняти з стейкінгу. Будь ласка, спробуйте ще раз.",
+      "successSubtitle": "Ви успішно зняли стейкінг  %{amount} TCY",
+      "goBack": "Повернутися"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Стейкінг очікує на розгляд",
+      "pendingSubtitle": "Ми обробляємо ваш стейкінг %{amount} TCY",
+      "successTitle": "Стейкінг успішний",
+      "failedTitle": "Щось пішло не так.",
+      "failedSubtitle": "Ваша стейкінг не вдався. Будь ласка, спробуйте ще раз.",
+      "viewTransaction": "Переглянути транзакцію",
+      "successSubtitle": "Ви успішно застейкали  %{amount} TCY",
+      "goBack": "Повернутися"
+    },
+    "cta": {
+      "title": "Ви можете подати заяву на компенсацію TCY!",
+      "button": "Перевірити претензії"
+    }
+  },
   "markets": {
     "recommended": "Рекомендовано",
     "watchlist": "Мій список спостереження",
@@ -2875,6 +2986,29 @@
     }
   },
   "notificationCenter": {
-    "title": "Сповіщення"
+    "title": "Сповіщення",
+    "viewTransaction": "Переглянути транзакцію",
+    "viewOrder": "Подивитися замовлення",
+    "cancelOrder": "Скасувати замовлення",
+    "pair": "Пара",
+    "limitPrice": "Лімітна ціна",
+    "expires": "Закінчується",
+    "filled": "Заповнено",
+    "swap": "Обмін",
+    "claim": "Претензія",
+    "protocol": "Протокол",
+    "streamingStatus": "Стан потокової передачі",
+    "executionPrice": "Ціна виконання",
+    "status": {
+      "title": "Статус",
+      "open": "Відкрита",
+      "expired": "Закінчились",
+      "cancelled": "Скасована",
+      "confirmed": "Підтверджено",
+      "failed": "Не вдалося.",
+      "pending": "На розгляді",
+      "claimAvailable": "Претензія доступна",
+      "unknown": "Невідомо"
+    }
   }
 }

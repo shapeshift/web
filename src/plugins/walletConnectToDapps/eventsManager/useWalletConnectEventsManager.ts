@@ -1,5 +1,5 @@
+import type { WalletKitTypes } from '@reown/walletkit'
 import type { PairingJsonRpcTypes, SignClientTypes } from '@walletconnect/types'
-import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import { useEffect } from 'react'
 
 import { useWalletConnectEventsHandler } from '@/plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsHandler'
@@ -18,7 +18,7 @@ import {
 type PairingEvent = Pick<PairingJsonRpcTypes.EventCallback<any>, 'topic'>
 
 export const isSupportedSessionRequest = (
-  request: Web3WalletTypes.SessionRequest,
+  request: WalletKitTypes.SessionRequest,
 ): request is SupportedSessionRequest => {
   const supportedMethods = [
     ...Object.values(EIP155_SigningMethod),
@@ -74,7 +74,7 @@ export const useWalletConnectEventsManager = (
       web3wallet.on('session_request', sessionRequestListener)
 
       // Auth
-      web3wallet.on('auth_request', handleAuthRequest)
+      web3wallet.on('session_authenticate', handleAuthRequest)
 
       // Pairing
       pairingEvents.on('pairing_ping', pairingPingListener)
@@ -92,7 +92,7 @@ export const useWalletConnectEventsManager = (
         web3wallet.off('session_request', sessionRequestListener)
 
         // Auth
-        web3wallet.off('auth_request', handleAuthRequest)
+        web3wallet.off('session_authenticate', handleAuthRequest)
 
         // Pairing
         pairingEvents.off('pairing_ping', pairingPingListener)

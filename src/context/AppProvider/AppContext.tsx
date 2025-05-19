@@ -18,7 +18,6 @@ import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { snapshotApi } from '@/state/apis/snapshot/snapshot'
 import {
   marketApi,
   marketData,
@@ -125,11 +124,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
     if (!isConnected) return
-
-    // Fetch voting power in AppContext for swapper only - THORChain LP will be fetched JIT to avoid overfetching
-    dispatch(
-      snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
-    )
   }, [dispatch, isConnected, portfolioLoadingStatus])
 
   // Resets the sell and buy asset AccountIDs on wallet change to that we don't get stale trade input account selections while we're loading the new wallet

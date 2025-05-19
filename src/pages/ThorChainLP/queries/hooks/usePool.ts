@@ -45,7 +45,7 @@ export type PoolWithStats = Pool & PoolStats
 export const getPool = (
   pool: MidgardPoolResponse,
   assets: AssetsByIdPartial,
-  runePrice: string,
+  runePrice: string | undefined,
 ): Pool | undefined => {
   if (!pool) return
   if (!runePrice) return

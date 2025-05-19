@@ -26,8 +26,7 @@ export const usePools = () => {
 
       return midgardPools
         .reduce<Pool[]>((acc, midgardPool) => {
-          if (!runeMarketData?.price) return acc
-          const pool = getPool(midgardPool, assets, runeMarketData.price)
+          const pool = getPool(midgardPool, assets, runeMarketData?.price)
           if (!pool) return acc
           acc.push(pool)
           return acc

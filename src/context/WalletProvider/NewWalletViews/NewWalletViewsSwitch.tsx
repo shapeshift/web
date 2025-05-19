@@ -9,11 +9,11 @@ import {
   ModalContent,
   ModalOverlay,
   useColorModeValue,
+  useMediaQuery,
   useToast,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -38,6 +38,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
+import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
 const sectionsWidth = { base: 'full', md: '300px' }
@@ -50,6 +51,10 @@ const arrowBackIcon = <ArrowBackIcon />
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
 type RightPanelProps = Omit<RightPanelContentProps, 'location'>
+
+const modalSize = {
+  base: 'full',
+}
 
 const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPanelProps) => {
   const location = useLocation()
@@ -92,6 +97,7 @@ export const NewWalletViewsSwitch = () => {
   // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:
   // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -251,7 +257,7 @@ export const NewWalletViewsSwitch = () => {
     [handleWalletSelect, isLoading, selectedWalletId],
   )
 
-  const bodyBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const Body = useCallback(() => {
@@ -262,12 +268,12 @@ export const NewWalletViewsSwitch = () => {
       /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
     return (
-      <Box flex={1} bg={bodyBgColor} p={6} position='relative'>
-        {!isRootRoute || isMobile ? (
+      <Box flex={1} bg={bodyBgColor} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
+        {!isRootRoute || !isLargerThanMd ? (
           <Box
             position='absolute'
             left={3}
-            top={3}
+            top={2}
             zIndex={1}
             bg={buttonContainerBgColor}
             borderRadius='2xl'
@@ -306,6 +312,7 @@ export const NewWalletViewsSwitch = () => {
     isLoading,
     location.pathname,
     translate,
+    isLargerThanMd,
   ])
 
   const body = useMemo(() => <Body />, [Body])
@@ -318,14 +325,21 @@ export const NewWalletViewsSwitch = () => {
         isCentered
         trapFocus={false}
         closeOnOverlayClick={false}
+        size={!isLargerThanMd ? modalSize : undefined}
       >
         <ModalOverlay />
-        <ModalContent justifyContent='center' overflow='hidden' borderRadius='xl' maxW='900px'>
-          <Box position='relative'>
+        <ModalContent
+          justifyContent='center'
+          overflow='hidden'
+          borderRadius={!isLargerThanMd ? 'none' : 'xl'}
+          maxW='900px'
+          bg={!isLargerThanMd ? bodyBgColor : undefined}
+        >
+          <Box position={isLargerThanMd ? 'relative' : 'initial'}>
             <Box
               position='absolute'
-              right={3}
-              top={3}
+              right={!isLargerThanMd ? 3 : 3}
+              top={!isLargerThanMd ? 3 : 3}
               zIndex={1}
               bg={buttonContainerBgColor}
               borderRadius='full'
@@ -338,11 +352,11 @@ export const NewWalletViewsSwitch = () => {
                   {/* Always display sections for the root route, no matter the viewport */}
                   <Route path='/' element={sections} />
                   {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                  <Route path='*' element={!isMobile ? sections : null} />
+                  <Route path='*' element={isLargerThanMd ? sections : null} />
                 </Routes>
                 <Routes>
                   {/* Only display side panel after a wallet has been selected on mobile */}
-                  <Route path='/' element={isMobile ? null : <Body />} />
+                  <Route path='/' element={!isLargerThanMd ? null : <Body />} />
                   {/* And for all non-root routes, no matter the viewport */}
                   <Route path='*' element={body} />
                 </Routes>

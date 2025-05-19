@@ -32,7 +32,6 @@ export async function getZrxTradeRate(
     accountNumber,
     receiveAddress,
     affiliateBps,
-    potentialAffiliateBps,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -77,7 +76,6 @@ export async function getZrxTradeRate(
     quoteOrRate: 'rate' as const,
     accountNumber: undefined,
     receiveAddress,
-    potentialAffiliateBps,
     affiliateBps,
     // Slippage protection is always enabled for 0x api v2 unlike api v1 which was only supported on specific pairs.
     slippageTolerancePercentageDecimal,

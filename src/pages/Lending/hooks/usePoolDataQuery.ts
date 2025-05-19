@@ -5,12 +5,11 @@ import { useMemo } from 'react'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
-import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import {
   getAllThorchainLendingPositions,
   getThorchainPoolInfo,
 } from '@/lib/utils/thorchain/lending'
-import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectAssetById,
@@ -36,10 +35,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
-  const { data: mimir } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
+  const { data: mimir } = useThorchainMimir({})
 
   const isAssetLendingEnabled = useMemo(() => {
     if (!mimir || !poolAsset) return false

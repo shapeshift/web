@@ -41,7 +41,7 @@ export const TCY = () => {
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview activeAccountNumber={activeAccountNumber} />
           <Claim activeAccountNumber={activeAccountNumber} />
-          {isTcyActivityEnabled && <Activity />}
+          {isTcyActivityEnabled && <Activity activeAccountNumber={activeAccountNumber} />}
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
           {isTcyWidgetEnabled && <Widget activeAccountNumber={activeAccountNumber} />}

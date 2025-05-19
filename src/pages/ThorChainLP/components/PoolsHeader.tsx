@@ -1,13 +1,5 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  Container,
-  Heading,
-  Stack,
-} from '@chakra-ui/react'
+import { Button, Container, Heading, Stack } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
@@ -19,7 +11,6 @@ import { PageBackButton, PageHeader, PageHeaderButton } from '@/components/Layou
 import type { TabItem } from '@/components/TabMenu/TabMenu'
 import { TabMenu } from '@/components/TabMenu/TabMenu'
 import { Text } from '@/components/Text'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 const containerPadding = { base: 4, '2xl': 8 }
 const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -28,7 +19,6 @@ const alignItems = { base: 'flex-start', md: 'center' }
 export const PoolsHeader = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
   const plusIcon = useMemo(() => <FaPlus />, [])
   const NavItems: TabItem[] = useMemo(() => {
     return [
@@ -96,14 +86,6 @@ export const PoolsHeader = () => {
             </Button>
           </Container>
         </Display.Desktop>
-        <Container maxWidth='container.4xl'>
-          {isThorchainPoolsInstable ? (
-            <Alert status='error' variant='subtle'>
-              <AlertIcon />
-              <AlertDescription>{translate('pools.instabilityWarning')}</AlertDescription>
-            </Alert>
-          ) : null}
-        </Container>
         <TabMenu items={NavItems} />
       </Stack>
     </>

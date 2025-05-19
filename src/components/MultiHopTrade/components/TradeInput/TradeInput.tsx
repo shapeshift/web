@@ -36,7 +36,6 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
@@ -157,18 +156,12 @@ export const TradeInput = ({
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
-
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
       Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
-      // Only consider snapshot API queries as pending if we don't have voting power yet
-      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
-      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading ||
       Boolean(walletId && isWalletReceiveAddressLoading),
     [
       walletId,
@@ -176,7 +169,6 @@ export const TradeInput = ({
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
-      isVotingPowerLoading,
       isWalletReceiveAddressLoading,
     ],
   )

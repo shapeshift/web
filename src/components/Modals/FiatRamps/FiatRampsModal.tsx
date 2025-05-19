@@ -1,9 +1,17 @@
-import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import {
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 
 import type { FiatRampAction } from './FiatRampsCommon'
 
 import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
+import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
@@ -16,6 +24,7 @@ export type FiatRampsModalProps = {
 const modalContentBorderRadius = { base: 0, md: 'xl' }
 const modalContentMinWidth = { base: '100%', md: '500px' }
 const modalContentMaxWidth = { base: 'full', md: '500px' }
+const modalSize = { base: 'full', md: 'md' }
 
 export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
   fiatRampAction,
@@ -32,6 +41,7 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
       isCentered={isLargerThanMd}
       variant='fluid'
       trapFocus={false}
+      size={modalSize}
     >
       <ModalOverlay />
 
@@ -41,6 +51,10 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
         minWidth={modalContentMinWidth}
         maxWidth={modalContentMaxWidth}
       >
+        <ModalHeader>
+          <Text translation={'fiatRamps.title'} />
+        </ModalHeader>
+        <ModalCloseButton />
         <FiatForm assetId={assetId} fiatRampAction={fiatRampAction} accountId={accountId} />
       </ModalContent>
     </Modal>

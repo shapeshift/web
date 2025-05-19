@@ -5,7 +5,6 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
-import { FoxWifHat } from './FoxWifHat'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Display } from '@/components/Display'
@@ -64,7 +63,6 @@ export const FoxHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <FoxWifHat />
         <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>

@@ -26,10 +26,6 @@ export type GetTradeQuoteOrRateInputArgs = {
   allowMultiHop: boolean
   originalRate?: TradeRate
   lifiAllowedTools?: LifiTradeQuote['lifiTools'] | undefined
-  // Potential affiliate bps - may be waved out either entirely or partially with FOX discounts
-  potentialAffiliateBps: string
-  // Actual affiliate bps - if the FOX discounts is off, this will be the same as *affiliateBps*
-  // Otherwise, it will be the affiliate bps after the FOX discount is applied
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
@@ -51,7 +47,6 @@ export const getTradeQuoteOrRateInput = async ({
   allowMultiHop,
   originalRate,
   affiliateBps,
-  potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
 }: GetTradeQuoteOrRateInputArgs): Promise<GetTradeQuoteInput | GetTradeRateInput> => {
@@ -66,8 +61,7 @@ export const getTradeQuoteOrRateInput = async ({
           buyAsset,
           receiveAddress,
           accountNumber: sellAccountNumber,
-          affiliateBps: affiliateBps ?? '0',
-          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          affiliateBps,
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'quote',
@@ -83,8 +77,7 @@ export const getTradeQuoteOrRateInput = async ({
           receiveAddress,
           originalRate,
           accountNumber: sellAccountNumber,
-          affiliateBps: affiliateBps ?? '0',
-          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          affiliateBps,
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'rate',

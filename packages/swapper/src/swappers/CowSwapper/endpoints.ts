@@ -31,7 +31,7 @@ import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuot
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
 import type { CowSwapGetTradesResponse } from './types'
 import { cowService } from './utils/cowService'
-import { deductAffiliateFeesFromAmount, deductSlippageFromAmount } from './utils/helpers/helpers'
+import { getValuesFromQuoteResponse } from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
@@ -74,7 +74,7 @@ export const cowApi: SwapperApi = {
 
     if (!hop) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 
-    const { sellAsset } = hop
+    const { sellAsset, buyAsset } = hop
     const {
       slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.CowSwap,
@@ -101,20 +101,16 @@ export const cowApi: SwapperApi = {
     if (!cowswapQuoteResponse) throw new Error('CowSwap quote data is required')
 
     const { id, quote } = cowswapQuoteResponse
-    // Note: While CowSwap returns us a quote, and we have slippageBips in the appData, this isn't enough.
-    // For the slippage actually to be enforced, the final message to be signed needs to have slippage deducted.
-    // Failure to do so means orders may take forever to be filled, or never be filled at all.
-    const quoteBuyAmount = quote.buyAmount
-
-    // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
-    const buyAmountAfterAffiliateFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
-      amount: quoteBuyAmount,
+    // Note: While CowSwap returns us a quote, and we have slippageBips and `partnerFee.bps` in the appData, this isn't enough.
+    // For the min out to actually to be reliable, the final message to be signed needs to have slippage and fee bps deducted.
+    // This actually matches what CoW uses as a minimum for a given quote - failure to do so means orders may take forever to be filled, or never be filled at all.
+    const { buyAmountAfterFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
+      buyAsset,
+      sellAsset,
+      response: cowswapQuoteResponse,
       affiliateBps: tradeQuote.affiliateBps,
-    })
-    const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = deductSlippageFromAmount({
-      amount: buyAmountAfterAffiliateFeesCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
-    }).toFixed(0)
+    })
 
     // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
     // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order
@@ -128,7 +124,7 @@ export const cowApi: SwapperApi = {
       // Another mutation from the original quote to go around the fact that CoW API flow is weird
       // they return us a quote with fees, but we have to zero them out when sending the order
       feeAmount: '0',
-      buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit,
+      buyAmount: buyAmountAfterFeesCryptoBaseUnit,
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
       sellTokenBalance: SellTokenSource.ERC20,

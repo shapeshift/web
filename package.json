@@ -105,7 +105,7 @@
     "@shapeshiftoss/hdwallet-native": "1.59.7",
     "@shapeshiftoss/hdwallet-native-vault": "1.59.7",
     "@shapeshiftoss/hdwallet-phantom": "1.59.7",
-    "@shapeshiftoss/hdwallet-walletconnectv2": "1.59.7",
+    "@shapeshiftoss/hdwallet-walletconnectv2": "1.59.8-alpha.1",
     "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",

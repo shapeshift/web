@@ -200,7 +200,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (!asset || !marketData?.price)
+  if (!asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

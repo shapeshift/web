@@ -42,7 +42,7 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
         price: '0',
         marketCap: '0',
         volume: '0',
-        changePercent24Hr: '0',
+        changePercent24Hr: 0,
       }
       acc.push({ ...assetData, ...marketDataForAsset })
       return acc

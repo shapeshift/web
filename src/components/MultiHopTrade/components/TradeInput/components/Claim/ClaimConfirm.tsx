@@ -97,10 +97,9 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   )
 
   const amountUserCurrency = useMemo(() => {
-    const price =
-      destinationAssetMarketDataUserCurrency?.price !== '0'
-        ? destinationAssetMarketDataUserCurrency?.price ?? '0'
-        : assetMarketDataUserCurrency?.price ?? '0'
+    const price = destinationAssetMarketDataUserCurrency?.price
+      ? destinationAssetMarketDataUserCurrency.price
+      : assetMarketDataUserCurrency?.price
 
     return bnOrZero(amountCryptoPrecision).times(bnOrZero(price)).toFixed()
   }, [

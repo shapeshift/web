@@ -66,7 +66,7 @@ const RewardsBalance = ({ accountId }: { accountId: string | undefined }) => {
   const translate = useTranslate()
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
 
   const { data: distributor } = useTcyDistributor(accountId)

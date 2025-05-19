@@ -104,7 +104,25 @@ const StakedBalanceSkeleton = () => {
   )
 }
 
+const RewardsBalanceSkeleton = () => {
+  const translate = useTranslate()
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  if (!runeAsset) return null
+
+  return (
+    <Flex flexDir='column' alignItems='flex-start'>
+      <HelperTooltip label={translate('TCY.myRewardsBalanceHelper', { symbol: runeAsset.symbol })}>
+        <RawText color='text.subtle'>{translate('TCY.myRewardsBalance')}</RawText>
+      </HelperTooltip>
+      <Skeleton height='24px' width='120px' mb={1} />
+      <Skeleton height='16px' width='80px' />
+    </Flex>
+  )
+}
+
 const stakedBalanceSkeleton = <StakedBalanceSkeleton />
+const rewardsBalanceSkeleton = <RewardsBalanceSkeleton />
 
 export const Overview = ({ activeAccountNumber }: OverviewProps) => {
   const translate = useTranslate()
@@ -138,6 +156,8 @@ export const Overview = ({ activeAccountNumber }: OverviewProps) => {
         <SimpleGrid spacing={6} columns={gridColumns}>
           <Suspense fallback={stakedBalanceSkeleton}>
             <StakedBalance accountId={accountId} />
+          </Suspense>
+          <Suspense fallback={rewardsBalanceSkeleton}>
             <RewardsBalance accountId={accountId} />
           </Suspense>
         </SimpleGrid>

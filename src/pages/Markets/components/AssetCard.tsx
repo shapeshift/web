@@ -19,24 +19,24 @@ type AssetCardProps = {
 export const AssetCard: React.FC<AssetCardProps> = ({ assetId, showMarketCap, onClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const changePercent24Hr = marketData.changePercent24Hr
+  const changePercent24Hr = marketData?.changePercent24Hr
   const translate = useTranslate()
 
   const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
 
-  const priceValue = useMemo(() => <Amount.Fiat value={marketData.price} />, [marketData.price])
+  const priceValue = useMemo(() => <Amount.Fiat value={marketData?.price} />, [marketData?.price])
 
   const priceChange = useMemo(() => {
     return <Amount.Percent autoColor value={bnOrZero(changePercent24Hr).times(0.01).toString()} />
   }, [changePercent24Hr])
 
   const marketCapValue = useMemo(() => {
-    return bnOrZero(marketData.marketCap).isPositive() ? (
-      <Amount.Fiat value={marketData.marketCap} />
+    return bnOrZero(marketData?.marketCap).isPositive() ? (
+      <Amount.Fiat value={marketData?.marketCap} />
     ) : (
       <CText>N/A</CText>
     )
-  }, [marketData.marketCap])
+  }, [marketData?.marketCap])
 
   if (!asset) return null
 

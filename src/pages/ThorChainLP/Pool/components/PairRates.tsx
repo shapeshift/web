@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -55,8 +55,12 @@ export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
     selectMarketDataByAssetIdUserCurrency(state, assetIds[1]),
   )
 
-  const asset0PricePerAsset1 = bn(asset1MarketData.price).div(asset0MarketData.price).toString()
-  const asset1PricePerAsset0 = bn(asset0MarketData.price).div(asset1MarketData.price).toString()
+  const asset0PricePerAsset1 = bnOrZero(asset1MarketData?.price)
+    .div(bnOrZero(asset0MarketData?.price))
+    .toString()
+  const asset1PricePerAsset0 = bnOrZero(asset0MarketData?.price)
+    .div(bnOrZero(asset1MarketData?.price))
+    .toString()
 
   const handleAssetClick = useCallback(
     (assetId: AssetId) => {

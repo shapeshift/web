@@ -213,7 +213,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     if (!(userStakingBalanceCryptoPrecision && stakingAssetMarketData)) return
 
     return bnOrZero(userStakingBalanceCryptoPrecision)
-      .times(stakingAssetMarketData?.price ?? 0)
+      .times(bnOrZero(stakingAssetMarketData?.price))
       .toFixed(2)
   }, [stakingAssetMarketData, userStakingBalanceCryptoPrecision])
 

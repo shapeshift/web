@@ -90,8 +90,10 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   )
 
   const amountUserCurrency = useMemo(() => {
-    return bn(amountCryptoPrecision).times(tcyMarketData.price).toFixed(2)
-  }, [tcyMarketData.price, amountCryptoPrecision])
+    return bn(amountCryptoPrecision)
+      .times(bnOrZero(tcyMarketData?.price))
+      .toFixed(2)
+  }, [tcyMarketData?.price, amountCryptoPrecision])
 
   const {
     dustAmountCryptoBaseUnit,
@@ -167,8 +169,10 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
 
     const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
 
-    return bn(dustAmountCryptoPrecision).times(feeAssetMarketData.price).toString()
-  }, [dustAmountCryptoBaseUnit, feeAssetMarketData.price, feeAsset])
+    return bn(dustAmountCryptoPrecision)
+      .times(bnOrZero(feeAssetMarketData?.price))
+      .toString()
+  }, [dustAmountCryptoBaseUnit, feeAssetMarketData?.price, feeAsset])
 
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),

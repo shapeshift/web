@@ -121,7 +121,9 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   const cryptoAmountAvailablePrecision = bnOrZero(
     foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit,
   ).div(bn(10).pow(stakingAsset?.precision ?? 0))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(marketData.price)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(
+    bnOrZero(marketData?.price),
+  )
 
   const hasPendingUndelegation = Boolean(
     undelegations &&

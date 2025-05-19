@@ -67,7 +67,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
     const tvl = bnOrZero(opportunity.tvl)
       .div(`1e+${underlyingAsset?.precision}`)
-      .times(marketData.price)
+      .times(bnOrZero(marketData?.price))
       .toString()
 
     const apy = foxyApr.data?.foxyApr ?? '0'

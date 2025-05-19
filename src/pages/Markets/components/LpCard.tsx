@@ -92,7 +92,12 @@ export const LpGridItem = ({
 
   return (
     <GridItem key={index}>
-      <LpCard assetId={assetId} apy={apy ?? '0'} volume24H={volume24H ?? '0'} onClick={onClick} />
+      <LpCard
+        assetId={assetId}
+        apy={apy ?? '0'}
+        volume24H={String(volume24H ?? '0')}
+        onClick={onClick}
+      />
     </GridItem>
   )
 }

@@ -26,7 +26,7 @@ export const CardWithSparkline: React.FC<{
   useGetAssetDescriptionQuery({ assetId, selectedLocale }, { skip: !!asset?.description })
   const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
 
-  const changePercent24Hr = marketData.changePercent24Hr
+  const changePercent24Hr = marketData?.changePercent24Hr
 
   if (!asset || !marketData) return null
 
@@ -55,7 +55,7 @@ export const CardWithSparkline: React.FC<{
               <WatchAssetButton assetId={assetId} alignSelf='flex-start' />
             </Flex>
             <Box textAlign='right'>
-              <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' mb={1} />
+              <Amount.Fiat value={marketData?.price} fontWeight='bold' fontSize='2xl' mb={1} />
               <Amount.Percent
                 autoColor
                 value={bnOrZero(changePercent24Hr).times(0.01).toString()}

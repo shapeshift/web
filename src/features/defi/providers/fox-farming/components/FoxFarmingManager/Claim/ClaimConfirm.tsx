@@ -108,8 +108,12 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   )
 
   const claimFiatAmount = useMemo(
-    () => bnOrZero(amount).times(assetMarketData.price).toString(),
-    [amount, assetMarketData.price],
+    () =>
+      bnOrZero(amount)
+        .times(bnOrZero(assetMarketData?.price))
+        .times(bnOrZero(feeMarketData?.price))
+        .toString(),
+    [amount, assetMarketData?.price, feeMarketData?.price],
   )
 
   const toast = useToast()
@@ -281,7 +285,9 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
               >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
-                    value={bnOrZero(estimatedGas).times(feeMarketData.price).toFixed(2)}
+                    value={bnOrZero(estimatedGas)
+                      .times(feeMarketData?.price)
+                      .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'

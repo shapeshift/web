@@ -63,13 +63,19 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   )
 
   const prevAmountUserCurrency = useMemo(
-    () => bn(prevAmountCryptoPrecision).times(buyAssetMarketDataUserCurrency.price).toFixed(2),
-    [buyAssetMarketDataUserCurrency.price, prevAmountCryptoPrecision],
+    () =>
+      bn(prevAmountCryptoPrecision)
+        .times(buyAssetMarketDataUserCurrency?.price)
+        .toFixed(2),
+    [buyAssetMarketDataUserCurrency?.price, prevAmountCryptoPrecision],
   )
 
   const amountUserCurrency = useMemo(
-    () => bn(amountCryptoPrecision).times(buyAssetMarketDataUserCurrency.price).toFixed(2),
-    [amountCryptoPrecision, buyAssetMarketDataUserCurrency.price],
+    () =>
+      bn(amountCryptoPrecision)
+        .times(buyAssetMarketDataUserCurrency?.price)
+        .toFixed(2),
+    [amountCryptoPrecision, buyAssetMarketDataUserCurrency?.price],
   )
 
   const percentageDifferenceHuman = useMemo(() => {

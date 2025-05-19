@@ -33,7 +33,7 @@ export const useSendFees = () => {
   } = useWallet()
 
   const price = bnOrZero(
-    useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId)).price,
+    useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId))?.price,
   )
 
   useEffect(() => {

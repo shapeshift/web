@@ -22,8 +22,8 @@ type GetPositionArgs = {
   position: Position
   assets: AssetsByIdPartial
   assetId: AssetId
-  assetPrice: string
-  runePrice: string
+  assetPrice: string | undefined
+  runePrice: string | undefined
   liquidityLockupTime: number
 }
 
@@ -61,13 +61,17 @@ export const getUserLpDataPosition = ({
 
   const pendingAssetAmountCryptoPrecision = fromThorBaseUnit(position.assetPending)
   const pendingRuneAmountCryptoPrecision = fromThorBaseUnit(position.runePending)
-  const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(assetPrice)
-  const pendingRuneAmountFiatUserCurrency = pendingRuneAmountCryptoPrecision.times(runePrice)
+  const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(
+    bnOrZero(assetPrice),
+  )
+  const pendingRuneAmountFiatUserCurrency = pendingRuneAmountCryptoPrecision.times(
+    bnOrZero(runePrice),
+  )
 
   const assetShareCryptoPrecision = fromThorBaseUnit(assetShareThorBaseUnit)
   const runeShareCryptoPrecision = fromThorBaseUnit(runeShareThorBaseUnit)
-  const assetShareFiat = assetShareCryptoPrecision.times(assetPrice)
-  const runeShareFiat = runeShareCryptoPrecision.times(runePrice)
+  const assetShareFiat = assetShareCryptoPrecision.times(bnOrZero(assetPrice))
+  const runeShareFiat = runeShareCryptoPrecision.times(bnOrZero(runePrice))
 
   const status = (() => {
     const isPending = bnOrZero(position.runePending).gt(0) || bnOrZero(position.assetPending).gt(0)
@@ -184,11 +188,11 @@ export const useUserLpData = ({
         .map(position =>
           getUserLpDataPosition({
             assetId,
-            assetPrice: poolAssetMarketData.price,
+            assetPrice: poolAssetMarketData?.price,
             assets,
             pool,
             position,
-            runePrice: runeMarketData.price,
+            runePrice: runeMarketData?.price,
             liquidityLockupTime: thorchainMimirTimes.liquidityLockupTime,
           }),
         )

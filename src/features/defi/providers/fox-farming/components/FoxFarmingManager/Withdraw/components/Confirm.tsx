@@ -201,6 +201,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision)
+                  .times(feeMarketData?.price)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />

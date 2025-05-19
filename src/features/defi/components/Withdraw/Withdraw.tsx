@@ -141,14 +141,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       if (isFiat) {
-        const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
+        const cryptoAmount = bnOrZero(value)
+          .div(bnOrZero(marketData?.price))
+          .toString()
         setValue(Field.FiatAmount, value, { shouldValidate: true })
         setValue(Field.CryptoAmount, cryptoAmount, {
           shouldValidate: true,
         })
         onChange && onChange(value, cryptoAmount)
       } else {
-        const fiatAmount = bnOrZero(value).times(marketData.price).toString()
+        const fiatAmount = bnOrZero(value)
+          .times(bnOrZero(marketData?.price))
+          .toString()
         setValue(Field.FiatAmount, fiatAmount, {
           shouldValidate: true,
         })
@@ -159,7 +163,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       }
       if (onInputChange) onInputChange(value, isFiat)
     },
-    [marketData.price, onChange, onInputChange, setValue],
+    [marketData?.price, onChange, onInputChange, setValue],
   )
 
   const handleSlippageChange = useCallback(

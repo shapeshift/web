@@ -26,6 +26,7 @@ export const usePools = () => {
 
       return midgardPools
         .reduce<Pool[]>((acc, midgardPool) => {
+          if (!runeMarketData?.price) return acc
           const pool = getPool(midgardPool, assets, runeMarketData.price)
           if (!pool) return acc
           acc.push(pool)
@@ -62,12 +63,11 @@ export const usePools = () => {
         const { data } = query
         if (!data) return acc
         const { thorchainNotationPoolAssetId } = data
-
+        if (!runeMarketData?.price) return acc
         acc[thorchainNotationPoolAssetId] = getVolumeStats(data, runeMarketData.price)
-
         return acc
       }, {}),
-    [runeMarketData.price, swapsData],
+    [runeMarketData?.price, swapsData],
   )
 
   const poolsWithVolumeStats = useMemo(() => {

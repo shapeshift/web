@@ -102,9 +102,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const claimAmountUserCurrency = useMemo(
     () =>
       bnOrZero(stakingAmountCryptoPrecision)
-        .times(claimAssetMarketDataUserCurrency.price)
+        .times(claimAssetMarketDataUserCurrency?.price)
         .toFixed(),
-    [claimAssetMarketDataUserCurrency.price, stakingAmountCryptoPrecision],
+    [claimAssetMarketDataUserCurrency?.price, stakingAmountCryptoPrecision],
   )
 
   const callData = useMemo(() => {

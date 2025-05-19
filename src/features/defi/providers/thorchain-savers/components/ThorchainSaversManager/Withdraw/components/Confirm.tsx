@@ -544,7 +544,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bn(fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision))
-                    .times(marketData.price)
+                    .times(bnOrZero(marketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto

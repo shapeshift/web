@@ -225,7 +225,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       if (bnOrZero(input).lte(0)) return true
 
       const selectedStakingAssetFiatBalance = bnOrZero(selectedStakingAssetBalanceCryptoPrecision)
-        .times(selectedStakingAssetMarketData.price)
+        .times(bnOrZero(selectedStakingAssetMarketData?.price))
         .toString()
 
       const hasEnoughBalance = bnOrZero(input).lte(
@@ -437,9 +437,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     translate,
   ])
 
-  const { price: assetUserCurrencyRate } = useAppSelector(state =>
+  const marketData = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: selectedStakingAssetId }),
   )
+  const assetUserCurrencyRate = marketData?.price ?? '0'
 
   // Consumed by onMaxClick
   const handleAmountChange = useCallback(

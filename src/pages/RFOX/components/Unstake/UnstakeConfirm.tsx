@@ -62,9 +62,9 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   const unstakingAmountUserCurrency = useMemo(
     () =>
       bnOrZero(unstakingAmountCryptoPrecision)
-        .times(stakingAssetMarketDataUserCurrency.price)
+        .times(bnOrZero(stakingAssetMarketDataUserCurrency?.price))
         .toFixed(),
-    [stakingAssetMarketDataUserCurrency.price, unstakingAmountCryptoPrecision],
+    [stakingAssetMarketDataUserCurrency?.price, unstakingAmountCryptoPrecision],
   )
 
   const {

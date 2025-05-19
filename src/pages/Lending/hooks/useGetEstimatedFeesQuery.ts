@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 
 import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees } from '@/components/Modals/Send/utils'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -15,7 +15,7 @@ export type EstimatedFeesQueryKey = [
   {
     enabled: boolean
     feeAsset: Asset | undefined
-    feeAssetMarketData: MarketData
+    feeAssetMarketData: MarketData | undefined
     estimateFeesInput: EstimateFeesInput | undefined
   },
 ]
@@ -25,11 +25,12 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
   const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
 
   // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-  if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+  if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId || !feeAssetMarketData)
+    return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
   const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-    .times(feeAssetMarketData.price)
+    .times(bnOrZero(feeAssetMarketData?.price))
     .toString()
   return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
 }

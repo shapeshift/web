@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
+import { bnOrZero } from '@/lib/utils/bnOrZero'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { getThorchainLendingPosition } from '@/lib/utils/thorchain/lending'
 import {
@@ -48,7 +49,8 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
       const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
 
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
-        .times(poolAssetMarketData.price)
+        .times(bnOrZero(poolAssetMarketData?.price))
+        .times(poolAssetMarketData?.price)
         .toString()
 
       const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
@@ -63,7 +65,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         address: data?.owner,
       }
     },
-    enabled: Boolean(accountId && assetId && poolAssetMarketData.price !== '0'),
+    enabled: Boolean(accountId && assetId && poolAssetMarketData?.price !== '0'),
   })
 
   return lendingPositionData

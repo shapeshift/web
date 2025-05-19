@@ -128,8 +128,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   )
 
   const claimFiatAmount = useMemo(
-    () => bnOrZero(amount).times(assetMarketData.price).toString(),
-    [amount, assetMarketData.price],
+    () =>
+      bnOrZero(amount)
+        .times(bnOrZero(assetMarketData?.price))
+        .times(bnOrZero(feeMarketData?.price))
+        .toString(),
+    [amount, assetMarketData?.price, feeMarketData?.price],
   )
 
   const serializedTxIndex = useMemo(() => {
@@ -293,7 +297,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(status ? estimatedGas : state.usedGasFeeCryptoPrecision)
-                    .times(feeMarketData.price)
+                    .times(feeMarketData?.price)
                     .toFixed(2)}
                 />
                 <Amount.Crypto

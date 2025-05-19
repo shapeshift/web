@@ -74,7 +74,7 @@ export const Withdraw: React.FC<
       const cryptoAmount = bnOrZero(cryptoAmountAvailable)
         .times(percent)
         .dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -82,7 +82,7 @@ export const Withdraw: React.FC<
         shouldValidate: true,
       })
     },
-    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+    [asset.precision, cryptoAmountAvailable, marketData?.price, setValue],
   )
 
   const accountAddress = useMemo(

@@ -58,7 +58,7 @@ const selectLendingCloseQueryData = memoize(
     const quoteLoanCollateralDecreaseFiatUserCurrency = fromThorBaseUnit(
       quote.expected_collateral_withdrawn,
     )
-      .times(collateralAssetMarketData.price)
+      .times(bnOrZero(collateralAssetMarketData?.price))
       .toString()
     const quoteLoanCollateralDecreaseFiatUsd = bn(quoteLoanCollateralDecreaseFiatUserCurrency)
       .div(userCurrencyToUsdRate)
@@ -76,14 +76,14 @@ const selectLendingCloseQueryData = memoize(
     const quoteWithdrawnAmountAfterFeesUserCurrency = bnOrZero(
       quoteWithdrawnAmountAfterFeesCryptoPrecision,
     )
-      .times(collateralAssetMarketData?.price ?? 0)
+      .times(bnOrZero(collateralAssetMarketData?.price))
       .toString()
 
     const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
       .div(BASE_BPS_POINTS)
       .toString()
     const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
-      .times(collateralAssetMarketData?.price ?? 0)
+      .times(bnOrZero(collateralAssetMarketData?.price))
       .toString()
     const quoteTotalFeesFiatUsd = bn(quoteTotalFeesFiatUserCurrency)
       .div(userCurrencyToUsdRate)
@@ -120,7 +120,7 @@ const selectLendingCloseQueryData = memoize(
       repaymentAsset.precision,
     )
     const repaymentAmountFiatUserCurrency = fromThorBaseUnit(safeExpectedAmountIn)
-      .times(repaymentAssetMarketData.price)
+      .times(bnOrZero(repaymentAssetMarketData?.price))
       .toString()
     const repaymentAmountFiatUsd = bn(repaymentAmountFiatUserCurrency)
       .times(userCurrencyToUsdRate)
@@ -240,8 +240,18 @@ export const useLendingQuoteCloseQuery = ({
     select: data =>
       selectLendingCloseQueryData({
         data,
-        collateralAssetMarketData,
-        repaymentAssetMarketData,
+        collateralAssetMarketData: collateralAssetMarketData ?? {
+          price: '0',
+          marketCap: '0',
+          volume: '0',
+          changePercent24Hr: 0,
+        },
+        repaymentAssetMarketData: repaymentAssetMarketData ?? {
+          price: '0',
+          marketCap: '0',
+          volume: '0',
+          changePercent24Hr: 0,
+        },
         repaymentPercent,
         repaymentAsset,
       }),

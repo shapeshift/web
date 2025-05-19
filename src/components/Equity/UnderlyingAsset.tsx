@@ -18,9 +18,9 @@ export const UnderlyingAsset: React.FC<AssetWithBalance> = ({
 
   const fiatAmount = useMemo(() => {
     return bnOrZero(cryptoBalancePrecision)
-      .times(marketData.price ?? '0')
+      .times(bnOrZero(marketData?.price))
       .toString()
-  }, [cryptoBalancePrecision, marketData.price])
+  }, [cryptoBalancePrecision, marketData?.price])
 
   return (
     <Flex gap={2} fontSize='sm' alignItems='center' fontWeight='medium'>

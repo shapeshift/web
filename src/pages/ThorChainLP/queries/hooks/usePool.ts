@@ -48,6 +48,7 @@ export const getPool = (
   runePrice: string,
 ): Pool | undefined => {
   if (!pool) return
+  if (!runePrice) return
 
   const runeAsset = assets[thorchainAssetId]
   if (!runeAsset) return
@@ -67,7 +68,7 @@ export const getPool = (
     ...pool,
     assetId,
     name: `${asset.symbol}/${runeAsset.symbol}`,
-    tvlFiat: fromThorBaseUnit(tvl).times(runePrice).toFixed(),
+    tvlFiat: fromThorBaseUnit(tvl).times(bnOrZero(runePrice)).toFixed(),
   }
 }
 
@@ -166,7 +167,8 @@ export const usePool = (poolAssetId: string) => {
   const { midgard } = reactQueries
 
   const selectPoolData = useCallback(
-    (pool: MidgardPoolResponse) => getPool(pool, assets, runeMarketData.price),
+    (pool: MidgardPoolResponse) =>
+      runeMarketData?.price ? getPool(pool, assets, runeMarketData.price) : undefined,
     [assets, runeMarketData],
   )
 
@@ -208,21 +210,21 @@ export const usePool = (poolAssetId: string) => {
 
   const feeStats = useMemo(() => {
     if (!swapsData.data) return
-    if (!runeMarketData.price) return
-    return getFeeStats(swapsData.data, runeMarketData.price)
-  }, [swapsData.data, runeMarketData.price])
+    if (!runeMarketData?.price) return
+    return getFeeStats(swapsData.data, runeMarketData?.price)
+  }, [swapsData.data, runeMarketData?.price])
 
   const tvlStats = useMemo(() => {
     if (!poolData.data) return
     if (!tvl.data) return
-    if (!runeMarketData.price) return
+    if (!runeMarketData?.price) return
     return getTvlStats(poolData.data, tvl.data, runeMarketData.price)
-  }, [poolData.data, tvl.data, runeMarketData.price])
+  }, [poolData.data, tvl.data, runeMarketData?.price])
 
   const volumeStats = useMemo(() => {
     if (!poolStats.data) return
     if (!swapsData.data) return
-    if (!runeMarketData.price) return
+    if (!runeMarketData?.price) return
 
     const volumeTotalFiat = fromThorBaseUnit(poolStats.data.swapVolume ?? '0')
       .times(runeMarketData.price)
@@ -232,7 +234,7 @@ export const usePool = (poolAssetId: string) => {
       ...getVolumeStats(swapsData.data, runeMarketData.price),
       volumeTotalFiat,
     }
-  }, [poolStats.data, swapsData.data, runeMarketData.price])
+  }, [poolStats.data, swapsData.data, runeMarketData?.price])
 
   const poolWithStats: PoolWithStats | undefined = useMemo(() => {
     if (!(poolData.data && tvlStats && feeStats && volumeStats)) return

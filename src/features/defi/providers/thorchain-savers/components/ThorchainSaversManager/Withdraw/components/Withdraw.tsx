@@ -143,8 +143,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   )
 
   const assetPriceInFeeAsset = useMemo(() => {
-    return bn(assetMarketData.price).div(feeAssetMarketData.price)
-  }, [assetMarketData.price, feeAssetMarketData.price])
+    return bnOrZero(assetMarketData?.price).div(bnOrZero(feeAssetMarketData?.price))
+  }, [assetMarketData?.price, feeAssetMarketData?.price])
 
   const fiatAmountAvailable = useMemo(
     () => bnOrZero(amountAvailableCryptoPrecision).times(assetMarketData.price),

@@ -130,14 +130,18 @@ export const Deposit = ({
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       if (isFiat) {
-        const cryptoAmount = bnOrZero(value).div(marketData.price).toFixed()
+        const cryptoAmount = bnOrZero(value)
+          .div(bnOrZero(marketData?.price))
+          .toFixed()
         setValue(Field.FiatAmount, value, { shouldValidate: true })
         setValue(Field.CryptoAmount, cryptoAmount, {
           shouldValidate: true,
         })
         onChange && onChange({ cryptoAmount, fiatAmount: value })
       } else {
-        const fiatAmount = bnOrZero(value).times(marketData.price).toString()
+        const fiatAmount = bnOrZero(value)
+          .times(bnOrZero(marketData?.price))
+          .toString()
         setValue(Field.FiatAmount, fiatAmount, {
           shouldValidate: true,
         })
@@ -147,7 +151,7 @@ export const Deposit = ({
         onChange && onChange({ fiatAmount, cryptoAmount: value })
       }
     },
-    [marketData.price, onChange, setValue],
+    [marketData?.price, onChange, setValue],
   )
 
   const handlePercentClick = useCallback(
@@ -167,7 +171,9 @@ export const Deposit = ({
         const _percentageCryptoAmount = bnOrZero(cryptoAmountAvailable)
           .times(percent)
           .dp(asset.precision)
-        const _percentageFiatAmount = _percentageCryptoAmount.times(marketData.price).toString()
+        const _percentageFiatAmount = _percentageCryptoAmount
+          .times(bnOrZero(marketData?.price))
+          .toString()
 
         return {
           percentageCryptoAmount: _percentageCryptoAmount,
@@ -187,7 +193,7 @@ export const Deposit = ({
           cryptoAmount: percentageCryptoAmount.toString(),
         })
     },
-    [asset.precision, cryptoAmountAvailable, marketData.price, onChange, onPercentClick, setValue],
+    [asset.precision, cryptoAmountAvailable, marketData?.price, onChange, onPercentClick, setValue],
   )
 
   const onSubmit = useCallback(
@@ -198,7 +204,9 @@ export const Deposit = ({
   )
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
-  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
+  const fiatYield = bnOrZero(cryptoYield)
+    .times(bnOrZero(marketData?.price))
+    .toFixed(2)
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 

@@ -10,6 +10,7 @@ import { IconCircle } from '@/components/IconCircle'
 import { Text } from '@/components/Text'
 import { makeBalanceChartData } from '@/hooks/useBalanceChartData/utils'
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { calculateFiatChange, calculatePercentChange } from '@/lib/charts'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
@@ -20,7 +21,7 @@ import { useAppSelector } from '@/state/store'
 type PriceChartArgs = {
   assetId: AssetId
   timeframe: HistoryTimeframe
-  percentChange: number
+  percentChange: number | undefined
   setPercentChange: (percentChange: number) => void
   setFiatChange?: (fiatChange: number) => void
   chartHeight?: string
@@ -82,7 +83,7 @@ export const PriceChart: React.FC<PriceChartArgs> = props => {
 
   const data = useMemo(() => makeBalanceChartData(priceData), [priceData])
 
-  const color = percentChange > 0 ? 'green.500' : 'red.500'
+  const color = bnOrZero(percentChange).gt(0) ? 'green.500' : 'red.500'
 
   if (!isLoading && !priceData.length)
     return (

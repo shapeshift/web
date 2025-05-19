@@ -9,7 +9,6 @@ import {
   fetchUniV2PairData,
   getOrCreateContractByAddress,
 } from '@shapeshiftoss/contracts'
-import type { MarketData } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 
@@ -46,10 +45,7 @@ export const ethFoxStakingMetadataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
   const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision ?? 0
-  const lpTokenMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
-    state,
-    foxEthLpAssetId,
-  )
+  const lpTokenMarketData = selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
@@ -137,10 +133,7 @@ export const ethFoxStakingUserDataResolver = async ({
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const lpTokenMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
-    state,
-    foxEthLpAssetId,
-  )
+  const lpTokenMarketData = selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
   const { assetReference } = fromAssetId(opportunityId)

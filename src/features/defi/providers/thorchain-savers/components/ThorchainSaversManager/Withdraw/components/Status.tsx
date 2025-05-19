@@ -205,7 +205,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
-                  .times(marketData.price)
+                  .times(bnOrZero(marketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto

@@ -89,8 +89,10 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
         fromThorBaseUnit(poolInfo.loan_collateral_remaining),
       )
 
-      const tvl = tvlCryptoPrecision.times(poolAssetMarketData.price).toFixed()
-      const maxSupplyFiat = maxSupplyCryptoPrecision.times(poolAssetMarketData.price).toFixed()
+      const tvl = tvlCryptoPrecision.times(bnOrZero(poolAssetMarketData?.price)).toFixed()
+      const maxSupplyFiat = maxSupplyCryptoPrecision
+        .times(bnOrZero(poolAssetMarketData?.price))
+        .toFixed()
 
       return {
         totalBorrowers,

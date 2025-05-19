@@ -218,9 +218,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     )
 
     const handleConnectAll = useCallback(() => {
-      const requiredNamespacesChainIds = Object.values(
-        requiredNamespaces,
-      ).flatMap(namespace => namespace.chains ?? [])
+      const requiredNamespacesChainIds = Object.values(requiredNamespaces).flatMap(
+        namespace => namespace.chains ?? [],
+      )
       const optionalNamespacesChainIds = Object.values(
         supportedOptionalNamespacesWithAccounts,
       ).flatMap(namespace => namespace.chains ?? [])

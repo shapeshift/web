@@ -1,8 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
-import type { Asset, UtxoChainId } from '@shapeshiftoss/types'
-
-import type { BuyAssetBySellIdInput, Swapper, UtxoTransactionExecutionProps } from '../../types'
+import type { Swapper } from '../../types'
 import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './constants'
 import { isSupportedAssetId } from './utils/helpers'
@@ -10,15 +6,10 @@ import { isSupportedAssetId } from './utils/helpers'
 export const chainflipSwapper: Swapper = {
   executeEvmTransaction,
   executeSolanaTransaction,
-
-  executeUtxoTransaction: async (
-    txToSign: SignTx<UtxoChainId>,
-    { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
-  ): Promise<string> => {
-    return await signAndBroadcastTransaction(txToSign)
+  executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
   },
-
-  filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
+  filterAssetIdsBySellable: assets => {
     return Promise.resolve(
       assets
         .filter(asset => CHAINFLIP_SUPPORTED_CHAIN_IDS.sell.includes(asset.chainId))
@@ -27,7 +18,7 @@ export const chainflipSwapper: Swapper = {
     )
   },
 
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
+  filterBuyAssetsBySellAssetId: input => {
     return Promise.resolve(
       input.assets
         .filter(asset => CHAINFLIP_SUPPORTED_CHAIN_IDS.buy.includes(asset.chainId))

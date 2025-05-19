@@ -1,16 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSdkChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 
-import type {
-  BuyAssetBySellIdInput,
-  CosmosSdkTransactionExecutionProps,
-  Swapper,
-  SwapperConfig,
-  UtxoTransactionExecutionProps,
-} from '../../types'
+import type { Swapper, SwapperConfig } from '../../types'
 import { executeEvmTransaction } from '../../utils'
 import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from './constants'
 import type { ThornodePoolResponse } from './types'
@@ -52,29 +44,17 @@ const getSupportedAssets = async (
 
 export const thorchainSwapper: Swapper = {
   executeEvmTransaction,
-
-  executeCosmosSdkTransaction: async (
-    txToSign: SignTx<CosmosSdkChainId>,
-    { signAndBroadcastTransaction }: CosmosSdkTransactionExecutionProps,
-  ): Promise<string> => {
+  executeCosmosSdkTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
+  },
+  executeUtxoTransaction: async (txToSign, { signAndBroadcastTransaction }) => {
     return await signAndBroadcastTransaction(txToSign)
   },
-
-  executeUtxoTransaction: async (
-    txToSign: SignTx<UtxoChainId>,
-    { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
-  ): Promise<string> => {
-    return await signAndBroadcastTransaction(txToSign)
+  filterAssetIdsBySellable: async (_, config) => {
+    const { supportedSellAssetIds } = await getSupportedAssets(config)
+    return supportedSellAssetIds
   },
-
-  filterAssetIdsBySellable: async (_, config): Promise<AssetId[]> =>
-    await getSupportedAssets(config).then(({ supportedSellAssetIds }) => supportedSellAssetIds),
-
-  filterBuyAssetsBySellAssetId: async ({
-    assets,
-    sellAsset,
-    config,
-  }: BuyAssetBySellIdInput): Promise<AssetId[]> => {
+  filterBuyAssetsBySellAssetId: async ({ assets, sellAsset, config }) => {
     const { supportedSellAssetIds, supportedBuyAssetIds } = await getSupportedAssets(config)
     if (!supportedSellAssetIds.includes(sellAsset.assetId)) return []
     return assets

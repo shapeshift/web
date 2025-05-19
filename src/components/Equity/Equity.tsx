@@ -11,7 +11,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 
@@ -134,12 +134,6 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       )
     return <Amount.Fiat fontSize='xl' value={totalFiatBalance} lineHeight={1} />
   }, [asset?.name, marketData, totalFiatBalance, translate])
-
-  useEffect(() => {
-    if (marketData?.price) {
-      console.log('marketData', marketData)
-    }
-  }, [marketData])
 
   if (!asset || !isConnected) return null
 

@@ -78,6 +78,14 @@ export const selectMarketDataByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
+export const selectMarketDataNullableByFilter = createCachedSelector(
+  selectMarketDataUserCurrency,
+  selectAssetIdParamFromFilter,
+  (marketData, assetId): MarketData | undefined => {
+    return marketData[assetId ?? '']
+  },
+)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+
 const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
 
 export const selectCryptoPriceHistoryTimeframe = createSelector(

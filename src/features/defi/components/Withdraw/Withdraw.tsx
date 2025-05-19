@@ -48,7 +48,7 @@ type WithdrawProps = {
   // Validation rules for the fiat input
   fiatInputValidation?: ControllerProps['rules']
   // Asset market data
-  marketData: MarketData
+  marketData: MarketData | undefined
   onAccountIdChange?: AccountDropdownProps['onChange']
   // Array of the % options
   percentOptions: number[]

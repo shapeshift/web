@@ -64,7 +64,7 @@ export const ethFoxStakingMetadataResolver = async ({
   const totalSupply = await foxFarmingContract.read.totalSupply()
   const tvl = bnOrZero(totalSupply.toString())
     .div(bn(10).pow(lpAssetPrecision))
-    .times(lpTokenPrice)
+    .times(bnOrZero(lpTokenPrice))
     .toFixed(2)
 
   // apr
@@ -77,8 +77,8 @@ export const ethFoxStakingMetadataResolver = async ({
   const lpTotalSupply = (await uniV2LPContract.read.totalSupply()).toString()
   const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
   const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
-  const ethPoolRatio = ethReserves.div(lpTotalSupply).toString()
-  const foxPoolRatio = foxReserves.div(lpTotalSupply).toString()
+  const ethPoolRatio = ethReserves.div(bnOrZero(lpTotalSupply)).toString()
+  const foxPoolRatio = foxReserves.div(bnOrZero(lpTotalSupply)).toString()
 
   const totalSupplyV2 = await uniV2LPContract.read.totalSupply()
 

@@ -288,7 +288,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 )
-                  .times(feeMarketData?.price)
+                  .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
               />
               <Amount.Crypto

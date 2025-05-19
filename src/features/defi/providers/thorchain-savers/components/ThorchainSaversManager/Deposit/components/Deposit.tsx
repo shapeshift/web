@@ -431,7 +431,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (balanceCryptoPrecision.isZero() || balanceCryptoPrecision.lt(value))
         return 'common.insufficientFunds'
 
-      const valueCryptoPrecision = bnOrZero(value).div(bnOrZero(assetMarketData?.price))
+      const valueCryptoPrecision = bnOrZero(value)
       if (valueCryptoPrecision.isEqualTo(0)) return ''
 
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
@@ -484,7 +484,6 @@ export const Deposit: React.FC<DepositProps> = ({
       translate,
       chainId,
       fromAddress,
-      assetMarketData?.price,
     ],
   )
 
@@ -512,7 +511,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const valueCryptoPrecision = bnOrZero(value).div(bnOrZero(assetMarketData?.price))
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
 
-      const fiatBalance = bnOrZero(balanceCryptoPrecision).times(bnOrZero(assetMarketData?.price))
+      const fiatBalance = balanceCryptoPrecision.times(bnOrZero(assetMarketData?.price))
       if (fiatBalance.isZero() || fiatBalance.lt(value)) return 'common.insufficientFunds'
 
       const valueCryptoBaseUnit = toBaseUnit(valueCryptoPrecision, asset.precision)
@@ -708,7 +707,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
 
       const _percentageFiatAmount = _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
-        assetMarketData?.price,
+        bnOrZero(assetMarketData?.price),
       )
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       return {
@@ -863,7 +862,7 @@ export const Deposit: React.FC<DepositProps> = ({
         cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
         fiatInputValidation={fiatInputValidation}
-        marketData={assetMarketData ?? { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0, supply: '0', maxSupply: '0', name: '', symbol: '', icon: '', assetId: assetId, precision: asset?.precision ?? 8 }}
+        marketData={assetMarketData}
         onCancel={handleCancel}
         onPercentClick={handlePercentClick}
         onContinue={handleContinueOrAcknowledgement}

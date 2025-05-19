@@ -34,7 +34,7 @@ type DepositProps = {
   // enables slippage UI (defaults to true)
   enableSlippage?: boolean
   // Asset market data
-  marketData: MarketData
+  marketData: MarketData | undefined
   onAccountIdChange?: AccountDropdownProps['onChange']
   onPercentClick?: (
     percent: number,

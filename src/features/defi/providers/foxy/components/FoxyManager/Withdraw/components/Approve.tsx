@@ -225,7 +225,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset.precision))
-        .times(feeMarketData.price)
+        .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}
       loading={state.loading}
       preFooter={preFooter}

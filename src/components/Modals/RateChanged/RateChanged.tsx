@@ -19,7 +19,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -65,7 +65,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   const prevAmountUserCurrency = useMemo(
     () =>
       bn(prevAmountCryptoPrecision)
-        .times(buyAssetMarketDataUserCurrency?.price)
+        .times(bnOrZero(buyAssetMarketDataUserCurrency?.price))
         .toFixed(2),
     [buyAssetMarketDataUserCurrency?.price, prevAmountCryptoPrecision],
   )
@@ -73,7 +73,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   const amountUserCurrency = useMemo(
     () =>
       bn(amountCryptoPrecision)
-        .times(buyAssetMarketDataUserCurrency?.price)
+        .times(bnOrZero(buyAssetMarketDataUserCurrency?.price))
         .toFixed(2),
     [amountCryptoPrecision, buyAssetMarketDataUserCurrency?.price],
   )

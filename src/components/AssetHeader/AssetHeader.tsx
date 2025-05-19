@@ -66,7 +66,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const cryptoBalance =
     useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, filter)) ?? '0'
 
-  const formattedPrice = toFiat(marketData?.price)
+  const formattedPrice = toFiat(marketData?.price ?? '0')
 
   const href = (() => {
     const { assetReference } = fromAssetId(asset.assetId)

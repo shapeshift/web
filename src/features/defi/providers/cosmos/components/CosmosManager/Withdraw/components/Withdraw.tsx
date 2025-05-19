@@ -100,7 +100,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     bn(10).pow(asset.precision),
   )
 
-  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
+  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData?.price)).toString()
 
   const handleCancel = useCallback(() => {
     navigate(-1)

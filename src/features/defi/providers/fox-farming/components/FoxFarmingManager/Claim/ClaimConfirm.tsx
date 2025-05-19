@@ -196,7 +196,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     accountAddress,
     feeAsset.precision,
     feeMarketData,
-    feeMarketData.price,
+    feeMarketData?.price,
     getClaimFees,
     wallet,
     foxFarmingContract,
@@ -286,7 +286,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
                     value={bnOrZero(estimatedGas)
-                      .times(feeMarketData?.price)
+                      .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
                   />
                   <Amount.Crypto

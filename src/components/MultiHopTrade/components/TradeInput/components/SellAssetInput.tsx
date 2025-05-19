@@ -77,11 +77,11 @@ export const SellAssetInput = memo(
         const sellAmountCryptoPrecision = isFiat
           ? isRateZero
             ? '0'
-            : bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
+            : bnOrZero(value).div(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
           : value
 
         const sellAmountUserCurrency = !isFiat
-          ? bnOrZero(value).times(sellAssetUserCurrencyRate).toFixed()
+          ? bnOrZero(value).times(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
           : value
 
         setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)

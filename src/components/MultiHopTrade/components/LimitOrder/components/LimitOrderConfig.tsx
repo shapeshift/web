@@ -154,7 +154,7 @@ export const LimitOrderConfig = ({
       let cryptoValue = value
       if (isInputtingFiatSellAmount || isFiatValue) {
         cryptoValue = bnOrZero(value)
-          .div(priceAssetMarketData?.price)
+          .div(bnOrZero(priceAssetMarketData?.price))
           .toFixed(priceAsset.precision)
       }
 

@@ -58,7 +58,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const assetPrice = useMemo(() => {
     const price = marketData?.price
-    return toFiat(price) ?? 0
+    return toFiat(price ?? '0')
   }, [marketData?.price, toFiat])
 
   const handleTimeframeChange = useCallback(

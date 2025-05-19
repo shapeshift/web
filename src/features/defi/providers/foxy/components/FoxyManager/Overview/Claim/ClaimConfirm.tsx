@@ -218,7 +218,7 @@ export const ClaimConfirm = ({
     chainAdapterManager,
     contractAddress,
     feeAsset.precision,
-    feeMarketData.price,
+    feeMarketData?.price,
     foxyApi,
     walletState.wallet,
   ])
@@ -238,7 +238,7 @@ export const ClaimConfirm = ({
             />
           </Stack>
           <Amount.Fiat
-            value={cryptoHumanBalance.times(assetMarketData.price).toString()}
+            value={cryptoHumanBalance.times(bnOrZero(assetMarketData?.price)).toString()}
             color='text.subtle'
             prefix='≈'
           />
@@ -281,7 +281,7 @@ export const ClaimConfirm = ({
                   <Amount.Fiat
                     value={bnOrZero(estimatedGas)
                       .div(`1e+${feeAsset.precision}`)
-                      .times(feeMarketData.price)
+                      .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
                   />
                   <Amount.Crypto

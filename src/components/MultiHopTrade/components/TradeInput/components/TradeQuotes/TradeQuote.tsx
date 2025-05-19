@@ -132,7 +132,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
         selectMarketDataByFilter(state, {
           assetId: feeAssetId,
-        }).price
+        })?.price
 
       return getTotalNetworkFeeUserCurrencyPrecision(
         quote,

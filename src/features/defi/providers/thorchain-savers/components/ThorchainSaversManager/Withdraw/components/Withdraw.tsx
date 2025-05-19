@@ -147,8 +147,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   }, [assetMarketData?.price, feeAssetMarketData?.price])
 
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(amountAvailableCryptoPrecision).times(assetMarketData.price),
-    [amountAvailableCryptoPrecision, assetMarketData.price],
+    () => bnOrZero(amountAvailableCryptoPrecision).times(bnOrZero(assetMarketData?.price)),
+    [amountAvailableCryptoPrecision, assetMarketData?.price],
   )
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
@@ -318,12 +318,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const handlePercentClick = useCallback(
     (percent: number) => {
       const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(assetMarketData?.price))
 
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(asset.precision), { shouldValidate: true })
     },
-    [amountAvailableCryptoPrecision, asset.precision, assetMarketData.price, setValue],
+    [amountAvailableCryptoPrecision, asset.precision, assetMarketData?.price, setValue],
   )
 
   const outboundFeeInAssetCryptoBaseUnit = useMemo(() => {
@@ -496,13 +496,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
       setMissingFunds(null)
       setQuoteLoading(true)
-      const withdrawAmountCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
+      const withdrawAmountCryptoPrecision = bnOrZero(value).div(bnOrZero(assetMarketData?.price))
       try {
         const amountAvailableCryptoPrecisionBn = bnOrZero(
           amountAvailableCryptoPrecision.toPrecision(),
         )
 
-        const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(assetMarketData.price)
+        const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(bnOrZero(assetMarketData?.price))
         const valueCryptoPrecision = bnOrZero(value)
 
         const hasValidStakingBalance =
@@ -543,7 +543,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       accountId,
       amountAvailableCryptoPrecision,
       asset,
-      assetMarketData.price,
+      assetMarketData?.price,
       chainId,
       dispatch,
       fromAddress,
@@ -595,7 +595,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
         fiatInputValidation={fiatInputValidation}
-        marketData={assetMarketData}
+        marketData={assetMarketData ?? { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0, supply: '0', maxSupply: '0' }}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={

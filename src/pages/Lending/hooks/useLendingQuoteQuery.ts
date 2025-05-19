@@ -47,8 +47,8 @@ const selectLendingQuoteQuery = memoize(
     borrowAssetMarketData,
   }: {
     data: LendingDepositQuoteResponseSuccess
-    collateralAssetMarketData: MarketData
-    borrowAssetMarketData: MarketData
+    collateralAssetMarketData: MarketData | undefined
+    borrowAssetMarketData: MarketData | undefined
   }): LendingQuoteOpen => {
     const quote = data
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
@@ -280,7 +280,7 @@ export const useLendingQuoteOpenQuery = ({
         destinationAccountMetadata &&
         collateralAsset &&
         borrowAssetReceiveAddress &&
-        collateralAssetMarketData.price !== '0',
+        collateralAssetMarketData?.price,
     ),
   })
 

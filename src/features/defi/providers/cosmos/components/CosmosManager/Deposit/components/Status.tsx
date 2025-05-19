@@ -62,7 +62,10 @@ export const Status = () => {
     [state?.deposit.cryptoAmount],
   )
   const fiatAmount = useMemo(
-    () => bnOrZero(cryptoAmount).times(bnOrZero(assetMarketData?.price)).toString(),
+    () =>
+      bnOrZero(cryptoAmount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
     [assetMarketData?.price, cryptoAmount],
   )
 

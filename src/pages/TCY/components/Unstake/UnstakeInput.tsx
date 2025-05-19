@@ -120,7 +120,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
 
       const price = assetUserCurrencyRate ?? 0
       const cryptoAmount = fieldName === 'fiatAmount' ? bnOrZero(inputValue).div(price) : inputValue
-      const fiatAmount = fieldName === 'fiatAmount' ? inputValue : bnOrZero(inputValue).times(bnOrZero(price))
+      const fiatAmount =
+        fieldName === 'fiatAmount' ? inputValue : bnOrZero(inputValue).times(bnOrZero(price))
 
       setValue('amountCryptoPrecision', cryptoAmount.toString())
       setValue('fiatAmount', fiatAmount.toString())

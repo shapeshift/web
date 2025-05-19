@@ -71,7 +71,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const claimAmount = bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]).toString()
   const claimFiatAmount = useMemo(
-    () => bnOrZero(claimAmount).times(bnOrZero(assetMarketData?.price)).toString(),
+    () =>
+      bnOrZero(claimAmount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
     [assetMarketData?.price, claimAmount],
   )
 
@@ -222,7 +225,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             >
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat
-                  value={estimatedGasCryptoPrecision.times(bnOrZero(feeMarketData?.price)).toFixed()}
+                  value={estimatedGasCryptoPrecision
+                    .times(bnOrZero(feeMarketData?.price))
+                    .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'

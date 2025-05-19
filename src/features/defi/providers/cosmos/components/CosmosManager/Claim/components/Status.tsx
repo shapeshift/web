@@ -79,7 +79,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [asset.precision, opportunity?.rewardsCryptoBaseUnit],
   )
   const rewardFiatAmount = useMemo(
-    () => bnOrZero(rewardCryptoAmount).times(bnOrZero(assetMarketData?.price)).toString(),
+    () =>
+      bnOrZero(rewardCryptoAmount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
     [assetMarketData?.price, rewardCryptoAmount],
   )
 

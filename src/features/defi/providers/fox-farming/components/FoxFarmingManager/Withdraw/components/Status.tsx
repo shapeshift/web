@@ -283,7 +283,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   status === TxStatus.Pending
                     ? state.withdraw.estimatedGasCryptoPrecision
                     : state.withdraw.usedGasFeeCryptoPrecision,
-                ).times(bnOrZero(feeMarketData?.price)).toFixed(2)}
+                )
+                  .times(bnOrZero(feeMarketData?.price))
+                  .toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'

@@ -70,7 +70,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.SendMax,
   })
 
-  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))?.price
+  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+    ?.price
 
   const chainAdapterManager = getChainAdapterManager()
   const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()

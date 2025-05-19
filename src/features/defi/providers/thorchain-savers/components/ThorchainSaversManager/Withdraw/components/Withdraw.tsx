@@ -502,7 +502,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           amountAvailableCryptoPrecision.toPrecision(),
         )
 
-        const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(bnOrZero(assetMarketData?.price))
+        const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(
+          bnOrZero(assetMarketData?.price),
+        )
         const valueCryptoPrecision = bnOrZero(value)
 
         const hasValidStakingBalance =
@@ -595,7 +597,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
         fiatInputValidation={fiatInputValidation}
-        marketData={assetMarketData ?? { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0, supply: '0', maxSupply: '0' }}
+        marketData={
+          assetMarketData ?? {
+            price: '0',
+            marketCap: '0',
+            volume: '0',
+            changePercent24Hr: 0,
+            supply: '0',
+            maxSupply: '0',
+          }
+        }
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={

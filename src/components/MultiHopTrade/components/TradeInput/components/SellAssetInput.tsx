@@ -52,9 +52,8 @@ export const SellAssetInput = memo(
 
     const dispatch = useAppDispatch()
 
-    const { price: sellAssetUserCurrencyRate } = useAppSelector(state =>
-      selectMarketDataByFilter(state, { assetId: asset.assetId }),
-    ) || {}
+    const { price: sellAssetUserCurrencyRate } =
+      useAppSelector(state => selectMarketDataByFilter(state, { assetId: asset.assetId })) || {}
 
     // sync local state with redux on mount only
     useEffect(() => {

@@ -541,7 +541,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Box textAlign='right'>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(estimatedGasCryptoPrecision).times(bnOrZero(feeMarketData?.price)).toFixed()}
+                  value={bnOrZero(estimatedGasCryptoPrecision)
+                    .times(bnOrZero(feeMarketData?.price))
+                    .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'

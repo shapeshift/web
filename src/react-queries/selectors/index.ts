@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { assetIdToThorPoolAssetId, isRune, isTcy, SwapperName } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId, isNativeAsset, isTcy, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -37,14 +37,17 @@ export const selectIsTradingActive = ({
   inboundAddressResponse: InboundAddressResponse | undefined
 }): boolean => {
   switch (swapperName) {
-    case SwapperName.Thorchain: {
+    case SwapperName.Thorchain:
+    case SwapperName.Mayachain: {
       if (!assetId) return false
 
-      const assetIsRune = isRune(assetId)
+      const assetIsNative = isNativeAsset(assetId, swapperName)
       const assetIsTcy = isTcy(assetId)
 
-      if (assetIsRune) {
-        // The asset is RUNE, there is no inbound address data to check against
+      console.log({ swapperName, assetId, assetIsNative, mimir, inboundAddressResponse })
+
+      if (assetIsNative) {
+        // The asset is native (RUNE/CACAO), there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
         return Boolean(mimir && mimir.HALTTHORCHAIN === 0)
       }

@@ -337,7 +337,8 @@ export const TradeInput = ({
         return setShouldShowArbitrumBridgeAcknowledgement(true)
       if (
         isThorchainSwapperVolatilityAckEnabled &&
-        activeQuote?.swapperName === SwapperName.Thorchain
+        (activeQuote?.swapperName === SwapperName.Thorchain ||
+          activeQuote?.swapperName === SwapperName.Mayachain)
       ) {
         return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
       }

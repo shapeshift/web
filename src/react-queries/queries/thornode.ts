@@ -1,5 +1,6 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { InboundAddressResponse, ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { assetIdToThorPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
@@ -10,9 +11,15 @@ import type { ThorchainBlock, ThorchainMimir } from '@/lib/utils/thorchain/types
 
 const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
-export const fetchThorchainMimir = async () => {
-  const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/thorchain/mimir`)
-  return data
+const getNodeUrl = (chainId: ChainId) => {
+  switch (chainId) {
+    case thorchainChainId:
+      return `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain`
+    case mayachainChainId:
+      return `${getConfig().VITE_MAYACHAIN_NODE_URL}/mayachain`
+    default:
+      throw new Error(`Invalid chain: ${chainId}`)
+  }
 }
 
 // Feature-agnostic, abstracts away THORNode endpoints
@@ -44,10 +51,13 @@ export const thornode = createQueryKeys('thornode', {
       return []
     },
   }),
-  mimir: () => {
+  mimir: (chainId: ChainId) => {
     return {
       queryKey: ['thorchainMimir'],
-      queryFn: fetchThorchainMimir,
+      queryFn: async () => {
+        const { data } = await axios.get<ThorchainMimir>(`${getNodeUrl(chainId)}/mimir`)
+        return data
+      },
     }
   },
   block: () => {
@@ -59,7 +69,7 @@ export const thornode = createQueryKeys('thornode', {
       },
     }
   },
-  inboundAddresses: () => {
+  inboundAddresses: (chainId: ChainId) => {
     return {
       queryKey: ['thorchainInboundAddress'],
       queryFn: async () => {
@@ -67,7 +77,7 @@ export const thornode = createQueryKeys('thornode', {
           // Get all inbound addresses
           (
             await thorService.get<InboundAddressResponse[]>(
-              `${thornodeUrl}/thorchain/inbound_addresses`,
+              `${getNodeUrl(chainId)}/inbound_addresses`,
             )
           ).andThen(({ data: inboundAddresses }) => {
             // Exclude halted

@@ -22,6 +22,7 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
     swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
     swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE ||
     swapSource === MAYACHAIN_STREAM_SWAP_SOURCE
+
   return (
     <AnimatePresence>
       {isStreaming && (

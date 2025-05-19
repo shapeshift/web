@@ -1,23 +1,23 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { thorchainBlockTimeMs } from '../constants'
 import type { ThorchainMimir } from '../types'
 
 import { reactQueries } from '@/react-queries'
-import { fetchThorchainMimir } from '@/react-queries/queries/thornode'
 
 export const useThorchainMimir = <SelectData = ThorchainMimir,>({
+  chainId,
   select,
   enabled = true,
 }: {
+  chainId: ChainId
   select?: (mimir: ThorchainMimir) => SelectData
   enabled?: boolean
 }) => {
-  const { queryKey } = reactQueries.thornode.mimir()
-
   return useQuery({
-    queryKey,
-    queryFn: enabled ? fetchThorchainMimir : skipToken,
+    queryKey: reactQueries.thornode.mimir(chainId).queryKey,
+    queryFn: enabled ? reactQueries.thornode.mimir(chainId).queryFn : skipToken,
     staleTime: thorchainBlockTimeMs,
     select,
   })

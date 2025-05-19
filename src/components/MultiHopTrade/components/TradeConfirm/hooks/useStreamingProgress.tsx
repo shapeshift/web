@@ -19,20 +19,35 @@ export const useStreamingProgress = ({ hopIndex, tradeQuoteStep }: UseStreamingP
   const activeQuote = useAppSelector(selectActiveQuote)
   const currentSwapperName = useAppSelector(selectActiveSwapperName)
   const isStreamingSwap = activeQuote?.isStreaming || false
-  const isThorchainSwap = currentSwapperName === SwapperName.Thorchain
-  const confirmedTradeId = activeQuote?.id
 
   const streamingProgressArgs = {
     tradeQuoteStep,
     hopIndex,
-    confirmedTradeId: confirmedTradeId ?? '',
+    confirmedTradeId: activeQuote?.id ?? '',
   }
 
-  const thorchainStreamingProgress = useThorStreamingProgress(streamingProgressArgs)
-  const chainflipStreamingProgress = useChainflipStreamingProgress(streamingProgressArgs)
-  const streamingProgress = isThorchainSwap
-    ? thorchainStreamingProgress
-    : chainflipStreamingProgress
+  const thorchainStreamingProgress = useThorStreamingProgress({
+    ...streamingProgressArgs,
+    swapperName: SwapperName.Thorchain,
+  })
 
-  return isStreamingSwap ? streamingProgress : undefined
+  const mayachainStreamingProgress = useThorStreamingProgress({
+    ...streamingProgressArgs,
+    swapperName: SwapperName.Mayachain,
+  })
+
+  const chainflipStreamingProgress = useChainflipStreamingProgress(streamingProgressArgs)
+
+  if (!isStreamingSwap) return
+
+  switch (currentSwapperName) {
+    case SwapperName.Thorchain:
+      return thorchainStreamingProgress
+    case SwapperName.Mayachain:
+      return mayachainStreamingProgress
+    case SwapperName.Chainflip:
+      return chainflipStreamingProgress
+    default:
+      throw new Error(`Invalid swapper: ${currentSwapperName}`)
+  }
 }

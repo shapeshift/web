@@ -74,7 +74,9 @@ const RewardsBalance = ({ accountId }: { accountId: string | undefined }) => {
   const { data: distributor } = useTcyDistributor(accountId)
 
   const amountCryptoPrecision = fromBaseUnit(distributor?.total ?? '0', THOR_PRECISION)
-  const amountUserCurrency = bnOrZero(amountCryptoPrecision).times(runeMarketData.price).toFixed(2)
+  const amountUserCurrency = bnOrZero(amountCryptoPrecision)
+    .times(bnOrZero(runeMarketData?.price))
+    .toFixed(2)
 
   if (!runeAsset) return null
 

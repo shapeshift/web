@@ -29,7 +29,7 @@ type AccountEntryRowProps = {
 const fontSizeProps = { base: 'sm', md: 'md' }
 const flexDisplayProps = { base: 'none', md: 'flex' }
 const cryptoDisplayProps = { base: 'block', md: 'none' }
-const titleWidthProps = { base: '100%', md: 'auto' }
+const titleMaxWidthProps = { base: '100%', md: 'auto' }
 
 export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   accountId,
@@ -104,7 +104,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             textOverflow='ellipsis'
             overflow='hidden'
             whiteSpace='nowrap'
-            width={titleWidthProps}
+            maxWidth={titleMaxWidthProps}
           >
             {title}
           </RawText>

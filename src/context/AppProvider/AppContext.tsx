@@ -14,6 +14,7 @@ import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationSubscriber } from '@/hooks/useNotificationSubscriber/useNotificationSubscriber'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -64,6 +65,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useTransactionsSubscriber()
   // App-wide long-poll of limit orders
   useLimitOrders()
+  // App-wide long-poll of notifications
+  // useNotificationSubscriber()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

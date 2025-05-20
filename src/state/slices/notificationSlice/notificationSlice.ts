@@ -1,18 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { uuidv4 } from '@walletconnect/utils'
 
-import type { NotificationCenter, NotificationMessage } from './types'
+import type { NotificationCenterState, NotificationMessage, NotificationUnion } from './types'
 
-export const initialState: NotificationCenter = {
+export const initialState: NotificationCenterState = {
   notifications: [],
 }
 
-export const notificationSlice = createSlice({
+export const notificationCenterSlice = createSlice({
   name: 'notificationCenter',
   initialState,
   reducers: create => ({
-    onNotification: create.reducer((notificationCenterState, { payload }: NotificationMessage) => {
-      notificationCenterState.notifications.unshift(payload)
-    }),
+    upsertNotification: create.reducer(
+      (notificationCenterState, notification: NotificationMessage) => {
+        const notificationWithId: NotificationUnion = {
+          ...notification.payload,
+          id: uuidv4(),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        }
+
+        notificationCenterState.notifications.unshift(notificationWithId)
+      },
+    ),
   }),
   selectors: {
     selectNotifications: state => state.notifications,

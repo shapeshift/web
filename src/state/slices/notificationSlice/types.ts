@@ -1,3 +1,5 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+
 import type { TxId } from '../txHistorySlice/txHistorySlice'
 
 export enum NotificationType {
@@ -5,6 +7,7 @@ export enum NotificationType {
   Claim = 'Claim',
   Swap = 'Swap',
   Limit = 'Limit',
+  Send = 'Send',
 }
 
 export enum NotificationStatus {
@@ -18,25 +21,34 @@ export enum NotificationStatus {
   Cancelled = 'Cancelled',
 }
 
+export type NotificationId = string
+
 export type Notification = {
-  id: string
+  id: NotificationId
   type: NotificationType
   status: NotificationStatus
-  txId?: TxId
+  txIds?: TxId[]
   createdAt: number
   updatedAt: number
+  title: string
+  assetIds: AssetId[]
+  relatedNotificationIds: NotificationId[]
 }
 
 export type TransactionNotification = Notification & {
-  txId: TxId
+  txIds: TxId[]
 }
 
-export type NotificationCenter = {
-  notifications: Notification[]
+export type NotificationUnion = Notification | TransactionNotification
+
+export type NotificationCenterState = {
+  notifications: NotificationUnion[]
 }
+
+export type NotificationPayload = Omit<NotificationUnion, 'id' | 'createdAt' | 'updatedAt'>
 
 export type NotificationMessage = {
-  payload: Notification
+  payload: NotificationPayload
 }
 
 export const isTransactionNotification = (
@@ -46,6 +58,7 @@ export const isTransactionNotification = (
     notification.type === NotificationType.Deposit ||
     notification.type === NotificationType.Claim ||
     notification.type === NotificationType.Swap ||
-    notification.type === NotificationType.Limit
+    notification.type === NotificationType.Limit ||
+    notification.type === NotificationType.Send
   )
 }

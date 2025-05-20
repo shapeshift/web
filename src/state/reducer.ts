@@ -13,6 +13,7 @@ import { swapperApi } from './apis/swapper/swapperApi'
 import {
   clearAssetsMigrations,
   clearMarketDataMigrations,
+  clearNotificationCenterMigrations,
   clearOpportunitiesMigrations,
   clearPortfolioMigrations,
   clearSnapshotMigrations,
@@ -27,6 +28,8 @@ import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlic
 import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import type { MarketDataState } from './slices/marketDataSlice/types'
+import { notificationCenterSlice } from './slices/notificationSlice/notificationSlice'
+import type { NotificationCenterState } from './slices/notificationSlice/types'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import type { OpportunitiesState } from './slices/opportunitiesSlice/types'
@@ -116,6 +119,13 @@ const limitOrderApiPersistConfig = {
   version: 0,
 }
 
+const notificationCenterPersistConfig = {
+  key: 'notificationCenter',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearNotificationCenterMigrations).map(Number)),
+  migrate: createMigrate(clearNotificationCenterMigrations, { debug: false }),
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -134,6 +144,10 @@ export const sliceReducers = {
   localWallet: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
+  ),
+  notificationCenter: persistReducer<NotificationCenterState>(
+    notificationCenterPersistConfig,
+    notificationCenterSlice.reducer,
   ),
 }
 

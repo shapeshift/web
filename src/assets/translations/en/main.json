@@ -2974,6 +2974,13 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
+    },
+    "notificationsTitles": {
+      "send": {
+        "failed": "Send %{amount} %{symbol} Failed",
+        "pending": "Sending %{amount} %{symbol}...",
+        "confirmed": "Successfully sent %{amount} %{symbol}."
+      }
     }
   }
 }

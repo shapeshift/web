@@ -9,18 +9,17 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
 
-import type { NotificationStatus, NotificationType } from '../types'
 import { NotificationStatusIcon } from './NotificationStatusIcon'
 import { NotificationStatusTag } from './NotificationStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
+import type { NotificationUnion } from '@/state/slices/notificationSlice/types'
 
 dayjs.extend(relativeTime)
 
@@ -32,22 +31,16 @@ const hoverProps = {
 }
 
 type NotificationCardProps = {
-  type: NotificationType
-  assetId: AssetId
-  secondaryAssetId?: AssetId
-  status: NotificationStatus
-  date: number
-  title: string
   isCollapsable?: boolean
   defaultIsOpen?: boolean
-} & PropsWithChildren
+} & NotificationUnion &
+  PropsWithChildren
 
 export const NotificationCard = ({
   type,
-  assetId,
-  secondaryAssetId,
   status,
-  date,
+  createdAt,
+  assetIds,
   title,
   children,
   isCollapsable = true,
@@ -57,7 +50,7 @@ export const NotificationCard = ({
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs.unix(date)
+    const notificationDate = dayjs(createdAt)
     const sevenDaysAgo = now.subtract(7, 'day')
 
     if (notificationDate.isAfter(sevenDaysAgo)) {
@@ -65,7 +58,7 @@ export const NotificationCard = ({
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [date])
+  }, [createdAt])
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {
@@ -83,7 +76,7 @@ export const NotificationCard = ({
       _hover={isCollapsable ? hoverProps : undefined}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4}>
-        <AssetIconWithBadge assetId={assetId} secondaryAssetId={secondaryAssetId} size='md'>
+        <AssetIconWithBadge assetId={assetIds[0]} secondaryAssetId={assetIds[1]} size='md'>
           <NotificationStatusIcon status={status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>

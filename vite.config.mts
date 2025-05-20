@@ -130,7 +130,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              if (id.match(/(react-icons|@chakra-ui|framer-motion|@visx|@react-spring|@coral-xyz)/))
+              if (id.match(/(react-icons|framer-motion|@visx|@react-spring|@coral-xyz)/))
                 return 'ui'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'

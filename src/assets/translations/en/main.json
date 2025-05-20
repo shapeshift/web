@@ -2977,9 +2977,14 @@
     },
     "notificationsTitles": {
       "send": {
-        "failed": "Send %{amount} %{symbol} Failed",
-        "pending": "Sending %{amount} %{symbol}...",
-        "confirmed": "Successfully sent %{amount} %{symbol}."
+        "failed": "Send %{amountAndSymbol} Failed",
+        "pending": "Sending %{amountAndSymbol}...",
+        "confirmed": "Successfully sent %{amountAndSymbol}."
+      },
+      "swap": {
+        "pending": "Swap %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",
+        "failed": "Swap %{sellAmountAndSymbol} to %{buyAmountAndSymbol} Failed",
+        "confirmed": "Successfully swapped %{sellAmountAndSymbol} to %{buyAmountAndSymbol}."
       }
     }
   }

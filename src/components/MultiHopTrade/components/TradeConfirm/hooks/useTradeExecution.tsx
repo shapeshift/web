@@ -1,5 +1,5 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
@@ -23,6 +23,7 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -31,6 +32,7 @@ import { useTranslate } from 'react-polyglot'
 import { useMixpanel } from './useMixpanel'
 
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecution } from '@/lib/tradeExecution'
@@ -39,6 +41,8 @@ import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { notificationCenterSlice } from '@/state/slices/notificationSlice/notificationSlice'
+import { NotificationStatus, NotificationType } from '@/state/slices/notificationSlice/types'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -51,6 +55,7 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
@@ -64,6 +69,9 @@ export const useTradeExecution = (
   const { showErrorToast } = useErrorToast()
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
@@ -172,6 +180,50 @@ export const useTradeExecution = (
         txHashReceived = true
         dispatch(
           tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
+        )
+
+        const swapStep = tradeQuote?.steps[hopIndex]
+
+        if (!swapStep) return
+
+        const accountAddress = fromAccountId(sellAssetAccountId).account
+
+        dispatch(
+          notificationCenterSlice.actions.upsertNotification({
+            title: translate('notificationCenter.notificationsTitles.swap.pending', {
+              sellAmountAndSymbol: toCrypto(
+                fromBaseUnit(
+                  swapStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                  swapStep.sellAsset.precision,
+                ),
+                swapStep.sellAsset.symbol,
+                {
+                  maximumFractionDigits: 8,
+                  omitDecimalTrailingZeros: true,
+                  abbreviated: true,
+                  truncateLargeNumbers: true,
+                },
+              ),
+              buyAmountAndSymbol: toCrypto(
+                fromBaseUnit(
+                  swapStep.buyAmountAfterFeesCryptoBaseUnit,
+                  swapStep.buyAsset.precision,
+                ),
+                swapStep.buyAsset.symbol,
+                {
+                  maximumFractionDigits: 8,
+                  omitDecimalTrailingZeros: true,
+                  abbreviated: true,
+                  truncateLargeNumbers: true,
+                },
+              ),
+            }),
+            type: NotificationType.Swap,
+            status: NotificationStatus.Pending,
+            txIds: [serializeTxIndex(sellAssetAccountId, sellTxHash, accountAddress)],
+            assetIds: [swapStep.sellAsset.assetId, swapStep.buyAsset.assetId],
+            relatedNotificationIds: [],
+          }),
         )
       })
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
@@ -442,6 +494,7 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
+    toCrypto,
   ])
 
   return executeTrade

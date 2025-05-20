@@ -4,35 +4,31 @@ import { NotificationStatus } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
+export const selectNotifications = notificationCenterSlice.selectors.selectNotifications
+
 export const selectNotificationsByCreatedAtDesc = createDeepEqualOutputSelector(
   notificationCenterSlice.selectors.selectNotifications,
   notifications => {
-    return notifications.sort((a, b) => b.createdAt - a.createdAt)
+    return [...notifications].sort((a, b) => b.createdAt - a.createdAt)
   },
 )
 
-export const selectHasPendingNotifications = createDeepEqualOutputSelector(
-  notificationCenterSlice.selectors.selectNotifications,
-  notifications =>
-    notifications.some(notification => notification.status === NotificationStatus.Pending),
-)
-
 export const selectPendingNotifications = createDeepEqualOutputSelector(
-  notificationCenterSlice.selectors.selectNotifications,
+  selectNotifications,
   notifications => {
     return notifications.filter(notification => notification.status === NotificationStatus.Pending)
   },
 )
 
 export const selectNotificationIds = createDeepEqualOutputSelector(
-  notificationCenterSlice.selectors.selectNotifications,
+  selectNotifications,
   notifications => {
     return notifications.map(notification => notification.id)
   },
 )
 
 export const selectRelatedNotificationsByNotificationId = createDeepEqualOutputSelector(
-  notificationCenterSlice.selectors.selectNotifications,
+  selectNotifications,
   selectNotificationIds,
   (notifications, notificationIds) =>
     notificationIds.reduce<Record<NotificationId, NotificationUnion[]>>((acc, notificationId) => {
@@ -45,7 +41,7 @@ export const selectRelatedNotificationsByNotificationId = createDeepEqualOutputS
 )
 
 export const selectPendingNotificationsWithoutRelatedSuccessOrError = createDeepEqualOutputSelector(
-  notificationCenterSlice.selectors.selectNotifications,
+  selectNotifications,
   selectRelatedNotificationsByNotificationId,
   (notifications, relatedNotificationIdsByNotificationId) => {
     return notifications.filter(notification => {

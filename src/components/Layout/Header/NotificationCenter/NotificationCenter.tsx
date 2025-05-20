@@ -17,8 +17,8 @@ import { useTranslate } from 'react-polyglot'
 import { NotificationCard } from './components/NotificationCard'
 
 import {
-  selectHasPendingNotifications,
   selectNotificationsByCreatedAtDesc,
+  selectPendingNotificationsWithoutRelatedSuccessOrError,
 } from '@/state/slices/notificationSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -34,7 +34,9 @@ export const NotificationCenter = memo(() => {
 
   const notifications = useAppSelector(selectNotificationsByCreatedAtDesc)
 
-  const hasPendingNotifications = useAppSelector(selectHasPendingNotifications)
+  const pendingNotificationsWithoutRelatedSuccessOrError = useAppSelector(
+    selectPendingNotificationsWithoutRelatedSuccessOrError,
+  )
 
   const notificationsCards = useMemo(() => {
     return notifications.map(notification => (
@@ -59,7 +61,7 @@ export const NotificationCenter = memo(() => {
           color='white'
           top='-0.2em'
           right='-0.2em'
-          opacity={hasPendingNotifications ? 1 : 0}
+          opacity={pendingNotificationsWithoutRelatedSuccessOrError.length ? 1 : 0}
           transitionProperty='common'
           transitionDuration='normal'
         />

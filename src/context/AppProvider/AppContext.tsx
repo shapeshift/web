@@ -66,7 +66,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // App-wide long-poll of limit orders
   useLimitOrders()
   // App-wide long-poll of notifications
-  // useNotificationSubscriber()
+  useNotificationSubscriber()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

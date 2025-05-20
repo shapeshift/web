@@ -10,6 +10,7 @@ import { handleSend } from '../../utils'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { notificationCenterSlice } from '@/state/slices/notificationSlice/notificationSlice'
 import type { NotificationPayload } from '@/state/slices/notificationSlice/types'
@@ -25,6 +26,9 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
   const dispatch = useAppDispatch()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
   const handleFormSend = useCallback(
     async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string | undefined> => {
@@ -37,8 +41,16 @@ export const useFormSend = () => {
 
         const notification: NotificationPayload = {
           title: translate('notificationCenter.notificationsTitles.send.pending', {
-            amount: fromBaseUnit(sendInput.amountCryptoPrecision, asset.precision),
-            symbol: asset.symbol,
+            amountAndSymbol: toCrypto(
+              fromBaseUnit(sendInput.amountCryptoPrecision, asset.precision),
+              asset.symbol,
+              {
+                maximumFractionDigits: 8,
+                omitDecimalTrailingZeros: true,
+                abbreviated: true,
+                truncateLargeNumbers: true,
+              },
+            ),
           }),
           type: NotificationType.Send,
           status: NotificationStatus.Pending,
@@ -106,7 +118,7 @@ export const useFormSend = () => {
         return ''
       }
     },
-    [toast, translate, wallet, dispatch],
+    [toast, translate, wallet, dispatch, toCrypto],
   )
 
   return {

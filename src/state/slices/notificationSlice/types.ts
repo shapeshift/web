@@ -47,10 +47,6 @@ export type NotificationCenterState = {
 
 export type NotificationPayload = Omit<NotificationUnion, 'id' | 'createdAt' | 'updatedAt'>
 
-export type NotificationMessage = {
-  payload: NotificationPayload
-}
-
 export const isTransactionNotification = (
   notification: Notification,
 ): notification is TransactionNotification => {
